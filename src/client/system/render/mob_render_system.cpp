@@ -59,12 +59,12 @@ bool MobRenderSystem::RenderMob(GameMob &g_mob) {
     pos_rect.x = g_mob.pos.x;
     pos_rect.x = (pos_rect.x - (texture->w - origin.x));
   }
-  auto &camera = CameraGameInstance::camera;
+  auto &camera = CameraGameInstance::camera_;
   if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
     pos_rect.x -= camera.x;
     pos_rect.y -= camera.y;
     SDL_SetTextureAlphaMod(texture, g_mob.alpha);
-    SDL_RenderTextureRotated(Window::renderer, texture, nullptr, &pos_rect, 0,
+    SDL_RenderTextureRotated(Window::renderer_, texture, nullptr, &pos_rect, 0,
                              nullptr, (SDL_FlipMode)g_mob.flip);
   }
 
@@ -119,7 +119,7 @@ bool MobRenderSystem::Render(GameMob &g_mob) {
 
 void MobRenderSystem::RenderNametag(const std::u16string &text,
                                        SDL_FPoint p) {
-  const auto &camera = CameraGameInstance::camera;
+  const auto &camera = CameraGameInstance::camera_;
   Freetype::LoadAligned(true);
   Freetype::LoadSize(13);
   auto w = Freetype::LoadW(text);
@@ -135,9 +135,9 @@ void MobRenderSystem::RenderNametag(const std::u16string &text,
   if (SDL_HasRectIntersectionFloat(&rect, &camera)) {
     rect.x -= camera.x;
     rect.y -= camera.y;
-    SDL_SetRenderDrawBlendMode(Window::renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(Window::renderer, 0, 0, 0, 178);
-    SDL_RenderFillRect(Window::renderer, &rect);
+    SDL_SetRenderDrawBlendMode(Window::renderer_, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(Window::renderer_, 0, 0, 0, 178);
+    SDL_RenderFillRect(Window::renderer_, &rect);
     Freetype::LoadColor(255, 255, 255, 255);
     Freetype::DrawLine(text, x - camera.x - w / 2, y - camera.y);
   }

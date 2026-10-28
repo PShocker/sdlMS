@@ -7,7 +7,7 @@
 #include <cstdint>
 
 uint8_t ReactorGameInstance::LoadReactorLayer(SDL_FPoint pos) {
-  for (const auto &[key, val] : FootholdGameInstance::data) {
+  for (const auto &[key, val] : FootholdGameInstance::data_) {
     if (val.l <= pos.x && val.r >= pos.x && pos.y >= val.t && pos.y <= val.b) {
       return val.page;
     }
@@ -16,7 +16,7 @@ uint8_t ReactorGameInstance::LoadReactorLayer(SDL_FPoint pos) {
 }
 
 void ReactorGameInstance::Load(uint32_t map_id) {
-  data = {};
+  data_ = {};
 
   auto map_node = WzResource::LoadMapNode(map_id);
   auto map_reactor_node = map_node->get_child(u"reactor");
@@ -42,7 +42,7 @@ void ReactorGameInstance::Load(uint32_t map_id) {
               ->get();
       auto layer = LoadReactorLayer(g_reactor.pos);
 
-      ReactorGameInstance::data[layer].emplace_back(g_reactor);
+      ReactorGameInstance::data_[layer].emplace_back(g_reactor);
       index++;
     }
   }

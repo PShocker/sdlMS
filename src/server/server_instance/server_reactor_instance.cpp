@@ -47,7 +47,7 @@ void ServerReactorInstance::LoadReactor(ServerSceneState &scene) {
 
 int ServerReactorInstance::LoadNextState(const std::u16string &id,
                                              uint8_t State) {
-  auto node = WzResource::reactor->find(id + u".img");
+  auto node = WzResource::reactor_->find(id + u".img");
   node = node->get_child(std::to_string(State));
   if (node->get_child(u"event")) {
     node = node->find(u"event/0/state");
@@ -58,7 +58,7 @@ int ServerReactorInstance::LoadNextState(const std::u16string &id,
 
 std::u16string ServerReactorInstance::LoadScript(const std::u16string &id) {
   std::u16string r;
-  auto node = WzResource::reactor->find(id + u".img");
+  auto node = WzResource::reactor_->find(id + u".img");
   if (node->get_child(u"action")) {
     node = node->get_child(u"action");
     r = static_cast<wz::Property<std::u16string> *>(node)->get();
@@ -67,8 +67,8 @@ std::u16string ServerReactorInstance::LoadScript(const std::u16string &id) {
 }
 
 uint64_t ServerReactorInstance::LoadHitCd(ServerReactorState &r) {
-  auto res = Window::dt_time;
-  auto node = WzResource::reactor->find(r.id + u".img");
+  auto res = Window::dt_time_;
+  auto node = WzResource::reactor_->find(r.id + u".img");
   node = node->get_child(std::to_string(r.state));
   if (node->get_child(u"hit")) {
     node = node->get_child(u"hit");
@@ -85,10 +85,10 @@ uint64_t ServerReactorInstance::LoadHitCd(ServerReactorState &r) {
 
 void ServerReactorInstance::HandleReactor(uint64_t client_id,
                                              ClientReactorT &r) {
-  if (!ServerClientInstance::clients.contains(client_id)) {
+  if (!ServerClientInstance::clients_.contains(client_id)) {
     return;
   }
-  auto &scene = ServerSceneInstance::scenes.at(r.map_id);
+  auto &scene = ServerSceneInstance::scenes_.at(r.map_id);
   auto &reactor = scene.reactors.at(r.payload->reactor_index);
   if (reactor.revive != 0) {
     return;
@@ -104,7 +104,7 @@ void ServerReactorInstance::HandleReactor(uint64_t client_id,
 
 void ServerReactorInstance::HandleSReactor(const ReactorT &r) {
   GameReactor *reactor = nullptr;
-  for (auto &rs : ReactorGameInstance::data) {
+  for (auto &rs : ReactorGameInstance::data_) {
     for (auto &gr : rs) {
       if (gr.index == r.reactor_index) {
         reactor = &gr;

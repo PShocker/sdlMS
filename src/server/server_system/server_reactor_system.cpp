@@ -14,8 +14,8 @@ void ServerReactorSystem::RunScript(ServerReactorState &r) {
   }
   auto State = r.state;
   auto next_state = ServerReactorInstance::LoadNextState(r.id, r.state);
-  if (State == next_state && r.hit_cd <= Window::dt_time) {
-    r.revive = Window::dt_time + 30000;
+  if (State == next_state && r.hit_cd <= Window::dt_time_) {
+    r.revive = Window::dt_time_ + 30000;
     auto Script = ServerReactorInstance::LoadScript(r.id);
     if (!Script.empty()) {
       const auto &fns = Script::fns();
@@ -28,13 +28,13 @@ void ServerReactorSystem::RunRevive(ServerReactorState &r) {
   if (r.revive == 0) {
     return;
   }
-  if (Window::dt_time >= r.revive) {
+  if (Window::dt_time_ >= r.revive) {
     fbs::ServerReactorT srt;
     srt.payload = std::make_unique<ReactorT>();
     srt.payload->reactor_index = r.index;
     srt.payload->state = 0;
     srt.payload->action = "revive";
-    auto scenes = ServerSceneInstance::scenes[map_id].clients;
+    auto scenes = ServerSceneInstance::scenes_[map_id_].clients;
     for (auto c : scenes) {
       ServerResponse::send_to_client(c, srt);
     }
@@ -55,8 +55,8 @@ void ServerReactorSystem::RunHit(ServerReactorState &r) {
   if (State == next_state) {
     return;
   }
-  if (r.hit_time <= Window::dt_time) {
-    if (r.hit_cd <= Window::dt_time) {
+  if (r.hit_time <= Window::dt_time_) {
+    if (r.hit_cd <= Window::dt_time_) {
       r.hit_cd = ServerReactorInstance::LoadHitCd(r);
 
       fbs::ServerReactorT srt;
@@ -64,7 +64,7 @@ void ServerReactorSystem::RunHit(ServerReactorState &r) {
       srt.payload->reactor_index = r.index;
       srt.payload->state = r.state;
       srt.payload->action = "hit";
-      auto scenes = ServerSceneInstance::scenes[map_id].clients;
+      auto scenes = ServerSceneInstance::scenes_[map_id_].clients;
       for (auto c : scenes) {
         ServerResponse::send_to_client(c, srt);
       }
@@ -77,12 +77,12 @@ void ServerReactorSystem::RunHit(ServerReactorState &r) {
 }
 
 bool ServerReactorSystem::Run() {
-  auto &scenes = ServerSceneInstance::scenes;
+  auto &scenes = ServerSceneInstance::scenes_;
   for (auto &sc : scenes | std::views::values) {
     if (sc.clients.empty()) {
       continue;
     }
-    map_id = sc.map_id;
+    map_id_ = sc.map_id;
     for (auto &r : sc.reactors) {
       RunHit(r);
       RunScript(r);

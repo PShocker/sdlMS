@@ -12,8 +12,8 @@ private:
   static bool EventButton(SDL_Event *Event);
 
 public:
-  static inline SDL_FPoint pos;
-  static inline GameCharacter other;
+  static inline SDL_FPoint pos_;
+  static inline GameCharacter other_;
 
   static bool CursorIn();
 

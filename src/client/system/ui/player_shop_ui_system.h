@@ -10,7 +10,7 @@ private:
   static bool EventButton(SDL_Event *Event);
 
 public:
-  static inline SDL_FPoint pos;
+  static inline SDL_FPoint pos_;
 
   static bool Render();
   static bool Event(SDL_Event *Event);

@@ -2,14 +2,14 @@
 #include "character_game_instance.h"
 
 void CameraGameInstance::Reset() {
-  const auto &self = CharacterGameInstance::self;
-  camera.x = self.pos.x - camera.w / 2;
-  camera.y = self.pos.y - camera.h / 2;
+  const auto &self = CharacterGameInstance::self_;
+  camera_.x = self.pos.x - camera_.w / 2;
+  camera_.y = self.pos.y - camera_.h / 2;
 }
 
 void CameraGameInstance::Load(float x, float y, float w, float h) {
-  camera.x = x;
-  camera.y = y;
-  camera.w = w;
-  camera.h = h;
+  camera_.x = x;
+  camera_.y = y;
+  camera_.w = w;
+  camera_.h = h;
 }

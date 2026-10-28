@@ -11,7 +11,7 @@ public:
   static GameShop LoadShop(const std::u16string &shop_id);
   static GameShopItem LoadShopItem(const std::u16string &id);
 
-  static inline std::vector<GameShopItem> must;
+  static inline std::vector<GameShopItem> must_;
   static bool AddMustItem(std::polymorphic<GameItem> &item);
   static std::vector<std::polymorphic<GameItem> *> LoadPkgItems(int tab);
 };

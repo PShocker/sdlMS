@@ -27,9 +27,9 @@ public:
   static void CompleteQuest(const std::u16string &quest_id);
   static void DeclineQuest(const std::u16string &quest_id);
 
-  static inline std::flat_map<std::u16string, GameQuest> progress_quests;
-  static inline std::flat_map<std::u16string, GameQuest> complete_quests;
-  static inline std::flat_map<std::u16string, GameQuest> decline_quests;
+  static inline std::flat_map<std::u16string, GameQuest> progress_quests_;
+  static inline std::flat_map<std::u16string, GameQuest> complete_quests_;
+  static inline std::flat_map<std::u16string, GameQuest> decline_quests_;
 
   static std::vector<GameQuest> LoadNpcQuest(const std::u16string &id);
   static std::optional<GameQuest>

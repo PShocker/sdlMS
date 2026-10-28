@@ -24,7 +24,7 @@ SDL_FRect StatusbarMenuUiSystem::LoadR() {
   int h;
   int x = 0;
   int y = 0;
-  switch (menu_type.value()) {
+  switch (menu_type_.value()) {
   case MenuEnums::kMenu: {
     x = 642;
     y = -80;
@@ -40,8 +40,8 @@ SDL_FRect StatusbarMenuUiSystem::LoadR() {
     break;
   }
   }
-  auto screen_w = CameraGameInstance::camera.w;
-  auto screen_h = CameraGameInstance::camera.h;
+  auto screen_w = CameraGameInstance::camera_.w;
+  auto screen_h = CameraGameInstance::camera_.h;
   auto base_x = x + (screen_w - 808) / 2;
   auto base_y = y + (screen_h - 73);
   return {base_x, base_y, static_cast<float>(w), static_cast<float>(h)};
@@ -51,27 +51,27 @@ void StatusbarMenuUiSystem::RenderBackgrnd() {
   auto [x, y, w, h] = LoadR();
   // render backgrnd
   static auto t2 = WzResource::LoadTexture(
-      WzResource::ui->find(u"StatusBar.img/submenu/backgrnd/0"));
+      WzResource::ui_->find(u"StatusBar.img/submenu/backgrnd/0"));
   SDL_FRect pos_rect{
       x,
       y,
       static_cast<float>(t2->w),
       static_cast<float>(t2->h),
   };
-  SDL_SetTextureAlphaMod(t2, alpha);
-  SDL_RenderTexture(Window::renderer, t2, nullptr, &pos_rect);
+  SDL_SetTextureAlphaMod(t2, alpha_);
+  SDL_RenderTexture(Window::renderer_, t2, nullptr, &pos_rect);
   static auto c = WzResource::LoadTexture(
-      WzResource::ui->find(u"StatusBar.img/submenu/backgrnd/1"));
+      WzResource::ui_->find(u"StatusBar.img/submenu/backgrnd/1"));
   static auto s = WzResource::LoadTexture(
-      WzResource::ui->find(u"StatusBar.img/submenu/backgrnd/2"));
+      WzResource::ui_->find(u"StatusBar.img/submenu/backgrnd/2"));
   pos_rect = {
       x,
       y + t2->h,
       static_cast<float>(c->w),
       static_cast<float>(h - t2->h - s->h),
   };
-  SDL_SetTextureAlphaMod(c, alpha);
-  SDL_RenderTextureTiled(Window::renderer, c, nullptr, 1, &pos_rect);
+  SDL_SetTextureAlphaMod(c, alpha_);
+  SDL_RenderTextureTiled(Window::renderer_, c, nullptr, 1, &pos_rect);
 
   pos_rect = {
       x,
@@ -79,8 +79,8 @@ void StatusbarMenuUiSystem::RenderBackgrnd() {
       static_cast<float>(s->w),
       static_cast<float>(s->h),
   };
-  SDL_SetTextureAlphaMod(s, alpha);
-  SDL_RenderTexture(Window::renderer, s, nullptr, &pos_rect);
+  SDL_SetTextureAlphaMod(s, alpha_);
+  SDL_RenderTexture(Window::renderer_, s, nullptr, &pos_rect);
 }
 
 void StatusbarMenuUiSystem::RenderButton() {
@@ -90,12 +90,12 @@ void StatusbarMenuUiSystem::RenderButton() {
   std::vector<SDL_FRect> buttons_rect;
   std::vector<bool> disable;
 
-  switch (menu_type.value()) {
+  switch (menu_type_.value()) {
   case MenuEnums::kMenu: {
     buttons_nodes = {
-        WzResource::ui->find(u"StatusBar.img/submenu/menu/button:Channel"),
-        WzResource::ui->find(u"StatusBar.img/submenu/menu/button:GameOpt"),
-        WzResource::ui->find(u"StatusBar.img/submenu/menu/button:Quit"),
+        WzResource::ui_->find(u"StatusBar.img/submenu/menu/button:Channel"),
+        WzResource::ui_->find(u"StatusBar.img/submenu/menu/button:GameOpt"),
+        WzResource::ui_->find(u"StatusBar.img/submenu/menu/button:Quit"),
     };
     buttons_rect = {
         SDL_FRect{6, 24, 81, 25}, //
@@ -107,13 +107,13 @@ void StatusbarMenuUiSystem::RenderButton() {
   }
   case MenuEnums::kShortcut: {
     buttons_nodes = {
-        WzResource::ui->find(u"StatusBar.img/submenu/shortcut/button:Item"),
-        WzResource::ui->find(u"StatusBar.img/submenu/shortcut/button:Equip"),
-        WzResource::ui->find(u"StatusBar.img/submenu/shortcut/button:Stat"),
-        WzResource::ui->find(u"StatusBar.img/submenu/shortcut/button:Skill"),
-        WzResource::ui->find(u"StatusBar.img/submenu/shortcut/button:Party"),
-        WzResource::ui->find(u"StatusBar.img/submenu/shortcut/button:Quest"),
-        WzResource::ui->find(
+        WzResource::ui_->find(u"StatusBar.img/submenu/shortcut/button:Item"),
+        WzResource::ui_->find(u"StatusBar.img/submenu/shortcut/button:Equip"),
+        WzResource::ui_->find(u"StatusBar.img/submenu/shortcut/button:Stat"),
+        WzResource::ui_->find(u"StatusBar.img/submenu/shortcut/button:Skill"),
+        WzResource::ui_->find(u"StatusBar.img/submenu/shortcut/button:Party"),
+        WzResource::ui_->find(u"StatusBar.img/submenu/shortcut/button:Quest"),
+        WzResource::ui_->find(
             u"StatusBar.img/submenu/shortcut/button:Crafting"),
     };
     buttons_rect = {
@@ -137,28 +137,28 @@ void StatusbarMenuUiSystem::RenderButton() {
     pos_rect.y += y;
     pos_rect.x = (int)pos_rect.x;
     pos_rect.y = (int)pos_rect.y;
-    auto &mouse_pos = Window::mouse_pos;
+    auto &mouse_pos = Window::mouse_pos_;
     // 判断按钮是否被遮挡
     auto CursorIn = CursorGameInstance::cursor_ui;
     if (disable[i]) {
       auto disabled = WzResource::LoadTexture(k->find(u"disabled/0"));
-      SDL_SetTextureAlphaMod(disabled, alpha);
-      SDL_RenderTexture(Window::renderer, disabled, nullptr, &pos_rect);
+      SDL_SetTextureAlphaMod(disabled, alpha_);
+      SDL_RenderTexture(Window::renderer_, disabled, nullptr, &pos_rect);
     } else if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) &&
                CursorIn == Render && !CursorGameInstance::modal_overlay) {
-      if (Window::mouse_state & SDL_BUTTON_LMASK) {
+      if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
         auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
-        SDL_SetTextureAlphaMod(pressed, alpha);
-        SDL_RenderTexture(Window::renderer, pressed, nullptr, &pos_rect);
+        SDL_SetTextureAlphaMod(pressed, alpha_);
+        SDL_RenderTexture(Window::renderer_, pressed, nullptr, &pos_rect);
       } else {
         auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
-        SDL_SetTextureAlphaMod(mouse_over, alpha);
-        SDL_RenderTexture(Window::renderer, mouse_over, nullptr, &pos_rect);
+        SDL_SetTextureAlphaMod(mouse_over, alpha_);
+        SDL_RenderTexture(Window::renderer_, mouse_over, nullptr, &pos_rect);
       }
     } else {
       auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
-      SDL_SetTextureAlphaMod(normal, alpha);
-      SDL_RenderTexture(Window::renderer, normal, nullptr, &pos_rect);
+      SDL_SetTextureAlphaMod(normal, alpha_);
+      SDL_RenderTexture(Window::renderer_, normal, nullptr, &pos_rect);
     }
   }
 }
@@ -166,27 +166,27 @@ void StatusbarMenuUiSystem::RenderButton() {
 void StatusbarMenuUiSystem::RenderTitle() {
   auto [x, y, w, h] = LoadR();
   SDL_Texture *t;
-  switch (menu_type.value()) {
+  switch (menu_type_.value()) {
   case MenuEnums::kMenu: {
     t = WzResource::LoadTexture(
-        WzResource::ui->find(u"StatusBar.img/submenu/canvas:menu"));
+        WzResource::ui_->find(u"StatusBar.img/submenu/canvas:menu"));
     break;
   }
   case MenuEnums::kShortcut: {
     t = WzResource::LoadTexture(
-        WzResource::ui->find(u"StatusBar.img/submenu/canvas:shortcut"));
+        WzResource::ui_->find(u"StatusBar.img/submenu/canvas:shortcut"));
     break;
   }
   }
-  SDL_SetTextureAlphaMod(t, alpha);
+  SDL_SetTextureAlphaMod(t, alpha_);
   SDL_FRect pos{x + 6, y + 8, static_cast<float>(t->w),
                 static_cast<float>(t->h)};
-  SDL_RenderTexture(Window::renderer, t, nullptr, &pos);
+  SDL_RenderTexture(Window::renderer_, t, nullptr, &pos);
 }
 
 bool StatusbarMenuUiSystem::Render() {
-  alpha += Window::delta_time;
-  alpha = std::min(alpha, 255);
+  alpha_ += Window::delta_time_;
+  alpha_ = std::min(alpha_, 255);
   RenderBackgrnd();
   RenderButton();
   RenderTitle();
@@ -195,29 +195,29 @@ bool StatusbarMenuUiSystem::Render() {
 
 void StatusbarMenuUiSystem::Open() {
   auto it =
-      std::ranges::find(System::render_systems, &CursorRenderSystem::Render);
-  if (it != System::render_systems.end()) {
-    alpha = 0;
+      std::ranges::find(System::render_systems_, &CursorRenderSystem::Render);
+  if (it != System::render_systems_.end()) {
+    alpha_ = 0;
 
-    if (!menu_type.has_value()) {
-      menu_type = MenuEnums::kMenu;
+    if (!menu_type_.has_value()) {
+      menu_type_ = MenuEnums::kMenu;
     }
 
-    System::render_systems.insert(it, Render);
-    System::event_systems.insert(System::event_systems.begin(), Event);
+    System::render_systems_.insert(it, Render);
+    System::event_systems_.insert(System::event_systems_.begin(), Event);
   }
 }
 
 void StatusbarMenuUiSystem::Close() {
-  std::erase(System::render_systems, Render);
-  std::erase(System::event_systems, Event);
+  std::erase(System::render_systems_, Render);
+  std::erase(System::event_systems_, Event);
 
   AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 }
 
 void StatusbarMenuUiSystem::Toggle() {
   auto fn = &Render;
-  if (std::ranges::contains(System::render_systems, fn)) {
+  if (std::ranges::contains(System::render_systems_, fn)) {
     Close();
   } else {
     Open();
@@ -274,7 +274,7 @@ bool StatusbarMenuUiSystem::EventButton(SDL_Event *Event) {
   std::vector<SDL_FRect> buttons_rect;
   std::vector<void (*)()> fns;
 
-  switch (menu_type.value()) {
+  switch (menu_type_.value()) {
   case MenuEnums::kMenu: {
     buttons_rect = {
         SDL_FRect{6, 24, 81, 25}, //
@@ -312,7 +312,7 @@ bool StatusbarMenuUiSystem::EventButton(SDL_Event *Event) {
     auto pos_rect = buttons_rect[i];
     pos_rect.x += x;
     pos_rect.y += y;
-    if (SDL_PointInRectFloat(&Window::mouse_pos, &pos_rect)) {
+    if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect)) {
       fns[i]();
       return true;
     }
@@ -363,6 +363,6 @@ bool StatusbarMenuUiSystem::Event(SDL_Event *Event) {
 
 bool StatusbarMenuUiSystem::CursorIn() {
   auto r = LoadR();
-  auto &mouse = Window::mouse_pos;
+  auto &mouse = Window::mouse_pos_;
   return SDL_PointInRectFloat(&mouse, &r);
 }

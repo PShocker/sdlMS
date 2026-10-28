@@ -20,7 +20,7 @@ static void Huojianshu() {
         SDL_FPoint{-400, 100},
         SDL_FPoint{0, -30},
     }};
-    auto &sf = CharacterGameInstance::self;
+    auto &sf = CharacterGameInstance::self_;
     CharacterLogicSystem::RunAction(sf, u"shoot1");
     auto cm = CharacterLogicSystem::RunAttackCheck(sf, tri);
     if (!cm.data.empty()) {

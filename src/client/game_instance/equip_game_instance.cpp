@@ -107,7 +107,7 @@ wz::Node *EquipGameInstance::LoadEquipInfo(const std::u16string &id) {
   if (!cache.contains(id)) {
     auto equip_type = LoadEquipType(id);
     cache[id] =
-        WzResource::character->find(equip_type + u"/" + id + u".img/info");
+        WzResource::character_->find(equip_type + u"/" + id + u".img/info");
   }
   return cache[id];
 }
@@ -136,7 +136,7 @@ EquipGameInstance::LoadWeaponEnum(const std::u16string &id) {
 }
 
 std::u16string EquipGameInstance::LoadEquipName(const std::u16string &id) {
-  static auto str_node = WzResource::string->find(u"Eqp.img/ClassicWorld");
+  static auto str_node = WzResource::string_->find(u"Eqp.img/ClassicWorld");
   auto type = LoadEquipType(id);
 
   auto view = id | std::views::drop_while([](char16_t c) { return c == u'0'; });
@@ -147,7 +147,7 @@ std::u16string EquipGameInstance::LoadEquipName(const std::u16string &id) {
 }
 
 std::u16string EquipGameInstance::LoadEquipDesc(const std::u16string &id) {
-  static auto str_node = WzResource::string->find(u"Eqp.img/ClassicWorld");
+  static auto str_node = WzResource::string_->find(u"Eqp.img/ClassicWorld");
   auto type = LoadEquipType(id);
 
   auto view = id | std::views::drop_while([](char16_t c) { return c == u'0'; });
@@ -612,14 +612,14 @@ int EquipGameInstance::UseEquipScroll(GameEquipItem &eqp,
     }
     eqp.scroll.push_back({s.id, true});
 
-    auto &sf = CharacterGameInstance::self;
+    auto &sf = CharacterGameInstance::self_;
     ServerCharacterInstance::HandleScrollUse(sf, true);
 
     StateT st;
     st.state = fbs::StateEnum_ITEM_USE;
     st.val = std::stoi(std::string{s.id.begin(), s.id.end()});
     st.sub_val = 1;
-    CharacterLogicSystem::ccs.payload.push_back(std::make_unique<StateT>(st));
+    CharacterLogicSystem::ccs_.payload.push_back(std::make_unique<StateT>(st));
 
     s.num -= 1;
     if (s.num == 0) {
@@ -631,9 +631,9 @@ int EquipGameInstance::UseEquipScroll(GameEquipItem &eqp,
 }
 
 int EquipGameInstance::UseEquip(int i, int slot) {
-  auto &equips = PackageGameInstance::data[(int)ItemEnum::kEquip];
+  auto &equips = PackageGameInstance::data_[(int)ItemEnum::kEquip];
   auto &itm = equips[i];
-  auto &sf = CharacterGameInstance::self;
+  auto &sf = CharacterGameInstance::self_;
   auto &eq = static_cast<GameEquipItem &>(*itm);
   auto ev = EquipGameInstance::LoadEquipSlot(eq.id, sf);
   auto blank_slot =
@@ -641,12 +641,12 @@ int EquipGameInstance::UseEquip(int i, int slot) {
   blank_slot.push_back(i);
   std::ranges::sort(blank_slot);
   if (blank_slot.size() < ev.size()) {
-    NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kEquipNoSpace;
+    NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kEquipNoSpace;
     NoticeUiSystem::Open();
     return 0;
   }
   if (!EquipGameInstance::AddEquipLimit(eq, sf, slot)) {
-    NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kEquipNoAbility;
+    NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kEquipNoAbility;
     NoticeUiSystem::Open();
     return 0;
   }
@@ -654,15 +654,15 @@ int EquipGameInstance::UseEquip(int i, int slot) {
     equips[blank_slot[i]] = std::polymorphic<GameItem>(ev[i]);
   }
   itm->id = u"";
-  CharacterLogicSystem::cct.map_id = SceneSystemInstance::map_id;
+  CharacterLogicSystem::cct_.map_id = SceneSystemInstance::map_id_;
   CharacterStatGameInstance::Update();
   return 1;
 }
 
 int EquipGameInstance::UseDeco(int i, int slot) {
-  auto &equips = PackageGameInstance::data[(int)ItemEnum::kDeco];
+  auto &equips = PackageGameInstance::data_[(int)ItemEnum::kDeco];
   auto &itm = equips[i];
-  auto &sf = CharacterGameInstance::self;
+  auto &sf = CharacterGameInstance::self_;
   auto &de = static_cast<GameDecoItem &>(*itm);
   auto ev = EquipGameInstance::LoadDecoSlot(de.id, sf);
   auto blank_slot =
@@ -670,12 +670,12 @@ int EquipGameInstance::UseDeco(int i, int slot) {
   blank_slot.push_back(i);
   std::ranges::sort(blank_slot);
   if (blank_slot.size() < ev.size()) {
-    NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kEquipNoSpace;
+    NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kEquipNoSpace;
     NoticeUiSystem::Open();
     return 0;
   }
   if (!EquipGameInstance::AddEquipDeco(de, sf, 0)) {
-    NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kEquipNoAbility;
+    NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kEquipNoAbility;
     NoticeUiSystem::Open();
     return 0;
   }
@@ -683,13 +683,13 @@ int EquipGameInstance::UseDeco(int i, int slot) {
     equips[blank_slot[i]] = std::polymorphic<GameItem>(ev[i]);
   }
   itm->id = u"";
-  CharacterLogicSystem::cct.map_id = SceneSystemInstance::map_id;
+  CharacterLogicSystem::cct_.map_id = SceneSystemInstance::map_id_;
   return 1;
 }
 
 std::optional<GameEquipItem> *EquipGameInstance::LoadEquip(int index) {
   std::optional<GameEquipItem> *equip;
-  auto &self = CharacterGameInstance::self;
+  auto &self = CharacterGameInstance::self_;
   switch ((EquipMouseIndex)index) {
   case EquipMouseIndex::kCap: {
     equip = &self.cap;
@@ -738,7 +738,7 @@ std::optional<GameEquipItem> *EquipGameInstance::LoadEquip(int index) {
 
 std::optional<GameDecoItem> *EquipGameInstance::LoadDeco(int index) {
   std::optional<GameDecoItem> *deco;
-  auto &self = CharacterGameInstance::self;
+  auto &self = CharacterGameInstance::self_;
   switch ((EquipMouseIndex)index) {
   case EquipMouseIndex::kCap: {
     deco = &self.cap_deco;
@@ -788,12 +788,12 @@ std::optional<GameDecoItem> *EquipGameInstance::LoadDeco(int index) {
 int EquipGameInstance::UnuseEquip(int i) {
   auto eqp = std::polymorphic<GameItem>(LoadEquip(i)->value());
   if (!PackageGameInstance::AddItem(eqp)) {
-    NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kEquipNoSpace;
+    NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kEquipNoSpace;
     NoticeUiSystem::Open();
     return 0;
   }
   (*LoadEquip(i)) = std::nullopt;
-  CharacterLogicSystem::cct.map_id = SceneSystemInstance::map_id;
+  CharacterLogicSystem::cct_.map_id = SceneSystemInstance::map_id_;
   CharacterStatGameInstance::Update();
   return 1;
 }
@@ -801,11 +801,11 @@ int EquipGameInstance::UnuseEquip(int i) {
 int EquipGameInstance::UnuseDeco(int i) {
   auto eqp = std::polymorphic<GameItem>(LoadDeco(i)->value());
   if (!PackageGameInstance::AddItem(eqp)) {
-    NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kEquipNoSpace;
+    NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kEquipNoSpace;
     NoticeUiSystem::Open();
     return 0;
   }
   (*LoadDeco(i)) = std::nullopt;
-  CharacterLogicSystem::cct.map_id = SceneSystemInstance::map_id;
+  CharacterLogicSystem::cct_.map_id = SceneSystemInstance::map_id_;
   return 1;
 }

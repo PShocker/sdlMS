@@ -21,27 +21,27 @@ void PopupTipUiSystem::RenderBackgrnd(GamePopupTip &t) {
   switch (t.type) {
   case PopupTipEnums::kTrade: {
     static auto texture = WzResource::LoadTexture(
-        WzResource::ui->find(u"StatusBar.img/submenu/backgrnd/1"));
+        WzResource::ui_->find(u"StatusBar.img/submenu/backgrnd/1"));
     break;
   }
   case PopupTipEnums::kParty: {
     static auto texture = WzResource::LoadTexture(
-        WzResource::ui->find(u"StatusBar.img/submenu/backgrnd/1"));
+        WzResource::ui_->find(u"StatusBar.img/submenu/backgrnd/1"));
     break;
   }
   case PopupTipEnums::kQuest: {
     static auto texture = WzResource::LoadTexture(
-        WzResource::ui->find(u"FadeYesNo.img/FadeYesNo/backgrnd3"));
+        WzResource::ui_->find(u"FadeYesNo.img/FadeYesNo/backgrnd3"));
     static auto icon = WzResource::LoadTexture(
-        WzResource::ui->find(u"FadeYesNo.img/FadeYesNo/icon6"));
+        WzResource::ui_->find(u"FadeYesNo.img/FadeYesNo/icon6"));
     te = texture;
     i = icon;
     icon_pos = {-10, -12};
     break;
   }
   }
-  auto screen_w = CameraGameInstance::camera.w;
-  auto screen_h = CameraGameInstance::camera.h;
+  auto screen_w = CameraGameInstance::camera_.w;
+  auto screen_h = CameraGameInstance::camera_.h;
   auto x = pos.x + (screen_w - 808) / 2;
   auto y = pos.y + (screen_h - 73);
 
@@ -52,19 +52,19 @@ void PopupTipUiSystem::RenderBackgrnd(GamePopupTip &t) {
       static_cast<float>(te->h),
   };
   SDL_SetTextureAlphaMod(te, t.alpha);
-  SDL_RenderTexture(Window::renderer, te, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, te, nullptr, &pos_rect);
 
   pos_rect.x -= icon_pos.x;
   pos_rect.y -= icon_pos.y;
   pos_rect.w = i->w;
   pos_rect.h = i->h;
   SDL_SetTextureAlphaMod(i, t.alpha);
-  SDL_RenderTexture(Window::renderer, i, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, i, nullptr, &pos_rect);
 }
 
 void PopupTipUiSystem::RenderText(GamePopupTip &t) {
-  auto screen_w = CameraGameInstance::camera.w;
-  auto screen_h = CameraGameInstance::camera.h;
+  auto screen_w = CameraGameInstance::camera_.w;
+  auto screen_h = CameraGameInstance::camera_.h;
   auto x = pos.x + (screen_w - 808) / 2;
   auto y = pos.y + (screen_h - 73);
 
@@ -106,7 +106,7 @@ void PopupTipUiSystem::RenderButton(GamePopupTip &t) {
   }
   }
   // 渲染所有按钮
-  bool mouse_down = Window::mouse_state & SDL_BUTTON_LMASK;
+  bool mouse_down = Window::mouse_state_ & SDL_BUTTON_LMASK;
   bool cursor_on_ui = CursorGameInstance::cursor_ui == Render;
   bool modal_blocked = CursorGameInstance::modal_overlay;
 
@@ -120,26 +120,26 @@ void PopupTipUiSystem::RenderButton(GamePopupTip &t) {
 
     std::u16string State = u"normal";
     if (cursor_on_ui && !modal_blocked &&
-        SDL_PointInRectFloat(&Window::mouse_pos, &rect)) {
+        SDL_PointInRectFloat(&Window::mouse_pos_, &rect)) {
       State = mouse_down ? u"pressed" : u"mouseOver";
     }
     auto texture = WzResource::LoadTexture(nodes[i]->find((State + u"/0")));
-    SDL_RenderTexture(Window::renderer, texture, nullptr, &rect);
+    SDL_RenderTexture(Window::renderer_, texture, nullptr, &rect);
   }
 }
 
 void PopupTipUiSystem::Destory() {
-  auto &data = PopupTipGameInstance::data;
-  const auto now = Window::dt_now;
+  auto &data = PopupTipGameInstance::data_;
+  const auto now = Window::dt_now_;
   std::erase_if(data, [now](const GamePopupTip &t) {
     return t.destroy < now && t.alpha == 0.0f;
   });
 }
 
 bool PopupTipUiSystem::Render() {
-  auto &data = PopupTipGameInstance::data;
-  const auto now = Window::dt_now;
-  const auto dt = Window::delta_time;
+  auto &data = PopupTipGameInstance::data_;
+  const auto now = Window::dt_now_;
+  const auto dt = Window::delta_time_;
 
   for (auto &t : data) {
     const float dir = (t.destroy < now) ? -1.0f : 1.0f;
@@ -177,13 +177,13 @@ void PopupTipUiSystem::EventButtonOk(GamePopupTip &t) {
 }
 
 void PopupTipUiSystem::EventButtonCancel(GamePopupTip &t) {
-  auto &data = PopupTipGameInstance::data;
+  auto &data = PopupTipGameInstance::data_;
   std::erase_if(data, [t](const auto &tip) { return &t == &tip; });
 }
 
 bool PopupTipUiSystem::EventButton(SDL_Event *Event) {
-  auto screen_w = CameraGameInstance::camera.w;
-  auto screen_h = CameraGameInstance::camera.h;
+  auto screen_w = CameraGameInstance::camera_.w;
+  auto screen_h = CameraGameInstance::camera_.h;
   auto base_x = (screen_w - 808) / 2;
   auto base_y = (screen_h - 73);
 
@@ -193,8 +193,8 @@ bool PopupTipUiSystem::EventButton(SDL_Event *Event) {
       EventButtonCancel,
   };
 
-  for (int i = 0; i < PopupTipGameInstance::data.size(); i++) {
-    auto &t = PopupTipGameInstance::data[i];
+  for (int i = 0; i < PopupTipGameInstance::data_.size(); i++) {
+    auto &t = PopupTipGameInstance::data_[i];
     switch (t.type) {
     case PopupTipEnums::kTrade: {
       break;
@@ -207,7 +207,7 @@ bool PopupTipUiSystem::EventButton(SDL_Event *Event) {
       auto pos_rect = buttons_rect[i];
       pos_rect.x += base_x;
       pos_rect.y += base_y;
-      if (SDL_PointInRectFloat(&Window::mouse_pos, &pos_rect)) {
+      if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect)) {
         fns[i](t);
         return true;
       }

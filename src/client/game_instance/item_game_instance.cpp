@@ -29,7 +29,7 @@ bool ItemGameInstance::CheckItem(const std::u16string &id) {
 std::u16string ItemGameInstance::LoadItemText(const std::u16string &id,
                                                   const std::u16string &val) {
   auto item_type = LoadItemType(id);
-  auto str_node = WzResource::string->find(item_type + u".img");
+  auto str_node = WzResource::string_->find(item_type + u".img");
   if (item_type == u"Etc") {
     str_node = str_node->get_child("Etc");
   }
@@ -60,7 +60,7 @@ wz::Node *ItemGameInstance::LoadItemInfo(const std::u16string &id,
                                              uint32_t num) {
   wz::Node *node;
   if (id == u"00000000") {
-    node = WzResource::item->find(u"Special/0900.img/09000000/iconRaw");
+    node = WzResource::item_->find(u"Special/0900.img/09000000/iconRaw");
     return node;
   }
   auto type = LoadItemType(id);
@@ -69,7 +69,7 @@ wz::Node *ItemGameInstance::LoadItemInfo(const std::u16string &id,
   }
   if (type == u"Consume" || type == u"Etc" || type == u"Install") {
     auto r = id.substr(0, 4) + u".img";
-    node = WzResource::item->find(type + u"/" + r + u"/" + id)
+    node = WzResource::item_->find(type + u"/" + r + u"/" + id)
                ->get_child(u"info");
   }
   return node;
@@ -232,18 +232,18 @@ void ItemGameInstance::UseMorphItem(const std::u16string &id,
 
   g_character.action_index = 0;
   g_character.action_time = 0;
-  if (&g_character == &CharacterGameInstance::self) {
+  if (&g_character == &CharacterGameInstance::self_) {
     CharacterLogicSystem::RunUnsitChair(g_character);
 
     StateT st;
     st.state = fbs::StateEnum_BUFF_ITEM;
     st.val = std::stoi(std::string{id.begin(), id.end()});
     st.sub_val = 1;
-    CharacterLogicSystem::ccs.payload.push_back(std::make_unique<StateT>(st));
+    CharacterLogicSystem::ccs_.payload.push_back(std::make_unique<StateT>(st));
 
     st.state = fbs::StateEnum_ITEM_USE;
     st.sub_val = 1;
-    CharacterLogicSystem::ccs.payload.push_back(std::make_unique<StateT>(st));
+    CharacterLogicSystem::ccs_.payload.push_back(std::make_unique<StateT>(st));
 
     ServerCharacterInstance::HandleMorphUse(g_character, true);
   }
@@ -255,25 +255,25 @@ void ItemGameInstance::UnuseMorphItem(const std::u16string &id,
   g_character.action_index = 0;
   g_character.action_time = 0;
 
-  if (&g_character == &CharacterGameInstance::self) {
+  if (&g_character == &CharacterGameInstance::self_) {
     StateT st;
     st.state = fbs::StateEnum_BUFF_ITEM;
     st.val = std::stoi(std::string{id.begin(), id.end()});
     st.sub_val = 0;
 
-    auto &ccs = CharacterLogicSystem::ccs;
+    auto &ccs = CharacterLogicSystem::ccs_;
     ccs.payload.push_back(std::make_unique<StateT>(st));
 
     st.state = fbs::StateEnum_ITEM_USE;
     st.sub_val = 0;
-    CharacterLogicSystem::ccs.payload.push_back(std::make_unique<StateT>(st));
+    CharacterLogicSystem::ccs_.payload.push_back(std::make_unique<StateT>(st));
 
     ServerCharacterInstance::HandleMorphUse(g_character, false);
   }
 }
 
 void ItemGameInstance::UnuseBuffItem(const std::u16string &id) {
-  for (auto &gib : buff) {
+  for (auto &gib : buff_) {
     if (gib.id == id) {
       auto info = ItemGameInstance::LoadItemInfo(id, 0);
       info = info->find(u"../spec");
@@ -304,8 +304,8 @@ void ItemGameInstance::UnuseBuffItem(const std::u16string &id) {
       if (info->get_child(u"speed")) {
         auto speed =
             static_cast<wz::Property<int> *>(info->get_child(u"speed"))->get();
-        CharacterLogicSystem::self_hspeed_max -= 5;
-        CharacterLogicSystem::self_hspeed_min += 5;
+        CharacterLogicSystem::self_hspeed_max_ -= 5;
+        CharacterLogicSystem::self_hspeed_min_ += 5;
       }
       if (info->get_child(u"crt")) {
         auto crt =
@@ -321,13 +321,13 @@ void ItemGameInstance::UnuseBuffItem(const std::u16string &id) {
         CharacterStatGameInstance::SetItmExp(itm_exp - expBuff);
       }
       if (info->get_child(u"morph")) {
-        auto &sf = CharacterGameInstance::self;
+        auto &sf = CharacterGameInstance::self_;
         UnuseMorphItem(id, sf);
       }
       break;
     }
   }
-  std::erase_if(buff, [id](const auto &buff) { return id == buff.id; });
+  std::erase_if(buff_, [id](const auto &buff) { return id == buff.id; });
 }
 
 bool ItemGameInstance::UseBuffItem(std::polymorphic<GameItem> &itm) {
@@ -368,8 +368,8 @@ bool ItemGameInstance::UseBuffItem(std::polymorphic<GameItem> &itm) {
     r = true;
   }
   if (info->get_child(u"speed")) {
-    CharacterLogicSystem::self_hspeed_max += 5;
-    CharacterLogicSystem::self_hspeed_min -= 5;
+    CharacterLogicSystem::self_hspeed_max_ += 5;
+    CharacterLogicSystem::self_hspeed_min_ -= 5;
     r = true;
   }
   if (info->get_child(u"crt")) {
@@ -385,32 +385,32 @@ bool ItemGameInstance::UseBuffItem(std::polymorphic<GameItem> &itm) {
     CharacterStatGameInstance::SetItmExp(itm_exp + expBuff);
   }
   if (info->get_child(u"morph")) {
-    UseMorphItem(id, CharacterGameInstance::self);
+    UseMorphItem(id, CharacterGameInstance::self_);
     r = true;
   }
   GameItemBuff gib;
-  gib.destroy = Window::dt_now + time;
+  gib.destroy = Window::dt_now_ + time;
   gib.id = id;
 
-  buff.emplace_back(gib);
+  buff_.emplace_back(gib);
   return r;
 }
 
 bool ItemGameInstance::UseMobItem(std::polymorphic<GameItem> &itm) {
   bool r = false;
-  if (CharacterLogicSystem::self_fh == 0) {
+  if (CharacterLogicSystem::self_fh_ == 0) {
     return false;
   }
   auto info = ItemGameInstance::LoadItemInfo(itm->id, 0);
   info = info->find(u"../mob");
   if (info) {
-    auto &g_character = CharacterGameInstance::self;
+    auto &g_character = CharacterGameInstance::self_;
     for (auto [k, v] : *info->get_children()) {
       auto mob_id =
           static_cast<wz::Property<int> *>(v[0]->get_child(u"id"))->get();
       auto mob_num = 1;
       ClientCreateMobT ccm;
-      ccm.map_id = SceneSystemInstance::map_id;
+      ccm.map_id = SceneSystemInstance::map_id_;
       for (int i = 0; i < mob_num; i++) {
         ccm.mobs.emplace_back(std::make_unique<MobT>());
         auto &mob = ccm.mobs.back();
@@ -420,7 +420,7 @@ bool ItemGameInstance::UseMobItem(std::polymorphic<GameItem> &itm) {
             .y = g_character.pos.y,
             .action_animate = true,
             .page = g_character.page,
-            .fh = static_cast<int16_t>(CharacterLogicSystem::self_fh),
+            .fh = static_cast<int16_t>(CharacterLogicSystem::self_fh_),
         });
       }
       ClientRequest::send_to_host(ccm);
@@ -493,11 +493,11 @@ bool ItemGameInstance::UseConsumeItem(std::polymorphic<GameItem> &itm) {
 
 void ItemGameInstance::UseItem(std::polymorphic<GameItem> &itm) {
   auto item_type = ItemGameInstance::LoadItemType(itm->id);
-  auto &g_character = CharacterGameInstance::self;
-  auto self_sit_cooldown = CharacterLogicSystem::self_sit_cooldown;
+  auto &g_character = CharacterGameInstance::self_;
+  auto self_sit_cooldown = CharacterLogicSystem::self_sit_cooldown_;
 
   if (item_type == u"Ins") {
-    if (itm->id.starts_with(u"0301") && self_sit_cooldown < Window::dt_now) {
+    if (itm->id.starts_with(u"0301") && self_sit_cooldown < Window::dt_now_) {
       if (!g_character.morph.empty()) {
         return;
       }

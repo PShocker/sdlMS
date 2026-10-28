@@ -16,12 +16,12 @@
 
 bool EffectLogicSystem::RunDamage(GameEffect &g_effect) {
   bool r = false;
-  auto current_time = Window::dt_time;
+  auto current_time = Window::dt_time_;
   if (g_effect.delay >= current_time) {
     return r;
   }
   if (g_effect.z == false) {
-    auto &Mobs = MobGameInstance::data;
+    auto &Mobs = MobGameInstance::data_;
     auto &mob = Mobs.at(g_effect.time).mob;
     g_effect.pos = SDL_FPoint{
         g_effect.pos->x + mob.pos.x,
@@ -29,7 +29,7 @@ bool EffectLogicSystem::RunDamage(GameEffect &g_effect) {
     };
     g_effect.z = true;
   }
-  int32_t a = g_effect.alpha - Window::delta_time / 3.5f;
+  int32_t a = g_effect.alpha - Window::delta_time_ / 3.5f;
   if (a <= 0) {
     r = true;
   } else {
@@ -40,27 +40,27 @@ bool EffectLogicSystem::RunDamage(GameEffect &g_effect) {
 
 bool EffectLogicSystem::RunEffect(GameEffect &g_effect) {
   bool r = false;
-  auto current_time = Window::dt_time;
+  auto current_time = Window::dt_time_;
   if (g_effect.delay >= current_time) {
     return r;
   }
-  g_effect.time += Window::delta_time;
+  g_effect.time += Window::delta_time_;
   wz::Node *node;
   switch ((GameEffect::EffectSubType)g_effect.lv) {
   case GameEffect::EffectSubType::kCharacter: {
-    node = WzResource::character->find(g_effect.id);
+    node = WzResource::character_->find(g_effect.id);
     break;
   }
   case GameEffect::EffectSubType::kEffect: {
-    node = WzResource::effect->find(g_effect.id);
+    node = WzResource::effect_->find(g_effect.id);
     break;
   }
   case GameEffect::EffectSubType::kItem: {
-    node = WzResource::item->find(g_effect.id);
+    node = WzResource::item_->find(g_effect.id);
     break;
   }
   case GameEffect::EffectSubType::kSkill: {
-    node = WzResource::skill->find(g_effect.id);
+    node = WzResource::skill_->find(g_effect.id);
     break;
   }
   }
@@ -111,7 +111,7 @@ bool EffectLogicSystem::RunSkillUse(GameEffect &g_effect) {
     break;
   }
   }
-  g_effect.time += Window::delta_time * speed;
+  g_effect.time += Window::delta_time_ * speed;
   if (g_effect.time >= delay) {
     g_effect.time = 0;
     g_effect.index += 1;
@@ -138,7 +138,7 @@ bool EffectLogicSystem::RunSkillAffected(GameEffect &g_effect) {
   if (delay_node) {
     delay = static_cast<wz::Property<std::int32_t> *>(delay_node)->get();
   }
-  g_effect.time += Window::delta_time;
+  g_effect.time += Window::delta_time_;
   if (g_effect.time >= delay) {
     g_effect.time = 0;
     g_effect.index += 1;
@@ -150,7 +150,7 @@ bool EffectLogicSystem::RunSkillAffected(GameEffect &g_effect) {
 }
 
 bool EffectLogicSystem::RunSkillHit(GameEffect &g_effect) {
-  auto now = Window::dt_time;
+  auto now = Window::dt_time_;
   if (g_effect.delay >= now) {
     return false;
   }
@@ -170,7 +170,7 @@ bool EffectLogicSystem::RunSkillHit(GameEffect &g_effect) {
   if (delay_node) {
     delay = static_cast<wz::Property<int> *>(delay_node)->get();
   }
-  g_effect.time += Window::delta_time;
+  g_effect.time += Window::delta_time_;
   if (g_effect.time >= delay) {
     g_effect.time = 0;
     g_effect.index += 1;
@@ -183,7 +183,7 @@ bool EffectLogicSystem::RunSkillHit(GameEffect &g_effect) {
 
 bool EffectLogicSystem::RunSkillRegion(GameEffect &g_effect) {
   auto rski = std::any_cast<GameRegionSkill>(&g_effect.data);
-  if (rski->end <= Window::dt_time) {
+  if (rski->end <= Window::dt_time_) {
     return true;
   }
   return false;
@@ -232,14 +232,14 @@ void EffectLogicSystem::RunAnimate(std::vector<GameEffect> &v) {
 }
 
 bool EffectLogicSystem::Run() {
-  RunAnimate(CharacterGameInstance::self.effect);
-  for (auto &o : CharacterGameInstance::others | std::views::values) {
+  RunAnimate(CharacterGameInstance::self_.effect);
+  for (auto &o : CharacterGameInstance::others_ | std::views::values) {
     RunAnimate(o.g_character.effect);
   }
-  for (auto &m : MobGameInstance::data | std::views::values) {
+  for (auto &m : MobGameInstance::data_ | std::views::values) {
     RunAnimate(m.mob.effect);
   }
-  for (auto &de : EffectGameInstance::data) {
+  for (auto &de : EffectGameInstance::data_) {
     RunAnimate(de);
   }
   return true;

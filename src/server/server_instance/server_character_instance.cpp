@@ -34,10 +34,10 @@ using namespace fbs;
 
 void ServerCharacterInstance::HandleMv(uint64_t client_id,
                                           ClientCharacterMvT &m) {
-  if (!ServerClientInstance::clients.contains(client_id)) {
+  if (!ServerClientInstance::clients_.contains(client_id)) {
     return;
   }
-  auto &client = ServerClientInstance::clients.at(client_id);
+  auto &client = ServerClientInstance::clients_.at(client_id);
   auto &character = client.player_t.character;
 
   character->state->x = m.payload->x2;
@@ -45,7 +45,7 @@ void ServerCharacterInstance::HandleMv(uint64_t client_id,
   character->state->page = m.payload->page;
 
   const auto client_map_id = m.map_id;
-  auto clients = ServerSceneInstance::scenes[client_map_id].clients;
+  auto clients = ServerSceneInstance::scenes_[client_map_id].clients;
   // 移除当前客户端，只发给其他客户端
   clients.erase(client_id);
   ServerCharacterMvT t;
@@ -59,16 +59,16 @@ void ServerCharacterInstance::HandleMv(uint64_t client_id,
 
 void ServerCharacterInstance::HandleFlip(uint64_t client_id,
                                             ClientCharacterFlipT &m) {
-  if (!ServerClientInstance::clients.contains(client_id)) {
+  if (!ServerClientInstance::clients_.contains(client_id)) {
     return;
   }
-  auto &client = ServerClientInstance::clients.at(client_id);
+  auto &client = ServerClientInstance::clients_.at(client_id);
   auto &character = client.player_t.character;
 
   character->state->flip = m.payload->flip;
 
   const auto client_map_id = m.map_id;
-  auto clients = ServerSceneInstance::scenes[client_map_id].clients;
+  auto clients = ServerSceneInstance::scenes_[client_map_id].clients;
   clients.erase(client_id);
   ServerCharacterFlipT t;
   t.client_id = client_id;
@@ -81,10 +81,10 @@ void ServerCharacterInstance::HandleFlip(uint64_t client_id,
 
 void ServerCharacterInstance::HandleAction(uint64_t client_id,
                                               ClientCharacterActionT &m) {
-  if (!ServerClientInstance::clients.contains(client_id)) {
+  if (!ServerClientInstance::clients_.contains(client_id)) {
     return;
   }
-  auto &client = ServerClientInstance::clients.at(client_id);
+  auto &client = ServerClientInstance::clients_.at(client_id);
   auto &character = client.player_t.character;
 
   const static std::flat_set<std::string> actions = {
@@ -99,7 +99,7 @@ void ServerCharacterInstance::HandleAction(uint64_t client_id,
   }
 
   const auto client_map_id = m.map_id;
-  auto clients = ServerSceneInstance::scenes[client_map_id].clients;
+  auto clients = ServerSceneInstance::scenes_[client_map_id].clients;
   clients.erase(client_id);
   ServerCharacterActionT t;
   t.client_id = client_id;
@@ -112,10 +112,10 @@ void ServerCharacterInstance::HandleAction(uint64_t client_id,
 
 void ServerCharacterInstance::HandleDie(uint64_t client_id,
                                            ClientCharacterDieT &m) {
-  if (!ServerClientInstance::clients.contains(client_id)) {
+  if (!ServerClientInstance::clients_.contains(client_id)) {
     return;
   }
-  auto &client = ServerClientInstance::clients.at(client_id);
+  auto &client = ServerClientInstance::clients_.at(client_id);
   auto &character = client.player_t.character;
 
   character->state->x = m.payload->x;
@@ -125,7 +125,7 @@ void ServerCharacterInstance::HandleDie(uint64_t client_id,
   character->state->action_animate = true;
 
   const auto client_map_id = m.map_id;
-  auto clients = ServerSceneInstance::scenes[client_map_id].clients;
+  auto clients = ServerSceneInstance::scenes_[client_map_id].clients;
   clients.erase(client_id);
   ServerCharacterDieT t;
   t.client_id = client_id;
@@ -138,16 +138,16 @@ void ServerCharacterInstance::HandleDie(uint64_t client_id,
 
 void ServerCharacterInstance::HandleFc(uint64_t client_id,
                                           ClientCharacterFcT &m) {
-  if (!ServerClientInstance::clients.contains(client_id)) {
+  if (!ServerClientInstance::clients_.contains(client_id)) {
     return;
   }
-  auto &client = ServerClientInstance::clients.at(client_id);
+  auto &client = ServerClientInstance::clients_.at(client_id);
   auto &character = client.player_t.character;
 
   character->face->face_action = m.payload->face_action;
 
   const auto client_map_id = m.map_id;
-  auto clients = ServerSceneInstance::scenes[client_map_id].clients;
+  auto clients = ServerSceneInstance::scenes_[client_map_id].clients;
   clients.erase(client_id);
   ServerCharacterFcT t;
   t.client_id = client_id;
@@ -160,28 +160,28 @@ void ServerCharacterInstance::HandleFc(uint64_t client_id,
 
 void ServerCharacterInstance::HandleServerMv(uint64_t client_id,
                                                  ServerCharacterMvT &m) {
-  if (!CharacterGameInstance::others.contains(m.client_id)) {
+  if (!CharacterGameInstance::others_.contains(m.client_id)) {
     return;
   }
-  auto &mvs = CharacterGameInstance::others[m.client_id].mvs;
+  auto &mvs = CharacterGameInstance::others_[m.client_id].mvs;
   mvs.push_back(*m.payload);
 }
 
 void ServerCharacterInstance::HandleServerFlip(uint64_t client_id,
                                                    ServerCharacterFlipT &m) {
-  if (!CharacterGameInstance::others.contains(m.client_id)) {
+  if (!CharacterGameInstance::others_.contains(m.client_id)) {
     return;
   }
-  auto &c = CharacterGameInstance::others[m.client_id].g_character;
+  auto &c = CharacterGameInstance::others_[m.client_id].g_character;
   c.flip = m.payload->flip;
 }
 
 void ServerCharacterInstance::HandleServerAction(
     uint64_t client_id, ServerCharacterActionT &m) {
-  if (!CharacterGameInstance::others.contains(m.client_id)) {
+  if (!CharacterGameInstance::others_.contains(m.client_id)) {
     return;
   }
-  auto &c = CharacterGameInstance::others[m.client_id].g_character;
+  auto &c = CharacterGameInstance::others_[m.client_id].g_character;
   const auto &a = m.payload;
   c.action = std::u16string{a->action.begin(), a->action.end()};
   c.action_index = a->action_index;
@@ -211,10 +211,10 @@ void ServerCharacterInstance::HandleServerAction(
 
 void ServerCharacterInstance::HandleServerDie(uint64_t client_id,
                                                   ServerCharacterDieT &m) {
-  if (!CharacterGameInstance::others.contains(m.client_id)) {
+  if (!CharacterGameInstance::others_.contains(m.client_id)) {
     return;
   }
-  auto &c = CharacterGameInstance::others[m.client_id].g_character;
+  auto &c = CharacterGameInstance::others_[m.client_id].g_character;
   const auto &d = m.payload;
   c.pos.x = d->x;
   c.pos.y = d->y;
@@ -234,16 +234,16 @@ void ServerCharacterInstance::HandleServerDie(uint64_t client_id,
 
 void ServerCharacterInstance::HandleServerFc(uint64_t client_id,
                                                  ServerCharacterFcT &m) {
-  if (!CharacterGameInstance::others.contains(m.client_id)) {
+  if (!CharacterGameInstance::others_.contains(m.client_id)) {
     return;
   }
   const auto &f = m.payload;
-  auto &c = CharacterGameInstance::others[m.client_id].g_character;
+  auto &c = CharacterGameInstance::others_[m.client_id].g_character;
   c.face.action = std::u16string{f->face_action.begin(), f->face_action.end()};
   c.face.index = 0;
   c.face.time = 0;
   if (c.face.action == u"default") {
-    c.face.destroy = Window::dt_now + 4000;
+    c.face.destroy = Window::dt_now_ + 4000;
   } else {
     c.face.destroy = UINT64_MAX;
   }
@@ -251,9 +251,9 @@ void ServerCharacterInstance::HandleServerFc(uint64_t client_id,
 
 void ServerCharacterInstance::HandleSkill(uint64_t client_id,
                                              ClientCharacterSkillT &r) {
-  if (ServerClientInstance::clients.contains(client_id)) {
-    auto map_id = ServerClientInstance::clients.at(client_id).map_id;
-    auto scenes = ServerSceneInstance::scenes[map_id].clients;
+  if (ServerClientInstance::clients_.contains(client_id)) {
+    auto map_id = ServerClientInstance::clients_.at(client_id).map_id;
+    auto scenes = ServerSceneInstance::scenes_[map_id].clients;
     scenes.erase(client_id);
     ServerCharacterSkillT t;
     t.client_id = client_id;
@@ -271,11 +271,11 @@ void ServerCharacterInstance::HandleSkill(uint64_t client_id,
 
 void ServerCharacterInstance::HandleAttack(uint64_t client_id,
                                               ClientCharacterAttackT &r) {
-  if (!ServerClientInstance::clients.contains(client_id)) {
+  if (!ServerClientInstance::clients_.contains(client_id)) {
     return;
   }
-  auto map_id = ServerClientInstance::clients.at(client_id).map_id;
-  auto &Mobs = ServerSceneInstance::scenes.at(map_id).mobs;
+  auto map_id = ServerClientInstance::clients_.at(client_id).map_id;
+  auto &Mobs = ServerSceneInstance::scenes_.at(map_id).mobs;
   for (const auto &a : r.payload) {
     auto &mob = Mobs.at(a->mob_index);
     auto mob_info = MobGameInstance::LoadMobInfo(mob.id);
@@ -290,7 +290,7 @@ void ServerCharacterInstance::HandleAttack(uint64_t client_id,
     mob.hits.emplace(mh.hit_time, mh);
   }
   // 转发
-  const auto &clients = ServerSceneInstance::scenes.at(map_id).clients;
+  const auto &clients = ServerSceneInstance::scenes_.at(map_id).clients;
   ServerCharacterAttackT t;
   t.client_id = client_id;
   t.payload = std::move(r.payload);
@@ -303,8 +303,8 @@ void ServerCharacterInstance::HandleChat(uint64_t client_id,
                                             ClientCharacterChatT &r) {
   // 转发
   auto client_name =
-      ServerClientInstance::clients.at(client_id).player_t.character->name;
-  const auto &clients = ServerSceneInstance::scenes.at(r.map_id).clients;
+      ServerClientInstance::clients_.at(client_id).player_t.character->name;
+  const auto &clients = ServerSceneInstance::scenes_.at(r.map_id).clients;
   ServerCharacterChatT t;
   t.name = client_name;
   t.client_id = client_id;
@@ -317,22 +317,22 @@ void ServerCharacterInstance::HandleChat(uint64_t client_id,
 void ServerCharacterInstance::HandleServerChat(uint64_t client_id,
                                                    ServerCharacterChatT &r) {
   GameCharacter *g_character = nullptr;
-  if (r.client_id == ServerMain::local_addr) {
-    g_character = &CharacterGameInstance::self;
-  } else if (CharacterGameInstance::others.contains(r.client_id)) {
-    g_character = &CharacterGameInstance::others[r.client_id].g_character;
+  if (r.client_id == ServerMain::local_addr_) {
+    g_character = &CharacterGameInstance::self_;
+  } else if (CharacterGameInstance::others_.contains(r.client_id)) {
+    g_character = &CharacterGameInstance::others_[r.client_id].g_character;
   }
   if (g_character) {
     GameChatballoon c;
     c.w = 100;
-    c.destroy = Window::dt_now + 5000;
+    c.destroy = Window::dt_now_ + 5000;
     c.text = {r.payload->payload.begin(), r.payload->payload.end()};
     c.size = 13;
     c.path = u"0";
     g_character->chatballoon = c;
   }
 
-  ChatGameInstance::chats.push_back({
+  ChatGameInstance::chats_.push_back({
       .type = (GameChatEnum)r.payload->type,
       .owner = {r.name.begin(), r.name.end()},
       .text = {r.payload->payload.begin(), r.payload->payload.end()},
@@ -341,9 +341,9 @@ void ServerCharacterInstance::HandleServerChat(uint64_t client_id,
 
 void ServerCharacterInstance::HandleCharacter(uint64_t client_id,
                                                  ClientCharacterT &r) {
-  if (ServerClientInstance::clients.contains(client_id)) {
+  if (ServerClientInstance::clients_.contains(client_id)) {
     auto map_id = r.map_id;
-    auto scenes = ServerSceneInstance::scenes[map_id].clients;
+    auto scenes = ServerSceneInstance::scenes_[map_id].clients;
     scenes.erase(client_id);
     ServerCharacterT t;
     t.client_id = client_id;
@@ -352,14 +352,14 @@ void ServerCharacterInstance::HandleCharacter(uint64_t client_id,
       ServerResponse::send_to_client(c, t);
     }
     // save
-    ServerClientInstance::clients[client_id].player_t.character =
+    ServerClientInstance::clients_[client_id].player_t.character =
         std::move(t.payload);
   }
 }
 
 void ServerCharacterInstance::HandleServerAtk(uint64_t client_id,
                                                   ServerCharacterAttackT &r) {
-  auto &Mobs = MobGameInstance::data;
+  auto &Mobs = MobGameInstance::data_;
   std::flat_multiset<uint32_t> MobHit;
   auto &v = r.payload;
   for (uint32_t i = 0; i < v.size(); i++) {
@@ -375,9 +375,9 @@ void ServerCharacterInstance::HandleServerAtk(uint64_t client_id,
           .pos = SDL_FPoint{ct->attack->x, ct->attack->y},
           .z = false,
       };
-      if (WzResource::item->find(e.id)) {
+      if (WzResource::item_->find(e.id)) {
         e.lv = static_cast<uint8_t>(GameEffect::EffectSubType::kItem);
-      } else if (WzResource::skill->find(e.id)) {
+      } else if (WzResource::skill_->find(e.id)) {
         e.lv = static_cast<uint8_t>(GameEffect::EffectSubType::kSkill);
       }
       mob.effect.push_back(e);
@@ -403,13 +403,13 @@ void ServerCharacterInstance::HandleServerAtk(uint64_t client_id,
         .flip = false,
         .data = data,
     };
-    if (r.client_id == ServerMain::local_addr) {
+    if (r.client_id == ServerMain::local_addr_) {
       mob.attack_val += data.num;
     }
     std::u16string path = u"Mob.img/" + mob.id + u"/Damage";
     AudioGameInstance::LoadAudio(path, ct->attack->delay);
     MobHit.insert(mob.index);
-    EffectGameInstance::data[7].emplace_back(d);
+    EffectGameInstance::data_[7].emplace_back(d);
   }
 }
 
@@ -417,8 +417,8 @@ void ServerCharacterInstance::HandleSki(
     uint32_t ski_id, uint8_t ski_lv,
     const std::vector<std::unique_ptr<fbs::CharacterSkillT>> &v,
     uint64_t client_id) {
-  if (CharacterGameInstance::others.contains(client_id)) {
-    auto g_character = &CharacterGameInstance::others[client_id].g_character;
+  if (CharacterGameInstance::others_.contains(client_id)) {
+    auto g_character = &CharacterGameInstance::others_[client_id].g_character;
     auto ski_id2 = std::to_string(ski_id);
     auto ski_id3 = std::u16string{ski_id2.begin(), ski_id2.end()};
     if (ski_id3.length() < 7) {
@@ -435,9 +435,9 @@ void ServerCharacterInstance::HandleSki(
     uint64_t client_id, int32_t x, int32_t y, bool flip) {
   GameCharacter *g_character;
   if (client_id == 0) {
-    g_character = &CharacterGameInstance::self;
-  } else if (CharacterGameInstance::others.contains(client_id)) {
-    g_character = &CharacterGameInstance::others[client_id].g_character;
+    g_character = &CharacterGameInstance::self_;
+  } else if (CharacterGameInstance::others_.contains(client_id)) {
+    g_character = &CharacterGameInstance::others_[client_id].g_character;
   } else {
     return;
   }
@@ -456,7 +456,7 @@ void ServerCharacterInstance::HandleSki(
         .id = ski_id3,
         .index = 0,
         .time = 0,
-        .delay = Window::dt_now,
+        .delay = Window::dt_now_,
         .type = GameEffect::EffectType::kSkillCustom,
         .pos = SDL_FPoint{(float)x, (float)y},
         .z = false,
@@ -511,12 +511,12 @@ void ServerCharacterInstance::HandleSki(
   }
 
   auto sound_path = u"Skill.img/" + ski_id3 + u"/Use";
-  auto audio_node = WzResource::sound->find(sound_path);
+  auto audio_node = WzResource::sound_->find(sound_path);
   if (audio_node) {
     AudioGameInstance::LoadAudio(sound_path, 0);
   }
 
-  auto &mob = MobGameInstance::data;
+  auto &mob = MobGameInstance::data_;
   for (const auto &s : v) {
     if (s->player == 0) {
       GameEffect e2 = {
@@ -534,14 +534,14 @@ void ServerCharacterInstance::HandleSki(
       } else {
         e2.flip = flip;
         auto page = g_character->page;
-        EffectGameInstance::data[page].emplace_back(e2);
+        EffectGameInstance::data_[page].emplace_back(e2);
       }
     } else {
       GameCharacter *c = nullptr;
-      if (CharacterGameInstance::others.contains(s->player)) {
-        c = &CharacterGameInstance::others[s->player].g_character;
-      } else if (s->player == ServerMain::local_addr) {
-        c = &CharacterGameInstance::self;
+      if (CharacterGameInstance::others_.contains(s->player)) {
+        c = &CharacterGameInstance::others_[s->player].g_character;
+      } else if (s->player == ServerMain::local_addr_) {
+        c = &CharacterGameInstance::self_;
         // ski_buff
         auto &Skis = SkillGameInstance::Skis();
         Skis.at(ski_id3).use(client_id, ski_lv);
@@ -747,19 +747,19 @@ void ServerCharacterInstance::HandleServerPlayert(
   cod.player_t = *c;
 
   auto it =
-      CharacterGameInstance::others.emplace(c->client_id, std::move(cod));
+      CharacterGameInstance::others_.emplace(c->client_id, std::move(cod));
   auto &character = it.first->second.g_character;
   ServerCharacterInstance::HandleSState(character, c->character->states);
 }
 
 void ServerCharacterInstance::HandleState(uint64_t client_id,
                                              ClientCharacterStateT &r) {
-  if (ServerClientInstance::clients.contains(client_id)) {
-    auto &c = ServerClientInstance::clients.at(client_id).player_t.character;
+  if (ServerClientInstance::clients_.contains(client_id)) {
+    auto &c = ServerClientInstance::clients_.at(client_id).player_t.character;
     for (const auto &st : r.payload) {
       HandleSaveState(*st, *c);
     }
-    auto scenes = ServerSceneInstance::scenes[r.map_id].clients;
+    auto scenes = ServerSceneInstance::scenes_[r.map_id].clients;
     scenes.erase(client_id);
     ServerCharacterStateT t;
     t.client_id = client_id;
@@ -890,13 +890,13 @@ void ServerCharacterInstance::HandleSState(
 
 void ServerCharacterInstance::HandleServerState(uint64_t client_id,
                                                     ServerCharacterStateT &r) {
-  if (CharacterGameInstance::others.contains(r.client_id)) {
+  if (CharacterGameInstance::others_.contains(r.client_id)) {
     auto &c =
-        CharacterGameInstance::others.at(r.client_id).player_t.character;
+        CharacterGameInstance::others_.at(r.client_id).player_t.character;
     for (const auto &st : r.payload) {
       HandleSaveState(*st, *c);
     }
-    HandleSState(CharacterGameInstance::others.at(r.client_id).g_character,
+    HandleSState(CharacterGameInstance::others_.at(r.client_id).g_character,
                    r.payload);
   }
 }
@@ -951,9 +951,9 @@ void ServerCharacterInstance::HandleLvUp(GameCharacter &g_character) {
 
 void ServerCharacterInstance::HandleLvUp(uint64_t client_id,
                                              ClientCharacterLvUpT &r) {
-  if (ServerClientInstance::clients.contains(client_id)) {
+  if (ServerClientInstance::clients_.contains(client_id)) {
     auto map_id = r.map_id;
-    auto scenes = ServerSceneInstance::scenes[map_id].clients;
+    auto scenes = ServerSceneInstance::scenes_[map_id].clients;
     scenes.erase(client_id);
     ServerCharacterLvUpT t;
     t.client_id = client_id;

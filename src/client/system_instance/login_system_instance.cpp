@@ -20,29 +20,29 @@
 
 bool LoginSystemInstance::RenderGame() {
   //   后景
-  for (auto &b_backgrnd : BackgrndGameInstance::back | std::views::values) {
+  for (auto &b_backgrnd : BackgrndGameInstance::back_ | std::views::values) {
     BackgrndRenderSystem::Render(b_backgrnd);
   }
   for (uint8_t i = 0; i < 8; i++) {
-    for (auto &obj : ObjGameInstance::data[i] | std::views::values) {
+    for (auto &obj : ObjGameInstance::data_[i] | std::views::values) {
       ObjRenderSystem::Render(obj);
     }
-    for (auto &tile : TileGameInstance::data[i] | std::views::values) {
+    for (auto &tile : TileGameInstance::data_[i] | std::views::values) {
       TileRenderSystem::Render(tile);
     }
   }
   // 前景
-  for (auto &f_backgrnd : BackgrndGameInstance::front | std::views::values) {
+  for (auto &f_backgrnd : BackgrndGameInstance::front_ | std::views::values) {
     BackgrndRenderSystem::Render(f_backgrnd);
   }
   return true;
 }
 
 void LoginSystemInstance::EnterPrepare() {
-  auto camera = CameraGameInstance::camera;
+  auto camera = CameraGameInstance::camera_;
   camera.x = -80 - camera.w / 2;
   camera.y = 1023 - camera.h / 2;
-  LoginUiSystem::username = {
+  LoginUiSystem::username_ = {
       .max_size = 12,
       .text = u"sdlMS",
       .composition = {},
@@ -58,11 +58,11 @@ void LoginSystemInstance::EnterPrepare() {
       .font_color = {255, 255, 255, 255},
       .font_size = 13,
   };
-  LoginUiSystem::username.type.set(TextInput::kLetter);
-  LoginUiSystem::username.type.set(TextInput::kDigit);
-  if (LoginUiSystem::g_pipe.type == UV_NAMED_PIPE) {
-    uv_close((uv_handle_t *)&LoginUiSystem::g_pipe, nullptr);
-    LoginUiSystem::g_pipe = {};
+  LoginUiSystem::username_.type.set(TextInput::kLetter);
+  LoginUiSystem::username_.type.set(TextInput::kDigit);
+  if (LoginUiSystem::g_pipe_.type == UV_NAMED_PIPE) {
+    uv_close((uv_handle_t *)&LoginUiSystem::g_pipe_, nullptr);
+    LoginUiSystem::g_pipe_ = {};
   }
 }
 
@@ -71,28 +71,28 @@ void LoginSystemInstance::Enter() {
 
   EnterPrepare();
   auto fn = &LoginSystemInstance::RenderGame;
-  if (!std::ranges::contains(System::render_systems, fn)) {
-    static auto image = WzResource::ui->find(u"MapLogin.img");
+  if (!std::ranges::contains(System::render_systems_, fn)) {
+    static auto image = WzResource::ui_->find(u"MapLogin.img");
     BackgrndGameInstance::Load(image);
     ObjGameInstance::Load(image);
     TileGameInstance::Load(image);
   }
 
-  System::logic_systems = {
+  System::logic_systems_ = {
       BackgrndLogicSystem::Run,
       ObjLogicSystem::Run,
       AudioLogicSystem::Run,
       CursorLogicSystem::Run,
   };
-  System::render_systems = {
+  System::render_systems_ = {
       RenderGame,
       LoginUiSystem::Render,
       CursorRenderSystem::Render,
   };
-  System::event_systems = {
+  System::event_systems_ = {
       LoginUiSystem::Event,
   };
-  auto &camera = CameraGameInstance::camera;
+  auto &camera = CameraGameInstance::camera_;
   camera.x = -80 - camera.w / 2;
   camera.y = 1023 - camera.h / 2;
 }

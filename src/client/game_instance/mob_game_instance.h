@@ -27,5 +27,5 @@ public:
 
   static void Load(uint32_t map_id);
 
-  static inline std::flat_map<int32_t, MobServerData> data;
+  static inline std::flat_map<int32_t, MobServerData> data_;
 };

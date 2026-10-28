@@ -8,12 +8,12 @@
 
 void ServerTrapInstance::HandleAttack(uint64_t client_id,
                                          ClientTrapAttackT &r) {
-  if (!ServerClientInstance::clients.contains(client_id)) {
+  if (!ServerClientInstance::clients_.contains(client_id)) {
     return;
   }
   // 转发
   auto map_id = r.map_id;
-  auto clients = ServerSceneInstance::scenes.at(map_id).clients;
+  auto clients = ServerSceneInstance::scenes_.at(map_id).clients;
   clients.erase(client_id);
   ServerTrapAttackT t;
   t.client_id = client_id;
@@ -41,7 +41,7 @@ void ServerTrapInstance::HandleSAttack(uint64_t client_id, AttackT &at) {
       .flip = false,
       .data = data,
   };
-  EffectGameInstance::data[7].emplace_back(d);
+  EffectGameInstance::data_[7].emplace_back(d);
 }
 
 void ServerTrapInstance::HandleServerAttack(uint64_t client_id,

@@ -4,8 +4,8 @@
 #include <ranges>
 
 bool PortalLogicSystem::Run() {
-  for (auto &portal : PortalGameInstance::data | std::views::values) {
-    portal.ani_time += Window::delta_time;
+  for (auto &portal : PortalGameInstance::data_ | std::views::values) {
+    portal.ani_time += Window::delta_time_;
     if (portal.ani_time >= 100) {
       portal.ani_index += 1;
       portal.ani_time = 0;

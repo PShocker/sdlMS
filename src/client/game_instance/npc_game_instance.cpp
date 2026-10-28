@@ -23,7 +23,7 @@ std::u16string NpcGameInstance::LoadNpcText(const std::u16string &id,
   auto view = id | std::views::drop_while([](char16_t c) { return c == u'0'; });
 
   std::u16string result(view.begin(), view.end());
-  auto str_node = WzResource::string->find(u"Npc.img/" + result);
+  auto str_node = WzResource::string_->find(u"Npc.img/" + result);
 
   if (auto node = str_node->get_child(val)) {
     r = TextGameInstance::LoadRstr(node);
@@ -32,11 +32,11 @@ std::u16string NpcGameInstance::LoadNpcText(const std::u16string &id,
 }
 
 wz::Node *NpcGameInstance::LoadLinkNpcNode(const std::u16string &id) {
-  auto npc_node = WzResource::npc->find(id + u".img");
+  auto npc_node = WzResource::npc_->find(id + u".img");
   while (npc_node->find(u"info/link")) {
     auto link_node = npc_node->find(u"info/link");
     auto link = static_cast<wz::Property<std::u16string> *>(link_node)->get();
-    npc_node = WzResource::npc->find(link + u".img");
+    npc_node = WzResource::npc_->find(link + u".img");
   }
   return npc_node;
 }
@@ -73,16 +73,16 @@ wz::Node *NpcGameInstance::LoadQuestNode(const GameNpc &g_npc) {
   auto progress_complete =
       NpcGameInstance::LoadProgressCompleteQuest(g_npc.id);
   if (!progress_complete.empty()) {
-    node = WzResource::ui->find(u"QuestIcon.img/2");
+    node = WzResource::ui_->find(u"QuestIcon.img/2");
   } else if (!avaliable.empty()) {
-    node = WzResource::ui->find(u"QuestIcon.img/0");
+    node = WzResource::ui_->find(u"QuestIcon.img/0");
   } else if (!progress.empty()) {
-    node = WzResource::ui->find(u"QuestIcon.img/1");
+    node = WzResource::ui_->find(u"QuestIcon.img/1");
   } else {
     return nullptr;
   }
   // 直接用当前时间控制灯泡时间
-  auto now = Window::dt_now;
+  auto now = Window::dt_now_;
   const int delay = 150;
   auto index = std::to_string((now % (node->children_count() * delay)) / delay);
   node = node->get_child(index);
@@ -108,7 +108,7 @@ NpcGameInstance::LoadQuestRect(const GameNpc &g_npc) {
 }
 
 void NpcGameInstance::Load(uint32_t map_id) {
-  data = {};
+  data_ = {};
 
   auto map_node = WzResource::LoadMapNode(map_id);
   auto map_life_node = map_node->get_child(u"life");
@@ -137,21 +137,21 @@ void NpcGameInstance::Load(uint32_t map_id) {
         static_cast<wz::Property<int> *>(npc_node->get_child(u"rx1"))->get();
     auto x = static_cast<wz::Property<int> *>(npc_node->get_child(u"x"))->get();
 
-    auto &fh = FootholdGameInstance::data[g_npc.fh];
+    auto &fh = FootholdGameInstance::data_[g_npc.fh];
     auto y = fh.k.value() * x + fh.intercept.value();
     g_npc.pos = {static_cast<float>(x), static_cast<float>(y)};
 
     // default action
     g_npc.action = u"stand";
-    g_npc.duration = Window::dt_now + 1000;
+    g_npc.duration = Window::dt_now_ + 1000;
 
-    auto page = FootholdGameInstance::data.at(g_npc.fh).page;
-    data[page].push_back(g_npc);
+    auto page = FootholdGameInstance::data_.at(g_npc.fh).page;
+    data_[page].push_back(g_npc);
   }
 }
 
 std::u16string NpcGameInstance::LoadNpcScript(const std::u16string &id) {
-  auto npc_node = WzResource::npc->find(id + u".img");
+  auto npc_node = WzResource::npc_->find(id + u".img");
   if (auto n = npc_node->find(u"info/script/0/script"); n != nullptr) {
     return static_cast<wz::Property<std::u16string> *>(n)->get();
   }
@@ -163,7 +163,7 @@ NpcGameInstance::LoadNpcType(const std::u16string &id) {
   if (ShopGameInstance::LoadNpcShop(id)) {
     return NpcType::kShop;
   }
-  auto npc_node = WzResource::npc->find(id + u".img");
+  auto npc_node = WzResource::npc_->find(id + u".img");
   if (!QuestGameInstance::LoadNpcQuest(id).empty() ||
       !NpcGameInstance::LoadProgressCompleteQuest(id).empty()) {
     return NpcType::kQuest;

@@ -86,9 +86,9 @@ private:
   static void RunAnimateChair(GameCharacter &g_character);
 
 public:
-  static inline ClientCharacterStateT ccs;
-  static inline ClientCharacterPickT ccp;
-  static inline ClientCharacterT cct;
+  static inline ClientCharacterStateT ccs_;
+  static inline ClientCharacterPickT ccp_;
+  static inline ClientCharacterT cct_;
 
   static bool RunHarvest(GameCharacter &g_character); //or npc talk
 
@@ -141,39 +141,39 @@ public:
   };
   static ActionEnum LoadActionType(GameCharacter &g_character);
   static bool Run();
-  static inline std::flat_set<std::string> character_action_input;
-  static inline std::flat_set<std::string> character_skill_input;
-  static inline std::flat_set<std::string> character_face_input;
-  static inline std::flat_set<GameInput> character_item_input;
+  static inline std::flat_set<std::string> character_action_input_;
+  static inline std::flat_set<std::string> character_skill_input_;
+  static inline std::flat_set<std::string> character_face_input_;
+  static inline std::flat_set<GameInput> character_item_input_;
 
-  static inline int32_t self_fh; // foothold
-  static inline int32_t self_lr; // ladderrope
+  static inline int32_t self_fh_; // foothold
+  static inline int32_t self_lr_; // ladderrope
 
-  static inline float self_hforce = 0.0;
-  static inline float self_vforce = 0.0;
+  static inline float self_hforce_ = 0.0;
+  static inline float self_vforce_ = 0.0;
 
-  static inline float self_hspeed = 0.0;
-  static inline float self_vspeed = 0.0;
+  static inline float self_hspeed_ = 0.0;
+  static inline float self_vspeed_ = 0.0;
 
-  static inline float self_hspeed_min = -125.0f;
-  static inline float self_hspeed_max = 125.0f;
+  static inline float self_hspeed_min_ = -125.0f;
+  static inline float self_hspeed_max_ = 125.0f;
 
-  static inline float self_vspeed_min = -5550.0f;
-  static inline float self_vspeed_max = 670.0f;
+  static inline float self_vspeed_min_ = -5550.0f;
+  static inline float self_vspeed_max_ = 670.0f;
 
-  static inline uint64_t self_alert_cooldown;
-  static inline uint64_t self_ladderrope_cooldown;
-  static inline uint64_t self_foothold_cooldown;
-  static inline uint64_t self_sit_cooldown;
-  static inline uint64_t self_face_cooldown;
-  static inline uint64_t self_portal_cooldown;
-  static inline uint64_t self_flip_cooldown;
-  static inline uint64_t self_attack_cooldown;
-  static inline uint64_t self_invincible_cooldown;
-  static inline uint64_t self_two_jump_cooldown;
+  static inline uint64_t self_alert_cooldown_;
+  static inline uint64_t self_ladderrope_cooldown_;
+  static inline uint64_t self_foothold_cooldown_;
+  static inline uint64_t self_sit_cooldown_;
+  static inline uint64_t self_face_cooldown_;
+  static inline uint64_t self_portal_cooldown_;
+  static inline uint64_t self_flip_cooldown_;
+  static inline uint64_t self_attack_cooldown_;
+  static inline uint64_t self_invincible_cooldown_;
+  static inline uint64_t self_two_jump_cooldown_;
 
-  static inline uint64_t self_climb_animate_cooldown; // 绳子放技能,动作时间
+  static inline uint64_t self_climb_animate_cooldown_; // 绳子放技能,动作时间
 
-  static inline float self_fall_min;
-  static inline int32_t self_fall_fh;
+  static inline float self_fall_min_;
+  static inline int32_t self_fall_fh_;
 };

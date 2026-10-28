@@ -4,10 +4,10 @@
 #include <functional>
 class FadeSystemInstance {
 private:
-  static inline int fade_in;
-  static inline int mask_alpha;
-  static inline std::function<void()> fn;
-  static inline SDL_Texture *backgrnd;
+  static inline int fade_in_;
+  static inline int mask_alpha_;
+  static inline std::function<void()> fn_;
+  static inline SDL_Texture *backgrnd_;
 
 public:
   static bool Run();

@@ -9,9 +9,9 @@ private:
   static void RenderText();
 
 public:
-  static inline SDL_FPoint pos;
-  static inline std::u16string path;
-  static inline std::u16string text;
+  static inline SDL_FPoint pos_;
+  static inline std::u16string path_;
+  static inline std::u16string text_;
 
   static void Open();
   static void Close();

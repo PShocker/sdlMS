@@ -9,7 +9,7 @@
 
 void ServerSystemInstance::Enter(bool host) {
   if (host) {
-    ServerSystem::server_systems = {
+    ServerSystem::server_systems_ = {
         ServerMain::Run,
         // server_heartbeat_system::run_server_heartbeat,
         // server_heartbeat_system::run_client_heartbeat,
@@ -18,7 +18,7 @@ void ServerSystemInstance::Enter(bool host) {
         ServerReactorSystem::Run,
     };
   } else {
-    ServerSystem::server_systems = {
+    ServerSystem::server_systems_ = {
         ServerMain::Run,
         // server_heartbeat_system::run_client_heartbeat,
     };

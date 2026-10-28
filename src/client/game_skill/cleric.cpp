@@ -44,8 +44,8 @@ static void Shunjianyidong() {
 
   g_skill.use = [g_skill](uint64_t client_id, int ski_lv) {
     CharacterStatGameInstance::AddExp(1000);
-    SkillGameInstance::Skis()[u"2301000"].cd = Window::dt_now + 500;
-    auto &sf = CharacterGameInstance::self;
+    SkillGameInstance::Skis()[u"2301000"].cd = Window::dt_now_ + 500;
+    auto &sf = CharacterGameInstance::self_;
 
     auto up = KeyboardGameInstance::FindKeyByVal("up");
     auto down = KeyboardGameInstance::FindKeyByVal("down");
@@ -55,19 +55,19 @@ static void Shunjianyidong() {
     auto x = sf.pos.x;
     auto y = sf.pos.y;
 
-    if (Window::keyboard_state[right]) {
+    if (Window::keyboard_state_[right]) {
       x += 200;
-    } else if (Window::keyboard_state[left]) {
+    } else if (Window::keyboard_state_[left]) {
       x -= 200;
-    } else if (Window::keyboard_state[down]) {
+    } else if (Window::keyboard_state_[down]) {
       y += 200;
-    } else if (Window::keyboard_state[up]) {
+    } else if (Window::keyboard_state_[up]) {
       y -= 200;
     }
 
-    const auto &fhs = FootholdGameInstance::data;
+    const auto &fhs = FootholdGameInstance::data_;
     auto border =
-        MapInfoGameInstance::LoadMrBorder(SceneSystemInstance::map_id);
+        MapInfoGameInstance::LoadMrBorder(SceneSystemInstance::map_id_);
     auto [l, t, r, b] = border;
     x = std::clamp(x, l, r);
     y = std::clamp(y, t, b);
@@ -77,10 +77,10 @@ static void Shunjianyidong() {
       if (!ins.empty()) {
         if (sf.pos.y < y) {
           sf.pos = ins.rbegin()->second.pos;
-          CharacterLogicSystem::self_fh = ins.rbegin()->second.fh.id;
+          CharacterLogicSystem::self_fh_ = ins.rbegin()->second.fh.id;
         } else {
           sf.pos = ins.begin()->second.pos;
-          CharacterLogicSystem::self_fh = ins.begin()->second.fh.id;
+          CharacterLogicSystem::self_fh_ = ins.begin()->second.fh.id;
         }
       }
     } else if (x != sf.pos.x) {
@@ -88,19 +88,19 @@ static void Shunjianyidong() {
       if (!ins.empty()) {
         auto top = ins.begin()->first;
         sf.pos = ins.begin()->second.pos;
-        CharacterLogicSystem::self_fh = ins.begin()->second.fh.id;
+        CharacterLogicSystem::self_fh_ = ins.begin()->second.fh.id;
       } else {
         auto ins = Physic::FallIntersectPos({x, y}, {x, y - 70}, fhs);
         if (!ins.empty()) {
           auto top = ins.rbegin()->first;
           sf.pos = ins.rbegin()->second.pos;
-          CharacterLogicSystem::self_fh = ins.begin()->second.fh.id;
+          CharacterLogicSystem::self_fh_ = ins.begin()->second.fh.id;
         }
       }
     }
 
-    CharacterLogicSystem::self_hspeed = 0;
-    CharacterLogicSystem::self_vspeed = 0;
+    CharacterLogicSystem::self_hspeed_ = 0;
+    CharacterLogicSystem::self_vspeed_ = 0;
 
     auto ckt = SkillGameInstance::CreateSkillPayload(2301000, ski_lv);
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
@@ -117,16 +117,16 @@ static void Huixueshu() {
 
   static uint64_t now;
   g_skill.use = [g_skill](uint64_t client_id, int ski_lv) mutable {
-    SkillGameInstance::Skis()[u"2301001"].cd = Window::dt_now + 1000;
+    SkillGameInstance::Skis()[u"2301001"].cd = Window::dt_now_ + 1000;
 
-    auto &ski = SkillGameInstance::ski;
+    auto &ski = SkillGameInstance::ski_;
     g_skill.end();
     g_skill.lv = ski_lv;
     g_skill.duration = 30 * 1000;
-    g_skill.destroy = Window::dt_now + g_skill.duration;
+    g_skill.destroy = Window::dt_now_ + g_skill.duration;
     ski.push_back(g_skill);
 
-    auto &sf = CharacterGameInstance::self;
+    auto &sf = CharacterGameInstance::self_;
     auto ckt = SkillGameInstance::CreateSkillPayload(1001, ski_lv);
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
     ClientRequest::send_to_host(ckt);
@@ -141,36 +141,36 @@ static void Qidao() {
   g_skill.climb = true;
   g_skill.id = u"2301003";
   g_skill.end = []() {
-    auto &ski = SkillGameInstance::ski;
+    auto &ski = SkillGameInstance::ski_;
     auto it = std::ranges::find_if(
         ski, [](const GameSkill &s) { return s.id == u"2301003"; });
     if (it != ski.end()) {
       ski.erase(it);
-      CharacterLogicSystem::self_hspeed_max -= 100;
-      CharacterLogicSystem::self_hspeed_min += 100;
+      CharacterLogicSystem::self_hspeed_max_ -= 100;
+      CharacterLogicSystem::self_hspeed_min_ += 100;
     }
   };
 
   g_skill.frame = []() { return; };
 
   g_skill.use = [g_skill](uint64_t client_id, int ski_lv) mutable {
-    auto &ski = SkillGameInstance::ski;
+    auto &ski = SkillGameInstance::ski_;
     g_skill.end();
     g_skill.lv = ski_lv;
     g_skill.duration = 30 * 1000;
-    g_skill.destroy = Window::dt_now + g_skill.duration;
+    g_skill.destroy = Window::dt_now_ + g_skill.duration;
     ski.push_back(g_skill);
 
-    CharacterLogicSystem::self_hspeed_max += 100;
-    CharacterLogicSystem::self_hspeed_min -= 100;
+    CharacterLogicSystem::self_hspeed_max_ += 100;
+    CharacterLogicSystem::self_hspeed_min_ -= 100;
 
     if (client_id != 0) {
       return;
     }
 
-    SkillGameInstance::Skis()[u"2301003"].cd = Window::dt_now + 1000;
+    SkillGameInstance::Skis()[u"2301003"].cd = Window::dt_now_ + 1000;
 
-    auto &sf = CharacterGameInstance::self;
+    auto &sf = CharacterGameInstance::self_;
     auto g_r = SkillGameInstance::LoadSkiR(u"2301003");
     auto players = CharacterLogicSystem::RunBuffCheck(sf, g_r);
     auto ckt =

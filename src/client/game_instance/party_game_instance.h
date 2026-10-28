@@ -4,5 +4,5 @@
 #include <optional>
 class PartyGameInstance {
 public:
-  static inline std::optional<GameParty> data;
+  static inline std::optional<GameParty> data_;
 };

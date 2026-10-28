@@ -23,14 +23,14 @@
 void CharacterChooseSystemInstance::EnterPrepare(const std::string &login) {
   GameSaveSystemInstance::LoadSave(login);
   // 进一步解析game_save
-  auto character_size = GameSaveSystemInstance::save.characters.size();
-  CharacterChooseUiSystem::characters.resize(character_size);
+  auto character_size = GameSaveSystemInstance::save_.characters.size();
+  CharacterChooseUiSystem::characters_.resize(character_size);
   for (int i = 0; i < character_size; i++) {
-    auto &sc = GameSaveSystemInstance::save.characters[i];
-    CharacterChooseUiSystem::characters[i] = sc.character;
+    auto &sc = GameSaveSystemInstance::save_.characters[i];
+    CharacterChooseUiSystem::characters_[i] = sc.character;
     CharacterLogicSystem::RunStandAction(
-        CharacterChooseUiSystem::characters[i]);
-    CharacterChooseUiSystem::characters[i].flip = 1;
+        CharacterChooseUiSystem::characters_[i]);
+    CharacterChooseUiSystem::characters_[i].flip = 1;
   }
 }
 
@@ -41,31 +41,31 @@ void CharacterChooseSystemInstance::Enter(const std::string &login) {
 
 void CharacterChooseSystemInstance::Enter() {
   auto fn = &LoginSystemInstance::RenderGame;
-  if (!std::ranges::contains(System::render_systems, fn)) {
-    static auto image = WzResource::ui->find(u"MapLogin.img");
+  if (!std::ranges::contains(System::render_systems_, fn)) {
+    static auto image = WzResource::ui_->find(u"MapLogin.img");
     BackgrndGameInstance::Load(image);
     ObjGameInstance::Load(image);
     TileGameInstance::Load(image);
   }
-  System::logic_systems = {
+  System::logic_systems_ = {
       BackgrndLogicSystem::Run,      ObjLogicSystem::Run,
       AudioLogicSystem::Run,         CursorLogicSystem::Run,
       CharacterChooseUiSystem::Run,
   };
-  System::render_systems = {
+  System::render_systems_ = {
       LoginSystemInstance::RenderGame,
       CharacterChooseUiSystem::Render,
       CursorRenderSystem::Render,
   };
-  System::event_systems = {
+  System::event_systems_ = {
       CharacterChooseUiSystem::Event,
   };
-  auto &camera = CameraGameInstance::camera;
+  auto &camera = CameraGameInstance::camera_;
   camera.x = -80 - camera.w / 2;
   camera.y = -479 - camera.h / 2;
 
-  CharacterChooseUiSystem::choose = std::nullopt;
-  CharacterChooseUiSystem::board.ani_delay = {250, 50, 50, 0};
-  CharacterChooseUiSystem::effect.ani_delay = {150, 100, 100, 100, 0};
-  auto character_size = CharacterChooseUiSystem::characters.size();
+  CharacterChooseUiSystem::choose_ = std::nullopt;
+  CharacterChooseUiSystem::board_.ani_delay = {250, 50, 50, 0};
+  CharacterChooseUiSystem::effect_.ani_delay = {150, 100, 100, 100, 0};
+  auto character_size = CharacterChooseUiSystem::characters_.size();
 }

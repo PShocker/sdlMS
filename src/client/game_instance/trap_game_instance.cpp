@@ -13,7 +13,7 @@
 #include <vector>
 
 void TrapGameInstance::Load(wz::Node *image) {
-  data = {};
+  data_ = {};
   auto map_node = image;
   uint8_t map_layer = 0;
   for (auto i : {u"0", u"1", u"2", u"3", u"4", u"5", u"6", u"7"}) {
@@ -56,7 +56,7 @@ void TrapGameInstance::Load(wz::Node *image) {
 
       g_obj.z = z * 100000 + load_z * 10;
 
-      obj_node = WzResource::map->find(g_obj.path);
+      obj_node = WzResource::map_->find(g_obj.path);
       uint8_t canvas_count = 0;
 
       std::vector<int> delays;
@@ -83,7 +83,7 @@ void TrapGameInstance::Load(wz::Node *image) {
       g_obj.ani_index = AnimateData.index;
       g_obj.ani_time = AnimateData.time;
 
-      data[map_layer].emplace(g_obj.z, g_obj);
+      data_[map_layer].emplace(g_obj.z, g_obj);
     }
     map_layer++;
   }
@@ -93,7 +93,7 @@ TrapGameInstance::AnimateData
 TrapGameInstance::LoadAnimateIndex(std::vector<int> delays) {
   auto ds = delays;
   auto sum = std::accumulate(ds.begin(), ds.end(), 0);
-  auto offset = Window::dt_time % sum; // 取余，得到周期内偏移
+  auto offset = Window::dt_time_ % sum; // 取余，得到周期内偏移
   uint32_t accumulated = 0;
   uint8_t index = 0;
   for (auto j = 0; j < ds.size(); j++) {

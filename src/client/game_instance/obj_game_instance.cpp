@@ -8,7 +8,7 @@
 #include <string>
 
 void ObjGameInstance::Load(wz::Node *image) {
-  data = {};
+  data_ = {};
   auto map_node = image;
   uint8_t map_layer = 0;
   for (auto i : {u"0", u"1", u"2", u"3", u"4", u"5", u"6", u"7"}) {
@@ -51,7 +51,7 @@ void ObjGameInstance::Load(wz::Node *image) {
 
       g_obj.z = z * 100000 + load_z * 10;
 
-      obj_node = WzResource::map->find(g_obj.path);
+      obj_node = WzResource::map_->find(g_obj.path);
       uint8_t canvas_count = 0;
       for (auto [k, v] : *obj_node->get_children()) {
         if (v[0]->type == wz::Type::UOL) {
@@ -63,7 +63,7 @@ void ObjGameInstance::Load(wz::Node *image) {
       }
       g_obj.ani_count = canvas_count;
 
-      data[map_layer].emplace(g_obj.z, g_obj);
+      data_[map_layer].emplace(g_obj.z, g_obj);
     }
     map_layer++;
   }

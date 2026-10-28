@@ -6,9 +6,9 @@
 #include <cmath>
 
 bool CameraLogicSystem::Run() {
-  auto self = CharacterGameInstance::self;
+  auto self = CharacterGameInstance::self_;
   auto self_pos = self.pos;
-  auto &camera = CameraGameInstance::camera;
+  auto &camera = CameraGameInstance::camera_;
 
   auto prev_x = camera.x;
   auto next_x = self_pos.x - camera.w / 2; // 人物移动后新的摄像机坐标
@@ -25,7 +25,7 @@ bool CameraLogicSystem::Run() {
       std::roundf(std::lerp(prev_y, next_y, std::abs(delta_y) / 6000.0f));
 
   auto border =
-      MapInfoGameInstance::LoadVrBorder(SceneSystemInstance::map_id);
+      MapInfoGameInstance::LoadVrBorder(SceneSystemInstance::map_id_);
   auto [t, l, b, r] = border;
   if (camera.x < l) {
     camera.x = l;

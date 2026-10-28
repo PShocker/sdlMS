@@ -10,24 +10,24 @@
 
 class WzResource {
 public:
-  static inline wz::Files *character;
-  static inline wz::Files *effect;
-  static inline wz::Files *etc;
-  static inline wz::Files *item;
-  static inline wz::Files *map;
-  static inline wz::Files *mob;
-  static inline wz::Files *morph;
-  static inline wz::Files *npc;
-  static inline wz::Files *quest;
-  static inline wz::Files *reactor;
-  static inline wz::Files *skill;
-  static inline wz::Files *sound;
-  static inline wz::Files *string;
-  static inline wz::Files *taming_mob;
-  static inline wz::Files *ui;
+  static inline wz::Files *character_;
+  static inline wz::Files *effect_;
+  static inline wz::Files *etc_;
+  static inline wz::Files *item_;
+  static inline wz::Files *map_;
+  static inline wz::Files *mob_;
+  static inline wz::Files *morph_;
+  static inline wz::Files *npc_;
+  static inline wz::Files *quest_;
+  static inline wz::Files *reactor_;
+  static inline wz::Files *skill_;
+  static inline wz::Files *sound_;
+  static inline wz::Files *string_;
+  static inline wz::Files *taming_mob_;
+  static inline wz::Files *ui_;
 
   // patch
-  static inline wz::File *ms;
+  static inline wz::File *ms_;
 
   static void Init();
   static std::string LoadMapPath(uint32_t map_id);
@@ -41,6 +41,6 @@ private:
   static wz::Node *LoadRealNodeTexture(wz::Node *node);
   static SDL_Texture *LoadNodeTexture(wz::Node *node);
 
-  static inline std::flat_map<wz::Node *, SDL_Texture *> texture_cache;
-  static inline std::flat_map<uint32_t, wz::Node *> map_node_cache;
+  static inline std::flat_map<wz::Node *, SDL_Texture *> texture_cache_;
+  static inline std::flat_map<uint32_t, wz::Node *> map_node_cache_;
 };

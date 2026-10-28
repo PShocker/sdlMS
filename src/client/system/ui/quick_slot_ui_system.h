@@ -21,7 +21,7 @@ public:
     kTwo,
     kThree,
   };
-  static inline QuickSlot quickSlot = QuickSlot::kTwo;
+  static inline QuickSlot quickSlot_ = QuickSlot::kTwo;
 
   static void Open();
   static void Close();

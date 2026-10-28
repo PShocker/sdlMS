@@ -3,12 +3,12 @@
 #include "src/client/window/window.h"
 
 static void Npc18(std::any data) {
-  NpcDlgUiSystem::type = NpcDlgUiSystem::NpcDlgEnum::kTalk;
-  NpcDlgUiSystem::text = u"npc_19";
-  NpcDlgUiSystem::index = 0;
-  NpcDlgUiSystem::max_index = 0;
-  NpcDlgUiSystem::npc_id = u"0000019";
-  NpcDlgUiSystem::time = Window::dt_now;
+  NpcDlgUiSystem::type_ = NpcDlgUiSystem::NpcDlgEnum::kTalk;
+  NpcDlgUiSystem::text_ = u"npc_19";
+  NpcDlgUiSystem::index_ = 0;
+  NpcDlgUiSystem::max_index_ = 0;
+  NpcDlgUiSystem::npc_id_ = u"0000019";
+  NpcDlgUiSystem::time_ = Window::dt_now_;
 };
 
 [[maybe_unused]] static const bool r = [] {

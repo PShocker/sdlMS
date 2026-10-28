@@ -10,7 +10,7 @@
 
 void BackgrndLogicSystem::RunAnimate(GameBackgrnd &g_backgrnd) {
   if (g_backgrnd.ani == 1) {
-    auto texture_node = WzResource::map->find(g_backgrnd.path);
+    auto texture_node = WzResource::map_->find(g_backgrnd.path);
     auto ani_index = g_backgrnd.ani_index % texture_node->children_count();
     texture_node = texture_node->get_child(std::to_string(ani_index));
 
@@ -18,7 +18,7 @@ void BackgrndLogicSystem::RunAnimate(GameBackgrnd &g_backgrnd) {
         static_cast<wz::Property<int> *>(texture_node->get_child(u"delay"))
             ->get();
 
-    g_backgrnd.ani_time += Window::delta_time;
+    g_backgrnd.ani_time += Window::delta_time_;
     if (g_backgrnd.ani_time >= delay) {
       g_backgrnd.ani_time = 0;
       g_backgrnd.ani_index = 0;
@@ -27,14 +27,14 @@ void BackgrndLogicSystem::RunAnimate(GameBackgrnd &g_backgrnd) {
 }
 
 void BackgrndLogicSystem::RunOffset(GameBackgrnd &g_backgrnd) {
-  auto viewprot_x = CameraGameInstance::camera.x;
-  auto viewprot_y = CameraGameInstance::camera.y;
-  auto viewprot_w = CameraGameInstance::camera.w;
-  auto viewprot_h = CameraGameInstance::camera.h;
+  auto viewprot_x = CameraGameInstance::camera_.x;
+  auto viewprot_y = CameraGameInstance::camera_.y;
+  auto viewprot_w = CameraGameInstance::camera_.w;
+  auto viewprot_h = CameraGameInstance::camera_.h;
 
   if (g_backgrnd.hspeed) {
     g_backgrnd.offset_x = fmodf(
-        g_backgrnd.offset_x + g_backgrnd.rx * 5 * Window::delta_time / 1000.0f,
+        g_backgrnd.offset_x + g_backgrnd.rx * 5 * Window::delta_time_ / 1000.0f,
         g_backgrnd.cx);
   } else {
     g_backgrnd.offset_x =
@@ -42,7 +42,7 @@ void BackgrndLogicSystem::RunOffset(GameBackgrnd &g_backgrnd) {
   }
   if (g_backgrnd.vspeed) {
     g_backgrnd.offset_y = fmodf(
-        g_backgrnd.offset_y + g_backgrnd.ry * 5 * Window::delta_time / 1000.0,
+        g_backgrnd.offset_y + g_backgrnd.ry * 5 * Window::delta_time_ / 1000.0,
         g_backgrnd.cy);
   } else {
     g_backgrnd.offset_y =
@@ -52,7 +52,7 @@ void BackgrndLogicSystem::RunOffset(GameBackgrnd &g_backgrnd) {
 
 bool BackgrndLogicSystem::Run() {
   for (auto m :
-       {&BackgrndGameInstance::front, &BackgrndGameInstance::back}) {
+       {&BackgrndGameInstance::front_, &BackgrndGameInstance::back_}) {
     for (auto &backgrnd : *m | std::views::values) {
       RunOffset(backgrnd);
       RunAnimate(backgrnd);

@@ -33,7 +33,7 @@
 
 int QuestUiSystem::LoadVscrNum0() {
   std::flat_map<int8_t, std::vector<GameQuest>> quests;
-  switch (active_tab) {
+  switch (active_tab_) {
   case 0:
     quests = QuestGameInstance::LoadUiAvaliableQuest();
     break;
@@ -50,7 +50,7 @@ int QuestUiSystem::LoadVscrNum0() {
   int count = 0;
   for (auto [k, v] : quests) {
     count++;
-    if (!disable_fold.contains(k)) {
+    if (!disable_fold_.contains(k)) {
       count += v.size();
     }
   }
@@ -62,7 +62,7 @@ int QuestUiSystem::LoadVscrNum1() {
   auto info = LoadDetailStr();
   Freetype::LoadSize(12);
   h += Freetype::LoadRh(info, 265, 1.3, std::nullopt);
-  if (QuestGameInstance::progress_quests.contains(detail_quest)) {
+  if (QuestGameInstance::progress_quests_.contains(detail_quest_)) {
     h += LoadDetailSummaryBackgrndH();
   } else {
     h += 18;
@@ -72,10 +72,10 @@ int QuestUiSystem::LoadVscrNum1() {
 }
 
 int QuestUiSystem::LoadDetailSummaryBackgrndH() {
-  if (detail_quest.empty()) {
+  if (detail_quest_.empty()) {
     return 0;
   }
-  auto q = QuestGameInstance::progress_quests.at(detail_quest);
+  auto q = QuestGameInstance::progress_quests_.at(detail_quest_);
   int h = 0;
   h += q.check_item.size() * 40;
   h += q.check_mob.size() * 25;
@@ -88,68 +88,68 @@ int QuestUiSystem::LoadDetailSummaryBackgrndH() {
 
 void QuestUiSystem::RenderBackgrnd() {
   static auto backgrnd = WzResource::LoadTexture(
-      WzResource::ui->find(u"UIWindow.img/Quest/backgrnd"));
+      WzResource::ui_->find(u"UIWindow.img/Quest/backgrnd"));
   static auto backgrnd2 = WzResource::LoadTexture(
-      WzResource::ui->find(u"UIWindow.img/Quest/backgrnd2"));
+      WzResource::ui_->find(u"UIWindow.img/Quest/backgrnd2"));
   static auto backgrnd3 = WzResource::LoadTexture(
-      WzResource::ui->find(u"UIWindow.img/Quest/backgrnd3"));
+      WzResource::ui_->find(u"UIWindow.img/Quest/backgrnd3"));
   static auto backgrnd4 = WzResource::LoadTexture(
-      WzResource::ui->find(u"UIWindow.img/Quest/backgrnd4"));
+      WzResource::ui_->find(u"UIWindow.img/Quest/backgrnd4"));
   static auto backgrnd5 = WzResource::LoadTexture(
-      WzResource::ui->find(u"UIWindow.img/Quest/backgrnd5"));
+      WzResource::ui_->find(u"UIWindow.img/Quest/backgrnd5"));
   static auto notice0 = WzResource::LoadTexture(
-      WzResource::ui->find(u"UIWindow.img/Quest/notice0"));
+      WzResource::ui_->find(u"UIWindow.img/Quest/notice0"));
   static auto notice1 = WzResource::LoadTexture(
-      WzResource::ui->find(u"UIWindow.img/Quest/notice1"));
+      WzResource::ui_->find(u"UIWindow.img/Quest/notice1"));
   static auto notice2 = WzResource::LoadTexture(
-      WzResource::ui->find(u"UIWindow.img/Quest/notice2"));
+      WzResource::ui_->find(u"UIWindow.img/Quest/notice2"));
   static auto notice3 = WzResource::LoadTexture(
-      WzResource::ui->find(u"UIWindow.img/Quest/notice3"));
+      WzResource::ui_->find(u"UIWindow.img/Quest/notice3"));
   SDL_FRect pos_rect{
-      pos.x,
-      pos.y,
+      pos_.x,
+      pos_.y,
       static_cast<float>(backgrnd->w),
       static_cast<float>(backgrnd->h),
   };
-  SDL_RenderTexture(Window::renderer, backgrnd, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, backgrnd, nullptr, &pos_rect);
 }
 
 void QuestUiSystem::RenderButton() {
   std::vector<wz::Node *> buttons_nodes = {
-      WzResource::ui->find(u"Basic.img/BtClose"),
-      WzResource::ui->find(u"Quest.img/Quest/list/BtDetail"),
+      WzResource::ui_->find(u"Basic.img/BtClose"),
+      WzResource::ui_->find(u"Quest.img/Quest/list/BtDetail"),
   };
   std::vector<SDL_FRect> buttons_rect = {
       SDL_FRect{227, 6, 12, 12},   //
       SDL_FRect{183, 374, 57, 17}, //
   };
-  if (detail) {
-    buttons_nodes.push_back(WzResource::ui->find(u"Basic.img/BtHide"));
+  if (detail_) {
+    buttons_nodes.push_back(WzResource::ui_->find(u"Basic.img/BtHide"));
     buttons_rect.push_back(SDL_FRect{530, 6, 13, 12});
   }
 
   for (size_t i = 0; i < buttons_nodes.size(); ++i) {
     auto k = buttons_nodes[i];
     auto pos_rect = buttons_rect[i];
-    pos_rect.x += pos.x;
-    pos_rect.y += pos.y;
+    pos_rect.x += pos_.x;
+    pos_rect.y += pos_.y;
     pos_rect.x = (int)pos_rect.x;
     pos_rect.y = (int)pos_rect.y;
-    auto &mouse_pos = Window::mouse_pos;
+    auto &mouse_pos = Window::mouse_pos_;
     // 判断按钮是否被遮挡
     auto CursorIn = CursorGameInstance::cursor_ui;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && CursorIn == Render &&
         !CursorGameInstance::modal_overlay) {
-      if (Window::mouse_state & SDL_BUTTON_LMASK) {
+      if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
         auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
-        SDL_RenderTexture(Window::renderer, pressed, nullptr, &pos_rect);
+        SDL_RenderTexture(Window::renderer_, pressed, nullptr, &pos_rect);
       } else {
         auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
-        SDL_RenderTexture(Window::renderer, mouse_over, nullptr, &pos_rect);
+        SDL_RenderTexture(Window::renderer_, mouse_over, nullptr, &pos_rect);
       }
     } else {
       auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
-      SDL_RenderTexture(Window::renderer, normal, nullptr, &pos_rect);
+      SDL_RenderTexture(Window::renderer_, normal, nullptr, &pos_rect);
     }
   }
 }
@@ -160,9 +160,9 @@ static std::optional<std::u16string> d_quest;
 void QuestUiSystem::RenderAreaName(int i, int y) {
   const SDL_FPoint lt{10, 50};
   auto t = WzResource::LoadTexture(
-      WzResource::ui->find(u"Quest.img/Quest/icon/icon0"));
-  int px = pos.x + lt.x;
-  int py = pos.y + y + lt.y;
+      WzResource::ui_->find(u"Quest.img/Quest/icon/icon0"));
+  int px = pos_.x + lt.x;
+  int py = pos_.y + y + lt.y;
 
   SDL_FRect pos_rect{
       static_cast<float>(px - 2),
@@ -170,8 +170,8 @@ void QuestUiSystem::RenderAreaName(int i, int y) {
       static_cast<float>(215),
       static_cast<float>(18),
   };
-  SDL_SetRenderDrawColor(Window::renderer, 154, 176, 203, 255);
-  SDL_RenderFillRect(Window::renderer, &pos_rect);
+  SDL_SetRenderDrawColor(Window::renderer_, 154, 176, 203, 255);
+  SDL_RenderFillRect(Window::renderer_, &pos_rect);
 
   std::u16string State = u"normal";
 
@@ -181,20 +181,20 @@ void QuestUiSystem::RenderAreaName(int i, int y) {
       static_cast<float>(t->w),
       static_cast<float>(t->h),
   };
-  bool mouse_in = SDL_PointInRectFloat(&Window::mouse_pos, &pos_rect);
+  bool mouse_in = SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect);
   // 渲染所有按钮
-  bool mouse_down = Window::mouse_state & SDL_BUTTON_LMASK;
+  bool mouse_down = Window::mouse_state_ & SDL_BUTTON_LMASK;
   bool cursor_on_ui = CursorGameInstance::cursor_ui == Render;
   bool modal_blocked = CursorGameInstance::modal_overlay;
   if (cursor_on_ui && !modal_blocked && mouse_in) {
     State = mouse_down ? u"pressed" : u"mouseOver";
   }
-  auto node = WzResource::ui->find(u"Basic.img/BtMin");
-  if (disable_fold.contains(i)) {
-    node = WzResource::ui->find(u"Basic.img/BtMax");
+  auto node = WzResource::ui_->find(u"Basic.img/BtMin");
+  if (disable_fold_.contains(i)) {
+    node = WzResource::ui_->find(u"Basic.img/BtMax");
   }
   auto texture = WzResource::LoadTexture(node->find((State + u"/0")));
-  SDL_RenderTexture(Window::renderer, texture, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, texture, nullptr, &pos_rect);
   if (mouse_in) {
     fold = i;
   }
@@ -210,34 +210,34 @@ static std::u16string checkbox_quest_name;
 
 void QuestUiSystem::RenderQuest(GameQuest &q, int y) {
   const SDL_FPoint lt{10, 50};
-  int px = pos.x + lt.x;
-  int py = pos.y + y + lt.y;
+  int px = pos_.x + lt.x;
+  int py = pos_.y + y + lt.y;
 
   int str_len = 0;
   int str_left = 0;
-  switch (active_tab) {
+  switch (active_tab_) {
   case 0: {
     str_left = 17;
     str_len = 26;
     static auto t = WzResource::LoadTexture(
-        WzResource::ui->find(u"Quest.img/Quest/icon/icon0"));
+        WzResource::ui_->find(u"Quest.img/Quest/icon/icon0"));
     SDL_FRect pos_rect{
         static_cast<float>(px),
         static_cast<float>(py),
         static_cast<float>(t->w),
         static_cast<float>(t->h),
     };
-    SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
     break;
   }
   case 1: {
     str_left = 30;
     str_len = 26;
     auto t = WzResource::LoadTexture(
-        WzResource::ui->find(u"Basic.img/CheckBox/0/0"));
-    if (QuestAlarmUiSystem::quests.contains(q.quest_id)) {
+        WzResource::ui_->find(u"Basic.img/CheckBox/0/0"));
+    if (QuestAlarmUiSystem::quests_.contains(q.quest_id)) {
       t = WzResource::LoadTexture(
-          WzResource::ui->find(u"Basic.img/CheckBox/0/1"));
+          WzResource::ui_->find(u"Basic.img/CheckBox/0/1"));
     }
     SDL_FRect pos_rect{
         static_cast<float>(px),
@@ -245,8 +245,8 @@ void QuestUiSystem::RenderQuest(GameQuest &q, int y) {
         static_cast<float>(t->w),
         static_cast<float>(t->h),
     };
-    SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
-    const auto &mouse_pos = Window::mouse_pos;
+    SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
+    const auto &mouse_pos = Window::mouse_pos_;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
       checkbox_quest_name = q.quest_id;
     }
@@ -256,12 +256,12 @@ void QuestUiSystem::RenderQuest(GameQuest &q, int y) {
     auto AnimateData = TrapGameInstance::LoadAnimateIndex(delays);
     auto render_index = std::to_string(AnimateData.index);
     auto icon = WzResource::LoadTexture(
-        WzResource::ui->find(u"Quest.img/Quest/icon/icon2")
+        WzResource::ui_->find(u"Quest.img/Quest/icon/icon2")
             ->get_child(render_index));
     pos_rect.x += t->w;
     pos_rect.w = icon->w;
     pos_rect.h = icon->h;
-    SDL_RenderTexture(Window::renderer, icon, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer_, icon, nullptr, &pos_rect);
     break;
   }
   case 2: {
@@ -278,13 +278,13 @@ void QuestUiSystem::RenderQuest(GameQuest &q, int y) {
       static_cast<float>(215 - str_left),
       static_cast<float>(18),
   };
-  auto &mouse_pos = Window::mouse_pos;
+  auto &mouse_pos = Window::mouse_pos_;
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
     quest_name = name;
   }
-  if (detail_quest == q.quest_id) {
-    SDL_SetRenderDrawColor(Window::renderer, 51, 100, 148, 255);
-    SDL_RenderFillRect(Window::renderer, &pos_rect);
+  if (detail_quest_ == q.quest_id) {
+    SDL_SetRenderDrawColor(Window::renderer_, 51, 100, 148, 255);
+    SDL_RenderFillRect(Window::renderer_, &pos_rect);
     Freetype::LoadColor(255, 255, 255, 255);
   } else {
     Freetype::LoadColor(0, 0, 0, 255);
@@ -310,7 +310,7 @@ void QuestUiSystem::RenderQuest(GameQuest &q, int y) {
 void QuestUiSystem::RenderQuests() {
   const int MAX_DISPLAY_ITEMS = 16;
   std::flat_map<int8_t, std::vector<GameQuest>> quests;
-  switch (active_tab) {
+  switch (active_tab_) {
   case 0:
     quests = QuestGameInstance::LoadUiAvaliableQuest();
     break;
@@ -322,7 +322,7 @@ void QuestUiSystem::RenderQuests() {
   default:
     return; // 或处理无效tab
   }
-  int i = -pages[0];
+  int i = -pages_[0];
   fold = std::nullopt;
   d_quest = std::nullopt;
   quest_name = u"";
@@ -334,7 +334,7 @@ void QuestUiSystem::RenderQuests() {
       RenderAreaName(k, i * 20);
     }
     i++;
-    if (disable_fold.contains(k)) {
+    if (disable_fold_.contains(k)) {
       continue;
     }
     for (auto &q : v) {
@@ -350,11 +350,11 @@ void QuestUiSystem::RenderQuests() {
 }
 
 void QuestUiSystem::RenderDetailAvaliable() {
-  if (QuestGameInstance::progress_quests.contains(detail_quest) ||
-      QuestGameInstance::complete_quests.contains(detail_quest)) {
+  if (QuestGameInstance::progress_quests_.contains(detail_quest_) ||
+      QuestGameInstance::complete_quests_.contains(detail_quest_)) {
     return;
   }
-  auto node = QuestGameInstance::LoadQuestNode(detail_quest);
+  auto node = QuestGameInstance::LoadQuestNode(detail_quest_);
   node = node->find(u"Check/0/npc");
   Freetype::LoadSize(12);
   if (node != nullptr) {
@@ -362,33 +362,33 @@ void QuestUiSystem::RenderDetailAvaliable() {
     auto tmp = std::format("{:07d}", npc_i);
     std::u16string npc_id{tmp.begin(), tmp.end()};
     auto npc_name = NpcGameInstance::LoadNpcText(npc_id, u"name");
-    node = WzResource::ms->get_root()->find(u"String.img/Quest/talkNPC");
+    node = WzResource::ms_->get_root()->find(u"String.img/Quest/talkNPC");
     auto npc_str = static_cast<wz::Property<std::u16string> *>(node)->get();
     npc_str = npc_str + npc_name;
     Freetype::LoadBold(true);
     Freetype::LoadColor(0, 0, 193, 255);
-    Freetype::DrawLine(npc_str, pos.x + 260, pos.y + 126);
+    Freetype::DrawLine(npc_str, pos_.x + 260, pos_.y + 126);
     Freetype::LoadBold(false);
   }
   auto info = LoadDetailStr();
   Freetype::LoadColor(0, 0, 0, 255);
-  Freetype::DrawRstr(info, pos.x + 260, pos.y + 148, 265, 1.3, std::nullopt);
+  Freetype::DrawRstr(info, pos_.x + 260, pos_.y + 148, 265, 1.3, std::nullopt);
 }
 
 void QuestUiSystem::RenderDetailProgress() {
-  if (!QuestGameInstance::progress_quests.contains(detail_quest)) {
+  if (!QuestGameInstance::progress_quests_.contains(detail_quest_)) {
     return;
   }
   auto left = 260;
   auto top = 125;
   SDL_Rect clip_rect = {
-      static_cast<int>(pos.x + left),
-      static_cast<int>(pos.y + top),
+      static_cast<int>(pos_.x + left),
+      static_cast<int>(pos_.y + top),
       270,
       240,
   };
   // 启用裁剪
-  SDL_SetRenderClipRect(Window::renderer, &clip_rect);
+  SDL_SetRenderClipRect(Window::renderer_, &clip_rect);
   RenderDetailSummary();
   auto info = LoadDetailStr();
   int h = 140;
@@ -400,55 +400,55 @@ void QuestUiSystem::RenderDetailProgress() {
   }
   Freetype::LoadSize(12);
   Freetype::LoadColor(0, 0, 0, 255);
-  Freetype::DrawRstr(info, pos.x + 260, pos.y + h - pages[1] * 18, 265, 1.3,
+  Freetype::DrawRstr(info, pos_.x + 260, pos_.y + h - pages_[1] * 18, 265, 1.3,
                       std::nullopt);
-  SDL_SetRenderClipRect(Window::renderer, NULL);
+  SDL_SetRenderClipRect(Window::renderer_, NULL);
 }
 
 void QuestUiSystem::RenderDetailSummaryBackgrnd() {
   static auto t = WzResource::LoadTexture(
-      WzResource::ui->find(u"Quest.img/Quest/quest_info/summary_pattern/t"));
+      WzResource::ui_->find(u"Quest.img/Quest/quest_info/summary_pattern/t"));
   static auto c = WzResource::LoadTexture(
-      WzResource::ui->find(u"Quest.img/Quest/quest_info/summary_pattern/c"));
+      WzResource::ui_->find(u"Quest.img/Quest/quest_info/summary_pattern/c"));
   static auto b = WzResource::LoadTexture(
-      WzResource::ui->find(u"Quest.img/Quest/quest_info/summary_pattern/b"));
+      WzResource::ui_->find(u"Quest.img/Quest/quest_info/summary_pattern/b"));
   auto left = 260;
-  auto top = 125 - pages[1] * 18;
+  auto top = 125 - pages_[1] * 18;
   auto h = LoadDetailSummaryBackgrndH();
   SDL_FRect pos_rect{
-      static_cast<float>((int)pos.x + left),
-      static_cast<float>((int)pos.y + top),
+      static_cast<float>((int)pos_.x + left),
+      static_cast<float>((int)pos_.y + top),
       static_cast<float>(t->w),
       static_cast<float>(t->h),
   };
-  SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
   pos_rect.y += t->h;
   pos_rect.h = h;
-  SDL_RenderTextureTiled(Window::renderer, c, nullptr, 1.0, &pos_rect);
+  SDL_RenderTextureTiled(Window::renderer_, c, nullptr, 1.0, &pos_rect);
   pos_rect.y += pos_rect.h;
   pos_rect.h = b->h;
-  SDL_RenderTexture(Window::renderer, b, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, b, nullptr, &pos_rect);
 }
 
 void QuestUiSystem::RenderDetailSummary() {
-  if (!QuestGameInstance::progress_quests.contains(detail_quest)) {
+  if (!QuestGameInstance::progress_quests_.contains(detail_quest_)) {
     return;
   }
   auto h = LoadDetailSummaryBackgrndH();
   if (h > 0) {
     RenderDetailSummaryBackgrnd();
     auto left = 260;
-    auto top = 125 - pages[1] * 18;
-    static auto t2 = WzResource::LoadTexture(WzResource::ui->find(
+    auto top = 125 - pages_[1] * 18;
+    static auto t2 = WzResource::LoadTexture(WzResource::ui_->find(
         u"Quest.img/Quest/quest_info/summary_icon/summary"));
     SDL_FRect pos_rect{
-        static_cast<float>((int)pos.x + left + 5),
-        static_cast<float>((int)pos.y + top + 5),
+        static_cast<float>((int)pos_.x + left + 5),
+        static_cast<float>((int)pos_.y + top + 5),
         static_cast<float>(t2->w),
         static_cast<float>(t2->h),
     };
-    SDL_RenderTexture(Window::renderer, t2, nullptr, &pos_rect);
-    auto q = QuestGameInstance::progress_quests.at(detail_quest);
+    SDL_RenderTexture(Window::renderer_, t2, nullptr, &pos_rect);
+    auto q = QuestGameInstance::progress_quests_.at(detail_quest_);
     top = pos_rect.y + pos_rect.h + 5;
     for (auto [k, v] : q.check_mob) {
       auto mob_name = MobGameInstance::LoadMobName(k);
@@ -476,12 +476,12 @@ void QuestUiSystem::RenderDetailSummary() {
       }
       auto t = WzResource::LoadTexture(node->get_child(u"icon"));
       SDL_FRect pos_rect{
-          static_cast<float>((int)pos.x + left + 5),
+          static_cast<float>((int)pos_.x + left + 5),
           static_cast<float>((int)top),
           static_cast<float>(t->w),
           static_cast<float>(t->h),
       };
-      SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
+      SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
       Freetype::LoadSize(12);
       Freetype::LoadColor(0, 0, 0, 255);
       int num = q.item.at(k).count;
@@ -496,12 +496,12 @@ void QuestUiSystem::RenderDetailSummary() {
 }
 
 std::u16string QuestUiSystem::LoadDetailStr() {
-  if (detail_quest.empty()) {
+  if (detail_quest_.empty()) {
     return u"";
   }
-  auto index = QuestGameInstance::LoadQuestProgress(detail_quest);
+  auto index = QuestGameInstance::LoadQuestProgress(detail_quest_);
   std::u16string info;
-  auto node = QuestGameInstance::LoadQuestNode(detail_quest);
+  auto node = QuestGameInstance::LoadQuestNode(detail_quest_);
   node = node->get_child(u"QuestInfo");
   node = node->get_child(std::to_string(index));
   if (node) {
@@ -513,23 +513,23 @@ std::u16string QuestUiSystem::LoadDetailStr() {
 static const SDL_FPoint detail_lt = {245, 0};
 
 void QuestUiSystem::RenderQuestDetail() {
-  if (!detail) {
+  if (!detail_) {
     return;
   }
   static auto backgrnd2 = WzResource::LoadTexture(
-      WzResource::ui->find(u"UIWindow.img/Quest/backgrnd2"));
+      WzResource::ui_->find(u"UIWindow.img/Quest/backgrnd2"));
   SDL_FRect pos_rect{
-      pos.x + detail_lt.x,
-      pos.y,
+      pos_.x + detail_lt.x,
+      pos_.y,
       static_cast<float>(backgrnd2->w),
       static_cast<float>(backgrnd2->h),
   };
-  SDL_RenderTexture(Window::renderer, backgrnd2, nullptr, &pos_rect);
-  if (detail_quest.empty()) {
+  SDL_RenderTexture(Window::renderer_, backgrnd2, nullptr, &pos_rect);
+  if (detail_quest_.empty()) {
     return;
   }
   // render npc
-  auto node = QuestGameInstance::LoadQuestNode(detail_quest);
+  auto node = QuestGameInstance::LoadQuestNode(detail_quest_);
   node = node->find(u"Check/0/npc");
   if (node != nullptr) {
     auto npc_i = static_cast<wz::Property<int> *>(node)->get();
@@ -538,18 +538,18 @@ void QuestUiSystem::RenderQuestDetail() {
     GameNpc npc;
     npc.id = npc_id;
     npc.action = u"stand";
-    const auto &camera = CameraGameInstance::camera;
-    npc.pos.x = camera.x + pos.x + 488;
-    npc.pos.y = camera.y + pos.y + 115;
+    const auto &camera = CameraGameInstance::camera_;
+    npc.pos.x = camera.x + pos_.x + 488;
+    npc.pos.y = camera.y + pos_.y + 115;
     npc.ani_index = 0;
     NpcRenderSystem::RenderNpc(npc);
   }
   // level
   Freetype::LoadSize(12);
   Freetype::LoadColor(255, 255, 255, 255);
-  node = WzResource::ms->get_root()->find(u"String.img/Quest/lv");
+  node = WzResource::ms_->get_root()->find(u"String.img/Quest/lv");
   auto lv_str = static_cast<wz::Property<std::u16string> *>(node)->get();
-  node = QuestGameInstance::LoadQuestNode(detail_quest);
+  node = QuestGameInstance::LoadQuestNode(detail_quest_);
   node = node->find(u"Check/0/lvmin");
   int lv = 1;
   if (node) {
@@ -557,11 +557,11 @@ void QuestUiSystem::RenderQuestDetail() {
   }
   auto tmp = std::to_string(lv);
   lv_str = lv_str + u" " + std::u16string{tmp.begin(), tmp.end()} + u"+" +
-           u" (" + detail_quest + u")";
-  Freetype::DrawLine(lv_str, pos.x + 269, pos.y + 70);
+           u" (" + detail_quest_ + u")";
+  Freetype::DrawLine(lv_str, pos_.x + 269, pos_.y + 70);
 
   // name
-  node = QuestGameInstance::LoadQuestNode(detail_quest);
+  node = QuestGameInstance::LoadQuestNode(detail_quest_);
   node = node->find(u"QuestInfo/name");
   auto name = static_cast<wz::Property<std::u16string> *>(node)->get();
   if (name.size() > 19) {
@@ -570,7 +570,7 @@ void QuestUiSystem::RenderQuestDetail() {
   Freetype::LoadBold(true);
   Freetype::LoadColor(255, 255, 255, 255);
   Freetype::LoadSize(12);
-  Freetype::DrawLine(name, pos.x + 276, pos.y + 36);
+  Freetype::DrawLine(name, pos_.x + 276, pos_.y + 36);
   Freetype::LoadBold(false);
   RenderDetailAvaliable();
   RenderDetailProgress();
@@ -584,7 +584,7 @@ void QuestUiSystem::RenderTab() {
       SDL_FPoint{150, 24}, //
   };
   const static auto tab_node =
-      WzResource::ui->find(u"Quest.img/Quest/list/Tab");
+      WzResource::ui_->find(u"Quest.img/Quest/list/Tab");
   const static std::array active_texture = {
       WzResource::LoadTexture(tab_node->find(u"enabled/0")),
       WzResource::LoadTexture(tab_node->find(u"enabled/1")),
@@ -596,41 +596,41 @@ void QuestUiSystem::RenderTab() {
       WzResource::LoadTexture(tab_node->find(u"disabled/2")),
   };
   for (uint8_t i = 0; i < tab_pos.size(); i++) {
-    SDL_Texture *t = active_tab == i ? active_texture[i] : disabled_texture[i];
+    SDL_Texture *t = active_tab_ == i ? active_texture[i] : disabled_texture[i];
     SDL_FRect pos_rect{
-        static_cast<float>(int(pos.x + tab_pos[i].x)),
-        static_cast<float>(int(pos.y + tab_pos[i].y)),
+        static_cast<float>(int(pos_.x + tab_pos[i].x)),
+        static_cast<float>(int(pos_.y + tab_pos[i].y)),
         static_cast<float>(t->w),
         static_cast<float>(t->h),
     };
-    SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
   }
 }
 
 void QuestUiSystem::RenderVscr() {
   const SDL_FPoint lt{225, 48};
-  int px = pos.x + lt.x;
-  int py = pos.y + lt.y;
+  int px = pos_.x + lt.x;
+  int py = pos_.y + lt.y;
   const uint32_t length = 318;
   auto CursorIn = CursorGameInstance::cursor_ui;
   bool top =
       CursorIn == Render && CursorGameInstance::modal_overlay == nullptr;
   auto count = LoadVscrNum0();
-  ScrollUiSystem::RenderVscroll(px, py, pages[0], count, length, top, 16);
+  ScrollUiSystem::RenderVscroll(px, py, pages_[0], count, length, top, 16);
 
   return;
 }
 
 void QuestUiSystem::RenderDetailVscr() {
   const SDL_FPoint lt{532, 122};
-  int px = pos.x + lt.x;
-  int py = pos.y + lt.y;
+  int px = pos_.x + lt.x;
+  int py = pos_.y + lt.y;
   const uint32_t length = 244;
   auto CursorIn = CursorGameInstance::cursor_ui;
   bool top =
       CursorIn == Render && CursorGameInstance::modal_overlay == nullptr;
   auto count = LoadVscrNum1();
-  ScrollUiSystem::RenderVscroll(px, py, pages[1], count, length, top, 16);
+  ScrollUiSystem::RenderVscroll(px, py, pages_[1], count, length, top, 16);
 
   return;
 }
@@ -646,7 +646,7 @@ bool QuestUiSystem::Render() {
 }
 
 SDL_FPoint QuestUiSystem::LoadWh() {
-  if (detail) {
+  if (detail_) {
     return {553, 398};
   } else {
     return {247, 398};
@@ -655,26 +655,26 @@ SDL_FPoint QuestUiSystem::LoadWh() {
 
 void QuestUiSystem::Open() {
   auto it =
-      std::ranges::find(System::render_systems, &CursorRenderSystem::Render);
-  if (it != System::render_systems.end()) {
-    detail = true;
+      std::ranges::find(System::render_systems_, &CursorRenderSystem::Render);
+  if (it != System::render_systems_.end()) {
+    detail_ = true;
 
     auto wh = LoadWh();
-    auto &camera = CameraGameInstance::camera;
-    pos.x = (camera.w - wh.x) / 2;
-    pos.y = (camera.h - wh.y) / 2;
+    auto &camera = CameraGameInstance::camera_;
+    pos_.x = (camera.w - wh.x) / 2;
+    pos_.y = (camera.h - wh.y) / 2;
 
-    System::render_systems.insert(it, Render);
-    System::event_systems.insert(System::event_systems.begin(), Event);
+    System::render_systems_.insert(it, Render);
+    System::event_systems_.insert(System::event_systems_.begin(), Event);
 
     EventMotion(nullptr);
   }
 }
 
 void QuestUiSystem::Close() {
-  std::erase(System::render_systems, Render);
-  std::erase(System::render_systems, RenderInfo);
-  std::erase(System::event_systems, Event);
+  std::erase(System::render_systems_, Render);
+  std::erase(System::render_systems_, RenderInfo);
+  std::erase(System::event_systems_, Event);
 
   EventDragEnd();
   EventVscrEnd();
@@ -688,29 +688,29 @@ void QuestUiSystem::EventTab(SDL_Event *Event) {
   };
   for (uint8_t i = 0; i < tab_rect.size(); i++) {
     auto pos_rect = tab_rect[i];
-    pos_rect.x += pos.x;
-    pos_rect.y += pos.y;
-    if (SDL_PointInRectFloat(&Window::mouse_pos, &pos_rect)) {
+    pos_rect.x += pos_.x;
+    pos_rect.y += pos_.y;
+    if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect)) {
       AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
-      if (active_tab == i) {
+      if (active_tab_ == i) {
         return;
       }
-      disable_fold = {};
-      pages[0] = 0;
-      active_tab = i;
+      disable_fold_ = {};
+      pages_[0] = 0;
+      active_tab_ = i;
       return;
     }
   }
 }
 
 void QuestUiSystem::EventTop() {
-  std::erase(System::render_systems, Render);
-  std::erase(System::event_systems, Event);
+  std::erase(System::render_systems_, Render);
+  std::erase(System::event_systems_, Event);
   auto it =
-      std::ranges::find(System::render_systems, &CursorRenderSystem::Render);
-  if (it != System::render_systems.end()) {
-    System::render_systems.insert(it, Render);
-    System::event_systems.insert(System::event_systems.begin(), Event);
+      std::ranges::find(System::render_systems_, &CursorRenderSystem::Render);
+  if (it != System::render_systems_.end()) {
+    System::render_systems_.insert(it, Render);
+    System::event_systems_.insert(System::event_systems_.begin(), Event);
 
     EventMotion(nullptr);
   }
@@ -718,26 +718,26 @@ void QuestUiSystem::EventTop() {
 
 void QuestUiSystem::EventDragStart(SDL_Event *Event) {
   auto wh = LoadWh();
-  SDL_FRect pos_rect = {pos.x, pos.y, wh.x, 20};
+  SDL_FRect pos_rect = {pos_.x, pos_.y, wh.x, 20};
   SDL_FPoint mouse_pos = {Event->button.x, Event->button.y};
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    drag = {pos.x - Event->button.x, pos.y - Event->button.y};
+    drag_ = {pos_.x - Event->button.x, pos_.y - Event->button.y};
   }
   return;
 }
 
 void QuestUiSystem::EventDragEnd() {
-  drag = std::nullopt;
+  drag_ = std::nullopt;
   return;
 }
 
 void QuestUiSystem::EventDragMove(SDL_Event *Event) {
-  if (drag.has_value()) {
-    pos = {Event->motion.x + drag->x, Event->motion.y + drag->y};
-    auto &camera = CameraGameInstance::camera;
+  if (drag_.has_value()) {
+    pos_ = {Event->motion.x + drag_->x, Event->motion.y + drag_->y};
+    auto &camera = CameraGameInstance::camera_;
     auto [w, h] = LoadWh();
-    pos.x = std::clamp(pos.x, (float)0, camera.w - w);
-    pos.y = std::clamp(pos.y, (float)0, camera.h - h);
+    pos_.x = std::clamp(pos_.x, (float)0, camera.w - w);
+    pos_.y = std::clamp(pos_.y, (float)0, camera.h - h);
   }
   return;
 }
@@ -745,7 +745,7 @@ void QuestUiSystem::EventDragMove(SDL_Event *Event) {
 void QuestUiSystem::Toggle() {
   AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
   auto fn = &Render;
-  if (std::ranges::contains(System::render_systems, fn)) {
+  if (std::ranges::contains(System::render_systems_, fn)) {
     Close();
   } else {
     Open();
@@ -754,21 +754,21 @@ void QuestUiSystem::Toggle() {
 
 bool QuestUiSystem::CursorIn() {
   auto [w, h] = LoadWh();
-  auto &mouse = Window::mouse_pos;
-  SDL_FRect pos_rect{pos.x, pos.y, w, h};
+  auto &mouse = Window::mouse_pos_;
+  SDL_FRect pos_rect{pos_.x, pos_.y, w, h};
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
 bool QuestUiSystem::EventCheckbox() {
   if (!checkbox_quest_name.empty()) {
     auto fn = &QuestAlarmUiSystem::Render;
-    if (!std::ranges::contains(System::render_systems, fn)) {
+    if (!std::ranges::contains(System::render_systems_, fn)) {
       QuestAlarmUiSystem::Open();
     }
-    if (QuestAlarmUiSystem::quests.contains(checkbox_quest_name)) {
-      QuestAlarmUiSystem::quests.erase(checkbox_quest_name);
+    if (QuestAlarmUiSystem::quests_.contains(checkbox_quest_name)) {
+      QuestAlarmUiSystem::quests_.erase(checkbox_quest_name);
     } else {
-      QuestAlarmUiSystem::quests.insert(checkbox_quest_name);
+      QuestAlarmUiSystem::quests_.insert(checkbox_quest_name);
     }
     return true;
   }
@@ -777,22 +777,22 @@ bool QuestUiSystem::EventCheckbox() {
 
 void QuestUiSystem::EventFold() {
   if (fold.has_value()) {
-    if (disable_fold.contains(fold.value())) {
-      disable_fold.erase(fold.value());
+    if (disable_fold_.contains(fold.value())) {
+      disable_fold_.erase(fold.value());
     } else {
-      disable_fold.insert(fold.value());
+      disable_fold_.insert(fold.value());
     }
   }
   auto count = LoadVscrNum0();
   count = std::max(count - 16, 0);
-  pages[0] = std::min(pages[0], count);
+  pages_[0] = std::min(pages_[0], count);
 }
 
 void QuestUiSystem::EventQuest() {
   if (d_quest.has_value()) {
-    detail_quest = d_quest.value();
-    pages[1] = 0;
-    vscr_motion = {};
+    detail_quest_ = d_quest.value();
+    pages_[1] = 0;
+    vscr_motion_ = {};
     AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
   }
   return;
@@ -800,8 +800,8 @@ void QuestUiSystem::EventQuest() {
 
 bool QuestUiSystem::EventVscr(SDL_Event *Event) {
   SDL_FPoint lt{225, 48};
-  int px = pos.x + lt.x;
-  int py = pos.y + lt.y;
+  int px = pos_.x + lt.x;
+  int py = pos_.y + lt.y;
   uint32_t length = 318;
 
   auto size = LoadVscrNum0() - 16;
@@ -809,42 +809,42 @@ bool QuestUiSystem::EventVscr(SDL_Event *Event) {
 
   auto mouse_pos = SDL_FPoint{Event->button.x, Event->button.y};
   bool top = true;
-  auto val = ScrollUiSystem::ClickVscroll(px, py, pages[0], size, length,
+  auto val = ScrollUiSystem::ClickVscroll(px, py, pages_[0], size, length,
                                              top, mouse_pos);
-  pages[0] = val;
+  pages_[0] = val;
 
-  if (detail && !detail_quest.empty()) {
+  if (detail_ && !detail_quest_.empty()) {
     lt = {532, 122};
-    px = pos.x + lt.x;
-    py = pos.y + lt.y;
+    px = pos_.x + lt.x;
+    py = pos_.y + lt.y;
     length = 244;
     size = LoadVscrNum1() - 16;
-    val = ScrollUiSystem::ClickVscroll(px, py, pages[1], size, length, top,
+    val = ScrollUiSystem::ClickVscroll(px, py, pages_[1], size, length, top,
                                           mouse_pos);
-    pages[1] = val;
+    pages_[1] = val;
   }
 
   return true;
 }
 
 void QuestUiSystem::EventVscrMove(SDL_Event *Event) {
-  auto mouse_state = Window::mouse_state;
-  if (vscr_motion[0]) {
+  auto mouse_state = Window::mouse_state_;
+  if (vscr_motion_[0]) {
     const SDL_FPoint lt{225, 48};
     const uint32_t length = 318;
 
-    Event->button.x = pos.x + lt.x;
+    Event->button.x = pos_.x + lt.x;
     Event->button.y =
-        std::clamp(Event->button.y, pos.y + lt.y, pos.y + lt.y + length);
+        std::clamp(Event->button.y, pos_.y + lt.y, pos_.y + lt.y + length);
     EventVscr(Event);
   }
-  if (vscr_motion[1]) {
+  if (vscr_motion_[1]) {
     const SDL_FPoint lt{532, 122};
     const uint32_t length = 244;
 
-    Event->button.x = pos.x + lt.x;
+    Event->button.x = pos_.x + lt.x;
     Event->button.y =
-        std::clamp(Event->button.y, pos.y + lt.y, pos.y + lt.y + length);
+        std::clamp(Event->button.y, pos_.y + lt.y, pos_.y + lt.y + length);
     EventVscr(Event);
   }
 }
@@ -852,23 +852,23 @@ void QuestUiSystem::EventVscrMove(SDL_Event *Event) {
 void QuestUiSystem::EventVscrStart(SDL_Event *Event) {
   SDL_FPoint lt{225, 48};
   uint32_t length = 318;
-  if (vscr_motion[0] == false) {
-    vscr_motion[0] =
-        ScrollUiSystem::ClickThumb(pos.x + lt.x, pos.y + lt.y, length);
+  if (vscr_motion_[0] == false) {
+    vscr_motion_[0] =
+        ScrollUiSystem::ClickThumb(pos_.x + lt.x, pos_.y + lt.y, length);
   }
   lt = {532, 122};
   length = 244;
-  if (vscr_motion[1] == false) {
-    vscr_motion[1] =
-        ScrollUiSystem::ClickThumb(pos.x + lt.x, pos.y + lt.y, length);
+  if (vscr_motion_[1] == false) {
+    vscr_motion_[1] =
+        ScrollUiSystem::ClickThumb(pos_.x + lt.x, pos_.y + lt.y, length);
   }
 }
 
-void QuestUiSystem::EventVscrEnd() { vscr_motion = {}; }
+void QuestUiSystem::EventVscrEnd() { vscr_motion_ = {}; }
 
 void QuestUiSystem::EventButtonClose() { Close(); }
 
-void QuestUiSystem::EventButtonDetail() { detail = !detail; }
+void QuestUiSystem::EventButtonDetail() { detail_ = !detail_; }
 
 bool QuestUiSystem::EventButton(SDL_Event *Event) {
   std::vector<SDL_FRect> buttons_rect = {
@@ -880,16 +880,16 @@ bool QuestUiSystem::EventButton(SDL_Event *Event) {
       EventButtonDetail,
   };
 
-  if (detail) {
+  if (detail_) {
     buttons_rect.push_back(SDL_FRect{530, 6, 13, 12});
     fns.push_back(EventButtonDetail);
   }
 
   for (size_t i = 0; i < buttons_rect.size(); ++i) {
     auto pos_rect = buttons_rect[i];
-    pos_rect.x += pos.x;
-    pos_rect.y += pos.y;
-    if (SDL_PointInRectFloat(&Window::mouse_pos, &pos_rect)) {
+    pos_rect.x += pos_.x;
+    pos_rect.y += pos_.y;
+    if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect)) {
       fns[i]();
       AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
       return true;
@@ -906,16 +906,16 @@ void QuestUiSystem::EventMotionBtAudio(SDL_Event *Event) {
       SDL_FRect{227, 6, 12, 12},   //
       SDL_FRect{183, 374, 57, 17}, //
   };
-  if (detail) {
+  if (detail_) {
     buttons_rect.push_back(SDL_FRect{530, 6, 13, 12});
   }
   static int8_t bt_audio = -1;
-  auto &mouse_pos = Window::mouse_pos;
+  auto &mouse_pos = Window::mouse_pos_;
   int8_t bt_in = -1;
   for (size_t i = 0; i < buttons_rect.size(); ++i) {
     auto pos_rect = buttons_rect[i];
-    pos_rect.x += (int)pos.x;
-    pos_rect.y += (int)pos.y;
+    pos_rect.x += (int)pos_.x;
+    pos_rect.y += (int)pos_.y;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
       bt_in = i;
       break;
@@ -932,7 +932,7 @@ bool QuestUiSystem::RenderInfo() {
     return true;
   }
   if (!quest_name.empty() && !CursorGameInstance::modal_overlay) {
-    auto &mouse_pos = Window::mouse_pos;
+    auto &mouse_pos = Window::mouse_pos_;
     SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 20};
     TooltipUiSystem::RenderStr(quest_name, show_pos.x, show_pos.y);
   }
@@ -940,7 +940,7 @@ bool QuestUiSystem::RenderInfo() {
 }
 
 void QuestUiSystem::EventMotion(SDL_Event *Event) {
-  auto &sys = System::render_systems;
+  auto &sys = System::render_systems_;
   std::erase(sys, RenderInfo);
   auto it = std::ranges::find(sys, &CursorRenderSystem::Render);
   if (it != sys.end()) {
@@ -952,10 +952,10 @@ void QuestUiSystem::EventWheel(SDL_Event *Event) {
   if (CursorGameInstance::cursor_ui != Render) {
     return;
   }
-  auto &mouse_pos = Window::mouse_pos;
+  auto &mouse_pos = Window::mouse_pos_;
   SDL_FRect pos_r;
-  pos_r.x = (int)pos.x + detail_lt.x;
-  pos_r.y = (int)pos.y + detail_lt.y;
+  pos_r.x = (int)pos_.x + detail_lt.x;
+  pos_r.y = (int)pos_.y + detail_lt.y;
   pos_r.w = 305;
   pos_r.h = 396;
   const auto wheel_func = [&](int &page, int size) {
@@ -969,14 +969,14 @@ void QuestUiSystem::EventWheel(SDL_Event *Event) {
     return;
   };
   bool detail_in = SDL_PointInRectFloat(&mouse_pos, &pos_r);
-  if (detail && detail_in) {
+  if (detail_ && detail_in) {
     auto size = LoadVscrNum1() - 16;
     size = std::max(0, size);
-    wheel_func(pages[1], size);
+    wheel_func(pages_[1], size);
   } else {
     auto size = LoadVscrNum0() - 16;
     size = std::max(0, size);
-    wheel_func(pages[0], size);
+    wheel_func(pages_[0], size);
   }
   return;
 }
@@ -1046,8 +1046,8 @@ bool QuestUiSystem::Event(SDL_Event *Event) {
 }
 
 void QuestUiSystem::AcceptQuest(const std::u16string &id) {
-  if (detail_quest == id) {
-    detail_quest = u"";
+  if (detail_quest_ == id) {
+    detail_quest_ = u"";
   }
   if (quest_name == id) {
     quest_name = u"";

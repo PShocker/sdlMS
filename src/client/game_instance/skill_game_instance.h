@@ -14,7 +14,7 @@ using namespace fbs;
 
 class SkillGameInstance {
 public:
-  static inline std::vector<GameSkill> ski; // buff
+  static inline std::vector<GameSkill> ski_; // buff
   static auto &Skis() {
     static std::flat_map<std::u16string, GameSkill> instance;
     return instance;

@@ -33,10 +33,10 @@ private:
   static bool EventChooseCharacter(SDL_Event *Event);
 
 public:
-  static inline std::optional<uint8_t> choose;
-  static inline std::vector<GameCharacter> characters;
-  static inline GameAnimate board;
-  static inline GameAnimate effect;
+  static inline std::optional<uint8_t> choose_;
+  static inline std::vector<GameCharacter> characters_;
+  static inline GameAnimate board_;
+  static inline GameAnimate effect_;
 
   static bool Render();
   static bool Event(SDL_Event *Event);

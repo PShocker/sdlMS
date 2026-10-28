@@ -3,7 +3,7 @@
 #include "src/client/window/window.h"
 
 void AudioLogicSystem::RunBackgrnd() {
-  auto &backgrnds = AudioGameInstance::backgrnds;
+  auto &backgrnds = AudioGameInstance::backgrnds_;
   if (backgrnds.empty()) {
     return;
   }
@@ -23,8 +23,8 @@ void AudioLogicSystem::RunBackgrnd() {
 }
 
 void AudioLogicSystem::RunAudios() {
-  auto now = Window::dt_time;
-  auto &audios = AudioGameInstance::audios;
+  auto now = Window::dt_time_;
+  auto &audios = AudioGameInstance::audios_;
   for (auto it = audios.begin(); it != audios.end();) {
     if (now >= it->delay || it->delay == 0) {
       if (it->fade == 0) {

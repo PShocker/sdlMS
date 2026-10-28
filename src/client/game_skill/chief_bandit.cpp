@@ -20,14 +20,14 @@ static void Jinqianzhadan() {
   GameSkill g_skill;
   g_skill.id = u"4211004";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
-    auto &sf = CharacterGameInstance::self;
+    auto &sf = CharacterGameInstance::self_;
     CharacterLogicSystem::RunAction(sf, u"prone2");
     auto g_r = SkillGameInstance::LoadSkiR(u"4211004");
     auto cm = CharacterLogicSystem::RunAttackCheck(sf, g_r);
     ClientCharacterAttackT cat;
     ClientDropFadeT ccdf;
     uint64_t meso = 0;
-    for (const auto &[k, v] : DropGameInstance::data) {
+    for (const auto &[k, v] : DropGameInstance::data_) {
       if (v.type != GameDrop::DropEnum::kLand) {
         continue;
       }
@@ -98,7 +98,7 @@ static void Luoyezhan() {
     return false;
   };
   g_skill.use = [](uint64_t client_id, int ski_lv) {
-    auto &sf = CharacterGameInstance::self;
+    auto &sf = CharacterGameInstance::self_;
     CharacterLogicSystem::RunAttackAction(sf, false);
     auto g_r = SkillGameInstance::LoadSkiR(u"4211001");
     auto cm = CharacterLogicSystem::RunAttackCheck(sf, g_r);

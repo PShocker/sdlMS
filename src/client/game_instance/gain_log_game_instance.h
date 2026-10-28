@@ -6,7 +6,7 @@
 #include <vector>
 class GainLogGameInstance {
 public:
-  static inline std::vector<GameGainLog> data;
+  static inline std::vector<GameGainLog> data_;
 
   static void Add(const std::u16string &id, int num, GainEnum type);
 };

@@ -25,14 +25,14 @@ private:
 
   static bool EventButton(SDL_Event *Event);
 
-  static inline int alpha;
+  static inline int alpha_;
 
 public:
   enum class MenuEnums {
     kMenu,
     kShortcut,
   };
-  static inline std::optional<MenuEnums> menu_type;
+  static inline std::optional<MenuEnums> menu_type_;
 
   static bool CursorIn();
 

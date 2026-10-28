@@ -24,12 +24,12 @@ static void Yinshenshu() {
   g_skill.climb = true;
   g_skill.id = u"4001001";
   g_skill.end = []() {
-    auto &ski = SkillGameInstance::ski;
+    auto &ski = SkillGameInstance::ski_;
     auto it = std::ranges::find_if(
         ski, [](const GameSkill &s) { return s.id == u"4001001"; });
     if (it != ski.end()) {
       ski.erase(it);
-      auto &ccs = CharacterLogicSystem::ccs;
+      auto &ccs = CharacterLogicSystem::ccs_;
       StateT st;
       st.state = StateEnum_BUFF_SKILL;
       st.val = 4001001;
@@ -46,7 +46,7 @@ static void Yinshenshu() {
     }
   };
   g_skill.frame = [g_skill]() {
-    auto &self = CharacterGameInstance::self;
+    auto &self = CharacterGameInstance::self_;
     self.color = {255, 255, 255, 128};
     auto type = CharacterLogicSystem::LoadActionType(self);
     switch (type) {
@@ -56,29 +56,29 @@ static void Yinshenshu() {
       break;
     }
     default: {
-      CharacterLogicSystem::self_invincible_cooldown = Window::dt_now + 100;
+      CharacterLogicSystem::self_invincible_cooldown_ = Window::dt_now_ + 100;
       break;
     }
     }
   };
 
   g_skill.use = [g_skill](uint64_t client_id, int ski_lv) mutable {
-    SkillGameInstance::Skis()[u"4001001"].cd = Window::dt_now + 1000;
+    SkillGameInstance::Skis()[u"4001001"].cd = Window::dt_now_ + 1000;
 
-    auto &ski = SkillGameInstance::ski;
+    auto &ski = SkillGameInstance::ski_;
     g_skill.end();
     g_skill.lv = ski_lv;
     g_skill.duration = 30 * 1000;
-    g_skill.destroy = Window::dt_now + g_skill.duration;
+    g_skill.destroy = Window::dt_now_ + g_skill.duration;
     ski.push_back(g_skill);
 
-    auto &sf = CharacterGameInstance::self;
+    auto &sf = CharacterGameInstance::self_;
 
     auto ckt = SkillGameInstance::CreateSkillPayload(4001001, ski_lv);
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
     ClientRequest::send_to_host(ckt);
 
-    auto &ccs = CharacterLogicSystem::ccs;
+    auto &ccs = CharacterLogicSystem::ccs_;
     StateT st;
     st.state = StateEnum_BUFF_SKILL;
     st.val = 4001001;
@@ -121,7 +121,7 @@ static void Shuangfeizhan() {
             SDL_FPoint{0, -28},
         },
     };
-    auto &sf = CharacterGameInstance::self;
+    auto &sf = CharacterGameInstance::self_;
     auto WeaponType = EquipGameInstance::LoadWeaponType(sf);
     if (WeaponType != EquipGameInstance::WeaponType::kClaw) {
       return;
@@ -181,7 +181,7 @@ static void Erlianji() {
   GameSkill g_skill;
   g_skill.id = u"4001002";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
-    auto &sf = CharacterGameInstance::self;
+    auto &sf = CharacterGameInstance::self_;
     CharacterLogicSystem::RunAttackAction(sf, false);
     auto g_r = SkillGameInstance::LoadSkiR(u"4001002");
     auto cm = CharacterLogicSystem::RunAttackCheck(sf, g_r, 1);

@@ -11,7 +11,7 @@
 // roger apple
 
 static void State() {
-  switch (NpcDlgUiSystem::index) {
+  switch (NpcDlgUiSystem::index_) {
   case 1: {
     NpcDlgUiSystem::Close();
     GameConsumeItem con;
@@ -29,19 +29,19 @@ static void State() {
   }
   case 0: {
     auto text_node =
-        WzResource::ms->get_root()->find(u"String.img/Script/npc_3/t0");
+        WzResource::ms_->get_root()->find(u"String.img/Script/npc_3/t0");
     auto text = static_cast<wz::Property<std::u16string> *>(text_node)->get();
-    NpcDlgUiSystem::text = text;
+    NpcDlgUiSystem::text_ = text;
     break;
   }
   }
-  NpcDlgUiSystem::time = Window::dt_now;
+  NpcDlgUiSystem::time_ = Window::dt_now_;
 }
 
 static void Q1002s(std::any data) {
-  NpcDlgUiSystem::type = NpcDlgUiSystem::NpcDlgEnum::kQuestAvaliable;
-  NpcDlgUiSystem::max_index = 0;
-  NpcDlgUiSystem::npc_id = u"0000003";
+  NpcDlgUiSystem::type_ = NpcDlgUiSystem::NpcDlgEnum::kQuestAvaliable;
+  NpcDlgUiSystem::max_index_ = 0;
+  NpcDlgUiSystem::npc_id_ = u"0000003";
   State();
   return;
 };

@@ -9,14 +9,14 @@
 #include <string>
 
 bool BallRenderSystem::Render(GameBall &g_ball) {
-  auto now = Window::dt_time;
+  auto now = Window::dt_time_;
   if (g_ball.delay >= now) {
     return false;
   }
   SDL_Texture *t;
-  wz::Node *n = WzResource::skill->find(g_ball.path);
+  wz::Node *n = WzResource::skill_->find(g_ball.path);
   if (!n) {
-    n = WzResource::item->find(g_ball.path);
+    n = WzResource::item_->find(g_ball.path);
   }
   auto index = std::to_string(g_ball.ani_index);
   auto texture_node = n->get_child(index);
@@ -31,12 +31,12 @@ bool BallRenderSystem::Render(GameBall &g_ball) {
       .w = static_cast<float>(t->w),
       .h = static_cast<float>(t->h),
   };
-  auto &camera = CameraGameInstance::camera;
+  auto &camera = CameraGameInstance::camera_;
   if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
     pos_rect.x -= camera.x;
     pos_rect.y -= camera.y;
     auto flip = g_ball.flip;
-    SDL_RenderTextureRotated(Window::renderer, t, nullptr, &pos_rect,
+    SDL_RenderTextureRotated(Window::renderer_, t, nullptr, &pos_rect,
                              g_ball.rotate, nullptr, (SDL_FlipMode)flip);
   }
   return true;

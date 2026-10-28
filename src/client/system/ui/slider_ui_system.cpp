@@ -10,13 +10,13 @@ void SliderUiSystem::RenderHslider(int x, int y, uint32_t val,
                                       uint32_t count, int32_t length, bool top,
                                       bool disable) {
   static auto normal = WzResource::LoadTexture(
-      WzResource::ui->find(u"Slider.img/0/thumbNormal"));
+      WzResource::ui_->find(u"Slider.img/0/thumbNormal"));
   static auto pressed = WzResource::LoadTexture(
-      WzResource::ui->find(u"Slider.img/0/thumbPressed"));
+      WzResource::ui_->find(u"Slider.img/0/thumbPressed"));
   static auto disabled = WzResource::LoadTexture(
-      WzResource::ui->find(u"Slider.img/0/thumbDisabled"));
+      WzResource::ui_->find(u"Slider.img/0/thumbDisabled"));
   static auto mouse_over = WzResource::LoadTexture(
-      WzResource::ui->find(u"Slider.img/0/thumbMouseOver"));
+      WzResource::ui_->find(u"Slider.img/0/thumbMouseOver"));
   //   render
   SDL_FRect pos_rect;
   float persent = (float)val / count;
@@ -28,9 +28,9 @@ void SliderUiSystem::RenderHslider(int x, int y, uint32_t val,
   if (disable) {
     t = disabled;
   } else {
-    auto mouse_pos = Window::mouse_pos;
+    auto mouse_pos = Window::mouse_pos_;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-      if (Window::mouse_state & SDL_BUTTON_LMASK) {
+      if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
         t = pressed;
       } else {
         t = mouse_over;
@@ -39,7 +39,7 @@ void SliderUiSystem::RenderHslider(int x, int y, uint32_t val,
       t = normal;
     }
   }
-  SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
 }
 
 std::optional<int> SliderUiSystem::ClickThumb(int x, int y, uint32_t val,

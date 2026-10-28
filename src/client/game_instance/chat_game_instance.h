@@ -4,5 +4,5 @@
 
 class ChatGameInstance {
 public:
-  static inline std::vector<GameChat> chats;
+  static inline std::vector<GameChat> chats_;
 };

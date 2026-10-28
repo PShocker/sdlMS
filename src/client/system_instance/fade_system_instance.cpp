@@ -14,18 +14,18 @@ bool FadeSystemInstance::Render() {
   SDL_FRect pos_rect{
       0,
       0,
-      (CameraGameInstance::camera.w),
-      (CameraGameInstance::camera.h),
+      (CameraGameInstance::camera_.w),
+      (CameraGameInstance::camera_.h),
   };
-  SDL_SetRenderDrawBlendMode(Window::renderer, SDL_BLENDMODE_BLEND);
-  auto alpha = mask_alpha;
-  if (!fade_in) {
+  SDL_SetRenderDrawBlendMode(Window::renderer_, SDL_BLENDMODE_BLEND);
+  auto alpha = mask_alpha_;
+  if (!fade_in_) {
     alpha = 255 - alpha;
   } else {
-    SDL_RenderTexture(Window::renderer, backgrnd, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer_, backgrnd_, nullptr, &pos_rect);
   }
-  SDL_SetRenderDrawColor(Window::renderer, 0, 0, 0, alpha);
-  SDL_RenderFillRect(Window::renderer, &pos_rect);
+  SDL_SetRenderDrawColor(Window::renderer_, 0, 0, 0, alpha);
+  SDL_RenderFillRect(Window::renderer_, &pos_rect);
   return true;
 }
 
@@ -34,60 +34,60 @@ void FadeSystemInstance::EnterIn(std::function<void()> cb) {
   SDL_Rect pos_rect{
       0,
       0,
-      static_cast<int>(CameraGameInstance::camera.w),
-      static_cast<int>(CameraGameInstance::camera.h),
+      static_cast<int>(CameraGameInstance::camera_.w),
+      static_cast<int>(CameraGameInstance::camera_.h),
   };
-  auto surface = SDL_RenderReadPixels(Window::renderer, &pos_rect);
-  if (backgrnd) {
-    SDL_DestroyTexture(backgrnd);
-    backgrnd = nullptr;
+  auto surface = SDL_RenderReadPixels(Window::renderer_, &pos_rect);
+  if (backgrnd_) {
+    SDL_DestroyTexture(backgrnd_);
+    backgrnd_ = nullptr;
   }
-  backgrnd = SDL_CreateTextureFromSurface(Window::renderer, surface);
+  backgrnd_ = SDL_CreateTextureFromSurface(Window::renderer_, surface);
   SDL_DestroySurface(surface);
 
-  System::logic_systems = {};
-  System::render_systems = {Run, Render};
-  System::event_systems = {KeyboardInputSystem::Event};
+  System::logic_systems_ = {};
+  System::render_systems_ = {Run, Render};
+  System::event_systems_ = {KeyboardInputSystem::Event};
 
-  mask_alpha = 0;
-  fn = cb;
-  fade_in = true;
+  mask_alpha_ = 0;
+  fn_ = cb;
+  fade_in_ = true;
 }
 
 void FadeSystemInstance::EnterOut() {
-  System::render_systems.push_back(Run);
-  System::render_systems.push_back(Render);
+  System::render_systems_.push_back(Run);
+  System::render_systems_.push_back(Render);
 
-  mask_alpha = 0;
-  fn = {};
-  fade_in = false;
+  mask_alpha_ = 0;
+  fn_ = {};
+  fade_in_ = false;
 
-  CharacterLogicSystem::self_invincible_cooldown = UINT64_MAX;
+  CharacterLogicSystem::self_invincible_cooldown_ = UINT64_MAX;
 }
 
 bool FadeSystemInstance::Run() {
-  CharacterLogicSystem::self_invincible_cooldown = Window::dt_now + 900;
-  if (mask_alpha < 255) {
-    mask_alpha += 15;
+  CharacterLogicSystem::self_invincible_cooldown_ = Window::dt_now_ + 900;
+  if (mask_alpha_ < 255) {
+    mask_alpha_ += 15;
   } else {
-    if (fn) {
-      fn();
+    if (fn_) {
+      fn_();
     }
     // 只移除第一个 render
-    auto it = std::ranges::find(System::render_systems, &Render);
-    if (it != System::render_systems.end()) {
-      System::render_systems.erase(it);
+    auto it = std::ranges::find(System::render_systems_, &Render);
+    if (it != System::render_systems_.end()) {
+      System::render_systems_.erase(it);
     }
 
     // 只移除第一个 run
-    it = std::ranges::find(System::render_systems, &Run);
-    if (it != System::render_systems.end()) {
-      System::render_systems.erase(it);
+    it = std::ranges::find(System::render_systems_, &Run);
+    if (it != System::render_systems_.end()) {
+      System::render_systems_.erase(it);
     }
 
-    CharacterLogicSystem::self_invincible_cooldown = Window::dt_now;
+    CharacterLogicSystem::self_invincible_cooldown_ = Window::dt_now_;
     return false;
   }
-  mask_alpha = std::clamp(mask_alpha, 0, 255);
+  mask_alpha_ = std::clamp(mask_alpha_, 0, 255);
   return true;
 }

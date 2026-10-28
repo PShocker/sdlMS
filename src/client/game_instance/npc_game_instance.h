@@ -37,7 +37,7 @@ public:
   };
   static NpcType LoadNpcType(const std::u16string &id);
 
-  static inline std::array<std::vector<GameNpc>, 8> data;
+  static inline std::array<std::vector<GameNpc>, 8> data_;
 
   static inline const std::flat_set<std::u16string> default_action = {
       u"stand",

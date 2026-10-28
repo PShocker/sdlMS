@@ -205,9 +205,9 @@ void VideoUiSystem::Close() {
 }
 
 void VideoUiSystem::Open(const std::string &path) {
-  auto it = std::ranges::find(System::render_systems, &Render);
-  if (it != System::render_systems.end()) {
-    System::render_systems.erase(it);
+  auto it = std::ranges::find(System::render_systems_, &Render);
+  if (it != System::render_systems_.end()) {
+    System::render_systems_.erase(it);
     Close();
   }
 
@@ -249,9 +249,9 @@ void VideoUiSystem::Open(const std::string &path) {
     std::abort();
   }
 
-  it = std::ranges::find(System::render_systems, &CursorRenderSystem::Render);
-  if (it != System::render_systems.end()) {
-    System::render_systems.insert(it, Render);
+  it = std::ranges::find(System::render_systems_, &CursorRenderSystem::Render);
+  if (it != System::render_systems_.end()) {
+    System::render_systems_.insert(it, Render);
   }
 }
 
@@ -313,7 +313,7 @@ static void HandleAudioFrame(AVFrame *frame) {
                         frame->ch_layout.nb_channels, frame->sample_rate};
   if (stream == nullptr) {
     stream = SDL_CreateAudioStream(&spec, NULL);
-    SDL_BindAudioStream(AudioGameInstance::device_id, stream);
+    SDL_BindAudioStream(AudioGameInstance::device_id_, stream);
   }
   if (frame->ch_layout.nb_channels > 1 && IsPlanarAudioFormat(frame->format)) {
     InterleaveAudio(frame, &spec);
@@ -416,7 +416,7 @@ static bool GetTextureForMemoryFrame(AVFrame *frame, SDL_Texture **texture) {
       props = CreateVideoTextureProperties(frame, frame_format,
                                            SDL_TEXTUREACCESS_STREAMING);
     }
-    *texture = SDL_CreateTextureWithProperties(Window::renderer, props);
+    *texture = SDL_CreateTextureWithProperties(Window::renderer_, props);
     SDL_DestroyProperties(props);
     if (!*texture) {
       return false;
@@ -513,10 +513,10 @@ static bool GetTextureForFrame(AVFrame *frame, SDL_Texture **texture) {
 
 static void DisplayVideoTexture() {
   if (vertical) {
-    SDL_RenderTextureRotated(Window::renderer, video_texture, NULL, &dst, 0.0,
+    SDL_RenderTextureRotated(Window::renderer_, video_texture, NULL, &dst, 0.0,
                              NULL, SDL_FLIP_VERTICAL);
   } else {
-    SDL_RenderTexture(Window::renderer, video_texture, NULL, &dst);
+    SDL_RenderTexture(Window::renderer_, video_texture, NULL, &dst);
   }
 }
 
@@ -548,7 +548,7 @@ static void HandleVideoFrame(AVFrame *frame) {
 }
 
 bool VideoUiSystem::Render() {
-  double now = (double)(Window::dt_now - video_start) / 1000.0;
+  double now = (double)(Window::dt_now_ - video_start) / 1000.0;
   // pts控制帧率
   if (now >= g_pts && ic != NULL) {
     auto result = av_read_frame(ic, pkt);

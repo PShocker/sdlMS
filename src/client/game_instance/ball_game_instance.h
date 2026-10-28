@@ -19,7 +19,7 @@ private:
                                           const SDL_FRect &rect);
 
 public:
-  static inline std::array<std::vector<GameBall>, 8> data;
+  static inline std::array<std::vector<GameBall>, 8> data_;
   static void Reset();
 
   static uint64_t LoadBallTime(ClientCharacterBallT &cct);

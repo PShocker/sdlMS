@@ -2,8 +2,8 @@
 #include "src/client/game/game_popup_tip.h"
 
 bool PopupTipGameInstance::CheckType(PopupTipEnums type) {
-  for (int i = 0; i < data.size(); i++) {
-    if (data[i].type == type) {
+  for (int i = 0; i < data_.size(); i++) {
+    if (data_[i].type == type) {
       return false;
     }
   }
@@ -17,13 +17,13 @@ void PopupTipGameInstance::AddTip(PopupTipEnums type, PlayerT player_t) {
   GamePopupTip tp;
   tp.type = type;
   tp.data = player_t;
-  data.emplace_back(tp);
+  data_.emplace_back(tp);
 }
 
 void PopupTipGameInstance::AddQuestTip(const std::u16string &id) {
   GamePopupTip tp;
   tp.type = PopupTipEnums::kQuest;
   tp.data = id;
-  tp.destroy = Window::dt_now + 5 * 1000;
-  data.emplace_back(tp);
+  tp.destroy = Window::dt_now_ + 5 * 1000;
+  data_.emplace_back(tp);
 }

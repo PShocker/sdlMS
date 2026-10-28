@@ -55,19 +55,19 @@ private:
 
   static SDL_FPoint LoadWh();
 
-  static inline std::optional<SDL_FPoint> drag;
+  static inline std::optional<SDL_FPoint> drag_;
 
-  static inline std::array<bool, 2> vscr_motion;
+  static inline std::array<bool, 2> vscr_motion_;
 
 public:
   static void AcceptQuest(const std::u16string &id);
   static void CompleteQuest(const std::u16string &id);
-  static inline SDL_FPoint pos;
-  static inline bool detail;
-  static inline uint8_t active_tab;
-  static inline std::flat_set<int> disable_fold;
-  static inline std::array<int, 2> pages;
-  static inline std::u16string detail_quest; // quest
+  static inline SDL_FPoint pos_;
+  static inline bool detail_;
+  static inline uint8_t active_tab_;
+  static inline std::flat_set<int> disable_fold_;
+  static inline std::array<int, 2> pages_;
+  static inline std::u16string detail_quest_; // quest
 
   static void Open();
   static void Close();

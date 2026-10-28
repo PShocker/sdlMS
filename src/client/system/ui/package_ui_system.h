@@ -46,18 +46,18 @@ private:
 
   static SDL_FPoint LoadWh();
 
-  static inline bool vscr_motion;
+  static inline bool vscr_motion_;
 
-  static inline uint8_t page;
+  static inline uint8_t page_;
 
-  static inline std::optional<SDL_FPoint> drag;
+  static inline std::optional<SDL_FPoint> drag_;
 
 public:
   static void RenderNumber(uint32_t num, int x, int y);
 
-  static inline SDL_FPoint pos;
-  static inline std::optional<uint32_t> mouse_index;
-  static inline uint8_t active_tab;
+  static inline SDL_FPoint pos_;
+  static inline std::optional<uint32_t> mouse_index_;
+  static inline uint8_t active_tab_;
 
   static void Open();
   static void Close();
@@ -75,5 +75,5 @@ public:
     ItemEnum type;
     uint16_t index;
   };
-  static inline std::optional<NewItem> new_itm;
+  static inline std::optional<NewItem> new_itm_;
 };

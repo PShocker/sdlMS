@@ -5,10 +5,10 @@
 #include <string>
 class ServerMain {
 public:
-  static inline uint64_t local_addr;
+  static inline uint64_t local_addr_;
 
-  static inline uv_loop_t *loop;
-  static inline bool host = true;
+  static inline uv_loop_t *loop_;
+  static inline bool host_ = true;
   static inline sockaddr_in host_addr = {};
 
   static void ServerInit(const std::string &ip, uint32_t port);
@@ -19,8 +19,8 @@ public:
   static bool Run();
 
 private:
-  static inline uv_udp_t local_socket;
-  static inline uint32_t local_port;
+  static inline uv_udp_t local_socket_;
+  static inline uint32_t local_port_;
 
   static uint64_t CombineIpPort(uint32_t ip, uint16_t port);
   static void SplitIpPort(uint64_t combined, uint32_t &ip, uint16_t &port);

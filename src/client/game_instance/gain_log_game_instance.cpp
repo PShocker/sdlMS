@@ -6,8 +6,8 @@ void GainLogGameInstance::Add(const std::u16string &id, int num,
   GameGainLog g_log{
       .id = id,
       .num = num,
-      .destroy = Window::dt_now + 10000,
+      .destroy = Window::dt_now_ + 10000,
       .type = type,
   };
-  GainLogGameInstance::data.emplace_back(g_log);
+  GainLogGameInstance::data_.emplace_back(g_log);
 }

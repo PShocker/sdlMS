@@ -11,7 +11,7 @@
 #include <optional>
 
 void PackageGameInstance::Load(const CharacterSaveData &cs) {
-  for (auto &d : data) {
+  for (auto &d : data_) {
     d.clear(); // 先清空
   }
   GameConsumeItem gci;
@@ -20,44 +20,44 @@ void PackageGameInstance::Load(const CharacterSaveData &cs) {
   // gci.id = u"02060000";
   gci.num = 3;
 
-  data[(int)ItemEnum::kEquip].assign(
+  data_[(int)ItemEnum::kEquip].assign(
       96, std::polymorphic<GameItem>(GameEquipItem{}));
-  data[(int)ItemEnum::kConsume].assign(96, std::polymorphic<GameItem>(gci));
-  data[(int)ItemEnum::kInstall].assign(
+  data_[(int)ItemEnum::kConsume].assign(96, std::polymorphic<GameItem>(gci));
+  data_[(int)ItemEnum::kInstall].assign(
       96, std::polymorphic<GameItem>(GameInstallItem{}));
-  data[(int)ItemEnum::kEtc].assign(
+  data_[(int)ItemEnum::kEtc].assign(
       96, std::polymorphic<GameItem>(GameEtcItem{}));
-  data[(int)ItemEnum::kCash].assign(
+  data_[(int)ItemEnum::kCash].assign(
       96, std::polymorphic<GameItem>(GameCashItem{}));
-  data[(int)ItemEnum::kDeco].assign(
+  data_[(int)ItemEnum::kDeco].assign(
       96, std::polymorphic<GameItem>(GameDecoItem{}));
 
   gci.id = u"02000000";
   gci.num = 1000;
-  data[(int)ItemEnum::kConsume][0] = std::polymorphic<GameItem>(gci);
+  data_[(int)ItemEnum::kConsume][0] = std::polymorphic<GameItem>(gci);
 
   GameEtcItem gei;
   gei.id = u"04031002";
   gei.num = 1;
-  data[(int)ItemEnum::kEtc][0] = std::polymorphic<GameItem>(gei);
+  data_[(int)ItemEnum::kEtc][0] = std::polymorphic<GameItem>(gei);
 
   GameInstallItem gii;
   gei.id = u"03010000";
-  data[(int)ItemEnum::kInstall][0] = std::polymorphic<GameItem>(gei);
+  data_[(int)ItemEnum::kInstall][0] = std::polymorphic<GameItem>(gei);
 
-  meso = 1000000000;
-  data[0][0]->id = u"01472012";
+  meso_ = 1000000000;
+  data_[0][0]->id = u"01472012";
 
   for (auto &pkg : cs.package) {
     auto type = (int)pkg.val->type;
-    data[type][pkg.index] = pkg.val;
+    data_[type][pkg.index] = pkg.val;
   }
   // meso = cs.meso;
 }
 
 std::vector<int> PackageGameInstance::LoadEmptyIndex(uint32_t tab) {
   std::vector<int> r;
-  auto &d = PackageGameInstance::data[tab];
+  auto &d = PackageGameInstance::data_[tab];
   for (int32_t i = 0; i < d.size(); i++) {
     if (d[i]->id.empty()) {
       r.push_back(i);
@@ -84,7 +84,7 @@ PackageGameInstance::LoadEmptyIndex(std::polymorphic<GameItem> &item) {
     return LoadEmptyIndex(static_cast<int>(item->type));
   }
 
-  auto *r = &PackageGameInstance::data[static_cast<int>(item->type)];
+  auto *r = &PackageGameInstance::data_[static_cast<int>(item->type)];
   const auto slot_max = ItemGameInstance::LoadSlotMax(item->id);
   int num = ItemGameInstance::LoadItemNum(item);
 
@@ -119,13 +119,13 @@ PackageGameInstance::LoadItem(const std::u16string &id) {
   auto type = ItemGameInstance::LoadItemType(id);
   std::vector<std::polymorphic<GameItem>> *r;
   if (type == u"Cash" || type == u"Pet") {
-    r = &PackageGameInstance::data[(int)ItemEnum::kCash];
+    r = &PackageGameInstance::data_[(int)ItemEnum::kCash];
   } else if (type == u"Consume") {
-    r = &PackageGameInstance::data[(int)ItemEnum::kConsume];
+    r = &PackageGameInstance::data_[(int)ItemEnum::kConsume];
   } else if (type == u"Ins") {
-    r = &PackageGameInstance::data[(int)ItemEnum::kInstall];
+    r = &PackageGameInstance::data_[(int)ItemEnum::kInstall];
   } else if (type == u"Etc") {
-    r = &PackageGameInstance::data[(int)ItemEnum::kEtc];
+    r = &PackageGameInstance::data_[(int)ItemEnum::kEtc];
   }
   for (auto &itm : *r) {
     if (itm->id == id) {
@@ -136,7 +136,7 @@ PackageGameInstance::LoadItem(const std::u16string &id) {
 }
 
 std::polymorphic<GameItem> *PackageGameInstance::LoadActiveBall() {
-  auto &sf = CharacterGameInstance::self;
+  auto &sf = CharacterGameInstance::self_;
   std::u16string pre;
   auto WeaponType = EquipGameInstance::LoadWeaponType(sf);
   switch (WeaponType) {
@@ -157,7 +157,7 @@ std::polymorphic<GameItem> *PackageGameInstance::LoadActiveBall() {
     break;
   }
   }
-  auto &r = PackageGameInstance::data[(int)ItemEnum::kConsume];
+  auto &r = PackageGameInstance::data_[(int)ItemEnum::kConsume];
   for (auto &itm : r) {
     if (itm->id.starts_with(pre)) {
       auto num = ItemGameInstance::LoadItemNum(itm);
@@ -170,7 +170,7 @@ std::polymorphic<GameItem> *PackageGameInstance::LoadActiveBall() {
 }
 
 std::u16string PackageGameInstance::LoadActiveCashBall() {
-  auto &sf = CharacterGameInstance::self;
+  auto &sf = CharacterGameInstance::self_;
   std::u16string pre;
   auto WeaponType = EquipGameInstance::LoadWeaponType(sf);
   switch (WeaponType) {
@@ -189,7 +189,7 @@ std::u16string PackageGameInstance::LoadActiveCashBall() {
     break;
   }
   }
-  auto &r = PackageGameInstance::data[(int)ItemEnum::kCash];
+  auto &r = PackageGameInstance::data_[(int)ItemEnum::kCash];
   for (auto &itm : r) {
     if (itm->id.starts_with(pre)) {
       return itm->id;
@@ -201,7 +201,7 @@ std::u16string PackageGameInstance::LoadActiveCashBall() {
 uint32_t PackageGameInstance::LoadItemNum(const std::u16string &id) {
   uint32_t r = 0;
   auto itm = ItemGameInstance::LoadItem(id, 1);
-  auto &p = PackageGameInstance::data[(int)itm->type];
+  auto &p = PackageGameInstance::data_[(int)itm->type];
   for (auto &i : p) {
     if (i->id == id) {
       auto num = ItemGameInstance::LoadItemNum(i);
@@ -214,7 +214,7 @@ uint32_t PackageGameInstance::LoadItemNum(const std::u16string &id) {
 int PackageGameInstance::AddItemSlot(std::polymorphic<GameItem> &item,
                                          int i) {
   auto num = ItemGameInstance::LoadItemNum(item);
-  auto &p = PackageGameInstance::data[(int)item->type];
+  auto &p = PackageGameInstance::data_[(int)item->type];
   auto slot_max = ItemGameInstance::LoadSlotMax(item->id);
   auto &itm = p.at(i);
   itm->id = item->id;
@@ -243,7 +243,7 @@ PackageGameInstance::AddItem(std::polymorphic<GameItem> &item) {
   }
 
   std::optional<int> result;
-  auto &slots = PackageGameInstance::data[static_cast<int>(type)];
+  auto &slots = PackageGameInstance::data_[static_cast<int>(type)];
 
   switch (type) {
   case ItemEnum::kConsume:
@@ -276,7 +276,7 @@ PackageGameInstance::AddNewItem(std::polymorphic<GameItem> &item) {
   auto i = AddItem(item);
   if (i.has_value()) {
     if (item->id != u"00000000") {
-      PackageUiSystem::new_itm = {
+      PackageUiSystem::new_itm_ = {
           .type = item->type,
           .index = (uint16_t)(i.value()),
       };
@@ -286,6 +286,6 @@ PackageGameInstance::AddNewItem(std::polymorphic<GameItem> &item) {
 }
 
 bool PackageGameInstance::AddMeso(uint32_t num) {
-  PackageGameInstance::meso += num;
+  PackageGameInstance::meso_ += num;
   return true;
 }

@@ -3,9 +3,9 @@
 #include "src/client/window/window.h"
 
 bool ItemLogicSystem::Run() {
-  auto v = ItemGameInstance::buff;
+  auto v = ItemGameInstance::buff_;
   for (auto i : v) {
-    if (i.destroy <= Window::dt_now) {
+    if (i.destroy <= Window::dt_now_) {
       ItemGameInstance::UnuseBuffItem(i.id);
     }
   }

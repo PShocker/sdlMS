@@ -38,15 +38,15 @@ private:
   static void EventVscrEnd();
   static void EventVscrMove(SDL_Event *Event);
 
-  static inline bool vscr_motion;
+  static inline bool vscr_motion_;
 
-  static inline std::optional<SDL_FPoint> drag;
+  static inline std::optional<SDL_FPoint> drag_;
 
-  static inline uint8_t active_tab;
-  static inline uint8_t page;
+  static inline uint8_t active_tab_;
+  static inline uint8_t page_;
 
 public:
-  static inline SDL_FPoint pos;
+  static inline SDL_FPoint pos_;
 
   static bool CursorIn();
 

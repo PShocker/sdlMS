@@ -14,37 +14,37 @@ SDL_FPoint TradeUiSystem::LoadWh() { return SDL_FPoint{567, 442}; }
 
 bool TradeUiSystem::CursorIn() {
   auto [w, h] = LoadWh();
-  auto &mouse = Window::mouse_pos;
-  SDL_FRect pos_rect{pos.x, pos.y, w, h};
+  auto &mouse = Window::mouse_pos_;
+  SDL_FRect pos_rect{pos_.x, pos_.y, w, h};
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
 void TradeUiSystem::Close() {
-  std::erase(System::render_systems, Render);
-  std::erase(System::event_systems, Event);
+  std::erase(System::render_systems_, Render);
+  std::erase(System::event_systems_, Event);
 }
 
 void TradeUiSystem::Open() {
   auto it =
-      std::ranges::find(System::render_systems, &CursorRenderSystem::Render);
-  if (it != System::render_systems.end()) {
+      std::ranges::find(System::render_systems_, &CursorRenderSystem::Render);
+  if (it != System::render_systems_.end()) {
     auto wh = LoadWh();
-    auto &camera = CameraGameInstance::camera;
-    pos.x = (camera.w - wh.x) / 2;
-    pos.y = (camera.h - wh.y) / 2;
+    auto &camera = CameraGameInstance::camera_;
+    pos_.x = (camera.w - wh.x) / 2;
+    pos_.y = (camera.h - wh.y) / 2;
 
-    CharacterLogicSystem::RunStandAction(other);
-    CharacterLogicSystem::RunFaceAction(other, u"default");
-    other.flip = 0;
+    CharacterLogicSystem::RunStandAction(other_);
+    CharacterLogicSystem::RunFaceAction(other_, u"default");
+    other_.flip = 0;
 
-    System::render_systems.insert(it, Render);
-    System::event_systems.insert(System::event_systems.begin(), Event);
+    System::render_systems_.insert(it, Render);
+    System::event_systems_.insert(System::event_systems_.begin(), Event);
   }
 }
 
 void TradeUiSystem::Toggle() {
   auto fn = &Render;
-  if (std::ranges::contains(System::render_systems, fn)) {
+  if (std::ranges::contains(System::render_systems_, fn)) {
     Close();
   } else {
     Open();
@@ -53,19 +53,19 @@ void TradeUiSystem::Toggle() {
 
 void TradeUiSystem::RenderBackgrnd() {
   static auto backgrnd = WzResource::LoadTexture(
-      WzResource::ui->find(u"Trade.img/TradingRoom/backgrnd"));
-  SDL_FRect pos_rect{pos.x, pos.y, static_cast<float>(backgrnd->w),
+      WzResource::ui_->find(u"Trade.img/TradingRoom/backgrnd"));
+  SDL_FRect pos_rect{pos_.x, pos_.y, static_cast<float>(backgrnd->w),
                      static_cast<float>(backgrnd->h)};
-  SDL_RenderTexture(Window::renderer, backgrnd, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, backgrnd, nullptr, &pos_rect);
 }
 
 void TradeUiSystem::RenderButton() {
   const static std::array buttons_node = {
-      WzResource::ui->find(u"MapleChat.img/MapleChat/button:claim"),
-      WzResource::ui->find(u"Trade.img/TradingRoom/button:trade"),
-      WzResource::ui->find(u"MapleChat.img/MapleChat/button:enter"),
-      WzResource::ui->find(u"Trade.img/TradingRoom/button:coin"),
-      WzResource::ui->find(u"Trade.img/TradingRoom/button:reset"),
+      WzResource::ui_->find(u"MapleChat.img/MapleChat/button:claim"),
+      WzResource::ui_->find(u"Trade.img/TradingRoom/button:trade"),
+      WzResource::ui_->find(u"MapleChat.img/MapleChat/button:enter"),
+      WzResource::ui_->find(u"Trade.img/TradingRoom/button:coin"),
+      WzResource::ui_->find(u"Trade.img/TradingRoom/button:reset"),
   };
   const std::array buttons_rect = {
       SDL_FRect{541, 250, 20, 19}, // claim
@@ -77,22 +77,22 @@ void TradeUiSystem::RenderButton() {
   for (size_t i = 0; i < buttons_node.size(); ++i) {
     auto k = buttons_node[i];
     auto pos_rect = buttons_rect[i];
-    pos_rect.x += pos.x;
-    pos_rect.y += pos.y;
-    auto &mouse_pos = Window::mouse_pos;
+    pos_rect.x += pos_.x;
+    pos_rect.y += pos_.y;
+    auto &mouse_pos = Window::mouse_pos_;
     // 判断按钮是否被遮挡
     auto CursorIn = CursorGameInstance::cursor_ui;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && CursorIn == Render) {
-      if (Window::mouse_state & SDL_BUTTON_LMASK) {
+      if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
         auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
-        SDL_RenderTexture(Window::renderer, pressed, nullptr, &pos_rect);
+        SDL_RenderTexture(Window::renderer_, pressed, nullptr, &pos_rect);
       } else {
         auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
-        SDL_RenderTexture(Window::renderer, mouse_over, nullptr, &pos_rect);
+        SDL_RenderTexture(Window::renderer_, mouse_over, nullptr, &pos_rect);
       }
     } else {
       auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
-      SDL_RenderTexture(Window::renderer, normal, nullptr, &pos_rect);
+      SDL_RenderTexture(Window::renderer_, normal, nullptr, &pos_rect);
     }
   }
 }
@@ -111,9 +111,9 @@ bool TradeUiSystem::EventButton(SDL_Event *Event) {
 
   for (size_t i = 0; i < buttons_rect.size(); ++i) {
     auto pos_rect = buttons_rect[i];
-    pos_rect.x += pos.x;
-    pos_rect.y += pos.y;
-    if (SDL_PointInRectFloat(&Window::mouse_pos, &pos_rect)) {
+    pos_rect.x += pos_.x;
+    pos_rect.y += pos_.y;
+    if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect)) {
       buttons_func[i]();
       return true;
     }

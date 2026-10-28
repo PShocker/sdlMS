@@ -14,10 +14,10 @@ private:
 
   static SDL_FPoint LoadWh();
 
-  static inline std::optional<SDL_FPoint> drag;
+  static inline std::optional<SDL_FPoint> drag_;
 
 public:
-  static inline SDL_FPoint pos;
+  static inline SDL_FPoint pos_;
 
   static void Open();
   static void Close();

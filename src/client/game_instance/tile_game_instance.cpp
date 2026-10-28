@@ -5,7 +5,7 @@
 #include <string>
 
 void TileGameInstance::Load(wz::Node *image) {
-  data = {};
+  data_ = {};
   auto map_node = image;
   uint8_t map_layer = 0;
   for (auto i : {u"0", u"1", u"2", u"3", u"4", u"5", u"6", u"7"}) {
@@ -41,13 +41,13 @@ void TileGameInstance::Load(wz::Node *image) {
           static_cast<wz::Property<int> *>(tile_node->get_child(u"zM"))->get();
 
       auto load_z = std::stoi(std::string{key.begin(), key.end()});
-      auto frame_node = WzResource::map->find(g_tile.path);
+      auto frame_node = WzResource::map_->find(g_tile.path);
       auto frame_z =
           static_cast<wz::Property<int> *>(frame_node->get_child(u"z"))->get();
 
       g_tile.z = frame_z * 100000 + load_z * 10 + zm;
 
-      TileGameInstance::data[map_layer].emplace(g_tile.z, g_tile);
+      TileGameInstance::data_[map_layer].emplace(g_tile.z, g_tile);
     }
     map_layer++;
   }

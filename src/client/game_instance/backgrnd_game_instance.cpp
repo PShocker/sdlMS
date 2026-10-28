@@ -8,8 +8,8 @@
 #include <string>
 
 void BackgrndGameInstance::Load(wz::Node *image) {
-  front = {};
-  back = {};
+  front_ = {};
+  back_ = {};
 
   auto map_node = image;
   auto map_back_node = map_node->get_child(u"back");
@@ -123,7 +123,7 @@ void BackgrndGameInstance::Load(wz::Node *image) {
     }
 
     SDL_Texture *texture;
-    auto back_node = WzResource::map->find(g_backgrnd.path);
+    auto back_node = WzResource::map_->find(g_backgrnd.path);
     if (g_backgrnd.ani) {
       auto index =
           std::to_string(g_backgrnd.ani_index % back_node->children_count());
@@ -141,9 +141,9 @@ void BackgrndGameInstance::Load(wz::Node *image) {
         static_cast<wz::Property<int> *>(backgrnd_node->get_child(u"front"))
             ->get();
     if (fnt == 1) {
-      front.insert({id, g_backgrnd});
+      front_.insert({id, g_backgrnd});
     } else {
-      back.insert({id, g_backgrnd});
+      back_.insert({id, g_backgrnd});
     }
   }
 }

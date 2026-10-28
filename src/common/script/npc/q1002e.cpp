@@ -11,14 +11,14 @@
 // roger apple
 
 static void Q1002e(std::any data) {
-  NpcDlgUiSystem::type = NpcDlgUiSystem::NpcDlgEnum::kQuestComplete;
-  NpcDlgUiSystem::index = 0;
-  NpcDlgUiSystem::max_index = 0;
-  NpcDlgUiSystem::npc_id = u"0000003";
-  NpcDlgUiSystem::time = Window::dt_now;
-  NpcDlgUiSystem::act_exp = 5;
-  NpcDlgUiSystem::act_item = {{u"02010000", 10}};
-  NpcDlgUiSystem::text = u"q1002e complete";
+  NpcDlgUiSystem::type_ = NpcDlgUiSystem::NpcDlgEnum::kQuestComplete;
+  NpcDlgUiSystem::index_ = 0;
+  NpcDlgUiSystem::max_index_ = 0;
+  NpcDlgUiSystem::npc_id_ = u"0000003";
+  NpcDlgUiSystem::time_ = Window::dt_now_;
+  NpcDlgUiSystem::act_exp_ = 5;
+  NpcDlgUiSystem::act_item_ = {{u"02010000", 10}};
+  NpcDlgUiSystem::text_ = u"q1002e complete";
   return;
 };
 

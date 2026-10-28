@@ -25,36 +25,36 @@ private:
 
   static SDL_FPoint LoadWh();
 
-  static inline std::optional<SDL_FPoint> drag;
+  static inline std::optional<SDL_FPoint> drag_;
 
 public:
   // sound
-  static inline uint8_t master_volume;
-  static inline bool master_volume_mute;
-  static inline uint8_t bgm_volume;
-  static inline bool bgm_volume_mute;
-  static inline uint8_t normal_volume;
-  static inline bool normal_volume_mute;
-  static inline uint8_t monster_volume;
-  static inline bool monster_volume_mute;
-  static inline uint8_t skill_volume;
-  static inline bool skill_volume_mute;
+  static inline uint8_t master_volume_;
+  static inline bool master_volume_mute_;
+  static inline uint8_t bgm_volume_;
+  static inline bool bgm_volume_mute_;
+  static inline uint8_t normal_volume_;
+  static inline bool normal_volume_mute_;
+  static inline uint8_t monster_volume_;
+  static inline bool monster_volume_mute_;
+  static inline uint8_t skill_volume_;
+  static inline bool skill_volume_mute_;
 
   //social
-  static inline bool whisper;
-  static inline bool chat_invite;
-  static inline bool friend_chat;
-  static inline bool party_invite;
-  static inline bool trade_request;
-  static inline bool friend_request;
-  static inline bool friend_login;
-  static inline bool message_time;
-  static inline uint8_t chatbox_size;
+  static inline bool whisper_;
+  static inline bool chat_invite_;
+  static inline bool friend_chat_;
+  static inline bool party_invite_;
+  static inline bool trade_request_;
+  static inline bool friend_request_;
+  static inline bool friend_login_;
+  static inline bool message_time_;
+  static inline uint8_t chatbox_size_;
 
 
   // game
-  static inline uint8_t hp_warn;
-  static inline uint8_t mp_warn;
+  static inline uint8_t hp_warn_;
+  static inline uint8_t mp_warn_;
   enum class EnemyInfoEnum {
     kNameHp,
     kName,
@@ -90,14 +90,14 @@ public:
       .val = (uint8_t)OptionUiSystem::ScreenshotLocationEnum::kFolder,
   };
 
-  static inline bool continue_capture;
-  static inline int32_t continue_capture_num;
+  static inline bool continue_capture_;
+  static inline int32_t continue_capture_num_;
 
-  static inline bool auto_capture;
+  static inline bool auto_capture_;
 
-  static inline bool memory_map;
+  static inline bool memory_map_;
 
-  static inline int32_t memory_limit;
+  static inline int32_t memory_limit_;
 
   enum class LanguageEnum {
     kEnglish,
@@ -110,9 +110,9 @@ public:
       .val = (uint8_t)OptionUiSystem::LanguageEnum::kEnglish,
   };
 
-  static inline uint8_t active_tab;
+  static inline uint8_t active_tab_;
 
-  static inline SDL_FPoint pos;
+  static inline SDL_FPoint pos_;
   static void Open();
   static void Close();
 

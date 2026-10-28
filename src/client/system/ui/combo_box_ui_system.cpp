@@ -8,40 +8,40 @@
 void ComboBoxUiSystem::Render(int x, int y, ComboBox cm, bool top,
                                  bool disable) {
   SDL_Texture *l = WzResource::LoadTexture(
-      WzResource::ui->find(u"Basic.img/ComboBox/normal/0"));
+      WzResource::ui_->find(u"Basic.img/ComboBox/normal/0"));
   SDL_Texture *c = WzResource::LoadTexture(
-      WzResource::ui->find(u"Basic.img/ComboBox/normal/1"));
+      WzResource::ui_->find(u"Basic.img/ComboBox/normal/1"));
   SDL_Texture *r = WzResource::LoadTexture(
-      WzResource::ui->find(u"Basic.img/ComboBox/normal/2"));
+      WzResource::ui_->find(u"Basic.img/ComboBox/normal/2"));
   if (disable) {
     l = WzResource::LoadTexture(
-        WzResource::ui->find(u"Basic.img/ComboBox/disabled/0"));
+        WzResource::ui_->find(u"Basic.img/ComboBox/disabled/0"));
     c = WzResource::LoadTexture(
-        WzResource::ui->find(u"Basic.img/ComboBox/disabled/1"));
+        WzResource::ui_->find(u"Basic.img/ComboBox/disabled/1"));
     r = WzResource::LoadTexture(
-        WzResource::ui->find(u"Basic.img/ComboBox/disabled/2"));
+        WzResource::ui_->find(u"Basic.img/ComboBox/disabled/2"));
   } else {
-    auto mouse_pos = Window::mouse_pos;
+    auto mouse_pos = Window::mouse_pos_;
     SDL_FRect pos_r;
     pos_r.x = x;
     pos_r.y = y;
     pos_r.w = cm.w;
     pos_r.h = 17;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_r)) {
-      if (Window::mouse_state & SDL_BUTTON_LMASK) {
+      if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
         l = WzResource::LoadTexture(
-            WzResource::ui->find(u"Basic.img/ComboBox/normal/0"));
+            WzResource::ui_->find(u"Basic.img/ComboBox/normal/0"));
         c = WzResource::LoadTexture(
-            WzResource::ui->find(u"Basic.img/ComboBox/normal/1"));
+            WzResource::ui_->find(u"Basic.img/ComboBox/normal/1"));
         r = WzResource::LoadTexture(
-            WzResource::ui->find(u"Basic.img/ComboBox/normal/2"));
+            WzResource::ui_->find(u"Basic.img/ComboBox/normal/2"));
       } else {
         l = WzResource::LoadTexture(
-            WzResource::ui->find(u"Basic.img/ComboBox/normal/0"));
+            WzResource::ui_->find(u"Basic.img/ComboBox/normal/0"));
         c = WzResource::LoadTexture(
-            WzResource::ui->find(u"Basic.img/ComboBox/normal/1"));
+            WzResource::ui_->find(u"Basic.img/ComboBox/normal/1"));
         r = WzResource::LoadTexture(
-            WzResource::ui->find(u"Basic.img/ComboBox/mouseOver/2"));
+            WzResource::ui_->find(u"Basic.img/ComboBox/mouseOver/2"));
       }
     }
   }
@@ -50,28 +50,28 @@ void ComboBoxUiSystem::Render(int x, int y, ComboBox cm, bool top,
   pos_rect.y = y;
   pos_rect.w = l->w;
   pos_rect.h = l->h;
-  SDL_RenderTexture(Window::renderer, l, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, l, nullptr, &pos_rect);
   pos_rect.x += l->w;
   pos_rect.w = cm.w - l->w - r->w;
-  SDL_RenderTextureTiled(Window::renderer, c, nullptr, 1, &pos_rect);
+  SDL_RenderTextureTiled(Window::renderer_, c, nullptr, 1, &pos_rect);
   pos_rect.x += pos_rect.w;
   pos_rect.w = r->w;
-  SDL_RenderTexture(Window::renderer, r, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, r, nullptr, &pos_rect);
   Freetype::LoadSize(12);
   Freetype::LoadColor(0, 0, 0, 255);
   Freetype::DrawLine(cm.selected, x + 10, pos_rect.y);
   if (cm.open) {
     auto lh = Freetype::LoadLh();
     auto h = cm.selects.size() * lh * 1.3;
-    SDL_SetRenderDrawColor(Window::renderer, 0, 0, 0, 255);
+    SDL_SetRenderDrawColor(Window::renderer_, 0, 0, 0, 255);
     SDL_FRect pos_rr;
     pos_rr.x = x;
     pos_rr.y = y + l->h;
     pos_rr.w = pos_rect.w;
     pos_rr.h = pos_rect.h;
-    SDL_RenderRect(Window::renderer, &pos_rr);
-    SDL_SetRenderDrawColor(Window::renderer, 0, 0, 0, 255);
-    SDL_RenderFillRect(Window::renderer, &pos_rr);
+    SDL_RenderRect(Window::renderer_, &pos_rr);
+    SDL_SetRenderDrawColor(Window::renderer_, 0, 0, 0, 255);
+    SDL_RenderFillRect(Window::renderer_, &pos_rr);
     auto base_y = pos_rr.y;
     for (int i = 0; i < cm.selects.size(); i++) {
       auto text = cm.selects[i];

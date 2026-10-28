@@ -7,5 +7,5 @@ class ClockGameInstance {
 public:
   static void Load(wz::Node *image);
   static void Load(uint32_t map_id);
-  static inline std::vector<SDL_FRect> data;
+  static inline std::vector<SDL_FRect> data_;
 };

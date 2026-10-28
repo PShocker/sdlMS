@@ -38,7 +38,7 @@ bool ServerMobSystem::RunTryJump(ServerMob &mob) {
   if (!mob_node->children.contains(u"jump")) {
     return false;
   }
-  const auto &s_fhs = ServerSceneInstance::scenes.at(map_id).fhs;
+  const auto &s_fhs = ServerSceneInstance::scenes_.at(map_id_).fhs;
   const auto &s_fh = s_fhs.at(mob.fh).fh;
   int32_t n_fh = -1;
   if (mob.flip) {
@@ -88,7 +88,7 @@ void ServerMobSystem::RunNetworkSyncPos(ServerMob &mob,
     mv.x2 = mob.pos.x;
     mv.y2 = mob.pos.y;
     mv.page = mob.page;
-    mv.time = std::min((uint32_t)Window::delta_time, MIN_FRAME_INTERVAL_MS);
+    mv.time = std::min((uint32_t)Window::delta_time_, MIN_FRAME_INTERVAL_MS);
 
     ServerMobMvT mvt;
     mvt.mob_index = mob.index;
@@ -96,7 +96,7 @@ void ServerMobSystem::RunNetworkSyncPos(ServerMob &mob,
 
     MobEventUnionUnion muu;
     muu.Set(std::move(mvt));
-    events.payload.push_back(std::move(muu));
+    events_.payload.push_back(std::move(muu));
   }
 }
 
@@ -112,7 +112,7 @@ void ServerMobSystem::RunNetworkSyncFlip(ServerMob &mob,
 
     MobEventUnionUnion muu;
     muu.Set(std::move(smf));
-    events.payload.push_back(std::move(muu));
+    events_.payload.push_back(std::move(muu));
   }
 }
 
@@ -130,7 +130,7 @@ void ServerMobSystem::RunNetworkSyncAction(ServerMob &mob,
 
     MobEventUnionUnion muu;
     muu.Set(std::move(sma));
-    events.payload.push_back(std::move(muu));
+    events_.payload.push_back(std::move(muu));
   }
 }
 
@@ -147,7 +147,7 @@ void ServerMobSystem::RunNetworkSyncHp(ServerMob &mob,
 
     MobEventUnionUnion muu;
     muu.Set(std::move(smb));
-    events.payload.push_back(std::move(muu));
+    events_.payload.push_back(std::move(muu));
   }
 }
 
@@ -163,13 +163,13 @@ void ServerMobSystem::RunWalk(ServerMob &mob) {
   border.x = mob.rx0;
   border.w = mob.rx1;
 
-  Physic::Walk(mob.pos, delta_time / 1000.0f, mob.hspeed, mob.vspeed,
+  Physic::Walk(mob.pos, delta_time_ / 1000.0f, mob.hspeed, mob.vspeed,
                mob.hforce, -mob.hspeed_max, mob.hspeed_max, 0, false, mob.fh,
-               border, g_fhs);
+               border, g_fhs_);
 }
 
 void ServerMobSystem::RunDuration(ServerMob &mob) {
-  if (mob.duration > Window::dt_now) {
+  if (mob.duration > Window::dt_now_) {
     return;
   }
 
@@ -221,7 +221,7 @@ void ServerMobSystem::RunDuration(ServerMob &mob) {
 
   switch (selected) {
   case MobLogicSystem::ActionEnum::kStand: {
-    mob.duration = Window::dt_now + 500;
+    mob.duration = Window::dt_now_ + 500;
     mob.hspeed = 0;
     break;
   }
@@ -230,7 +230,7 @@ void ServerMobSystem::RunDuration(ServerMob &mob) {
   }
   case MobLogicSystem::ActionEnum::kMove: {
     bool left = false;
-    const auto &clients = ServerClientInstance::clients;
+    const auto &clients = ServerClientInstance::clients_;
     if (mob.hate_id != 0 && clients.contains(mob.hate_id)) {
       auto &g_character = clients.at(mob.hate_id).player_t.character;
       auto &g_x = g_character->state->x;
@@ -242,7 +242,7 @@ void ServerMobSystem::RunDuration(ServerMob &mob) {
     mob.hforce = left ? -MOVE_FORCE : MOVE_FORCE;
     mob.flip = left ? false : true;
     mob.hspeed = left == true ? -mob.hspeed_max : mob.hspeed_max;
-    mob.duration = Window::dt_now + 1000;
+    mob.duration = Window::dt_now_ + 1000;
     break;
   }
   default: {
@@ -299,7 +299,7 @@ void ServerMobSystem::RunDie(ServerMob &mob, uint64_t client_id) {
 
   MobEventUnionUnion muu;
   muu.Set(std::move(smd));
-  events.payload.push_back(std::move(muu));
+  events_.payload.push_back(std::move(muu));
 
   auto mob_drops = ServerMobInstance::LoadMobDrops(mob.id);
   std::vector<DropT> dts = ServerMobInstance::CreateMobDts(
@@ -307,14 +307,14 @@ void ServerMobSystem::RunDie(ServerMob &mob, uint64_t client_id) {
 
   ServerMobDropT smt;
   smt.mob_index = mob.index;
-  smt.drop = ServerDropInstance::CreateDts(dts, map_id);
+  smt.drop = ServerDropInstance::CreateDts(dts, map_id_);
   for (const auto &dt : smt.drop) {
-    ServerDropInstance::SaveDrop(map_id, *dt);
+    ServerDropInstance::SaveDrop(map_id_, *dt);
   }
 
   MobEventUnionUnion mu;
   mu.Set(std::move(smt));
-  events.payload.push_back(std::move(mu));
+  events_.payload.push_back(std::move(mu));
 
   mob.debuffs.clear();
   return;
@@ -324,7 +324,7 @@ bool ServerMobSystem::RunHitting(ServerMob &mob) {
   if (mob.hits.empty()) {
     return false;
   }
-  const auto current_time = Window::dt_time;
+  const auto current_time = Window::dt_time_;
   // 1) 结算本帧累积伤害（用 int64_t 防溢出）
   int64_t total_damage = 0;
   for (auto &b : mob.hits | std::views::values) {
@@ -376,7 +376,7 @@ bool ServerMobSystem::RunHitCheck(ServerMob &mob) {
   }
 
   const auto delay = LoadMobHitCd(mob);
-  if (time + delay > Window::dt_time) {
+  if (time + delay > Window::dt_time_) {
     return false;
   }
 
@@ -397,18 +397,18 @@ bool ServerMobSystem::RunFall(ServerMob &mob) {
     return false;
   }
 
-  auto border = MapInfoGameInstance::LoadMrBorder(map_id);
+  auto border = MapInfoGameInstance::LoadMrBorder(map_id_);
   border.x = mob.rx0;
   border.w = mob.rx1;
-  auto vspeed = mob.vspeed + delta_time * 2;
+  auto vspeed = mob.vspeed + delta_time_ * 2;
   mob.vspeed = vspeed;
 
   const float vspeed_min = -5550.0f;
   const float vspeed_max = 670.0f;
 
-  bool r = Physic::Fall(mob.pos, delta_time / 1000.0f, mob.hspeed, mob.vspeed,
+  bool r = Physic::Fall(mob.pos, delta_time_ / 1000.0f, mob.hspeed, mob.vspeed,
                         vspeed_min, vspeed_max, border, true, true, mob.fh,
-                        mob.page, g_fhs, INT32_MAX);
+                        mob.page, g_fhs_, INT32_MAX);
   return r;
 }
 
@@ -487,37 +487,37 @@ void ServerMobSystem::RunStateMachine(ServerMob &mob) {
 }
 
 void ServerMobSystem::RunSend() {
-  if (events.payload.empty()) {
+  if (events_.payload.empty()) {
     return;
   }
-  events.map_id = map_id;
-  auto &clients = ServerSceneInstance::scenes[map_id].clients;
+  events_.map_id = map_id_;
+  auto &clients = ServerSceneInstance::scenes_[map_id_].clients;
   for (auto client_id : clients) {
-    ServerResponse::send_to_client(client_id, events);
+    ServerResponse::send_to_client(client_id, events_);
   }
-  events.payload.clear();
+  events_.payload.clear();
 }
 
 bool ServerMobSystem::Run() {
   static uint64_t last = SDL_GetTicks();
 
-  delta_time = Window::dt_now - last;
-  if (delta_time < MIN_FRAME_INTERVAL_MS) {
+  delta_time_ = Window::dt_now_ - last;
+  if (delta_time_ < MIN_FRAME_INTERVAL_MS) {
     return true;
   }
-  last = Window::dt_now;
-  delta_time = std::min(delta_time, MIN_FRAME_INTERVAL_MS);
+  last = Window::dt_now_;
+  delta_time_ = std::min(delta_time_, MIN_FRAME_INTERVAL_MS);
 
-  auto &scenes = ServerSceneInstance::scenes;
+  auto &scenes = ServerSceneInstance::scenes_;
   for (auto &sc : scenes | std::views::values) {
     if (sc.mobs.empty() || sc.clients.empty()) {
       continue;
     }
-    map_id = sc.map_id;
-    g_fhs.clear();
-    const auto &s_fhs = ServerSceneInstance::scenes.at(map_id).fhs;
+    map_id_ = sc.map_id;
+    g_fhs_.clear();
+    const auto &s_fhs = ServerSceneInstance::scenes_.at(map_id_).fhs;
     for (const auto &[key, value] : s_fhs) {
-      g_fhs.emplace(key, value.fh);
+      g_fhs_.emplace(key, value.fh);
     }
     for (auto &mob : sc.mobs | std::views::values) {
       RunStateMachine(mob);

@@ -23,10 +23,10 @@ private:
   static bool EventButton(SDL_Event *Event);
 
 public:
-  static inline uint64_t client_id;
-  static inline std::u16string client_name;
+  static inline uint64_t client_id_;
+  static inline std::u16string client_name_;
 
-  static inline SDL_FPoint pos;
+  static inline SDL_FPoint pos_;
   static bool Render();
 
   static bool CursorIn();

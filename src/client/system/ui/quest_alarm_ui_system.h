@@ -28,16 +28,16 @@ private:
   static void EventDragEnd();
   static void EventDragMove(SDL_Event *Event);
 
-  static inline std::optional<SDL_FPoint> drag;
+  static inline std::optional<SDL_FPoint> drag_;
 
 public:
   static void AcceptQuest(const std::u16string &id);
   static void CompleteQuest(const std::u16string &id);
-  static inline std::flat_set<std::u16string> quests;
+  static inline std::flat_set<std::u16string> quests_;
 
-  static inline bool max = true;
+  static inline bool max_ = true;
 
-  static inline SDL_FPoint pos;
+  static inline SDL_FPoint pos_;
 
   static void EventAutoQuests();
 

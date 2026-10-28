@@ -29,8 +29,8 @@ private:
   static bool EventButton(SDL_Event *Event);
 
 public:
-  static inline uv_pipe_t g_pipe;
-  static inline TextInput username;
+  static inline uv_pipe_t g_pipe_;
+  static inline TextInput username_;
   static bool CameraAnimate(float x, float y);
 
   static bool Render();

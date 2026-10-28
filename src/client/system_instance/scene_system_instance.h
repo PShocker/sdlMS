@@ -7,9 +7,9 @@
 #include <string>
 class SceneSystemInstance {
 public:
-  static inline uint32_t map_id;
-  static inline uint32_t prepare_map_id;
-  static inline std::optional<SDL_FPoint> prepare_pos;
+  static inline uint32_t map_id_;
+  static inline uint32_t prepare_map_id_;
+  static inline std::optional<SDL_FPoint> prepare_pos_;
   static void Enter(uint32_t map_id);
   static void EnterFade();
   static void EnterPrepare(uint32_t map_id, const std::u16string &pn, int i);

@@ -77,50 +77,50 @@
 bool SceneSystemInstance::RenderGame() {
   std::array<std::vector<GameCharacter *>, 8> character_array;
   for (auto &other_data :
-       CharacterGameInstance::others | std::views::values) {
+       CharacterGameInstance::others_ | std::views::values) {
     auto &g_character = other_data.g_character;
     character_array[g_character.page].push_back(&g_character);
   }
-  auto &self = CharacterGameInstance::self;
+  auto &self = CharacterGameInstance::self_;
   character_array[self.page].push_back(&self);
 
   std::array<std::vector<GameMob *>, 8> mob_array;
-  for (auto &mob_data : MobGameInstance::data | std::views::values) {
+  for (auto &mob_data : MobGameInstance::data_ | std::views::values) {
     auto &mob = mob_data.mob;
     mob_array[mob.page].push_back(&mob);
   }
 
   std::array<std::vector<GameDrop *>, 8> drop_array;
-  for (auto &drop : DropGameInstance::data | std::views::values) {
+  for (auto &drop : DropGameInstance::data_ | std::views::values) {
     drop_array[drop.page].push_back(&drop);
   }
   //   后景
-  for (auto &b_backgrnd : BackgrndGameInstance::back | std::views::values) {
+  for (auto &b_backgrnd : BackgrndGameInstance::back_ | std::views::values) {
     BackgrndRenderSystem::Render(b_backgrnd);
   }
   for (uint8_t i = 0; i < 8; i++) {
-    for (auto &obj : ObjGameInstance::data[i] | std::views::values) {
+    for (auto &obj : ObjGameInstance::data_[i] | std::views::values) {
       ObjRenderSystem::Render(obj);
     }
-    for (auto &trap : TrapGameInstance::data[i] | std::views::values) {
+    for (auto &trap : TrapGameInstance::data_[i] | std::views::values) {
       ObjRenderSystem::Render(trap);
     }
-    for (auto &tile : TileGameInstance::data[i] | std::views::values) {
+    for (auto &tile : TileGameInstance::data_[i] | std::views::values) {
       TileRenderSystem::Render(tile);
     }
-    for (auto &reactor : ReactorGameInstance::data[i]) {
+    for (auto &reactor : ReactorGameInstance::data_[i]) {
       ReactorRenderSystem::Render(reactor);
     }
-    for (auto &effect : EffectGameInstance::data[i]) {
+    for (auto &effect : EffectGameInstance::data_[i]) {
       EffectRenderSystem::Render(effect);
     }
-    for (auto &npc : NpcGameInstance::data[i]) {
+    for (auto &npc : NpcGameInstance::data_[i]) {
       NpcRenderSystem::Render(npc);
     }
     for (auto &mob : mob_array[i]) {
       MobRenderSystem::Render(*mob);
     }
-    for (auto &ball : BallGameInstance::data[i]) {
+    for (auto &ball : BallGameInstance::data_[i]) {
       BallRenderSystem::Render(ball);
     }
     for (auto &character : character_array[i]) {
@@ -131,14 +131,14 @@ bool SceneSystemInstance::RenderGame() {
     }
   }
   // 传送门
-  for (auto &portal : PortalGameInstance::data | std::views::values) {
+  for (auto &portal : PortalGameInstance::data_ | std::views::values) {
     PortalRenderSystem::Render(portal);
   }
   // 前景
-  for (auto &f_backgrnd : BackgrndGameInstance::front | std::views::values) {
+  for (auto &f_backgrnd : BackgrndGameInstance::front_ | std::views::values) {
     BackgrndRenderSystem::Render(f_backgrnd);
   }
-  for (auto &npcs : NpcGameInstance::data) {
+  for (auto &npcs : NpcGameInstance::data_) {
     for (auto &npc : npcs) {
       NpcRenderSystem::RenderChatballoon(npc);
     }
@@ -152,16 +152,16 @@ bool SceneSystemInstance::RenderGame() {
 }
 
 void SceneSystemInstance::EnterPrepare() {
-  const auto &pos = SceneSystemInstance::prepare_pos;
-  auto &self = CharacterGameInstance::self;
+  const auto &pos = SceneSystemInstance::prepare_pos_;
+  auto &self = CharacterGameInstance::self_;
   if (pos.has_value()) {
     self.pos = pos.value();
     CharacterLogicSystem::RunAction(self, u"jump");
   }
-  CharacterLogicSystem::self_fh = 0;
-  CharacterLogicSystem::self_lr = 0;
-  CharacterLogicSystem::self_hspeed = 0;
-  CharacterLogicSystem::self_vspeed = 0;
+  CharacterLogicSystem::self_fh_ = 0;
+  CharacterLogicSystem::self_lr_ = 0;
+  CharacterLogicSystem::self_hspeed_ = 0;
+  CharacterLogicSystem::self_vspeed_ = 0;
   CharacterLogicSystem::RunUnsitChair(self);
 
   self.action_animate = true;
@@ -171,22 +171,22 @@ void SceneSystemInstance::EnterPrepare() {
 
 void SceneSystemInstance::Enter(uint32_t map_id) {
   EnterPrepare();
-  SceneSystemInstance::map_id = map_id;
+  SceneSystemInstance::map_id_ = map_id;
 
-  FootholdGameInstance::data = FootholdGameInstance::Load(map_id);
+  FootholdGameInstance::data_ = FootholdGameInstance::Load(map_id);
   BackgrndGameInstance::Load(map_id);
   LadderropeGameInstance::Load(map_id);
   MobGameInstance::Load(map_id);
   NpcGameInstance::Load(map_id);
   ObjGameInstance::Load(map_id);
   TrapGameInstance::Load(map_id);
-  PortalGameInstance::data = PortalGameInstance::Load(map_id);
+  PortalGameInstance::data_ = PortalGameInstance::Load(map_id);
   ReactorGameInstance::Load(map_id);
   TileGameInstance::Load(map_id);
   TooltipGameInstance::Load(map_id);
   SeatGameInstance::Load(map_id);
   MinimapUiSystem::Load();
-  CharacterGameInstance::others.clear();
+  CharacterGameInstance::others_.clear();
   EffectGameInstance::Reset();
   CameraGameInstance::Reset();
   StatusbarUiSystem::Reset();
@@ -195,14 +195,14 @@ void SceneSystemInstance::Enter(uint32_t map_id) {
   auto bgm = MapInfoGameInstance::LoadBgm(map_id);
   AudioGameInstance::LoadBackgrndAudio(bgm);
 
-  System::event_systems = {
+  System::event_systems_ = {
       QuestAlarmUiSystem::Event, MinimapUiSystem::Event,
       QuickSlotUiSystem::Event,  StatusbarUiSystem::Event,
       BuffUiSystem::Event,        CursorLogicSystem::Event,
       KeyboardInputSystem::Event,
   };
 
-  System::logic_systems = {
+  System::logic_systems_ = {
       CameraLogicSystem::Run,    BackgrndLogicSystem::Run,
       BallLogicSystem::Run,      EffectLogicSystem::Run,
       CharacterLogicSystem::Run, ChatballoonLogicSystem::Run,
@@ -213,7 +213,7 @@ void SceneSystemInstance::Enter(uint32_t map_id) {
       ReactorLogicSystem::Run,   ItemLogicSystem::Run,
       TrapLogicSystem::Run,
   };
-  System::render_systems = {
+  System::render_systems_ = {
       RenderGame,
       BuffUiSystem::Render,
       StatusbarUiSystem::Render,
@@ -225,7 +225,7 @@ void SceneSystemInstance::Enter(uint32_t map_id) {
       CursorRenderSystem::Render,
   };
   FadeSystemInstance::EnterOut();
-  Window::delta_time = 0;
+  Window::delta_time_ = 0;
 }
 
 SDL_FPoint SceneSystemInstance::LoadPreparePos(const std::u16string &pn,
@@ -233,7 +233,7 @@ SDL_FPoint SceneSystemInstance::LoadPreparePos(const std::u16string &pn,
   SDL_FPoint r;
   GamePortal *por;
   auto portals =
-      PortalGameInstance::Load(SceneSystemInstance::prepare_map_id);
+      PortalGameInstance::Load(SceneSystemInstance::prepare_map_id_);
   if (index == 0) {
     // 只需要第一个元素，使用 find 更高效
     auto it = portals.find(pn);
@@ -255,28 +255,28 @@ SDL_FPoint SceneSystemInstance::LoadPreparePos(const std::u16string &pn,
 
 void SceneSystemInstance::EnterPrepare(uint32_t map_id,
                                           const std::u16string &pn, int i) {
-  prepare_map_id = map_id;
-  prepare_pos = LoadPreparePos(pn, i);
+  prepare_map_id_ = map_id;
+  prepare_pos_ = LoadPreparePos(pn, i);
 
   fbs::ClientSceneT client_scene;
   client_scene.fade = false;
   client_scene.map_id = map_id;
 
   // 记录起始时间
-  Window::dt_time_start = Window::dt_now;
+  Window::dt_time_start_ = Window::dt_now_;
   ClientRequest::send_to_host(client_scene);
 }
 
 void SceneSystemInstance::EnterFade() {
-  auto g = CharacterGameInstance::self;
-  g.pos = prepare_pos.value();
+  auto g = CharacterGameInstance::self_;
+  g.pos = prepare_pos_.value();
 
   CharacterLogicSystem::RunAction(g, u"jump");
   auto c = ServerCharacterInstance::LoadCharactert(g);
 
   fbs::ClientSceneT client_scene;
   client_scene.fade = true;
-  client_scene.map_id = prepare_map_id;
+  client_scene.map_id = prepare_map_id_;
   client_scene.character = std::make_unique<fbs::CharacterT>(std::move(c));
 
   ClientRequest::send_to_host(client_scene);

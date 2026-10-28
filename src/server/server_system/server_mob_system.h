@@ -11,10 +11,10 @@ using namespace fbs;
 
 class ServerMobSystem {
 private:
-  static inline uint32_t map_id = 0;
-  static inline uint32_t delta_time = 0;
-  static inline std::flat_map<int32_t, GameFoothold> g_fhs;
-  static inline ServerMobEventT events;
+  static inline uint32_t map_id_ = 0;
+  static inline uint32_t delta_time_ = 0;
+  static inline std::flat_map<int32_t, GameFoothold> g_fhs_;
+  static inline ServerMobEventT events_;
 
   static int LoadMobHitCd(ServerMob &mob);
 

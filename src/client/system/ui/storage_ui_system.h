@@ -32,13 +32,13 @@ private:
   static bool EventButton(SDL_Event *Event);
   static void EventClose();
 
-  static inline std::array<std::optional<uint16_t>, 2> active_item;
-  static inline int active_tab;
-  static inline std::array<uint16_t, 2> page;
+  static inline std::array<std::optional<uint16_t>, 2> active_item_;
+  static inline int active_tab_;
+  static inline std::array<uint16_t, 2> page_;
 
 public:
-  static inline std::u16string npc_id;
-  static inline SDL_FPoint pos;
+  static inline std::u16string npc_id_;
+  static inline SDL_FPoint pos_;
 
   static bool CursorIn();
 

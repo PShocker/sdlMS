@@ -107,9 +107,9 @@ CheckReactors CharacterLogicSystem::RunReactorCheck(GameCharacter &g,
   auto &g_pos = g.pos;
   std::vector<CheckReactors::Reactors> v;
   std::flat_map<uint32_t, CheckReactors::Reactors> m;
-  for (const auto &rs : ReactorGameInstance::data) {
+  for (const auto &rs : ReactorGameInstance::data_) {
     for (const auto &r : rs) {
-      auto node = WzResource::reactor->find(r.id + u".img");
+      auto node = WzResource::reactor_->find(r.id + u".img");
       node = node->find(std::to_string(r.state) + "/event/0");
       if (node == nullptr) {
         continue;
@@ -152,7 +152,7 @@ CheckMobs CharacterLogicSystem::RunAttackCheck(GameCharacter &g_character,
   auto &g_pos = g_character.pos;
   auto t =
       TriangleGameInstance::LoadTri(tri, g_character.flip, g_character.pos);
-  for (const auto &[k, v] : MobGameInstance::data) {
+  for (const auto &[k, v] : MobGameInstance::data_) {
     auto &mob = v.mob;
     if (mob.hp <= 0) {
       continue;
@@ -193,7 +193,7 @@ CheckMobs CharacterLogicSystem::RunAttackCheck(SDL_FPoint pos,
   std::vector<CheckMobs::Mobs> v;
   std::flat_multimap<float, CheckMobs::Mobs> m;
   auto &g_pos = pos;
-  for (const auto &[k, v] : MobGameInstance::data) {
+  for (const auto &[k, v] : MobGameInstance::data_) {
     auto &mob = v.mob;
     auto mob_action = MobLogicSystem::LoadActionType(mob.action);
     if (mob_action == MobLogicSystem::ActionEnum::kRevive ||
@@ -256,14 +256,14 @@ bool CharacterLogicSystem::RunFaceAction(GameCharacter &g_character,
   g_character.face.action = action;
   g_character.face.index = 0;
   g_character.face.time = 0;
-  g_character.face.destroy = Window::dt_now + 4000;
+  g_character.face.destroy = Window::dt_now_ + 4000;
   return true;
 }
 
 void CharacterLogicSystem::RunWalkAction(GameCharacter &g_character) {
   if (g_character.weapon.has_value()) {
     auto weapon_id = g_character.weapon.value().id;
-    const auto &avatar_data = CharacterGameInstance::avatar_data;
+    const auto &avatar_data = CharacterGameInstance::avatar_data_;
     if (avatar_data.at(weapon_id).data.contains(u"walk1")) {
       RunAction(g_character, u"walk1");
     } else {
@@ -278,7 +278,7 @@ void CharacterLogicSystem::RunWalkAction(GameCharacter &g_character) {
 void CharacterLogicSystem::RunStandAction(GameCharacter &g_character) {
   if (g_character.weapon.has_value()) {
     auto weapon_id = g_character.weapon.value().id;
-    const auto &avatar_data = CharacterGameInstance::avatar_data;
+    const auto &avatar_data = CharacterGameInstance::avatar_data_;
     if (avatar_data.at(weapon_id).data.contains(u"stand1")) {
       RunAction(g_character, u"stand1");
     } else {
@@ -291,7 +291,7 @@ void CharacterLogicSystem::RunStandAction(GameCharacter &g_character) {
 }
 
 void CharacterLogicSystem::RunClimbAction(GameCharacter &g_character) {
-  const auto &c_lr = LadderropeGameInstance::data.at(self_lr);
+  const auto &c_lr = LadderropeGameInstance::data_.at(self_lr_);
   if (c_lr.l == 1) {
     RunAction(g_character, u"ladder");
   } else {
@@ -305,7 +305,7 @@ bool CharacterLogicSystem::RunAnimate(GameCharacter &g_character) {
   if (!g_character.action_animate) {
     return r;
   }
-  auto delta = Window::delta_time;
+  auto delta = Window::delta_time_;
   auto action_type = LoadActionType(g_character);
   float speed = 1;
   switch (action_type) {
@@ -323,7 +323,7 @@ bool CharacterLogicSystem::RunAnimate(GameCharacter &g_character) {
   uint32_t delay = 100;
   uint32_t size = 0;
   if (!g_character.morph.empty()) {
-    auto node = WzResource::morph->find(g_character.morph + u".img");
+    auto node = WzResource::morph_->find(g_character.morph + u".img");
     auto action = LoadMorphType(g_character);
     node = node->get_child(action);
     size = node->children_count();
@@ -332,15 +332,15 @@ bool CharacterLogicSystem::RunAnimate(GameCharacter &g_character) {
       delay =
           static_cast<wz::Property<int> *>(node->get_child(u"delay"))->get();
     }
-  } else if (CharacterGameInstance::extern_action.contains(
+  } else if (CharacterGameInstance::extern_action_.contains(
                  g_character.action)) {
     auto &action_info =
-        CharacterGameInstance::extern_action.at(g_character.action);
+        CharacterGameInstance::extern_action_.at(g_character.action);
     delay = std::abs(action_info[g_character.action_index].delay);
     size = action_info.size();
   } else {
     auto &action_info =
-        CharacterGameInstance::bone_data.at(g_character.action);
+        CharacterGameInstance::bone_data_.at(g_character.action);
     delay = action_info[g_character.action_index].delay;
     size = action_info.size();
   }
@@ -357,31 +357,31 @@ bool CharacterLogicSystem::RunFlip(GameCharacter &g_character) {
   if (g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
     return false;
   }
-  if (self_flip_cooldown > Window::dt_now) {
+  if (self_flip_cooldown_ > Window::dt_now_) {
     return false;
   }
-  if (character_action_input.contains("left")) {
+  if (character_action_input_.contains("left")) {
     g_character.flip = 0;
-    self_flip_cooldown = Window::dt_now + 50;
+    self_flip_cooldown_ = Window::dt_now_ + 50;
     return true;
   }
-  if (character_action_input.contains("right")) {
+  if (character_action_input_.contains("right")) {
     g_character.flip = 1;
-    self_flip_cooldown = Window::dt_now + 50;
+    self_flip_cooldown_ = Window::dt_now_ + 50;
     return true;
   }
   return false;
 }
 
 void CharacterLogicSystem::RunPick(GameCharacter &g_character) {
-  if (ccp.random_id != 0) {
+  if (ccp_.random_id != 0) {
     return;
   }
   if (g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
     return;
   }
-  if (character_action_input.contains("pick")) {
-    for (auto &v : DropGameInstance::data | std::views::values) {
+  if (character_action_input_.contains("pick")) {
+    for (auto &v : DropGameInstance::data_ | std::views::values) {
       if (v.type == GameDrop::DropEnum::kLand) {
         if (PackageGameInstance::LoadEmptyIndex(v.data).empty()) {
           continue;
@@ -389,9 +389,9 @@ void CharacterLogicSystem::RunPick(GameCharacter &g_character) {
         auto pos = g_character.pos;
         if (pos.x == std::clamp(pos.x, v.goal.x - 20, v.goal.x + 40) &&
             pos.y == std::clamp(pos.y, v.goal.y - 20, v.goal.y + 20)) {
-          ccp.map_id = SceneSystemInstance::map_id;
-          ccp.random_id = v.random_id;
-          ClientRequest::send_to_host(ccp);
+          ccp_.map_id = SceneSystemInstance::map_id_;
+          ccp_.random_id = v.random_id;
+          ClientRequest::send_to_host(ccp_);
           return;
         }
       }
@@ -405,13 +405,13 @@ bool CharacterLogicSystem::RunHarvest(GameCharacter &g_character) {
   if (g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
     return r;
   }
-  if (character_action_input.contains("harvest")) {
-    if (CursorGameInstance::cursor_hand_net.has_value()) {
+  if (character_action_input_.contains("harvest")) {
+    if (CursorGameInstance::cursor_hand_net_.has_value()) {
       return false;
     }
     // npc talk
     auto g_pos = g_character.pos;
-    for (auto &m : NpcGameInstance::data) {
+    for (auto &m : NpcGameInstance::data_) {
       for (auto &g_npc : m) {
         auto n_pos = g_npc.pos;
         auto dx = n_pos.x - g_pos.x;
@@ -430,65 +430,65 @@ bool CharacterLogicSystem::RunWalk(GameCharacter &g_character) {
   if (g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
     return r;
   }
-  if (character_action_input.contains("left")) {
-    self_hforce = -1400;
+  if (character_action_input_.contains("left")) {
+    self_hforce_ = -1400;
     RunWalkAction(g_character);
-  } else if (character_action_input.contains("right")) {
-    self_hforce = 1400;
+  } else if (character_action_input_.contains("right")) {
+    self_hforce_ = 1400;
     RunWalkAction(g_character);
   } else {
     // 左右都没输入，stand或alert
-    if (self_alert_cooldown > Window::dt_now) {
+    if (self_alert_cooldown_ > Window::dt_now_) {
       RunAction(g_character, u"alert");
     } else {
       RunStandAction(g_character);
     }
-    self_hforce = 0;
-    if (self_hspeed == 0) {
+    self_hforce_ = 0;
+    if (self_hspeed_ == 0) {
       return r;
     }
   }
   // 移动
-  auto delta_time = Window::delta_time / 1000.0f;
+  auto delta_time = Window::delta_time_ / 1000.0f;
 
-  auto map_id = SceneSystemInstance::map_id;
+  auto map_id = SceneSystemInstance::map_id_;
   auto border = MapInfoGameInstance::LoadMrBorder(map_id);
 
-  r = Physic::Walk(g_character.pos, delta_time, self_hspeed, self_vspeed,
-                   self_hforce, self_hspeed_min, self_hspeed_max, 800, true,
-                   self_fh, border, FootholdGameInstance::data);
+  r = Physic::Walk(g_character.pos, delta_time, self_hspeed_, self_vspeed_,
+                   self_hforce_, self_hspeed_min_, self_hspeed_max_, 800, true,
+                   self_fh_, border, FootholdGameInstance::data_);
   return r;
 }
 
 bool CharacterLogicSystem::RunFall(GameCharacter &g_character) {
-  if (self_fh != 0) {
+  if (self_fh_ != 0) {
     return false;
   }
   if (!g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
-    if (character_action_input.contains("left")) {
-      self_hspeed -= 0.1 * Window::delta_time;
-    } else if (character_action_input.contains("right")) {
-      self_hspeed += 0.1 * Window::delta_time;
+    if (character_action_input_.contains("left")) {
+      self_hspeed_ -= 0.1 * Window::delta_time_;
+    } else if (character_action_input_.contains("right")) {
+      self_hspeed_ += 0.1 * Window::delta_time_;
     }
   }
-  auto delta_time = Window::delta_time / 1000.0;
-  auto vspeed = self_vspeed + delta_time * 2000;
-  if (self_vspeed <= 0 && vspeed > 0) {
-    self_fall_min = g_character.pos.y;
+  auto delta_time = Window::delta_time_ / 1000.0;
+  auto vspeed = self_vspeed_ + delta_time * 2000;
+  if (self_vspeed_ <= 0 && vspeed > 0) {
+    self_fall_min_ = g_character.pos.y;
   }
-  self_vspeed = vspeed;
-  auto fall_collide = self_foothold_cooldown <= Window::dt_now;
+  self_vspeed_ = vspeed;
+  auto fall_collide = self_foothold_cooldown_ <= Window::dt_now_;
 
-  auto map_id = SceneSystemInstance::map_id;
+  auto map_id = SceneSystemInstance::map_id_;
   auto border = MapInfoGameInstance::LoadMrBorder(map_id);
 
-  bool r = Physic::Fall(g_character.pos, delta_time, self_hspeed, self_vspeed,
-                        self_vspeed_min, self_vspeed_max, border, fall_collide,
-                        true, self_fh, g_character.page,
-                        FootholdGameInstance::data, self_fall_fh);
+  bool r = Physic::Fall(g_character.pos, delta_time, self_hspeed_, self_vspeed_,
+                        self_vspeed_min_, self_vspeed_max_, border, fall_collide,
+                        true, self_fh_, g_character.page,
+                        FootholdGameInstance::data_, self_fall_fh_);
   if (!r) {
-    self_two_jump_cooldown = 0;
-    self_fall_fh = self_fh;
+    self_two_jump_cooldown_ = 0;
+    self_fall_fh_ = self_fh_;
   }
   return r;
 }
@@ -497,13 +497,13 @@ bool CharacterLogicSystem::RunProne(GameCharacter &g_character) {
   if (g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
     return false;
   }
-  if (self_fh == 0 || self_lr != 0) {
+  if (self_fh_ == 0 || self_lr_ != 0) {
     return false;
   }
-  if (character_action_input.contains("down")) {
+  if (character_action_input_.contains("down")) {
     RunAction(g_character, u"prone");
-    self_hspeed = 0;
-    self_vspeed = 0;
+    self_hspeed_ = 0;
+    self_vspeed_ = 0;
     return true;
   }
   return false;
@@ -513,20 +513,20 @@ bool CharacterLogicSystem::RunJump(GameCharacter &g_character) {
   if (g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
     return false;
   }
-  if (character_action_input.contains("jump")) {
+  if (character_action_input_.contains("jump")) {
     auto g_action = LoadActionType(g_character);
     switch (g_action) {
     case ActionEnum::kStand:
     case ActionEnum::kAlert:
     case ActionEnum::kWalk: {
-      self_vspeed = self_vspeed_min * 0.1;
+      self_vspeed_ = self_vspeed_min_ * 0.1;
       break;
     }
     case ActionEnum::kProne: {
       // 下跳
-      const auto &c_fh = FootholdGameInstance::data.at(self_fh);
+      const auto &c_fh = FootholdGameInstance::data_.at(self_fh_);
       if (!c_fh.forbidFallDown) {
-        for (auto &fh : FootholdGameInstance::data | std::views::values) {
+        for (auto &fh : FootholdGameInstance::data_ | std::views::values) {
           if (fh.x1 > fh.x2) {
             continue;
           }
@@ -537,12 +537,12 @@ bool CharacterLogicSystem::RunJump(GameCharacter &g_character) {
           if (fh.k.has_value()) {
             auto y = fh.k.value() * pos.x + fh.intercept.value();
             if (y >= pos.y + 10 && y <= pos.y + 600) {
-              self_vspeed = -100;
-              self_hspeed = 0;
-              self_fh = 0;
-              self_foothold_cooldown = Window::dt_now + 120;
+              self_vspeed_ = -100;
+              self_hspeed_ = 0;
+              self_fh_ = 0;
+              self_foothold_cooldown_ = Window::dt_now_ + 120;
               RunAction(g_character, u"jump");
-              self_two_jump_cooldown = Window::dt_now + 400;
+              self_two_jump_cooldown_ = Window::dt_now_ + 400;
               AudioGameInstance::LoadAudio(u"Game.img/Jump", 0);
               break;
             }
@@ -554,7 +554,7 @@ bool CharacterLogicSystem::RunJump(GameCharacter &g_character) {
     }
     case ActionEnum::kJump: {
       // two jump
-      if (self_two_jump_cooldown <= Window::dt_now) {
+      if (self_two_jump_cooldown_ <= Window::dt_now_) {
         auto ski_id = JobSkillGameInstance::LoadTwoJump();
         if (!ski_id.empty()) {
           RunSkill(g_character, ski_id);
@@ -564,18 +564,18 @@ bool CharacterLogicSystem::RunJump(GameCharacter &g_character) {
       break;
     }
     case ActionEnum::kClimb: {
-      if (character_action_input.contains("up") ||
-          character_action_input.contains("down")) {
+      if (character_action_input_.contains("up") ||
+          character_action_input_.contains("down")) {
         return false;
         break;
       }
-      if (character_action_input.contains("left") ||
-          character_action_input.contains("right")) {
-        self_hspeed = character_action_input.contains("left") ? -140 : 140;
+      if (character_action_input_.contains("left") ||
+          character_action_input_.contains("right")) {
+        self_hspeed_ = character_action_input_.contains("left") ? -140 : 140;
         g_character.action_animate = true;
-        self_vspeed = -310;
-        self_lr = 0;
-        self_ladderrope_cooldown = Window::dt_now + 120;
+        self_vspeed_ = -310;
+        self_lr_ = 0;
+        self_ladderrope_cooldown_ = Window::dt_now_ + 120;
       } else {
         return false;
       }
@@ -585,9 +585,9 @@ bool CharacterLogicSystem::RunJump(GameCharacter &g_character) {
       break;
     }
     }
-    self_two_jump_cooldown = Window::dt_now + 200;
-    self_fall_fh = self_fh;
-    self_fh = 0;
+    self_two_jump_cooldown_ = Window::dt_now_ + 200;
+    self_fall_fh_ = self_fh_;
+    self_fh_ = 0;
     RunAction(g_character, u"jump");
     AudioGameInstance::LoadAudio(u"Game.img/Jump", 0);
     return true;
@@ -599,36 +599,36 @@ bool CharacterLogicSystem::RunClimb(GameCharacter &g_character) {
   if (g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
     return false;
   }
-  if (self_ladderrope_cooldown > Window::dt_now) {
+  if (self_ladderrope_cooldown_ > Window::dt_now_) {
     return false;
   }
-  if (character_action_input.contains("up") ||
-      character_action_input.contains("down")) {
+  if (character_action_input_.contains("up") ||
+      character_action_input_.contains("down")) {
     auto &pos = g_character.pos;
-    for (const auto &[id, lr] : LadderropeGameInstance::data) {
+    for (const auto &[id, lr] : LadderropeGameInstance::data_) {
       // 判断x坐标是否在梯子范围内
       if (pos.x >= lr.x - 15 && pos.x <= lr.x + 15) {
         float y_min = lr.t;
         float y_max = lr.b + 5;
-        if (character_action_input.contains("up")) {
+        if (character_action_input_.contains("up")) {
           // 按上键
-          if (self_fh != 0) {
+          if (self_fh_ != 0) {
             // 可爬范围为[b,b+5]
             y_min = lr.b;
             y_max = lr.b + 5;
           }
         } else {
           // 按下键
-          if (self_fh != 0) {
+          if (self_fh_ != 0) {
             y_min = lr.t - 10;
             y_max = lr.t;
           }
         }
 
         if (pos.y >= y_min && pos.y <= y_max) {
-          self_lr = id;
-          self_vspeed = 0;
-          self_hspeed = 0;
+          self_lr_ = id;
+          self_vspeed_ = 0;
+          self_hspeed_ = 0;
           pos.x = lr.x;
           pos.y = std::clamp(pos.y, (float)lr.t, (float)lr.b);
           g_character.page = lr.page;
@@ -646,30 +646,30 @@ bool CharacterLogicSystem::RunClimbing(GameCharacter &g_character) {
     RunAction(g_character, u"jump");
     return false;
   }
-  if (self_climb_animate_cooldown >= Window::dt_now) {
+  if (self_climb_animate_cooldown_ >= Window::dt_now_) {
     g_character.action_animate = true;
     return true;
   } else {
     g_character.action_animate = false;
   }
-  if (character_action_input.contains("up")) {
-    self_vspeed = -100;
-  } else if (character_action_input.contains("down")) {
-    self_vspeed = 100;
+  if (character_action_input_.contains("up")) {
+    self_vspeed_ = -100;
+  } else if (character_action_input_.contains("down")) {
+    self_vspeed_ = 100;
   } else {
-    self_vspeed = 0;
+    self_vspeed_ = 0;
   }
-  g_character.action_animate = !(self_vspeed == 0);
-  g_character.pos.y += self_vspeed * Window::delta_time / 1000.0f;
-  auto c_lr = LadderropeGameInstance::data.at(self_lr);
+  g_character.action_animate = !(self_vspeed_ == 0);
+  g_character.pos.y += self_vspeed_ * Window::delta_time_ / 1000.0f;
+  auto c_lr = LadderropeGameInstance::data_.at(self_lr_);
   if (g_character.pos.y < c_lr.t) {
     if (c_lr.uf == 1) {
       g_character.action_animate = true;
       g_character.pos.y = c_lr.t - 5;
-      self_ladderrope_cooldown = Window::dt_now + 80;
-      self_vspeed = 0;
-      self_fh = 0;
-      self_lr = 0;
+      self_ladderrope_cooldown_ = Window::dt_now_ + 80;
+      self_vspeed_ = 0;
+      self_fh_ = 0;
+      self_lr_ = 0;
       return false;
     } else {
       g_character.action_animate = false;
@@ -678,10 +678,10 @@ bool CharacterLogicSystem::RunClimbing(GameCharacter &g_character) {
   } else if (g_character.pos.y > c_lr.b) {
     g_character.pos.y = c_lr.b;
     g_character.action_animate = true;
-    self_ladderrope_cooldown = Window::dt_now + 80;
-    self_vspeed = 0;
-    self_fh = 0;
-    self_lr = 0;
+    self_ladderrope_cooldown_ = Window::dt_now_ + 80;
+    self_vspeed_ = 0;
+    self_fh_ = 0;
+    self_lr_ = 0;
     return false;
   }
 
@@ -692,13 +692,13 @@ bool CharacterLogicSystem::RunSit(GameCharacter &g_character) {
   if (!g_character.morph.empty()) {
     return false;
   }
-  if (character_action_input.contains("sit")) {
-    if (self_sit_cooldown >= Window::dt_now) {
-      for (const auto &[seat_pos] : SeatGameInstance::data) {
+  if (character_action_input_.contains("sit")) {
+    if (self_sit_cooldown_ >= Window::dt_now_) {
+      for (const auto &[seat_pos] : SeatGameInstance::data_) {
         if (std::abs(g_character.pos.x - seat_pos.x) <= 20 &&
             std::abs(g_character.pos.y - seat_pos.y) <= 20) {
           RunAction(g_character, u"sit");
-          self_sit_cooldown = Window::dt_now + 120;
+          self_sit_cooldown_ = Window::dt_now_ + 120;
           return true;
         }
       }
@@ -708,13 +708,13 @@ bool CharacterLogicSystem::RunSit(GameCharacter &g_character) {
 }
 
 bool CharacterLogicSystem::RunSitting(GameCharacter &g_character) {
-  if (!character_action_input.empty()) {
-    if (self_sit_cooldown <= Window::dt_now) {
+  if (!character_action_input_.empty()) {
+    if (self_sit_cooldown_ <= Window::dt_now_) {
       RunUnsitChair(g_character);
       return false;
     }
   }
-  if (self_alert_cooldown > Window::dt_now) {
+  if (self_alert_cooldown_ > Window::dt_now_) {
     RunAction(g_character, u"alert");
     return false;
   }
@@ -737,7 +737,7 @@ bool CharacterLogicSystem::RunSkill(GameCharacter &g_character,
       return false;
     }
     bool use = false;
-    if (ski.cd < Window::dt_now) {
+    if (ski.cd < Window::dt_now_) {
       auto action_type = LoadActionType(g_character);
       switch (action_type) {
       case ActionEnum::kJump: {
@@ -759,7 +759,7 @@ bool CharacterLogicSystem::RunSkill(GameCharacter &g_character,
       }
     }
     if (use) {
-      for (auto &buff : SkillGameInstance::ski) {
+      for (auto &buff : SkillGameInstance::ski_) {
         if (buff.action) {
           buff.action(&buff, id);
         }
@@ -772,8 +772,8 @@ bool CharacterLogicSystem::RunSkill(GameCharacter &g_character,
 }
 
 bool CharacterLogicSystem::RunSkill(GameCharacter &g_character) {
-  if (!character_skill_input.empty()) {
-    const auto &id = *character_skill_input.begin();
+  if (!character_skill_input_.empty()) {
+    const auto &id = *character_skill_input_.begin();
     return RunSkill(g_character, {id.begin(), id.end()});
   }
   return false;
@@ -826,14 +826,14 @@ bool CharacterLogicSystem::RunAttack(GameCharacter &g_character) {
   if (!g_character.weapon.has_value()) {
     return false;
   }
-  if (self_attack_cooldown > Window::dt_now) {
+  if (self_attack_cooldown_ > Window::dt_now_) {
     return false;
   }
   auto g_action = LoadActionType(g_character);
   if (g_action == ActionEnum::kAttack || g_action == ActionEnum::kSkill) {
     return false;
   }
-  if (!character_action_input.contains("attack")) {
+  if (!character_action_input_.contains("attack")) {
     return false;
   }
   auto g_weapon = g_character.weapon->id;
@@ -858,7 +858,7 @@ bool CharacterLogicSystem::RunAttack(GameCharacter &g_character) {
   case ActionEnum::kStand:
   case ActionEnum::kAlert:
   case ActionEnum::kWalk: {
-    self_hspeed = 0;
+    self_hspeed_ = 0;
   }
   case ActionEnum::kJump: {
     if (g_action == ActionEnum::kJump &&
@@ -894,13 +894,13 @@ bool CharacterLogicSystem::RunAttack(GameCharacter &g_character) {
   }
   }
   delay = AfterimageGameInstance::LoadBeatTime(g_character);
-  self_alert_cooldown = Window::dt_now + 5000;
+  self_alert_cooldown_ = Window::dt_now_ + 5000;
   LoadSfx(g_character);
   // reactor
   if (!rt.data.empty()) {
     auto &r = rt.data[0];
     ClientReactorT crt;
-    crt.map_id = SceneSystemInstance::map_id;
+    crt.map_id = SceneSystemInstance::map_id_;
     crt.payload = std::make_unique<ReactorT>();
     crt.payload->reactor_index = r.r.index;
     crt.payload->delay = delay;
@@ -962,7 +962,7 @@ bool CharacterLogicSystem::RunAttack(GameCharacter &g_character) {
       ClientRequest::send_to_host(cat);
     }
   }
-  for (auto &buff : SkillGameInstance::ski) {
+  for (auto &buff : SkillGameInstance::ski_) {
     if (buff.action) {
       buff.action(&buff, u"");
     }
@@ -973,25 +973,25 @@ bool CharacterLogicSystem::RunAttack(GameCharacter &g_character) {
 bool CharacterLogicSystem::RunPortal(GameCharacter &g_character) {
   // 特殊情况，如果掉到了地图外,直接传送到sp出生点
   auto border =
-      MapInfoGameInstance::LoadMrBorder(SceneSystemInstance::map_id);
+      MapInfoGameInstance::LoadMrBorder(SceneSystemInstance::map_id_);
   if (g_character.pos.y >= border.h) {
     // no change map
-    const auto &tn = PortalGameInstance::data.find(u"sp")->second;
+    const auto &tn = PortalGameInstance::data_.find(u"sp")->second;
     g_character.pos = tn.pos;
     g_character.pos.y -= 5;
-    self_hspeed = 0;
-    self_vspeed = 0;
-    self_fh = 0;
+    self_hspeed_ = 0;
+    self_vspeed_ = 0;
+    self_fh_ = 0;
     RunAction(g_character, u"jump");
-    self_portal_cooldown = Window::dt_now + 1200;
+    self_portal_cooldown_ = Window::dt_now_ + 1200;
     return true;
   }
   if (g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
     return false;
   }
-  if (self_portal_cooldown <= Window::dt_now) {
-    bool up = character_action_input.contains("up");
-    for (const auto &por : PortalGameInstance::data | std::views::values) {
+  if (self_portal_cooldown_ <= Window::dt_now_) {
+    bool up = character_action_input_.contains("up");
+    for (const auto &por : PortalGameInstance::data_ | std::views::values) {
       if (por.tm == 999999999) {
         continue;
       }
@@ -1000,21 +1000,21 @@ bool CharacterLogicSystem::RunPortal(GameCharacter &g_character) {
         const auto &p_pos = por.pos;
         if (g_pos.x == std::clamp(g_pos.x, p_pos.x - 40, p_pos.x + 40) &&
             g_pos.y == std::clamp(g_pos.y, p_pos.y - 50, p_pos.y + 50)) {
-          if (por.tm != SceneSystemInstance::map_id) {
+          if (por.tm != SceneSystemInstance::map_id_) {
             // need to change map
             SceneSystemInstance::EnterPrepare(por.tm, por.tn, 0);
-            self_portal_cooldown = Window::dt_now + 1000;
+            self_portal_cooldown_ = Window::dt_now_ + 1000;
             AudioGameInstance::LoadAudio(u"Game.img/Portal", 0);
           } else {
             // no change map
-            const auto &tn = PortalGameInstance::data.find(por.tn)->second;
+            const auto &tn = PortalGameInstance::data_.find(por.tn)->second;
             g_character.pos = tn.pos;
             g_character.pos.y -= 5;
-            self_hspeed = 0;
-            self_vspeed = 0;
-            self_fh = 0;
+            self_hspeed_ = 0;
+            self_vspeed_ = 0;
+            self_fh_ = 0;
             RunAction(g_character, u"jump");
-            self_portal_cooldown = Window::dt_now + 1200;
+            self_portal_cooldown_ = Window::dt_now_ + 1200;
             AudioGameInstance::LoadAudio(u"Game.img/Portal", 0);
             return true;
           }
@@ -1026,8 +1026,8 @@ bool CharacterLogicSystem::RunPortal(GameCharacter &g_character) {
 }
 
 bool CharacterLogicSystem::RunFace(GameCharacter &g_character) {
-  if (!character_face_input.empty()) {
-    auto &face = *character_face_input.begin();
+  if (!character_face_input_.empty()) {
+    auto &face = *character_face_input_.begin();
     RunFaceAction(g_character, std::u16string{face.begin(), face.end()});
     return true;
   }
@@ -1035,9 +1035,9 @@ bool CharacterLogicSystem::RunFace(GameCharacter &g_character) {
 }
 
 void CharacterLogicSystem::RunFaceAnimate(GameCharacter &g_character) {
-  g_character.face.time += Window::delta_time;
+  g_character.face.time += Window::delta_time_;
   const auto &delays =
-      CharacterGameInstance::face_data.at(g_character.face.id)
+      CharacterGameInstance::face_data_.at(g_character.face.id)
           .delay.at(g_character.face.action);
   auto delay = delays[g_character.face.index];
   if (delay != 0) {
@@ -1045,9 +1045,9 @@ void CharacterLogicSystem::RunFaceAnimate(GameCharacter &g_character) {
       g_character.face.index += 1;
       if (g_character.face.index >= delays.size()) {
         if (g_character.face.action == u"blink" ||
-            (g_character.face.destroy <= Window::dt_now)) {
+            (g_character.face.destroy <= Window::dt_now_)) {
           g_character.face.action = u"default";
-          g_character.face.destroy = Window::dt_now + 4000;
+          g_character.face.destroy = Window::dt_now_ + 4000;
         }
         g_character.face.index = 0;
       }
@@ -1055,7 +1055,7 @@ void CharacterLogicSystem::RunFaceAnimate(GameCharacter &g_character) {
     }
     return;
   }
-  if (g_character.face.destroy <= Window::dt_now) {
+  if (g_character.face.destroy <= Window::dt_now_) {
     if (g_character.face.action == u"default") {
       g_character.face.action = u"blink";
     } else {
@@ -1063,7 +1063,7 @@ void CharacterLogicSystem::RunFaceAnimate(GameCharacter &g_character) {
     }
     g_character.face.index = 0;
     g_character.face.time = 0;
-    g_character.face.destroy = Window::dt_now + 4000;
+    g_character.face.destroy = Window::dt_now_ + 4000;
   }
   return;
 }
@@ -1071,7 +1071,7 @@ void CharacterLogicSystem::RunFaceAnimate(GameCharacter &g_character) {
 CharacterLogicSystem::PosType
 CharacterLogicSystem::LoadPosType(GameCharacter &g_character) {
   auto swim_r =
-      MapInfoGameInstance::LoadSwimRect(SceneSystemInstance::map_id);
+      MapInfoGameInstance::LoadSwimRect(SceneSystemInstance::map_id_);
   if (swim_r.has_value()) {
     if (SDL_PointInRectFloat(&g_character.pos, &swim_r.value())) {
       return PosType::kSwim;
@@ -1083,17 +1083,17 @@ CharacterLogicSystem::LoadPosType(GameCharacter &g_character) {
 }
 
 void CharacterLogicSystem::RunNetworkSyncState() {
-  if (ccs.payload.empty()) {
+  if (ccs_.payload.empty()) {
     return;
   }
-  ccs.map_id = SceneSystemInstance::map_id;
-  ClientRequest::send_to_host(ccs);
-  ccs.payload.clear();
+  ccs_.map_id = SceneSystemInstance::map_id_;
+  ClientRequest::send_to_host(ccs_);
+  ccs_.payload.clear();
 }
 
 void CharacterLogicSystem::RunNetworkSyncAction() {
-  const auto &sf = CharacterGameInstance::self;
-  auto map_id = SceneSystemInstance::map_id;
+  const auto &sf = CharacterGameInstance::self_;
+  auto map_id = SceneSystemInstance::map_id_;
 
   static std::u16string action;
   static bool action_animate;
@@ -1115,8 +1115,8 @@ void CharacterLogicSystem::RunNetworkSyncAction() {
 const static int32_t MIN_SEND_INTERVAL_MS = 33;
 
 void CharacterLogicSystem::RunNetworkSyncPos() {
-  const auto &sf = CharacterGameInstance::self;
-  auto map_id = SceneSystemInstance::map_id;
+  const auto &sf = CharacterGameInstance::self_;
+  auto map_id = SceneSystemInstance::map_id_;
   static SDL_FPoint pos;
   if ((sf.pos.x != pos.x || sf.pos.y != pos.y) && sf.action != u"dead") {
     MovementT mv;
@@ -1125,7 +1125,7 @@ void CharacterLogicSystem::RunNetworkSyncPos() {
     mv.x2 = sf.pos.x;
     mv.y2 = sf.pos.y;
     mv.page = sf.page;
-    mv.time = std::min(Window::delta_time, MIN_SEND_INTERVAL_MS);
+    mv.time = std::min(Window::delta_time_, MIN_SEND_INTERVAL_MS);
     pos = sf.pos;
     ClientCharacterMvT mvt;
     mvt.map_id = map_id;
@@ -1135,8 +1135,8 @@ void CharacterLogicSystem::RunNetworkSyncPos() {
 }
 
 void CharacterLogicSystem::RunNetworkSyncFlip() {
-  const auto &sf = CharacterGameInstance::self;
-  auto map_id = SceneSystemInstance::map_id;
+  const auto &sf = CharacterGameInstance::self_;
+  auto map_id = SceneSystemInstance::map_id_;
   static bool flip;
   if (flip != sf.flip) {
     FlipT f;
@@ -1150,8 +1150,8 @@ void CharacterLogicSystem::RunNetworkSyncFlip() {
 }
 
 void CharacterLogicSystem::RunNetworkSyncFace() {
-  const auto &sf = CharacterGameInstance::self;
-  auto map_id = SceneSystemInstance::map_id;
+  const auto &sf = CharacterGameInstance::self_;
+  auto map_id = SceneSystemInstance::map_id_;
   static std::u16string face;
   if (face != sf.face.action) {
     if (sf.face.action != u"blink") {
@@ -1170,12 +1170,12 @@ void CharacterLogicSystem::RunNetworkSyncFace() {
 }
 
 void CharacterLogicSystem::RunNetworkSyncSelf() {
-  if (cct.map_id != 0) {
-    const auto &sf = CharacterGameInstance::self;
+  if (cct_.map_id != 0) {
+    const auto &sf = CharacterGameInstance::self_;
     auto c = ServerCharacterInstance::LoadCharactert(sf);
-    cct.payload = std::make_unique<fbs::CharacterT>(std::move(c));
-    ClientRequest::send_to_host(cct);
-    cct.map_id = 0;
+    cct_.payload = std::make_unique<fbs::CharacterT>(std::move(c));
+    ClientRequest::send_to_host(cct_);
+    cct_.map_id = 0;
   }
 }
 
@@ -1186,7 +1186,7 @@ void CharacterLogicSystem::RunNetworkSyncHp() {
     StateT st;
     st.state = StateEnum_HP;
     st.val = sf_hp;
-    ccs.payload.push_back(std::make_unique<StateT>(st));
+    ccs_.payload.push_back(std::make_unique<StateT>(st));
     hp = sf_hp;
   }
 }
@@ -1198,7 +1198,7 @@ void CharacterLogicSystem::RunNetworkSyncMaxHp() {
     StateT st;
     st.state = StateEnum_MAX_HP;
     st.val = sf_max_hp;
-    ccs.payload.push_back(std::make_unique<StateT>(st));
+    ccs_.payload.push_back(std::make_unique<StateT>(st));
     max_hp = sf_max_hp;
   }
 }
@@ -1211,10 +1211,10 @@ void CharacterLogicSystem::RunNetworkSync() {
   RunNetworkSyncState();
   static uint64_t time = 0;
   // 节流：频率限制
-  if (Window::dt_now - time <= MIN_SEND_INTERVAL_MS) {
+  if (Window::dt_now_ - time <= MIN_SEND_INTERVAL_MS) {
     return;
   }
-  time = Window::dt_now;
+  time = Window::dt_now_;
   RunNetworkSyncPos();
   RunNetworkSyncFlip();
   RunNetworkSyncFace();
@@ -1225,7 +1225,7 @@ void CharacterLogicSystem::RunNetworkDieSync(GameCharacter &g_character) {
   d.x = g_character.pos.x;
   d.y = g_character.pos.y;
   ClientCharacterDieT req;
-  req.map_id = SceneSystemInstance::map_id;
+  req.map_id = SceneSystemInstance::map_id_;
   req.payload = std::make_unique<DieT>(d);
   ClientRequest::send_to_host(req);
   return;
@@ -1276,10 +1276,10 @@ void CharacterLogicSystem::RunTomb(GameCharacter &g_character) {
     return;
   }
   auto &tomb = g_character.tomb.value();
-  tomb.pos.y += Window::delta_time * 0.4;
+  tomb.pos.y += Window::delta_time_ * 0.4;
   tomb.pos.y = std::min(tomb.b.y, tomb.pos.y);
-  tomb.ani_time += Window::delta_time;
-  auto node = WzResource::effect->find(u"Tomb.img/" + tomb.ani_type);
+  tomb.ani_time += Window::delta_time_;
+  auto node = WzResource::effect_->find(u"Tomb.img/" + tomb.ani_type);
   auto texture_node = node->get_child(std::to_string(tomb.ani_index));
   if (texture_node->type == wz::Type::UOL) {
     texture_node =
@@ -1318,7 +1318,7 @@ void CharacterLogicSystem::RunAnimateChair(GameCharacter &g_character) {
 }
 
 void CharacterLogicSystem::RunStateMachine() {
-  auto &g_character = CharacterGameInstance::self;
+  auto &g_character = CharacterGameInstance::self_;
   auto o_character = g_character;
   RunItem(g_character);
   auto g_action = LoadActionType(g_character);
@@ -1432,12 +1432,12 @@ void CharacterLogicSystem::RunStateMachine() {
     bool Fall = RunFall(g_character);
     if (RunAnimate(g_character)) {
       // 冷却
-      self_flip_cooldown = Window::dt_now + 33;
-      self_attack_cooldown = Window::dt_now + 33;
+      self_flip_cooldown_ = Window::dt_now_ + 33;
+      self_attack_cooldown_ = Window::dt_now_ + 33;
       if (!Fall) {
         // 落地
-        self_vspeed = 0;
-        self_hspeed = 0;
+        self_vspeed_ = 0;
+        self_hspeed_ = 0;
         RunStandAction(g_character);
       } else {
         RunAction(g_character, u"jump");
@@ -1460,13 +1460,13 @@ void CharacterLogicSystem::RunStateMachine() {
 }
 
 void CharacterLogicSystem::RunOthersMv() {
-  for (auto &c : CharacterGameInstance::others | std::views::values) {
+  for (auto &c : CharacterGameInstance::others_ | std::views::values) {
     auto &mvs = c.mvs;
     if (mvs.empty()) {
       continue;
     }
     auto mv = mvs[0];
-    auto per = Window::delta_time / (float)mv.time;
+    auto per = Window::delta_time_ / (float)mv.time;
     // 计算当前点在线段上的进度（基于 x 和 y）
     float dx = mv.x2 - mv.x1;
     float dy = mv.y2 - mv.y1;
@@ -1494,7 +1494,7 @@ void CharacterLogicSystem::RunOthersMv() {
 }
 
 void CharacterLogicSystem::RunOthersStateMachine() {
-  for (auto &c : CharacterGameInstance::others | std::views::values) {
+  for (auto &c : CharacterGameInstance::others_ | std::views::values) {
     auto &g_character = c.g_character;
     RunFaceAnimate(g_character);
     auto g_action = LoadActionType(g_character);
@@ -1542,10 +1542,10 @@ void CharacterLogicSystem::RunOthers() {
 }
 
 void CharacterLogicSystem::RunColor() {
-  auto g_character = &CharacterGameInstance::self;
-  auto cooldown = CharacterLogicSystem::self_invincible_cooldown;
-  if (cooldown >= Window::dt_now) {
-    auto delta = cooldown - Window::dt_now;
+  auto g_character = &CharacterGameInstance::self_;
+  auto cooldown = CharacterLogicSystem::self_invincible_cooldown_;
+  if (cooldown >= Window::dt_now_) {
+    auto delta = cooldown - Window::dt_now_;
     bool dark = (delta % 200) > 100;
     Uint8 color = dark ? 128 : 255;
     g_character->color = {color, color, color, 255};
@@ -1564,13 +1564,13 @@ bool CharacterLogicSystem::Run() {
 
 void CharacterLogicSystem::RunDieAction(GameCharacter &g_character) {
   RunAction(g_character, u"dead");
-  if (self_fh == 0 || self_lr == 0) {
+  if (self_fh_ == 0 || self_lr_ == 0) {
     auto o_character = g_character;
     // 空中
-    self_hspeed = 0;
-    self_vspeed = self_vspeed_max;
+    self_hspeed_ = 0;
+    self_vspeed_ = self_vspeed_max_;
     //
-    auto map_id = SceneSystemInstance::map_id;
+    auto map_id = SceneSystemInstance::map_id_;
     auto border = MapInfoGameInstance::LoadMrBorder(map_id);
 
     SDL_FPoint new_pos{
@@ -1578,7 +1578,7 @@ void CharacterLogicSystem::RunDieAction(GameCharacter &g_character) {
         .y = border.h,
     };
     auto inter_pos = Physic::FallIntersectPos(g_character.pos, new_pos,
-                                                FootholdGameInstance::data);
+                                                FootholdGameInstance::data_);
     g_character.pos = inter_pos.begin()->second.pos;
   }
   GameTomb t{
@@ -1588,10 +1588,10 @@ void CharacterLogicSystem::RunDieAction(GameCharacter &g_character) {
   };
   g_character.tomb = t;
 
-  self_invincible_cooldown = 0;
-  self_vspeed = 0;
-  self_hspeed = 0;
-  self_alert_cooldown = 0;
+  self_invincible_cooldown_ = 0;
+  self_vspeed_ = 0;
+  self_hspeed_ = 0;
+  self_alert_cooldown_ = 0;
 
   RunNetworkDieSync(g_character);
 
@@ -1666,12 +1666,12 @@ void CharacterLogicSystem::RunSitChair(GameCharacter &g_character,
   RunAction(g_character, u"sit");
   g_character.chair = GameChair{};
   g_character.chair->id = id;
-  if (&g_character == &CharacterGameInstance::self) {
+  if (&g_character == &CharacterGameInstance::self_) {
     StateT st;
     st.state = fbs::StateEnum_BUFF_ITEM;
     st.val = std::stoi(std::string{id.begin(), id.end()});
     st.sub_val = 1;
-    ccs.payload.push_back(std::make_unique<StateT>(st));
+    ccs_.payload.push_back(std::make_unique<StateT>(st));
   }
 
   return;
@@ -1680,7 +1680,7 @@ void CharacterLogicSystem::RunSitChair(GameCharacter &g_character,
 void CharacterLogicSystem::RunUnsitChair(GameCharacter &g_character) {
   if (g_character.chair.has_value()) {
     RunStandAction(g_character);
-    if (&g_character == &CharacterGameInstance::self) {
+    if (&g_character == &CharacterGameInstance::self_) {
       StateT st;
       st.state = fbs::StateEnum_BUFF_ITEM;
       auto tmp = std::string{
@@ -1689,7 +1689,7 @@ void CharacterLogicSystem::RunUnsitChair(GameCharacter &g_character) {
       };
       st.val = std::stoi(tmp);
       st.sub_val = 0;
-      ccs.payload.push_back(std::make_unique<StateT>(st));
+      ccs_.payload.push_back(std::make_unique<StateT>(st));
     }
   }
   g_character.chair = std::nullopt;
@@ -1697,8 +1697,8 @@ void CharacterLogicSystem::RunUnsitChair(GameCharacter &g_character) {
 }
 
 void CharacterLogicSystem::RunItem(GameCharacter &g_character) {
-  if (!character_item_input.empty()) {
-    for (const auto &input : character_item_input) {
+  if (!character_item_input_.empty()) {
+    for (const auto &input : character_item_input_) {
       auto item_id = input.val;
       std::u16string item_id2{item_id.begin(), item_id.end()};
       auto itm = PackageGameInstance::LoadItem(item_id2);
@@ -1742,7 +1742,7 @@ CharacterLogicSystem::LoadMorphType(GameCharacter &g_character) {
 }
 
 void CharacterLogicSystem::RunBeingHit(float x, uint64_t num) {
-  auto &sf = CharacterGameInstance::self;
+  auto &sf = CharacterGameInstance::self_;
   sf.action_animate = true;
   auto action_type = CharacterLogicSystem::LoadActionType(sf);
   switch (action_type) {
@@ -1752,46 +1752,46 @@ void CharacterLogicSystem::RunBeingHit(float x, uint64_t num) {
   case CharacterLogicSystem::ActionEnum::kClimb:
   case CharacterLogicSystem::ActionEnum::kProne: {
     CharacterLogicSystem::RunAction(sf, u"jump");
-    self_fall_fh = self_fh;
+    self_fall_fh_ = self_fh_;
     break;
   }
   case CharacterLogicSystem::ActionEnum::kSit: {
     CharacterLogicSystem::RunUnsitChair(sf);
     CharacterLogicSystem::RunAction(sf, u"jump");
-    self_fall_fh = self_fh;
+    self_fall_fh_ = self_fh_;
     break;
   }
   default: {
     break;
   }
   }
-  CharacterLogicSystem::self_fh = 0;
-  CharacterLogicSystem::self_lr = 0;
-  CharacterLogicSystem::self_invincible_cooldown = Window::dt_now + 2000;
-  CharacterLogicSystem::self_alert_cooldown = Window::dt_now + 5000;
+  CharacterLogicSystem::self_fh_ = 0;
+  CharacterLogicSystem::self_lr_ = 0;
+  CharacterLogicSystem::self_invincible_cooldown_ = Window::dt_now_ + 2000;
+  CharacterLogicSystem::self_alert_cooldown_ = Window::dt_now_ + 5000;
 
   const auto speed = 270.0f;
   if (sf.pos.x > x) {
-    if (CharacterLogicSystem::self_hspeed > 0 &&
-        CharacterLogicSystem::self_hspeed <= speed) {
-      CharacterLogicSystem::self_hspeed = speed;
+    if (CharacterLogicSystem::self_hspeed_ > 0 &&
+        CharacterLogicSystem::self_hspeed_ <= speed) {
+      CharacterLogicSystem::self_hspeed_ = speed;
     } else {
-      CharacterLogicSystem::self_hspeed += speed;
+      CharacterLogicSystem::self_hspeed_ += speed;
     }
   } else {
-    if (CharacterLogicSystem::self_hspeed <= 0 &&
-        CharacterLogicSystem::self_hspeed > -speed) {
-      CharacterLogicSystem::self_hspeed = -speed;
+    if (CharacterLogicSystem::self_hspeed_ <= 0 &&
+        CharacterLogicSystem::self_hspeed_ > -speed) {
+      CharacterLogicSystem::self_hspeed_ = -speed;
     } else {
-      CharacterLogicSystem::self_hspeed -= speed;
+      CharacterLogicSystem::self_hspeed_ -= speed;
     }
   }
-  if (CharacterLogicSystem::self_vspeed < 0) {
-    if (CharacterLogicSystem::self_vspeed > -speed) {
-      CharacterLogicSystem::self_vspeed = -speed;
+  if (CharacterLogicSystem::self_vspeed_ < 0) {
+    if (CharacterLogicSystem::self_vspeed_ > -speed) {
+      CharacterLogicSystem::self_vspeed_ = -speed;
     }
   } else {
-    CharacterLogicSystem::self_vspeed -= speed;
+    CharacterLogicSystem::self_vspeed_ -= speed;
   }
   auto sf_hp = CharacterStatGameInstance::GetHp();
   sf_hp -= num;
@@ -1810,7 +1810,7 @@ CharacterLogicSystem::RunBuffCheck(GameCharacter &g_character,
                                        SDL_FRect g_r) {
   std::vector<uint64_t> r;
   auto &g_pos = g_character.pos;
-  for (const auto &[k, v] : CharacterGameInstance::others) {
+  for (const auto &[k, v] : CharacterGameInstance::others_) {
     auto c_r = LoadRect(v.g_character);
     if (SDL_HasRectIntersectionFloat(&c_r, &g_r)) {
       r.push_back(k);

@@ -29,7 +29,7 @@ static void Duanhunjian() {
             SDL_FPoint{0, -28},
         },
     };
-    auto &sf = CharacterGameInstance::self;
+    auto &sf = CharacterGameInstance::self_;
     CharacterLogicSystem::RunAction(sf, u"swingO1");
     auto cm = CharacterLogicSystem::RunAttackCheck(sf, tri);
     if (!cm.data.empty()) {
@@ -80,7 +80,7 @@ static void Shuangfeizhan() {
             SDL_FPoint{0, -28},
         },
     };
-    auto &sf = CharacterGameInstance::self;
+    auto &sf = CharacterGameInstance::self_;
     auto WeaponType = EquipGameInstance::LoadWeaponType(sf);
     if (!(WeaponType == EquipGameInstance::WeaponType::kBow ||
           WeaponType == EquipGameInstance::WeaponType::kCrossbow)) {

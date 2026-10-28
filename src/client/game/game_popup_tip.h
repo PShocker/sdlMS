@@ -16,6 +16,6 @@ enum class PopupTipEnums {
 struct GamePopupTip{
   PopupTipEnums type;
   int32_t alpha = 0;
-  uint64_t destroy = Window::dt_now + 120 * 1000;
+  uint64_t destroy = Window::dt_now_ + 120 * 1000;
   std::any data;
 };

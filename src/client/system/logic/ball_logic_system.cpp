@@ -8,11 +8,11 @@
 #include "wz/Property.h"
 
 void BallLogicSystem::RunAnimate(GameBall &b) {
-  wz::Node *n = WzResource::skill->find(b.path);
+  wz::Node *n = WzResource::skill_->find(b.path);
   if (!n) {
-    n = WzResource::item->find(b.path);
+    n = WzResource::item_->find(b.path);
   }
-  b.ani_time += Window::delta_time;
+  b.ani_time += Window::delta_time_;
   auto index = std::to_string(b.ani_index);
   auto texture_node = n->get_child(index);
   int delay = 100;
@@ -34,8 +34,8 @@ void BallLogicSystem::RunAnimate(GameBall &b) {
   }
   float dx = b.goal.x - b.pos.x;
   float dy = b.goal.y - b.pos.y;
-  if (MobGameInstance::data.contains(b.mob_index)) {
-    const auto &mob = MobGameInstance::data.at(b.mob_index).mob;
+  if (MobGameInstance::data_.contains(b.mob_index)) {
+    const auto &mob = MobGameInstance::data_.at(b.mob_index).mob;
     dx = (b.goal.x + mob.pos.x) - b.pos.x;
     dy = (b.goal.y + mob.pos.y) - b.pos.y;
   }
@@ -49,7 +49,7 @@ void BallLogicSystem::RunAnimate(GameBall &b) {
 }
 
 SDL_FPoint BallLogicSystem::Move(SDL_FPoint p1, SDL_FPoint p2, int speed) {
-  auto step = speed * Window::delta_time / 1000.0f;
+  auto step = speed * Window::delta_time_ / 1000.0f;
 
   float dx = p2.x - p1.x;
   float dy = p2.y - p1.y;
@@ -72,8 +72,8 @@ SDL_FPoint BallLogicSystem::Move(SDL_FPoint p1, SDL_FPoint p2, int speed) {
 }
 
 bool BallLogicSystem::RunMove(GameBall &b) {
-  if (MobGameInstance::data.contains(b.mob_index)) {
-    auto mob_pos = MobGameInstance::data.at(b.mob_index).mob.pos;
+  if (MobGameInstance::data_.contains(b.mob_index)) {
+    auto mob_pos = MobGameInstance::data_.at(b.mob_index).mob.pos;
     auto p2 = b.goal;
     p2.x += mob_pos.x;
     p2.y += mob_pos.y;
@@ -96,8 +96,8 @@ bool BallLogicSystem::RunMove(GameBall &b) {
 }
 
 bool BallLogicSystem::Run() {
-  auto now = Window::dt_time;
-  for (auto &bs : BallGameInstance::data) {
+  auto now = Window::dt_time_;
+  for (auto &bs : BallGameInstance::data_) {
     // 使用迭代器遍历并安全删除
     for (auto it = bs.begin(); it != bs.end();) {
       if (it->delay >= now) {

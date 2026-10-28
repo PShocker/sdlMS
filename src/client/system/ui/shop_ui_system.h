@@ -40,22 +40,22 @@ private:
   static void EventVscrEnd();
   static void EventVscrMove(SDL_Event *Event);
 
-  static inline std::array<bool, 2> vscr_motion;
+  static inline std::array<bool, 2> vscr_motion_;
 
   static bool EventTab(SDL_Event *Event);
 
   static SDL_FPoint LoadWh();
 
 public:
-  static inline std::array<int, 2> pages;
+  static inline std::array<int, 2> pages_;
 
-  static inline std::array<std::optional<int>, 2> active_item;
-  static inline std::array<int, 2> active_tab;
+  static inline std::array<std::optional<int>, 2> active_item_;
+  static inline std::array<int, 2> active_tab_;
 
-  static inline std::optional<GameNpc> npc;
-  static inline const GameShop *shop;
+  static inline std::optional<GameNpc> npc_;
+  static inline const GameShop *shop_;
 
-  static inline SDL_FPoint pos;
+  static inline SDL_FPoint pos_;
 
   static void Open();
   static void Close();

@@ -63,10 +63,10 @@ public:
     kTradeBlock,
   };
 
-  static inline NoticeEnum type;
-  static inline SDL_FPoint pos;
-  static inline TextInput text;
-  static inline std::any data;
+  static inline NoticeEnum type_;
+  static inline SDL_FPoint pos_;
+  static inline TextInput text_;
+  static inline std::any data_;
 
   static bool Render();
 

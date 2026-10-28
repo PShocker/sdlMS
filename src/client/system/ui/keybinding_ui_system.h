@@ -40,11 +40,11 @@ private:
 
   static bool EventButton(SDL_Event *Event);
 
-  static inline std::optional<SDL_FPoint> drag;
-  static inline uint8_t active_tab;
+  static inline std::optional<SDL_FPoint> drag_;
+  static inline uint8_t active_tab_;
 
 public:
-  static inline SDL_FPoint pos;
+  static inline SDL_FPoint pos_;
 
   static void Open();
   static void Close();

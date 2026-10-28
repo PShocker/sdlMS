@@ -33,7 +33,7 @@ static void Mfdan() {
   g_skill.use = [](uint64_t client_id, int ski_lv) {
     GameTriangle tri = {
         {SDL_FPoint{-400, -100}, SDL_FPoint{-400, 100}, SDL_FPoint{0, -30}}};
-    auto &sf = CharacterGameInstance::self;
+    auto &sf = CharacterGameInstance::self_;
     const std::array actions = {u"swingO1", u"swingO2", u"swingO3"};
     std::uniform_int_distribution<> dis(0, actions.size() - 1);
     auto &gen = RandomGameInstance::gen;
@@ -80,14 +80,14 @@ static void Mfdun() {
   g_skill.id = u"2001000";
   g_skill.hit = [](GameMob *mob, uint64_t n) -> uint64_t {
     auto ski_lv = JobSkillGameInstance::LoadSkiLevel(u"2001000");
-    auto x_node = WzResource::skill->find(u"200.img/skill/2001000/level");
+    auto x_node = WzResource::skill_->find(u"200.img/skill/2001000/level");
     auto x = static_cast<wz::Property<int> *>(
                  x_node->get_child(std::to_string(ski_lv))->get_child(u"x"))
                  ->get();
     return n * x;
   };
   g_skill.end = []() {
-    auto &ski = SkillGameInstance::ski;
+    auto &ski = SkillGameInstance::ski_;
     auto it = std::ranges::find_if(
         ski, [](const GameSkill &s) { return s.id == u"2001000"; });
     if (it != ski.end()) {
@@ -96,10 +96,10 @@ static void Mfdun() {
   };
 
   g_skill.use = [g_skill](uint64_t client_id, int ski_lv) mutable {
-    auto &sf = CharacterGameInstance::self;
+    auto &sf = CharacterGameInstance::self_;
     CharacterLogicSystem::RunAction(sf, u"alert2");
 
-    auto &ski = SkillGameInstance::ski;
+    auto &ski = SkillGameInstance::ski_;
 
     g_skill.end();
     g_skill.lv = ski_lv;
@@ -117,7 +117,7 @@ static void Mfsj() {
   GameSkill g_skill;
   g_skill.id = u"2001003";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
-    auto &sf = CharacterGameInstance::self;
+    auto &sf = CharacterGameInstance::self_;
     CharacterLogicSystem::RunStandAction(sf);
     CharacterLogicSystem::RunAttackAction(sf, false);
     auto g_r = SkillGameInstance::LoadSkiR(u"2001003");
@@ -145,7 +145,7 @@ static void Mfkaijia() {
   g_skill.id = u"2001001";
 
   g_skill.end = []() {
-    auto &ski = SkillGameInstance::ski;
+    auto &ski = SkillGameInstance::ski_;
     auto it = std::ranges::find_if(
         ski, [](const GameSkill &s) { return s.id == u"2001001"; });
     if (it != ski.end()) {
@@ -156,7 +156,7 @@ static void Mfkaijia() {
   g_skill.effect = [](SDL_FPoint p, GameEffect *e, bool f) {
     const int duration = 300;
     auto Start = e->delay;
-    auto dt = Window::dt_now - Start;
+    auto dt = Window::dt_now_ - Start;
     if (dt <= duration) {
       float scale = 1 + 1.2 * (float)dt / duration;
       auto g_character = std::any_cast<GameCharacter *>(e->data);
@@ -170,8 +170,8 @@ static void Mfkaijia() {
   };
 
   g_skill.use = [g_skill](uint64_t client_id, int ski_lv) mutable {
-    auto &sf = CharacterGameInstance::self;
-    auto &ski = SkillGameInstance::ski;
+    auto &sf = CharacterGameInstance::self_;
+    auto &ski = SkillGameInstance::ski_;
 
     g_skill.end();
     g_skill.lv = ski_lv;

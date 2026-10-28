@@ -9,5 +9,5 @@ class FootholdGameInstance {
 public:
   static std::flat_map<int32_t, GameFoothold> Load(uint32_t map_id);
   static std::flat_map<int32_t, GameFoothold> Load(wz::Node *node);
-  static inline std::flat_map<int32_t, GameFoothold> data;
+  static inline std::flat_map<int32_t, GameFoothold> data_;
 };

@@ -15,26 +15,26 @@
 
 void EffectRenderSystem::RenderEffect(SDL_FPoint pos,
                                          GameEffect &g_effect) {
-  auto current_time = Window::dt_time;
+  auto current_time = Window::dt_time_;
   if (current_time <= g_effect.delay) {
     return;
   }
   wz::Node *node;
   switch ((GameEffect::EffectSubType)g_effect.lv) {
   case GameEffect::EffectSubType::kCharacter: {
-    node = WzResource::character->find(g_effect.id);
+    node = WzResource::character_->find(g_effect.id);
     break;
   }
   case GameEffect::EffectSubType::kEffect: {
-    node = WzResource::effect->find(g_effect.id);
+    node = WzResource::effect_->find(g_effect.id);
     break;
   }
   case GameEffect::EffectSubType::kItem: {
-    node = WzResource::item->find(g_effect.id);
+    node = WzResource::item_->find(g_effect.id);
     break;
   }
   case GameEffect::EffectSubType::kSkill: {
-    node = WzResource::skill->find(g_effect.id);
+    node = WzResource::skill_->find(g_effect.id);
     break;
   }
   }
@@ -49,11 +49,11 @@ void EffectRenderSystem::RenderEffect(SDL_FPoint pos,
       .w = static_cast<float>(texture->w),
       .h = static_cast<float>(texture->h),
   };
-  auto &camera = CameraGameInstance::camera;
+  auto &camera = CameraGameInstance::camera_;
   if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
     pos_rect.x -= camera.x;
     pos_rect.y -= camera.y;
-    SDL_RenderTexture(Window::renderer, texture, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer_, texture, nullptr, &pos_rect);
   }
 }
 
@@ -73,22 +73,22 @@ void EffectRenderSystem::RenderDamage(SDL_FPoint pos,
     kMiss,
     kGuard,
   };
-  auto current_time = Window::dt_time;
+  auto current_time = Window::dt_time_;
   if (current_time <= g_effect.delay) {
     return;
   }
   if (g_effect.z == false) {
     return;
   }
-  static auto red = WzResource::effect->find(u"BasicEff.img/NoRed0");
-  static auto viole = WzResource::effect->find(u"BasicEff.img/NoViolet0");
-  static auto blue = WzResource::effect->find(u"BasicEff.img/NoBlue0");
+  static auto red = WzResource::effect_->find(u"BasicEff.img/NoRed0");
+  static auto viole = WzResource::effect_->find(u"BasicEff.img/NoViolet0");
+  static auto blue = WzResource::effect_->find(u"BasicEff.img/NoBlue0");
 
   const std::vector<std::u16string> damage_vector = {
       u"0", u"1", u"2", u"3", u"4",    u"5",
       u"6", u"7", u"8", u"9", u"Miss", u"guard",
   };
-  auto &camera = CameraGameInstance::camera;
+  auto &camera = CameraGameInstance::camera_;
   auto d_data = std::any_cast<DamageData>(g_effect.data);
   auto num_str = std::to_string(d_data.num);
   uint32_t w = 0;
@@ -127,7 +127,7 @@ void EffectRenderSystem::RenderDamage(SDL_FPoint pos,
       pos_rect.x -= camera.x;
       pos_rect.y -= camera.y;
       SDL_SetTextureAlphaMod(texture, g_effect.alpha);
-      SDL_RenderTexture(Window::renderer, texture, nullptr, &pos_rect);
+      SDL_RenderTexture(Window::renderer_, texture, nullptr, &pos_rect);
     }
     w += texture->w - 3;
   }
@@ -163,11 +163,11 @@ void EffectRenderSystem::RenderSkiUse(SDL_FPoint pos, GameEffect &g_effect,
     pos_rect.x = x;
     pos_rect.x = (pos_rect.x - (texture->w - origin.x));
   }
-  auto &camera = CameraGameInstance::camera;
+  auto &camera = CameraGameInstance::camera_;
   if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
     pos_rect.x -= camera.x;
     pos_rect.y -= camera.y;
-    SDL_RenderTextureRotated(Window::renderer, texture, nullptr, &pos_rect, 0,
+    SDL_RenderTextureRotated(Window::renderer_, texture, nullptr, &pos_rect, 0,
                              nullptr, (SDL_FlipMode)flip);
   }
 }
@@ -194,18 +194,18 @@ void EffectRenderSystem::RenderSkiAffected(SDL_FPoint pos,
     pos_rect.x = pos.x;
     pos_rect.x = (pos_rect.x - (texture->w - origin.x));
   }
-  auto &camera = CameraGameInstance::camera;
+  auto &camera = CameraGameInstance::camera_;
   if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
     pos_rect.x -= camera.x;
     pos_rect.y -= camera.y;
-    SDL_RenderTextureRotated(Window::renderer, texture, nullptr, &pos_rect, 0,
+    SDL_RenderTextureRotated(Window::renderer_, texture, nullptr, &pos_rect, 0,
                              nullptr, (SDL_FlipMode)flip);
   }
 }
 
 void EffectRenderSystem::RenderSkiHit(SDL_FPoint pos, GameEffect &g_effect,
                                           bool flip) {
-  auto now = Window::dt_time;
+  auto now = Window::dt_time_;
   if (g_effect.delay >= now) {
     return;
   }
@@ -235,11 +235,11 @@ void EffectRenderSystem::RenderSkiHit(SDL_FPoint pos, GameEffect &g_effect,
     pos_rect.x = pos.x;
     pos_rect.x = (pos_rect.x - (texture->w - origin.x));
   }
-  auto &camera = CameraGameInstance::camera;
+  auto &camera = CameraGameInstance::camera_;
   if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
     pos_rect.x -= camera.x;
     pos_rect.y -= camera.y;
-    SDL_RenderTextureRotated(Window::renderer, texture, nullptr, &pos_rect, 0,
+    SDL_RenderTextureRotated(Window::renderer_, texture, nullptr, &pos_rect, 0,
                              nullptr, (SDL_FlipMode)flip);
   }
 }

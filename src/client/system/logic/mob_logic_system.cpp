@@ -106,15 +106,15 @@ std::optional<SDL_FPoint> MobLogicSystem::LoadHead(const GameMob &g_mob) {
 }
 
 void MobLogicSystem::RunCollision() {
-  if (CharacterLogicSystem::self_invincible_cooldown >= Window::dt_now) {
+  if (CharacterLogicSystem::self_invincible_cooldown_ >= Window::dt_now_) {
     return;
   }
-  auto &self = CharacterGameInstance::self;
+  auto &self = CharacterGameInstance::self_;
   if (self.action == u"dead") {
     return;
   }
   std::flat_map<float, GameMob> Mobs;
-  for (auto &m : MobGameInstance::data | std::views::values) {
+  for (auto &m : MobGameInstance::data_ | std::views::values) {
     auto action_type = LoadActionType(m.mob.action);
     if (action_type == ActionEnum::kRevive || action_type == ActionEnum::kDie) {
       continue;
@@ -134,7 +134,7 @@ void MobLogicSystem::RunCollision() {
   if (!Mobs.empty()) {
     auto &mob = Mobs.begin()->second;
     uint64_t hit_num = 1;
-    auto &buff = SkillGameInstance::ski;
+    auto &buff = SkillGameInstance::ski_;
     for (auto &buf : buff) {
       if (buf.hit) {
         hit_num = buf.hit(&mob, hit_num);
@@ -142,7 +142,7 @@ void MobLogicSystem::RunCollision() {
     }
     CharacterLogicSystem::RunBeingHit(mob.pos.x, hit_num);
     AttackT at{
-        .delay = Window::dt_time,
+        .delay = Window::dt_time_,
         .num = hit_num,
         .x = self.pos.x,
         .y = self.pos.y - 30,
@@ -150,7 +150,7 @@ void MobLogicSystem::RunCollision() {
     };
     ServerMobInstance::HandleSAttack(0, at);
     ClientMobAttackT cma;
-    cma.map_id = SceneSystemInstance::map_id;
+    cma.map_id = SceneSystemInstance::map_id_;
     cma.payload = std::make_unique<AttackT>(std::move(at));
     ClientRequest::send_to_host(cma);
   }
@@ -161,7 +161,7 @@ bool MobLogicSystem::RunAnimate(GameMob &g_mob) {
   if (!g_mob.ani_animate) {
     return r;
   }
-  auto delta = Window::delta_time;
+  auto delta = Window::delta_time_;
   uint32_t size = 0;
   g_mob.ani_time += delta;
   //   获取动作延迟时间
@@ -248,13 +248,13 @@ void MobLogicSystem::RunAlpha(GameMob &g_mob) {
 }
 
 void MobLogicSystem::RunMv() {
-  for (auto &c : MobGameInstance::data | std::views::values) {
+  for (auto &c : MobGameInstance::data_ | std::views::values) {
     auto &mvs = c.mvs;
     if (mvs.empty()) {
       continue;
     }
     auto mv = mvs[0];
-    auto per = Window::delta_time / (float)mv.time;
+    auto per = Window::delta_time_ / (float)mv.time;
     // 计算当前点在线段上的进度（基于 x 和 y）
     float dx = mv.x2 - mv.x1;
     float dy = mv.y2 - mv.y1;
@@ -283,7 +283,7 @@ void MobLogicSystem::RunMv() {
 void MobLogicSystem::RunDebuff(GameMob &g_mob) {
   std::erase_if(g_mob.debuffs, [](const auto &pair) {
     GameDebuff db = pair.second;
-    return db.destroy <= Window::dt_time;
+    return db.destroy <= Window::dt_time_;
   });
 }
 
@@ -303,7 +303,7 @@ void MobLogicSystem::RunStateMachine(GameMob &g_mob) {
 }
 
 bool MobLogicSystem::Run() {
-  for (auto &m : MobGameInstance::data | std::views::values) {
+  for (auto &m : MobGameInstance::data_ | std::views::values) {
     RunStateMachine(m.mob);
   }
   RunCollision();

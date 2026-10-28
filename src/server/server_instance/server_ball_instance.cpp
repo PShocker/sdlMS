@@ -10,9 +10,9 @@
 
 void ServerBallInstance::HandleBall(uint64_t client_id,
                                        ClientCharacterBallT &r) {
-  if (ServerClientInstance::clients.contains(client_id)) {
-    auto map_id = ServerClientInstance::clients.at(client_id).map_id;
-    auto clients = ServerSceneInstance::scenes[map_id].clients;
+  if (ServerClientInstance::clients_.contains(client_id)) {
+    auto map_id = ServerClientInstance::clients_.at(client_id).map_id;
+    auto clients = ServerSceneInstance::scenes_[map_id].clients;
     clients.erase(client_id);
     ServerCharacterBallT t;
     t.client_id = client_id;
@@ -37,14 +37,14 @@ void ServerBallInstance::HandleServerB(
 
   b.path.assign(r->path.begin(), r->path.end());
 
-  auto it = MobGameInstance::data.find(b.mob_index);
-  if (it != MobGameInstance::data.end()) {
+  auto it = MobGameInstance::data_.find(b.mob_index);
+  if (it != MobGameInstance::data_.end()) {
     const auto &mob_pos = it->second.mob.pos;
     const float target_x = b.goal.x + mob_pos.x;
     b.flip = b.pos.x < target_x;
   }
 
-  BallGameInstance::data[src.page].emplace_back(std::move(b));
+  BallGameInstance::data_[src.page].emplace_back(std::move(b));
 }
 
 void ServerBallInstance::HandleServerBall(uint64_t client_id,

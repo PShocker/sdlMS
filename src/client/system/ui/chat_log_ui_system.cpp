@@ -16,8 +16,8 @@ void ChatLogUiSystem::RenderVscr() {
   const uint32_t length = 80;
   auto size = 6;
   auto CursorIn = CursorGameInstance::cursor_ui;
-  auto screen_w = CameraGameInstance::camera.w;
-  auto screen_h = CameraGameInstance::camera.h;
+  auto screen_w = CameraGameInstance::camera_.w;
+  auto screen_h = CameraGameInstance::camera_.h;
   auto base_x = (screen_w - 808) / 2;
   auto base_y = (screen_h - 73);
   bool top = CursorIn == Render && !CursorGameInstance::modal_overlay;
@@ -28,14 +28,14 @@ void ChatLogUiSystem::RenderVscr() {
 
 void ChatLogUiSystem::RenderChats() {
   float str_h = 0;
-  auto &chats = ChatGameInstance::chats;
+  auto &chats = ChatGameInstance::chats_;
   for (int i = chats.size() - 1; i >= 0; i--) {
     auto chat = chats[i];
     Freetype::LoadAligned(true);
     Freetype::LoadSize(12);
     auto str = chat.owner + u":" + chat.text;
-    auto screen_w = CameraGameInstance::camera.w;
-    auto screen_h = CameraGameInstance::camera.h;
+    auto screen_w = CameraGameInstance::camera_.w;
+    auto screen_h = CameraGameInstance::camera_.h;
     auto base_x = (screen_w - 808) / 2;
     auto base_y = (screen_h - 73);
     Freetype::LoadColor(255, 255, 255, 255);
@@ -45,19 +45,19 @@ void ChatLogUiSystem::RenderChats() {
 }
 
 void ChatLogUiSystem::RenderBackgrnd() {
-  auto screen_w = CameraGameInstance::camera.w;
-  auto screen_h = CameraGameInstance::camera.h;
+  auto screen_w = CameraGameInstance::camera_.w;
+  auto screen_h = CameraGameInstance::camera_.h;
   auto base_x = (screen_w - 808) / 2;
   auto base_y = (screen_h - 73);
   SDL_FRect pos_rect;
   static auto chatbackgrnd1 = WzResource::LoadTexture(
-      WzResource::ui->find(u"StatusBar.img/chat/canvas:chatbackgrnd1"));
+      WzResource::ui_->find(u"StatusBar.img/chat/canvas:chatbackgrnd1"));
   pos_rect.x = base_x + 6;
   pos_rect.y = base_y - 75;
   pos_rect.w = chatbackgrnd1->w;
   pos_rect.h = 80;
 
-  SDL_RenderTexture(Window::renderer, chatbackgrnd1, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, chatbackgrnd1, nullptr, &pos_rect);
 }
 
 bool ChatLogUiSystem::Render() {
@@ -69,21 +69,21 @@ bool ChatLogUiSystem::Render() {
 
 void ChatLogUiSystem::Open() {
   auto it =
-      std::ranges::find(System::render_systems, &CursorRenderSystem::Render);
-  if (it != System::render_systems.end()) {
-    System::render_systems.insert(it, Render);
-    System::event_systems.insert(System::event_systems.begin(), Event);
+      std::ranges::find(System::render_systems_, &CursorRenderSystem::Render);
+  if (it != System::render_systems_.end()) {
+    System::render_systems_.insert(it, Render);
+    System::event_systems_.insert(System::event_systems_.begin(), Event);
   }
 }
 
 void ChatLogUiSystem::Close() {
-  std::erase(System::render_systems, Render);
-  std::erase(System::event_systems, Event);
+  std::erase(System::render_systems_, Render);
+  std::erase(System::event_systems_, Event);
 }
 
 void ChatLogUiSystem::Toggle() {
   auto fn = &Render;
-  if (std::ranges::contains(System::render_systems, fn)) {
+  if (std::ranges::contains(System::render_systems_, fn)) {
     Close();
   } else {
     Open();
@@ -94,22 +94,22 @@ void ChatLogUiSystem::EventClickChatVscr() {
   const uint32_t length = 76;
   auto CursorIn = CursorGameInstance::cursor_ui;
   bool top = CursorIn == Render;
-  auto screen_w = CameraGameInstance::camera.w;
-  auto screen_h = CameraGameInstance::camera.h;
+  auto screen_w = CameraGameInstance::camera_.w;
+  auto screen_h = CameraGameInstance::camera_.h;
   auto base_x = (screen_w - 808) / 2;
   auto base_y = (screen_h - 73);
 
   int size = 0;
-  for (const auto &chats : ChatGameInstance::chats) {
+  for (const auto &chats : ChatGameInstance::chats_) {
     auto str = chats.owner + u":" + chats.text;
     auto h = Freetype::LoadCh(str, 564, 1.1);
     size += h;
   }
   size = size / (Freetype::LoadLh() * 1.1);
   size = std::max(0, size);
-  auto val = ScrollUiSystem::ClickVscroll(base_x + 564, base_y - 71, page,
+  auto val = ScrollUiSystem::ClickVscroll(base_x + 564, base_y - 71, page_,
                                              size, length, top);
-  page = val;
+  page_ = val;
   return;
 }
 

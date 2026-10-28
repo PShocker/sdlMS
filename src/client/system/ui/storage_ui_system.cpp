@@ -26,11 +26,11 @@ std::optional<uint32_t> StorageUiSystem::LoadMouseIndex() {
   const auto slot_space_x = 4;
   const auto slot_space_y = 2;
 
-  auto &mouse_pos = Window::mouse_pos;
-  auto lx = pos.x + slot_pos.x;
+  auto &mouse_pos = Window::mouse_pos_;
+  auto lx = pos_.x + slot_pos.x;
   auto rx = lx + 36 * 5;
 
-  auto ty = pos.y + slot_pos.y;
+  auto ty = pos_.y + slot_pos.y;
   auto by = ty + 34 * 6;
   if ((lx <= mouse_pos.x && mouse_pos.x <= rx) &&
       (ty <= mouse_pos.y && mouse_pos.y <= by)) {
@@ -45,19 +45,19 @@ std::optional<uint32_t> StorageUiSystem::LoadMouseIndex() {
 
 void StorageUiSystem::RenderBackgrnd() {
   static auto back_texture = WzResource::LoadTexture(
-      WzResource::ui->find(u"Storage.img/Trunk/backgrnd"));
+      WzResource::ui_->find(u"Storage.img/Trunk/backgrnd"));
   SDL_FRect pos_rect = {
-      pos.x,
-      pos.y,
+      pos_.x,
+      pos_.y,
       (float)back_texture->w,
       (float)back_texture->h,
   };
-  SDL_RenderTexture(Window::renderer, back_texture, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, back_texture, nullptr, &pos_rect);
 }
 
 void StorageUiSystem::RenderItems() {
-  auto &items0 = StorageGameInstance::storage.data;
-  auto &items1 = PackageGameInstance::data[active_tab];
+  auto &items0 = StorageGameInstance::storage_.data;
+  auto &items1 = PackageGameInstance::data_[active_tab_];
   int m = 0;
   for (auto items : {items0, items1}) {
     for (uint8_t i = 0; i <= items.size(); i++) {
@@ -72,10 +72,10 @@ void StorageUiSystem::RenderVscr() {}
 
 void StorageUiSystem::RenderButton() {
   const static std::array buttons_node = {
-      WzResource::ui->find(u"Storage.img/Trunk/button:get"),
-      WzResource::ui->find(u"Storage.img/Trunk/button:put"),
-      WzResource::ui->find(u"Storage.img/Trunk/button:sort"),
-      WzResource::ui->find(u"Storage.img/Trunk/button:exit"),
+      WzResource::ui_->find(u"Storage.img/Trunk/button:get"),
+      WzResource::ui_->find(u"Storage.img/Trunk/button:put"),
+      WzResource::ui_->find(u"Storage.img/Trunk/button:sort"),
+      WzResource::ui_->find(u"Storage.img/Trunk/button:exit"),
   };
   const std::array buttons_rect = {
       SDL_FRect{132, 31, 70, 18}, //
@@ -86,44 +86,44 @@ void StorageUiSystem::RenderButton() {
   for (size_t i = 0; i < buttons_node.size(); ++i) {
     auto k = buttons_node[i];
     auto pos_rect = buttons_rect[i];
-    pos_rect.x += (int)pos.x;
-    pos_rect.y += (int)pos.y;
-    auto &mouse_pos = Window::mouse_pos;
+    pos_rect.x += (int)pos_.x;
+    pos_rect.y += (int)pos_.y;
+    auto &mouse_pos = Window::mouse_pos_;
     // 判断按钮是否被遮挡
     auto CursorIn = CursorGameInstance::cursor_ui;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && CursorIn == Render &&
         CursorGameInstance::modal_overlay == Render) {
-      if (Window::mouse_state & SDL_BUTTON_LMASK) {
+      if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
         auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
-        SDL_RenderTexture(Window::renderer, pressed, nullptr, &pos_rect);
+        SDL_RenderTexture(Window::renderer_, pressed, nullptr, &pos_rect);
       } else {
         auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
-        SDL_RenderTexture(Window::renderer, mouse_over, nullptr, &pos_rect);
+        SDL_RenderTexture(Window::renderer_, mouse_over, nullptr, &pos_rect);
       }
     } else {
       auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
-      SDL_RenderTexture(Window::renderer, normal, nullptr, &pos_rect);
+      SDL_RenderTexture(Window::renderer_, normal, nullptr, &pos_rect);
     }
   }
 }
 
 void StorageUiSystem::RenderTab() {
   auto t = WzResource::LoadTexture(
-      WzResource::ui->find(u"Storage.img/Trunk/tab:get/selected/0"));
+      WzResource::ui_->find(u"Storage.img/Trunk/tab:get/selected/0"));
   SDL_FRect pos_rect{
-      static_cast<float>((int)pos.x + 6),
-      static_cast<float>((int)pos.y + 98),
+      static_cast<float>((int)pos_.x + 6),
+      static_cast<float>((int)pos_.y + 98),
       static_cast<float>(t->w),
       static_cast<float>(t->h),
   };
-  SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
 }
 
 bool StorageUiSystem::Render() { return true; }
 
 void StorageUiSystem::Toggle() {
   auto fn = &Render;
-  if (std::ranges::contains(System::render_systems, fn)) {
+  if (std::ranges::contains(System::render_systems_, fn)) {
     Close();
   } else {
     Open();
@@ -132,21 +132,21 @@ void StorageUiSystem::Toggle() {
 
 void StorageUiSystem::Open() {
   auto it =
-      std::ranges::find(System::render_systems, &CursorRenderSystem::Render);
-  if (it != System::render_systems.end()) {
+      std::ranges::find(System::render_systems_, &CursorRenderSystem::Render);
+  if (it != System::render_systems_.end()) {
     auto wh = LoadWh();
-    auto &camera = CameraGameInstance::camera;
-    pos.x = (camera.w - wh.x) / 2;
-    pos.y = (camera.h - wh.y) / 2;
+    auto &camera = CameraGameInstance::camera_;
+    pos_.x = (camera.w - wh.x) / 2;
+    pos_.y = (camera.h - wh.y) / 2;
 
-    System::render_systems.insert(it, Render);
-    System::event_systems.insert(System::event_systems.begin(), Event);
+    System::render_systems_.insert(it, Render);
+    System::event_systems_.insert(System::event_systems_.begin(), Event);
   }
 }
 
 void StorageUiSystem::Close() {
-  std::erase(System::render_systems, Render);
-  std::erase(System::event_systems, Event);
+  std::erase(System::render_systems_, Render);
+  std::erase(System::event_systems_, Event);
 }
 
 bool StorageUiSystem::EventButton(SDL_Event *Event) {
@@ -167,9 +167,9 @@ bool StorageUiSystem::EventButton(SDL_Event *Event) {
 
   for (size_t i = 0; i < r.size(); ++i) {
     auto pos_rect = r[i];
-    pos_rect.x += pos.x;
-    pos_rect.y += pos.y;
-    if (SDL_PointInRectFloat(&Window::mouse_pos, &pos_rect)) {
+    pos_rect.x += pos_.x;
+    pos_rect.y += pos_.y;
+    if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect)) {
       fns[i]();
       return true;
     }
@@ -189,10 +189,10 @@ void StorageUiSystem::EventTab() {
   };
   for (uint8_t i = 0; i < tab_rect.size(); i++) {
     auto pos_rect = tab_rect[i];
-    pos_rect.x += pos.x;
-    pos_rect.y += pos.y;
-    if (SDL_PointInRectFloat(&Window::mouse_pos, &pos_rect)) {
-      active_tab = i;
+    pos_rect.x += pos_.x;
+    pos_rect.y += pos_.y;
+    if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect)) {
+      active_tab_ = i;
     }
   }
   return;
@@ -201,8 +201,8 @@ void StorageUiSystem::EventTab() {
 void StorageUiSystem::EventClose() { Close(); }
 
 void StorageUiSystem::EventButtonGet() {
-  if (active_item[0].has_value()) {
-    auto &itm = StorageGameInstance::storage.data.at(active_item[0].value());
+  if (active_item_[0].has_value()) {
+    auto &itm = StorageGameInstance::storage_.data.at(active_item_[0].value());
     if (itm->id.empty()) {
       return;
     }
@@ -219,7 +219,7 @@ bool StorageUiSystem::AddItem(std::polymorphic<GameItem> &item) {
   if (item->id.empty()) {
     return true;
   }
-  for (auto &itm : StorageGameInstance::storage.data) {
+  for (auto &itm : StorageGameInstance::storage_.data) {
     if (itm->id.empty()) {
       itm = item;
       return true;
@@ -229,11 +229,11 @@ bool StorageUiSystem::AddItem(std::polymorphic<GameItem> &item) {
 }
 
 void StorageUiSystem::EventButtonPut() {
-  if (active_item[1].has_value()) {
+  if (active_item_[1].has_value()) {
     auto &itm =
-        PackageGameInstance::data[active_tab].at(active_item[1].value());
+        PackageGameInstance::data_[active_tab_].at(active_item_[1].value());
     if (!AddItem(itm)) {
-      NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kNoStorageSpace;
+      NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kNoStorageSpace;
       NoticeUiSystem::Open();
     }
   }
@@ -249,7 +249,7 @@ void StorageUiSystem::EventButtonSort() {
       return bEmpty;
     return a->id < b->id;
   };
-  std::ranges::sort(StorageGameInstance::storage.data, cmp);
+  std::ranges::sort(StorageGameInstance::storage_.data, cmp);
 }
 
 void StorageUiSystem::EventButtonExit() { EventClose(); }

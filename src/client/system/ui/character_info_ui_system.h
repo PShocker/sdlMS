@@ -48,23 +48,23 @@ private:
   static void EventVscrEnd();
   static void EventVscrMove(SDL_Event *Event);
 
-  static inline bool vscr_motion;
+  static inline bool vscr_motion_;
 
   static bool Run();
 
-  static inline std::optional<SDL_FPoint> drag;
+  static inline std::optional<SDL_FPoint> drag_;
 
-  static inline bool item;
-  static inline uint8_t item_page;
+  static inline bool item_;
+  static inline uint8_t item_page_;
   static inline std::optional<std::variant<GameEquipItem, GameDecoItem>>
-      item_info;
+      item_info_;
 
-  static inline bool pet;
+  static inline bool pet_;
 
 public:
-  static inline GameCharacter character;
+  static inline GameCharacter character_;
 
-  static inline SDL_FPoint pos;
+  static inline SDL_FPoint pos_;
 
   static bool CursorIn();
 

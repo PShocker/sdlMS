@@ -5,10 +5,10 @@
 #include <vector>
 
 bool SkillLogicSystem::Run() {
-  auto &v = SkillGameInstance::ski;
+  auto &v = SkillGameInstance::ski_;
   std::vector<std::function<void()>> ends;
   for (const auto &sk : v) {
-    if (sk.destroy <= Window::dt_now && sk.destroy != 0) {
+    if (sk.destroy <= Window::dt_now_ && sk.destroy != 0) {
       ends.push_back(sk.end);
     }
   }

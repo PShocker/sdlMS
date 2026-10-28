@@ -38,18 +38,18 @@ wz::Node *SkillGameInstance::LoadSkiNode(const std::u16string &id) {
   static std::flat_map<std::u16string, wz::Node *> cache;
   if (!cache.contains(id)) {
     auto id2 = id.substr(0, id.length() - 4);
-    cache[id] = WzResource::skill->find(id2 + u".img/skill/" + id);
+    cache[id] = WzResource::skill_->find(id2 + u".img/skill/" + id);
   }
   return cache.at(id);
 }
 
 uint64_t SkillGameInstance::LoadSkiTime(GameCharacter &g_character) {
-  uint64_t r = Window::dt_time;
-  if (CharacterGameInstance::bone_data.contains(g_character.action)) {
+  uint64_t r = Window::dt_time_;
+  if (CharacterGameInstance::bone_data_.contains(g_character.action)) {
     r = AfterimageGameInstance::LoadBeatTime(g_character);
   } else {
     auto &externs =
-        CharacterGameInstance::extern_action.at(g_character.action);
+        CharacterGameInstance::extern_action_.at(g_character.action);
     for (auto e : externs) {
       if (e.delay < 0) {
         r -= e.delay;
@@ -81,7 +81,7 @@ SkillGameInstance::SkillName
 SkillGameInstance::LoadSkiName(const std::u16string &id) {
   static std::flat_map<std::u16string, SkillName> cache;
   if (!cache.contains(id)) {
-    static auto ski_node = WzResource::string->find(u"Skill.img");
+    static auto ski_node = WzResource::string_->find(u"Skill.img");
     auto node = ski_node->get_child(id);
     SkillName ski_name;
     ski_name.name =
@@ -145,7 +145,7 @@ SDL_FRect SkillGameInstance::LoadSkiR(const std::u16string &id,
     return g_r;
   }
   // afterimage
-  auto &sf = CharacterGameInstance::self;
+  auto &sf = CharacterGameInstance::self_;
   auto g_r = AfterimageGameInstance::LoadRect(sf);
   if (g_r.has_value()) {
     return g_r.value();
@@ -154,7 +154,7 @@ SDL_FRect SkillGameInstance::LoadSkiR(const std::u16string &id,
 }
 
 SDL_FRect SkillGameInstance::LoadSkiR(const std::u16string &id) {
-  auto &sf = CharacterGameInstance::self;
+  auto &sf = CharacterGameInstance::self_;
   return LoadSkiR(id, sf.pos, sf.flip);
 }
 
@@ -198,7 +198,7 @@ ClientCharacterAttackT SkillGameInstance::CreateAttackPayload(
   auto &Mobs = cm.data;
   for (int m = 0; m < Mobs.size(); m++) {
     auto &mob = Mobs[m];
-    auto &mb = MobGameInstance::data.at(mob.mob.index).mob;
+    auto &mb = MobGameInstance::data_.at(mob.mob.index).mob;
     for (int n = 0; n < mob.hits.size(); n++) {
       CharacterAttackT ct;
       ct.mob_index = mob.mob.index;

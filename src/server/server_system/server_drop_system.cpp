@@ -9,11 +9,11 @@ using namespace fbs;
 
 void ServerDropSystem::RunFade() {
   ServerDropFadeT sdf;
-  auto &scene = ServerSceneInstance::scenes;
+  auto &scene = ServerSceneInstance::scenes_;
   for (auto [map_id, sc] : scene) {
     sdf.drop_ids.clear();
     for (auto [random_id, dt] : sc.drops) {
-      if (dt.destroy <= Window::dt_now) {
+      if (dt.destroy <= Window::dt_now_) {
         sdf.drop_ids.push_back(dt.dt.random_id);
       }
     }
@@ -27,21 +27,21 @@ void ServerDropSystem::RunFade() {
 }
 
 void ServerDropSystem::RunDestroy() {
-  auto &scene = ServerSceneInstance::scenes;
+  auto &scene = ServerSceneInstance::scenes_;
   for (auto [map_id, sc] : scene) {
     std::erase_if(sc.drops, [](const auto &pair) {
       const auto &[id, drop] = pair;
-      return drop.destroy <= Window::dt_now;
+      return drop.destroy <= Window::dt_now_;
     });
   }
 }
 
 void ServerDropSystem::RunDelayDrops() {
-  auto &scene = ServerSceneInstance::scenes;
+  auto &scene = ServerSceneInstance::scenes_;
   for (auto [map_id, sc] : scene) {
     auto &delay_drops = sc.delay_drops;
     for (auto [k, v] : delay_drops) {
-      if (k <= Window::dt_time) {
+      if (k <= Window::dt_time_) {
         ServerCreateDropT scd;
         for (auto dt : v) {
           sc.drops.emplace(dt.dt.random_id, dt);
@@ -58,7 +58,7 @@ void ServerDropSystem::RunDelayDrops() {
     }
     std::erase_if(sc.delay_drops, [](const auto &pair) {
       const auto &[delay, drop] = pair;
-      return delay <= Window::dt_time;
+      return delay <= Window::dt_time_;
     });
   }
 }

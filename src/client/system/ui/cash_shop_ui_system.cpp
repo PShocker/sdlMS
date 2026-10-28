@@ -5,14 +5,14 @@
 
 void CashShopUiSystem::RenderBackgrnd() {
   static auto backgrnd = WzResource::LoadTexture(
-      WzResource::ui->find(u"Login.img/NewChar/customize/canvas:top"));
+      WzResource::ui_->find(u"Login.img/NewChar/customize/canvas:top"));
   SDL_FRect pos_rect = {
       160,
       85,
       static_cast<float>(backgrnd->w),
       static_cast<float>(backgrnd->h),
   };
-  SDL_RenderTexture(Window::renderer, backgrnd, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, backgrnd, nullptr, &pos_rect);
 }
 
 bool CashShopUiSystem::Render() {

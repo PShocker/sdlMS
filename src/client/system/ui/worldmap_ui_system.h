@@ -28,13 +28,13 @@ private:
   static void EventClickSpot();
   static bool EventButton(SDL_Event *Event);
 
-  static inline std::optional<SDL_FPoint> drag;
+  static inline std::optional<SDL_FPoint> drag_;
 
 public:
-  static inline SDL_FPoint pos;
-  static inline std::u16string path;
+  static inline SDL_FPoint pos_;
+  static inline std::u16string path_;
 
-  static inline std::array<uint32_t, 3> pos_ani_time;
+  static inline std::array<uint32_t, 3> pos_ani_time_;
 
   static bool CursorIn();
 

@@ -12,12 +12,12 @@ void DebuffRenderSystem::Render(GameDebuff::DebuffType type,
   wz::Node *n;
   switch (type) {
   case GameDebuff::DebuffType::kDizz: {
-    static auto node = WzResource::skill->find(u"AttackType.img/1001/level/1");
+    static auto node = WzResource::skill_->find(u"AttackType.img/1001/level/1");
     n = node;
     break;
   }
   case GameDebuff::DebuffType::kSlow: {
-    static auto node = WzResource::skill->find(u"AttackType.img/1002/level/1");
+    static auto node = WzResource::skill_->find(u"AttackType.img/1002/level/1");
     n = node;
     break;
   }
@@ -37,11 +37,11 @@ void DebuffRenderSystem::Render(GameDebuff::DebuffType type,
       .w = static_cast<float>(t->w),
       .h = static_cast<float>(t->h),
   };
-  auto &camera = CameraGameInstance::camera;
+  auto &camera = CameraGameInstance::camera_;
   if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
     pos_rect.x -= camera.x;
     pos_rect.y -= camera.y;
-    SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
   }
 }
 

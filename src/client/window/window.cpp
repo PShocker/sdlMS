@@ -16,34 +16,34 @@ void Window::Create(const char *title, uint32_t logic_w, uint32_t logic_h,
     std::abort();
   }
   // 设置窗口分辨率
-  win = SDL_CreateWindow(title, window_w, window_h, 0);
-  if (!win) {
+  win_ = SDL_CreateWindow(title, window_w, window_h, 0);
+  if (!win_) {
     std::abort();
   }
-  renderer = SDL_CreateRenderer(win, SDL_GPU_RENDERER);
-  SDL_SetDefaultTextureScaleMode(renderer, SDL_SCALEMODE_NEAREST);
+  renderer_ = SDL_CreateRenderer(win_, SDL_GPU_RENDERER);
+  SDL_SetDefaultTextureScaleMode(renderer_, SDL_SCALEMODE_NEAREST);
   // 设置缩放,实际分辨率最好是窗口分辨率的整数倍
   auto logical_mode = SDL_LOGICAL_PRESENTATION_STRETCH;
-  SDL_SetRenderLogicalPresentation(renderer, logic_w, logic_h, logical_mode);
+  SDL_SetRenderLogicalPresentation(renderer_, logic_w, logic_h, logical_mode);
 }
 
 void Window::Tick() {
-  dt_last = dt_now;
-  dt_now = SDL_GetTicks();
-  delta_time = dt_now - dt_last;
-  if (ServerMain::host) {
-    dt_time = std::chrono::duration_cast<std::chrono::milliseconds>(
+  dt_last_ = dt_now_;
+  dt_now_ = SDL_GetTicks();
+  delta_time_ = dt_now_ - dt_last_;
+  if (ServerMain::host_) {
+    dt_time_ = std::chrono::duration_cast<std::chrono::milliseconds>(
                   std::chrono::system_clock::now().time_since_epoch())
                   .count();
   } else {
-    dt_time = dt_time_base + (dt_now - dt_time_end);
+    dt_time_ = dt_time_base_ + (dt_now_ - dt_time_end_);
   }
 }
 
-void Window::Clear() { SDL_RenderClear(renderer); }
+void Window::Clear() { SDL_RenderClear(renderer_); }
 
 void Window::Update() {
-  pre_mouse_state = mouse_state;
-  mouse_state = SDL_GetMouseState(&mouse_pos.x, &mouse_pos.y);
-  SDL_RenderPresent(renderer);
+  pre_mouse_state_ = mouse_state_;
+  mouse_state_ = SDL_GetMouseState(&mouse_pos_.x, &mouse_pos_.y);
+  SDL_RenderPresent(renderer_);
 }

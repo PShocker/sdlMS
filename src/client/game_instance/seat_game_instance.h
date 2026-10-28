@@ -5,5 +5,5 @@
 class SeatGameInstance {
 public:
   static void Load(uint32_t map_id);
-  static inline std::vector<GameSeat> data;
+  static inline std::vector<GameSeat> data_;
 };

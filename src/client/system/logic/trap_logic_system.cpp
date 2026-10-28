@@ -11,7 +11,7 @@
 #include "src/server/server_instance/server_trap_instance.h"
 
 void TrapLogicSystem::RunMove(GameObj &g_trap) {
-  auto node = WzResource::map->find(g_trap.path);
+  auto node = WzResource::map_->find(g_trap.path);
 
   return;
 }
@@ -19,20 +19,20 @@ void TrapLogicSystem::RunMove(GameObj &g_trap) {
 bool TrapLogicSystem::RunAttackCheck(GameObj &g_trap) { return false; }
 
 void TrapLogicSystem::RunCollision() {
-  if (CharacterLogicSystem::self_invincible_cooldown >= Window::dt_now) {
+  if (CharacterLogicSystem::self_invincible_cooldown_ >= Window::dt_now_) {
     return;
   }
-  auto &self = CharacterGameInstance::self;
+  auto &self = CharacterGameInstance::self_;
   if (self.action == u"dead") {
     return;
   }
-  for (auto &m : TrapGameInstance::data) {
+  for (auto &m : TrapGameInstance::data_) {
     for (auto &g_trap : m | std::views::values) {
       if (RunAttackCheck(g_trap)) {
         uint64_t hit_num = 1;
         CharacterLogicSystem::RunBeingHit(g_trap.pos.x, hit_num);
         AttackT at{
-            .delay = Window::dt_time,
+            .delay = Window::dt_time_,
             .num = hit_num,
             .x = self.pos.x,
             .y = self.pos.y - 30,
@@ -40,7 +40,7 @@ void TrapLogicSystem::RunCollision() {
         };
         ServerTrapInstance::HandleSAttack(0, at);
         ClientTrapAttackT cta;
-        cta.map_id = SceneSystemInstance::map_id;
+        cta.map_id = SceneSystemInstance::map_id_;
         cta.payload = std::make_unique<AttackT>(std::move(at));
         ClientRequest::send_to_host(cta);
         return;
@@ -51,7 +51,7 @@ void TrapLogicSystem::RunCollision() {
 }
 
 bool TrapLogicSystem::Run() {
-  for (auto &o : TrapGameInstance::data) {
+  for (auto &o : TrapGameInstance::data_) {
     for (auto &g_trap : o | std::views::values) {
       ObjLogicSystem::RunAnimate(g_trap);
       ObjLogicSystem::RunAlpha(g_trap);

@@ -20,12 +20,12 @@ private:
 
   static bool Run();
 
-  static inline std::optional<SDL_FPoint> drag;
+  static inline std::optional<SDL_FPoint> drag_;
 
 public:
-  static inline SDL_FPoint pos;
+  static inline SDL_FPoint pos_;
 
-  static inline uint8_t selected_tab;
+  static inline uint8_t selected_tab_;
 
   static void Open();
   static void Close();

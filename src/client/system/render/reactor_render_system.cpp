@@ -9,7 +9,7 @@
 #include <string>
 
 bool ReactorRenderSystem::Render(GameReactor &g_reactor) {
-  auto node = WzResource::reactor->find(g_reactor.id + u".img");
+  auto node = WzResource::reactor_->find(g_reactor.id + u".img");
   if (node->get_child(std::to_string(g_reactor.state))) {
     node = node->get_child(std::to_string(g_reactor.state));
     if (!g_reactor.hit) {
@@ -30,12 +30,12 @@ bool ReactorRenderSystem::Render(GameReactor &g_reactor) {
     pos_rect.y = g_reactor.pos.y - o.y;
     pos_rect.w = t->w;
     pos_rect.h = t->h;
-    auto &camera = CameraGameInstance::camera;
+    auto &camera = CameraGameInstance::camera_;
     if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
       pos_rect.x -= camera.x;
       pos_rect.y -= camera.y;
       SDL_SetTextureAlphaMod(t, g_reactor.alpha);
-      SDL_RenderTextureRotated(Window::renderer, t, nullptr, &pos_rect, 0,
+      SDL_RenderTextureRotated(Window::renderer_, t, nullptr, &pos_rect, 0,
                                nullptr, (SDL_FlipMode)g_reactor.f);
     }
   }

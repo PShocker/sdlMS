@@ -44,7 +44,7 @@ GameShopItem ShopGameInstance::LoadShopItem(const std::u16string &id) {
 GameShop ShopGameInstance::LoadShop(const std::u16string &shop_id) {
   GameShop shop;
   auto node =
-      WzResource::ms->get_root()->find(u"Shop.img/ShopItem/" + shop_id);
+      WzResource::ms_->get_root()->find(u"Shop.img/ShopItem/" + shop_id);
   for (auto [k, v] : *node->get_children()) {
     auto node = v[0];
     auto price =
@@ -65,7 +65,7 @@ ShopGameInstance::LoadNpcShop(const std::u16string &npc_id) {
   std::optional<GameShop> shop;
   static std::flat_map<std::u16string, GameShop> cache;
   if (cache.empty()) {
-    auto node = WzResource::ms->get_root()->find(u"Shop.img/ShopNpc");
+    auto node = WzResource::ms_->get_root()->find(u"Shop.img/ShopNpc");
     for (auto [k, v] : *node->get_children()) {
       auto npc_i = static_cast<wz::Property<std::u16string> *>(v[0])->get();
       cache.emplace(std::move(npc_i), LoadShop(k));
@@ -89,7 +89,7 @@ bool ShopGameInstance::AddMustItem(std::polymorphic<GameItem> &item) {
   switch (item->type) {
   case ItemEnum::kConsume:
   case ItemEnum::kEtc: {
-    for (auto &shop : must) {
+    for (auto &shop : must_) {
       auto itm_id = shop.item->id;
       if (item->id == itm_id) {
         auto itm_num = ItemGameInstance::LoadItemNum(shop.item);
@@ -102,13 +102,13 @@ bool ShopGameInstance::AddMustItem(std::polymorphic<GameItem> &item) {
       auto num = std::min((int)add_num, slot_max);
       auto itm_num = ItemGameInstance::LoadItemNum(gst.item);
       ItemGameInstance::AddItemNum(gst.item, (num - itm_num));
-      must.push_back(gst);
+      must_.push_back(gst);
       add_num = add_num - (num);
     }
     break;
   }
   default: {
-    must.push_back(gst);
+    must_.push_back(gst);
     break;
   }
   }
@@ -118,7 +118,7 @@ bool ShopGameInstance::AddMustItem(std::polymorphic<GameItem> &item) {
 std::vector<std::polymorphic<GameItem> *>
 ShopGameInstance::LoadPkgItems(int tab) {
   std::vector<std::polymorphic<GameItem> *> items;
-  auto &r = PackageGameInstance::data[tab];
+  auto &r = PackageGameInstance::data_[tab];
   for (auto &itm : r) {
     if (!itm->id.empty()) {
       items.push_back(&itm);

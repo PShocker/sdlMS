@@ -49,21 +49,21 @@ float ServerDropInstance::CalAvailableTime(float y1, float y2) {
 }
 
 void ServerDropInstance::SaveDrop(uint64_t map_id, const DropT &drop) {
-  auto &scene = ServerSceneInstance::scenes[map_id];
+  auto &scene = ServerSceneInstance::scenes_[map_id];
   ServerDrop sd;
   sd.dt = drop;
-  sd.destroy = Window::dt_now + 60 * 5 * 1000;
-  sd.available = Window::dt_now + CalAvailableTime(drop.y1, drop.y2) * 1000;
+  sd.destroy = Window::dt_now_ + 60 * 5 * 1000;
+  sd.available = Window::dt_now_ + CalAvailableTime(drop.y1, drop.y2) * 1000;
   scene.drops.emplace(drop.random_id, sd);
 }
 
 void ServerDropInstance::SaveDelayDrop(uint64_t map_id, uint64_t d,
                                            const DropT &drop) {
-  auto &scene = ServerSceneInstance::scenes[map_id];
+  auto &scene = ServerSceneInstance::scenes_[map_id];
   ServerDrop sd;
   sd.dt = drop;
-  sd.destroy = Window::dt_now + (d - Window::dt_time) + 60 * 5 * 1000;
-  sd.available = Window::dt_now + (d - Window::dt_time) +
+  sd.destroy = Window::dt_now_ + (d - Window::dt_time_) + 60 * 5 * 1000;
+  sd.available = Window::dt_now_ + (d - Window::dt_time_) +
                  CalAvailableTime(drop.y1, drop.y2) * 1000;
   scene.delay_drops[d].emplace_back(sd);
 }
@@ -76,7 +76,7 @@ void ServerDropInstance::HandleClientDrop(uint64_t client_id,
   for (const auto &dt : dts) {
     SaveDrop(map_id, *dt);
   }
-  const auto &clients = ServerSceneInstance::scenes[map_id].clients;
+  const auto &clients = ServerSceneInstance::scenes_[map_id].clients;
   ServerCharacterDropT t;
   t.client_id = client_id;
   t.payload = std::move(dts[0]);
@@ -88,13 +88,13 @@ void ServerDropInstance::HandleClientDrop(uint64_t client_id,
 void ServerDropInstance::HandlePick(uint64_t client_id,
                                        ClientCharacterPickT &r) {
   auto map_id = r.map_id;
-  auto &scene = ServerSceneInstance::scenes[map_id];
+  auto &scene = ServerSceneInstance::scenes_[map_id];
   if (scene.drops.contains(r.random_id)) {
-    if (scene.drops[r.random_id].available <= Window::dt_now) {
+    if (scene.drops[r.random_id].available <= Window::dt_now_) {
       ServerCharacterPickT t;
       t.random_id = r.random_id;
       t.client_id = client_id;
-      auto clients = ServerSceneInstance::scenes[map_id].clients;
+      auto clients = ServerSceneInstance::scenes_[map_id].clients;
       for (const auto c : clients) {
         ServerResponse::send_to_client(c, t);
       }
@@ -109,28 +109,28 @@ void ServerDropInstance::HandlePick(uint64_t client_id,
 
 void ServerDropInstance::HandleServerPick(uint64_t client_id,
                                               ServerCharacterPickT &r) {
-  if (r.client_id == ServerMain::local_addr && r.random_id == 0) {
+  if (r.client_id == ServerMain::local_addr_ && r.random_id == 0) {
     // 捡取物品失败
-    CharacterLogicSystem::ccp = {};
+    CharacterLogicSystem::ccp_ = {};
     return;
   }
-  if (DropGameInstance::data.contains(r.random_id)) {
-    auto &dt = DropGameInstance::data.at(r.random_id);
+  if (DropGameInstance::data_.contains(r.random_id)) {
+    auto &dt = DropGameInstance::data_.at(r.random_id);
     GameDropPick gdp;
     gdp.client_id = r.client_id;
     if (r.pet) {
       gdp.pet_index = r.pet_index;
     }
     dt.picker = gdp;
-    dt.pick_time = Window::dt_now;
+    dt.pick_time = Window::dt_now_;
     dt.type = GameDrop::DropEnum::kPick;
 
-    if (r.client_id == ServerMain::local_addr) {
+    if (r.client_id == ServerMain::local_addr_) {
       auto itm = dt.data;
       PackageGameInstance::AddNewItem(itm);
       AudioGameInstance::LoadAudio(u"Game.img/PickUpItem", 0);
 
-      CharacterLogicSystem::ccp = {};
+      CharacterLogicSystem::ccp_ = {};
 
       auto itm_num = ItemGameInstance::LoadItemNum(dt.data);
       itm_num = std::max(1, itm_num);
@@ -169,12 +169,12 @@ void ServerDropInstance::HandleServerDt(const DropT &dt) {
     break;
   }
   }
-  DropGameInstance::data.emplace(dt.random_id, drop);
+  DropGameInstance::data_.emplace(dt.random_id, drop);
 }
 
 void ServerDropInstance::HandleServerSceneDt(const DropT &dt) {
   HandleServerDt(dt);
-  auto &drop = DropGameInstance::data.at(dt.random_id);
+  auto &drop = DropGameInstance::data_.at(dt.random_id);
   drop.hspeed = 0;
   drop.pos.x = dt.x2;
   drop.pos.y = dt.y2;
@@ -184,11 +184,11 @@ void ServerDropInstance::HandleServerSceneDt(const DropT &dt) {
 
 void ServerDropInstance::HandleServerDrop(uint64_t client_id,
                                               ServerCharacterDropT &r) {
-  if (CursorGameInstance::cursor_hand_net.has_value()) {
-    if (r.client_id == ServerMain::local_addr) {
-      CursorGameInstance::cursor_hand_net = std::nullopt;
-      if (CursorGameInstance::cursor_hand.has_value()) {
-        auto &hand = CursorGameInstance::cursor_hand.value();
+  if (CursorGameInstance::cursor_hand_net_.has_value()) {
+    if (r.client_id == ServerMain::local_addr_) {
+      CursorGameInstance::cursor_hand_net_ = std::nullopt;
+      if (CursorGameInstance::cursor_hand_.has_value()) {
+        auto &hand = CursorGameInstance::cursor_hand_.value();
         switch (hand.type) {
         case CursorGameInstance::CursorHandType::kEquipment: {
           break;
@@ -205,7 +205,7 @@ void ServerDropInstance::HandleServerDrop(uint64_t client_id,
             break;
           }
           }
-          auto &itm = PackageGameInstance::data[hand.val][hand.sub_val];
+          auto &itm = PackageGameInstance::data_[hand.val][hand.sub_val];
           switch (static_cast<ItemEnum>(hand.val)) {
           case ItemEnum::kEquip: {
             itm = std::polymorphic<GameItem>(GameEquipItem{});
@@ -234,10 +234,10 @@ void ServerDropInstance::HandleServerDrop(uint64_t client_id,
         // meso
         auto item = r.payload->drop.AsItem();
         auto num = item->item_num;
-        PackageGameInstance::meso -= num;
+        PackageGameInstance::meso_ -= num;
       }
 
-      CursorGameInstance::cursor_hand = std::nullopt;
+      CursorGameInstance::cursor_hand_ = std::nullopt;
     }
   }
   HandleServerDt(*r.payload);
@@ -252,7 +252,7 @@ ServerDropInstance::CreateDts(const std::vector<DropT> &dts,
   auto &gen = RandomGameInstance::gen;
   std::uniform_int_distribution<uint64_t> dist(1, UINT64_MAX);
 
-  const auto &s_fhs = ServerSceneInstance::scenes.at(map_id).fhs;
+  const auto &s_fhs = ServerSceneInstance::scenes_.at(map_id).fhs;
   std::flat_map<int32_t, GameFoothold> g_fhs;
   for (const auto &[key, value] : s_fhs) {
     g_fhs.emplace(key, value.fh);
@@ -269,7 +269,7 @@ ServerDropInstance::CreateDts(const std::vector<DropT> &dts,
     uint64_t random_id = 0;
     do {
       random_id = dist(gen);
-    } while (ServerSceneInstance::scenes[map_id].drops.contains(random_id));
+    } while (ServerSceneInstance::scenes_[map_id].drops.contains(random_id));
     dt.random_id = dist(gen);
     int x;
     if (dts_size == 1) {
@@ -322,7 +322,7 @@ ServerDropInstance::CreateDts(const std::vector<DropT> &dts,
 }
 
 void ServerDropInstance::HandleServerDropFade(ServerDropFadeT &r) {
-  auto &data = DropGameInstance::data;
+  auto &data = DropGameInstance::data_;
   for (const auto id : r.drop_ids) {
     if (data.contains(id)) {
       data.at(id).type = GameDrop::DropEnum::kFade;
@@ -333,10 +333,10 @@ void ServerDropInstance::HandleServerDropFade(ServerDropFadeT &r) {
 
 void ServerDropInstance::HandleClientDropFade(ClientDropFadeT &r) {
   auto map_id = r.map_id;
-  auto &drops = ServerSceneInstance::scenes.at(map_id).drops;
+  auto &drops = ServerSceneInstance::scenes_.at(map_id).drops;
   for (auto id : r.random_id) {
     if (drops.contains(id)) {
-      drops.at(id).destroy = Window::dt_now;
+      drops.at(id).destroy = Window::dt_now_;
     }
   }
   return;

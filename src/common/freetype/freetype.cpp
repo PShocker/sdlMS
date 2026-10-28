@@ -14,21 +14,21 @@
 #include FT_SYNTHESIS_H // 这个宏对应 ftsynth.h
 
 void Freetype::LoadSize(uint8_t i) {
-  size = i;
-  FT_Set_Pixel_Sizes(face, 0, i);
+  size_ = i;
+  FT_Set_Pixel_Sizes(face_, 0, i);
 }
 
 void Freetype::LoadColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
-  color.r = r;
-  color.g = g;
-  color.b = b;
-  color.a = a;
+  color_.r = r;
+  color_.g = g;
+  color_.b = b;
+  color_.a = a;
 }
 
 void Freetype::Init() {
-  FT_Init_FreeType(&library);
-  FT_New_Face(library, "./Font/simsun.ttc", 0, &face);
-  FT_Select_Charmap(face, FT_ENCODING_UNICODE);
+  FT_Init_FreeType(&library_);
+  FT_New_Face(library_, "./Font/simsun.ttc", 0, &face_);
+  FT_Select_Charmap(face_, FT_ENCODING_UNICODE);
   return;
 }
 
@@ -36,12 +36,12 @@ float Freetype::LoadCharW(const char16_t c) {
   static std::flat_map<FreetypeCacheKey, float> w_cache;
   FreetypeCacheKey t{
       .c = c,
-      .size = size,
-      .bold = bold,
+      .size = size_,
+      .bold = bold_,
   };
   if (!w_cache.contains(t)) {
-    FT_Load_Char(face, c, FT_LOAD_DEFAULT);
-    auto w = face->glyph->advance.x >> 6;
+    FT_Load_Char(face_, c, FT_LOAD_DEFAULT);
+    auto w = face_->glyph->advance.x >> 6;
     w_cache[t] = w;
   }
   return w_cache.at(t);
@@ -55,42 +55,42 @@ float Freetype::LoadW(const std::u16string &str) {
   return w;
 }
 
-float Freetype::LoadLh() { return face->size->metrics.height >> 6; }
+float Freetype::LoadLh() { return face_->size->metrics.height >> 6; }
 
 float Freetype::LoadCh(const std::u16string &str, float w, float h) {
   return DrawCstr(str, 0, 0, w, h, true).height;
 }
 
-void Freetype::LoadAligned(bool r) { aligned = r; }
+void Freetype::LoadAligned(bool r) { aligned_ = r; }
 
-void Freetype::LoadBold(bool r) { bold = r; }
+void Freetype::LoadBold(bool r) { bold_ = r; }
 
 float Freetype::DrawChar(float x, float y, char16_t c) {
   if (c == u'\n') {
     return 0;
   }
   SDL_Texture *texture = nullptr;
-  auto lineHeight = face->size->metrics.height >> 6;
+  auto lineHeight = face_->size->metrics.height >> 6;
   float advance = 0;
   int bearingY = 0;
   FreetypeCacheKey t{
       .c = c,
-      .size = size,
-      .bold = bold,
+      .size = size_,
+      .bold = bold_,
   };
-  if (cache.contains(t)) {
-    auto v = cache.at(t);
+  if (cache_.contains(t)) {
+    auto v = cache_.at(t);
     advance = v.advance;
     bearingY = v.bearingY;
     texture = v.texture;
   } else {
-    FT_Load_Char(face, c, FT_LOAD_RENDER | FT_LOAD_TARGET_MONO);
-    if (bold) {
-      FT_GlyphSlot_Embolden(face->glyph);
+    FT_Load_Char(face_, c, FT_LOAD_RENDER | FT_LOAD_TARGET_MONO);
+    if (bold_) {
+      FT_GlyphSlot_Embolden(face_->glyph);
     }
-    auto *bitmap = &face->glyph->bitmap;
-    advance = face->glyph->advance.x >> 6;
-    bearingY = face->glyph->metrics.horiBearingY >> 6;
+    auto *bitmap = &face_->glyph->bitmap;
+    advance = face_->glyph->advance.x >> 6;
+    bearingY = face_->glyph->metrics.horiBearingY >> 6;
     auto cWidth = bitmap->width;
     auto cHeight = bitmap->rows;
     if (cWidth == 0 || cHeight == 0) {
@@ -110,11 +110,11 @@ float Freetype::DrawChar(float x, float y, char16_t c) {
         }
       }
     }
-    texture = SDL_CreateTexture(Window::renderer, SDL_PIXELFORMAT_ARGB8888,
+    texture = SDL_CreateTexture(Window::renderer_, SDL_PIXELFORMAT_ARGB8888,
                                 SDL_TEXTUREACCESS_STATIC, cWidth, cHeight);
     SDL_UpdateTexture(texture, NULL, buffer, cWidth * 4);
     SDL_free(buffer);
-    cache[t] = {advance, bearingY, texture};
+    cache_[t] = {advance, bearingY, texture};
   }
   // 纹理的顶部位置 = 基线位置 - bearingY
   auto posY = y + lineHeight - bearingY;
@@ -126,13 +126,13 @@ float Freetype::DrawChar(float x, float y, char16_t c) {
       static_cast<float>(texture->w),
       static_cast<float>(texture->h),
   };
-  if (aligned) {
+  if (aligned_) {
     posRect.x = int(posRect.x);
     posRect.y = int(posRect.y);
   }
-  SDL_SetTextureColorMod(texture, color.r, color.g, color.b);
-  SDL_SetTextureAlphaMod(texture, color.a);
-  SDL_RenderTexture(Window::renderer, texture, nullptr, &posRect);
+  SDL_SetTextureColorMod(texture, color_.r, color_.g, color_.b);
+  SDL_SetTextureAlphaMod(texture, color_.a);
+  SDL_RenderTexture(Window::renderer_, texture, nullptr, &posRect);
   return advance;
 }
 
@@ -148,7 +148,7 @@ void Freetype::DrawStr(const std::u16string &str, float x, float y, float w,
                         float h) {
   auto l = x;
   auto t = y;
-  auto lineHeight = face->size->metrics.height >> 6;
+  auto lineHeight = face_->size->metrics.height >> 6;
   lineHeight = lineHeight * h;
   for (uint32_t i = 0; i < str.size(); i++) {
     auto c = str[i];
@@ -189,7 +189,7 @@ void Freetype::DrawDashLine(float x1, float y1, float x2, float y2,
     float ey = sy + uy * current_dash;
 
     // 绘制这一小段
-    SDL_RenderLine(Window::renderer, sx, sy, ex, ey);
+    SDL_RenderLine(Window::renderer_, sx, sy, ex, ey);
 
     progress += step;
   }
@@ -210,7 +210,7 @@ Freetype::DrawData Freetype::DrawRstr(const std::u16string &str, float x,
 
   // === 初始化 ===
   const float baseLineHeight =
-      static_cast<float>(face->size->metrics.height >> 6) * h;
+      static_cast<float>(face_->size->metrics.height >> 6) * h;
   const float rightEdge = x + w;
   const float bottomEdge = y + h;
 
@@ -387,7 +387,7 @@ Freetype::DrawData Freetype::DrawRstr(const std::u16string &str, float x,
             lineHasIconFrom(i + 1, l) ? kIconLineHeight : baseLineHeight;
 
         select_r.emplace_back(SDL_FRect{l, t, 0.0f, lineHeight});
-        select_dot.emplace_back(SDL_FPoint{l - size * 0.5f, t + size * 0.5f});
+        select_dot.emplace_back(SDL_FPoint{l - size_ * 0.5f, t + size_ * 0.5f});
         break;
       }
       case u'i': {
@@ -407,7 +407,7 @@ Freetype::DrawData Freetype::DrawRstr(const std::u16string &str, float x,
             static_cast<float>(icon->h),
         };
         if (shouldShow() && !dryRun) {
-          SDL_RenderTexture(Window::renderer, icon, nullptr, &pos);
+          SDL_RenderTexture(Window::renderer_, icon, nullptr, &pos);
         }
 
         l += static_cast<float>(icon->w);
@@ -465,7 +465,7 @@ Freetype::DrawData Freetype::DrawRstr(const std::u16string &str, float x,
       if (!dryRun) {
         if (select >= 0 && selected == -1) {
           const SDL_FRect pos{l, t, charWidth, charHeight};
-          if (SDL_PointInRectFloat(&Window::mouse_pos, &pos)) {
+          if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos)) {
             selected = select;
           }
         }
@@ -486,9 +486,9 @@ Freetype::DrawData Freetype::DrawRstr(const std::u16string &str, float x,
   // === 选择按钮 ===
   const auto loadDot = [](bool Active) -> SDL_Texture * {
     static const auto dot0 = WzResource::LoadTexture(
-        WzResource::ui->find(u"UtilDlgEx.img/UtilDlgEx/dot0"));
+        WzResource::ui_->find(u"UtilDlgEx.img/UtilDlgEx/dot0"));
     static const auto dot1 = WzResource::LoadTexture(
-        WzResource::ui->find(u"UtilDlgEx.img/UtilDlgEx/dot1"));
+        WzResource::ui_->find(u"UtilDlgEx.img/UtilDlgEx/dot1"));
     return Active ? dot1 : dot0;
   };
 
@@ -501,7 +501,7 @@ Freetype::DrawData Freetype::DrawRstr(const std::u16string &str, float x,
         static_cast<float>(tex->w),
         static_cast<float>(tex->h),
     };
-    SDL_RenderTexture(Window::renderer, tex, nullptr, &pos);
+    SDL_RenderTexture(Window::renderer_, tex, nullptr, &pos);
   }
 
   // === 下划线 ===
@@ -510,12 +510,12 @@ Freetype::DrawData Freetype::DrawRstr(const std::u16string &str, float x,
       return;
     const auto &r = select_r[idx];
     const float y1 = r.y + lineHeight;
-    SDL_SetRenderDrawColor(Window::renderer, color.r, color.g, color.b,
+    SDL_SetRenderDrawColor(Window::renderer_, color.r, color.g, color.b,
                            color.a);
     if (dashed) {
       DrawDashLine(r.x, y1, r.x + r.w, y1, kDashOn, kDashOff);
     } else {
-      SDL_RenderLine(Window::renderer, r.x, y1, r.x + r.w, y1);
+      SDL_RenderLine(Window::renderer_, r.x, y1, r.x + r.w, y1);
     }
   };
 
@@ -537,7 +537,7 @@ Freetype::DrawData Freetype::DrawCstr(const std::u16string &str, float x,
     return d;
 
   // 行高
-  float lineHeight = static_cast<float>(face->size->metrics.height >> 6) * h;
+  float lineHeight = static_cast<float>(face_->size->metrics.height >> 6) * h;
 
   // 当前行
   std::u16string currentLine;

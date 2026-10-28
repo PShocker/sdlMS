@@ -40,20 +40,20 @@ static void Douqijizhong() {
 
   const static auto end_ski = [](GameCharacter *c) {
     if (c == nullptr) {
-      auto &ccs = CharacterLogicSystem::ccs;
+      auto &ccs = CharacterLogicSystem::ccs_;
       StateT st;
       st.state = StateEnum_BUFF_SKILL;
       st.val = 1111000;
       st.sub_val = 0;
       ccs.payload.push_back(std::make_unique<StateT>(st));
-      c = &CharacterGameInstance::self;
+      c = &CharacterGameInstance::self_;
     }
     auto &eff = c->effect;
     std::erase_if(eff, [&](const auto &ef) { return ef.id == u"1111000"; });
   };
 
   g_skill.end = []() {
-    auto &ski = SkillGameInstance::ski;
+    auto &ski = SkillGameInstance::ski_;
     auto it = std::ranges::find_if(
         ski, [](const GameSkill &s) { return s.id == u"1111000"; });
     if (it != ski.end()) {
@@ -92,7 +92,7 @@ static void Douqijizhong() {
             .id = u"1111000",
             .index = 0,
             .time = 0,
-            .delay = Window::dt_now,
+            .delay = Window::dt_now_,
             .lv = 1,
             .type = GameEffect::EffectType::kSkillCustom,
             .pos = std::nullopt,
@@ -110,7 +110,7 @@ static void Douqijizhong() {
           .id = u"1111000",
           .index = 0,
           .time = 0,
-          .delay = Window::dt_now,
+          .delay = Window::dt_now_,
           .lv = 1,
           .type = GameEffect::EffectType::kSkillCustom,
           .pos = std::nullopt,
@@ -119,8 +119,8 @@ static void Douqijizhong() {
       };
       eff.push_back(e);
     }
-    if (c == &CharacterGameInstance::self) {
-      auto &ccs = CharacterLogicSystem::ccs;
+    if (c == &CharacterGameInstance::self_) {
+      auto &ccs = CharacterLogicSystem::ccs_;
       StateT st;
       st.state = StateEnum_BUFF_SKILL;
       st.val = 1111000;
@@ -133,7 +133,7 @@ static void Douqijizhong() {
     if (ski_id.empty()) {
       return;
     }
-    auto &sf = CharacterGameInstance::self;
+    auto &sf = CharacterGameInstance::self_;
     auto &eff = sf.effect;
     for (auto &e : eff) {
       if (e.id == u"1111000") {
@@ -181,10 +181,10 @@ static void Douqijizhong() {
       e->data = origin_data;
     }
     static auto t = WzResource::LoadTexture(
-        WzResource::skill->find(u"111.img/skill/1111000/special/0"));
+        WzResource::skill_->find(u"111.img/skill/1111000/special/0"));
 
-    auto x = g_character->pos.x - CameraGameInstance::camera.x;
-    auto y = g_character->pos.y - CameraGameInstance::camera.y - 28;
+    auto x = g_character->pos.x - CameraGameInstance::camera_.x;
+    auto y = g_character->pos.y - CameraGameInstance::camera_.y - 28;
     const auto origin = SDL_FPoint{36, 37};
     SDL_FRect pos_rect{
         x - origin.x,
@@ -196,11 +196,11 @@ static void Douqijizhong() {
       pos_rect.x = x;
       pos_rect.x = (pos_rect.x - (t->w - origin.x));
     }
-    SDL_RenderTextureRotated(Window::renderer, t, nullptr, &pos_rect,
-                             Window::dt_now / 10, nullptr, (SDL_FlipMode)0);
+    SDL_RenderTextureRotated(Window::renderer_, t, nullptr, &pos_rect,
+                             Window::dt_now_ / 10, nullptr, (SDL_FlipMode)0);
     if (dp) {
       static auto node =
-          WzResource::skill->find(u"111.img/skill/1111000/state");
+          WzResource::skill_->find(u"111.img/skill/1111000/state");
       auto &z = dp->zoom;
       const int count = static_cast<int>(z.size());
       for (int i = 0; i < count; i++) {
@@ -211,7 +211,7 @@ static void Douqijizhong() {
 
         // 每个 state 的角度：均匀分布 + 随时间旋转
         float angle =
-            (2.0f * std::numbers::pi / count) * i + Window::dt_now / 800.0f;
+            (2.0f * std::numbers::pi / count) * i + Window::dt_now_ / 800.0f;
 
         // 围绕原点 (x, y) 的圆周位置
         const float radius = 36.0f;
@@ -230,7 +230,7 @@ static void Douqijizhong() {
             static_cast<float>(t->h * scale),
         };
 
-        SDL_RenderTextureRotated(Window::renderer, t, nullptr, &pos_rect, angle,
+        SDL_RenderTextureRotated(Window::renderer_, t, nullptr, &pos_rect, angle,
                                  nullptr, (SDL_FlipMode)0);
         scale -= 0.08;
         scale = std::max(scale, 1.0f);
@@ -241,7 +241,7 @@ static void Douqijizhong() {
   };
 
   g_skill.use = [g_skill](uint64_t client_id, int ski_lv) mutable {
-    auto &ski = SkillGameInstance::ski;
+    auto &ski = SkillGameInstance::ski_;
     g_skill.end();
     g_skill.lv = ski_lv;
     g_skill.duration = 0;
@@ -249,15 +249,15 @@ static void Douqijizhong() {
     g_skill.start = 0;
     ski.push_back(g_skill);
 
-    SkillGameInstance::Skis()[u"1111000"].cd = Window::dt_now + 1000;
+    SkillGameInstance::Skis()[u"1111000"].cd = Window::dt_now_ + 1000;
 
-    auto &sf = CharacterGameInstance::self;
+    auto &sf = CharacterGameInstance::self_;
     auto ckt = SkillGameInstance::CreateSkillPayload(1111000, ski_lv);
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
     ClientRequest::send_to_host(ckt);
 
     CharacterLogicSystem::RunAction(sf, u"alert4");
-    auto &ccs = CharacterLogicSystem::ccs;
+    auto &ccs = CharacterLogicSystem::ccs_;
     StateT st;
     st.state = StateEnum_BUFF_SKILL;
     st.val = 1111000;
@@ -273,7 +273,7 @@ static void Hupaoxiao() {
   GameSkill g_skill;
   g_skill.id = u"1111003";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
-    auto &sf = CharacterGameInstance::self;
+    auto &sf = CharacterGameInstance::self_;
     CharacterLogicSystem::RunAction(sf, u"alert3");
     auto g_r = SkillGameInstance::LoadSkiR(u"1111003");
     auto cm = CharacterLogicSystem::RunAttackCheck(sf, g_r);

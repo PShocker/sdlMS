@@ -35,39 +35,39 @@ void InputSystem::HandleUiInput(GameInput &g_input) {
 
 void InputSystem::HandleItemInput(GameInput &g_input, bool press) {
   if (press) {
-    CharacterLogicSystem::character_item_input.insert(g_input);
+    CharacterLogicSystem::character_item_input_.insert(g_input);
   } else {
-    CharacterLogicSystem::character_item_input.erase(g_input);
+    CharacterLogicSystem::character_item_input_.erase(g_input);
   }
 }
 
 void InputSystem::HandleActionInput(GameInput &g_input, bool press) {
   if (press) {
-    CharacterLogicSystem::character_action_input.insert(g_input.val);
+    CharacterLogicSystem::character_action_input_.insert(g_input.val);
   } else {
-    CharacterLogicSystem::character_action_input.erase(g_input.val);
+    CharacterLogicSystem::character_action_input_.erase(g_input.val);
   }
 }
 
 void InputSystem::HandleSkillInput(GameInput &g_input, bool press) {
   if (press) {
-    CharacterLogicSystem::character_skill_input.insert(g_input.val);
+    CharacterLogicSystem::character_skill_input_.insert(g_input.val);
   } else {
-    CharacterLogicSystem::character_skill_input.erase(g_input.val);
+    CharacterLogicSystem::character_skill_input_.erase(g_input.val);
   }
 }
 
 void InputSystem::HandleFaceInput(GameInput &g_input, bool press) {
   if (press) {
-    CharacterLogicSystem::character_face_input.insert(g_input.val);
+    CharacterLogicSystem::character_face_input_.insert(g_input.val);
   } else {
-    CharacterLogicSystem::character_face_input.erase(g_input.val);
+    CharacterLogicSystem::character_face_input_.erase(g_input.val);
   }
 }
 
 void InputSystem::Reset() {
-  CharacterLogicSystem::character_item_input.clear();
-  CharacterLogicSystem::character_action_input.clear();
-  CharacterLogicSystem::character_skill_input.clear();
-  CharacterLogicSystem::character_face_input.clear();
+  CharacterLogicSystem::character_item_input_.clear();
+  CharacterLogicSystem::character_action_input_.clear();
+  CharacterLogicSystem::character_skill_input_.clear();
+  CharacterLogicSystem::character_face_input_.clear();
 }

@@ -18,9 +18,9 @@ SDL_FPoint ContextMenuUiSystem::LoadWh() { return {100, 122}; }
 
 bool ContextMenuUiSystem::CursorIn() {
   bool r = false;
-  auto &mouse = Window::mouse_pos;
+  auto &mouse = Window::mouse_pos_;
   auto [w, h] = LoadWh();
-  SDL_FRect pos_rect{pos.x + 3, pos.y, w - 3, h};
+  SDL_FRect pos_rect{pos_.x + 3, pos_.y, w - 3, h};
   r = SDL_PointInRectFloat(&mouse, &pos_rect);
   return r;
 }
@@ -28,53 +28,53 @@ bool ContextMenuUiSystem::CursorIn() {
 void ContextMenuUiSystem::RenderBackgrnd() {
   auto [w, h] = LoadWh();
   static auto t2 = WzResource::LoadTexture(
-      WzResource::ui->find(u"ContextMenu.img/ContextMenu/t2"));
+      WzResource::ui_->find(u"ContextMenu.img/ContextMenu/t2"));
   SDL_FRect pos_rect{
-      pos.x,
-      pos.y,
+      pos_.x,
+      pos_.y,
       static_cast<float>(t2->w),
       static_cast<float>(t2->h),
   };
-  SDL_RenderTexture(Window::renderer, t2, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, t2, nullptr, &pos_rect);
   static auto c = WzResource::LoadTexture(
-      WzResource::ui->find(u"ContextMenu.img/ContextMenu/c"));
+      WzResource::ui_->find(u"ContextMenu.img/ContextMenu/c"));
   static auto s = WzResource::LoadTexture(
-      WzResource::ui->find(u"ContextMenu.img/ContextMenu/s"));
+      WzResource::ui_->find(u"ContextMenu.img/ContextMenu/s"));
   pos_rect = {
-      pos.x + 3,
-      pos.y + t2->h,
+      pos_.x + 3,
+      pos_.y + t2->h,
       static_cast<float>(c->w),
       static_cast<float>(h - t2->h - s->h),
   };
-  SDL_RenderTextureTiled(Window::renderer, c, nullptr, 1, &pos_rect);
+  SDL_RenderTextureTiled(Window::renderer_, c, nullptr, 1, &pos_rect);
 
   pos_rect = {
-      pos.x + 3,
-      pos.y + h - s->h,
+      pos_.x + 3,
+      pos_.y + h - s->h,
       static_cast<float>(s->w),
       static_cast<float>(s->h),
   };
-  SDL_RenderTexture(Window::renderer, s, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, s, nullptr, &pos_rect);
 }
 
 void ContextMenuUiSystem::RenderButton() {
   const static std::array buttons_nodes = {
-      WzResource::ui->find(u"ContextMenu.img/ContextMenu/BtInfo"),
-      WzResource::ui->find(u"ContextMenu.img/ContextMenu/BtSave"),
-      WzResource::ui->find(u"ContextMenu.img/ContextMenu/BtWhisper"),
-      WzResource::ui->find(u"ContextMenu.img/ContextMenu/BtParty"),
-      WzResource::ui->find(u"ContextMenu.img/ContextMenu/BtTrade"),
-      WzResource::ui->find(u"ContextMenu.img/ContextMenu/BtFriend"),
-      WzResource::ui->find(u"ContextMenu.img/ContextMenu/BtMapleChat"),
+      WzResource::ui_->find(u"ContextMenu.img/ContextMenu/BtInfo"),
+      WzResource::ui_->find(u"ContextMenu.img/ContextMenu/BtSave"),
+      WzResource::ui_->find(u"ContextMenu.img/ContextMenu/BtWhisper"),
+      WzResource::ui_->find(u"ContextMenu.img/ContextMenu/BtParty"),
+      WzResource::ui_->find(u"ContextMenu.img/ContextMenu/BtTrade"),
+      WzResource::ui_->find(u"ContextMenu.img/ContextMenu/BtFriend"),
+      WzResource::ui_->find(u"ContextMenu.img/ContextMenu/BtMapleChat"),
   };
   std::array buttons_rect = {
-      SDL_FRect{pos.x + 9, pos.y + 6, 85, 14},
-      SDL_FRect{pos.x + 9, pos.y + 22, 85, 14},
-      SDL_FRect{pos.x + 9, pos.y + 38, 85, 14},
-      SDL_FRect{pos.x + 9, pos.y + 54, 85, 14},
-      SDL_FRect{pos.x + 9, pos.y + 70, 85, 14},
-      SDL_FRect{pos.x + 9, pos.y + 86, 85, 14},
-      SDL_FRect{pos.x + 9, pos.y + 102, 85, 14},
+      SDL_FRect{pos_.x + 9, pos_.y + 6, 85, 14},
+      SDL_FRect{pos_.x + 9, pos_.y + 22, 85, 14},
+      SDL_FRect{pos_.x + 9, pos_.y + 38, 85, 14},
+      SDL_FRect{pos_.x + 9, pos_.y + 54, 85, 14},
+      SDL_FRect{pos_.x + 9, pos_.y + 70, 85, 14},
+      SDL_FRect{pos_.x + 9, pos_.y + 86, 85, 14},
+      SDL_FRect{pos_.x + 9, pos_.y + 102, 85, 14},
   };
   std::vector<bool> disable = {
       false, false, false, false, false, false, false,
@@ -84,21 +84,21 @@ void ContextMenuUiSystem::RenderButton() {
     auto pos_rect = buttons_rect[i];
     pos_rect.x = (int)pos_rect.x;
     pos_rect.y = (int)pos_rect.y;
-    auto &mouse_pos = Window::mouse_pos;
+    auto &mouse_pos = Window::mouse_pos_;
     if (disable[i]) {
       auto d = WzResource::LoadTexture(k->find(u"disabled/0"));
-      SDL_RenderTexture(Window::renderer, d, nullptr, &pos_rect);
+      SDL_RenderTexture(Window::renderer_, d, nullptr, &pos_rect);
     } else if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-      if (Window::mouse_state & SDL_BUTTON_LMASK) {
+      if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
         auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
-        SDL_RenderTexture(Window::renderer, pressed, nullptr, &pos_rect);
+        SDL_RenderTexture(Window::renderer_, pressed, nullptr, &pos_rect);
       } else {
         auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
-        SDL_RenderTexture(Window::renderer, mouse_over, nullptr, &pos_rect);
+        SDL_RenderTexture(Window::renderer_, mouse_over, nullptr, &pos_rect);
       }
     } else {
       auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
-      SDL_RenderTexture(Window::renderer, normal, nullptr, &pos_rect);
+      SDL_RenderTexture(Window::renderer_, normal, nullptr, &pos_rect);
     }
   }
 }
@@ -110,25 +110,25 @@ bool ContextMenuUiSystem::Render() {
 }
 
 void ContextMenuUiSystem::EventButtonInfo() {
-  if (client_id == ServerMain::local_addr) {
+  if (client_id_ == ServerMain::local_addr_) {
     // self
-    CharacterInfoUiSystem::character = CharacterGameInstance::self;
+    CharacterInfoUiSystem::character_ = CharacterGameInstance::self_;
     CharacterInfoUiSystem::Close();
     CharacterInfoUiSystem::Open();
-  } else if (CharacterGameInstance::others.contains(client_id)) {
-    CharacterInfoUiSystem::character =
-        CharacterGameInstance::others[client_id].g_character;
+  } else if (CharacterGameInstance::others_.contains(client_id_)) {
+    CharacterInfoUiSystem::character_ =
+        CharacterGameInstance::others_[client_id_].g_character;
     CharacterInfoUiSystem::Close();
     CharacterInfoUiSystem::Open();
   } else {
     fbs::ClientCharacterInfoT ct;
-    ct.payload = client_id;
+    ct.payload = client_id_;
     ClientRequest::send_to_host(ct);
   }
 }
 
 void ContextMenuUiSystem::EventButtonSave() {
-  auto name = client_name;
+  auto name = client_name_;
   auto utf8_str = TextGameInstance::LoadU8str(name);
   SDL_SetClipboardText(utf8_str.c_str());
 }
@@ -139,7 +139,7 @@ void ContextMenuUiSystem::EventButtonParty() {}
 
 void ContextMenuUiSystem::EventButtonTrade() {
   fbs::ClientCharacterTradeT ct;
-  ct.to_id = client_id;
+  ct.to_id = client_id_;
   ClientRequest::send_to_host(ct);
 }
 
@@ -149,15 +149,15 @@ void ContextMenuUiSystem::EventButtonChat() {}
 
 bool ContextMenuUiSystem::EventButton(SDL_Event *Event) {
   std::vector<void (*)()> fns;
-  auto &camera = CameraGameInstance::camera;
+  auto &camera = CameraGameInstance::camera_;
   std::array r = {
-      SDL_FRect{pos.x + 9, pos.y + 6, 85, 14},
-      SDL_FRect{pos.x + 9, pos.y + 22, 85, 14},
-      SDL_FRect{pos.x + 9, pos.y + 38, 85, 14},
-      SDL_FRect{pos.x + 9, pos.y + 54, 85, 14},
-      SDL_FRect{pos.x + 9, pos.y + 70, 85, 14},
-      SDL_FRect{pos.x + 9, pos.y + 86, 85, 14},
-      SDL_FRect{pos.x + 9, pos.y + 102, 85, 14},
+      SDL_FRect{pos_.x + 9, pos_.y + 6, 85, 14},
+      SDL_FRect{pos_.x + 9, pos_.y + 22, 85, 14},
+      SDL_FRect{pos_.x + 9, pos_.y + 38, 85, 14},
+      SDL_FRect{pos_.x + 9, pos_.y + 54, 85, 14},
+      SDL_FRect{pos_.x + 9, pos_.y + 70, 85, 14},
+      SDL_FRect{pos_.x + 9, pos_.y + 86, 85, 14},
+      SDL_FRect{pos_.x + 9, pos_.y + 102, 85, 14},
   };
   fns = {
       EventButtonInfo,  EventButtonSave,  EventButtonWhisper,
@@ -174,7 +174,7 @@ bool ContextMenuUiSystem::EventButton(SDL_Event *Event) {
     auto pos_rect = r[i];
     pos_rect.x = (int)pos_rect.x;
     pos_rect.y = (int)pos_rect.y;
-    if (SDL_PointInRectFloat(&Window::mouse_pos, &pos_rect) && !disable[i]) {
+    if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect) && !disable[i]) {
       fns[i]();
       return false;
     }
@@ -229,14 +229,14 @@ bool ContextMenuUiSystem::Event(SDL_Event *Event) {
 }
 void ContextMenuUiSystem::Open() {
   auto it =
-      std::ranges::find(System::render_systems, &CursorRenderSystem::Render);
-  if (it != System::render_systems.end()) {
-    System::render_systems.insert(it, Render);
-    System::event_systems.insert(System::event_systems.begin(), Event);
+      std::ranges::find(System::render_systems_, &CursorRenderSystem::Render);
+  if (it != System::render_systems_.end()) {
+    System::render_systems_.insert(it, Render);
+    System::event_systems_.insert(System::event_systems_.begin(), Event);
   }
 }
 
 void ContextMenuUiSystem::Close() {
-  std::erase(System::render_systems, Render);
-  std::erase(System::event_systems, Event);
+  std::erase(System::render_systems_, Render);
+  std::erase(System::event_systems_, Event);
 }

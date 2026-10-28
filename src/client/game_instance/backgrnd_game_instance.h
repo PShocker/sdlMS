@@ -8,6 +8,6 @@ class BackgrndGameInstance {
 public:
   static void Load(wz::Node *image);
   static void Load(uint32_t map_id);
-  static inline std::flat_map<int32_t, GameBackgrnd> front;
-  static inline std::flat_map<int32_t, GameBackgrnd> back;
+  static inline std::flat_map<int32_t, GameBackgrnd> front_;
+  static inline std::flat_map<int32_t, GameBackgrnd> back_;
 };

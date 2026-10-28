@@ -22,20 +22,20 @@
 
 void CharacterCreateSystemInstance::EnterPrepare() {
   CharacterCreateUiSystem::ResetCharacter(false);
-  CharacterCreateUiSystem::str_point = 4;
-  CharacterCreateUiSystem::dex_point = 4;
-  CharacterCreateUiSystem::int_point = 4;
-  CharacterCreateUiSystem::luk_point = 4;
-  CharacterCreateUiSystem::remain_point = 9;
+  CharacterCreateUiSystem::str_point_ = 4;
+  CharacterCreateUiSystem::dex_point_ = 4;
+  CharacterCreateUiSystem::int_point_ = 4;
+  CharacterCreateUiSystem::luk_point_ = 4;
+  CharacterCreateUiSystem::remain_point_ = 9;
 }
 
 void CharacterCreateSystemInstance::Enter() {
   EnterPrepare();
-  auto &camera = CameraGameInstance::camera;
+  auto &camera = CameraGameInstance::camera_;
   camera.x = -80 - camera.w / 2;
   camera.y = -1294 - camera.h / 2;
 
-  CharacterCreateUiSystem::name = {
+  CharacterCreateUiSystem::name_ = {
       .max_size = 10,
       .text = {},
       .composition = {},
@@ -51,27 +51,27 @@ void CharacterCreateSystemInstance::Enter() {
       .font_color = {255, 255, 255, 255},
       .font_size = 13,
   };
-  CharacterCreateUiSystem::name.type.set(TextInput::kIme);
+  CharacterCreateUiSystem::name_.type.set(TextInput::kIme);
 
   auto fn = &LoginSystemInstance::RenderGame;
-  if (!std::ranges::contains(System::render_systems, fn)) {
-    static auto image = WzResource::ui->find(u"MapLogin.img");
+  if (!std::ranges::contains(System::render_systems_, fn)) {
+    static auto image = WzResource::ui_->find(u"MapLogin.img");
     BackgrndGameInstance::Load(image);
     ObjGameInstance::Load(image);
     TileGameInstance::Load(image);
   }
 
-  System::logic_systems = {
+  System::logic_systems_ = {
       BackgrndLogicSystem::Run,      ObjLogicSystem::Run,
       AudioLogicSystem::Run,         CursorLogicSystem::Run,
       CharacterCreateUiSystem::Run,
   };
-  System::render_systems = {
+  System::render_systems_ = {
       LoginSystemInstance::RenderGame,
       CharacterCreateUiSystem::Render,
       CursorRenderSystem::Render,
   };
-  System::event_systems = {
+  System::event_systems_ = {
       CharacterCreateUiSystem::Event,
   };
 }

@@ -61,7 +61,7 @@ private:
                                const std::u16string &sub);
 
 public:
-  static inline GameCharacter self;
+  static inline GameCharacter self_;
 
   static void InitCharacterBone();
   static void InitDefaultClothes();
@@ -98,20 +98,20 @@ public:
   static void AddRing0Deco(GameCharacter &g, const std::u16string &val);
   static void AddRing1Deco(GameCharacter &g, const std::u16string &val);
 
-  static inline std::flat_map<uint64_t, CharacterOtherData> others;
+  static inline std::flat_map<uint64_t, CharacterOtherData> others_;
 
   static inline std::flat_map<std::u16string,
                               std::vector<CharacterExternAction>>
-      extern_action;
+      extern_action_;
 
   // action index
   static inline std::flat_map<std::u16string, std::vector<CharacterBoneData>>
-      bone_data;
+      bone_data_;
 
   static inline std::flat_map<std::u16string, CharacterAvatarRender>
-      avatar_data;
+      avatar_data_;
 
-  static inline std::flat_map<std::u16string, CharacterFaceRender> face_data;
+  static inline std::flat_map<std::u16string, CharacterFaceRender> face_data_;
 
   const static inline std::vector<std::u16string> zmap = {
       u"backTamingMobMid",

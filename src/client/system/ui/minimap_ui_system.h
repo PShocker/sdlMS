@@ -43,12 +43,12 @@ private:
 
   static SDL_FPoint LoadWh();
 
-  static inline std::optional<SDL_FPoint> drag;
+  static inline std::optional<SDL_FPoint> drag_;
 
 public:
   static inline SDL_FPoint pos = {0, 0};
-  static inline bool max = true;
-  static inline bool disable;
+  static inline bool max_ = true;
+  static inline bool disable_;
 
   struct MapName {
     std::u16string street_name;

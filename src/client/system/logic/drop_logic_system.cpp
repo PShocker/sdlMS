@@ -12,7 +12,7 @@
 void DropLogicSystem::RunStateMachine(GameDrop &drop) {
   switch (drop.type) {
   case GameDrop::DropEnum::kFly: {
-    auto delta_time = Window::delta_time / 1000.0;
+    auto delta_time = Window::delta_time_ / 1000.0;
     drop.vspeed = drop.vspeed + delta_time * 800;
     drop.vspeed = std::min(drop.vspeed, 400.0f);
     auto dy = drop.vspeed * delta_time;
@@ -31,12 +31,12 @@ void DropLogicSystem::RunStateMachine(GameDrop &drop) {
       break;
     }
     if (drop.data->id != u"00000000") {
-      drop.rotate += (float)Window::delta_time;
+      drop.rotate += (float)Window::delta_time_;
     }
     break;
   }
   case GameDrop::DropEnum::kLand: {
-    drop.hspeed += Window::delta_time;
+    drop.hspeed += Window::delta_time_;
     double t = fmod((double)drop.hspeed / 3500, 1.0);
     auto dy = (1.0 - fabs(2.0 * t - 1.0)) * 8.0 - 4.0;
     drop.pos.y = drop.goal.y + dy;
@@ -51,7 +51,7 @@ void DropLogicSystem::RunStateMachine(GameDrop &drop) {
     constexpr auto PARABOLA_PEAK_TIME = 350;
     constexpr auto PARABOLA_SCALE = 160;
 
-    int elapsed = Window::dt_now - drop.pick_time;
+    int elapsed = Window::dt_now_ - drop.pick_time;
     bool is_animating = elapsed <= PICK_UP_DURATION;
 
     if (!is_animating) {
@@ -75,10 +75,10 @@ void DropLogicSystem::RunStateMachine(GameDrop &drop) {
     if (pk->pet_index.has_value()) {
     } else {
       auto client_id = pk->client_id;
-      if (client_id == ServerMain::local_addr) {
-        pos = CharacterGameInstance::self.pos;
-      } else if (CharacterGameInstance::others.contains(client_id)) {
-        pos = CharacterGameInstance::others[client_id].g_character.pos;
+      if (client_id == ServerMain::local_addr_) {
+        pos = CharacterGameInstance::self_.pos;
+      } else if (CharacterGameInstance::others_.contains(client_id)) {
+        pos = CharacterGameInstance::others_[client_id].g_character.pos;
       }
     }
 
@@ -113,14 +113,14 @@ void DropLogicSystem::RunStateMachine(GameDrop &drop) {
 }
 
 void DropLogicSystem::RunDestroy() {
-  std::erase_if(DropGameInstance::data, [](const auto &pair) {
+  std::erase_if(DropGameInstance::data_, [](const auto &pair) {
     const auto &[id, drop] = pair;
     return drop.alpha == 0;
   });
 }
 
 bool DropLogicSystem::Run() {
-  for (auto &drop : DropGameInstance::data | std::views::values) {
+  for (auto &drop : DropGameInstance::data_ | std::views::values) {
     RunStateMachine(drop);
   }
   RunDestroy();

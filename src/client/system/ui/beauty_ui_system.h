@@ -36,5 +36,5 @@ public:
 
   static void Toggle();
 
-  static inline SDL_FPoint pos;
+  static inline SDL_FPoint pos_;
 };

@@ -7,7 +7,7 @@
 #include "wz/Wz.h"
 
 bool ObjRenderSystem::Render(GameObj &g_obj) {
-  auto obj_node = WzResource::map->find(g_obj.path);
+  auto obj_node = WzResource::map_->find(g_obj.path);
   auto index = std::to_string(g_obj.ani_index);
   obj_node = obj_node->get_child(index);
   if (obj_node->type == wz::Type::UOL) {
@@ -24,13 +24,13 @@ bool ObjRenderSystem::Render(GameObj &g_obj) {
       .w = static_cast<float>(texture->w),
       .h = static_cast<float>(texture->h),
   };
-  auto &camera = CameraGameInstance::camera;
+  auto &camera = CameraGameInstance::camera_;
   if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
     pos_rect.x -= camera.x;
     pos_rect.y -= camera.y;
     SDL_SetTextureAlphaMod(texture, g_obj.alpha);
     auto flip = g_obj.flip;
-    SDL_RenderTextureRotated(Window::renderer, texture, nullptr, &pos_rect, 0,
+    SDL_RenderTextureRotated(Window::renderer_, texture, nullptr, &pos_rect, 0,
                              nullptr, (SDL_FlipMode)flip);
   }
 

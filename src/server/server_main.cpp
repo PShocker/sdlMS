@@ -60,48 +60,48 @@ void ServerMain::OnRecv(uv_udp_t *handle, ssize_t nread, const uv_buf_t *buf,
 }
 
 void ServerMain::ServerInit() {
-  loop = uv_default_loop();
+  loop_ = uv_default_loop();
   // 1. 创建UDP句柄
-  uv_udp_init(loop, &local_socket);
+  uv_udp_init(loop_, &local_socket_);
 
   // 绑定到 IPv4 和 IPv6
   struct sockaddr_in local_addr;
   uv_ip4_addr("0.0.0.0", 0, &local_addr);
-  auto r = uv_udp_bind(&local_socket, (const struct sockaddr *)&local_addr, 0);
+  auto r = uv_udp_bind(&local_socket_, (const struct sockaddr *)&local_addr, 0);
   if (r < 0) {
     std::abort();
   }
   // 4. 获取系统实际分配的端口号
   struct sockaddr_in assigned_addr;
   int32_t namelen = sizeof(assigned_addr);
-  r = uv_udp_getsockname(&local_socket, (struct sockaddr *)&assigned_addr,
+  r = uv_udp_getsockname(&local_socket_, (struct sockaddr *)&assigned_addr,
                          &namelen);
   if (r) {
     fprintf(stderr, "Getsockname error: %s\n", uv_strerror(r));
     std::abort();
   }
-  local_port = ntohs(assigned_addr.sin_port);
+  local_port_ = ntohs(assigned_addr.sin_port);
 
   if (host_addr.sin_port == 0) {
-    uv_ip4_addr("127.0.0.1", local_port, &host_addr);
+    uv_ip4_addr("127.0.0.1", local_port_, &host_addr);
   }
-  if (!host) {
+  if (!host_) {
     // 连接到指定的远程地址
-    uv_udp_connect(&local_socket, (const struct sockaddr *)&host_addr);
+    uv_udp_connect(&local_socket_, (const struct sockaddr *)&host_addr);
   }
   // 开始接收数据
-  r = uv_udp_recv_start(&local_socket, AllocCb, OnRecv);
+  r = uv_udp_recv_start(&local_socket_, AllocCb, OnRecv);
   if (r < 0) {
     fprintf(stderr, "Recv start error: %s\n", uv_err_name(r));
     std::abort();
   }
-  printf("Started receiving on port %d...\n", local_port);
+  printf("Started receiving on port %d...\n", local_port_);
 
-  ServerSystemInstance::Enter(host);
+  ServerSystemInstance::Enter(host_);
 }
 
 void ServerMain::ServerInit(const std::string &ip, uint32_t port) {
-  host = false;
+  host_ = false;
   uv_ip4_addr(ip.c_str(), port, &host_addr);
   ServerInit();
 }
@@ -117,7 +117,7 @@ bool ServerMain::ServerSend(const uint8_t *data, size_t len,
 
   // 使用在 main 中初始化好的目标地址 send_addr
   auto r =
-      uv_udp_send(send_req, &local_socket, &buf, 1, (const sockaddr *)addr,
+      uv_udp_send(send_req, &local_socket_, &buf, 1, (const sockaddr *)addr,
                   [](uv_udp_send_t *req, int status) {
                     if (status < 0) {
                       fprintf(stderr, "Send error: %s\n", uv_strerror(status));
@@ -147,6 +147,6 @@ bool ServerMain::ServerSend(const uint8_t *data, size_t len,
 }
 
 bool ServerMain::Run() {
-  uv_run(loop, UV_RUN_NOWAIT);
+  uv_run(loop_, UV_RUN_NOWAIT);
   return true;
 }

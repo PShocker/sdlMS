@@ -58,9 +58,9 @@
 using namespace fbs;
 
 std::optional<GameNpc> CursorLogicSystem::CursorNpc() {
-  const auto &pos = Window::mouse_pos;
-  auto &camera = CameraGameInstance::camera;
-  for (auto &m : NpcGameInstance::data) {
+  const auto &pos = Window::mouse_pos_;
+  auto &camera = CameraGameInstance::camera_;
+  for (auto &m : NpcGameInstance::data_) {
     for (auto &g_npc : m) {
       auto quest_rr = NpcGameInstance::LoadQuestRect(g_npc);
       if (quest_rr.has_value()) {
@@ -83,12 +83,12 @@ std::optional<GameNpc> CursorLogicSystem::CursorNpc() {
 }
 
 bool CursorLogicSystem::RunPackageMotion() {
-  auto index = PackageUiSystem::mouse_index;
+  auto index = PackageUiSystem::mouse_index_;
   if (!index.has_value()) {
     return false;
   }
-  auto active_tab = PackageUiSystem::active_tab;
-  const auto &r = PackageGameInstance::data[active_tab];
+  auto active_tab = PackageUiSystem::active_tab_;
+  const auto &r = PackageGameInstance::data_[active_tab];
   if (index.value() >= r.size()) {
     return false;
   }
@@ -99,26 +99,26 @@ bool CursorLogicSystem::RunPackageMotion() {
 }
 
 bool CursorLogicSystem::RunVscrollMotion() {
-  return CursorGameInstance::cursor_vscr;
+  return CursorGameInstance::cursor_vscr_;
 }
 
 void CursorLogicSystem::RunCursorAction(const std::u16string &action) {
-  if (CursorGameInstance::cursor_type != action) {
-    CursorGameInstance::cursor_type = action;
-    CursorGameInstance::cursor_index = 0;
-    CursorGameInstance::cursor_time = 0;
+  if (CursorGameInstance::cursor_type_ != action) {
+    CursorGameInstance::cursor_type_ = action;
+    CursorGameInstance::cursor_index_ = 0;
+    CursorGameInstance::cursor_time_ = 0;
   }
 }
 
 bool CursorLogicSystem::RunDefault() {
-  if (CursorGameInstance::cursor_hand.has_value()) {
+  if (CursorGameInstance::cursor_hand_.has_value()) {
     if (!CursorGameInstance::modal_overlay) {
       RunCursorAction(u"11");
       return true;
     }
   }
   if (CursorGameInstance::cursor_ui == nullptr) {
-    if (!(Window::mouse_state & SDL_BUTTON_LMASK)) {
+    if (!(Window::mouse_state_ & SDL_BUTTON_LMASK)) {
       auto npc = CursorNpc();
       if (npc.has_value()) {
         RunCursorAction(u"1");
@@ -161,7 +161,7 @@ bool CursorLogicSystem::RunDefault() {
       return true;
     }
   }
-  if (Window::mouse_state & SDL_BUTTON_LMASK) {
+  if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
     RunCursorAction(u"12");
   } else {
     RunCursorAction(u"0");
@@ -172,9 +172,9 @@ bool CursorLogicSystem::RunDefault() {
 
 void CursorLogicSystem::RunCursorUi() {
   CursorGameInstance::cursor_ui = nullptr;
-  CursorGameInstance::cursor_vscr = false;
+  CursorGameInstance::cursor_vscr_ = false;
   CursorGameInstance::modal_overlay = nullptr;
-  for (auto &fn : System::render_systems | std::views::reverse) {
+  for (auto &fn : System::render_systems_ | std::views::reverse) {
     if (fn == MinimapUiSystem::Render) {
       if (MinimapUiSystem::CursorIn()) {
         CursorGameInstance::cursor_ui = fn;
@@ -276,10 +276,10 @@ void CursorLogicSystem::RunCursorUi() {
 }
 
 bool CursorLogicSystem::RunAnimate() {
-  static auto cursor_node = WzResource::ui->find(u"Cursor.img");
-  auto type_node = cursor_node->get_child(CursorGameInstance::cursor_type);
+  static auto cursor_node = WzResource::ui_->find(u"Cursor.img");
+  auto type_node = cursor_node->get_child(CursorGameInstance::cursor_type_);
   auto child_count = type_node->children_count();
-  auto index = std::to_string(CursorGameInstance::cursor_index);
+  auto index = std::to_string(CursorGameInstance::cursor_index_);
   type_node = type_node->get_child(index);
   if (type_node->type == wz::Type::UOL) {
     type_node = static_cast<wz::Property<wz::WzUOL> *>(type_node)->get_uol();
@@ -289,12 +289,12 @@ bool CursorLogicSystem::RunAnimate() {
     delay =
         static_cast<wz::Property<int> *>(type_node->get_child(u"delay"))->get();
   }
-  CursorGameInstance::cursor_time += Window::delta_time;
-  if (CursorGameInstance::cursor_time >= delay) {
-    CursorGameInstance::cursor_time = 0;
-    CursorGameInstance::cursor_index += 1;
-    CursorGameInstance::cursor_index =
-        CursorGameInstance::cursor_index % child_count;
+  CursorGameInstance::cursor_time_ += Window::delta_time_;
+  if (CursorGameInstance::cursor_time_ >= delay) {
+    CursorGameInstance::cursor_time_ = 0;
+    CursorGameInstance::cursor_index_ += 1;
+    CursorGameInstance::cursor_index_ =
+        CursorGameInstance::cursor_index_ % child_count;
   }
   return true;
 }
@@ -313,8 +313,8 @@ bool CursorLogicSystem::EventCursorHand(SDL_Event *Event) {
     return false;
   }
 
-  auto &cursor_hand = CursorGameInstance::cursor_hand;
-  auto &cursor_hand_net = CursorGameInstance::cursor_hand_net;
+  auto &cursor_hand = CursorGameInstance::cursor_hand_;
+  auto &cursor_hand_net = CursorGameInstance::cursor_hand_net_;
 
   // 2. 前置条件检查
   if (CursorGameInstance::cursor_ui != nullptr || !cursor_hand.has_value() ||
@@ -347,19 +347,19 @@ bool CursorLogicSystem::EventCursorHand(SDL_Event *Event) {
     int sub_index = cursor_hand->sub_val;
     // 处理装备丢弃
     if (active_tab == static_cast<int>(ItemEnum::kEquip)) {
-      auto &equip = PackageGameInstance::data[0][sub_index];
+      auto &equip = PackageGameInstance::data_[0][sub_index];
       DropT dt;
 
       EquipT et;
       et.equip_id = std::stoi(std::string(equip->id.begin(), equip->id.end()));
       dt.drop.Set(et);
 
-      dt.x1 = CharacterGameInstance::self.pos.x;
-      dt.y1 = CharacterGameInstance::self.pos.y;
-      dt.page = CharacterGameInstance::self.page;
+      dt.x1 = CharacterGameInstance::self_.pos.x;
+      dt.y1 = CharacterGameInstance::self_.pos.y;
+      dt.page = CharacterGameInstance::self_.page;
 
       ClientCharacterDropT cct;
-      cct.map_id = SceneSystemInstance::map_id;
+      cct.map_id = SceneSystemInstance::map_id_;
       cct.payload = std::make_unique<DropT>(dt);
       ClientRequest::send_to_host(cct);
 
@@ -367,21 +367,21 @@ bool CursorLogicSystem::EventCursorHand(SDL_Event *Event) {
     }
     // 处理物品丢弃
     else {
-      auto &itm = PackageGameInstance::data[active_tab][sub_index];
+      auto &itm = PackageGameInstance::data_[active_tab][sub_index];
       int num = ItemGameInstance::LoadItemNum(itm);
       auto itm_info = ItemGameInstance::LoadItemInfo(itm->id, 0);
       bool unitPrice = itm_info->get_child(u"unitPrice");
 
       // 数量>1且非单价物品，弹出多选对话框
       if (num > 1 && !unitPrice) {
-        NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kThrowMul;
-        NoticeUiSystem::data = &itm;
+        NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kThrowMul;
+        NoticeUiSystem::data_ = &itm;
         NoticeUiSystem::Open();
         break; // 不执行丢弃，等待用户选择数量
       }
       bool tradeBlock = itm_info->get_child(u"tradeBlock");
       if (tradeBlock) {
-        NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kTradeBlock;
+        NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kTradeBlock;
         NoticeUiSystem::Open();
         cursor_hand = std::nullopt;
         break; // 不执行丢弃，等待用户选择数量
@@ -394,12 +394,12 @@ bool CursorLogicSystem::EventCursorHand(SDL_Event *Event) {
       it.item_num = std::max(0, num);
       dt.drop.Set(it);
 
-      dt.x1 = CharacterGameInstance::self.pos.x;
-      dt.y1 = CharacterGameInstance::self.pos.y;
-      dt.page = CharacterGameInstance::self.page;
+      dt.x1 = CharacterGameInstance::self_.pos.x;
+      dt.y1 = CharacterGameInstance::self_.pos.y;
+      dt.page = CharacterGameInstance::self_.page;
 
       ClientCharacterDropT cct;
-      cct.map_id = SceneSystemInstance::map_id;
+      cct.map_id = SceneSystemInstance::map_id_;
       cct.payload = std::make_unique<DropT>(dt);
       ClientRequest::send_to_host(cct);
 
@@ -423,17 +423,17 @@ bool CursorLogicSystem::EventCharacter(SDL_Event *Event) {
       if (CursorGameInstance::cursor_ui != nullptr) {
         break;
       }
-      auto others = CharacterGameInstance::others.values();
-      CharacterOtherData s{.g_character = CharacterGameInstance::self};
+      auto others = CharacterGameInstance::others_.values();
+      CharacterOtherData s{.g_character = CharacterGameInstance::self_};
       others.push_back(s);
-      auto &camera = CameraGameInstance::camera;
+      auto &camera = CameraGameInstance::camera_;
       for (auto character : others) {
         auto rect = CharacterLogicSystem::LoadRect(character.g_character);
         rect.x -= camera.x;
         rect.y -= camera.y;
-        bool ins = SDL_PointInRectFloat(&Window::mouse_pos, &rect);
+        bool ins = SDL_PointInRectFloat(&Window::mouse_pos_, &rect);
         if (ins) {
-          CharacterInfoUiSystem::character = character.g_character;
+          CharacterInfoUiSystem::character_ = character.g_character;
           CharacterInfoUiSystem::Close();
           CharacterInfoUiSystem::Open();
           return true;
@@ -443,19 +443,19 @@ bool CursorLogicSystem::EventCharacter(SDL_Event *Event) {
       if (CursorGameInstance::cursor_ui != nullptr) {
         break;
       }
-      auto others = CharacterGameInstance::others;
-      CharacterOtherData s{.g_character = CharacterGameInstance::self};
+      auto others = CharacterGameInstance::others_;
+      CharacterOtherData s{.g_character = CharacterGameInstance::self_};
       others[0] = s;
-      auto &camera = CameraGameInstance::camera;
+      auto &camera = CameraGameInstance::camera_;
       for (auto [k, v] : others) {
         auto rect = CharacterLogicSystem::LoadRect(v.g_character);
         rect.x -= camera.x;
         rect.y -= camera.y;
-        bool ins = SDL_PointInRectFloat(&Window::mouse_pos, &rect);
+        bool ins = SDL_PointInRectFloat(&Window::mouse_pos_, &rect);
         if (ins) {
-          ContextMenuUiSystem::pos = Window::mouse_pos;
-          ContextMenuUiSystem::client_id = k;
-          ContextMenuUiSystem::client_name = v.g_character.name;
+          ContextMenuUiSystem::pos_ = Window::mouse_pos_;
+          ContextMenuUiSystem::client_id_ = k;
+          ContextMenuUiSystem::client_name_ = v.g_character.name;
           ContextMenuUiSystem::Close();
           ContextMenuUiSystem::Open();
           return true;
@@ -478,15 +478,15 @@ bool CursorLogicSystem::EventClickNpc(GameNpc npc) {
   switch (NpcType) {
   case NpcGameInstance::NpcType::kShop: {
     auto shop = ShopGameInstance::LoadNpcShop(npc_id);
-    ShopUiSystem::shop = shop;
-    ShopUiSystem::npc = npc;
+    ShopUiSystem::shop_ = shop;
+    ShopUiSystem::npc_ = npc;
     ShopUiSystem::Close();
     ShopUiSystem::Open();
     r = true;
     break;
   }
   case NpcGameInstance::NpcType::kScript: {
-    auto node = WzResource::npc->find(npc_id + u".img");
+    auto node = WzResource::npc_->find(npc_id + u".img");
     auto script_node = node->find(u"info/script/0/script");
     auto script_str =
         static_cast<wz::Property<std::u16string> *>(script_node)->get();
@@ -495,14 +495,14 @@ bool CursorLogicSystem::EventClickNpc(GameNpc npc) {
     break;
   }
   case NpcGameInstance::NpcType::kQuest: {
-    NpcDlgUiSystem::type = NpcDlgUiSystem::NpcDlgEnum::kQuest;
-    NpcDlgUiSystem::index = 0;
-    NpcDlgUiSystem::max_index = 0;
-    NpcDlgUiSystem::npc_id = npc_id;
-    NpcDlgUiSystem::time = Window::dt_now;
+    NpcDlgUiSystem::type_ = NpcDlgUiSystem::NpcDlgEnum::kQuest;
+    NpcDlgUiSystem::index_ = 0;
+    NpcDlgUiSystem::max_index_ = 0;
+    NpcDlgUiSystem::npc_id_ = npc_id;
+    NpcDlgUiSystem::time_ = Window::dt_now_;
     // string.wz找d0
-    NpcDlgUiSystem::text = NpcGameInstance::LoadNpcText(npc_id, u"d0");
-    NpcDlgUiSystem::cb = {};
+    NpcDlgUiSystem::text_ = NpcGameInstance::LoadNpcText(npc_id, u"d0");
+    NpcDlgUiSystem::cb_ = {};
     NpcDlgUiSystem::Close();
     NpcDlgUiSystem::Open();
     r = true;
@@ -516,7 +516,7 @@ bool CursorLogicSystem::EventClickNpc(GameNpc npc) {
 }
 
 bool CursorLogicSystem::EventNpc(SDL_Event *Event) {
-  if (CursorGameInstance::cursor_hand_net.has_value()) {
+  if (CursorGameInstance::cursor_hand_net_.has_value()) {
     return false;
   }
   bool r = false;

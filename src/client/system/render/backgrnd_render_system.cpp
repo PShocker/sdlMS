@@ -8,15 +8,15 @@
 #include <string>
 
 bool BackgrndRenderSystem::Render(GameBackgrnd &g_backgrnd) {
-  auto delta_time = Window::delta_time;
+  auto delta_time = Window::delta_time_;
 
-  auto viewprot_x = CameraGameInstance::camera.x;
-  auto viewprot_y = CameraGameInstance::camera.y;
-  auto viewprot_w = CameraGameInstance::camera.w;
-  auto viewprot_h = CameraGameInstance::camera.h;
+  auto viewprot_x = CameraGameInstance::camera_.x;
+  auto viewprot_y = CameraGameInstance::camera_.y;
+  auto viewprot_w = CameraGameInstance::camera_.w;
+  auto viewprot_h = CameraGameInstance::camera_.h;
 
   SDL_Texture *texture;
-  auto back_node = WzResource::map->find(g_backgrnd.path);
+  auto back_node = WzResource::map_->find(g_backgrnd.path);
   if (g_backgrnd.ani) {
     auto index =
         std::to_string(g_backgrnd.ani_index % back_node->children_count());
@@ -79,7 +79,7 @@ bool BackgrndRenderSystem::Render(GameBackgrnd &g_backgrnd) {
         (float)tile_cnt_x * cx,      // 总宽度
         (float)tile_cnt_y * cy       // 总高度
     };
-    SDL_RenderTextureTiled(Window::renderer, texture, nullptr, 1, &dst_rect);
+    SDL_RenderTextureTiled(Window::renderer_, texture, nullptr, 1, &dst_rect);
   } else {
     for (int i = 0; i < tile_cnt_y; i++) {
       for (int j = 0; j < tile_cnt_x; j++) {
@@ -89,7 +89,7 @@ bool BackgrndRenderSystem::Render(GameBackgrnd &g_backgrnd) {
             (float)texture->w,                    // 总宽度
             (float)texture->h                     // 总高度
         };
-        SDL_RenderTextureRotated(Window::renderer, texture, nullptr, &dst_rect,
+        SDL_RenderTextureRotated(Window::renderer_, texture, nullptr, &dst_rect,
                                  0, nullptr, (SDL_FlipMode)g_backgrnd.flip);
       }
     }

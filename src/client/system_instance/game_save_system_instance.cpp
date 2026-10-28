@@ -24,8 +24,8 @@
 #include <string>
 
 bool GameSaveSystemInstance::LoadSave(const std::string &login) {
-  save = {};
-  save.username = login;
+  save_ = {};
+  save_.username = login;
   if (!SDL_CreateDirectory("./Save")) {
     assert(0);
     std::abort();
@@ -111,7 +111,7 @@ bool GameSaveSystemInstance::LoadSave(const std::string &login) {
       for (auto &i : c->sp) {
         cs.sp.ski_sp[i->id] = i->val;
       }
-      save.characters.push_back(std::move(cs));
+      save_.characters.push_back(std::move(cs));
     }
     for (const auto &s : gst.data->storage) {
       switch (s.type) {
@@ -139,14 +139,14 @@ bool GameSaveSystemInstance::LoadSave(const std::string &login) {
 }
 
 bool GameSaveSystemInstance::SaveGame() {
-  if (save.username.empty()) {
+  if (save_.username.empty()) {
     return false;
   }
-  if (CharacterChooseUiSystem::characters.empty()) {
+  if (CharacterChooseUiSystem::characters_.empty()) {
     return false;
   }
   // save
-  auto character = CharacterGameInstance::self;
+  auto character = CharacterGameInstance::self_;
   if (!character.name.empty()) {
     CharacterSaveData cs;
     cs.character = character;
@@ -156,11 +156,11 @@ bool GameSaveSystemInstance::SaveGame() {
     cs.ap.dex_ap = CharacterStatGameInstance::GetDexAp(),
     cs.ap.int_ap = CharacterStatGameInstance::GetIntAp(),
     cs.ap.luk_ap = CharacterStatGameInstance::GetLukAp(),
-    cs.sp = {JobSkillGameInstance::skill_point};
+    cs.sp = {JobSkillGameInstance::skill_point_};
 
-    cs.map_id = SceneSystemInstance::map_id;
+    cs.map_id = SceneSystemInstance::map_id_;
 
-    auto [first, last] = PortalGameInstance::data.equal_range(u"sp");
+    auto [first, last] = PortalGameInstance::data_.equal_range(u"sp");
     std::flat_map<uint64_t, int> por_dis;
     const auto &character_pos = character.pos;
     for (auto it = first; it != last; ++it) {
@@ -171,23 +171,23 @@ bool GameSaveSystemInstance::SaveGame() {
     }
     cs.portal_id = por_dis.begin()->second;
 
-    cs.meso = PackageGameInstance::meso;
+    cs.meso = PackageGameInstance::meso_;
 
     cs.hp = CharacterStatGameInstance::GetHp();
     cs.mp = CharacterStatGameInstance::GetMp();
     cs.exp = CharacterStatGameInstance::GetExp();
 
-    for (auto [k, v] : QuestGameInstance::progress_quests) {
+    for (auto [k, v] : QuestGameInstance::progress_quests_) {
       cs.quests.push_back(std::move(v));
     }
-    for (auto [k, v] : QuestGameInstance::complete_quests) {
+    for (auto [k, v] : QuestGameInstance::complete_quests_) {
       cs.quests.push_back(std::move(v));
     }
-    for (auto [k, v] : QuestGameInstance::decline_quests) {
+    for (auto [k, v] : QuestGameInstance::decline_quests_) {
       cs.quests.push_back(std::move(v));
     }
 
-    for (auto [k, v] : KeyboardGameInstance::data) {
+    for (auto [k, v] : KeyboardGameInstance::data_) {
       cs.keys.push_back({
           .scan_code = static_cast<uint16_t>(k),
           .type = v.type,
@@ -196,7 +196,7 @@ bool GameSaveSystemInstance::SaveGame() {
       });
     }
 
-    for (auto &d : PackageGameInstance::data) {
+    for (auto &d : PackageGameInstance::data_) {
       for (uint32_t i = 0; i < d.size(); ++i) {
         auto &v = d[i];
         if (!v->id.empty()) {
@@ -204,10 +204,10 @@ bool GameSaveSystemInstance::SaveGame() {
         }
       }
     }
-    for (int i = 0; i < save.characters.size(); i++) {
-      auto &save_character = save.characters[i].character;
+    for (int i = 0; i < save_.characters.size(); i++) {
+      auto &save_character = save_.characters[i].character;
       if (save_character.name == character.name) {
-        save.characters[i] = std::move(cs);
+        save_.characters[i] = std::move(cs);
         break;
       }
     }
@@ -216,10 +216,10 @@ bool GameSaveSystemInstance::SaveGame() {
   // save
   fbs::GameSaveT gst;
   PlayerSaveT pst;
-  gst.username = save.username;
-  for (uint32_t i = 0; i < save.characters.size(); i++) {
+  gst.username = save_.username;
+  for (uint32_t i = 0; i < save_.characters.size(); i++) {
     fbs::CharacterSaveT cst;
-    auto character_s = std::move(save.characters[i]);
+    auto character_s = std::move(save_.characters[i]);
     auto ct = ServerCharacterInstance::LoadCharactert(character_s.character);
     cst.character = std::make_unique<CharacterT>(ct);
     cst.ap = std::make_unique<APSaveT>();
@@ -325,7 +325,7 @@ bool GameSaveSystemInstance::SaveGame() {
   builder.Finish(offset);
   uint8_t *pointer = builder.GetBufferPointer();
   size_t size = builder.GetSize();
-  auto save_path = "./Save/" + save.username + ".bin";
+  auto save_path = "./Save/" + save_.username + ".bin";
   SDL_IOStream *io = SDL_IOFromFile(save_path.c_str(), "wb");
   if (io == NULL) {
     return -1;

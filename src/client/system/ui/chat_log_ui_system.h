@@ -11,7 +11,7 @@ private:
   static bool EventButton(SDL_Event *Event);
 
 public:
-  static inline int page;
+  static inline int page_;
 
   static void Open();
   static void Close();

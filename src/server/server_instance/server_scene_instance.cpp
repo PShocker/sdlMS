@@ -16,10 +16,10 @@ using namespace fbs;
 
 void ServerSceneInstance::CleanClient(uint64_t client_id,
                                          ClientSceneT client_scene) {
-  if (ServerClientInstance::clients.contains(client_id)) {
+  if (ServerClientInstance::clients_.contains(client_id)) {
     // 地图切换
-    auto map_id = ServerClientInstance::clients.at(client_id).map_id;
-    auto &scenes = ServerSceneInstance::scenes[map_id];
+    auto map_id = ServerClientInstance::clients_.at(client_id).map_id;
+    auto &scenes = ServerSceneInstance::scenes_[map_id];
     scenes.clients.erase(client_id);
     ServerCharacterOutT r;
     for (const auto other : scenes.clients) {
@@ -31,11 +31,11 @@ void ServerSceneInstance::CleanClient(uint64_t client_id,
 
 void ServerSceneInstance::SaveClient(uint64_t client_id,
                                         ClientSceneT client_scene) {
-  auto &clients = ServerClientInstance::clients;
-  auto &scenes = ServerSceneInstance::scenes;
+  auto &clients = ServerClientInstance::clients_;
+  auto &scenes = ServerSceneInstance::scenes_;
 
   const auto map_id = client_scene.map_id;
-  const auto now = Window::dt_now;
+  const auto now = Window::dt_now_;
   auto [it, inserted] = clients.try_emplace(client_id);
   auto &client = it->second;
 
@@ -61,10 +61,10 @@ void ServerSceneInstance::SendSceneClients(uint64_t client_id,
   r.map_id = client_scene.map_id;
   r.fade = true;
 
-  auto scene = ServerSceneInstance::scenes[client_scene.map_id];
+  auto scene = ServerSceneInstance::scenes_[client_scene.map_id];
   scene.clients.erase(client_id);
   for (const auto &c : scene.clients) {
-    auto client = ServerClientInstance::clients.at(c);
+    auto client = ServerClientInstance::clients_.at(c);
     r.players.push_back(std::make_unique<PlayerT>(client.player_t));
   }
   for (const auto d : scene.drops | std::views::values) {
@@ -94,11 +94,11 @@ void ServerSceneInstance::SendSceneClients(uint64_t client_id,
 void ServerSceneInstance::SendInScene(uint64_t client_id,
                                           ClientSceneT client_scene) {
   ServerCharacterInT r;
-  const auto &p = ServerClientInstance::clients.at(client_id).player_t;
+  const auto &p = ServerClientInstance::clients_.at(client_id).player_t;
 
   r.player = std::make_unique<PlayerT>(p);
 
-  auto scene = ServerSceneInstance::scenes[client_scene.map_id];
+  auto scene = ServerSceneInstance::scenes_[client_scene.map_id];
   scene.clients.erase(client_id);
   for (const auto c : scene.clients) {
     ServerResponse::send_to_client(c, r);
@@ -114,7 +114,7 @@ void ServerSceneInstance::SendInFade(uint64_t client_id,
   r.map_id = client_scene.map_id;
   r.fade = false;
   r.client_id = client_id;
-  r.time = Window::dt_time;
+  r.time = Window::dt_time_;
   ServerResponse::send_to_client(client_id, r);
 }
 
@@ -122,7 +122,7 @@ void ServerSceneInstance::InitScene(uint64_t client_id,
                                        ClientSceneT client_scene) {
   //
   auto map_id = client_scene.map_id;
-  if (!scenes.contains(map_id)) {
+  if (!scenes_.contains(map_id)) {
     ServerSceneState scene;
     scene.map_id = map_id;
 
@@ -130,7 +130,7 @@ void ServerSceneInstance::InitScene(uint64_t client_id,
     ServerFootholdInstance::LoadFh(scene);
     ServerReactorInstance::LoadReactor(scene);
 
-    scenes[map_id] = scene;
+    scenes_[map_id] = scene;
   }
 }
 

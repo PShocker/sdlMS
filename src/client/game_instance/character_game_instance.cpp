@@ -15,7 +15,7 @@
 #include <vector>
 
 void CharacterGameInstance::InitCharacterBone() {
-  auto character_node = WzResource::character;
+  auto character_node = WzResource::character_;
 
   auto body_node = character_node->find(u"00002000.img");
   auto head_node = character_node->find(u"00012000.img");
@@ -42,19 +42,19 @@ void CharacterGameInstance::InitCharacterBone() {
       if (body_frame_node->get_child(u"action") == nullptr) {
 
         tmp_bone_map[key].resize(action_node->children_count());
-        bone_data[key].resize(action_node->children_count());
+        bone_data_[key].resize(action_node->children_count());
 
         if (body_frame_node->get_child(u"delay")) {
           auto delay = static_cast<wz::Property<int> *>(
                            body_frame_node->get_child(u"delay"))
                            ->get();
-          bone_data[key][frame].delay = delay;
+          bone_data_[key][frame].delay = delay;
         }
 
         auto face = static_cast<wz::Property<int16_t> *>(
                         body_frame_node->get_child(u"face"))
                         ->get();
-        bone_data[key][frame].face = face;
+        bone_data_[key][frame].face = face;
 
         //  基础动作，身体
         auto format3 = std::u16string{format2.begin(), format2.end()};
@@ -101,7 +101,7 @@ void CharacterGameInstance::InitCharacterBone() {
                        ->get();
           e_action.move = {static_cast<float>(v.x), static_cast<float>(v.y)};
         }
-        extern_action[key].push_back(e_action);
+        extern_action_[key].push_back(e_action);
       }
     }
   }
@@ -119,7 +119,7 @@ void CharacterGameInstance::InitCharacterBone() {
           // 构建骨骼
           std::u16string parent_bone_name = u"";
           for (auto [pk, pv] : *bones.node->get_child(u"map")->get_children()) {
-            if (bone_data[k][i].bone_pos.contains(pk)) {
+            if (bone_data_[k][i].bone_pos.contains(pk)) {
               parent_bone_name = pk;
             }
           }
@@ -128,26 +128,26 @@ void CharacterGameInstance::InitCharacterBone() {
             for (auto [pk, pv] :
                  *bones.node->get_child(u"map")->get_children()) {
               auto vec = static_cast<wz::Property<wz::WzVec2D> *>(pv[0])->get();
-              bone_data[k][i].bone_pos[pk] = {float(vec.x), float(vec.y)};
+              bone_data_[k][i].bone_pos[pk] = {float(vec.x), float(vec.y)};
             }
-            bone_data[k][i].part_pos[bones.name] = {0, 0};
+            bone_data_[k][i].part_pos[bones.name] = {0, 0};
           } else {
             // 有父节点
             auto parent_bone_pos =
-                bone_data[k][i].bone_pos.at(parent_bone_name);
+                bone_data_[k][i].bone_pos.at(parent_bone_name);
             auto parent_vec = bones.node->find(u"map/" + parent_bone_name);
             auto vec =
                 static_cast<wz::Property<wz::WzVec2D> *>(parent_vec)->get();
             SDL_FPoint cur_pos{parent_bone_pos.x - vec.x,
                                parent_bone_pos.y - vec.y};
-            bone_data[k][i].part_pos[bones.name] = cur_pos;
+            bone_data_[k][i].part_pos[bones.name] = cur_pos;
             for (auto [pk, pv] :
                  *bones.node->get_child(u"map")->get_children()) {
-              if (bone_data[k][i].bone_pos.contains(pk)) {
+              if (bone_data_[k][i].bone_pos.contains(pk)) {
                 continue;
               }
               auto vec = static_cast<wz::Property<wz::WzVec2D> *>(pv[0])->get();
-              bone_data[k][i].bone_pos[pk] = {float(cur_pos.x + vec.x),
+              bone_data_[k][i].bone_pos[pk] = {float(cur_pos.x + vec.x),
                                               float(cur_pos.y + vec.y)};
             }
           }
@@ -165,22 +165,22 @@ void CharacterGameInstance::InitDefaultClothes() {
 }
 
 void CharacterGameInstance::LoadSelfCharacter() {
-  AddBody(self, u"00002000");
-  AddHead(self, u"00012000");
-  AddCoat(self, u"01040002");
-  AddCap(self, u"01002005");
-  AddWeapon(self, u"01472002");
-  AddPants(self, u"01060001");
-  AddFace(self, u"00020000");
-  AddHair(self, u"00030000");
-  AddShield(self, u"01092003");
-  AddEar(self, u"humanEar");
+  AddBody(self_, u"00002000");
+  AddHead(self_, u"00012000");
+  AddCoat(self_, u"01040002");
+  AddCap(self_, u"01002005");
+  AddWeapon(self_, u"01472002");
+  AddPants(self_, u"01060001");
+  AddFace(self_, u"00020000");
+  AddHair(self_, u"00030000");
+  AddShield(self_, u"01092003");
+  AddEar(self_, u"humanEar");
 
-  AddCapDeco(self, u"01007002");
-  AddRing0Deco(self, u"01112219");
-  AddRing1Deco(self, u"01112108");
+  AddCapDeco(self_, u"01007002");
+  AddRing0Deco(self_, u"01112219");
+  AddRing1Deco(self_, u"01112108");
 
-  self.weapon->scroll = {
+  self_.weapon->scroll = {
       {u"02040000", true},
       {u"02040001", true},
       {u"02040002", true},
@@ -413,15 +413,15 @@ void CharacterGameInstance::AddFace(GameCharacter &g,
   GameFace g_face;
   g_face.id = val;
   g.face = g_face;
-  if (!face_data.contains(val)) {
-    auto character_node = WzResource::character;
+  if (!face_data_.contains(val)) {
+    auto character_node = WzResource::character_;
     auto face_node = character_node->find(u"Face/" + val + u".img");
     for (auto [k, v] : *face_node->get_children()) {
       if (k == u"info") {
         continue;
       }
-      auto &f = face_data[val];
-      for (const auto &[bk, bv] : bone_data) {
+      auto &f = face_data_[val];
+      for (const auto &[bk, bv] : bone_data_) {
         for (const auto &cbd : bv) {
           if (!cbd.bone_pos.contains(u"brow")) {
             continue;
@@ -493,9 +493,9 @@ void CharacterGameInstance::AddAvatarCache(const std::u16string &val,
   if (!sub.empty()) {
     v = val + u"/" + sub;
   }
-  if (!avatar_data.contains(v)) {
-    CharacterAvatarRender &r = avatar_data[v];
-    auto character_node = WzResource::character;
+  if (!avatar_data_.contains(v)) {
+    CharacterAvatarRender &r = avatar_data_[v];
+    auto character_node = WzResource::character_;
     auto type = EquipGameInstance::LoadEquipType(val);
     wz::Node *node;
     if (type == u"Body" || type == u"Head") {
@@ -519,10 +519,10 @@ void CharacterGameInstance::AddAvatarCache(const std::u16string &val,
       child[u"dead"] = {child[u"jump"].at(0)};
     }
     for (auto [k, v] : child) {
-      if (!bone_data.contains(k)) {
+      if (!bone_data_.contains(k)) {
         continue;
       }
-      auto size = bone_data[k].size();
+      auto size = bone_data_[k].size();
       r.data[k].resize(size);
       for (uint8_t frame = 0; frame < size; frame++) {
         auto format2 = std::to_string(frame);
@@ -552,7 +552,7 @@ void CharacterGameInstance::AddAvatarCache(const std::u16string &val,
             auto part_val = map_node->second[0];
             auto part_val_pos =
                 static_cast<wz::Property<wz::WzVec2D> *>(part_val)->get();
-            auto parent_pos = bone_data[k][frame].bone_pos.at(part_name);
+            auto parent_pos = bone_data_[k][frame].bone_pos.at(part_name);
 
             c.pos = {parent_pos.x - part_val_pos.x,
                      parent_pos.y - part_val_pos.y};

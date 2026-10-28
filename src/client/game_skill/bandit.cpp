@@ -23,28 +23,28 @@ static void Qinggong() {
   g_skill.climb = true;
   g_skill.id = u"4201001";
   g_skill.end = []() {
-    auto &ski = SkillGameInstance::ski;
+    auto &ski = SkillGameInstance::ski_;
     auto it = std::ranges::find_if(
         ski, [](const GameSkill &s) { return s.id == u"4201001"; });
     if (it != ski.end()) {
       ski.erase(it);
-      CharacterLogicSystem::self_hspeed_max -= 100;
-      CharacterLogicSystem::self_hspeed_min += 100;
+      CharacterLogicSystem::self_hspeed_max_ -= 100;
+      CharacterLogicSystem::self_hspeed_min_ += 100;
     }
   };
 
   g_skill.frame = []() { return; };
 
   g_skill.use = [g_skill](uint64_t client_id, int ski_lv) mutable {
-    auto &ski = SkillGameInstance::ski;
+    auto &ski = SkillGameInstance::ski_;
     g_skill.end();
     g_skill.lv = ski_lv;
     g_skill.duration = 30 * 1000;
-    g_skill.destroy = Window::dt_now + g_skill.duration;
+    g_skill.destroy = Window::dt_now_ + g_skill.duration;
     ski.push_back(g_skill);
 
-    CharacterLogicSystem::self_hspeed_max += 100;
-    CharacterLogicSystem::self_hspeed_min -= 100;
+    CharacterLogicSystem::self_hspeed_max_ += 100;
+    CharacterLogicSystem::self_hspeed_min_ -= 100;
 
     if (client_id != 0) {
       return;
@@ -53,9 +53,9 @@ static void Qinggong() {
     const SDL_FPoint lt = {-250, -150};
     const SDL_FPoint rb = {250, 150};
 
-    SkillGameInstance::Skis()[u"4201001"].cd = Window::dt_now + 1000;
+    SkillGameInstance::Skis()[u"4201001"].cd = Window::dt_now_ + 1000;
 
-    auto &sf = CharacterGameInstance::self;
+    auto &sf = CharacterGameInstance::self_;
     auto g_r = SkillGameInstance::LoadSkiR(u"4201001");
     auto players = CharacterLogicSystem::RunBuffCheck(sf, g_r);
     auto ckt =
@@ -72,7 +72,7 @@ static void Huixuanzhan() {
   GameSkill g_skill;
   g_skill.id = u"4201003";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
-    auto &sf = CharacterGameInstance::self;
+    auto &sf = CharacterGameInstance::self_;
     CharacterLogicSystem::RunAction(sf, u"savage");
     auto g_r = SkillGameInstance::LoadSkiR(u"4201003");
     auto cm = CharacterLogicSystem::RunAttackCheck(sf, g_r);
@@ -102,7 +102,7 @@ static void Shentoushu() {
   GameSkill g_skill;
   g_skill.id = u"4001002";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
-    auto &sf = CharacterGameInstance::self;
+    auto &sf = CharacterGameInstance::self_;
     CharacterLogicSystem::RunAttackAction(sf, false);
     auto g_r = SkillGameInstance::LoadSkiR(u"4001002");
     auto cm = CharacterLogicSystem::RunAttackCheck(sf, g_r);
@@ -114,7 +114,7 @@ static void Shentoushu() {
       ClientRequest::send_to_host(cat);
       // drop
       ClientCreateDropT ccd;
-      ccd.map_id = SceneSystemInstance::map_id;
+      ccd.map_id = SceneSystemInstance::map_id_;
       auto &mob = cm.data[0].mob;
       auto dts = ServerMobInstance::CreateMobDts(mob.id, mob.pos.x,
                                                      mob.pos.y, mob.page);

@@ -13,7 +13,7 @@ public:
 
   static void Load(const CharacterSaveData &cs);
   static void Load();
-  static inline std::flat_map<SDL_Scancode, GameInput> data;
+  static inline std::flat_map<SDL_Scancode, GameInput> data_;
   static SDL_Scancode FindKeyByVal(const std::string &target_val);
   static GameInput FindInputByCursor(int i);
   static std::optional<GameInput> LoadCursorInput();

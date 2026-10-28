@@ -8,7 +8,7 @@
 #include <string>
 
 void KeyboardGameInstance::Reset() {
-  data.clear();
+  data_.clear();
   InsertInput(SDL_SCANCODE_ESCAPE, {.type = "ui", .val = "menu"});
   InsertInput(SDL_SCANCODE_F1, {.type = "face", .val = "hit"});
   InsertInput(SDL_SCANCODE_F2, {.type = "face", .val = "smile"});
@@ -51,9 +51,9 @@ void KeyboardGameInstance::Reset() {
 void KeyboardGameInstance::Load() { Reset(); }
 
 void KeyboardGameInstance::Load(const CharacterSaveData &cs) {
-  data = {};
+  data_ = {};
   for (auto &k : cs.keys) {
-    data[(SDL_Scancode)k.scan_code] = {
+    data_[(SDL_Scancode)k.scan_code] = {
         .type = k.type,
         .val = k.val,
         .sub_val = k.sub_val,
@@ -63,7 +63,7 @@ void KeyboardGameInstance::Load(const CharacterSaveData &cs) {
 
 SDL_Scancode
 KeyboardGameInstance::FindKeyByVal(const std::string &target_val) {
-  for (const auto &[scancode, binding] : data) {
+  for (const auto &[scancode, binding] : data_) {
     if (binding.val == target_val) {
       return scancode;
     }
@@ -350,21 +350,21 @@ void KeyboardGameInstance::InsertInput(SDL_Scancode c, GameInput i) {
   switch (c) {
   case SDL_SCANCODE_LCTRL:
   case SDL_SCANCODE_RCTRL:
-    data[SDL_SCANCODE_LCTRL] = i;
-    data[SDL_SCANCODE_RCTRL] = i;
+    data_[SDL_SCANCODE_LCTRL] = i;
+    data_[SDL_SCANCODE_RCTRL] = i;
     break;
   case SDL_SCANCODE_LALT:
   case SDL_SCANCODE_RALT:
-    data[SDL_SCANCODE_LALT] = i;
-    data[SDL_SCANCODE_RALT] = i;
+    data_[SDL_SCANCODE_LALT] = i;
+    data_[SDL_SCANCODE_RALT] = i;
     break;
   case SDL_SCANCODE_LSHIFT:
   case SDL_SCANCODE_RSHIFT:
-    data[SDL_SCANCODE_LSHIFT] = i;
-    data[SDL_SCANCODE_RSHIFT] = i;
+    data_[SDL_SCANCODE_LSHIFT] = i;
+    data_[SDL_SCANCODE_RSHIFT] = i;
     break;
   default:
-    data[c] = i;
+    data_[c] = i;
     break;
   }
 }
@@ -373,41 +373,41 @@ void KeyboardGameInstance::EraseInput(SDL_Scancode c) {
   switch (c) {
   case SDL_SCANCODE_LCTRL:
   case SDL_SCANCODE_RCTRL:
-    data.erase(SDL_SCANCODE_LCTRL);
-    data.erase(SDL_SCANCODE_RCTRL);
+    data_.erase(SDL_SCANCODE_LCTRL);
+    data_.erase(SDL_SCANCODE_RCTRL);
     break;
   case SDL_SCANCODE_LALT:
   case SDL_SCANCODE_RALT:
-    data.erase(SDL_SCANCODE_LALT);
-    data.erase(SDL_SCANCODE_RALT);
+    data_.erase(SDL_SCANCODE_LALT);
+    data_.erase(SDL_SCANCODE_RALT);
     break;
   case SDL_SCANCODE_LSHIFT:
   case SDL_SCANCODE_RSHIFT:
-    data.erase(SDL_SCANCODE_LSHIFT);
-    data.erase(SDL_SCANCODE_RSHIFT);
+    data_.erase(SDL_SCANCODE_LSHIFT);
+    data_.erase(SDL_SCANCODE_RSHIFT);
     break;
   default:
-    data.erase(c);
+    data_.erase(c);
     break;
   }
 }
 
 void KeyboardGameInstance::EraseInput(GameInput i) {
-  std::erase_if(data, [&](const auto &kv) {
+  std::erase_if(data_, [&](const auto &kv) {
     return kv.second == i; // 举例字段
   });
 }
 
 std::optional<GameInput> KeyboardGameInstance::LoadCursorInput() {
-  if (!CursorGameInstance::cursor_hand.has_value()) {
+  if (!CursorGameInstance::cursor_hand_.has_value()) {
     return std::nullopt;
   }
-  auto &cursor_hand = CursorGameInstance::cursor_hand.value();
+  auto &cursor_hand = CursorGameInstance::cursor_hand_.value();
   std::string id;
   switch (cursor_hand.type) {
   case CursorGameInstance::CursorHandType::kKeybind: {
-    if (KeyboardGameInstance::data.contains((SDL_Scancode)cursor_hand.val)) {
-      return KeyboardGameInstance::data.at((SDL_Scancode)cursor_hand.val);
+    if (KeyboardGameInstance::data_.contains((SDL_Scancode)cursor_hand.val)) {
+      return KeyboardGameInstance::data_.at((SDL_Scancode)cursor_hand.val);
     } else {
       return FindInputByCursor(cursor_hand.sub_val);
     }
@@ -415,7 +415,7 @@ std::optional<GameInput> KeyboardGameInstance::LoadCursorInput() {
   }
   case CursorGameInstance::CursorHandType::kPackage: {
     auto &item =
-        PackageGameInstance::data[cursor_hand.val][cursor_hand.sub_val];
+        PackageGameInstance::data_[cursor_hand.val][cursor_hand.sub_val];
     id = std::string{item->id.begin(), item->id.end()};
     if (id.starts_with("02")) {
       if (id.starts_with("0204") || id.starts_with("0206") ||

@@ -3,14 +3,14 @@
 #include "wz/Property.h"
 
 void ClockGameInstance::Load(wz::Node *image) {
-  data = {};
+  data_ = {};
   if (auto n = image->get_child(u"clock")) {
     SDL_FRect r;
     r.x = static_cast<wz::Property<int> *>(n->get_child(u"x"))->get();
     r.y = static_cast<wz::Property<int> *>(n->get_child(u"y"))->get();
     r.w = static_cast<wz::Property<int> *>(n->get_child(u"width"))->get();
     r.h = static_cast<wz::Property<int> *>(n->get_child(u"height"))->get();
-    data.push_back(r);
+    data_.push_back(r);
   }
 }
 

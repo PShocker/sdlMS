@@ -15,102 +15,102 @@ private:
   static bool Upgrade();
 
   // ============ 基础战斗资源 ============
-  static inline int32_t hp_point = INT32_MAX;
-  static inline int32_t hp_point_max = INT32_MAX;
-  static inline int32_t mp_point = INT32_MAX;
-  static inline int32_t mp_point_max = INT32_MAX;
-  static inline uint64_t exp_point = 0;
-  static inline uint64_t exp_point_max = UINT64_MAX;
+  static inline int32_t hp_point_ = INT32_MAX;
+  static inline int32_t hp_point_max_ = INT32_MAX;
+  static inline int32_t mp_point_ = INT32_MAX;
+  static inline int32_t mp_point_max_ = INT32_MAX;
+  static inline uint64_t exp_point_ = 0;
+  static inline uint64_t exp_point_max_ = UINT64_MAX;
 
   // ============ 主属性 ============
-  static inline uint32_t str_point = 0;
-  static inline uint32_t dex_point = 0;
-  static inline uint32_t int_point = 0;
-  static inline uint32_t luk_point = 0;
+  static inline uint32_t str_point_ = 0;
+  static inline uint32_t dex_point_ = 0;
+  static inline uint32_t int_point_ = 0;
+  static inline uint32_t luk_point_ = 0;
 
   // ============ 攻击相关 ============
-  static inline uint32_t min_atk = 0;
-  static inline uint32_t max_atk = 0;
-  static inline uint32_t crit_rate = 0;
-  static inline uint32_t crit_damage = 0;
+  static inline uint32_t min_atk_ = 0;
+  static inline uint32_t max_atk_ = 0;
+  static inline uint32_t crit_rate_ = 0;
+  static inline uint32_t crit_damage_ = 0;
 
   // ============ 命中 / 回避 ============
-  static inline uint32_t accuracy = 0; // 命中
-  static inline uint32_t avoid = 0;    // 回避
+  static inline uint32_t accuracy_ = 0; // 命中
+  static inline uint32_t avoid_ = 0;    // 回避
 
   // ============ 防御 ============
-  static inline int32_t attack_def = 0;
-  static inline int32_t magic_def = 0;
+  static inline int32_t attack_def_ = 0;
+  static inline int32_t magic_def_ = 0;
 
   // ============ 攻击 / 魔法 ============
-  static inline int32_t attack = 0;
-  static inline int32_t magic = 0;
+  static inline int32_t attack_ = 0;
+  static inline int32_t magic_ = 0;
 
   // ============ AP 加点 ============
-  static inline uint32_t hp_ap = 0;
-  static inline uint32_t mp_ap = 0;
-  static inline uint32_t str_ap = 0;
-  static inline uint32_t dex_ap = 0;
-  static inline uint32_t int_ap = 0;
-  static inline uint32_t luk_ap = 0;
+  static inline uint32_t hp_ap_ = 0;
+  static inline uint32_t mp_ap_ = 0;
+  static inline uint32_t str_ap_ = 0;
+  static inline uint32_t dex_ap_ = 0;
+  static inline uint32_t int_ap_ = 0;
+  static inline uint32_t luk_ap_ = 0;
 
   // ============ 技能加成 (ski_) ============
-  static inline int64_t ski_hp = 0;
-  static inline int64_t ski_mp = 0;
-  static inline int64_t ski_str = 0;
-  static inline int64_t ski_dex = 0;
-  static inline int64_t ski_int = 0;
-  static inline int64_t ski_luk = 0;
-  static inline int64_t ski_pro = 0; // 熟练度
+  static inline int64_t ski_hp_ = 0;
+  static inline int64_t ski_mp_ = 0;
+  static inline int64_t ski_str_ = 0;
+  static inline int64_t ski_dex_ = 0;
+  static inline int64_t ski_int_ = 0;
+  static inline int64_t ski_luk_ = 0;
+  static inline int64_t ski_pro_ = 0; // 熟练度
 
-  static inline uint32_t ski_accuracy = 0; // 命中
-  static inline uint32_t ski_avoid = 0;    // 回避
-  static inline uint32_t ski_exp = 0;
+  static inline uint32_t ski_accuracy_ = 0; // 命中
+  static inline uint32_t ski_avoid_ = 0;    // 回避
+  static inline uint32_t ski_exp_ = 0;
 
-  static inline int32_t ski_attack_def = 0;
-  static inline int32_t ski_magic_def = 0;
+  static inline int32_t ski_attack_def_ = 0;
+  static inline int32_t ski_magic_def_ = 0;
 
   // ============ 装备加成 (eqp_) ============
-  static inline int64_t eqp_hp = 0;
-  static inline int64_t eqp_mp = 0;
-  static inline int64_t eqp_str = 0;
-  static inline int64_t eqp_dex = 0;
-  static inline int64_t eqp_int = 0;
-  static inline int64_t eqp_luk = 0;
-  static inline int64_t eqp_pro = 0; // 熟练度
+  static inline int64_t eqp_hp_ = 0;
+  static inline int64_t eqp_mp_ = 0;
+  static inline int64_t eqp_str_ = 0;
+  static inline int64_t eqp_dex_ = 0;
+  static inline int64_t eqp_int_ = 0;
+  static inline int64_t eqp_luk_ = 0;
+  static inline int64_t eqp_pro_ = 0; // 熟练度
 
-  static inline uint32_t eqp_accuracy = 0; // 命中
-  static inline uint32_t eqp_avoid = 0;    // 回避
+  static inline uint32_t eqp_accuracy_ = 0; // 命中
+  static inline uint32_t eqp_avoid_ = 0;    // 回避
 
-  static inline uint32_t eqp_attack = 0; // pad
-  static inline uint32_t eqp_magic = 0;
+  static inline uint32_t eqp_attack_ = 0; // pad
+  static inline uint32_t eqp_magic_ = 0;
 
-  static inline int32_t eqp_attack_def = 0;
-  static inline int32_t eqp_magic_def = 0;
+  static inline int32_t eqp_attack_def_ = 0;
+  static inline int32_t eqp_magic_def_ = 0;
 
-  static inline uint32_t eqp_exp = 0;
+  static inline uint32_t eqp_exp_ = 0;
 
   // ============ 道具加成 (itm_) ============
-  static inline int64_t itm_hp = 0;
-  static inline int64_t itm_mp = 0;
-  static inline int64_t itm_str = 0;
-  static inline int64_t itm_dex = 0;
-  static inline int64_t itm_int = 0;
-  static inline int64_t itm_luk = 0;
-  static inline int64_t itm_pro = 0; // 熟练度
+  static inline int64_t itm_hp_ = 0;
+  static inline int64_t itm_mp_ = 0;
+  static inline int64_t itm_str_ = 0;
+  static inline int64_t itm_dex_ = 0;
+  static inline int64_t itm_int_ = 0;
+  static inline int64_t itm_luk_ = 0;
+  static inline int64_t itm_pro_ = 0; // 熟练度
 
-  static inline uint32_t itm_accuracy = 0; // 命中
-  static inline uint32_t itm_avoid = 0;    // 回避
+  static inline uint32_t itm_accuracy_ = 0; // 命中
+  static inline uint32_t itm_avoid_ = 0;    // 回避
 
-  static inline uint32_t itm_attack = 0; // pad
-  static inline uint32_t itm_magic = 0;
-  static inline uint32_t itm_exp = 0;
+  static inline uint32_t itm_attack_ = 0; // pad
+  static inline uint32_t itm_magic_ = 0;
+  static inline uint32_t itm_exp_ = 0;
 
-  static inline int32_t itm_attack_def = 0;
-  static inline int32_t itm_magic_def = 0;
+  static inline int32_t itm_attack_def_ = 0;
+  static inline int32_t itm_magic_def_ = 0;
 
   // ============ 剩余 AP ============
-  static inline uint32_t remain_ap = 100;
+  static inline uint32_t remain_ap_ = 100;
 
   static void UpdateSfSkillStat();
   static void UpdateSfEquipStat();

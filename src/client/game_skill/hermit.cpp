@@ -29,20 +29,20 @@ static void Erduantiao() {
   g_skill.frame = []() { return; };
 
   g_skill.use = [g_skill](uint64_t client_id, int ski_lv) mutable {
-    auto &ski = SkillGameInstance::ski;
-    auto &sf = CharacterGameInstance::self;
+    auto &ski = SkillGameInstance::ski_;
+    auto &sf = CharacterGameInstance::self_;
     auto action_type = CharacterLogicSystem::LoadActionType(sf);
     if (action_type != CharacterLogicSystem::ActionEnum::kJump) {
       return;
     }
-    CharacterLogicSystem::self_vspeed -= 420;
+    CharacterLogicSystem::self_vspeed_ -= 420;
     if (sf.flip == 1) {
       // 朝右
-      CharacterLogicSystem::self_hspeed += 480;
+      CharacterLogicSystem::self_hspeed_ += 480;
     } else {
-      CharacterLogicSystem::self_hspeed -= 480;
+      CharacterLogicSystem::self_hspeed_ -= 480;
     }
-    CharacterLogicSystem::self_two_jump_cooldown = UINT64_MAX;
+    CharacterLogicSystem::self_two_jump_cooldown_ = UINT64_MAX;
     auto ckt = SkillGameInstance::CreateSkillPayload(4111005, ski_lv);
     ckt.x = sf.pos.x;
     ckt.y = sf.pos.y;
@@ -50,7 +50,7 @@ static void Erduantiao() {
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0,
                                           ckt.x, ckt.y, ckt.flip);
     ClientRequest::send_to_host(ckt);
-    SkillGameInstance::Skis()[u"4111005"].cd = Window::dt_now + 100;
+    SkillGameInstance::Skis()[u"4111005"].cd = Window::dt_now_ + 100;
   };
 
   auto &Skis = SkillGameInstance::Skis();
@@ -61,7 +61,7 @@ static void Dafeibiao() {
   GameSkill g_skill;
   g_skill.id = u"4111004";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
-    auto &sf = CharacterGameInstance::self;
+    auto &sf = CharacterGameInstance::self_;
     CharacterLogicSystem::RunAction(sf, u"avenger");
     auto delay = SkillGameInstance::LoadSkiTime(sf);
     auto ski_lvl2 = std::to_string(ski_lv);
@@ -91,7 +91,7 @@ static void Dafeibiao() {
     if (!cm.data.empty()) {
       for (auto &data : cm.data) {
         cct.payload->ball->mob_index = data.mob.index;
-        auto mob_pos = MobGameInstance::data.at(data.mob.index).mob.pos;
+        auto mob_pos = MobGameInstance::data_.at(data.mob.index).mob.pos;
         cct.payload->ball->y1 = mob_pos.y;
         cct.payload->ball->x2 = 0;
         cct.payload->ball->y2 = 0;

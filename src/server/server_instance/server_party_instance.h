@@ -14,7 +14,7 @@ private:
   static ServerParty &LoadParty(uint64_t captain_id);
 
 public:
-  static inline std::flat_map<uint64_t, ServerParty> data;
+  static inline std::flat_map<uint64_t, ServerParty> data_;
 
   static std::optional<ServerParty> LoadClientParty(uint64_t client_id);
 

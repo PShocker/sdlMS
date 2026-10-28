@@ -13,5 +13,5 @@ class DropGameInstance {
 public:
   static void Reset();
 
-  static inline std::flat_map<uint64_t, GameDrop> data;
+  static inline std::flat_map<uint64_t, GameDrop> data_;
 };

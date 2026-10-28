@@ -12,10 +12,10 @@ void ServerTradeInstance::HandleClient(uint64_t client_id,
                                           ClientCharacterTradeT &r) {
   switch (r.step) {
   case 0: {
-    if (ServerClientInstance::clients.contains(r.to_id)) {
+    if (ServerClientInstance::clients_.contains(r.to_id)) {
       ServerCharacterTradeT sct;
       sct.step = 0;
-      const auto client_t = ServerClientInstance::clients[client_id].player_t;
+      const auto client_t = ServerClientInstance::clients_[client_id].player_t;
       sct.player = std::make_unique<PlayerT>(client_t);
       ServerResponse::send_to_client(r.to_id, sct);
     }
@@ -23,8 +23,8 @@ void ServerTradeInstance::HandleClient(uint64_t client_id,
   }
   case 1: {
     // 建立交易
-    const auto to_t = ServerClientInstance::clients[r.to_id].player_t;
-    const auto client_t = ServerClientInstance::clients[client_id].player_t;
+    const auto to_t = ServerClientInstance::clients_[r.to_id].player_t;
+    const auto client_t = ServerClientInstance::clients_[client_id].player_t;
     ServerCharacterTradeT sct;
     sct.step = 1;
     sct.player = std::make_unique<PlayerT>(client_t);
@@ -45,7 +45,7 @@ void ServerTradeInstance::HandleServer(uint64_t client_id,
   }
   case 1: {
     //  建立交易
-    TradeUiSystem::other =
+    TradeUiSystem::other_ =
         ServerCharacterInstance::LoadGCharacter(r.player->character);
     TradeUiSystem::Close();
     TradeUiSystem::Open();

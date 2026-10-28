@@ -7,14 +7,14 @@
 #include <string>
 
 void JobSkillGameInstance::Load(const CharacterSaveData &cs) {
-  skill_point = cs.sp.ski_sp;
+  skill_point_ = cs.sp.ski_sp;
   remain_point = cs.remain_sp;
 }
 
 uint8_t JobSkillGameInstance::LoadSkiLevel(const std::u16string &id) {
   auto ski_id = std::stoi(std::string(id.begin(), id.end()));
-  if (skill_point.contains(ski_id)) {
-    return skill_point.at(ski_id);
+  if (skill_point_.contains(ski_id)) {
+    return skill_point_.at(ski_id);
   } else {
     return 1;
   }
@@ -142,7 +142,7 @@ wz::WzMap JobSkillGameInstance::LoadJobSkis(JobType type) {
   wz::WzMap r;
   auto job = JobSkillGameInstance::LoadJobId(type);
   // 根据active_tab获取技能组
-  auto skill_node = WzResource::skill->find(job + u".img");
+  auto skill_node = WzResource::skill_->find(job + u".img");
   skill_node = skill_node->get_child(u"skill");
   r = skill_node->children;
   // 删除所有长度大于5的key

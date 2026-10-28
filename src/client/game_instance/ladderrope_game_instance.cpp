@@ -4,7 +4,7 @@
 #include "wz/Property.h"
 
 void LadderropeGameInstance::Load(uint32_t map_id) {
-  data.clear();
+  data_.clear();
   auto map_node = WzResource::LoadMapNode(map_id);
   auto map_ladder_node = map_node->get_child(u"ladderRope");
   for (auto [key, val] : *map_ladder_node->get_children()) {
@@ -30,6 +30,6 @@ void LadderropeGameInstance::Load(uint32_t map_id) {
     g_ladderrope.t = std::min(g_ladderrope.y1, g_ladderrope.y2);
     g_ladderrope.b = std::max(g_ladderrope.y1, g_ladderrope.y2);
 
-    data.emplace(id, g_ladderrope);
+    data_.emplace(id, g_ladderrope);
   }
 }

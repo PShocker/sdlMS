@@ -21,5 +21,5 @@ public:
   static void HandleScene(uint64_t client_id, ClientSceneT client_scene);
 
   //   注意，地图可能存在组队地图，如果是组队图，高32位是原始地图id，低32是组队地图的组队号
-  static inline std::flat_map<uint64_t, ServerSceneState> scenes;
+  static inline std::flat_map<uint64_t, ServerSceneState> scenes_;
 };

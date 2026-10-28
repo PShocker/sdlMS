@@ -20,12 +20,12 @@ bool PortalRenderSystem::RenderPortal(GamePortal &g_portal) {
   }
   auto path = g_portal.path + g_portal.path2;
 
-  auto portal_node = WzResource::map->find(path);
+  auto portal_node = WzResource::map_->find(path);
   auto portal_pos = g_portal.pos;
   wz::Node *texture_node;
   if (portal_node->get_child(u"portalStart")) {
     // 三段式传送门
-    auto self_character = CharacterGameInstance::self;
+    auto self_character = CharacterGameInstance::self_;
     auto distance_x = (portal_pos.x - self_character.pos.x);
     auto distance_y = (portal_pos.y - self_character.pos.y);
     auto distance = distance_x * distance_x + distance_y * distance_y;
@@ -54,17 +54,17 @@ bool PortalRenderSystem::RenderPortal(GamePortal &g_portal) {
       .w = static_cast<float>(texture->w),
       .h = static_cast<float>(texture->h),
   };
-  auto &camera = CameraGameInstance::camera;
+  auto &camera = CameraGameInstance::camera_;
   if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
     pos_rect.x -= camera.x;
     pos_rect.y -= camera.y;
-    SDL_RenderTexture(Window::renderer, texture, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer_, texture, nullptr, &pos_rect);
   }
   return true;
 }
 
 void PortalRenderSystem::RenderNametag(GamePortal &g_portal) {
-  if (g_portal.tm == SceneSystemInstance::map_id) {
+  if (g_portal.tm == SceneSystemInstance::map_id_) {
     return;
   }
   if (g_portal.tm == 999999999) {

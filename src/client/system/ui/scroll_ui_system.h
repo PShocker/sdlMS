@@ -9,7 +9,7 @@ public:
                              int32_t length, bool top, uint32_t size);
   static uint32_t ClickVscroll(float x, float y, uint32_t val, uint32_t count,
                                 int32_t length, bool top,
-                                SDL_FPoint mouse = Window::mouse_pos);
+                                SDL_FPoint mouse = Window::mouse_pos_);
   static bool ClickThumb(float x, float y, int32_t length,
-                          SDL_FPoint mouse = Window::mouse_pos);
+                          SDL_FPoint mouse = Window::mouse_pos_);
 };

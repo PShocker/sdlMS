@@ -8,7 +8,7 @@
 #include <string>
 class NpcDlgUiSystem {
 private:
-  static inline int8_t select_mouse = -1;
+  static inline int8_t select_mouse_ = -1;
   static void ResetPos();
 
   static void RenderBackgrnd();
@@ -50,24 +50,24 @@ public:
 
   static void Toggle();
 
-  static inline SDL_FPoint pos;
+  static inline SDL_FPoint pos_;
 
-  static inline std::u16string npc_id;
-  static inline std::u16string text;
-  static inline std::u16string quest_id;
-  static inline std::u16string quest_index;
-  static inline std::u16string script_id;
+  static inline std::u16string npc_id_;
+  static inline std::u16string text_;
+  static inline std::u16string quest_id_;
+  static inline std::u16string quest_index_;
+  static inline std::u16string script_id_;
 
-  static inline int8_t index;
-  static inline int8_t max_index;
+  static inline int8_t index_;
+  static inline int8_t max_index_;
 
-  static inline int8_t select;
-  static inline int8_t max_select;
+  static inline int8_t select_;
+  static inline int8_t max_select_;
 
-  static inline std::flat_map<std::u16string, int> act_item;
-  static inline std::flat_map<std::u16string, int> act_random_item;
-  static inline int32_t act_meso;
-  static inline uint32_t act_exp;
+  static inline std::flat_map<std::u16string, int> act_item_;
+  static inline std::flat_map<std::u16string, int> act_random_item_;
+  static inline int32_t act_meso_;
+  static inline uint32_t act_exp_;
 
   enum class NpcDlgEnum {
     kQuest,
@@ -86,8 +86,8 @@ public:
 
     kQuestComplete,
   };
-  static inline NpcDlgEnum type;
+  static inline NpcDlgEnum type_;
 
-  static inline uint64_t time;
-  static inline std::function<void()> cb;
+  static inline uint64_t time_;
+  static inline std::function<void()> cb_;
 };

@@ -44,8 +44,8 @@ private:
   static void EventButtonChatlog();
 
 public:
-  static inline std::optional<GameChatEnum> chat_type;
-  static inline TextInput chat;
+  static inline std::optional<GameChatEnum> chat_type_;
+  static inline TextInput chat_;
 
   static void Reset();
   static bool Render();

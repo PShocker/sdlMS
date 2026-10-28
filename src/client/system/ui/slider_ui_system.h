@@ -11,5 +11,5 @@ public:
   static std::optional<int> ClickThumb(int x, int y, uint32_t val,
                                         uint32_t count, int32_t length,
                                         bool top,
-                                        SDL_FPoint mouse = Window::mouse_pos);
+                                        SDL_FPoint mouse = Window::mouse_pos_);
 };

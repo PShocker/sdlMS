@@ -12,31 +12,31 @@ SDL_FPoint ScreenNoticeUiSystem::LoadWh() { return {209, 289}; }
 
 void ScreenNoticeUiSystem::RenderBackgrnd() {
   auto [w, h] = LoadWh();
-  auto n = WzResource::ui->find(u"UIWindow.img/FloatNotice/" + path);
+  auto n = WzResource::ui_->find(u"UIWindow.img/FloatNotice/" + path_);
   auto l = WzResource::LoadTexture(n->get_child(u"0"));
   auto m = WzResource::LoadTexture(n->get_child(u"1"));
   auto r = WzResource::LoadTexture(n->get_child(u"2"));
   SDL_FRect pos_rect{
-      pos.x,
-      pos.y,
+      pos_.x,
+      pos_.y,
       static_cast<float>(l->w),
       static_cast<float>(l->h),
   };
-  SDL_RenderTexture(Window::renderer, l, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, l, nullptr, &pos_rect);
   pos_rect = {
-      pos.x + l->w,
-      pos.y,
+      pos_.x + l->w,
+      pos_.y,
       static_cast<float>(w - l->w - r->w),
       static_cast<float>(m->h),
   };
-  SDL_RenderTextureTiled(Window::renderer, m, nullptr, 1, &pos_rect);
+  SDL_RenderTextureTiled(Window::renderer_, m, nullptr, 1, &pos_rect);
   pos_rect = {
-      pos.x,
-      pos.y,
+      pos_.x,
+      pos_.y,
       static_cast<float>(r->w),
       static_cast<float>(r->h),
   };
-  SDL_RenderTexture(Window::renderer, r, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, r, nullptr, &pos_rect);
 }
 
 void ScreenNoticeUiSystem::RenderText() {
@@ -48,15 +48,15 @@ void ScreenNoticeUiSystem::RenderText() {
 
 void ScreenNoticeUiSystem::Open() {
   auto it =
-      std::ranges::find(System::render_systems, &CursorRenderSystem::Render);
-  if (it != System::render_systems.end()) {
+      std::ranges::find(System::render_systems_, &CursorRenderSystem::Render);
+  if (it != System::render_systems_.end()) {
     auto wh = LoadWh();
-    auto &camera = CameraGameInstance::camera;
-    pos.x = (camera.w - wh.x) / 2;
-    pos.y = (camera.h - wh.y) / 2;
+    auto &camera = CameraGameInstance::camera_;
+    pos_.x = (camera.w - wh.x) / 2;
+    pos_.y = (camera.h - wh.y) / 2;
 
-    System::render_systems.insert(it, Render);
-    System::event_systems.insert(System::event_systems.begin(), Event);
+    System::render_systems_.insert(it, Render);
+    System::event_systems_.insert(System::event_systems_.begin(), Event);
   }
 }
 
@@ -69,6 +69,6 @@ bool ScreenNoticeUiSystem::Render() {
 bool ScreenNoticeUiSystem::Event(SDL_Event *Event) { return true; }
 
 void ScreenNoticeUiSystem::Close() {
-  std::erase(System::render_systems, Render);
-  std::erase(System::event_systems, Event);
+  std::erase(System::render_systems_, Render);
+  std::erase(System::event_systems_, Event);
 }

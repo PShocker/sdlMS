@@ -21,7 +21,7 @@
 
 bool NpcLogicSystem::RunAnimate(GameNpc &g_npc) {
   bool r = false;
-  g_npc.ani_time += Window::delta_time;
+  g_npc.ani_time += Window::delta_time_;
   auto npc_node = NpcGameInstance::LoadLinkNpcNode(g_npc.id);
   auto action_node = npc_node->get_child(g_npc.action);
 
@@ -49,7 +49,7 @@ bool NpcLogicSystem::RunAnimate(GameNpc &g_npc) {
 }
 
 bool NpcLogicSystem::RunDuration(GameNpc &g_npc) {
-  if (g_npc.duration > Window::dt_now) {
+  if (g_npc.duration > Window::dt_now_) {
     return false;
   }
   auto npc_node = NpcGameInstance::LoadLinkNpcNode(g_npc.id);
@@ -68,12 +68,12 @@ bool NpcLogicSystem::RunDuration(GameNpc &g_npc) {
     bool random_bool = dist(gen);
     g_npc.hforce = random_bool ? 1400 : -1400;
     g_npc.hspeed = 0.0f;
-    g_npc.duration = Window::dt_now + 5000;
+    g_npc.duration = Window::dt_now_ + 5000;
     g_npc.flip = random_bool;
   } else {
     g_npc.hforce = std::nullopt;
     g_npc.hspeed = std::nullopt;
-    g_npc.duration = Window::dt_now + 2000;
+    g_npc.duration = Window::dt_now_ + 2000;
   }
   return true;
 }
@@ -86,7 +86,7 @@ bool NpcLogicSystem::RunChatballoon(GameNpc &g_npc) {
   }
   if (g_npc.chatballoon.has_value()) {
     auto &chatballoon = g_npc.chatballoon.value();
-    if (chatballoon.destroy < Window::dt_now) {
+    if (chatballoon.destroy < Window::dt_now_) {
       g_npc.chatballoon = std::nullopt;
     }
   } else {
@@ -108,7 +108,7 @@ bool NpcLogicSystem::RunChatballoon(GameNpc &g_npc) {
     }
 
     GameChatballoon c;
-    c.destroy = Window::dt_now + random_number;
+    c.destroy = Window::dt_now_ + random_number;
     c.path = u"0";
     c.pos = {0, 0};
     c.size = 14;
@@ -118,7 +118,7 @@ bool NpcLogicSystem::RunChatballoon(GameNpc &g_npc) {
         g_npc.id | std::views::drop_while([](char16_t c) { return c == u'0'; });
 
     std::u16string result(view.begin(), view.end());
-    auto str_node = WzResource::string->find(u"Npc.img/" + result);
+    auto str_node = WzResource::string_->find(u"Npc.img/" + result);
     auto child = *str_node->get_children();
     std::vector<std::u16string> intersection;
 
@@ -140,16 +140,16 @@ bool NpcLogicSystem::RunChatballoon(GameNpc &g_npc) {
 
 bool NpcLogicSystem::RunMove(GameNpc &g_npc) {
   // 移动
-  auto delta_time = Window::delta_time / 1000.0f;
+  auto delta_time = Window::delta_time_ / 1000.0f;
   float vspeed = 0;
   auto border =
-      MapInfoGameInstance::LoadMrBorder(SceneSystemInstance::map_id);
+      MapInfoGameInstance::LoadMrBorder(SceneSystemInstance::map_id_);
   border.x = g_npc.rx0;
   border.w = g_npc.rx1;
   auto force = g_npc.hforce.value();
   auto r = Physic::Walk(g_npc.pos, delta_time, g_npc.hspeed.value(), vspeed,
                         force, -100, 100, 800, false, g_npc.fh, border,
-                        FootholdGameInstance::data);
+                        FootholdGameInstance::data_);
   return r;
 }
 
@@ -162,7 +162,7 @@ NpcLogicSystem::LoadActionType(GameNpc &g_npc) {
 }
 
 bool NpcLogicSystem::Run() {
-  for (auto &m : NpcGameInstance::data) {
+  for (auto &m : NpcGameInstance::data_) {
     for (auto &g_npc : m) {
       RunChatballoon(g_npc);
       auto action_type = LoadActionType(g_npc);

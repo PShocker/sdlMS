@@ -110,7 +110,7 @@ const static SDL_FPoint key_lt{5, 56};
 static std::optional<SDL_Scancode> backgrnd_key;
 
 void KeybindingUiSystem::RenderBackgrndKey() {
-  auto keys = WzResource::ui->find(u"KeyBindings.img/key");
+  auto keys = WzResource::ui_->find(u"KeyBindings.img/key");
   static const std::flat_map<SDL_Scancode, SDL_Texture *> key_textures = {
       {SDL_SCANCODE_ESCAPE, WzResource::LoadTexture(keys->get_child(u"1"))},
       {SDL_SCANCODE_1, WzResource::LoadTexture(keys->get_child(u"2"))},
@@ -205,21 +205,21 @@ void KeybindingUiSystem::RenderBackgrndKey() {
 
   };
   backgrnd_key = std::nullopt;
-  auto &mouse_pos = Window::mouse_pos;
+  auto &mouse_pos = Window::mouse_pos_;
   for (auto [k, v] : key_textures) {
     if (!mapped_scancode_position.contains(k)) {
       continue;
     }
     auto key_pos = mapped_scancode_position.at(k);
     // render icon
-    int x = pos.x + key_pos.x + key_lt.x;
-    int y = pos.y + key_pos.y + key_lt.y;
+    int x = pos_.x + key_pos.x + key_lt.x;
+    int y = pos_.y + key_pos.y + key_lt.y;
     SDL_FRect pp{static_cast<float>(x), static_cast<float>(y), 32, 32};
     if (SDL_PointInRectFloat(&mouse_pos, &pp)) {
       backgrnd_key = k;
     }
-    if (KeyboardGameInstance::data.contains(k)) {
-      const auto &input = KeyboardGameInstance::data.at(k);
+    if (KeyboardGameInstance::data_.contains(k)) {
+      const auto &input = KeyboardGameInstance::data_.at(k);
       QuickSlotUiSystem::RenderInputIcon(input, x - 1, y - 1);
     }
     SDL_FRect pos_rect{
@@ -231,25 +231,25 @@ void KeybindingUiSystem::RenderBackgrndKey() {
     // pos_rect.w = 32;
     // pos_rect.h = 32;
     // SDL_RenderFillRect(window::renderer, &pos_rect);
-    SDL_RenderTexture(Window::renderer, v, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer_, v, nullptr, &pos_rect);
   }
 }
 
 void KeybindingUiSystem::RenderBackgrnd() {
   static auto backgrnd = WzResource::LoadTexture(
-      WzResource::ui->find(u"KeyBindings.img/backgrnd"));
-  SDL_FRect pos_rect{pos.x, pos.y, static_cast<float>(backgrnd->w),
+      WzResource::ui_->find(u"KeyBindings.img/backgrnd"));
+  SDL_FRect pos_rect{pos_.x, pos_.y, static_cast<float>(backgrnd->w),
                      static_cast<float>(backgrnd->h)};
-  SDL_RenderTexture(Window::renderer, backgrnd, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, backgrnd, nullptr, &pos_rect);
   return;
 }
 
 void KeybindingUiSystem::RenderTab() {
-  static auto node = WzResource::ui->find(u"KeyBindings.img/tab:kind");
+  static auto node = WzResource::ui_->find(u"KeyBindings.img/tab:kind");
   const SDL_FPoint lt{9, 24};
   for (auto i : {0, 1}) {
     SDL_Texture *texture;
-    if (active_tab == i) {
+    if (active_tab_ == i) {
       texture = WzResource::LoadTexture(
           node->get_child(u"selected")->get_child(std::to_string(i)));
     } else {
@@ -257,41 +257,41 @@ void KeybindingUiSystem::RenderTab() {
           node->get_child(u"normal")->get_child(std::to_string(i)));
     }
     SDL_FRect pos_rect = {
-        int(pos.x) + lt.x + texture->w * i,
-        int(pos.y) + lt.y,
+        int(pos_.x) + lt.x + texture->w * i,
+        int(pos_.y) + lt.y,
         static_cast<float>(texture->w),
         static_cast<float>(texture->h),
     };
-    SDL_RenderTexture(Window::renderer, texture, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer_, texture, nullptr, &pos_rect);
   }
 }
 
 void KeybindingUiSystem::RenderBackgrnd2() {
   static auto backgrnd2 = WzResource::LoadTexture(
-      WzResource::ui->find(u"KeyBindings.img/backgrnd_keyboard"));
+      WzResource::ui_->find(u"KeyBindings.img/backgrnd_keyboard"));
   SDL_FPoint lt{9, 53};
   SDL_FRect pos_rect{
-      pos.x + lt.x,
-      pos.y + lt.y,
+      pos_.x + lt.x,
+      pos_.y + lt.y,
       static_cast<float>(backgrnd2->w),
       static_cast<float>(backgrnd2->h),
   };
-  SDL_RenderTexture(Window::renderer, backgrnd2, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, backgrnd2, nullptr, &pos_rect);
   return;
 }
 
 void KeybindingUiSystem::RenderButton() {
   const static std::array buttons_nodes = {
-      WzResource::ui->find(u"Basic.img/BtClose"),
-      WzResource::ui->find(u"KeyBindings.img/button:Default"),
-      WzResource::ui->find(u"KeyBindings.img/button:Delete"),
-      WzResource::ui->find(u"KeyBindings.img/button:quickslots"),
+      WzResource::ui_->find(u"Basic.img/BtClose"),
+      WzResource::ui_->find(u"KeyBindings.img/button:Default"),
+      WzResource::ui_->find(u"KeyBindings.img/button:Delete"),
+      WzResource::ui_->find(u"KeyBindings.img/button:quickslots"),
 
-      WzResource::ui->find(u"KeyBindings.img/button:presetPage1"),
-      WzResource::ui->find(u"KeyBindings.img/button:presetPage2"),
-      WzResource::ui->find(u"KeyBindings.img/button:presetPage3"),
-      WzResource::ui->find(u"KeyBindings.img/button:presetSave"),
-      WzResource::ui->find(u"KeyBindings.img/button:presetUndo"),
+      WzResource::ui_->find(u"KeyBindings.img/button:presetPage1"),
+      WzResource::ui_->find(u"KeyBindings.img/button:presetPage2"),
+      WzResource::ui_->find(u"KeyBindings.img/button:presetPage3"),
+      WzResource::ui_->find(u"KeyBindings.img/button:presetSave"),
+      WzResource::ui_->find(u"KeyBindings.img/button:presetUndo"),
   };
   auto wh = LoadWh();
   const std::array buttons_rect = {
@@ -311,25 +311,25 @@ void KeybindingUiSystem::RenderButton() {
   for (size_t i = 0; i < buttons_nodes.size(); ++i) {
     auto k = buttons_nodes[i];
     auto pos_rect = buttons_rect[i];
-    pos_rect.x += pos.x;
-    pos_rect.y += pos.y;
+    pos_rect.x += pos_.x;
+    pos_rect.y += pos_.y;
     pos_rect.x = (int)pos_rect.x;
     pos_rect.y = (int)pos_rect.y;
-    auto &mouse_pos = Window::mouse_pos;
+    auto &mouse_pos = Window::mouse_pos_;
     // 判断按钮是否被遮挡
     auto CursorIn = CursorGameInstance::cursor_ui;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && CursorIn == Render &&
         !CursorGameInstance::modal_overlay) {
-      if (Window::mouse_state & SDL_BUTTON_LMASK) {
+      if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
         auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
-        SDL_RenderTexture(Window::renderer, pressed, nullptr, &pos_rect);
+        SDL_RenderTexture(Window::renderer_, pressed, nullptr, &pos_rect);
       } else {
         auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
-        SDL_RenderTexture(Window::renderer, mouse_over, nullptr, &pos_rect);
+        SDL_RenderTexture(Window::renderer_, mouse_over, nullptr, &pos_rect);
       }
     } else {
       auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
-      SDL_RenderTexture(Window::renderer, normal, nullptr, &pos_rect);
+      SDL_RenderTexture(Window::renderer_, normal, nullptr, &pos_rect);
     }
   }
 }
@@ -385,8 +385,8 @@ void KeybindingUiSystem::RenderRemainKey() {
       {CursorGameInstance::CursorKeybindType::kKeybindActionLeft, SDL_FPoint{578, 34}},
       {CursorGameInstance::CursorKeybindType::kKeybindActionRight, SDL_FPoint{0, 68}},
   };
-  const auto &key_data = KeyboardGameInstance::data;
-  auto &mouse_pos = Window::mouse_pos;
+  const auto &key_data = KeyboardGameInstance::data_;
+  auto &mouse_pos = Window::mouse_pos_;
   for (auto [k, v] : m) {
     auto input =
         KeyboardGameInstance::FindInputByCursor(static_cast<int>(k));
@@ -394,8 +394,8 @@ void KeybindingUiSystem::RenderRemainKey() {
       continue;
     }
     SDL_FRect pos_rect;
-    pos_rect.x = (int)pos.x + remain_lt.x + v.x;
-    pos_rect.y = (int)pos.y + remain_lt.y + v.y;
+    pos_rect.x = (int)pos_.x + remain_lt.x + v.x;
+    pos_rect.y = (int)pos_.y + remain_lt.y + v.y;
     pos_rect.w = 32;
     pos_rect.h = 32;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
@@ -418,31 +418,31 @@ bool KeybindingUiSystem::Render() {
 
 void KeybindingUiSystem::Open() {
   auto it =
-      std::ranges::find(System::render_systems, &CursorRenderSystem::Render);
-  if (it != System::render_systems.end()) {
+      std::ranges::find(System::render_systems_, &CursorRenderSystem::Render);
+  if (it != System::render_systems_.end()) {
     auto wh = LoadWh();
-    auto &camera = CameraGameInstance::camera;
-    pos.x = (camera.w - wh.x) / 2;
-    pos.y = (camera.h - wh.y) / 2;
+    auto &camera = CameraGameInstance::camera_;
+    pos_.x = (camera.w - wh.x) / 2;
+    pos_.y = (camera.h - wh.y) / 2;
 
-    data_bak = KeyboardGameInstance::data;
+    data_bak = KeyboardGameInstance::data_;
 
-    System::render_systems.insert(it, Render);
-    System::event_systems.insert(System::event_systems.begin(), Event);
+    System::render_systems_.insert(it, Render);
+    System::event_systems_.insert(System::event_systems_.begin(), Event);
   }
 }
 
 void KeybindingUiSystem::Close() {
-  std::erase(System::render_systems, Render);
-  std::erase(System::render_systems, RenderInfo);
-  std::erase(System::event_systems, Event);
+  std::erase(System::render_systems_, Render);
+  std::erase(System::render_systems_, RenderInfo);
+  std::erase(System::event_systems_, Event);
 
   EventDragEnd();
 }
 
 void KeybindingUiSystem::EventButtonClose() {
   Close();
-  KeyboardGameInstance::data = data_bak;
+  KeyboardGameInstance::data_ = data_bak;
   return;
 }
 
@@ -452,7 +452,7 @@ void KeybindingUiSystem::EventButtonDefault() {
 }
 
 void KeybindingUiSystem::EventButtonDelete() {
-  KeyboardGameInstance::data.clear();
+  KeyboardGameInstance::data_.clear();
   return;
 }
 
@@ -493,12 +493,12 @@ void KeybindingUiSystem::EventMotionBtAudio(SDL_Event *Event) {
 
   };
   static int8_t bt_audio = -1;
-  auto &mouse_pos = Window::mouse_pos;
+  auto &mouse_pos = Window::mouse_pos_;
   int8_t bt_in = -1;
   for (size_t i = 0; i < buttons_rect.size(); ++i) {
     auto pos_rect = buttons_rect[i];
-    pos_rect.x += (int)pos.x;
-    pos_rect.y += (int)pos.y;
+    pos_rect.x += (int)pos_.x;
+    pos_rect.y += (int)pos_.y;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
       bt_in = i;
       break;
@@ -511,22 +511,22 @@ void KeybindingUiSystem::EventMotionBtAudio(SDL_Event *Event) {
 }
 
 void KeybindingUiSystem::EventBackgrndKey() {
-  if (CursorGameInstance::cursor_hand_net.has_value()) {
+  if (CursorGameInstance::cursor_hand_net_.has_value()) {
     return;
   }
   if (!backgrnd_key.has_value()) {
     return;
   }
   auto scan_code = backgrnd_key.value();
-  auto &cursor_hand = CursorGameInstance::cursor_hand;
+  auto &cursor_hand = CursorGameInstance::cursor_hand_;
   if (cursor_hand.has_value()) {
     auto input = KeyboardGameInstance::LoadCursorInput();
     KeyboardGameInstance::InsertInput(scan_code, input.value());
-    CursorGameInstance::cursor_hand = std::nullopt;
+    CursorGameInstance::cursor_hand_ = std::nullopt;
     AudioGameInstance::LoadAudio(u"UI.img/DragEnd", 0);
   } else {
-    if (KeyboardGameInstance::data.contains(scan_code)) {
-      CursorGameInstance::cursor_hand = {
+    if (KeyboardGameInstance::data_.contains(scan_code)) {
+      CursorGameInstance::cursor_hand_ = {
           .type = CursorGameInstance::CursorHandType::kKeybind,
           .val = scan_code,
       };
@@ -536,27 +536,27 @@ void KeybindingUiSystem::EventBackgrndKey() {
 }
 
 void KeybindingUiSystem::EventRemainKey() {
-  if (CursorGameInstance::cursor_hand_net.has_value()) {
+  if (CursorGameInstance::cursor_hand_net_.has_value()) {
     return;
   }
   const auto b_w = 1;
   const auto b_h = 1;
   SDL_FRect pos_rect;
-  pos_rect.x = pos.x + remain_lt.x;
-  pos_rect.y = pos.y + remain_lt.y;
+  pos_rect.x = pos_.x + remain_lt.x;
+  pos_rect.y = pos_.y + remain_lt.y;
   pos_rect.w = b_w;
   pos_rect.h = b_h;
-  auto &mouse_pos = Window::mouse_pos;
-  if (CursorGameInstance::cursor_hand.has_value()) {
+  auto &mouse_pos = Window::mouse_pos_;
+  if (CursorGameInstance::cursor_hand_.has_value()) {
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-      CursorGameInstance::cursor_hand = std::nullopt;
+      CursorGameInstance::cursor_hand_ = std::nullopt;
       AudioGameInstance::LoadAudio(u"UI.img/DragEnd", 0);
       return;
     }
   }
 
   if (remain_key.has_value()) {
-    CursorGameInstance::cursor_hand = {
+    CursorGameInstance::cursor_hand_ = {
         .type = CursorGameInstance::CursorHandType::kKeybind,
         .val = SDL_SCANCODE_UNKNOWN,
         .sub_val = remain_key.value(),
@@ -589,9 +589,9 @@ bool KeybindingUiSystem::EventButton(SDL_Event *Event) {
 
   for (size_t i = 0; i < buttons_rect.size(); ++i) {
     auto pos_rect = buttons_rect[i];
-    pos_rect.x += pos.x;
-    pos_rect.y += pos.y;
-    if (SDL_PointInRectFloat(&Window::mouse_pos, &pos_rect)) {
+    pos_rect.x += pos_.x;
+    pos_rect.y += pos_.y;
+    if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect)) {
       fns[i]();
       AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
       return true;
@@ -659,38 +659,38 @@ bool KeybindingUiSystem::Event(SDL_Event *Event) {
 }
 
 void KeybindingUiSystem::EventTop() {
-  std::erase(System::render_systems, Render);
-  std::erase(System::event_systems, Event);
+  std::erase(System::render_systems_, Render);
+  std::erase(System::event_systems_, Event);
   auto it =
-      std::ranges::find(System::render_systems, &CursorRenderSystem::Render);
-  if (it != System::render_systems.end()) {
-    System::render_systems.insert(it, Render);
-    System::event_systems.insert(System::event_systems.begin(), Event);
+      std::ranges::find(System::render_systems_, &CursorRenderSystem::Render);
+  if (it != System::render_systems_.end()) {
+    System::render_systems_.insert(it, Render);
+    System::event_systems_.insert(System::event_systems_.begin(), Event);
   }
 }
 
 void KeybindingUiSystem::EventDragStart(SDL_Event *Event) {
   auto wh = LoadWh();
-  SDL_FRect pos_rect = {pos.x, pos.y, wh.x, 20};
+  SDL_FRect pos_rect = {pos_.x, pos_.y, wh.x, 20};
   SDL_FPoint mouse_pos = {Event->button.x, Event->button.y};
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    drag = {pos.x - Event->button.x, pos.y - Event->button.y};
+    drag_ = {pos_.x - Event->button.x, pos_.y - Event->button.y};
   }
   return;
 }
 
 void KeybindingUiSystem::EventDragEnd() {
-  drag = std::nullopt;
+  drag_ = std::nullopt;
   return;
 }
 
 void KeybindingUiSystem::EventDragMove(SDL_Event *Event) {
-  if (drag.has_value()) {
-    pos = {Event->motion.x + drag->x, Event->motion.y + drag->y};
-    auto &camera = CameraGameInstance::camera;
+  if (drag_.has_value()) {
+    pos_ = {Event->motion.x + drag_->x, Event->motion.y + drag_->y};
+    auto &camera = CameraGameInstance::camera_;
     auto [w, h] = LoadWh();
-    pos.x = std::clamp(pos.x, (float)0, camera.w - w);
-    pos.y = std::clamp(pos.y, (float)0, camera.h - h);
+    pos_.x = std::clamp(pos_.x, (float)0, camera.w - w);
+    pos_.y = std::clamp(pos_.y, (float)0, camera.h - h);
   }
   return;
 }
@@ -698,7 +698,7 @@ void KeybindingUiSystem::EventDragMove(SDL_Event *Event) {
 void KeybindingUiSystem::Toggle() {
   AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
   auto fn = &Render;
-  if (std::ranges::contains(System::render_systems, fn)) {
+  if (std::ranges::contains(System::render_systems_, fn)) {
     Close();
   } else {
     Open();
@@ -707,8 +707,8 @@ void KeybindingUiSystem::Toggle() {
 
 bool KeybindingUiSystem::CursorIn() {
   auto [w, h] = LoadWh();
-  auto &mouse = Window::mouse_pos;
-  SDL_FRect pos_rect{pos.x, pos.y, w, h};
+  auto &mouse = Window::mouse_pos_;
+  SDL_FRect pos_rect{pos_.x, pos_.y, w, h};
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
@@ -719,7 +719,7 @@ bool KeybindingUiSystem::RenderInfo() {
   if (CursorGameInstance::cursor_ui != Render) {
     return true;
   }
-  if (CursorGameInstance::cursor_hand.has_value()) {
+  if (CursorGameInstance::cursor_hand_.has_value()) {
     return true;
   }
   if (remain_key.has_value()) {
@@ -878,14 +878,14 @@ bool KeybindingUiSystem::RenderInfo() {
       break;
     }
     }
-    auto &mouse_pos = Window::mouse_pos;
+    auto &mouse_pos = Window::mouse_pos_;
     SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
     TooltipUiSystem::RenderStr(text, show_pos.x, show_pos.y);
   } else if (backgrnd_key.has_value() &&
-             KeyboardGameInstance::data.contains(backgrnd_key.value())) {
+             KeyboardGameInstance::data_.contains(backgrnd_key.value())) {
     auto scan_code = backgrnd_key.value();
-    auto input = KeyboardGameInstance::data.at(scan_code);
-    auto &mouse_pos = Window::mouse_pos;
+    auto input = KeyboardGameInstance::data_.at(scan_code);
+    auto &mouse_pos = Window::mouse_pos_;
     SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
     if (input.type == "skill") {
       auto ski_id = input.val;
@@ -904,7 +904,7 @@ bool KeybindingUiSystem::RenderInfo() {
 }
 
 void KeybindingUiSystem::EventMotion(SDL_Event *Event) {
-  auto &sys = System::render_systems;
+  auto &sys = System::render_systems_;
   std::erase(sys, RenderInfo);
   auto it = std::ranges::find(sys, &CursorRenderSystem::Render);
   if (it != sys.end()) {

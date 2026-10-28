@@ -20,7 +20,7 @@ static void PowerStrke() {
   GameSkill g_skill;
   g_skill.id = u"1001001";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
-    auto &sf = CharacterGameInstance::self;
+    auto &sf = CharacterGameInstance::self_;
     CharacterLogicSystem::RunAttackAction(sf, false);
     SDL_FRect g_r = AfterimageGameInstance::LoadRect(sf).value();
     auto cm = CharacterLogicSystem::RunAttackCheck(sf, g_r);
@@ -43,7 +43,7 @@ static void SlashBlast() {
   GameSkill g_skill;
   g_skill.id = u"1001002";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
-    auto &sf = CharacterGameInstance::self;
+    auto &sf = CharacterGameInstance::self_;
     CharacterLogicSystem::RunAttackAction(sf, false);
     auto g_r = SkillGameInstance::LoadSkiR(u"1001002");
     auto cm = CharacterLogicSystem::RunAttackCheck(sf, g_r);

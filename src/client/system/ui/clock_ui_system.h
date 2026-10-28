@@ -13,10 +13,10 @@ public:
     kMin,
     kHour,
   };
-  static inline ClockEnum type = ClockEnum::kMin;
-  static inline uint64_t destroy;
+  static inline ClockEnum type_ = ClockEnum::kMin;
+  static inline uint64_t destroy_;
 
-  static inline SDL_FPoint pos;
+  static inline SDL_FPoint pos_;
   static bool Render();
 
   static void Open();

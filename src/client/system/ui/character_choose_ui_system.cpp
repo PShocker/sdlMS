@@ -36,7 +36,7 @@ SDL_FPoint CharacterChooseUiSystem::LoadPos() {
   SDL_FPoint pos;
   const auto w = 1366;
   const auto h = 768;
-  auto &camera = CameraGameInstance::camera;
+  auto &camera = CameraGameInstance::camera_;
   pos.x = (camera.w - w) / 2;
   pos.y = (camera.h - h) / 2;
   return pos;
@@ -44,49 +44,49 @@ SDL_FPoint CharacterChooseUiSystem::LoadPos() {
 
 void CharacterChooseUiSystem::RenderButton() {
   const static std::array buttons_nodes = {
-      WzResource::ui->find(u"Login.img/CharSelect/button:select"),
-      WzResource::ui->find(u"Login.img/CharSelect/button:new"),
-      WzResource::ui->find(u"Login.img/CharSelect/button:delete"),
+      WzResource::ui_->find(u"Login.img/CharSelect/button:select"),
+      WzResource::ui_->find(u"Login.img/CharSelect/button:new"),
+      WzResource::ui_->find(u"Login.img/CharSelect/button:delete"),
   };
   auto pos = LoadPos();
-  auto &camera = CameraGameInstance::camera;
+  auto &camera = CameraGameInstance::camera_;
   std::array buttons_rect = {
       SDL_FRect{146 - camera.x, -656 - camera.y, 129, 41},
       SDL_FRect{146 - camera.x, -607 - camera.y, 129, 45},
       SDL_FRect{146 - camera.x, -544 - camera.y, 129, 55},
   };
   std::vector<bool> disable = {
-      !choose.has_value(),
+      !choose_.has_value(),
       false,
-      !choose.has_value(),
+      !choose_.has_value(),
   };
   for (size_t i = 0; i < buttons_nodes.size(); ++i) {
     auto k = buttons_nodes[i];
     auto pos_rect = buttons_rect[i];
     pos_rect.x = (int)pos_rect.x;
     pos_rect.y = (int)pos_rect.y;
-    auto &mouse_pos = Window::mouse_pos;
+    auto &mouse_pos = Window::mouse_pos_;
     if (disable[i]) {
       auto d = WzResource::LoadTexture(k->find(u"disabled/0"));
-      SDL_RenderTexture(Window::renderer, d, nullptr, &pos_rect);
+      SDL_RenderTexture(Window::renderer_, d, nullptr, &pos_rect);
     } else if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-      if (Window::mouse_state & SDL_BUTTON_LMASK) {
+      if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
         auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
-        SDL_RenderTexture(Window::renderer, pressed, nullptr, &pos_rect);
+        SDL_RenderTexture(Window::renderer_, pressed, nullptr, &pos_rect);
       } else {
         auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
-        SDL_RenderTexture(Window::renderer, mouse_over, nullptr, &pos_rect);
+        SDL_RenderTexture(Window::renderer_, mouse_over, nullptr, &pos_rect);
       }
     } else {
       auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
-      SDL_RenderTexture(Window::renderer, normal, nullptr, &pos_rect);
+      SDL_RenderTexture(Window::renderer_, normal, nullptr, &pos_rect);
     }
   }
 }
 
 void CharacterChooseUiSystem::RenderBanner() {
   static auto t = WzResource::LoadTexture(
-      WzResource::ui->find(u"Login.img/LoginStart/StepBanner/CharSelect"));
+      WzResource::ui_->find(u"Login.img/LoginStart/StepBanner/CharSelect"));
   auto pos = LoadPos();
   SDL_FRect pos_rect{
       pos.x + 160,
@@ -94,10 +94,10 @@ void CharacterChooseUiSystem::RenderBanner() {
       static_cast<float>(t->w),
       static_cast<float>(t->h),
   };
-  SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
 
   const static std::array buttons_nodes = {
-      WzResource::ui->find(u"Login.img/LoginStart/BtClassicPrev"),
+      WzResource::ui_->find(u"Login.img/LoginStart/BtClassicPrev"),
   };
   std::array buttons_rect = {
       SDL_FRect{163 + pos.x, 574 + pos.y, 161, 69},
@@ -107,25 +107,25 @@ void CharacterChooseUiSystem::RenderBanner() {
     auto pos_rect = buttons_rect[i];
     pos_rect.x = (int)pos_rect.x;
     pos_rect.y = (int)pos_rect.y;
-    auto &mouse_pos = Window::mouse_pos;
+    auto &mouse_pos = Window::mouse_pos_;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-      if (Window::mouse_state & SDL_BUTTON_LMASK) {
+      if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
         auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
-        SDL_RenderTexture(Window::renderer, pressed, nullptr, &pos_rect);
+        SDL_RenderTexture(Window::renderer_, pressed, nullptr, &pos_rect);
       } else {
         auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
-        SDL_RenderTexture(Window::renderer, mouse_over, nullptr, &pos_rect);
+        SDL_RenderTexture(Window::renderer_, mouse_over, nullptr, &pos_rect);
       }
     } else {
       auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
-      SDL_RenderTexture(Window::renderer, normal, nullptr, &pos_rect);
+      SDL_RenderTexture(Window::renderer_, normal, nullptr, &pos_rect);
     }
   }
 }
 
 void CharacterChooseUiSystem::RenderBackgrnd() {
   static auto t = WzResource::LoadTexture(
-      WzResource::ui->find(u"Login.img/Common/classicFrame"));
+      WzResource::ui_->find(u"Login.img/Common/classicFrame"));
   auto pos = LoadPos();
   SDL_FRect pos_rect{
       pos.x,
@@ -133,7 +133,7 @@ void CharacterChooseUiSystem::RenderBackgrnd() {
       static_cast<float>(t->w),
       static_cast<float>(t->h),
   };
-  SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
 }
 
 void CharacterChooseUiSystem::RenderCharacter() {
@@ -143,9 +143,9 @@ void CharacterChooseUiSystem::RenderCharacter() {
       SDL_FPoint{-110, -404},
       SDL_FPoint{50, -404},
   };
-  for (uint8_t i = 0; i < characters.size(); i++) {
-    auto &character = characters[i];
-    if (choose.has_value() && choose == i) {
+  for (uint8_t i = 0; i < characters_.size(); i++) {
+    auto &character = characters_[i];
+    if (choose_.has_value() && choose_ == i) {
       RenderCharacterEffect(i);
       RenderCharacterBoard(i);
     }
@@ -162,18 +162,18 @@ void CharacterChooseUiSystem::RenderCharacterBoard(uint8_t i) {
       SDL_FPoint{-206, -684},
       SDL_FPoint{-46, -684},
   };
-  auto &ani = board;
+  auto &ani = board_;
   const static std::vector<SDL_Texture *> textures = {
       WzResource::LoadTexture(
-          WzResource::ui->find(u"Login.img/CharSelect/Statboard/open/0")),
+          WzResource::ui_->find(u"Login.img/CharSelect/Statboard/open/0")),
       WzResource::LoadTexture(
-          WzResource::ui->find(u"Login.img/CharSelect/Statboard/open/1")),
+          WzResource::ui_->find(u"Login.img/CharSelect/Statboard/open/1")),
       WzResource::LoadTexture(
-          WzResource::ui->find(u"Login.img/CharSelect/Statboard/open/2")),
+          WzResource::ui_->find(u"Login.img/CharSelect/Statboard/open/2")),
       WzResource::LoadTexture(
-          WzResource::ui->find(u"Login.img/CharSelect/Statboard/open/3")),
+          WzResource::ui_->find(u"Login.img/CharSelect/Statboard/open/3")),
   };
-  auto &camera = CameraGameInstance::camera;
+  auto &camera = CameraGameInstance::camera_;
   auto t = textures.at(ani.ani_index);
   SDL_FRect pos_rect{
       board_pos[i].x - camera.x,
@@ -181,19 +181,19 @@ void CharacterChooseUiSystem::RenderCharacterBoard(uint8_t i) {
       static_cast<float>(t->w),
       static_cast<float>(t->h),
   };
-  SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
   if (ani.ani_index == ani.ani_delay.size() - 1) {
     // render stat
     static SDL_Texture *charInfo =
-        WzResource::LoadTexture(WzResource::ui->find(
+        WzResource::LoadTexture(WzResource::ui_->find(
             u"Login.img/CharSelect/Statboard/canvas:charInfo"));
     pos_rect.x += 31;
     pos_rect.y += 35;
     pos_rect.w = charInfo->w;
     pos_rect.h = charInfo->h;
-    SDL_RenderTexture(Window::renderer, charInfo, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer_, charInfo, nullptr, &pos_rect);
 
-    const auto &cs = GameSaveSystemInstance::save.characters[i];
+    const auto &cs = GameSaveSystemInstance::save_.characters[i];
     Freetype::LoadSize(13);
     Freetype::LoadAligned(true);
     Freetype::LoadColor(0, 0, 0, 255);
@@ -223,9 +223,9 @@ void CharacterChooseUiSystem::RenderCharacterEffect(uint8_t i) {
       SDL_FPoint{50, -680},
   };
   const static auto effect_node =
-      WzResource::ui->find(u"Login.img/CharSelect/animation:selectEffect1");
-  auto &camera = CameraGameInstance::camera;
-  auto texture_node = effect_node->get_child(std::to_string(effect.ani_index));
+      WzResource::ui_->find(u"Login.img/CharSelect/animation:selectEffect1");
+  auto &camera = CameraGameInstance::camera_;
+  auto texture_node = effect_node->get_child(std::to_string(effect_.ani_index));
   auto origin = WzResource::LoadFpoint(texture_node->get_child(u"origin"));
   auto t = WzResource::LoadTexture(texture_node);
 
@@ -235,7 +235,7 @@ void CharacterChooseUiSystem::RenderCharacterEffect(uint8_t i) {
       static_cast<float>(t->w),
       static_cast<float>(t->h),
   };
-  SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
 }
 
 bool CharacterChooseUiSystem::Render() {
@@ -247,17 +247,17 @@ bool CharacterChooseUiSystem::Render() {
 }
 
 void CharacterChooseUiSystem::EventButtonSelect() {
-  if (!choose.has_value()) {
+  if (!choose_.has_value()) {
     return;
   }
   AudioGameInstance::LoadAudio(u"Game.img/GameIn", 0);
 
-  auto cse = choose.value();
-  auto character = characters[cse];
+  auto cse = choose_.value();
+  auto character = characters_[cse];
   uint32_t map_id;
   uint32_t portal_id;
   // load
-  for (auto &cs : GameSaveSystemInstance::save.characters) {
+  for (auto &cs : GameSaveSystemInstance::save_.characters) {
     if (cs.character.name == character.name) {
       map_id = cs.map_id;
       portal_id = cs.portal_id;
@@ -269,7 +269,7 @@ void CharacterChooseUiSystem::EventButtonSelect() {
     }
   }
   // init
-  CharacterGameInstance::self = character;
+  CharacterGameInstance::self_ = character;
 
   SceneSystemInstance::EnterPrepare(map_id, u"sp", portal_id);
   // notice login
@@ -279,7 +279,7 @@ void CharacterChooseUiSystem::EventButtonSelect() {
 }
 
 void CharacterChooseUiSystem::EventButtonNew() {
-  if (characters.size() >= 3) {
+  if (characters_.size() >= 3) {
     LoginNoticeSystemInstance::Enter(
         LoginNoticeSystemInstance::NoticeType::kCharacterFull, nullptr);
     AudioGameInstance::LoadAudio(u"UI.img/DlgNotice", 0);
@@ -289,30 +289,30 @@ void CharacterChooseUiSystem::EventButtonNew() {
 
   CharacterCreateSystemInstance::EnterPrepare();
 
-  System::logic_systems.push_back(NewAnimate);
-  System::render_systems = {
+  System::logic_systems_.push_back(NewAnimate);
+  System::render_systems_ = {
       LoginSystemInstance::RenderGame,
       CharacterCreateUiSystem::Render,
       CursorRenderSystem::Render,
   };
-  System::event_systems = {};
+  System::event_systems_ = {};
 }
 
 void CharacterChooseUiSystem::EventButtonDeleteCb() {
-  if (!choose.has_value()) {
+  if (!choose_.has_value()) {
     return;
   }
-  auto cse = choose.value();
-  auto character = characters[cse];
-  auto &save = GameSaveSystemInstance::save;
+  auto cse = choose_.value();
+  auto character = characters_[cse];
+  auto &save = GameSaveSystemInstance::save_;
   for (int i = 0; i < save.characters.size(); i++) {
     auto &save_character = save.characters[i].character;
     if (save_character.name == character.name) {
       save.characters.erase(save.characters.begin() + i);
     }
   }
-  characters.erase(characters.begin() + cse);
-  choose = std::nullopt;
+  characters_.erase(characters_.begin() + cse);
+  choose_ = std::nullopt;
   LoginNoticeUiSystem::EventClose();
 }
 
@@ -336,9 +336,9 @@ bool CharacterChooseUiSystem::BackAnimate() {
     LoginSystemInstance::Enter();
     return false;
   }
-  auto &camera = CameraGameInstance::camera;
-  LoginUiSystem::username.r.x = (-30 - camera.x);
-  LoginUiSystem::username.r.y = (960 - camera.y);
+  auto &camera = CameraGameInstance::camera_;
+  LoginUiSystem::username_.r.x = (-30 - camera.x);
+  LoginUiSystem::username_.r.y = (960 - camera.y);
   return true;
 }
 
@@ -348,13 +348,13 @@ void CharacterChooseUiSystem::EventButtonBack() {
   GameSaveSystemInstance::SaveGame();
   LoginSystemInstance::EnterPrepare();
 
-  System::logic_systems.push_back(BackAnimate);
-  System::render_systems = {
+  System::logic_systems_.push_back(BackAnimate);
+  System::render_systems_ = {
       LoginSystemInstance::RenderGame,
       LoginUiSystem::Render,
       CursorRenderSystem::Render,
   };
-  System::event_systems = {};
+  System::event_systems_ = {};
 }
 
 bool CharacterChooseUiSystem::EventChooseCharacter(SDL_Event *Event) {
@@ -364,15 +364,15 @@ bool CharacterChooseUiSystem::EventChooseCharacter(SDL_Event *Event) {
       SDL_FPoint{-110, -404},
       SDL_FPoint{50, -404},
   };
-  auto &camera = CameraGameInstance::camera;
-  for (int i = 0; i < characters.size(); i++) {
+  auto &camera = CameraGameInstance::camera_;
+  for (int i = 0; i < characters_.size(); i++) {
     auto pos = character_pos[i];
-    auto character = characters[i];
+    auto character = characters_[i];
     character.pos = pos;
     auto r = CharacterLogicSystem::LoadRect(character);
     r.x -= camera.x;
     r.y -= camera.y;
-    if (SDL_PointInRectFloat(&Window::mouse_pos, &r)) {
+    if (SDL_PointInRectFloat(&Window::mouse_pos_, &r)) {
       cse = i;
       break;
     }
@@ -380,18 +380,18 @@ bool CharacterChooseUiSystem::EventChooseCharacter(SDL_Event *Event) {
   if (cse == std::nullopt) {
     return false;
   }
-  if (cse == choose) {
+  if (cse == choose_) {
     EventButtonSelect();
   } else {
-    choose = cse;
-    for (auto &character : characters) {
+    choose_ = cse;
+    for (auto &character : characters_) {
       CharacterLogicSystem::RunStandAction(character);
     }
-    CharacterLogicSystem::RunWalkAction(characters[cse.value()]);
-    board.ani_index = 0;
-    board.ani_time = 0;
-    effect.ani_index = 0;
-    effect.ani_time = 0;
+    CharacterLogicSystem::RunWalkAction(characters_[cse.value()]);
+    board_.ani_index = 0;
+    board_.ani_time = 0;
+    effect_.ani_index = 0;
+    effect_.ani_time = 0;
     AudioGameInstance::LoadAudio(u"UI.img/CharSelect", 0);
   }
   return true;
@@ -400,7 +400,7 @@ bool CharacterChooseUiSystem::EventChooseCharacter(SDL_Event *Event) {
 bool CharacterChooseUiSystem::EventButton(SDL_Event *Event) {
   std::vector<SDL_FRect> r;
   std::vector<void (*)()> fns;
-  auto &camera = CameraGameInstance::camera;
+  auto &camera = CameraGameInstance::camera_;
   auto pos = LoadPos();
   r = {
       SDL_FRect{146 - camera.x, -656 - camera.y, 129, 41},
@@ -415,16 +415,16 @@ bool CharacterChooseUiSystem::EventButton(SDL_Event *Event) {
       EventButtonBack,
   };
   std::vector<bool> disable = {
-      !choose.has_value(),
+      !choose_.has_value(),
       false,
-      !choose.has_value(),
+      !choose_.has_value(),
       false,
   };
   for (size_t i = 0; i < r.size(); ++i) {
     auto pos_rect = r[i];
     pos_rect.x = (int)pos_rect.x;
     pos_rect.y = (int)pos_rect.y;
-    if (SDL_PointInRectFloat(&Window::mouse_pos, &pos_rect) && !disable[i]) {
+    if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect) && !disable[i]) {
       fns[i]();
       return false;
     }
@@ -461,14 +461,14 @@ bool CharacterChooseUiSystem::Event(SDL_Event *Event) {
 }
 
 bool CharacterChooseUiSystem::Run() {
-  for (auto &character : characters) {
+  for (auto &character : characters_) {
     CharacterLogicSystem::RunAnimate(character);
   }
-  if (choose.has_value()) {
-    auto anis = {&board, &effect};
+  if (choose_.has_value()) {
+    auto anis = {&board_, &effect_};
     for (auto ani : anis) {
       if (ani->ani_index < ani->ani_delay.size()) {
-        ani->ani_time += Window::delta_time;
+        ani->ani_time += Window::delta_time_;
         auto delay = ani->ani_delay[ani->ani_index];
         if (delay == 0) {
           continue;

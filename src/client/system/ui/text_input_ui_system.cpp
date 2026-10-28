@@ -119,7 +119,7 @@ void TextInputUiSystem::Render(TextInput &input, int x, int y) {
   // ============================================================
   if (input.active && !has_selection) {
     const int blink_period = 500;
-    if ((Window::dt_now % (blink_period * 2)) < blink_period) {
+    if ((Window::dt_now_ % (blink_period * 2)) < blink_period) {
       // 计算光标在显示文本中的相对位置
       const int cursor_display_pos =
           static_cast<int>(input.cur - display_offset);
@@ -137,28 +137,28 @@ void TextInputUiSystem::Render(TextInput &input, int x, int y) {
           SDL_FRect cursor_rect = {rect_x + cursor_x, rect_y + 2.0f, 1.0f,
                                    line_height};
 
-          SDL_SetRenderDrawColor(Window::renderer, input.cur_color.r,
+          SDL_SetRenderDrawColor(Window::renderer_, input.cur_color.r,
                                  input.cur_color.g, input.cur_color.b,
                                  input.cur_color.a);
-          SDL_RenderFillRect(Window::renderer, &cursor_rect);
+          SDL_RenderFillRect(Window::renderer_, &cursor_rect);
         }
       }
       // 可选：当光标在显示区域外时，在边缘显示指示符
       else if (cursor_display_pos < 0) {
         // 光标在左侧被裁剪，在左边缘显示小标记
         SDL_FRect cursor_rect = {rect_x, rect_y + 2.0f, 2.0f, line_height};
-        SDL_SetRenderDrawColor(Window::renderer, input.cur_color.r,
+        SDL_SetRenderDrawColor(Window::renderer_, input.cur_color.r,
                                input.cur_color.g, input.cur_color.b,
                                input.cur_color.a);
-        SDL_RenderFillRect(Window::renderer, &cursor_rect);
+        SDL_RenderFillRect(Window::renderer_, &cursor_rect);
       } else if (cursor_display_pos > static_cast<int>(display_text.length())) {
         // 光标在右侧被裁剪，在右边缘显示小标记
         SDL_FRect cursor_rect = {rect_x + max_width - 2.0f, rect_y + 2.0f, 2.0f,
                                  line_height};
-        SDL_SetRenderDrawColor(Window::renderer, input.cur_color.r,
+        SDL_SetRenderDrawColor(Window::renderer_, input.cur_color.r,
                                input.cur_color.g, input.cur_color.b,
                                input.cur_color.a);
-        SDL_RenderFillRect(Window::renderer, &cursor_rect);
+        SDL_RenderFillRect(Window::renderer_, &cursor_rect);
       }
     }
   }
@@ -194,8 +194,8 @@ void TextInputUiSystem::Render(TextInput &input, int x, int y) {
       SDL_FRect sel_rect = {rect_x + sel_x, rect_y + 2.0f, sel_width,
                             line_height};
 
-      SDL_SetRenderDrawColor(Window::renderer, 50, 102, 208, 255);
-      SDL_RenderFillRect(Window::renderer, &sel_rect);
+      SDL_SetRenderDrawColor(Window::renderer_, 50, 102, 208, 255);
+      SDL_RenderFillRect(Window::renderer_, &sel_rect);
     }
   }
 
@@ -358,8 +358,8 @@ bool TextInputUiSystem::Event(SDL_Event *Event, TextInput &input) {
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
     if (Event->button.button == SDL_BUTTON_LEFT) {
       SDL_Point p = {
-          static_cast<int>(Window::mouse_pos.x),
-          static_cast<int>(Window::mouse_pos.y),
+          static_cast<int>(Window::mouse_pos_.x),
+          static_cast<int>(Window::mouse_pos_.y),
       };
       input.cur_next = std::nullopt;
       if (SDL_PointInRect(&p, &input.r)) {
@@ -395,8 +395,8 @@ bool TextInputUiSystem::Event(SDL_Event *Event, TextInput &input) {
     if (Event->motion.state & SDL_BUTTON_LMASK) {
       if (input.active) {
         SDL_Point p = {
-            static_cast<int>(Window::mouse_pos.x),
-            static_cast<int>(Window::mouse_pos.y),
+            static_cast<int>(Window::mouse_pos_.x),
+            static_cast<int>(Window::mouse_pos_.y),
         };
         if (SDL_PointInRect(&p, &input.r)) {
           auto dx = p.x - input.r.x;

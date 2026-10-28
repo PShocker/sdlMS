@@ -8,7 +8,7 @@ private:
   static SDL_FPoint LoadWh();
 
 public:
-  static inline SDL_FPoint pos;
+  static inline SDL_FPoint pos_;
 
   static void Open();
   static void Close();

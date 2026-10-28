@@ -85,21 +85,21 @@ private:
   static bool EventButtonCustom(SDL_Event *Event);
 
 public:
-  static inline TextInput name;
+  static inline TextInput name_;
 
-  static inline int str_point;
-  static inline int dex_point;
-  static inline int int_point;
-  static inline int luk_point;
-  static inline int remain_point;
+  static inline int str_point_;
+  static inline int dex_point_;
+  static inline int int_point_;
+  static inline int luk_point_;
+  static inline int remain_point_;
 
-  static inline int gender;
-  static inline int choose_index;
+  static inline int gender_;
+  static inline int choose_index_;
 
   static void ResetCharacter(bool g);
   static bool Render();
   static bool Event(SDL_Event *Event);
   static bool Run();
 
-  static inline GameCharacter g_character;
+  static inline GameCharacter g_character_;
 };

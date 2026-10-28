@@ -16,7 +16,7 @@ public:
 
   static inline void (*fn)();
 
-  static inline LoginNoticeSystemInstance::NoticeType type;
+  static inline LoginNoticeSystemInstance::NoticeType type_;
   static bool Render();
   static bool Run();
   static bool Event(SDL_Event *Event);

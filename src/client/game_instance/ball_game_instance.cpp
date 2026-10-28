@@ -14,7 +14,7 @@
 #include <memory>
 #include <string>
 
-void BallGameInstance::Reset() { data = {}; }
+void BallGameInstance::Reset() { data_ = {}; }
 
 SDL_FPoint BallGameInstance::ClosestPointOnRect(const SDL_FPoint &pos,
                                                      const SDL_FRect &rect) {
@@ -57,7 +57,7 @@ ClientCharacterBallT BallGameInstance::CreateBallPayload(
       .page = (uint8_t)page,
   });
 
-  const auto &fhs = FootholdGameInstance::data;
+  const auto &fhs = FootholdGameInstance::data_;
   auto hspeed = (goal.x > pos.x) ? speed : -speed;
 
   // 2. 提取目标计算逻辑为lambda，减少重复
@@ -144,8 +144,8 @@ uint64_t BallGameInstance::LoadBallTime(ClientCharacterBallT &cct) {
   const auto &b = cct.payload->ball;
 
   // 一次查找，避免 contains + at 的双重开销
-  auto it = MobGameInstance::data.find(b->mob_index);
-  if (it == MobGameInstance::data.end()) {
+  auto it = MobGameInstance::data_.find(b->mob_index);
+  if (it == MobGameInstance::data_.end()) {
     return 0;
   }
 
@@ -170,7 +170,7 @@ uint64_t BallGameInstance::LoadBallTime(ClientCharacterBallT &cct) {
 std::u16string BallGameInstance::LoadBallPath(const std::u16string &id) {
   std::u16string path;
   // 硬编码判断无影箭
-  auto &ski = SkillGameInstance::ski;
+  auto &ski = SkillGameInstance::ski_;
   auto it = std::ranges::find_if(
       ski, [](const GameSkill &s) { return s.id == u"3101003"; });
   if (it != ski.end()) {

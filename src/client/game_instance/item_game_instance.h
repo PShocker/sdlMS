@@ -9,7 +9,7 @@
 #include <string>
 class ItemGameInstance {
 public:
-  static inline std::vector<GameItemBuff> buff;
+  static inline std::vector<GameItemBuff> buff_;
 
   static bool CheckItem(const std::u16string &id);
 

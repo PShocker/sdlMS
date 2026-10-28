@@ -5,7 +5,7 @@
 
 class GameSaveSystemInstance {
 public:
-  static inline GameSaveData save;
+  static inline GameSaveData save_;
   static bool LoadSave(const std::string &login);
 
   static bool SaveGame();

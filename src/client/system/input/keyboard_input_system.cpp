@@ -9,10 +9,10 @@
 bool KeyboardInputSystem::Event(SDL_Event *Event) {
   auto repeat = Event->key.repeat;
   auto scan_code = Event->key.scancode;
-  if (!KeyboardGameInstance::data.contains(scan_code)) {
+  if (!KeyboardGameInstance::data_.contains(scan_code)) {
     return true;
   }
-  auto &g_input = KeyboardGameInstance::data.at(scan_code);
+  auto &g_input = KeyboardGameInstance::data_.at(scan_code);
   if (Event->type == SDL_EVENT_KEY_DOWN) {
     if (repeat == false) {
       if (g_input.type == "item") {

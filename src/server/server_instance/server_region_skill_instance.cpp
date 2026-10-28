@@ -9,7 +9,7 @@
 void ServerRegionSkillInstance::HandleRskill(uint64_t client_id,
                                                  ClientRSkillT &r) {
   auto map_id = r.map_id;
-  auto &scene = ServerSceneInstance::scenes.at(map_id);
+  auto &scene = ServerSceneInstance::scenes_.at(map_id);
   for (const auto &v : r.payload) {
     ServerRegionSkill srs;
     srs.client_id = client_id;
@@ -32,6 +32,6 @@ void ServerRegionSkillInstance::HandleSRskill(ServerRSkillT &r) {
         .type = GameEffect::EffectType::kSkillRegion,
         .data = grs,
     };
-    EffectGameInstance::data[v->page].emplace_back(e);
+    EffectGameInstance::data_[v->page].emplace_back(e);
   }
 }

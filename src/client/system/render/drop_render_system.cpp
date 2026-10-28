@@ -31,7 +31,7 @@ bool DropRenderSystem::Render(GameDrop &g_drop) {
       icon = WzResource::LoadTexture(item_info);
       o = WzResource::LoadFpoint(item_info->get_child(u"origin"));
     } else {
-      auto now = Window::dt_now;
+      auto now = Window::dt_now_;
       auto sum = item_info->children_count() * 100;
       auto offset = now % sum; // 取余，得到周期内偏移
       auto i = offset / 100;
@@ -51,13 +51,13 @@ bool DropRenderSystem::Render(GameDrop &g_drop) {
       static_cast<float>(icon->w),
       static_cast<float>(icon->h),
   };
-  auto &camera = CameraGameInstance::camera;
+  auto &camera = CameraGameInstance::camera_;
   if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
     pos_rect.x -= camera.x;
     pos_rect.y -= camera.y;
     SDL_FPoint center{(float)icon->w / 2, (float)icon->h / 2};
     SDL_SetTextureAlphaMod(icon, g_drop.alpha);
-    SDL_RenderTextureRotated(Window::renderer, icon, nullptr, &pos_rect,
+    SDL_RenderTextureRotated(Window::renderer_, icon, nullptr, &pos_rect,
                              g_drop.rotate, &center, (SDL_FlipMode)0);
   }
   return true;

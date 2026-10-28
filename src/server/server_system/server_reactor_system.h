@@ -11,7 +11,7 @@ private:
   static void RunDestroy();
 
 public:
-  static inline uint32_t map_id = 0;
+  static inline uint32_t map_id_ = 0;
 
   static bool Run();
 };

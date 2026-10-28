@@ -13,7 +13,7 @@ static void Leidianshu() {
   GameSkill g_skill;
   g_skill.id = u"2201004";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
-    auto &sf = CharacterGameInstance::self;
+    auto &sf = CharacterGameInstance::self_;
     CharacterLogicSystem::RunAttackAction(sf, false);
     auto g_r = SkillGameInstance::LoadSkiR(u"2201004");
     auto cm = CharacterLogicSystem::RunAttackCheck(sf, g_r);

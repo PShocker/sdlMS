@@ -7,5 +7,5 @@
 class ServerClientInstance {
 public:
   static void ClientExit(uint64_t client_id);
-  static inline std::flat_map<uint64_t, ServerClient> clients;
+  static inline std::flat_map<uint64_t, ServerClient> clients_;
 };

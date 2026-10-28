@@ -20,7 +20,7 @@ public:
     flatbuffers::FlatBufferBuilder builder;
     auto packet_offset = NetPacket::Pack(builder, &packet);
     builder.Finish(packet_offset);
-    auto addr = ServerMain::host ? &ServerMain::host_addr : nullptr;
+    auto addr = ServerMain::host_ ? &ServerMain::host_addr : nullptr;
 
     auto point = builder.GetBufferPointer();
     auto size = builder.GetSize();

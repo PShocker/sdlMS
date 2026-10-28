@@ -8,9 +8,9 @@
 class PackageGameInstance {
 public:
   // enum class package_enum { equip, consume, etc, install, cash ,deco};
-  static inline std::array<std::vector<std::polymorphic<GameItem>>, 6> data;
+  static inline std::array<std::vector<std::polymorphic<GameItem>>, 6> data_;
 
-  static inline uint64_t meso = UINT64_MAX;
+  static inline uint64_t meso_ = UINT64_MAX;
 
   static void Load(const CharacterSaveData &cs);
 

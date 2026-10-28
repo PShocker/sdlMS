@@ -55,14 +55,14 @@ void TooltipUiSystem::RenderEquipBottomInc(std::u16string label,
                                                 std::u16string val, float x,
                                                 float &y) {
   static auto dot1 = WzResource::LoadTexture(
-      WzResource::ui->find(u"Tooltip.img/Equip/Dot/1"));
+      WzResource::ui_->find(u"Tooltip.img/Equip/Dot/1"));
   SDL_FRect pos_rect{
       x - 10,
       y + 9,
       static_cast<float>(dot1->w),
       static_cast<float>(dot1->h),
   };
-  SDL_RenderTexture(Window::renderer, dot1, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, dot1, nullptr, &pos_rect);
   // static auto
   Freetype::LoadAligned(true);
   Freetype::LoadColor(240, 224, 104, 255);
@@ -85,13 +85,13 @@ void TooltipUiSystem::RenderDecoBottom(GameDecoItem &deco, float x,
   auto equip_type = EquipGameInstance::LoadEquipType(id);
   if (equip_type == u"Weapon") {
     static auto weapon_node =
-        WzResource::ms->get_root()->find(u"String.img/Equip/weapon/type");
+        WzResource::ms_->get_root()->find(u"String.img/Equip/weapon/type");
     auto sub_id = id.substr(0, 4);
     equip_type = static_cast<wz::Property<std::u16string> *>(
                      weapon_node->get_child(sub_id))
                      ->get();
   }
-  auto str_node = WzResource::ms->get_root()->find(u"String.img/Equip/type");
+  auto str_node = WzResource::ms_->get_root()->find(u"String.img/Equip/type");
   auto type_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
   RenderEquipBottomInc(type_str, equip_type, x, y);
 
@@ -126,35 +126,35 @@ void TooltipUiSystem::RenderEquipBottom(GameEquipItem &equip, float x,
   auto equip_type = EquipGameInstance::LoadEquipType(id);
   if (equip_type == u"Weapon") {
     static auto weapon_node =
-        WzResource::ms->get_root()->find(u"String.img/Equip/weapon/type");
+        WzResource::ms_->get_root()->find(u"String.img/Equip/weapon/type");
     auto sub_id = id.substr(0, 4);
     equip_type = static_cast<wz::Property<std::u16string> *>(
                      weapon_node->get_child(sub_id))
                      ->get();
   }
-  auto str_node = WzResource::ms->get_root()->find(u"String.img/Equip/type");
+  auto str_node = WzResource::ms_->get_root()->find(u"String.img/Equip/type");
   auto type_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
   RenderEquipBottomInc(type_str, equip_type, x, y);
   // weapon speed
   if (equip_inc.contains(EquipGameInstance::IncType::kWeaponSpeed)) {
     auto str_node =
-        WzResource::ms->get_root()->find(u"String.img/Equip/attackSpeed");
+        WzResource::ms_->get_root()->find(u"String.img/Equip/attackSpeed");
     auto spd_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
     std::u16string val_str;
     auto val = equip_inc.at(EquipGameInstance::IncType::kWeaponSpeed);
     if (val >= 6) {
       // slow
-      str_node = WzResource::ms->get_root()->find(
+      str_node = WzResource::ms_->get_root()->find(
           u"String.img/Equip/weapon/speed/slow");
       val_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
     } else if (val > 4) {
       // Normal
-      str_node = WzResource::ms->get_root()->find(
+      str_node = WzResource::ms_->get_root()->find(
           u"String.img/Equip/weapon/speed/normal");
       val_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
     } else {
       // Fast
-      str_node = WzResource::ms->get_root()->find(
+      str_node = WzResource::ms_->get_root()->find(
           u"String.img/Equip/weapon/speed/fast");
       val_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
     }
@@ -169,7 +169,7 @@ void TooltipUiSystem::RenderEquipBottom(GameEquipItem &equip, float x,
   if (equip_inc.contains(EquipGameInstance::IncType::kWeaponPad) ||
       scroll_inc.contains(EquipGameInstance::IncType::kWeaponPad)) {
     auto str_node =
-        WzResource::ms->get_root()->find(u"String.img/Equip/weaponAttack");
+        WzResource::ms_->get_root()->find(u"String.img/Equip/weaponAttack");
     auto pad_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
     auto val = equip_inc[EquipGameInstance::IncType::kWeaponPad];
     std::string val_str = "+";
@@ -186,7 +186,7 @@ void TooltipUiSystem::RenderEquipBottom(GameEquipItem &equip, float x,
   // weapon pdd
   if (equip_inc.contains(EquipGameInstance::IncType::kPdd) ||
       scroll_inc.contains(EquipGameInstance::IncType::kPdd)) {
-    str_node = WzResource::ms->get_root()->find(u"String.img/Character/pdd");
+    str_node = WzResource::ms_->get_root()->find(u"String.img/Character/pdd");
     auto pdd_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
     auto val = equip_inc[EquipGameInstance::IncType::kPdd];
     std::string val_str = "+";
@@ -204,7 +204,7 @@ void TooltipUiSystem::RenderEquipBottom(GameEquipItem &equip, float x,
   if (equip_inc.contains(EquipGameInstance::IncType::kWeaponMad) ||
       scroll_inc.contains(EquipGameInstance::IncType::kWeaponMad)) {
     str_node =
-        WzResource::ms->get_root()->find(u"String.img/Equip/weaponMagic");
+        WzResource::ms_->get_root()->find(u"String.img/Equip/weaponMagic");
     auto mad_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
     auto val = equip_inc[EquipGameInstance::IncType::kWeaponMad];
     std::string val_str = "+";
@@ -221,7 +221,7 @@ void TooltipUiSystem::RenderEquipBottom(GameEquipItem &equip, float x,
   // acc
   if (equip_inc.contains(EquipGameInstance::IncType::kAcc) ||
       scroll_inc.contains(EquipGameInstance::IncType::kAcc)) {
-    str_node = WzResource::ms->get_root()->find(u"String.img/Character/acc");
+    str_node = WzResource::ms_->get_root()->find(u"String.img/Character/acc");
     auto acc_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
     auto val = equip_inc[EquipGameInstance::IncType::kAcc];
     std::string val_str = "+";
@@ -238,7 +238,7 @@ void TooltipUiSystem::RenderEquipBottom(GameEquipItem &equip, float x,
   if (equip_inc.contains(EquipGameInstance::IncType::kStr) ||
       scroll_inc.contains(EquipGameInstance::IncType::kStr)) {
     auto str_node =
-        WzResource::ms->get_root()->find(u"String.img/Character/str");
+        WzResource::ms_->get_root()->find(u"String.img/Character/str");
     auto str_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
     auto val = equip_inc[EquipGameInstance::IncType::kStr];
     std::string val_str = "+";
@@ -255,7 +255,7 @@ void TooltipUiSystem::RenderEquipBottom(GameEquipItem &equip, float x,
   if (equip_inc.contains(EquipGameInstance::IncType::kDex) ||
       scroll_inc.contains(EquipGameInstance::IncType::kDex)) {
     auto str_node =
-        WzResource::ms->get_root()->find(u"String.img/Character/dex");
+        WzResource::ms_->get_root()->find(u"String.img/Character/dex");
     auto dex_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
     auto val = equip_inc[EquipGameInstance::IncType::kDex];
     std::string val_str = "+";
@@ -272,7 +272,7 @@ void TooltipUiSystem::RenderEquipBottom(GameEquipItem &equip, float x,
   if (equip_inc.contains(EquipGameInstance::IncType::kInt) ||
       scroll_inc.contains(EquipGameInstance::IncType::kInt)) {
     auto str_node =
-        WzResource::ms->get_root()->find(u"String.img/Character/int");
+        WzResource::ms_->get_root()->find(u"String.img/Character/int");
     auto int_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
     auto val = equip_inc[EquipGameInstance::IncType::kInt];
     std::string val_str = "+";
@@ -289,7 +289,7 @@ void TooltipUiSystem::RenderEquipBottom(GameEquipItem &equip, float x,
   if (equip_inc.contains(EquipGameInstance::IncType::kSpeed) ||
       scroll_inc.contains(EquipGameInstance::IncType::kSpeed)) {
     auto str_node =
-        WzResource::ms->get_root()->find(u"String.img/Character/speed");
+        WzResource::ms_->get_root()->find(u"String.img/Character/speed");
     auto spd_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
     auto val = equip_inc[EquipGameInstance::IncType::kSpeed];
     std::string val_str = "+";
@@ -306,7 +306,7 @@ void TooltipUiSystem::RenderEquipBottom(GameEquipItem &equip, float x,
   if (equip_inc.contains(EquipGameInstance::IncType::kJump) ||
       scroll_inc.contains(EquipGameInstance::IncType::kJump)) {
     auto str_node =
-        WzResource::ms->get_root()->find(u"String.img/Character/jump");
+        WzResource::ms_->get_root()->find(u"String.img/Character/jump");
     auto jump_str =
         static_cast<wz::Property<std::u16string> *>(str_node)->get();
     auto val = equip_inc[EquipGameInstance::IncType::kJump];
@@ -321,7 +321,7 @@ void TooltipUiSystem::RenderEquipBottom(GameEquipItem &equip, float x,
         jump_str, std::u16string{val_str.begin(), val_str.end()}, x, y);
   }
   // enh
-  str_node = WzResource::ms->get_root()->find(
+  str_node = WzResource::ms_->get_root()->find(
       u"String.img/Equip/remainingEnhancements");
   auto enh_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
   auto val = EquipGameInstance::LoadEquipTuc(id) - equip.scroll.size();
@@ -333,7 +333,7 @@ void TooltipUiSystem::RenderEquipBottom(GameEquipItem &equip, float x,
 void TooltipUiSystem::RenderEquipReq(uint32_t req, uint32_t val,
                                          const std::u16string &path, float x,
                                          float y) {
-  static auto equip_node = WzResource::ui->find(u"UIToolTip.img/Item/Equip");
+  static auto equip_node = WzResource::ui_->find(u"UIToolTip.img/Item/Equip");
   auto color_node = equip_node;
   SDL_Texture *texture;
   if (req == 0) {
@@ -352,7 +352,7 @@ void TooltipUiSystem::RenderEquipReq(uint32_t req, uint32_t val,
       static_cast<float>(texture->w),
       static_cast<float>(texture->h),
   };
-  SDL_RenderTexture(Window::renderer, texture, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, texture, nullptr, &pos_rect);
 
   auto req_str = std::to_string(req);
   uint32_t w = 0;
@@ -366,7 +366,7 @@ void TooltipUiSystem::RenderEquipReq(uint32_t req, uint32_t val,
         static_cast<float>(num_texture->w),
         static_cast<float>(num_texture->h),
     };
-    SDL_RenderTexture(Window::renderer, num_texture, nullptr, &r);
+    SDL_RenderTexture(Window::renderer_, num_texture, nullptr, &r);
     w += num_texture->w + 1 - num_origin.x;
   }
 }
@@ -375,7 +375,7 @@ void TooltipUiSystem::RenderEquipJob(const std::u16string &id, float x,
                                          float y) {
   // job
   auto jobs = EquipGameInstance::LoadEquipJob(id);
-  static auto job_node = WzResource::ui->find(u"UIToolTip.img/Item/Equip/Job");
+  static auto job_node = WzResource::ui_->find(u"UIToolTip.img/Item/Equip/Job");
   wz::Node *node;
   SDL_FRect pos_rect;
   for (auto i : {
@@ -397,7 +397,7 @@ void TooltipUiSystem::RenderEquipJob(const std::u16string &id, float x,
     pos_rect.y = y - origin.y;
     pos_rect.w = texture->w;
     pos_rect.h = texture->h;
-    SDL_RenderTexture(Window::renderer, texture, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer_, texture, nullptr, &pos_rect);
   }
 }
 
@@ -412,7 +412,7 @@ void TooltipUiSystem::RenderDeco(GameDecoItem &deco, float x, float y) {
   Freetype::LoadAligned(true);
 
   static auto dot0 = WzResource::LoadTexture(
-      WzResource::ui->find(u"Tooltip.img/Equip/Dot/0"));
+      WzResource::ui_->find(u"Tooltip.img/Equip/Dot/0"));
 
   SDL_FRect pos_rect = {
       x + 10,
@@ -420,7 +420,7 @@ void TooltipUiSystem::RenderDeco(GameDecoItem &deco, float x, float y) {
       static_cast<float>(dot0->w),
       static_cast<float>(dot0->h),
   };
-  SDL_RenderTexture(Window::renderer, dot0, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, dot0, nullptr, &pos_rect);
 
   auto equip_name = EquipGameInstance::LoadEquipName(deco.id);
   Freetype::LoadBold(true);
@@ -429,21 +429,21 @@ void TooltipUiSystem::RenderDeco(GameDecoItem &deco, float x, float y) {
   Freetype::LoadBold(false);
 
   static auto item_base = WzResource::LoadTexture(
-      WzResource::ui->find(u"UIToolTip.img/Item/ItemIcon/base"));
+      WzResource::ui_->find(u"UIToolTip.img/Item/ItemIcon/base"));
   SDL_FPoint base{10, 35};
   pos_rect = {x + base.x, y + base.y, static_cast<float>(item_base->w),
               static_cast<float>(item_base->h)};
-  SDL_RenderTexture(Window::renderer, item_base, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, item_base, nullptr, &pos_rect);
 
   static auto item_cover = WzResource::LoadTexture(
-      WzResource::ui->find(u"UIToolTip.img/Item/ItemIcon/cover"));
+      WzResource::ui_->find(u"UIToolTip.img/Item/ItemIcon/cover"));
   pos_rect = {
       x + base.x + 4,
       y + base.y + 4,
       static_cast<float>(item_cover->w),
       static_cast<float>(item_cover->h),
   };
-  SDL_RenderTexture(Window::renderer, item_cover, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, item_cover, nullptr, &pos_rect);
 
   auto equip_info = EquipGameInstance::LoadEquipInfo(deco.id);
   auto eqp_texture = WzResource::LoadTexture(equip_info->get_child(u"icon"));
@@ -453,22 +453,22 @@ void TooltipUiSystem::RenderDeco(GameDecoItem &deco, float x, float y) {
   auto dy = 74 - pos_rect.h;
   pos_rect.x += dx / 2;
   pos_rect.y += dy / 2;
-  SDL_RenderTexture(Window::renderer, eqp_texture, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, eqp_texture, nullptr, &pos_rect);
 
   auto cash_icon = WzResource::LoadTexture(
-      WzResource::ms->get_root()->find(u"UI.img/CashItem"));
+      WzResource::ms_->get_root()->find(u"UI.img/CashItem"));
   pos_rect = {
       x + base.x + 4 + 46,
       y + base.y + 4 + 46,
       static_cast<float>(cash_icon->w) * 2,
       static_cast<float>(cash_icon->h) * 2,
   };
-  SDL_RenderTexture(Window::renderer, cash_icon, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, cash_icon, nullptr, &pos_rect);
 
   auto req =
       static_cast<wz::Property<int> *>(equip_info->get_child(u"reqLevel"))
           ->get();
-  auto val = CharacterGameInstance::self.level;
+  auto val = CharacterGameInstance::self_.level;
   RenderEquipReq(req, val, u"reqLEV", x + base.x + 95, y + base.y + 6);
 
   req =
@@ -498,8 +498,8 @@ void TooltipUiSystem::RenderDeco(GameDecoItem &deco, float x, float y) {
   RenderEquipJob(deco.id, x + base.x, y + base.y + 80);
 
   auto line_y = y + base.y + 112;
-  SDL_SetRenderDrawColor(Window::renderer, 255, 255, 255, 255);
-  SDL_RenderLine(Window::renderer, x + 5, line_y, x + w - 8, line_y);
+  SDL_SetRenderDrawColor(Window::renderer_, 255, 255, 255, 255);
+  SDL_RenderLine(Window::renderer_, x + 5, line_y, x + w - 8, line_y);
 
   Freetype::LoadAligned(false);
 
@@ -508,7 +508,7 @@ void TooltipUiSystem::RenderDeco(GameDecoItem &deco, float x, float y) {
 
 void TooltipUiSystem::RenderEquip(GameEquipItem &equip, float x, float y) {
   // backgrnd
-  static auto backgrnd_node = WzResource::ui->find(u"UIToolTip.img/Item");
+  static auto backgrnd_node = WzResource::ui_->find(u"UIToolTip.img/Item");
   static auto top =
       WzResource::LoadTexture(backgrnd_node->find(u"Frame/top"));
   static auto line =
@@ -522,26 +522,26 @@ void TooltipUiSystem::RenderEquip(GameEquipItem &equip, float x, float y) {
       static_cast<float>(top->w),
       static_cast<float>(top->h),
   };
-  SDL_RenderTexture(Window::renderer, top, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, top, nullptr, &pos_rect);
 
   pos_rect.y = y + h - bottom->h;
   pos_rect.h = bottom->h;
-  SDL_RenderTexture(Window::renderer, bottom, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, bottom, nullptr, &pos_rect);
 
   pos_rect.y = y + top->h;
   pos_rect.h = h - top->h - bottom->h;
-  SDL_RenderTexture(Window::renderer, line, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, line, nullptr, &pos_rect);
 
   //   render
   Freetype::LoadColor(255, 255, 255, 255);
   Freetype::LoadAligned(true);
 
   static auto dot0 = WzResource::LoadTexture(
-      WzResource::ui->find(u"Tooltip.img/Equip/Dot/0"));
+      WzResource::ui_->find(u"Tooltip.img/Equip/Dot/0"));
 
   pos_rect = {x + 10, y + 20, static_cast<float>(dot0->w),
               static_cast<float>(dot0->h)};
-  SDL_RenderTexture(Window::renderer, dot0, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, dot0, nullptr, &pos_rect);
 
   auto equip_name = EquipGameInstance::LoadEquipName(equip.id);
   int scroll_num = 0;
@@ -561,17 +561,17 @@ void TooltipUiSystem::RenderEquip(GameEquipItem &equip, float x, float y) {
   Freetype::LoadBold(false);
 
   static auto item_base = WzResource::LoadTexture(
-      WzResource::ui->find(u"UIToolTip.img/Item/ItemIcon/base"));
+      WzResource::ui_->find(u"UIToolTip.img/Item/ItemIcon/base"));
   SDL_FPoint base{10, 35};
   pos_rect = {x + base.x, y + base.y, static_cast<float>(item_base->w),
               static_cast<float>(item_base->h)};
-  SDL_RenderTexture(Window::renderer, item_base, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, item_base, nullptr, &pos_rect);
 
   static auto item_cover = WzResource::LoadTexture(
-      WzResource::ui->find(u"UIToolTip.img/Item/ItemIcon/cover"));
+      WzResource::ui_->find(u"UIToolTip.img/Item/ItemIcon/cover"));
   pos_rect = {x + base.x + 4, y + base.y + 4, static_cast<float>(item_cover->w),
               static_cast<float>(item_cover->h)};
-  SDL_RenderTexture(Window::renderer, item_cover, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, item_cover, nullptr, &pos_rect);
 
   auto equip_info = EquipGameInstance::LoadEquipInfo(equip.id);
   auto eqp_texture = WzResource::LoadTexture(equip_info->get_child(u"icon"));
@@ -582,12 +582,12 @@ void TooltipUiSystem::RenderEquip(GameEquipItem &equip, float x, float y) {
   pos_rect.x += dx / 2;
   pos_rect.y += dy / 2;
 
-  SDL_RenderTexture(Window::renderer, eqp_texture, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, eqp_texture, nullptr, &pos_rect);
 
   auto req =
       static_cast<wz::Property<int> *>(equip_info->get_child(u"reqLevel"))
           ->get();
-  auto val = CharacterGameInstance::self.level;
+  auto val = CharacterGameInstance::self_.level;
   RenderEquipReq(req, val, u"reqLEV", x + base.x + 95, y + base.y + 6);
 
   req =
@@ -617,8 +617,8 @@ void TooltipUiSystem::RenderEquip(GameEquipItem &equip, float x, float y) {
   RenderEquipJob(equip.id, x + base.x, y + base.y + 80);
 
   auto line_y = y + base.y + 112;
-  SDL_SetRenderDrawColor(Window::renderer, 255, 255, 255, 255);
-  SDL_RenderLine(Window::renderer, x + 5, line_y, x + 230, line_y);
+  SDL_SetRenderDrawColor(Window::renderer_, 255, 255, 255, 255);
+  SDL_RenderLine(Window::renderer_, x + 5, line_y, x + 230, line_y);
 
   Freetype::LoadAligned(false);
 
@@ -628,7 +628,7 @@ void TooltipUiSystem::RenderEquip(GameEquipItem &equip, float x, float y) {
 void TooltipUiSystem::RenderBackgrnd(float x, float y, float w, float h) {
   // backgrnd
   static auto backgrnd_node =
-      WzResource::ui->find(u"UIToolTip.img/Skill/Frame");
+      WzResource::ui_->find(u"UIToolTip.img/Skill/Frame");
 
   auto texture_c = WzResource::LoadTexture(backgrnd_node->get_child(u"c"));
   auto texture_e =
@@ -666,7 +666,7 @@ void TooltipUiSystem::RenderBackgrnd(float x, float y, float w, float h) {
   rect.y = (p_nw.y);
   rect.w = texture_nw->w;
   rect.h = texture_nw->h;
-  SDL_RenderTexture(Window::renderer, texture_nw, nullptr, &rect);
+  SDL_RenderTexture(Window::renderer_, texture_nw, nullptr, &rect);
 
   // 左下
   SDL_FPoint p_sw{
@@ -677,7 +677,7 @@ void TooltipUiSystem::RenderBackgrnd(float x, float y, float w, float h) {
   rect.y = (p_sw.y);
   rect.w = texture_sw->w;
   rect.h = texture_sw->h;
-  SDL_RenderTexture(Window::renderer, texture_sw, nullptr, &rect);
+  SDL_RenderTexture(Window::renderer_, texture_sw, nullptr, &rect);
 
   // 右上
   SDL_FPoint p_ne{
@@ -688,7 +688,7 @@ void TooltipUiSystem::RenderBackgrnd(float x, float y, float w, float h) {
   rect.y = (p_ne.y);
   rect.w = texture_ne->w;
   rect.h = texture_ne->h;
-  SDL_RenderTexture(Window::renderer, texture_ne, nullptr, &rect);
+  SDL_RenderTexture(Window::renderer_, texture_ne, nullptr, &rect);
 
   // 右下
   SDL_FPoint p_se{
@@ -699,39 +699,39 @@ void TooltipUiSystem::RenderBackgrnd(float x, float y, float w, float h) {
   rect.y = (p_se.y);
   rect.w = texture_se->w;
   rect.h = texture_se->h;
-  SDL_RenderTexture(Window::renderer, texture_se, nullptr, &rect);
+  SDL_RenderTexture(Window::renderer_, texture_se, nullptr, &rect);
 
   rect.x = (x + texture_nw->w);
   rect.y = (y + texture_nw->h);
   rect.w = p_ne.x - (p_nw.x + texture_nw->w);
   rect.h = p_sw.y - (p_nw.y + texture_nw->h);
-  SDL_RenderTextureTiled(Window::renderer, texture_c, nullptr, 1, &rect);
+  SDL_RenderTextureTiled(Window::renderer_, texture_c, nullptr, 1, &rect);
 
   // 竖着的两边
   rect.x = (p_nw.x);
   rect.y = (p_nw.y + texture_nw->h);
   rect.w = texture_w->w;
   rect.h = p_sw.y - (p_nw.y + texture_nw->h);
-  SDL_RenderTextureTiled(Window::renderer, texture_w, nullptr, 1, &rect);
+  SDL_RenderTextureTiled(Window::renderer_, texture_w, nullptr, 1, &rect);
 
   rect.x = (p_se.x);
   rect.y = (p_ne.y + texture_ne->h);
   rect.w = texture_e->w;
   rect.h = p_se.y - (p_ne.y + texture_ne->h);
-  SDL_RenderTextureTiled(Window::renderer, texture_e, nullptr, 1, &rect);
+  SDL_RenderTextureTiled(Window::renderer_, texture_e, nullptr, 1, &rect);
 
   // 横着的两边
   rect.x = (p_nw.x + texture_nw->w);
   rect.y = (p_ne.y);
   rect.w = p_ne.x - (p_nw.x + texture_nw->w);
   rect.h = texture_n->h;
-  SDL_RenderTextureTiled(Window::renderer, texture_n, nullptr, 1, &rect);
+  SDL_RenderTextureTiled(Window::renderer_, texture_n, nullptr, 1, &rect);
 
   rect.x = (p_nw.x + texture_nw->w);
   rect.y = (p_sw.y);
   rect.w = p_ne.x - (p_nw.x + texture_nw->w);
   rect.h = texture_s->h;
-  SDL_RenderTextureTiled(Window::renderer, texture_s, nullptr, 1, &rect);
+  SDL_RenderTextureTiled(Window::renderer_, texture_s, nullptr, 1, &rect);
 }
 
 float TooltipUiSystem::LoadSkillBottomH(const std::u16string &id) {
@@ -773,7 +773,7 @@ void TooltipUiSystem::RenderSkillBottom(const std::u16string &id,
     Freetype::LoadSize(12);
     Freetype::LoadColor(255, 255, 255, 255);
     auto next_node =
-        WzResource::ms->get_root()->find(u"String.img/Skill/nextLevel");
+        WzResource::ms_->get_root()->find(u"String.img/Skill/nextLevel");
     auto str = static_cast<wz::Property<std::u16string> *>(next_node)->get();
 
     str = u"[" + str + u" " + next_level3 + u"]";
@@ -786,7 +786,7 @@ void TooltipUiSystem::RenderSkillBottom(const std::u16string &id,
     Freetype::LoadSize(12);
     Freetype::LoadColor(255, 255, 255, 255);
     auto cur_node =
-        WzResource::ms->get_root()->find(u"String.img/Skill/currentLevel");
+        WzResource::ms_->get_root()->find(u"String.img/Skill/currentLevel");
     auto str = static_cast<wz::Property<std::u16string> *>(cur_node)->get();
 
     str = u"[" + str + u" " + ski_level3 + u"]";
@@ -799,7 +799,7 @@ void TooltipUiSystem::RenderSkillBottom(const std::u16string &id,
     Freetype::LoadSize(12);
     Freetype::LoadColor(255, 255, 255, 255);
     auto cur_node =
-        WzResource::ms->get_root()->find(u"String.img/Skill/currentLevel");
+        WzResource::ms_->get_root()->find(u"String.img/Skill/currentLevel");
     auto str = static_cast<wz::Property<std::u16string> *>(cur_node)->get();
 
     str = u"[" + str + u" " + ski_level3 + u"]";
@@ -813,7 +813,7 @@ void TooltipUiSystem::RenderSkillBottom(const std::u16string &id,
     y += lh;
 
     auto next_node =
-        WzResource::ms->get_root()->find(u"String.img/Skill/nextLevel");
+        WzResource::ms_->get_root()->find(u"String.img/Skill/nextLevel");
     str = static_cast<wz::Property<std::u16string> *>(next_node)->get();
 
     Freetype::LoadColor(255, 255, 255, 255);
@@ -836,18 +836,18 @@ void TooltipUiSystem::RenderSkill(const std::u16string &id, uint8_t level,
   h += LoadSkillBottomH(id);
   RenderBackgrnd(x, y, w, h);
   static auto dot0 = WzResource::LoadTexture(
-      WzResource::ui->find(u"Tooltip.img/Equip/Dot/0"));
+      WzResource::ui_->find(u"Tooltip.img/Equip/Dot/0"));
 
   SDL_FRect pos_rect = {x + 10, y + 20, static_cast<float>(dot0->w),
                         static_cast<float>(dot0->h)};
-  SDL_RenderTexture(Window::renderer, dot0, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, dot0, nullptr, &pos_rect);
 
   static auto item_base = WzResource::LoadTexture(
-      WzResource::ui->find(u"UIToolTip.img/Item/ItemIcon/base"));
+      WzResource::ui_->find(u"UIToolTip.img/Item/ItemIcon/base"));
   SDL_FPoint base{10, 35};
   pos_rect = {x + base.x, y + base.y, static_cast<float>(item_base->w),
               static_cast<float>(item_base->h)};
-  SDL_RenderTexture(Window::renderer, item_base, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, item_base, nullptr, &pos_rect);
 
   Freetype::LoadColor(255, 255, 255, 255);
   Freetype::LoadAligned(true);
@@ -865,7 +865,7 @@ void TooltipUiSystem::RenderSkill(const std::u16string &id, uint8_t level,
   pos_rect.x += 4 + dx / 2;
   pos_rect.y += 4 + dy / 2;
 
-  SDL_RenderTexture(Window::renderer, ski_texture, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, ski_texture, nullptr, &pos_rect);
 
   Freetype::LoadSize(12);
   Freetype::LoadColor(255, 255, 255, 255);
@@ -876,8 +876,8 @@ void TooltipUiSystem::RenderSkill(const std::u16string &id, uint8_t level,
           .height;
 
   auto line_y = std::max(sy + rstr_h + 10, y + base.y + 90);
-  SDL_SetRenderDrawColor(Window::renderer, 255, 255, 255, 255);
-  SDL_RenderLine(Window::renderer, x + 5, line_y, x + w - 5, line_y);
+  SDL_SetRenderDrawColor(Window::renderer_, 255, 255, 255, 255);
+  SDL_RenderLine(Window::renderer_, x + 5, line_y, x + w - 5, line_y);
 
   RenderSkillBottom(id, level, x + 14, line_y + 5);
 }
@@ -893,24 +893,24 @@ void TooltipUiSystem::RenderItem(GameItem &item, float x, float y) {
   Freetype::LoadAligned(true);
   Freetype::DrawLine(item_name, x + 20, y + 10);
   static auto dot0 = WzResource::LoadTexture(
-      WzResource::ui->find(u"Tooltip.img/Equip/Dot/0"));
+      WzResource::ui_->find(u"Tooltip.img/Equip/Dot/0"));
 
   SDL_FRect pos_rect = {x + 10, y + 20, static_cast<float>(dot0->w),
                         static_cast<float>(dot0->h)};
-  SDL_RenderTexture(Window::renderer, dot0, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, dot0, nullptr, &pos_rect);
 
   static auto item_base = WzResource::LoadTexture(
-      WzResource::ui->find(u"UIToolTip.img/Item/ItemIcon/base"));
+      WzResource::ui_->find(u"UIToolTip.img/Item/ItemIcon/base"));
   SDL_FPoint base{10, 35};
   pos_rect = {x + base.x, y + base.y, static_cast<float>(item_base->w),
               static_cast<float>(item_base->h)};
-  SDL_RenderTexture(Window::renderer, item_base, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, item_base, nullptr, &pos_rect);
 
   static auto item_cover = WzResource::LoadTexture(
-      WzResource::ui->find(u"UIToolTip.img/Item/ItemIcon/cover"));
+      WzResource::ui_->find(u"UIToolTip.img/Item/ItemIcon/cover"));
   pos_rect = {x + base.x + 4, y + base.y + 4, static_cast<float>(item_cover->w),
               static_cast<float>(item_cover->h)};
-  SDL_RenderTexture(Window::renderer, item_cover, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, item_cover, nullptr, &pos_rect);
 
   auto item_info = ItemGameInstance::LoadItemInfo(item.id, 0);
   auto item_texture = WzResource::LoadTexture(item_info->get_child(u"icon"));
@@ -921,7 +921,7 @@ void TooltipUiSystem::RenderItem(GameItem &item, float x, float y) {
   pos_rect.x += dx / 2;
   pos_rect.y += dy / 2;
 
-  SDL_RenderTexture(Window::renderer, item_texture, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, item_texture, nullptr, &pos_rect);
   Freetype::LoadBold(false);
 
   auto item_desc = ItemGameInstance::LoadItemText(item.id, u"desc");
@@ -956,9 +956,9 @@ void TooltipUiSystem::RenderWorldMapInfo(uint32_t id, float x, float y) {
   Freetype::DrawLine(s2, x + (w - sw) / 2, sh);
 
   if (map_desc != u"") {
-    SDL_SetRenderDrawColor(Window::renderer, 240, 224, 104, 255);
+    SDL_SetRenderDrawColor(Window::renderer_, 240, 224, 104, 255);
     sh += 25;
-    SDL_RenderLine(Window::renderer, x, sh, x + w, sh);
+    SDL_RenderLine(Window::renderer_, x, sh, x + w, sh);
 
     auto s3 = map_desc;
     Freetype::DrawCstr(s3, x + 10, sh + 5, w - 20, 1.1);

@@ -34,7 +34,7 @@ wz::Node *
 AfterimageGameInstance::LoadAtfNodeCache(const std::u16string &i) {
   static std::flat_map<std::u16string, wz::Node *> cache;
   if (!cache.contains(i)) {
-    cache[i] = WzResource::character->find(u"Afterimage/" + i + u".img");
+    cache[i] = WzResource::character_->find(u"Afterimage/" + i + u".img");
   }
   return cache.at(i);
 }
@@ -77,7 +77,7 @@ AfterimageGameInstance::LoadData(GameCharacter &g_character) {
     int32_t character_time = g_character.action_time;
     for (uint8_t i = action_i; i < g_character.action_index; i++) {
       auto delay =
-          CharacterGameInstance::bone_data[g_character.action][i].delay;
+          CharacterGameInstance::bone_data_[g_character.action][i].delay;
       character_time += delay;
     }
     // 根据总时间判断是哪一帧
@@ -142,11 +142,11 @@ uint64_t AfterimageGameInstance::LoadBeatTime(GameCharacter &g_character) {
     const auto &key = it->first;
     auto index = std::stoi(std::string{key.begin(), key.end()});
     const auto &bones =
-        CharacterGameInstance::bone_data.at(g_character.action);
+        CharacterGameInstance::bone_data_.at(g_character.action);
     for (auto i = 0; i < index; i++) {
       time += bones[i].delay * speed;
     }
-    auto now = Window::dt_time;
+    auto now = Window::dt_time_;
     time += now;
   }
   return time;

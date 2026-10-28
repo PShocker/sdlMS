@@ -30,21 +30,21 @@ void WzResource::InitKey() {
 }
 
 void WzResource::InitFiles() {
-  character = new wz::Files("Data/", "Character/Character");
-  map = new wz::Files("Data/", "Map/Map");
-  ui = new wz::Files("Data/", "UI/UI");
-  mob = new wz::Files("Data/", "Mob/Mob");
-  npc = new wz::Files("Data/", "Npc/Npc");
-  skill = new wz::Files("Data/", "Skill/Skill");
-  effect = new wz::Files("Data/", "Effect/Effect");
-  string = new wz::Files("Data/", "String/String");
-  item = new wz::Files("Data/", "Item/Item");
-  sound = new wz::Files("Data/", "Sound/Sound");
-  quest = new wz::Files("Data/", "Quest/Quest");
-  reactor = new wz::Files("Data/", "Reactor/Reactor");
-  morph = new wz::Files("Data/", "Morph/Morph");
+  character_ = new wz::Files("Data/", "Character/Character");
+  map_ = new wz::Files("Data/", "Map/Map");
+  ui_ = new wz::Files("Data/", "UI/UI");
+  mob_ = new wz::Files("Data/", "Mob/Mob");
+  npc_ = new wz::Files("Data/", "Npc/Npc");
+  skill_ = new wz::Files("Data/", "Skill/Skill");
+  effect_ = new wz::Files("Data/", "Effect/Effect");
+  string_ = new wz::Files("Data/", "String/String");
+  item_ = new wz::Files("Data/", "Item/Item");
+  sound_ = new wz::Files("Data/", "Sound/Sound");
+  quest_ = new wz::Files("Data/", "Quest/Quest");
+  reactor_ = new wz::Files("Data/", "Reactor/Reactor");
+  morph_ = new wz::Files("Data/", "Morph/Morph");
 
-  ms = new wz::File("Data/sdlMS.wz");
+  ms_ = new wz::File("Data/sdlMS.wz");
 }
 
 void WzResource::Init() {
@@ -61,13 +61,13 @@ std::string WzResource::LoadMapPath(uint32_t map_id) {
 }
 
 wz::Node *WzResource::LoadMapNode(uint32_t map_id) {
-  if (!map_node_cache.contains(map_id)) {
+  if (!map_node_cache_.contains(map_id)) {
     auto s = LoadMapPath(map_id);
     std::string path =
         "Map/Map" + std::to_string(map_id / 100000000) + "/" + s + ".img";
-    map_node_cache[map_id] = map->find(path);
+    map_node_cache_[map_id] = map_->find(path);
   }
-  return map_node_cache.at(map_id);
+  return map_node_cache_.at(map_id);
 }
 
 SDL_Texture *WzResource::LoadNodeTexture(wz::Node *node) {
@@ -84,14 +84,14 @@ SDL_Texture *WzResource::LoadNodeTexture(wz::Node *node) {
   switch (format) {
   case 1: {
     pixel = raw_data;
-    texture = SDL_CreateTexture(Window::renderer, SDL_PIXELFORMAT_ARGB4444,
+    texture = SDL_CreateTexture(Window::renderer_, SDL_PIXELFORMAT_ARGB4444,
                                 SDL_TEXTUREACCESS_STATIC, w, h);
     SDL_UpdateTexture(texture, NULL, pixel.data(), w * sizeof(Uint16));
     break;
   }
   case 2: {
     pixel = raw_data;
-    texture = SDL_CreateTexture(Window::renderer, SDL_PIXELFORMAT_ARGB8888,
+    texture = SDL_CreateTexture(Window::renderer_, SDL_PIXELFORMAT_ARGB8888,
                                 SDL_TEXTUREACCESS_STATIC, w, h);
     SDL_UpdateTexture(texture, NULL, pixel.data(), w * sizeof(Uint32));
     break;
@@ -119,7 +119,7 @@ SDL_Texture *WzResource::LoadNodeTexture(wz::Node *node) {
       }
       lineIndex += w * 32;
     }
-    texture = SDL_CreateTexture(Window::renderer, SDL_PIXELFORMAT_RGB565,
+    texture = SDL_CreateTexture(Window::renderer_, SDL_PIXELFORMAT_RGB565,
                                 SDL_TEXTUREACCESS_STATIC, w, h);
     SDL_UpdateTexture(texture, NULL, pixel.data(), w * sizeof(Uint16));
     break;
@@ -139,21 +139,21 @@ wz::Node *WzResource::LoadRealNodeTexture(wz::Node *node) {
   if (outlink != nullptr) {
     auto outlink2 = static_cast<wz::Property<std::u16string> *>(outlink)->get();
     const static std::flat_map<std::u16string, wz::Files *> root_map = {
-        {u"Character", character},
-        {u"Effect", effect},
-        {u"Etc", etc},
-        {u"Item", item},
-        {u"Map", map},
-        {u"Mob", mob},
-        {u"Morph", morph},
-        {u"Npc", npc},
-        {u"Quest", quest},
-        {u"Reactor", reactor},
-        {u"Skill", skill},
-        {u"Sound", sound},
-        {u"String", string},
-        {u"TamingMob", taming_mob},
-        {u"UI", ui},
+        {u"Character", character_},
+        {u"Effect", effect_},
+        {u"Etc", etc_},
+        {u"Item", item_},
+        {u"Map", map_},
+        {u"Mob", mob_},
+        {u"Morph", morph_},
+        {u"Npc", npc_},
+        {u"Quest", quest_},
+        {u"Reactor", reactor_},
+        {u"Skill", skill_},
+        {u"Sound", sound_},
+        {u"String", string_},
+        {u"TamingMob", taming_mob_},
+        {u"UI", ui_},
     };
     size_t pos = outlink2.find_first_of(u'/');
     if (pos == std::string::npos) {
@@ -167,12 +167,12 @@ wz::Node *WzResource::LoadRealNodeTexture(wz::Node *node) {
 }
 
 SDL_Texture *WzResource::LoadTexture(wz::Node *node) {
-  if (!texture_cache.contains(node)) {
+  if (!texture_cache_.contains(node)) {
     auto real_node = LoadRealNodeTexture(node);
     auto texture = LoadNodeTexture(real_node);
-    texture_cache[node] = texture;
+    texture_cache_[node] = texture;
   }
-  return texture_cache.at(node);
+  return texture_cache_.at(node);
 }
 
 SDL_FPoint WzResource::LoadFpoint(wz::Node *node) {

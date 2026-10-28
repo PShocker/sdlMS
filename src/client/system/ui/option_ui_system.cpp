@@ -25,14 +25,14 @@ enum class OptionType {
 
 void OptionUiSystem::RenderBackgrnd() {
   static auto texture =
-      WzResource::LoadTexture(WzResource::ui->find(u"Options.img/backgrnd"));
+      WzResource::LoadTexture(WzResource::ui_->find(u"Options.img/backgrnd"));
   SDL_FRect pos_rect{
-      pos.x,
-      pos.y,
+      pos_.x,
+      pos_.y,
       static_cast<float>(texture->w),
       static_cast<float>(texture->h),
   };
-  SDL_RenderTexture(Window::renderer, texture, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, texture, nullptr, &pos_rect);
 }
 
 void OptionUiSystem::RenderOption() {
@@ -40,234 +40,234 @@ void OptionUiSystem::RenderOption() {
   std::vector<SDL_FRect> buttons_rect;
   auto top = CursorGameInstance::cursor_ui == Render;
 
-  switch (static_cast<OptionType>(active_tab)) {
+  switch (static_cast<OptionType>(active_tab_)) {
   case OptionType::kGraphic: {
     static auto backgrnd = WzResource::LoadTexture(
-        WzResource::ui->find(u"Options.img/graphic/layer:backgrnd"));
+        WzResource::ui_->find(u"Options.img/graphic/layer:backgrnd"));
     SDL_FRect pos_rect{
-        pos.x + 9,
-        pos.y + 53,
+        pos_.x + 9,
+        pos_.y + 53,
         static_cast<float>(backgrnd->w),
         static_cast<float>(backgrnd->h),
     };
-    SDL_RenderTexture(Window::renderer, backgrnd, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer_, backgrnd, nullptr, &pos_rect);
     break;
   }
   case OptionType::kSound: {
     static auto backgrnd = WzResource::LoadTexture(
-        WzResource::ui->find(u"Options.img/sound/layer:backgrnd"));
+        WzResource::ui_->find(u"Options.img/sound/layer:backgrnd"));
     SDL_FRect pos_rect{
-        pos.x + 9,
-        pos.y + 53,
+        pos_.x + 9,
+        pos_.y + 53,
         static_cast<float>(backgrnd->w),
         static_cast<float>(backgrnd->h),
     };
-    SDL_RenderTexture(Window::renderer, backgrnd, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer_, backgrnd, nullptr, &pos_rect);
     // master volume
     // hp warn
     Freetype::LoadAligned(true);
     Freetype::LoadColor(255, 255, 255, 255);
-    Freetype::DrawCstr(u"Master Volume", pos.x + 12, pos.y + 53, 105, 1);
+    Freetype::DrawCstr(u"Master Volume", pos_.x + 12, pos_.y + 53, 105, 1);
     Freetype::LoadColor(0, 0, 0, 255);
 
-    Freetype::DrawLine(u"0%", pos.x + 136, pos.y + 91);
-    SliderUiSystem::RenderHslider(pos.x + 163, pos.y + 95, hp_warn, 100, 167,
+    Freetype::DrawLine(u"0%", pos_.x + 136, pos_.y + 91);
+    SliderUiSystem::RenderHslider(pos_.x + 163, pos_.y + 95, hp_warn_, 100, 167,
                                      top, false);
-    Freetype::DrawLine(u"100%", pos.x + 335, pos.y + 91);
+    Freetype::DrawLine(u"100%", pos_.x + 335, pos_.y + 91);
     SDL_Texture *t;
-    if (master_volume_mute) {
+    if (master_volume_mute_) {
       t = WzResource::LoadTexture(
-          WzResource::ui->find(u"Basic.img/CheckBox/0/1"));
+          WzResource::ui_->find(u"Basic.img/CheckBox/0/1"));
     } else {
       t = WzResource::LoadTexture(
-          WzResource::ui->find(u"Basic.img/CheckBox/0/0"));
+          WzResource::ui_->find(u"Basic.img/CheckBox/0/0"));
     }
-    pos_rect.x = pos.x + 1;
-    pos_rect.y = pos.y + 1;
+    pos_rect.x = pos_.x + 1;
+    pos_rect.y = pos_.y + 1;
     pos_rect.w = t->w;
     pos_rect.h = t->h;
-    SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
     Freetype::LoadAligned(true);
     Freetype::LoadSize(12);
     Freetype::LoadColor(0, 0, 0, 255);
-    Freetype::DrawLine(u"Mute", pos.x, pos.y);
+    Freetype::DrawLine(u"Mute", pos_.x, pos_.y);
 
     // BGM
     Freetype::LoadColor(255, 255, 255, 255);
-    Freetype::DrawCstr(u"BGM", pos.x + 12, pos.y + 53, 105, 1);
+    Freetype::DrawCstr(u"BGM", pos_.x + 12, pos_.y + 53, 105, 1);
     Freetype::LoadColor(0, 0, 0, 255);
 
-    Freetype::DrawLine(u"0%", pos.x + 136, pos.y + 91);
-    SliderUiSystem::RenderHslider(pos.x + 163, pos.y + 95, hp_warn, 100, 167,
+    Freetype::DrawLine(u"0%", pos_.x + 136, pos_.y + 91);
+    SliderUiSystem::RenderHslider(pos_.x + 163, pos_.y + 95, hp_warn_, 100, 167,
                                      top, false);
-    Freetype::DrawLine(u"100%", pos.x + 335, pos.y + 91);
-    if (bgm_volume_mute) {
+    Freetype::DrawLine(u"100%", pos_.x + 335, pos_.y + 91);
+    if (bgm_volume_mute_) {
       t = WzResource::LoadTexture(
-          WzResource::ui->find(u"Basic.img/CheckBox/0/1"));
+          WzResource::ui_->find(u"Basic.img/CheckBox/0/1"));
     } else {
       t = WzResource::LoadTexture(
-          WzResource::ui->find(u"Basic.img/CheckBox/0/0"));
+          WzResource::ui_->find(u"Basic.img/CheckBox/0/0"));
     }
-    pos_rect.x = pos.x + 1;
-    pos_rect.y = pos.y + 1;
+    pos_rect.x = pos_.x + 1;
+    pos_rect.y = pos_.y + 1;
     pos_rect.w = t->w;
     pos_rect.h = t->h;
-    SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
     Freetype::LoadAligned(true);
     Freetype::LoadSize(12);
     Freetype::LoadColor(0, 0, 0, 255);
-    Freetype::DrawLine(u"Mute", pos.x, pos.y);
+    Freetype::DrawLine(u"Mute", pos_.x, pos_.y);
 
     // Normal SFX
     Freetype::LoadColor(255, 255, 255, 255);
-    Freetype::DrawCstr(u"Normal SFX", pos.x + 12, pos.y + 53, 105, 1);
+    Freetype::DrawCstr(u"Normal SFX", pos_.x + 12, pos_.y + 53, 105, 1);
     Freetype::LoadColor(0, 0, 0, 255);
 
-    Freetype::DrawLine(u"0%", pos.x + 136, pos.y + 91);
-    SliderUiSystem::RenderHslider(pos.x + 163, pos.y + 95, hp_warn, 100, 167,
+    Freetype::DrawLine(u"0%", pos_.x + 136, pos_.y + 91);
+    SliderUiSystem::RenderHslider(pos_.x + 163, pos_.y + 95, hp_warn_, 100, 167,
                                      top, false);
-    Freetype::DrawLine(u"100%", pos.x + 335, pos.y + 91);
-    if (normal_volume_mute) {
+    Freetype::DrawLine(u"100%", pos_.x + 335, pos_.y + 91);
+    if (normal_volume_mute_) {
       t = WzResource::LoadTexture(
-          WzResource::ui->find(u"Basic.img/CheckBox/0/1"));
+          WzResource::ui_->find(u"Basic.img/CheckBox/0/1"));
     } else {
       t = WzResource::LoadTexture(
-          WzResource::ui->find(u"Basic.img/CheckBox/0/0"));
+          WzResource::ui_->find(u"Basic.img/CheckBox/0/0"));
     }
-    pos_rect.x = pos.x + 1;
-    pos_rect.y = pos.y + 1;
+    pos_rect.x = pos_.x + 1;
+    pos_rect.y = pos_.y + 1;
     pos_rect.w = t->w;
     pos_rect.h = t->h;
-    SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
     Freetype::LoadAligned(true);
     Freetype::LoadSize(12);
     Freetype::LoadColor(0, 0, 0, 255);
-    Freetype::DrawLine(u"Mute", pos.x, pos.y);
+    Freetype::DrawLine(u"Mute", pos_.x, pos_.y);
 
     // Monster SFX
     Freetype::LoadColor(255, 255, 255, 255);
-    Freetype::DrawCstr(u"Monster SFX", pos.x + 12, pos.y + 53, 105, 1);
+    Freetype::DrawCstr(u"Monster SFX", pos_.x + 12, pos_.y + 53, 105, 1);
     Freetype::LoadColor(0, 0, 0, 255);
 
-    Freetype::DrawLine(u"0%", pos.x + 136, pos.y + 91);
-    SliderUiSystem::RenderHslider(pos.x + 163, pos.y + 95, hp_warn, 100, 167,
+    Freetype::DrawLine(u"0%", pos_.x + 136, pos_.y + 91);
+    SliderUiSystem::RenderHslider(pos_.x + 163, pos_.y + 95, hp_warn_, 100, 167,
                                      top, false);
-    Freetype::DrawLine(u"100%", pos.x + 335, pos.y + 91);
-    if (monster_volume_mute) {
+    Freetype::DrawLine(u"100%", pos_.x + 335, pos_.y + 91);
+    if (monster_volume_mute_) {
       t = WzResource::LoadTexture(
-          WzResource::ui->find(u"Basic.img/CheckBox/0/1"));
+          WzResource::ui_->find(u"Basic.img/CheckBox/0/1"));
     } else {
       t = WzResource::LoadTexture(
-          WzResource::ui->find(u"Basic.img/CheckBox/0/0"));
+          WzResource::ui_->find(u"Basic.img/CheckBox/0/0"));
     }
-    pos_rect.x = pos.x + 1;
-    pos_rect.y = pos.y + 1;
+    pos_rect.x = pos_.x + 1;
+    pos_rect.y = pos_.y + 1;
     pos_rect.w = t->w;
     pos_rect.h = t->h;
-    SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
     Freetype::LoadAligned(true);
     Freetype::LoadSize(12);
     Freetype::LoadColor(0, 0, 0, 255);
-    Freetype::DrawLine(u"Mute", pos.x, pos.y);
+    Freetype::DrawLine(u"Mute", pos_.x, pos_.y);
 
     // Skill SFX
     Freetype::LoadColor(255, 255, 255, 255);
-    Freetype::DrawCstr(u"Skill SFX", pos.x + 12, pos.y + 53, 105, 1);
+    Freetype::DrawCstr(u"Skill SFX", pos_.x + 12, pos_.y + 53, 105, 1);
     Freetype::LoadColor(0, 0, 0, 255);
 
-    Freetype::DrawLine(u"0%", pos.x + 136, pos.y + 91);
-    SliderUiSystem::RenderHslider(pos.x + 163, pos.y + 95, hp_warn, 100, 167,
+    Freetype::DrawLine(u"0%", pos_.x + 136, pos_.y + 91);
+    SliderUiSystem::RenderHslider(pos_.x + 163, pos_.y + 95, hp_warn_, 100, 167,
                                      top, false);
-    Freetype::DrawLine(u"100%", pos.x + 335, pos.y + 91);
-    if (skill_volume_mute) {
+    Freetype::DrawLine(u"100%", pos_.x + 335, pos_.y + 91);
+    if (skill_volume_mute_) {
       t = WzResource::LoadTexture(
-          WzResource::ui->find(u"Basic.img/CheckBox/0/1"));
+          WzResource::ui_->find(u"Basic.img/CheckBox/0/1"));
     } else {
       t = WzResource::LoadTexture(
-          WzResource::ui->find(u"Basic.img/CheckBox/0/0"));
+          WzResource::ui_->find(u"Basic.img/CheckBox/0/0"));
     }
-    pos_rect.x = pos.x + 1;
-    pos_rect.y = pos.y + 1;
+    pos_rect.x = pos_.x + 1;
+    pos_rect.y = pos_.y + 1;
     pos_rect.w = t->w;
     pos_rect.h = t->h;
-    SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
     Freetype::LoadAligned(true);
     Freetype::LoadSize(12);
     Freetype::LoadColor(0, 0, 0, 255);
-    Freetype::DrawLine(u"Mute", pos.x, pos.y);
+    Freetype::DrawLine(u"Mute", pos_.x, pos_.y);
     break;
   }
   case OptionType::kGame: {
     static auto backgrnd = WzResource::LoadTexture(
-        WzResource::ui->find(u"Options.img/game/layer:backgrnd"));
+        WzResource::ui_->find(u"Options.img/game/layer:backgrnd"));
     SDL_FRect pos_rect{
-        pos.x + 9,
-        pos.y + 53,
+        pos_.x + 9,
+        pos_.y + 53,
         static_cast<float>(backgrnd->w),
         static_cast<float>(backgrnd->h),
     };
-    SDL_RenderTexture(Window::renderer, backgrnd, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer_, backgrnd, nullptr, &pos_rect);
     // hp warn
     Freetype::LoadAligned(true);
     Freetype::LoadColor(255, 255, 255, 255);
-    Freetype::DrawCstr(u"HP Warning", pos.x + 12, pos.y + 53, 105, 1.3);
+    Freetype::DrawCstr(u"HP Warning", pos_.x + 12, pos_.y + 53, 105, 1.3);
     Freetype::LoadColor(0, 0, 0, 255);
 
-    Freetype::DrawLine(u"0%", pos.x + 136, pos.y + 58);
+    Freetype::DrawLine(u"0%", pos_.x + 136, pos_.y + 58);
     // hp slider
-    SliderUiSystem::RenderHslider(pos.x + 163, pos.y + 63, hp_warn, 100, 167,
+    SliderUiSystem::RenderHslider(pos_.x + 163, pos_.y + 63, hp_warn_, 100, 167,
                                      top, false);
-    Freetype::DrawLine(u"100%", pos.x + 335, pos.y + 58);
+    Freetype::DrawLine(u"100%", pos_.x + 335, pos_.y + 58);
 
     // mp warn
     Freetype::LoadColor(255, 255, 255, 255);
-    Freetype::DrawCstr(u"MP Warning", pos.x + 12, pos.y + 86, 105, 1.3);
+    Freetype::DrawCstr(u"MP Warning", pos_.x + 12, pos_.y + 86, 105, 1.3);
     Freetype::LoadColor(0, 0, 0, 255);
-    Freetype::DrawLine(u"0%", pos.x + 136, pos.y + 91);
-    SliderUiSystem::RenderHslider(pos.x + 163, pos.y + 95, hp_warn, 100, 167,
+    Freetype::DrawLine(u"0%", pos_.x + 136, pos_.y + 91);
+    SliderUiSystem::RenderHslider(pos_.x + 163, pos_.y + 95, hp_warn_, 100, 167,
                                      top, false);
-    Freetype::DrawLine(u"100%", pos.x + 335, pos.y + 91);
+    Freetype::DrawLine(u"100%", pos_.x + 335, pos_.y + 91);
 
     // enemy info
     Freetype::LoadColor(255, 255, 255, 255);
-    Freetype::DrawCstr(u"Enemy Info", pos.x + 12, pos.y + 119, 105, 1.3);
+    Freetype::DrawCstr(u"Enemy Info", pos_.x + 12, pos_.y + 119, 105, 1.3);
     Freetype::LoadColor(0, 0, 0, 255);
-    ComboBoxUiSystem::Render(pos.x + 131, pos.y + 124, enemy_info_cm, top,
+    ComboBoxUiSystem::Render(pos_.x + 131, pos_.y + 124, enemy_info_cm, top,
                                 false);
     // screen format
     Freetype::LoadColor(255, 255, 255, 255);
-    Freetype::DrawCstr(u"ScreenShot File\n Format", pos.x + 12, pos.y + 158,
+    Freetype::DrawCstr(u"ScreenShot File\n Format", pos_.x + 12, pos_.y + 158,
                         105, 1);
     Freetype::LoadColor(0, 0, 0, 255);
-    ComboBoxUiSystem::Render(pos.x + 131, pos.y + 164, screenshot_format,
+    ComboBoxUiSystem::Render(pos_.x + 131, pos_.y + 164, screenshot_format,
                                 top, false);
     // screen folder
     Freetype::LoadColor(255, 255, 255, 255);
-    Freetype::DrawCstr(u"ScreenShot File\n Format", pos.x + 12, pos.y + 158,
+    Freetype::DrawCstr(u"ScreenShot File\n Format", pos_.x + 12, pos_.y + 158,
                         105, 1);
     Freetype::LoadColor(0, 0, 0, 255);
 
-    ComboBoxUiSystem::Render(pos.x + 131, pos.y + 197, screenshot_location,
+    ComboBoxUiSystem::Render(pos_.x + 131, pos_.y + 197, screenshot_location,
                                 top, false);
     // burst screen shot
     SDL_Texture *t;
-    if (continue_capture) {
+    if (continue_capture_) {
       t = WzResource::LoadTexture(
-          WzResource::ui->find(u"Basic.img/CheckBox/0/1"));
+          WzResource::ui_->find(u"Basic.img/CheckBox/0/1"));
     } else {
       t = WzResource::LoadTexture(
-          WzResource::ui->find(u"Basic.img/CheckBox/0/0"));
+          WzResource::ui_->find(u"Basic.img/CheckBox/0/0"));
     }
-    pos_rect.x = pos.x + 1;
-    pos_rect.y = pos.y + 1;
+    pos_rect.x = pos_.x + 1;
+    pos_rect.y = pos_.y + 1;
     pos_rect.w = t->w;
     pos_rect.h = t->h;
-    SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
     std::u16string text = u"Continuous Capture";
     Freetype::LoadSize(12);
     Freetype::DrawLine(text, pos_rect.x + 100, pos_rect.y);
 
-    auto tmp = std::to_string(continue_capture_num);
+    auto tmp = std::to_string(continue_capture_num_);
     text = std::u16string{tmp.begin(), tmp.end()} + u"   Shots";
     Freetype::LoadColor(0, 0, 0, 255);
     Freetype::DrawLine(text, pos_rect.x + 100, pos_rect.y);
@@ -283,37 +283,37 @@ void OptionUiSystem::RenderOption() {
     };
 
     text = u"2 to 10 Shots Avaliable";
-    Freetype::DrawLine(text, pos.x, pos.y);
+    Freetype::DrawLine(text, pos_.x, pos_.y);
 
-    if (auto_capture) {
+    if (auto_capture_) {
       t = WzResource::LoadTexture(
-          WzResource::ui->find(u"Basic.img/CheckBox/0/1"));
+          WzResource::ui_->find(u"Basic.img/CheckBox/0/1"));
     } else {
       t = WzResource::LoadTexture(
-          WzResource::ui->find(u"Basic.img/CheckBox/0/0"));
+          WzResource::ui_->find(u"Basic.img/CheckBox/0/0"));
     }
-    pos_rect.x = pos.x + 1;
-    pos_rect.y = pos.y + 1;
+    pos_rect.x = pos_.x + 1;
+    pos_rect.y = pos_.y + 1;
     pos_rect.w = t->w;
     pos_rect.h = t->h;
-    SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
     text = u"Auto-Capture Memorable Moments";
 
-    if (memory_map) {
+    if (memory_map_) {
       t = WzResource::LoadTexture(
-          WzResource::ui->find(u"Basic.img/CheckBox/0/1"));
+          WzResource::ui_->find(u"Basic.img/CheckBox/0/1"));
     } else {
       t = WzResource::LoadTexture(
-          WzResource::ui->find(u"Basic.img/CheckBox/0/0"));
+          WzResource::ui_->find(u"Basic.img/CheckBox/0/0"));
     }
-    pos_rect.x = pos.x + 1;
-    pos_rect.y = pos.y + 1;
+    pos_rect.x = pos_.x + 1;
+    pos_rect.y = pos_.y + 1;
     pos_rect.w = t->w;
     pos_rect.h = t->h;
-    SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
     text = u"Use";
 
-    tmp = std::to_string(memory_limit);
+    tmp = std::to_string(memory_limit_);
     text = std::u16string{tmp.begin(), tmp.end()} + u"   Shots";
     Freetype::LoadColor(0, 0, 0, 255);
     Freetype::DrawLine(text, pos_rect.x + 100, pos_rect.y);
@@ -322,29 +322,29 @@ void OptionUiSystem::RenderOption() {
   }
   case OptionType::kSocial: {
     static auto backgrnd = WzResource::LoadTexture(
-        WzResource::ui->find(u"Options.img/game/layer:backgrnd"));
+        WzResource::ui_->find(u"Options.img/game/layer:backgrnd"));
     SDL_FRect pos_rect{
-        pos.x + 9,
-        pos.y + 53,
+        pos_.x + 9,
+        pos_.y + 53,
         static_cast<float>(backgrnd->w),
         static_cast<float>(backgrnd->h),
     };
-    SDL_RenderTexture(Window::renderer, backgrnd, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer_, backgrnd, nullptr, &pos_rect);
 
     SDL_Texture *t;
     //whisper
-    if (whisper) {
+    if (whisper_) {
       t = WzResource::LoadTexture(
-          WzResource::ui->find(u"Basic.img/CheckBox/0/1"));
+          WzResource::ui_->find(u"Basic.img/CheckBox/0/1"));
     } else {
       t = WzResource::LoadTexture(
-          WzResource::ui->find(u"Basic.img/CheckBox/0/0"));
+          WzResource::ui_->find(u"Basic.img/CheckBox/0/0"));
     }
-    pos_rect.x = pos.x + 1;
-    pos_rect.y = pos.y + 1;
+    pos_rect.x = pos_.x + 1;
+    pos_rect.y = pos_.y + 1;
     pos_rect.w = t->w;
     pos_rect.h = t->h;
-    SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
     std::u16string text = u"Continuous Capture";
     Freetype::LoadSize(12);
     Freetype::DrawLine(text, pos_rect.x + 100, pos_rect.y);
@@ -353,34 +353,34 @@ void OptionUiSystem::RenderOption() {
   for (size_t i = 0; i < buttons_nodes.size(); ++i) {
     auto k = buttons_nodes[i];
     auto pos_rect = buttons_rect[i];
-    pos_rect.x += pos.x;
-    pos_rect.y += pos.y;
+    pos_rect.x += pos_.x;
+    pos_rect.y += pos_.y;
     pos_rect.x = (int)pos_rect.x;
     pos_rect.y = (int)pos_rect.y;
-    auto &mouse_pos = Window::mouse_pos;
+    auto &mouse_pos = Window::mouse_pos_;
     // 判断按钮是否被遮挡
     auto CursorIn = CursorGameInstance::cursor_ui;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && CursorIn == Render &&
         !CursorGameInstance::modal_overlay) {
-      if (Window::mouse_state & SDL_BUTTON_LMASK) {
+      if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
         auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
-        SDL_RenderTexture(Window::renderer, pressed, nullptr, &pos_rect);
+        SDL_RenderTexture(Window::renderer_, pressed, nullptr, &pos_rect);
       } else {
         auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
-        SDL_RenderTexture(Window::renderer, mouse_over, nullptr, &pos_rect);
+        SDL_RenderTexture(Window::renderer_, mouse_over, nullptr, &pos_rect);
       }
     } else {
       auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
-      SDL_RenderTexture(Window::renderer, normal, nullptr, &pos_rect);
+      SDL_RenderTexture(Window::renderer_, normal, nullptr, &pos_rect);
     }
   }
 }
 
 void OptionUiSystem::RenderButton() {
   const static std::array buttons_node = {
-      WzResource::ui->find(u"KeyBindings.img/quickslot/button:confirm"),
-      WzResource::ui->find(u"ChannelChange.img/Channel/BtCancel"),
-      WzResource::ui->find(u"Basic.img/BtClose"),
+      WzResource::ui_->find(u"KeyBindings.img/quickslot/button:confirm"),
+      WzResource::ui_->find(u"ChannelChange.img/Channel/BtCancel"),
+      WzResource::ui_->find(u"Basic.img/BtClose"),
   };
   const std::array buttons_rect = {
       SDL_FRect{176, 407, 53, 18}, //
@@ -390,23 +390,23 @@ void OptionUiSystem::RenderButton() {
   for (size_t i = 0; i < buttons_node.size(); ++i) {
     auto k = buttons_node[i];
     auto pos_rect = buttons_rect[i];
-    pos_rect.x += (int)pos.x;
-    pos_rect.y += (int)pos.y;
-    auto &mouse_pos = Window::mouse_pos;
+    pos_rect.x += (int)pos_.x;
+    pos_rect.y += (int)pos_.y;
+    auto &mouse_pos = Window::mouse_pos_;
     // 判断按钮是否被遮挡
     auto CursorIn = CursorGameInstance::cursor_ui;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && CursorIn == Render &&
         !CursorGameInstance::modal_overlay) {
-      if (Window::mouse_state & SDL_BUTTON_LMASK) {
+      if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
         auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
-        SDL_RenderTexture(Window::renderer, pressed, nullptr, &pos_rect);
+        SDL_RenderTexture(Window::renderer_, pressed, nullptr, &pos_rect);
       } else {
         auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
-        SDL_RenderTexture(Window::renderer, mouse_over, nullptr, &pos_rect);
+        SDL_RenderTexture(Window::renderer_, mouse_over, nullptr, &pos_rect);
       }
     } else {
       auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
-      SDL_RenderTexture(Window::renderer, normal, nullptr, &pos_rect);
+      SDL_RenderTexture(Window::renderer_, normal, nullptr, &pos_rect);
     }
   }
 }
@@ -419,7 +419,7 @@ void OptionUiSystem::RenderTab() {
       SDL_FPoint{223, 24}, //
       SDL_FPoint{294, 24}, //
   };
-  const static auto tab_node = WzResource::ui->find(u"Options.img/tab");
+  const static auto tab_node = WzResource::ui_->find(u"Options.img/tab");
   const static std::array active_texture = {
       WzResource::LoadTexture(tab_node->find(u"enabled/0")),
       WzResource::LoadTexture(tab_node->find(u"enabled/1")),
@@ -435,14 +435,14 @@ void OptionUiSystem::RenderTab() {
       WzResource::LoadTexture(tab_node->find(u"disabled/4")),
   };
   for (uint8_t i = 0; i < tab_pos.size(); i++) {
-    SDL_Texture *t = active_tab == i ? active_texture[i] : disabled_texture[i];
+    SDL_Texture *t = active_tab_ == i ? active_texture[i] : disabled_texture[i];
     SDL_FRect pos_rect{
-        static_cast<float>(int(pos.x + tab_pos[i].x)),
-        static_cast<float>(int(pos.y + tab_pos[i].y)),
+        static_cast<float>(int(pos_.x + tab_pos[i].x)),
+        static_cast<float>(int(pos_.y + tab_pos[i].y)),
         static_cast<float>(t->w),
         static_cast<float>(t->h),
     };
-    SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
   }
 }
 
@@ -458,58 +458,58 @@ SDL_FPoint OptionUiSystem::LoadWh() { return {287, 432}; }
 
 void OptionUiSystem::Open() {
   auto it =
-      std::ranges::find(System::render_systems, &CursorRenderSystem::Render);
-  if (it != System::render_systems.end()) {
+      std::ranges::find(System::render_systems_, &CursorRenderSystem::Render);
+  if (it != System::render_systems_.end()) {
     auto wh = LoadWh();
-    auto &camera = CameraGameInstance::camera;
-    pos.x = (camera.w - wh.x) / 2;
-    pos.y = (camera.h - wh.y) / 2;
+    auto &camera = CameraGameInstance::camera_;
+    pos_.x = (camera.w - wh.x) / 2;
+    pos_.y = (camera.h - wh.y) / 2;
 
-    active_tab = static_cast<uint8_t>(OptionType::kGame);
+    active_tab_ = static_cast<uint8_t>(OptionType::kGame);
 
-    System::render_systems.insert(it, Render);
-    System::event_systems.insert(System::event_systems.begin(), Event);
+    System::render_systems_.insert(it, Render);
+    System::event_systems_.insert(System::event_systems_.begin(), Event);
   }
 }
 
 void OptionUiSystem::Close() {
-  std::erase(System::render_systems, Render);
-  std::erase(System::event_systems, Event);
+  std::erase(System::render_systems_, Render);
+  std::erase(System::event_systems_, Event);
 }
 
 void OptionUiSystem::EventTop() {
-  std::erase(System::render_systems, Render);
-  std::erase(System::event_systems, Event);
+  std::erase(System::render_systems_, Render);
+  std::erase(System::event_systems_, Event);
   auto it =
-      std::ranges::find(System::render_systems, &CursorRenderSystem::Render);
-  if (it != System::render_systems.end()) {
-    System::render_systems.insert(it, Render);
-    System::event_systems.insert(System::event_systems.begin(), Event);
+      std::ranges::find(System::render_systems_, &CursorRenderSystem::Render);
+  if (it != System::render_systems_.end()) {
+    System::render_systems_.insert(it, Render);
+    System::event_systems_.insert(System::event_systems_.begin(), Event);
   }
 }
 
 void OptionUiSystem::EventDragStart(SDL_Event *Event) {
   auto wh = LoadWh();
-  SDL_FRect pos_rect = {pos.x, pos.y, wh.x, 20};
+  SDL_FRect pos_rect = {pos_.x, pos_.y, wh.x, 20};
   SDL_FPoint mouse_pos = {Event->button.x, Event->button.y};
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    drag = {pos.x - Event->button.x, pos.y - Event->button.y};
+    drag_ = {pos_.x - Event->button.x, pos_.y - Event->button.y};
   }
   return;
 }
 
 void OptionUiSystem::EventDragEnd() {
-  drag = std::nullopt;
+  drag_ = std::nullopt;
   return;
 }
 
 void OptionUiSystem::EventDragMove(SDL_Event *Event) {
-  if (drag.has_value()) {
-    pos = {Event->motion.x + drag->x, Event->motion.y + drag->y};
-    auto &camera = CameraGameInstance::camera;
+  if (drag_.has_value()) {
+    pos_ = {Event->motion.x + drag_->x, Event->motion.y + drag_->y};
+    auto &camera = CameraGameInstance::camera_;
     auto [w, h] = LoadWh();
-    pos.x = std::clamp(pos.x, (float)0, camera.w - w);
-    pos.y = std::clamp(pos.y, (float)0, camera.h - h);
+    pos_.x = std::clamp(pos_.x, (float)0, camera.w - w);
+    pos_.y = std::clamp(pos_.y, (float)0, camera.h - h);
   }
   return;
 }
@@ -523,10 +523,10 @@ void OptionUiSystem::EventTab(SDL_Event *Event) {
   };
   for (uint8_t i = 0; i < tab_rect.size(); i++) {
     auto pos_rect = tab_rect[i];
-    pos_rect.x += pos.x;
-    pos_rect.y += pos.y;
-    if (SDL_PointInRectFloat(&Window::mouse_pos, &pos_rect)) {
-      active_tab = i;
+    pos_rect.x += pos_.x;
+    pos_rect.y += pos_.y;
+    if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect)) {
+      active_tab_ = i;
     }
   }
 }
@@ -541,9 +541,9 @@ bool OptionUiSystem::EventButton(SDL_Event *Event) {
 
   for (size_t i = 0; i < buttons_rect.size(); ++i) {
     auto pos_rect = buttons_rect[i];
-    pos_rect.x += pos.x;
-    pos_rect.y += pos.y;
-    if (SDL_PointInRectFloat(&Window::mouse_pos, &pos_rect)) {
+    pos_rect.x += pos_.x;
+    pos_rect.y += pos_.y;
+    if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect)) {
       buttons_func[i]();
       AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
       return true;
@@ -560,12 +560,12 @@ void OptionUiSystem::EventMotionBtAudio(SDL_Event *Event) {
   std::vector<SDL_FRect> buttons_rect = {};
 
   static int8_t bt_audio = -1;
-  auto &mouse_pos = Window::mouse_pos;
+  auto &mouse_pos = Window::mouse_pos_;
   int8_t bt_in = -1;
   for (size_t i = 0; i < buttons_rect.size(); ++i) {
     auto pos_rect = buttons_rect[i];
-    pos_rect.x += (int)pos.x;
-    pos_rect.y += (int)pos.y;
+    pos_rect.x += (int)pos_.x;
+    pos_rect.y += (int)pos_.y;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
       bt_in = i;
       break;
@@ -614,7 +614,7 @@ bool OptionUiSystem::Event(SDL_Event *Event) {
 void OptionUiSystem::Toggle() {
   AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
   auto fn = &Render;
-  if (std::ranges::contains(System::render_systems, fn)) {
+  if (std::ranges::contains(System::render_systems_, fn)) {
     Close();
   } else {
     Open();
@@ -623,7 +623,7 @@ void OptionUiSystem::Toggle() {
 
 bool OptionUiSystem::CursorIn() {
   auto [w, h] = LoadWh();
-  auto &mouse = Window::mouse_pos;
-  SDL_FRect pos_rect{pos.x, pos.y, w, h};
+  auto &mouse = Window::mouse_pos_;
+  SDL_FRect pos_rect{pos_.x, pos_.y, w, h};
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }

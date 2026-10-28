@@ -9,10 +9,10 @@
 #include <string>
 
 void GainLogUiSystem::RenderText() {
-  auto &data = GainLogGameInstance::data;
+  auto &data = GainLogGameInstance::data_;
   Freetype::LoadSize(12);
-  auto screen_w = CameraGameInstance::camera.w;
-  auto screen_h = CameraGameInstance::camera.h;
+  auto screen_w = CameraGameInstance::camera_.w;
+  auto screen_h = CameraGameInstance::camera_.h;
   auto base_y = (screen_h - 168);
   for (int i = data.size() - 1; i >= 0; i--) {
     const auto &g_log = data[i];
@@ -43,8 +43,8 @@ void GainLogUiSystem::RenderText() {
       break;
     }
     }
-    if (g_log.destroy > Window::dt_now) {
-      float alpha = g_log.destroy - Window::dt_now;
+    if (g_log.destroy > Window::dt_now_) {
+      float alpha = g_log.destroy - Window::dt_now_;
       alpha = (alpha / 10000) * 255;
       Freetype::LoadColor(255, 255, 255, alpha);
       auto text_w = Freetype::LoadW(text);
@@ -56,10 +56,10 @@ void GainLogUiSystem::RenderText() {
 }
 
 void GainLogUiSystem::Destory() {
-  auto &data = GainLogGameInstance::data;
+  auto &data = GainLogGameInstance::data_;
   std::erase_if(data, [](GameGainLog &g_log) {
     auto destroy = g_log.destroy;
-    return destroy <= Window::dt_now;
+    return destroy <= Window::dt_now_;
   });
 }
 

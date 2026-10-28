@@ -13,7 +13,7 @@
 
 void NpcRenderSystem::RenderNametag(const std::u16string &text,
                                        SDL_FPoint p) {
-  const auto &camera = CameraGameInstance::camera;
+  const auto &camera = CameraGameInstance::camera_;
   Freetype::LoadAligned(true);
   Freetype::LoadSize(13);
   auto w = Freetype::LoadW(text);
@@ -29,9 +29,9 @@ void NpcRenderSystem::RenderNametag(const std::u16string &text,
   if (SDL_HasRectIntersectionFloat(&rect, &camera)) {
     rect.x -= camera.x;
     rect.y -= camera.y;
-    SDL_SetRenderDrawBlendMode(Window::renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(Window::renderer, 0, 0, 0, 178);
-    SDL_RenderFillRect(Window::renderer, &rect);
+    SDL_SetRenderDrawBlendMode(Window::renderer_, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(Window::renderer_, 0, 0, 0, 178);
+    SDL_RenderFillRect(Window::renderer_, &rect);
     Freetype::LoadColor(255, 205, 0, 255);
     Freetype::DrawLine(text, x - camera.x - w / 2, y - camera.y);
   }
@@ -95,12 +95,12 @@ bool NpcRenderSystem::RenderNpc(GameNpc &g_npc) {
       .w = static_cast<float>(texture->w),
       .h = static_cast<float>(texture->h),
   };
-  auto &camera = CameraGameInstance::camera;
+  auto &camera = CameraGameInstance::camera_;
   if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
     pos_rect.x -= camera.x;
     pos_rect.y -= camera.y;
     SDL_SetTextureAlphaMod(texture, g_npc.alpha);
-    SDL_RenderTextureRotated(Window::renderer, texture, nullptr, &pos_rect, 0,
+    SDL_RenderTextureRotated(Window::renderer_, texture, nullptr, &pos_rect, 0,
                              nullptr, (SDL_FlipMode)g_npc.flip);
   }
 
@@ -112,13 +112,13 @@ void NpcRenderSystem::RenderQuest(GameNpc &g_npc) {
   if (node != nullptr) {
     auto origin = WzResource::LoadFpoint(node->get_child(u"origin"));
     auto texture = WzResource::LoadTexture(node);
-    auto &camera = CameraGameInstance::camera;
+    auto &camera = CameraGameInstance::camera_;
     auto pos_rect = NpcGameInstance::LoadQuestRect(g_npc).value();
     pos_rect.x -= camera.x;
     pos_rect.y -= camera.y;
     pos_rect.x = (int)pos_rect.x;
     pos_rect.y = (int)pos_rect.y;
-    SDL_RenderTexture(Window::renderer, texture, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer_, texture, nullptr, &pos_rect);
   }
 }
 

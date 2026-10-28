@@ -22,7 +22,7 @@ static void Guanchuanjian() {
   GameSkill g_skill;
   g_skill.id = u"3201004";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
-    auto &sf = CharacterGameInstance::self;
+    auto &sf = CharacterGameInstance::self_;
     CharacterLogicSystem::RunAttackAction(sf, true);
     auto delay = SkillGameInstance::LoadSkiTime(sf);
     auto ski_lvl2 = std::to_string(ski_lv);
@@ -52,7 +52,7 @@ static void Guanchuanjian() {
     if (!cm.data.empty()) {
       for (auto &data : cm.data) {
         cct.payload->ball->mob_index = data.mob.index;
-        auto mob_pos = MobGameInstance::data.at(data.mob.index).mob.pos;
+        auto mob_pos = MobGameInstance::data_.at(data.mob.index).mob.pos;
         cct.payload->ball->y1 = mob_pos.y;
         cct.payload->ball->x2 = 0;
         cct.payload->ball->y2 = 0;

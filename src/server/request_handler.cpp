@@ -135,9 +135,9 @@ void RequestHandler::HandleRequest(uint64_t client_id, void *buf,
     auto payload = packet->payload_as_ClientCharacterInfo();
     fbs::ClientCharacterInfoT r;
     payload->UnPackTo(&r);
-    if (ServerClientInstance::clients.contains(r.payload)) {
+    if (ServerClientInstance::clients_.contains(r.payload)) {
       const auto &character =
-          ServerClientInstance::clients[r.payload].player_t.character;
+          ServerClientInstance::clients_[r.payload].player_t.character;
       ServerCharacterInfoT sct;
       sct.payload = std::make_unique<CharacterT>(*character);
       ServerResponse::send_to_client(client_id, sct);
@@ -251,12 +251,12 @@ void RequestHandler::HandleRequest(uint64_t client_id, void *buf,
         ServerReactorInstance::HandleSReactor(*r);
       }
     } else {
-      Window::dt_time_end = Window::dt_now;
-      Window::dt_time_base =
-          r.time + (Window::dt_time_end - Window::dt_time_start) / 2;
-      Window::dt_time = Window::dt_time_base;
+      Window::dt_time_end_ = Window::dt_now_;
+      Window::dt_time_base_ =
+          r.time + (Window::dt_time_end_ - Window::dt_time_start_) / 2;
+      Window::dt_time_ = Window::dt_time_base_;
 
-      ServerMain::local_addr = r.client_id;
+      ServerMain::local_addr_ = r.client_id;
       FadeSystemInstance::EnterIn(SceneSystemInstance::EnterFade);
     }
     break;
@@ -309,7 +309,7 @@ void RequestHandler::HandleRequest(uint64_t client_id, void *buf,
     auto payload = packet->payload_as_ServerCharacterOut();
     fbs::ServerCharacterOutT r;
     payload->UnPackTo(&r);
-    CharacterGameInstance::others.erase(r.client_id);
+    CharacterGameInstance::others_.erase(r.client_id);
     break;
   }
   case NetPayload_ServerMobEvent: {
@@ -358,8 +358,8 @@ void RequestHandler::HandleRequest(uint64_t client_id, void *buf,
     auto payload = packet->payload_as_ServerCharacter();
     fbs::ServerCharacterT r;
     payload->UnPackTo(&r);
-    if (CharacterGameInstance::others.contains(r.client_id)) {
-      auto &g = CharacterGameInstance::others[r.client_id].g_character;
+    if (CharacterGameInstance::others_.contains(r.client_id)) {
+      auto &g = CharacterGameInstance::others_[r.client_id].g_character;
       ServerCharacterInstance::LoadGCharacter(g, r.payload);
     }
     break;
@@ -376,7 +376,7 @@ void RequestHandler::HandleRequest(uint64_t client_id, void *buf,
     fbs::ServerCharacterInfoT r;
     payload->UnPackTo(&r);
     auto character = ServerCharacterInstance::LoadGCharacter(r.payload);
-    CharacterInfoUiSystem::character = character;
+    CharacterInfoUiSystem::character_ = character;
     CharacterInfoUiSystem::Close();
     CharacterInfoUiSystem::Open();
     break;
@@ -434,8 +434,8 @@ void RequestHandler::HandleRequest(uint64_t client_id, void *buf,
     auto payload = packet->payload_as_ServerCharacterLvUp();
     fbs::ServerCharacterLvUpT r;
     payload->UnPackTo(&r);
-    if (CharacterGameInstance::others.contains(r.client_id)) {
-      auto &g = CharacterGameInstance::others[r.client_id].g_character;
+    if (CharacterGameInstance::others_.contains(r.client_id)) {
+      auto &g = CharacterGameInstance::others_[r.client_id].g_character;
       ServerCharacterInstance::HandleLvUp(g);
     }
     break;

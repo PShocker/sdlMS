@@ -31,7 +31,7 @@ static void Baozhajian() {
             SDL_FPoint{0, -30},
         },
     };
-    auto &sf = CharacterGameInstance::self;
+    auto &sf = CharacterGameInstance::self_;
     CharacterLogicSystem::RunAttackAction(sf, true);
     auto cm = CharacterLogicSystem::RunAttackCheck(sf, tri);
     if (!cm.data.empty()) {
@@ -79,14 +79,14 @@ static void Baozhajian() {
     ClientRequest::send_to_host(ckt);
 
     ClientMobDebuffT cmb;
-    cmb.map_id = SceneSystemInstance::map_id;
+    cmb.map_id = SceneSystemInstance::map_id_;
     for (int i = 0; i < cm.data.size(); i++) {
       auto &data = cm.data[i];
       MobDebuffT md;
       md.mob_index = data.mob.index;
       md.payload->val = static_cast<int64_t>(GameDebuff::DebuffType::kDizz);
-      md.payload->delay = Window::dt_time;
-      md.payload->time = Window::dt_time + 5000;
+      md.payload->delay = Window::dt_time_;
+      md.payload->time = Window::dt_time_ + 5000;
     }
     if (!cmb.payload.empty()) {
       ClientRequest::send_to_host(cmb);
@@ -101,7 +101,7 @@ static void Wuyingjian() {
   g_skill.climb = true;
   g_skill.id = u"3101003";
   g_skill.end = []() {
-    auto &ski = SkillGameInstance::ski;
+    auto &ski = SkillGameInstance::ski_;
     auto it = std::ranges::find_if(
         ski, [](const GameSkill &s) { return s.id == u"3101003"; });
     if (it != ski.end()) {
@@ -115,7 +115,7 @@ static void Wuyingjian() {
       return;
     }
     if (ski_id.empty()) {
-      auto &sf = CharacterGameInstance::self;
+      auto &sf = CharacterGameInstance::self_;
       if (sf.action == u"shoot1") {
         ItemGameInstance::AddItemNum(*b, 1);
       }
@@ -130,22 +130,22 @@ static void Wuyingjian() {
   g_skill.frame = []() { return; };
 
   g_skill.use = [g_skill](uint64_t client_id, int ski_lv) mutable {
-    auto &sf = CharacterGameInstance::self;
+    auto &sf = CharacterGameInstance::self_;
     auto action_type = CharacterLogicSystem::LoadActionType(sf);
     if (action_type != CharacterLogicSystem::ActionEnum::kClimb) {
       CharacterLogicSystem::RunAction(sf, u"alert2");
     } else {
-      CharacterLogicSystem::self_climb_animate_cooldown =
-          Window::dt_now + 700;
+      CharacterLogicSystem::self_climb_animate_cooldown_ =
+          Window::dt_now_ + 700;
     }
-    auto &ski = SkillGameInstance::ski;
+    auto &ski = SkillGameInstance::ski_;
     g_skill.end();
     g_skill.lv = ski_lv;
     g_skill.duration = 30 * 1000;
-    g_skill.destroy = Window::dt_now + g_skill.duration;
+    g_skill.destroy = Window::dt_now_ + g_skill.duration;
     ski.push_back(g_skill);
 
-    SkillGameInstance::Skis()[u"3101003"].cd = Window::dt_now + 1000;
+    SkillGameInstance::Skis()[u"3101003"].cd = Window::dt_now_ + 1000;
 
     auto ckt = SkillGameInstance::CreateSkillPayload(3101003, ski_lv);
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);

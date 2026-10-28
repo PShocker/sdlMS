@@ -13,11 +13,11 @@
 #include <vector>
 
 bool ServerHeartbeatSystem::RunClientHeartbeat() {
-  if (SceneSystemInstance::map_id == 0 ||
-      SceneSystemInstance::prepare_map_id == 0) {
+  if (SceneSystemInstance::map_id_ == 0 ||
+      SceneSystemInstance::prepare_map_id_ == 0) {
     return false;
   }
-  auto current_time = Window::dt_now;
+  auto current_time = Window::dt_now_;
   auto server_hb_time = ServerHeartbeatInstance::host_heartbeat;
   // 先检查有没有掉线
   if (server_hb_time != 0 &&
@@ -43,14 +43,14 @@ bool ServerHeartbeatSystem::RunClientHeartbeat() {
 
 bool ServerHeartbeatSystem::RunServerHeartbeat() {
   // 服务端主动检查心跳
-  auto current_time = Window::dt_now;
-  auto &clients = ServerClientInstance::clients;
+  auto current_time = Window::dt_now_;
+  auto &clients = ServerClientInstance::clients_;
   for (auto it = clients.begin(); it != clients.end();) {
     auto client = it->second;
     if (current_time - client.heartbeat >=
         ServerHeartbeatInstance::heartbeat_interval * 2000) {
       it = clients.erase(it);
-      auto &scenes = ServerSceneInstance::scenes[client.map_id];
+      auto &scenes = ServerSceneInstance::scenes_[client.map_id];
       scenes.clients.erase(client.client_id);
       for (const auto other : scenes.clients) {
         fbs::ServerCharacterOutT r;
@@ -66,13 +66,13 @@ bool ServerHeartbeatSystem::RunServerHeartbeat() {
 }
 
 void ServerHeartbeatSystem::ReceiveClientHeartbeat(uint64_t client_id) {
-  if (ServerClientInstance::clients.contains(client_id)) {
-    ServerClientInstance::clients.at(client_id).heartbeat = Window::dt_now;
+  if (ServerClientInstance::clients_.contains(client_id)) {
+    ServerClientInstance::clients_.at(client_id).heartbeat = Window::dt_now_;
   }
   ServerHeartbeatT r;
   ServerResponse::send_to_client(client_id, r);
 }
 
 void ServerHeartbeatSystem::ReceiveServerHeartbeat() {
-  ServerHeartbeatInstance::host_heartbeat = Window::dt_now;
+  ServerHeartbeatInstance::host_heartbeat = Window::dt_now_;
 }

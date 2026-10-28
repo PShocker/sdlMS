@@ -10,11 +10,11 @@
 
 void ObjLogicSystem::RunAnimate(GameObj &g_obj) {
   if (g_obj.ani_count > 1) {
-    g_obj.ani_time += Window::delta_time;
+    g_obj.ani_time += Window::delta_time_;
 
     auto index = std::to_string(g_obj.ani_index);
 
-    auto obj_node = WzResource::map->find(g_obj.path);
+    auto obj_node = WzResource::map_->find(g_obj.path);
     obj_node = obj_node->get_child(index);
     if (obj_node->type == wz::Type::UOL) {
       obj_node = static_cast<wz::Property<wz::WzUOL> *>(obj_node)->get_uol();
@@ -34,7 +34,7 @@ void ObjLogicSystem::RunAnimate(GameObj &g_obj) {
 }
 
 void ObjLogicSystem::RunAlpha(GameObj &g_obj) {
-  auto obj_node = WzResource::map->find(g_obj.path);
+  auto obj_node = WzResource::map_->find(g_obj.path);
   auto index = std::to_string(g_obj.ani_index);
   obj_node = obj_node->get_child(index);
   if (obj_node->type == wz::Type::UOL) {
@@ -54,7 +54,7 @@ void ObjLogicSystem::RunAlpha(GameObj &g_obj) {
 }
 
 bool ObjLogicSystem::Run() {
-  for (auto &o : ObjGameInstance::data) {
+  for (auto &o : ObjGameInstance::data_) {
     for (auto &g_obj : o | std::views::values) {
       RunAnimate(g_obj);
       RunAlpha(g_obj);

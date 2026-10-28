@@ -25,14 +25,14 @@
 SDL_AppResult SDL_AppIterate(void *appstate) {
   Window::Tick();
   Window::Clear();
-  for (const auto &fn : System::logic_systems) {
+  for (const auto &fn : System::logic_systems_) {
     if (!fn()) {
       break;
     }
   }
 
   // shader_game_instance::start(shader_enum::grayscale);
-  for (const auto &fn : System::render_systems) {
+  for (const auto &fn : System::render_systems_) {
     if (!fn()) {
       break;
     }
@@ -40,7 +40,7 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
   // shader_game_instance::end();
 
   Window::Update();
-  for (const auto &fn : ServerSystem::server_systems) {
+  for (const auto &fn : ServerSystem::server_systems_) {
     if (fn() == false) {
       break;
     }
@@ -74,9 +74,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   CharacterGameInstance::InitCharacterBone();
   CharacterGameInstance::InitDefaultClothes();
   CharacterGameInstance::LoadSelfCharacter();
-  CharacterGameInstance::self.job = u"000";
-  CharacterGameInstance::self.level = 1;
-  CharacterGameInstance::self.name = u"进击的蓝蘑菇";
+  CharacterGameInstance::self_.job = u"000";
+  CharacterGameInstance::self_.level = 1;
+  CharacterGameInstance::self_.name = u"进击的蓝蘑菇";
   // character_game_instance::self.morph = u"0001";
 
   SDL_HideCursor();
@@ -95,7 +95,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
 
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *Event) {
   auto r = (Event->type == SDL_EVENT_QUIT) ? SDL_APP_SUCCESS : SDL_APP_CONTINUE;
-  for (auto &fn : System::event_systems) {
+  for (auto &fn : System::event_systems_) {
     if (fn(Event) == false) {
       break;
     }

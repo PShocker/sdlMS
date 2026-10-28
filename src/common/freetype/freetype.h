@@ -26,14 +26,14 @@ class Freetype {
   };
 
 private:
-  static inline FT_Library library = nullptr;
-  static inline FT_Face face = nullptr;
-  static inline uint8_t size;
-  static inline SDL_Color color;
-  static inline std::flat_map<FreetypeCacheKey, FreetypeCacheValue> cache;
+  static inline FT_Library library_ = nullptr;
+  static inline FT_Face face_ = nullptr;
+  static inline uint8_t size_;
+  static inline SDL_Color color_;
+  static inline std::flat_map<FreetypeCacheKey, FreetypeCacheValue> cache_;
 
-  static inline bool aligned;
-  static inline bool bold;
+  static inline bool aligned_;
+  static inline bool bold_;
 
   static float LoadCharW(const char16_t c);
 
