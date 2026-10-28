@@ -6,6 +6,7 @@
 
 #include <cstdint>
 #include <vector>
+
 namespace sdlms {
 
 class DropLogicSystem {

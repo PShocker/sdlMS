@@ -16,8 +16,8 @@
 #include <cstdint>
 #include <flat_map>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 wz::Node* SkillGameInstance::LoadSkiLevelNode(const std::u16string& id,
                                               uint8_t l) {

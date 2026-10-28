@@ -12,8 +12,8 @@
 #include <flat_map>
 #include <optional>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 std::polymorphic<GameItem> ShopGameInstance::LoadItem(
     const std::u16string& id) {

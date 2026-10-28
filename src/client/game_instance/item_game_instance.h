@@ -10,6 +10,7 @@
 #include <cstdint>
 #include <memory>
 #include <string>
+
 namespace sdlms {
 
 class ItemGameInstance {

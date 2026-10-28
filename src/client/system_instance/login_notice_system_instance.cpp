@@ -2,8 +2,8 @@
 
 #include "src/client/system/system.h"
 #include "src/client/system/ui/login_notice_ui_system.h"
-namespace sdlms {
 
+namespace sdlms {
 
 void LoginNoticeSystemInstance::Enter(NoticeType type, void (*fn)()) {
   LoginNoticeUiSystem::type_ = type;

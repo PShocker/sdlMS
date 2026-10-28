@@ -14,8 +14,8 @@
 
 #include <flat_map>
 #include <format>
-namespace sdlms {
 
+namespace sdlms {
 
 void ChatLogUiSystem::RenderVscr() {
   const uint32_t length = 80;

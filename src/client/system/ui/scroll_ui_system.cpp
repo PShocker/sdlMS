@@ -8,8 +8,8 @@
 
 #include <algorithm>
 #include <cmath>
-namespace sdlms {
 
+namespace sdlms {
 
 void ScrollUiSystem::RenderVscroll(float x, float y, uint32_t val,
                                    uint32_t count, int32_t length, bool top,

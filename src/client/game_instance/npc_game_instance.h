@@ -10,6 +10,7 @@
 #include <flat_set>
 #include <string>
 #include <vector>
+
 namespace sdlms {
 
 class NpcGameInstance {

@@ -7,8 +7,8 @@
 #include <memory>
 #include <optional>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 struct GameStorage {
   std::vector<std::polymorphic<GameItem>> data;

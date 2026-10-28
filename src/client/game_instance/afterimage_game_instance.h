@@ -10,8 +10,8 @@
 #include <cstdint>
 #include <optional>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 struct AfterimageData {
   SDL_Texture* texture;

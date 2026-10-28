@@ -19,8 +19,8 @@
 #include <string>
 #include <utility>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 void ServerReactorInstance::LoadReactor(ServerSceneState& scene) {
   std::vector<ServerReactorState> data;

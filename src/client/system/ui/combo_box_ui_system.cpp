@@ -6,8 +6,8 @@
 
 #include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_render.h>
-namespace sdlms {
 
+namespace sdlms {
 
 void ComboBoxUiSystem::Render(int x, int y, ComboBox cm, bool top,
                               bool disable) {

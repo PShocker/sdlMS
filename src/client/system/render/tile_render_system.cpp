@@ -5,8 +5,8 @@
 #include "src/common/wz/wz_resource.h"
 
 #include <wz/Property.h>
-namespace sdlms {
 
+namespace sdlms {
 
 bool TileRenderSystem::Render(GameTile& g_tile) {
   auto tile_node = WzResource::map_->find(g_tile.path);

@@ -1,6 +1,8 @@
 #ifndef SDLMS_SRC_CLIENT_SYSTEM_LOGIC_SKILL_LOGIC_SYSTEM_H_
 #define SDLMS_SRC_CLIENT_SYSTEM_LOGIC_SKILL_LOGIC_SYSTEM_H_
+
 namespace sdlms {
+
 class SkillLogicSystem {
  public:
   static bool Run();

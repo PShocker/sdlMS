@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <vector>
+
 namespace sdlms {
 
 struct GameAnimate {

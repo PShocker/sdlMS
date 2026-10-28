@@ -9,8 +9,8 @@
 #include "src/server/server_instance/server_scene_instance.h"
 
 #include <wz/Property.h>
-namespace sdlms {
 
+namespace sdlms {
 
 void ServerReactorSystem::RunScript(ServerReactorState& r) {
   if (r.revive != 0) {

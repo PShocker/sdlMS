@@ -21,8 +21,8 @@
 #include <cstdint>
 #include <optional>
 #include <ranges>
-namespace sdlms {
 
+namespace sdlms {
 
 void CharacterChooseSystemInstance::EnterPrepare(const std::string& login) {
   GameSaveSystemInstance::LoadSave(login);

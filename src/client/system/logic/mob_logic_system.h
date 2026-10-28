@@ -4,6 +4,7 @@
 #include "src/client/game/game_mob.h"
 
 #include <string>
+
 namespace sdlms {
 
 class MobLogicSystem {

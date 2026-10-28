@@ -4,8 +4,8 @@
 #include <cstdint>
 #include <ctime>
 #include <random>
-namespace sdlms {
 
+namespace sdlms {
 
 class RandomGameInstance {
  public:

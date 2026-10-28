@@ -13,8 +13,8 @@
 #include <wz/Wz.h>
 
 #include <ranges>
-namespace sdlms {
 
+namespace sdlms {
 
 void NpcRenderSystem::RenderNametag(const std::u16string& text, SDL_FPoint p) {
   const auto& camera = CameraGameInstance::camera_;

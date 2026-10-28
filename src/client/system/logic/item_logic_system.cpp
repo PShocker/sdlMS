@@ -2,8 +2,8 @@
 
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/window/window.h"
-namespace sdlms {
 
+namespace sdlms {
 
 bool ItemLogicSystem::Run() {
   auto v = ItemGameInstance::buff_;

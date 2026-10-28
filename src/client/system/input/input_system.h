@@ -2,6 +2,7 @@
 #define SDLMS_SRC_CLIENT_SYSTEM_INPUT_INPUT_SYSTEM_H_
 
 #include "src/client/game/game_input.h"
+
 namespace sdlms {
 
 class InputSystem {

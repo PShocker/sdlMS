@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <string>
+
 namespace sdlms {
 
 struct GameFace {

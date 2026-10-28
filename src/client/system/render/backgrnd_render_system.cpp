@@ -9,8 +9,8 @@
 
 #include <cstdint>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 bool BackgrndRenderSystem::Render(GameBackgrnd& g_backgrnd) {
   auto delta_time = Window::delta_time_;

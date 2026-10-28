@@ -7,6 +7,7 @@
 #include <flat_set>
 #include <optional>
 #include <string>
+
 namespace sdlms {
 
 class QuestAlarmUiSystem {

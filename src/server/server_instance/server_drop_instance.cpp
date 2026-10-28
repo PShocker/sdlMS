@@ -25,8 +25,8 @@
 #include <format>
 #include <optional>
 #include <utility>
-namespace sdlms {
 
+namespace sdlms {
 
 float ServerDropInstance::CalAvailableTime(float y1, float y2) {
   const float VY = 400.0f;                      // 初速度（向上）

@@ -3,8 +3,8 @@
 
 #include <cstdint>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 struct GameDebuff {
   enum class DebuffType {

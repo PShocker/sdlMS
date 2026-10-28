@@ -4,6 +4,7 @@
 #include <SDL3/SDL_rect.h>
 
 #include <array>
+
 namespace sdlms {
 
 class GameTriangle {

@@ -4,6 +4,7 @@
 #include "src/client/game/game_obj.h"
 
 #include <SDL3/SDL_rect.h>
+
 namespace sdlms {
 
 class ObjRenderSystem {

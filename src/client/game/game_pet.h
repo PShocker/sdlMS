@@ -6,8 +6,8 @@
 #include <SDL3/SDL_rect.h>
 
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 struct GamePet {
   GameCharacter* g_character;

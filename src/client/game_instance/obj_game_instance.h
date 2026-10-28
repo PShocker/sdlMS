@@ -10,6 +10,7 @@
 #include <cstdint>
 #include <flat_map>
 #include <vector>
+
 namespace sdlms {
 
 class ObjGameInstance {

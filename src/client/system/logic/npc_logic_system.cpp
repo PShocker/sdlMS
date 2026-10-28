@@ -21,8 +21,8 @@
 #include <random>
 #include <ranges>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 bool NpcLogicSystem::RunAnimate(GameNpc& g_npc) {
   bool r = false;

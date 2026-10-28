@@ -17,8 +17,8 @@
 
 #include <algorithm>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 SDL_FPoint CharacterStatUiSystem::LoadWh() {
   return {185, 281};

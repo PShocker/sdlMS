@@ -19,8 +19,8 @@
 #include <optional>
 #include <string>
 #include <utility>
-namespace sdlms {
 
+namespace sdlms {
 
 // ============================================================
 // load

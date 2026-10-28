@@ -8,6 +8,7 @@
 
 #include <string>
 #include <vector>
+
 namespace sdlms {
 
 class CharacterCreateUiSystem {

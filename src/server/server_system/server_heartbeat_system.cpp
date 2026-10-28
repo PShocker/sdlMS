@@ -14,8 +14,8 @@
 #include <cstdint>
 #include <ranges>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 bool ServerHeartbeatSystem::RunClientHeartbeat() {
   if (SceneSystemInstance::map_id_ == 0 ||

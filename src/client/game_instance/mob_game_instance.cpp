@@ -20,8 +20,8 @@
 #include <ranges>
 #include <string>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 std::u16string MobGameInstance::LoadMobName(const std::u16string& id) {
   std::u16string r = u"";

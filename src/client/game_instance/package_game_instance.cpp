@@ -11,8 +11,8 @@
 #include <cstdint>
 #include <memory>
 #include <optional>
-namespace sdlms {
 
+namespace sdlms {
 
 void PackageGameInstance::Load(const CharacterSaveData& cs) {
   for (auto& d : data_) {

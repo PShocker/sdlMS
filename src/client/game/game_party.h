@@ -8,8 +8,8 @@
 #include <cstdint>
 #include <string>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 struct GameParty {
   uint64_t captain_id;

@@ -11,8 +11,8 @@
 
 #include <ranges>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 bool ReactorLogicSystem::RunAnimate(GameReactor& g_reactor) {
   bool finish = false;

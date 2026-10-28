@@ -10,8 +10,8 @@
 #include <cstdint>
 #include <optional>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 class CharacterChooseUiSystem {
  private:

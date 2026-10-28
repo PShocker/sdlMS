@@ -6,8 +6,8 @@
 #include "src/server/server_instance/server_scene_instance.h"
 
 #include <memory>
-namespace sdlms {
 
+namespace sdlms {
 
 void ServerDropSystem::RunFade() {
   fbs::ServerDropFadeT sdf;

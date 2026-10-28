@@ -8,8 +8,8 @@
 
 #include <cmath>
 #include <optional>
-namespace sdlms {
 
+namespace sdlms {
 
 void SliderUiSystem::RenderHslider(int x, int y, uint32_t val, uint32_t count,
                                    int32_t length, bool top, bool disable) {

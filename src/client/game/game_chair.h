@@ -6,8 +6,8 @@
 #include <cstdint>
 #include <optional>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 struct GameChair {
   std::u16string id;

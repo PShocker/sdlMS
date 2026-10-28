@@ -2,6 +2,7 @@
 #define SDLMS_SRC_CLIENT_SYSTEM_RENDER_PORTAL_RENDER_SYSTEM_H_
 
 #include "src/client/game/game_portal.h"
+
 namespace sdlms {
 
 class PortalRenderSystem {

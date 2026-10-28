@@ -12,8 +12,8 @@
 
 #include <string>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 SDL_FPoint LoginNoticeUiSystem::LoadPos() {
   SDL_FPoint pos;

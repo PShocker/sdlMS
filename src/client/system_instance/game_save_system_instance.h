@@ -1,11 +1,12 @@
 #ifndef SDLMS_SRC_CLIENT_SYSTEM_INSTANCE_GAME_SAVE_SYSTEM_INSTANCE_H_
 #define SDLMS_SRC_CLIENT_SYSTEM_INSTANCE_GAME_SAVE_SYSTEM_INSTANCE_H_
+
 #include "src/client/game/game_save.h"
 
 #include <optional>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 class GameSaveSystemInstance {
  public:

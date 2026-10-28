@@ -12,8 +12,8 @@
 
 #include <numeric>
 #include <optional>
-namespace sdlms {
 
+namespace sdlms {
 
 std::optional<ChatballoonRenderSystem::BackgrndPad>
 ChatballoonRenderSystem::RenderBackgrnd(GameChatballoon& g_chatballoon,

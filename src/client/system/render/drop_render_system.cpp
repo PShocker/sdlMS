@@ -10,8 +10,8 @@
 #include <SDL3/SDL_render.h>
 
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 bool DropRenderSystem::Render(GameDrop& g_drop) {
   SDL_Texture* icon;

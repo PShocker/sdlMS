@@ -1,5 +1,7 @@
 
+
 namespace sdlms {
+
 class GainLogUiSystem {
  private:
   static void RenderText();

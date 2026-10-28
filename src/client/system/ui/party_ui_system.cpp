@@ -11,8 +11,8 @@
 #include <wz/Property.h>
 
 #include <algorithm>
-namespace sdlms {
 
+namespace sdlms {
 
 void PartyUiSystem::RenderBackgrnd(float x, float y, float w, float h) {
   // backgrnd

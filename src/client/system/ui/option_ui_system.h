@@ -8,6 +8,7 @@
 
 #include <cstdint>
 #include <optional>
+
 namespace sdlms {
 
 class OptionUiSystem {
@@ -55,7 +56,6 @@ class OptionUiSystem {
   static inline bool friend_login_;
   static inline bool message_time_;
   static inline uint8_t chatbox_size_;
-
 
   // game
   static inline uint8_t hp_warn_;

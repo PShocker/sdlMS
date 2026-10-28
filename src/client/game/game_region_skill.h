@@ -5,8 +5,8 @@
 
 #include <cstdint>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 struct GameRegionSkill {
   std::u16string id;

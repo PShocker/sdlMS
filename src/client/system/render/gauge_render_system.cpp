@@ -6,8 +6,8 @@
 
 #include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_render.h>
-namespace sdlms {
 
+namespace sdlms {
 
 bool GaugeRenderSystem::RenderMob(SDL_FPoint pos, GameGauge& g) {
   static auto back = WzResource::LoadTexture(

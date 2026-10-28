@@ -11,8 +11,8 @@
 
 #include <cstdint>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 static void Jianyu() {
   GameSkill g_skill;

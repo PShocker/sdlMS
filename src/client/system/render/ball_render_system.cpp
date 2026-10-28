@@ -10,8 +10,8 @@
 #include <wz/Property.h>
 
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 bool BallRenderSystem::Render(GameBall& g_ball) {
   auto now = Window::dt_time_;

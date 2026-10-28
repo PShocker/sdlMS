@@ -75,8 +75,8 @@
 #include <ranges>
 #include <utility>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 bool SceneSystemInstance::RenderGame() {
   std::array<std::vector<GameCharacter*>, 8> character_array;

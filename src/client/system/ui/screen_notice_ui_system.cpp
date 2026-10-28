@@ -10,8 +10,8 @@
 #include <SDL3/SDL_render.h>
 
 #include <ranges>
-namespace sdlms {
 
+namespace sdlms {
 
 SDL_FPoint ScreenNoticeUiSystem::LoadWh() {
   return {209, 289};

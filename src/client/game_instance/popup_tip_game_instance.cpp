@@ -1,8 +1,8 @@
 #include "src/client/game_instance/popup_tip_game_instance.h"
 
 #include "src/client/game/game_popup_tip.h"
-namespace sdlms {
 
+namespace sdlms {
 
 bool PopupTipGameInstance::CheckType(PopupTipEnums type) {
   for (int i = 0; i < data_.size(); i++) {

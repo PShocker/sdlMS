@@ -12,8 +12,8 @@
 #include <algorithm>
 #include <cstdint>
 #include <ranges>
-namespace sdlms {
 
+namespace sdlms {
 
 bool FadeSystemInstance::Render() {
   SDL_FRect pos_rect{

@@ -5,6 +5,7 @@
 #include <SDL3/SDL_rect.h>
 
 #include <optional>
+
 namespace sdlms {
 
 class StatusbarMenuUiSystem {
@@ -25,7 +26,6 @@ class StatusbarMenuUiSystem {
   static void EventButtonParty();
   static void EventButtonQuest();
   static void EventButtonCraft();
-
 
   static bool EventButton(SDL_Event* Event);
 

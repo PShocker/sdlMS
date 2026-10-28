@@ -29,8 +29,8 @@
 #include <ranges>
 #include <string>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 void MinimapUiSystem::RenderMini() {
   static auto w =

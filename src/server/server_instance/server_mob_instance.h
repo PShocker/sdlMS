@@ -9,8 +9,8 @@
 
 #include <cstdint>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 class ServerMobInstance {
  public:

@@ -15,8 +15,8 @@
 #include <flat_set>
 #include <string>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 struct CheckMobs {
   struct Mobs {

@@ -6,6 +6,7 @@
 #include <SDL3/SDL_rect.h>
 
 #include <string>
+
 namespace sdlms {
 
 class NpcRenderSystem {

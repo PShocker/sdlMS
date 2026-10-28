@@ -2,6 +2,7 @@
 #define SDLMS_SRC_CLIENT_SYSTEM_LOGIC_BACKGRND_LOGIC_SYSTEM_H_
 
 #include "src/client/game/game_backgrnd.h"
+
 namespace sdlms {
 
 class BackgrndLogicSystem {

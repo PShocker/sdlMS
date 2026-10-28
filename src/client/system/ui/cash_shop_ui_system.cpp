@@ -4,8 +4,8 @@
 #include "src/common/wz/wz_resource.h"
 
 #include <SDL3/SDL_rect.h>
-namespace sdlms {
 
+namespace sdlms {
 
 void CashShopUiSystem::RenderBackgrnd() {
   static auto backgrnd = WzResource::LoadTexture(

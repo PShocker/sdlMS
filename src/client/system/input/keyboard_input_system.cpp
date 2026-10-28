@@ -8,8 +8,8 @@
 #include <cstdio>
 #include <flat_map>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 bool KeyboardInputSystem::Event(SDL_Event* Event) {
   auto repeat = Event->key.repeat;

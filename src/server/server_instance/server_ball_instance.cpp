@@ -9,8 +9,8 @@
 #include "src/server/server_instance/server_scene_instance.h"
 
 #include <SDL3/SDL_rect.h>
-namespace sdlms {
 
+namespace sdlms {
 
 void ServerBallInstance::HandleBall(uint64_t client_id,
                                     fbs::ClientCharacterBallT& r) {

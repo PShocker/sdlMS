@@ -14,8 +14,8 @@
 #include <optional>
 #include <string>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 class StatusbarUiSystem {
  private:

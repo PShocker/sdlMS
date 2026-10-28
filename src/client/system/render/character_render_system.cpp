@@ -22,8 +22,8 @@
 #include <flat_set>
 #include <string>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 bool CharacterRenderSystem::RenderCharacter(GameCharacter& g_character) {
   std::flat_multimap<std::u16string, const CharacterAvatar*> renders;

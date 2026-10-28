@@ -4,8 +4,8 @@
 #include "src/client/game/game_popup_tip.h"
 
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 class PopupTipGameInstance {
  private:

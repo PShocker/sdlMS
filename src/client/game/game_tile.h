@@ -5,6 +5,7 @@
 
 #include <cstdint>
 #include <string>
+
 namespace sdlms {
 
 struct GameTile {

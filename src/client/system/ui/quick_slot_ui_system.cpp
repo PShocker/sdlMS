@@ -21,8 +21,8 @@
 #include <format>
 #include <optional>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 void QuickSlotUiSystem::RenderInputIcon(const GameInput& i, int x, int y,
                                         uint8_t alpha) {

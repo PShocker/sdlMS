@@ -21,8 +21,8 @@
 
 #include <algorithm>
 #include <ranges>
-namespace sdlms {
 
+namespace sdlms {
 
 void CharacterCreateSystemInstance::EnterPrepare() {
   CharacterCreateUiSystem::ResetCharacter(false);

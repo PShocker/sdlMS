@@ -21,8 +21,8 @@
 #include <ranges>
 #include <string>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 bool EquipGameInstance::CheckEquip(const std::u16string& id) {
   auto r = id.substr(0, 2);

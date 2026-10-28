@@ -37,8 +37,8 @@
 #include <optional>
 #include <string>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 static std::u16string selected;
 

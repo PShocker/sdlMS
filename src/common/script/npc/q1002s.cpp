@@ -9,6 +9,7 @@
 #include "src/common/wz/wz_resource.h"
 
 #include <wz/Property.h>
+
 namespace sdlms {
 
 // roger apple

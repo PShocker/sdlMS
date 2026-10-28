@@ -4,8 +4,8 @@
 #include "src/common/wz/wz_resource.h"
 
 #include <wz/Property.h>
-namespace sdlms {
 
+namespace sdlms {
 
 void LadderropeGameInstance::Load(uint32_t map_id) {
   data_.clear();

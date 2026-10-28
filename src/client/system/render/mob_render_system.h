@@ -2,6 +2,7 @@
 #define SDLMS_SRC_CLIENT_SYSTEM_RENDER_MOB_RENDER_SYSTEM_H_
 
 #include "src/client/game/game_mob.h"
+
 namespace sdlms {
 
 class MobRenderSystem {

@@ -21,8 +21,8 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 static void Erduantiao() {
   GameSkill g_skill;

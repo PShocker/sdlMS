@@ -15,8 +15,8 @@
 #include <cstring>
 #include <flat_map>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 std::u16string TextGameInstance::ReplaceN(std::u16string str) {
   std::u16string_view pattern = u"\\n";

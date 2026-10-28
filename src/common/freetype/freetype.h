@@ -1,5 +1,6 @@
 #ifndef SDLMS_SRC_COMMON_FREETYPE_FREETYPE_H_
 #define SDLMS_SRC_COMMON_FREETYPE_FREETYPE_H_
+
 #include <SDL3/SDL_pixels.h>
 #include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_render.h>
@@ -11,8 +12,8 @@
 #include <string>
 
 #include FT_FREETYPE_H
-namespace sdlms {
 
+namespace sdlms {
 
 class Freetype {
   struct FreetypeCacheKey {

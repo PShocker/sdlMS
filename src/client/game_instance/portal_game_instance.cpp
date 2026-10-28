@@ -6,8 +6,8 @@
 #include <wz/Property.h>
 
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 const static std::u16string pt_list[] = {
     u"sp",  u"ph",  u"pv", u"pc",  u"pg",  u"tp",  u"ps",   u"pgi",

@@ -12,8 +12,8 @@
 #include <flat_map>
 #include <flat_set>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 struct ServerSceneState {
   uint32_t map_id;

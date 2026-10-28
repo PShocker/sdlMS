@@ -14,8 +14,8 @@
 #include <algorithm>
 #include <cstdint>
 #include <optional>
-namespace sdlms {
 
+namespace sdlms {
 
 SDL_FPoint StorageUiSystem::LoadWh() {
   return {421, 366};

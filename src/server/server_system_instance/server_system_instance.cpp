@@ -8,8 +8,8 @@
 #include "src/server/server_system/server_system.h"
 
 #include <algorithm>
-namespace sdlms {
 
+namespace sdlms {
 
 void ServerSystemInstance::Enter(bool host) {
   if (host) {

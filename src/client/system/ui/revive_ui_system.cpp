@@ -16,8 +16,8 @@
 
 #include <algorithm>
 #include <optional>
-namespace sdlms {
 
+namespace sdlms {
 
 void ReviveUiSystem::RenderBackgrnd() {
   static auto texture =

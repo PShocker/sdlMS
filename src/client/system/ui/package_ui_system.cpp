@@ -43,8 +43,8 @@
 #include <string>
 #include <utility>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 void PackageUiSystem::CalMouseIndex() {
   mouse_index_ = std::nullopt;

@@ -33,8 +33,8 @@
 #include <optional>
 #include <string>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 int QuestUiSystem::LoadVscrNum0() {
   std::flat_map<int8_t, std::vector<GameQuest>> quests;

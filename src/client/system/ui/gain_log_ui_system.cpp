@@ -9,8 +9,8 @@
 
 #include <format>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 void GainLogUiSystem::RenderText() {
   auto& data = GainLogGameInstance::data_;

@@ -10,8 +10,8 @@
 #include <cstdint>
 #include <ranges>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 void BackgrndLogicSystem::RunAnimate(GameBackgrnd& g_backgrnd) {
   if (g_backgrnd.ani == 1) {

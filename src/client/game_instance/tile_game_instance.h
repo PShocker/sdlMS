@@ -1,11 +1,13 @@
 #ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_TILE_GAME_INSTANCE_H_
 #define SDLMS_SRC_CLIENT_GAME_INSTANCE_TILE_GAME_INSTANCE_H_
+
 #include "src/client/game/game_tile.h"
 
 #include <wz/Node.h>
 
 #include <flat_map>
 #include <vector>
+
 namespace sdlms {
 
 class TileGameInstance {

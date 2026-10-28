@@ -3,8 +3,8 @@
 #include "src/server/server_instance/server_scene_instance.h"
 
 #include <ranges>
-namespace sdlms {
 
+namespace sdlms {
 
 void ServerClientInstance::ClientExit(uint64_t client_id) {
   if (clients_.contains(client_id)) {

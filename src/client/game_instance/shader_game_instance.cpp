@@ -1,5 +1,7 @@
 
+
 namespace sdlms {
+
 // #include "shader_game_instance.h"
 // #include "src/client/window/window.h"
 // #include <iterator>

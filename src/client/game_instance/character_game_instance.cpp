@@ -16,8 +16,8 @@
 #include <ranges>
 #include <string>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 void CharacterGameInstance::InitCharacterBone() {
   auto character_node = WzResource::character_;

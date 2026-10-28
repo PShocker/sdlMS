@@ -17,8 +17,8 @@
 
 #include <cstdint>
 #include <memory>
-namespace sdlms {
 
+namespace sdlms {
 
 static void PowerStrke() {
   GameSkill g_skill;

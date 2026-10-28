@@ -5,8 +5,8 @@
 
 #include <functional>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 bool SkillLogicSystem::Run() {
   auto& v = SkillGameInstance::ski_;

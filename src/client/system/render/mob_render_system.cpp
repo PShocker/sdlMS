@@ -14,8 +14,8 @@
 
 #include <algorithm>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 bool MobRenderSystem::RenderMob(GameMob& g_mob) {
   auto action_type = MobLogicSystem::LoadActionType(g_mob.action);

@@ -4,6 +4,7 @@
 #include "src/client/game/game_effect.h"
 
 #include <vector>
+
 namespace sdlms {
 
 class EffectLogicSystem {

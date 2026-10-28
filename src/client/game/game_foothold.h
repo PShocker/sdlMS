@@ -5,6 +5,7 @@
 
 #include <cstdint>
 #include <optional>
+
 namespace sdlms {
 
 struct GameFoothold {

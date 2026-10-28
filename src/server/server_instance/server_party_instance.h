@@ -8,8 +8,8 @@
 #include <cstdint>
 #include <flat_map>
 #include <optional>
-namespace sdlms {
 
+namespace sdlms {
 
 class ServerPartyInstance {
  private:

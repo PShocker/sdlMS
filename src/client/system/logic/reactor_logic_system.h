@@ -2,6 +2,7 @@
 #define SDLMS_SRC_CLIENT_SYSTEM_LOGIC_REACTOR_LOGIC_SYSTEM_H_
 
 #include "src/client/game/game_reactor.h"
+
 namespace sdlms {
 
 class ReactorLogicSystem {

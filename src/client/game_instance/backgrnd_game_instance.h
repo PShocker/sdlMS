@@ -7,6 +7,7 @@
 
 #include <cstdint>
 #include <flat_map>
+
 namespace sdlms {
 
 class BackgrndGameInstance {

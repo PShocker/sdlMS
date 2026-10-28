@@ -6,8 +6,8 @@
 #include "src/server/server_main.h"
 
 #include <cstdint>
-namespace sdlms {
 
+namespace sdlms {
 
 class ClientRequest {
  public:

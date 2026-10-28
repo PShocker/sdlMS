@@ -7,6 +7,7 @@
 
 #include <cstdint>
 #include <optional>
+
 namespace sdlms {
 
 class KeybindingUiSystem {
@@ -41,7 +42,6 @@ class KeybindingUiSystem {
 
   static void EventBackgrndKey();
   static void EventRemainKey();
-
 
   static bool EventButton(SDL_Event* Event);
 

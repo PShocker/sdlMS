@@ -7,8 +7,8 @@
 #include <flat_map>
 #include <string>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 struct QuestMob {
   std::u16string id;

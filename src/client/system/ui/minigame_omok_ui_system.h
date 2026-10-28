@@ -2,6 +2,7 @@
 #define SDLMS_SRC_CLIENT_SYSTEM_UI_MINIGAME_OMOK_UI_SYSTEM_H_
 
 #include <SDL3/SDL_events.h>
+
 namespace sdlms {
 
 class MinigameOmokUiSystem {

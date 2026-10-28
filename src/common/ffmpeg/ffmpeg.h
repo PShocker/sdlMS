@@ -5,6 +5,7 @@
 
 #include <cstdint>
 #include <vector>
+
 namespace sdlms {
 
 class Ffmpeg {

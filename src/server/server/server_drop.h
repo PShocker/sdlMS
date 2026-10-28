@@ -8,8 +8,8 @@
 
 #include <cstdint>
 #include <optional>
-namespace sdlms {
 
+namespace sdlms {
 
 struct ServerDrop {
   fbs::DropT dt;

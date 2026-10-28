@@ -10,8 +10,8 @@
 #include <wz/Wz.h>
 
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 bool ReactorRenderSystem::Render(GameReactor& g_reactor) {
   auto node = WzResource::reactor_->find(g_reactor.id + u".img");

@@ -22,8 +22,8 @@
 #include <flat_map>
 #include <optional>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 static std::flat_map<SDL_Scancode, GameInput> data_bak;
 

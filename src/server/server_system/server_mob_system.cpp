@@ -29,8 +29,8 @@
 #include <string>
 #include <utility>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 // 常量定义
 namespace {

@@ -18,8 +18,8 @@
 
 #include <cstdint>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 // 310
 static void Guanchuanjian() {

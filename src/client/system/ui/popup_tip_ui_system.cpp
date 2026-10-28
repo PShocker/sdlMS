@@ -16,8 +16,8 @@
 #include <wz/Property.h>
 
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 void PopupTipUiSystem::RenderBackgrnd(GamePopupTip& t) {
   SDL_Texture* te;

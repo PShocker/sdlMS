@@ -9,8 +9,8 @@
 #include "src/common/wz/wz_resource.h"
 
 #include <algorithm>
-namespace sdlms {
 
+namespace sdlms {
 
 void BeautyUiSystem::RenderBackgrnd() {
   static auto backgrnd = WzResource::LoadTexture(

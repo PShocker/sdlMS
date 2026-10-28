@@ -1,8 +1,8 @@
 #include "src/client/game_instance/tooltip_game_instance.h"
 
 #include "src/common/wz/wz_resource.h"
-namespace sdlms {
 
+namespace sdlms {
 
 void TooltipGameInstance::Load(uint32_t map_id) {
   data_ = {};

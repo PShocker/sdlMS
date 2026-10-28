@@ -8,8 +8,8 @@
 #include <wz/Property.h>
 
 #include <cstddef>
-namespace sdlms {
 
+namespace sdlms {
 
 void AudioGameInstance::Init() {
   device_id_ = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, NULL);

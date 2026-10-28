@@ -20,8 +20,8 @@
 #include <flat_map>
 #include <ranges>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 bool ItemGameInstance::CheckItem(const std::u16string& id) {
   auto r = id.substr(0, 2);

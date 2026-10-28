@@ -8,8 +8,8 @@
 #include <cstdint>
 #include <flat_map>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 class WorldmapUiSystem {
  private:

@@ -5,6 +5,7 @@
 
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_rect.h>
+
 namespace sdlms {
 
 class TradeUiSystem {

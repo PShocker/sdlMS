@@ -20,8 +20,8 @@
 #include <cstdint>
 #include <memory>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 static void Yinshenshu() {
   GameSkill g_skill;

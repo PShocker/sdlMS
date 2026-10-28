@@ -5,8 +5,8 @@
 #include "src/client/window/window.h"
 
 #include <optional>
-namespace sdlms {
 
+namespace sdlms {
 
 bool ChatballoonLogicSystem::Run() {
   // self

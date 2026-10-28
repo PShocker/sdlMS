@@ -33,8 +33,8 @@
 #include <flat_map>
 #include <memory>
 #include <optional>
-namespace sdlms {
 
+namespace sdlms {
 
 void ServerMobInstance::LoadDefaultMob(const std::u16string id,
                                        ServerMob& mob) {

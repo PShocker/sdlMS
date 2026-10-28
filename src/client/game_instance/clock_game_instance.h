@@ -5,6 +5,7 @@
 #include <wz/Node.h>
 
 #include <vector>
+
 namespace sdlms {
 
 class ClockGameInstance {

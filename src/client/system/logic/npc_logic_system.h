@@ -7,6 +7,7 @@
 
 #include <optional>
 #include <string>
+
 namespace sdlms {
 
 class NpcLogicSystem {

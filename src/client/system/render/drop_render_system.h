@@ -2,6 +2,7 @@
 #define SDLMS_SRC_CLIENT_SYSTEM_RENDER_DROP_RENDER_SYSTEM_H_
 
 #include "src/client/game/game_drop.h"
+
 namespace sdlms {
 
 class DropRenderSystem {

@@ -4,6 +4,7 @@
 #include <SDL3/SDL_render.h>
 
 #include <functional>
+
 namespace sdlms {
 
 class FadeSystemInstance {

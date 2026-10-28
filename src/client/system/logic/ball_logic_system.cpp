@@ -8,8 +8,8 @@
 #include <SDL3/SDL_rect.h>
 #include <wz/Node.h>
 #include <wz/Property.h>
-namespace sdlms {
 
+namespace sdlms {
 
 void BallLogicSystem::RunAnimate(GameBall& b) {
   wz::Node* n = WzResource::skill_->find(b.path);

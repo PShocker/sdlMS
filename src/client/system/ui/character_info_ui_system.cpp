@@ -25,8 +25,8 @@
 #include <ranges>
 #include <string>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 SDL_FPoint CharacterInfoUiSystem::LoadWh() {
   return SDL_FPoint{320, 183};

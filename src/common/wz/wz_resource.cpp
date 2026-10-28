@@ -16,8 +16,8 @@
 #include <cstdlib>
 #include <flat_map>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 void WzResource::InitKey() {
   std::array<uint8_t, 4> iv{

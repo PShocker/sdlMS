@@ -7,8 +7,8 @@
 #include <cstdint>
 #include <optional>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 struct DamageData {
   uint64_t num;

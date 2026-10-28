@@ -2,6 +2,7 @@
 #define SDLMS_SRC_SERVER_REQUEST_HANDLER_H_
 
 #include <cstdint>
+
 namespace sdlms {
 
 class RequestHandler {

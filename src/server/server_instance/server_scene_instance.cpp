@@ -13,8 +13,8 @@
 #include <ranges>
 #include <string>
 #include <utility>
-namespace sdlms {
 
+namespace sdlms {
 
 void ServerSceneInstance::CleanClient(uint64_t client_id,
                                       fbs::ClientSceneT client_scene) {

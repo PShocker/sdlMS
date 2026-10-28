@@ -32,8 +32,8 @@
 #include <optional>
 #include <string>
 #include <utility>
-namespace sdlms {
 
+namespace sdlms {
 
 void ServerCharacterInstance::HandleMv(uint64_t client_id,
                                        fbs::ClientCharacterMvT& m) {

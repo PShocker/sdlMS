@@ -5,8 +5,8 @@
 #include "src/server/server/server_scene.h"
 
 #include <flat_map>
-namespace sdlms {
 
+namespace sdlms {
 
 class ServerFootholdInstance {
  public:

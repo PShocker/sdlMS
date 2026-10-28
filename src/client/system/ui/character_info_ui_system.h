@@ -12,6 +12,7 @@
 #include <string>
 #include <variant>
 #include <vector>
+
 namespace sdlms {
 
 class CharacterInfoUiSystem {

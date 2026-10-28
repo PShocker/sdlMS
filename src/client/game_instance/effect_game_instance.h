@@ -12,8 +12,8 @@
 #include <flat_map>
 #include <flat_set>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 class EffectGameInstance {
  public:

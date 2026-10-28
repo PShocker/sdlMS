@@ -9,8 +9,8 @@
 #include "src/server/server_instance/server_client_instance.h"
 
 #include <memory>
-namespace sdlms {
 
+namespace sdlms {
 
 void ServerTradeInstance::HandleClient(uint64_t client_id,
                                        fbs::ClientCharacterTradeT& r) {

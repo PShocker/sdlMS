@@ -27,8 +27,8 @@
 
 #include <cstdio>
 #include <memory>
-namespace sdlms {
 
+namespace sdlms {
 
 void RequestHandler::HandleRequest(uint64_t client_id, void* buf,
                                    ssize_t nread) {

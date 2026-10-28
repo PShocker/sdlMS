@@ -7,8 +7,8 @@
 #include <SDL3/SDL_events.h>
 
 #include <cstdint>
-namespace sdlms {
 
+namespace sdlms {
 
 class BuffUiSystem {
  private:

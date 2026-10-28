@@ -7,6 +7,7 @@
 #include <SDL3/SDL_events.h>
 
 #include <any>
+
 namespace sdlms {
 
 class NoticeUiSystem {

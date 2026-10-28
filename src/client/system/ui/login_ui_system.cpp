@@ -27,8 +27,8 @@
 #include <stdio.h>
 #include <string>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 #ifdef _WIN32
 #define PIPENAME "\\\\.\\pipe\\"

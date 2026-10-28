@@ -12,6 +12,7 @@
 #include <cstdint>
 #include <functional>
 #include <string>
+
 namespace sdlms {
 
 struct GameSkill {

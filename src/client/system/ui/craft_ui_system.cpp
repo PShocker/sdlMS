@@ -15,8 +15,8 @@
 #include <cstdint>
 #include <cstdlib>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 void CraftUiSystem::RenderBackgrnd() {
   static auto texture =

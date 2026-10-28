@@ -10,8 +10,8 @@
 
 #include <algorithm>
 #include <optional>
-namespace sdlms {
 
+namespace sdlms {
 
 void TextInputUiSystem::Close(TextInput& input) {
   input.active = false;

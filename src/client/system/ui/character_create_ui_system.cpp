@@ -32,8 +32,8 @@
 #include <optional>
 #include <string>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 void CharacterCreateUiSystem::RenderButton() {
   const static std::array buttons_nodes = {

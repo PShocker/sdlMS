@@ -4,8 +4,8 @@
 #include "src/client/window/window.h"
 
 #include <ranges>
-namespace sdlms {
 
+namespace sdlms {
 
 bool PortalLogicSystem::Run() {
   for (auto& portal : PortalGameInstance::data_ | std::views::values) {

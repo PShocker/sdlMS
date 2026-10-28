@@ -5,8 +5,8 @@
 
 #include <cstdint>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 struct GameBall {
   std::u16string path;

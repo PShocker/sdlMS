@@ -6,8 +6,8 @@
 #include <uv.h>
 
 #include <cstdint>
-namespace sdlms {
 
+namespace sdlms {
 
 struct ServerClient {
   uint64_t client_id;

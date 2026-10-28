@@ -19,8 +19,8 @@
 
 #include <algorithm>
 #include <ranges>
-namespace sdlms {
 
+namespace sdlms {
 
 bool LoginSystemInstance::RenderGame() {
   //   后景

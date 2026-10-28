@@ -9,8 +9,8 @@
 #include <wz/Node.h>
 
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 void DebuffRenderSystem::Render(GameDebuff::DebuffType type, SDL_FPoint pos) {
   wz::Node* n;

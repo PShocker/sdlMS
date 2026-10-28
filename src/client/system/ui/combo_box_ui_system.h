@@ -9,8 +9,8 @@
 #include <optional>
 #include <string>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 struct ComboBox {
   bool open;

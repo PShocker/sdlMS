@@ -15,8 +15,8 @@
 
 #include <flat_map>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 void InputSystem::HandleUiInput(GameInput& g_input) {
   static const std::flat_map<std::string, void (*)()> fns = {

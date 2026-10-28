@@ -15,8 +15,8 @@
 #include <flat_map>
 #include <optional>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 std::u16string AfterimageGameInstance::LoadHitType(GameCharacter& g_character) {
   auto WeaponType = EquipGameInstance::LoadWeaponType(g_character);

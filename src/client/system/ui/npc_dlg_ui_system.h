@@ -8,6 +8,7 @@
 #include <flat_map>
 #include <functional>
 #include <string>
+
 namespace sdlms {
 
 class NpcDlgUiSystem {

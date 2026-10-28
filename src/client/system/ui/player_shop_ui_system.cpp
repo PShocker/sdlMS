@@ -1,6 +1,6 @@
 #include "src/client/system/ui/player_shop_ui_system.h"
-namespace sdlms {
 
+namespace sdlms {
 
 void PlayerShopUiSystem::RenderBackgrnd() {}
 

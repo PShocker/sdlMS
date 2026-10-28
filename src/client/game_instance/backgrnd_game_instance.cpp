@@ -9,8 +9,8 @@
 
 #include <cstdlib>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 void BackgrndGameInstance::Load(wz::Node* image) {
   front_ = {};

@@ -9,8 +9,8 @@
 #include <format>
 #include <optional>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 void KeyboardGameInstance::Reset() {
   data_.clear();

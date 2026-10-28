@@ -6,8 +6,8 @@
 #include "src/client/system_instance/scene_system_instance.h"
 
 #include <cmath>
-namespace sdlms {
 
+namespace sdlms {
 
 bool CameraLogicSystem::Run() {
   auto self = CharacterGameInstance::self_;

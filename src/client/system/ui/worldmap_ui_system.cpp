@@ -23,8 +23,8 @@
 #include <optional>
 #include <string>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 void WorldmapUiSystem::RenderBackgrnd() {
   auto wh = LoadWh();

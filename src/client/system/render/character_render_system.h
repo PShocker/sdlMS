@@ -6,6 +6,7 @@
 #include <SDL3/SDL_pixels.h>
 
 #include <cstdint>
+
 namespace sdlms {
 
 class CharacterRenderSystem {

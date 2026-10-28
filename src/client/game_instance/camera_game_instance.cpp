@@ -1,8 +1,8 @@
 #include "src/client/game_instance/camera_game_instance.h"
 
 #include "src/client/game_instance/character_game_instance.h"
-namespace sdlms {
 
+namespace sdlms {
 
 void CameraGameInstance::Reset() {
   const auto& self = CharacterGameInstance::self_;

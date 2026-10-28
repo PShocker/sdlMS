@@ -8,6 +8,7 @@
 #include <SDL3/SDL_scancode.h>
 
 #include <cstdint>
+
 namespace sdlms {
 
 class QuickSlotUiSystem {

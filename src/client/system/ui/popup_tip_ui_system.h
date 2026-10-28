@@ -4,6 +4,7 @@
 #include "src/client/game/game_popup_tip.h"
 
 #include <SDL3/SDL_events.h>
+
 namespace sdlms {
 
 class PopupTipUiSystem {

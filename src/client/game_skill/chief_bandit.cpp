@@ -17,8 +17,8 @@
 
 #include <cstdint>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 static void Jinqianzhadan() {
   GameSkill g_skill;

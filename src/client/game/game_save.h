@@ -9,8 +9,8 @@
 #include <cstdint>
 #include <string>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 struct ApSave {
   uint32_t hp_ap;

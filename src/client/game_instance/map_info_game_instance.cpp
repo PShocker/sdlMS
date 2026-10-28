@@ -13,8 +13,8 @@
 #include <optional>
 #include <ranges>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 wz::Node* MapInfoGameInstance::Load(uint32_t map_id) {
   auto map_node = WzResource::LoadMapNode(map_id);

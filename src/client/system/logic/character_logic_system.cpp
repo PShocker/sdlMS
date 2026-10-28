@@ -52,8 +52,8 @@
 #include <ranges>
 #include <string>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 static const std::flat_set<EquipGameInstance::WeaponType> shoot_weapons = {
     EquipGameInstance::WeaponType::kBow,

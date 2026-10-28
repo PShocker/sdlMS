@@ -11,8 +11,8 @@
 #include <flat_set>
 #include <string>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 struct CharacterExternAction {
   std::u16string action;

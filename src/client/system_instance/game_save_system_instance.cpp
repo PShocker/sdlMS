@@ -25,8 +25,8 @@
 #include <format>
 #include <memory>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 bool GameSaveSystemInstance::LoadSave(const std::string& login) {
   save_ = {};

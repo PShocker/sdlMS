@@ -1,5 +1,6 @@
 #ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_SKILL_GAME_INSTANCE_H_
 #define SDLMS_SRC_CLIENT_GAME_INSTANCE_SKILL_GAME_INSTANCE_H_
+
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_skill.h"
 #include "src/client/system/logic/character_logic_system.h"
@@ -12,8 +13,8 @@
 #include <flat_map>
 #include <string>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 class SkillGameInstance {
  public:

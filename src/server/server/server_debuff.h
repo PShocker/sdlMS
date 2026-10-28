@@ -9,6 +9,7 @@
 #include <flat_map>
 #include <optional>
 #include <string>
+
 namespace sdlms {
 
 struct ServerDebuff {

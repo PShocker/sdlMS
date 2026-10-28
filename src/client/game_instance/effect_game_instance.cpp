@@ -8,8 +8,8 @@
 #include <cstdint>
 #include <optional>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 void EffectGameInstance::Reset() {
   data_ = {};

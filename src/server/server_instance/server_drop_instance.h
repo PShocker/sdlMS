@@ -8,8 +8,8 @@
 
 #include <cstdint>
 #include <flat_map>
-namespace sdlms {
 
+namespace sdlms {
 
 class ServerDropInstance {
  private:

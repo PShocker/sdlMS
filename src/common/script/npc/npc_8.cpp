@@ -4,8 +4,8 @@
 #include "src/common/wz/wz_resource.h"
 
 #include <wz/Property.h>
-namespace sdlms {
 
+namespace sdlms {
 
 static void state() {
   switch (NpcDlgUiSystem::index_) {

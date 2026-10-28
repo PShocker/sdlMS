@@ -20,8 +20,8 @@
 #include <cstdint>
 #include <format>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 SDL_FPoint QuestAlarmUiSystem::LoadWh() {
   float h = 0;

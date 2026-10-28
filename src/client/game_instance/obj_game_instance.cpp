@@ -9,8 +9,8 @@
 
 #include <cstdint>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 void ObjGameInstance::Load(wz::Node* image) {
   data_ = {};

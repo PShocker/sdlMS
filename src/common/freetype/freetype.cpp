@@ -15,8 +15,8 @@
 #include <vector>
 #include FT_FREETYPE_H
 #include FT_SYNTHESIS_H  // 这个宏对应 ftsynth.h
-namespace sdlms {
 
+namespace sdlms {
 
 void Freetype::LoadSize(uint8_t i) {
   size_ = i;

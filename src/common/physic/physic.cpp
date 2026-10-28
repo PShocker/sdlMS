@@ -8,8 +8,8 @@
 #include <cstdlib>
 #include <flat_map>
 #include <ranges>
-namespace sdlms {
 
+namespace sdlms {
 
 bool Physic::WalkFh(SDL_FPoint& pos, bool Fall, int32_t next_fh,
                     int32_t& current_fh, float& hspeed, float& vspeed,

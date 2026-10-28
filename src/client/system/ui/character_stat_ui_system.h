@@ -6,6 +6,7 @@
 
 #include <optional>
 #include <vector>
+
 namespace sdlms {
 
 class CharacterStatUiSystem {

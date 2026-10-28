@@ -7,8 +7,8 @@
 #include <SDL3/SDL_render.h>
 #include <wz/Property.h>
 #include <wz/Wz.h>
-namespace sdlms {
 
+namespace sdlms {
 
 bool ObjRenderSystem::Render(GameObj& g_obj) {
   auto obj_node = WzResource::map_->find(g_obj.path);

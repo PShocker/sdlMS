@@ -1,10 +1,8 @@
 #include "src/common/script/script.h"
+
 namespace sdlms {
 
-
-static void Npc101(std::any data) {
-
-};
+static void Npc101(std::any data) {};
 
 [[maybe_unused]] static const bool r = [] {
   auto& fns = Script::fns();

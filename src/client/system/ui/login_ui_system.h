@@ -9,6 +9,7 @@
 
 #include <cstdint>
 #include <string>
+
 namespace sdlms {
 
 class LoginUiSystem {

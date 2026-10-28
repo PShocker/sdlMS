@@ -12,8 +12,8 @@
 #include <SDL3/SDL_rect.h>
 
 #include <cstdint>
-namespace sdlms {
 
+namespace sdlms {
 
 static void Huojianshu() {
   GameSkill g_skill;

@@ -19,8 +19,8 @@
 #include <SDL3/SDL_rect.h>
 
 #include <memory>
-namespace sdlms {
 
+namespace sdlms {
 
 static void Qinggong() {
   GameSkill g_skill;

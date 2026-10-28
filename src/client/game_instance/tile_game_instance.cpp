@@ -6,8 +6,8 @@
 #include <wz/Property.h>
 
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 void TileGameInstance::Load(wz::Node* image) {
   data_ = {};

@@ -7,8 +7,8 @@
 #include <flat_map>
 #include <string>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 enum class JobType : uint8_t {
   kBeginner,     // 000

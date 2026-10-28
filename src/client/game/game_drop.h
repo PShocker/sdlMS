@@ -8,8 +8,8 @@
 #include <cstdint>
 #include <memory>
 #include <optional>
-namespace sdlms {
 
+namespace sdlms {
 
 struct GameDropPick {
   uint64_t client_id;

@@ -7,8 +7,8 @@
 
 #include <format>
 #include <optional>
-namespace sdlms {
 
+namespace sdlms {
 
 void DropGameInstance::Reset() {
   data_ = {};

@@ -7,6 +7,7 @@
 
 #include <cstdint>
 #include <optional>
+
 namespace sdlms {
 
 class SliderUiSystem {

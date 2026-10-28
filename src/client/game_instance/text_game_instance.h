@@ -4,6 +4,7 @@
 #include <wz/Node.h>
 
 #include <string>
+
 namespace sdlms {
 
 class TextGameInstance {

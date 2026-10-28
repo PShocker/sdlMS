@@ -7,8 +7,8 @@
 #include "src/server/server_instance/server_scene_instance.h"
 
 #include <format>
-namespace sdlms {
 
+namespace sdlms {
 
 void ServerRegionSkillInstance::HandleRskill(uint64_t client_id,
                                              fbs::ClientRSkillT& r) {

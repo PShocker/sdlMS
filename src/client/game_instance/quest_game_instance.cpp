@@ -15,8 +15,8 @@
 #include <format>
 #include <optional>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 std::vector<GameQuest> QuestGameInstance::LoadNpc(const std::u16string& id) {
   std::vector<GameQuest> q;

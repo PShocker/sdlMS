@@ -6,8 +6,8 @@
 
 #include <any>
 #include <cstdint>
-namespace sdlms {
 
+namespace sdlms {
 
 enum class PopupTipEnums {
   kTrade,

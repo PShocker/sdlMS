@@ -22,8 +22,8 @@
 #include <cstddef>
 #include <cstdint>
 #include <optional>
-namespace sdlms {
 
+namespace sdlms {
 
 static std::optional<GameSkill> mouse_ski;
 static std::optional<GameItemBuff> mouse_item;

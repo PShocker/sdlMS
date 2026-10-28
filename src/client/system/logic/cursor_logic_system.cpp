@@ -57,8 +57,8 @@
 #include <memory>
 #include <optional>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 std::optional<GameNpc> CursorLogicSystem::CursorNpc() {
   const auto& pos = Window::mouse_pos_;

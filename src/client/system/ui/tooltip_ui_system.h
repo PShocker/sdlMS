@@ -7,6 +7,7 @@
 
 #include <cstdint>
 #include <string>
+
 namespace sdlms {
 
 class TooltipUiSystem {

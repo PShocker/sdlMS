@@ -12,8 +12,8 @@
 
 #include <algorithm>
 #include <ranges>
-namespace sdlms {
 
+namespace sdlms {
 
 SDL_FPoint TradeUiSystem::LoadWh() {
   return SDL_FPoint{567, 442};

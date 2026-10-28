@@ -29,8 +29,8 @@
 #include <numbers>
 #include <string>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 static void Douqijizhong() {
   GameSkill g_skill;

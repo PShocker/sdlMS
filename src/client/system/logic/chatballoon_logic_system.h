@@ -2,6 +2,7 @@
 #define SDLMS_SRC_CLIENT_SYSTEM_LOGIC_CHATBALLOON_LOGIC_SYSTEM_H_
 
 #include <cstdint>
+
 namespace sdlms {
 
 class ChatballoonLogicSystem {

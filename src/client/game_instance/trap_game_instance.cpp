@@ -14,8 +14,8 @@
 #include <numeric>
 #include <string>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 void TrapGameInstance::Load(wz::Node* image) {
   data_ = {};

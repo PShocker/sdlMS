@@ -9,6 +9,7 @@
 #include <array>
 #include <cstdint>
 #include <flat_map>
+
 namespace sdlms {
 
 class TrapGameInstance {

@@ -5,8 +5,8 @@
 #include "src/common/flatbuffers/server.h"
 
 #include <cstdint>
-namespace sdlms {
 
+namespace sdlms {
 
 class ServerTrapInstance {
  public:

@@ -15,8 +15,8 @@
 #include <cstdint>
 #include <string>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 void EffectRenderSystem::RenderEffect(SDL_FPoint pos, GameEffect& g_effect) {
   auto current_time = Window::dt_time_;

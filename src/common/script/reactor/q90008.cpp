@@ -7,8 +7,8 @@
 #include "src/server/server_instance/server_drop_instance.h"
 #include "src/server/server_instance/server_scene_instance.h"
 #include "src/server/server_system/server_reactor_system.h"
-namespace sdlms {
 
+namespace sdlms {
 
 // reactor1
 static void Q90008(std::any data) {

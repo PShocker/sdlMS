@@ -7,8 +7,8 @@
 #include <chrono>
 #include <cstdint>
 #include <cstdlib>
-namespace sdlms {
 
+namespace sdlms {
 
 void Window::Create(const char* title, uint32_t logic_w, uint32_t logic_h,
                     uint32_t window_w, uint32_t window_h) {

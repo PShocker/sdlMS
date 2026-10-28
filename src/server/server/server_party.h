@@ -3,8 +3,8 @@
 
 #include <cstdint>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 struct ServerParty {
   uint64_t id;

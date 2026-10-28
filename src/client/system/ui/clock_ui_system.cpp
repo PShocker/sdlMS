@@ -13,7 +13,6 @@
 
 namespace sdlms {
 
-
 void ClockUiSystem::RenderBackgrnd() {
   SDL_Texture* t;
   switch (type_) {

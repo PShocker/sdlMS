@@ -17,8 +17,8 @@
 
 #include <string>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 enum class OptionType {
   kGraphic,

@@ -21,8 +21,8 @@
 #include <SDL3/SDL_render.h>
 
 #include <algorithm>
-namespace sdlms {
 
+namespace sdlms {
 
 SDL_FRect StatusbarMenuUiSystem::LoadR() {
   int w;

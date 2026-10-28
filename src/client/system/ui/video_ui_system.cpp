@@ -19,8 +19,8 @@ extern "C" {
 #include <libavutil/pixdesc.h>
 #include <libswscale/swscale.h>
 }
-namespace sdlms {
 
+namespace sdlms {
 
 static uint64_t video_start;
 static SDL_Texture* video_texture;

@@ -6,8 +6,8 @@
 #include "src/common/response/server_response.h"
 #include "src/server/server_instance/server_client_instance.h"
 #include "src/server/server_instance/server_scene_instance.h"
-namespace sdlms {
 
+namespace sdlms {
 
 void ServerTrapInstance::HandleAttack(uint64_t client_id,
                                       fbs::ClientTrapAttackT& r) {

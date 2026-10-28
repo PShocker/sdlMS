@@ -16,8 +16,8 @@
 #include <flat_map>
 #include <memory>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 void BallGameInstance::Reset() {
   data_ = {};

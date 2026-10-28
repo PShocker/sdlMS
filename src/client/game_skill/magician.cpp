@@ -28,8 +28,8 @@
 #include <memory>
 #include <string>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 static void Mfdan() {
   GameSkill g_skill;

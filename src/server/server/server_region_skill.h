@@ -6,8 +6,8 @@
 #include <any>
 #include <cstdint>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 struct ServerRegionSkill {
   uint64_t client_id;

@@ -11,8 +11,8 @@
 #include <algorithm>
 #include <cmath>
 #include <ranges>
-namespace sdlms {
 
+namespace sdlms {
 
 void DropLogicSystem::RunStateMachine(GameDrop& drop) {
   switch (drop.type) {

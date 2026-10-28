@@ -1,5 +1,6 @@
 #ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_PACKAGE_GAME_INSTANCE_H_
 #define SDLMS_SRC_CLIENT_GAME_INSTANCE_PACKAGE_GAME_INSTANCE_H_
+
 #include "src/client/game/game_item.h"
 #include "src/client/game/game_save.h"
 
@@ -8,6 +9,7 @@
 #include <array>
 #include <cstdint>
 #include <optional>
+
 namespace sdlms {
 
 class PackageGameInstance {

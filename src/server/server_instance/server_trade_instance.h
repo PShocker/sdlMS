@@ -3,8 +3,8 @@
 
 #include "src/common/flatbuffers/client.h"
 #include "src/common/flatbuffers/server.h"
-namespace sdlms {
 
+namespace sdlms {
 
 class ServerTradeInstance {
  public:

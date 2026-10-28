@@ -1,6 +1,6 @@
 #include "src/client/system/logic/pet_logic_system.h"
-namespace sdlms {
 
+namespace sdlms {
 
 void PetLogicSystem::RunAnimate(GamePet& pet) {}
 

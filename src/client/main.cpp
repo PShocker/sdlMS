@@ -25,7 +25,6 @@
 namespace sdlms {
 
 namespace {
-
 // Logical resolution.
 constexpr int32_t kLogicWidth = 1366;
 constexpr int32_t kLogicHeight = 768;

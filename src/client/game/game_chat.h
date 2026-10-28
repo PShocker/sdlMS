@@ -1,13 +1,15 @@
 #ifndef SDLMS_SRC_CLIENT_GAME_GAME_CHAT_H_
 #define SDLMS_SRC_CLIENT_GAME_GAME_CHAT_H_
+
 #include <cstdint>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 enum class GameChatEnum {
   kMap,
 };
+
 struct GameChat {
   uint64_t client_id;
   GameChatEnum type;

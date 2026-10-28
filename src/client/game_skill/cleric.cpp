@@ -26,8 +26,8 @@
 #include <algorithm>
 #include <cstdint>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 static void Shunjianyidong() {
   GameSkill g_skill;

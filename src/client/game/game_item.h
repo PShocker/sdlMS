@@ -8,8 +8,8 @@
 #include <cstdint>
 #include <string>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 enum class ItemEnum { kEquip, kConsume, kInstall, kEtc, kCash, kDeco };
 

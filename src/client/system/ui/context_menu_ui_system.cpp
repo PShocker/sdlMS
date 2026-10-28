@@ -16,8 +16,8 @@
 #include <SDL3/SDL_render.h>
 
 #include <cstddef>
-namespace sdlms {
 
+namespace sdlms {
 
 SDL_FPoint ContextMenuUiSystem::LoadWh() {
   return {100, 122};

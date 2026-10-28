@@ -4,8 +4,8 @@
 #include "src/client/game/game_save.h"
 
 #include <cstdint>
-namespace sdlms {
 
+namespace sdlms {
 
 class CharacterStatGameInstance {
  private:

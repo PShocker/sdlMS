@@ -13,8 +13,8 @@
 #include <flat_map>
 #include <string>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 class BallGameInstance {
  private:

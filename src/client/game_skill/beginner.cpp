@@ -19,8 +19,8 @@
 #include <cstdint>
 #include <string>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 static void ThreeSnail() {
   GameSkill g_skill;

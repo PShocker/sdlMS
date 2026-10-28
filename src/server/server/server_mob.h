@@ -10,8 +10,8 @@
 #include <flat_map>
 #include <string>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 struct MobHit {
   uint64_t hit_id;  // client_id

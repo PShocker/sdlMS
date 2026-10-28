@@ -3,6 +3,7 @@
 
 #include "src/client/game/game_save.h"
 #include "src/client/game/game_storage.h"
+
 namespace sdlms {
 
 class StorageGameInstance {

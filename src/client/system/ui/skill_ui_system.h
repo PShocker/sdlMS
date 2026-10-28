@@ -5,8 +5,8 @@
 
 #include <cstdint>
 #include <optional>
-namespace sdlms {
 
+namespace sdlms {
 
 class SkillUiSystem {
  private:

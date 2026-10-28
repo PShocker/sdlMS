@@ -8,8 +8,8 @@
 #include <cstdint>
 #include <flat_map>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 class DropGameInstance {
  public:

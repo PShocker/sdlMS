@@ -5,8 +5,8 @@
 #include <SDL3/SDL_rect.h>
 
 #include <cstdint>
-namespace sdlms {
 
+namespace sdlms {
 
 class Window {
  public:
@@ -17,7 +17,7 @@ class Window {
 
   static inline SDL_MouseButtonFlags pre_mouse_state_;
   static inline SDL_MouseButtonFlags mouse_state_;
-  static const inline bool* keyboard_state_ = SDL_GetKeyboardState(nullptr);
+  static inline const bool* keyboard_state_ = SDL_GetKeyboardState(nullptr);
 
   static inline uint64_t dt_now_ = 0;
   static inline uint64_t dt_last_ = 0;

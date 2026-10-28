@@ -5,8 +5,8 @@
 #include <wz/Property.h>
 
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 std::flat_map<int32_t, GameFoothold> FootholdGameInstance::Load(
     wz::Node* node) {

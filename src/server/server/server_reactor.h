@@ -6,8 +6,8 @@
 #include <cstdint>
 #include <string>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 struct ServerReactorState {
   std::u16string id;

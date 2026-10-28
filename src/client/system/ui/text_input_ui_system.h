@@ -8,8 +8,8 @@
 #include <bitset>
 #include <optional>
 #include <string>
-namespace sdlms {
 
+namespace sdlms {
 
 // 定义标志位索引
 

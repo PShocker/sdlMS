@@ -8,8 +8,8 @@
 #include <wz/Property.h>
 
 #include <cstdint>
-namespace sdlms {
 
+namespace sdlms {
 
 uint8_t ReactorGameInstance::LoadReactorLayer(SDL_FPoint pos) {
   for (const auto& [key, val] : FootholdGameInstance::data_) {

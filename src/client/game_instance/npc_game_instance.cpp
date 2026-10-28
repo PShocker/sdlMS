@@ -18,8 +18,8 @@
 #include <ranges>
 #include <string>
 #include <vector>
-namespace sdlms {
 
+namespace sdlms {
 
 std::u16string NpcGameInstance::LoadNpcText(const std::u16string& id,
                                             const std::u16string& val) {

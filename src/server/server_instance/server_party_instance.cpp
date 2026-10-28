@@ -14,8 +14,8 @@
 
 #include <memory>
 #include <optional>
-namespace sdlms {
 
+namespace sdlms {
 
 ServerParty& ServerPartyInstance::LoadParty(uint64_t captain_id) {
   if (data_.contains(captain_id)) {

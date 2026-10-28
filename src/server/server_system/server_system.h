@@ -2,6 +2,7 @@
 #define SDLMS_SRC_SERVER_SERVER_SYSTEM_SERVER_SYSTEM_H_
 
 #include <vector>
+
 namespace sdlms {
 
 class ServerSystem {
