@@ -9,7 +9,7 @@
 
 using namespace fbs;
 
-class server_drop_instance {
+class ServerDropInstance {
 private:
   static float cal_available_time(float y1, float y2);
 

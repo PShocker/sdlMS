@@ -14,28 +14,28 @@
 
 using namespace fbs;
 
-void server_scene_instance::clean_client(uint64_t client_id,
+void ServerSceneInstance::clean_client(uint64_t client_id,
                                          ClientSceneT client_scene) {
-  if (server_client_instance::clients.contains(client_id)) {
+  if (ServerClientInstance::clients.contains(client_id)) {
     // 地图切换
-    auto map_id = server_client_instance::clients.at(client_id).map_id;
-    auto &scenes = server_scene_instance::scenes[map_id];
+    auto map_id = ServerClientInstance::clients.at(client_id).map_id;
+    auto &scenes = ServerSceneInstance::scenes[map_id];
     scenes.clients.erase(client_id);
     ServerCharacterOutT r;
     for (const auto other : scenes.clients) {
       r.client_id = client_id;
-      server_response::send_to_client(other, r);
+      ServerResponse::send_to_client(other, r);
     }
   }
 }
 
-void server_scene_instance::save_client(uint64_t client_id,
+void ServerSceneInstance::save_client(uint64_t client_id,
                                         ClientSceneT client_scene) {
-  auto &clients = server_client_instance::clients;
-  auto &scenes = server_scene_instance::scenes;
+  auto &clients = ServerClientInstance::clients;
+  auto &scenes = ServerSceneInstance::scenes;
 
   const auto map_id = client_scene.map_id;
-  const auto now = window::dt_now;
+  const auto now = Window::dt_now;
   auto [it, inserted] = clients.try_emplace(client_id);
   auto &client = it->second;
 
@@ -55,16 +55,16 @@ void server_scene_instance::save_client(uint64_t client_id,
   scenes[map_id].clients.insert(client_id);
 }
 
-void server_scene_instance::send_scene_clients(uint64_t client_id,
+void ServerSceneInstance::send_scene_clients(uint64_t client_id,
                                                ClientSceneT client_scene) {
-  ServerSceneT r;
+  fbs::ServerSceneT r;
   r.map_id = client_scene.map_id;
   r.fade = true;
 
-  auto scene = server_scene_instance::scenes[client_scene.map_id];
+  auto scene = ServerSceneInstance::scenes[client_scene.map_id];
   scene.clients.erase(client_id);
   for (const auto &c : scene.clients) {
-    auto client = server_client_instance::clients.at(c);
+    auto client = ServerClientInstance::clients.at(c);
     r.players.push_back(std::make_unique<PlayerT>(client.player_t));
   }
   for (const auto d : scene.drops | std::views::values) {
@@ -88,53 +88,53 @@ void server_scene_instance::send_scene_clients(uint64_t client_id,
     mobt->state->y = m.pos.y;
   }
 
-  server_response::send_to_client(client_id, r);
+  ServerResponse::send_to_client(client_id, r);
 }
 
-void server_scene_instance::send_in_scene(uint64_t client_id,
+void ServerSceneInstance::send_in_scene(uint64_t client_id,
                                           ClientSceneT client_scene) {
   ServerCharacterInT r;
-  const auto &p = server_client_instance::clients.at(client_id).player_t;
+  const auto &p = ServerClientInstance::clients.at(client_id).player_t;
 
   r.player = std::make_unique<PlayerT>(p);
 
-  auto scene = server_scene_instance::scenes[client_scene.map_id];
+  auto scene = ServerSceneInstance::scenes[client_scene.map_id];
   scene.clients.erase(client_id);
   for (const auto c : scene.clients) {
-    server_response::send_to_client(c, r);
+    ServerResponse::send_to_client(c, r);
   }
 }
 
-void server_scene_instance::send_in_fade(uint64_t client_id,
+void ServerSceneInstance::send_in_fade(uint64_t client_id,
                                          ClientSceneT client_scene) {
   if (client_scene.map_id == 0) {
     return;
   }
-  ServerSceneT r;
+  fbs::ServerSceneT r;
   r.map_id = client_scene.map_id;
   r.fade = false;
   r.client_id = client_id;
-  r.time = window::dt_time;
-  server_response::send_to_client(client_id, r);
+  r.time = Window::dt_time;
+  ServerResponse::send_to_client(client_id, r);
 }
 
-void server_scene_instance::init_scene(uint64_t client_id,
+void ServerSceneInstance::init_scene(uint64_t client_id,
                                        ClientSceneT client_scene) {
   //
   auto map_id = client_scene.map_id;
   if (!scenes.contains(map_id)) {
-    server_scene scene;
+    ServerSceneState scene;
     scene.map_id = map_id;
 
-    server_mob_instance::load_mob(scene);
-    server_foothold_instance::load_fh(scene);
-    server_reactor_instance::load_reactor(scene);
+    ServerMobInstance::load_mob(scene);
+    ServerFootholdInstance::load_fh(scene);
+    ServerReactorInstance::load_reactor(scene);
 
     scenes[map_id] = scene;
   }
 }
 
-void server_scene_instance::handle_scene(uint64_t client_id,
+void ServerSceneInstance::handle_scene(uint64_t client_id,
                                          ClientSceneT client_scene) {
   if (client_scene.fade == false) {
     // 黑屏过渡

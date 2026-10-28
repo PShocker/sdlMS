@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-enum class job_type : uint8_t {
+enum class JobType : uint8_t {
   BEGINNER,    // 000
   WARRIOR,     // 100
   MAGICIAN,    // 200
@@ -24,15 +24,15 @@ enum class job_type : uint8_t {
   BANDIT,      // 420
 };
 
-class job_skill_game_instance {
+class JobSkillGameInstance {
 public:
-  static void load(const character_save &cs);
+  static void load(const CharacterSaveData &cs);
 
   static uint8_t load_ski_level(const std::u16string &id);
-  static std::vector<job_type> load_ski_tree(const std::u16string &id);
-  static std::vector<job_type> load_ski_tree(int i);
-  static std::u16string load_job_id(job_type type);
-  static wz::WzMap load_job_skis(job_type type);
+  static std::vector<JobType> load_ski_tree(const std::u16string &id);
+  static std::vector<JobType> load_ski_tree(int i);
+  static std::u16string load_job_id(JobType type);
+  static wz::WzMap load_job_skis(JobType type);
 
   static std::u16string load_two_jump();
 

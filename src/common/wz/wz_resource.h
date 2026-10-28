@@ -8,7 +8,7 @@
 #include <wz/Files.h>
 #include <wz/Node.h>
 
-class wz_resource {
+class WzResource {
 public:
   static inline wz::Files *character;
   static inline wz::Files *effect;

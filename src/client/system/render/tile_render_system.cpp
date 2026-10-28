@@ -4,9 +4,9 @@
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
 
-bool tile_render_system::render(game_tile &g_tile) {
-  auto tile_node = wz_resource::map->find(g_tile.path);
-  auto texture = wz_resource::load_texture(tile_node);
+bool TileRenderSystem::render(GameTile &g_tile) {
+  auto tile_node = WzResource::map->find(g_tile.path);
+  auto texture = WzResource::load_texture(tile_node);
   auto v =
       static_cast<wz::Property<wz::WzVec2D> *>(tile_node->get_child(u"origin"))
           ->get();
@@ -17,12 +17,12 @@ bool tile_render_system::render(game_tile &g_tile) {
       .w = static_cast<float>(texture->w),
       .h = static_cast<float>(texture->h),
   };
-  auto &camera = camera_game_instance::camera;
+  auto &camera = CameraGameInstance::camera;
   if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
     pos_rect.x -= camera.x;
     pos_rect.y -= camera.y;
     SDL_SetTextureAlphaMod(texture, g_tile.alpha);
-    SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer, texture, nullptr, &pos_rect);
   }
   return true;
 }

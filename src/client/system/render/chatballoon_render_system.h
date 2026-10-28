@@ -7,18 +7,18 @@
 #include <flat_map>
 #include <optional>
 #include <string>
-class chatballoon_render_system {
+class ChatballoonRenderSystem {
 private:
-  struct backgrnd_pad {
+  struct BackgrndPad {
     float x;
     float y;
     float w;
     float h;
     std::optional<int32_t> color;
   };
-  static std::optional<backgrnd_pad>
-  render_backgrnd(game_chatballoon &g_chatballoon, SDL_FPoint base);
+  static std::optional<BackgrndPad>
+  render_backgrnd(GameChatballoon &g_chatballoon, SDL_FPoint base);
 
 public:
-  static bool render(game_chatballoon &g_chatballoon, SDL_FPoint base);
+  static bool render(GameChatballoon &g_chatballoon, SDL_FPoint base);
 };

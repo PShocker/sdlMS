@@ -3,7 +3,7 @@
 #include "SDL3/SDL_rect.h"
 #include <cstdint>
 #include <string>
-class game_reactor {
+class GameReactor {
 public:
   std::u16string id;
   uint8_t index;

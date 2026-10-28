@@ -14,12 +14,12 @@
 
 using namespace fbs;
 
-struct mob_server_data {
-  game_mob mob;
+struct MobServerData {
+  GameMob mob;
   std::vector<MovementT> mvs;
 };
 
-class mob_game_instance {
+class MobGameInstance {
 public:
   static std::u16string load_mob_name(const std::u16string &id);
   static wz::Node *load_mob_info(const std::u16string &id);
@@ -27,5 +27,5 @@ public:
 
   static void load(uint32_t map_id);
 
-  static inline std::flat_map<int32_t, mob_server_data> data;
+  static inline std::flat_map<int32_t, MobServerData> data;
 };

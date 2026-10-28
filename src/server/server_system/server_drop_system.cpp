@@ -7,41 +7,41 @@
 
 using namespace fbs;
 
-void server_drop_system::run_fade() {
+void ServerDropSystem::run_fade() {
   ServerDropFadeT sdf;
-  auto &scene = server_scene_instance::scenes;
+  auto &scene = ServerSceneInstance::scenes;
   for (auto [map_id, sc] : scene) {
     sdf.drop_ids.clear();
     for (auto [random_id, dt] : sc.drops) {
-      if (dt.destroy <= window::dt_now) {
+      if (dt.destroy <= Window::dt_now) {
         sdf.drop_ids.push_back(dt.dt.random_id);
       }
     }
     if (!sdf.drop_ids.empty()) {
       for (auto cliend_id : sc.clients) {
-        server_response::send_to_client(cliend_id, sdf);
+        ServerResponse::send_to_client(cliend_id, sdf);
       }
     }
   }
   return;
 }
 
-void server_drop_system::run_destroy() {
-  auto &scene = server_scene_instance::scenes;
+void ServerDropSystem::run_destroy() {
+  auto &scene = ServerSceneInstance::scenes;
   for (auto [map_id, sc] : scene) {
     std::erase_if(sc.drops, [](const auto &pair) {
       const auto &[id, drop] = pair;
-      return drop.destroy <= window::dt_now;
+      return drop.destroy <= Window::dt_now;
     });
   }
 }
 
-void server_drop_system::run_delay_drops() {
-  auto &scene = server_scene_instance::scenes;
+void ServerDropSystem::run_delay_drops() {
+  auto &scene = ServerSceneInstance::scenes;
   for (auto [map_id, sc] : scene) {
     auto &delay_drops = sc.delay_drops;
     for (auto [k, v] : delay_drops) {
-      if (k <= window::dt_time) {
+      if (k <= Window::dt_time) {
         ServerCreateDropT scd;
         for (auto dt : v) {
           sc.drops.emplace(dt.dt.random_id, dt);
@@ -52,18 +52,18 @@ void server_drop_system::run_delay_drops() {
         }
         auto clients = sc.clients;
         for (auto client : clients) {
-          server_response::send_to_client(client, scd);
+          ServerResponse::send_to_client(client, scd);
         }
       }
     }
     std::erase_if(sc.delay_drops, [](const auto &pair) {
       const auto &[delay, drop] = pair;
-      return delay <= window::dt_time;
+      return delay <= Window::dt_time;
     });
   }
 }
 
-bool server_drop_system::run() {
+bool ServerDropSystem::run() {
   run_delay_drops();
   run_fade();
   run_destroy();

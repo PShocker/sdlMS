@@ -10,40 +10,40 @@
 #include <memory>
 #include <optional>
 
-void package_game_instance::load(const character_save &cs) {
+void PackageGameInstance::load(const CharacterSaveData &cs) {
   for (auto &d : data) {
     d.clear(); // 先清空
   }
-  game_consume_item gci;
+  GameConsumeItem gci;
   // gci.id = u"02040000";
   gci.id = u"02070005";
   // gci.id = u"02060000";
   gci.num = 3;
 
-  data[(int)item_enum::equip].assign(
-      96, std::polymorphic<game_item>(game_equip_item{}));
-  data[(int)item_enum::consume].assign(96, std::polymorphic<game_item>(gci));
-  data[(int)item_enum::install].assign(
-      96, std::polymorphic<game_item>(game_install_item{}));
-  data[(int)item_enum::etc].assign(
-      96, std::polymorphic<game_item>(game_etc_item{}));
-  data[(int)item_enum::cash].assign(
-      96, std::polymorphic<game_item>(game_cash_item{}));
-  data[(int)item_enum::deco].assign(
-      96, std::polymorphic<game_item>(game_deco_item{}));
+  data[(int)ItemEnum::equip].assign(
+      96, std::polymorphic<GameItem>(GameEquipItem{}));
+  data[(int)ItemEnum::consume].assign(96, std::polymorphic<GameItem>(gci));
+  data[(int)ItemEnum::install].assign(
+      96, std::polymorphic<GameItem>(GameInstallItem{}));
+  data[(int)ItemEnum::etc].assign(
+      96, std::polymorphic<GameItem>(GameEtcItem{}));
+  data[(int)ItemEnum::cash].assign(
+      96, std::polymorphic<GameItem>(GameCashItem{}));
+  data[(int)ItemEnum::deco].assign(
+      96, std::polymorphic<GameItem>(GameDecoItem{}));
 
   gci.id = u"02000000";
   gci.num = 1000;
-  data[(int)item_enum::consume][0] = std::polymorphic<game_item>(gci);
+  data[(int)ItemEnum::consume][0] = std::polymorphic<GameItem>(gci);
 
-  game_etc_item gei;
+  GameEtcItem gei;
   gei.id = u"04031002";
   gei.num = 1;
-  data[(int)item_enum::etc][0] = std::polymorphic<game_item>(gei);
+  data[(int)ItemEnum::etc][0] = std::polymorphic<GameItem>(gei);
 
-  game_install_item gii;
+  GameInstallItem gii;
   gei.id = u"03010000";
-  data[(int)item_enum::install][0] = std::polymorphic<game_item>(gei);
+  data[(int)ItemEnum::install][0] = std::polymorphic<GameItem>(gei);
 
   meso = 1000000000;
   data[0][0]->id = u"01472012";
@@ -55,9 +55,9 @@ void package_game_instance::load(const character_save &cs) {
   // meso = cs.meso;
 }
 
-std::vector<int> package_game_instance::load_empty_index(uint32_t tab) {
+std::vector<int> PackageGameInstance::load_empty_index(uint32_t tab) {
   std::vector<int> r;
-  auto &d = package_game_instance::data[tab];
+  auto &d = PackageGameInstance::data[tab];
   for (int32_t i = 0; i < d.size(); i++) {
     if (d[i]->id.empty()) {
       r.push_back(i);
@@ -67,7 +67,7 @@ std::vector<int> package_game_instance::load_empty_index(uint32_t tab) {
 }
 
 std::vector<int>
-package_game_instance::load_empty_index(std::polymorphic<game_item> &item) {
+PackageGameInstance::load_empty_index(std::polymorphic<GameItem> &item) {
   // 特殊：meso
   if (item->id == u"00000000") {
     return {0};
@@ -80,13 +80,13 @@ package_game_instance::load_empty_index(std::polymorphic<game_item> &item) {
   }
 
   // 非消耗品/其他类型：直接按 type 索引
-  if (item->type != item_enum::consume && item->type != item_enum::etc) {
+  if (item->type != ItemEnum::consume && item->type != ItemEnum::etc) {
     return load_empty_index(static_cast<int>(item->type));
   }
 
-  auto *r = &package_game_instance::data[static_cast<int>(item->type)];
-  const auto slot_max = item_game_instance::load_slot_max(item->id);
-  int num = item_game_instance::load_item_num(item);
+  auto *r = &PackageGameInstance::data[static_cast<int>(item->type)];
+  const auto slot_max = ItemGameInstance::load_slot_max(item->id);
+  int num = ItemGameInstance::load_item_num(item);
 
   std::vector<int> blank;
   const size_t n = r->size();
@@ -95,7 +95,7 @@ package_game_instance::load_empty_index(std::polymorphic<game_item> &item) {
   for (size_t i = 0; i < n && num > 0; ++i) {
     auto &itm = r->at(i);
     if (itm->id == item->id) {
-      const auto itm_num = item_game_instance::load_item_num(itm);
+      const auto itm_num = ItemGameInstance::load_item_num(itm);
       if (itm_num >= slot_max)
         continue; // 已满，跳过
       num -= (slot_max - itm_num);
@@ -114,18 +114,18 @@ package_game_instance::load_empty_index(std::polymorphic<game_item> &item) {
   return num <= 0 ? blank : std::vector<int>{};
 }
 
-std::polymorphic<game_item> *
-package_game_instance::load_item(const std::u16string &id) {
-  auto type = item_game_instance::load_item_type(id);
-  std::vector<std::polymorphic<game_item>> *r;
+std::polymorphic<GameItem> *
+PackageGameInstance::load_item(const std::u16string &id) {
+  auto type = ItemGameInstance::load_item_type(id);
+  std::vector<std::polymorphic<GameItem>> *r;
   if (type == u"Cash" || type == u"Pet") {
-    r = &package_game_instance::data[(int)item_enum::cash];
+    r = &PackageGameInstance::data[(int)ItemEnum::cash];
   } else if (type == u"Consume") {
-    r = &package_game_instance::data[(int)item_enum::consume];
+    r = &PackageGameInstance::data[(int)ItemEnum::consume];
   } else if (type == u"Ins") {
-    r = &package_game_instance::data[(int)item_enum::install];
+    r = &PackageGameInstance::data[(int)ItemEnum::install];
   } else if (type == u"Etc") {
-    r = &package_game_instance::data[(int)item_enum::etc];
+    r = &PackageGameInstance::data[(int)ItemEnum::etc];
   }
   for (auto &itm : *r) {
     if (itm->id == id) {
@@ -135,20 +135,20 @@ package_game_instance::load_item(const std::u16string &id) {
   return nullptr;
 }
 
-std::polymorphic<game_item> *package_game_instance::load_active_ball() {
-  auto &sf = character_game_instance::self;
+std::polymorphic<GameItem> *PackageGameInstance::load_active_ball() {
+  auto &sf = CharacterGameInstance::self;
   std::u16string pre;
-  auto weapon_type = equip_game_instance::load_weapon_type(sf);
-  switch (weapon_type) {
-  case equip_game_instance::weapon_type::BOW: {
+  auto WeaponType = EquipGameInstance::load_weapon_type(sf);
+  switch (WeaponType) {
+  case EquipGameInstance::WeaponType::BOW: {
     pre = u"02060";
     break;
   }
-  case equip_game_instance::weapon_type::CROSSBOW: {
+  case EquipGameInstance::WeaponType::CROSSBOW: {
     pre = u"02061";
     break;
   }
-  case equip_game_instance::weapon_type::CLAW: {
+  case EquipGameInstance::WeaponType::CLAW: {
     pre = u"0207";
     break;
   }
@@ -157,10 +157,10 @@ std::polymorphic<game_item> *package_game_instance::load_active_ball() {
     break;
   }
   }
-  auto &r = package_game_instance::data[(int)item_enum::consume];
+  auto &r = PackageGameInstance::data[(int)ItemEnum::consume];
   for (auto &itm : r) {
     if (itm->id.starts_with(pre)) {
-      auto num = item_game_instance::load_item_num(itm);
+      auto num = ItemGameInstance::load_item_num(itm);
       if (num > 0) {
         return &itm;
       }
@@ -169,18 +169,18 @@ std::polymorphic<game_item> *package_game_instance::load_active_ball() {
   return nullptr;
 }
 
-std::u16string package_game_instance::load_active_cash_ball() {
-  auto &sf = character_game_instance::self;
+std::u16string PackageGameInstance::load_active_cash_ball() {
+  auto &sf = CharacterGameInstance::self;
   std::u16string pre;
-  auto weapon_type = equip_game_instance::load_weapon_type(sf);
-  switch (weapon_type) {
-  case equip_game_instance::weapon_type::BOW: {
+  auto WeaponType = EquipGameInstance::load_weapon_type(sf);
+  switch (WeaponType) {
+  case EquipGameInstance::WeaponType::BOW: {
     break;
   }
-  case equip_game_instance::weapon_type::CROSSBOW: {
+  case EquipGameInstance::WeaponType::CROSSBOW: {
     break;
   }
-  case equip_game_instance::weapon_type::CLAW: {
+  case EquipGameInstance::WeaponType::CLAW: {
     pre = u"0502";
     break;
   }
@@ -189,7 +189,7 @@ std::u16string package_game_instance::load_active_cash_ball() {
     break;
   }
   }
-  auto &r = package_game_instance::data[(int)item_enum::cash];
+  auto &r = PackageGameInstance::data[(int)ItemEnum::cash];
   for (auto &itm : r) {
     if (itm->id.starts_with(pre)) {
       return itm->id;
@@ -198,42 +198,42 @@ std::u16string package_game_instance::load_active_cash_ball() {
   return u"";
 }
 
-uint32_t package_game_instance::load_item_num(const std::u16string &id) {
+uint32_t PackageGameInstance::load_item_num(const std::u16string &id) {
   uint32_t r = 0;
-  auto itm = item_game_instance::load_item(id, 1);
-  auto &p = package_game_instance::data[(int)itm->type];
+  auto itm = ItemGameInstance::load_item(id, 1);
+  auto &p = PackageGameInstance::data[(int)itm->type];
   for (auto &i : p) {
     if (i->id == id) {
-      auto num = item_game_instance::load_item_num(i);
+      auto num = ItemGameInstance::load_item_num(i);
       r += num;
     }
   }
   return r;
 }
 
-int package_game_instance::add_item_slot(std::polymorphic<game_item> &item,
+int PackageGameInstance::add_item_slot(std::polymorphic<GameItem> &item,
                                          int i) {
-  auto num = item_game_instance::load_item_num(item);
-  auto &p = package_game_instance::data[(int)item->type];
-  auto slot_max = item_game_instance::load_slot_max(item->id);
+  auto num = ItemGameInstance::load_item_num(item);
+  auto &p = PackageGameInstance::data[(int)item->type];
+  auto slot_max = ItemGameInstance::load_slot_max(item->id);
   auto &itm = p.at(i);
   itm->id = item->id;
-  auto itm_num = item_game_instance::load_item_num(itm);
+  auto itm_num = ItemGameInstance::load_item_num(itm);
   num = std::min((int)num + itm_num, slot_max);
   auto dn = num - itm_num;
-  item_game_instance::add_item_num(itm, dn);
-  item_game_instance::dec_item_num(item, dn);
+  ItemGameInstance::add_item_num(itm, dn);
+  ItemGameInstance::dec_item_num(item, dn);
   return dn;
 }
 
 std::optional<int>
-package_game_instance::add_item(std::polymorphic<game_item> &item) {
+PackageGameInstance::add_item(std::polymorphic<GameItem> &item) {
   // 提前解引用，避免多次 -> 调用
   const auto type = item->type;
 
   // 特例：货币类道具（id 全零）
   if (item->id == u"00000000") {
-    add_meso(item_game_instance::load_item_num(item));
+    add_meso(ItemGameInstance::load_item_num(item));
     return 0;
   }
 
@@ -243,11 +243,11 @@ package_game_instance::add_item(std::polymorphic<game_item> &item) {
   }
 
   std::optional<int> result;
-  auto &slots = package_game_instance::data[static_cast<int>(type)];
+  auto &slots = PackageGameInstance::data[static_cast<int>(type)];
 
   switch (type) {
-  case item_enum::consume:
-  case item_enum::etc: {
+  case ItemEnum::consume:
+  case ItemEnum::etc: {
     // 逐个尝试放入空槽，直到成功一个即可
     for (const int idx : empty_slots) {
       if (add_item_slot(item, idx)) {
@@ -266,17 +266,17 @@ package_game_instance::add_item(std::polymorphic<game_item> &item) {
   }
   // 仅在实际添加成功时更新任务检查
   if (result) {
-    quest_game_instance::update_check_item();
+    QuestGameInstance::update_check_item();
   }
   return result;
 }
 
 std::optional<int>
-package_game_instance::add_new_item(std::polymorphic<game_item> &item) {
+PackageGameInstance::add_new_item(std::polymorphic<GameItem> &item) {
   auto i = add_item(item);
   if (i.has_value()) {
     if (item->id != u"00000000") {
-      package_ui_system::new_itm = {
+      PackageUiSystem::new_itm = {
           .type = item->type,
           .index = (uint16_t)(i.value()),
       };
@@ -285,7 +285,7 @@ package_game_instance::add_new_item(std::polymorphic<game_item> &item) {
   return i;
 }
 
-bool package_game_instance::add_meso(uint32_t num) {
-  package_game_instance::meso += num;
+bool PackageGameInstance::add_meso(uint32_t num) {
+  PackageGameInstance::meso += num;
   return true;
 }

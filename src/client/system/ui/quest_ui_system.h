@@ -7,7 +7,7 @@
 #include <flat_set>
 #include <optional>
 #include <string>
-class quest_ui_system {
+class QuestUiSystem {
 private:
   static int load_vscr_num0();
   static int load_vscr_num1();
@@ -20,7 +20,7 @@ private:
   static void render_quest_detail();
   static void render_tab();
   static void render_area_name(int i, int y);
-  static void render_quest(game_quest &q, int y);
+  static void render_quest(GameQuest &q, int y);
   static void render_vscr();
   static void render_detail_vscr();
   static void render_detail_avaliable();

@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <string>
 
-class game_ball {
+class GameBall {
 public:
   std::u16string path;
 

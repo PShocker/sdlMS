@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-class chatballoon_logic_system {
+class ChatballoonLogicSystem {
 public:
   static bool run();
 };

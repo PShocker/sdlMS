@@ -3,7 +3,7 @@
 #include "uv.h"
 #include <cstdint>
 #include <string>
-class server_main {
+class ServerMain {
 public:
   static inline uint64_t local_addr;
 

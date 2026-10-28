@@ -7,7 +7,7 @@
 #include <optional>
 #include <string>
 
-void keyboard_game_instance::reset() {
+void KeyboardGameInstance::reset() {
   data.clear();
   insert_input(SDL_SCANCODE_ESCAPE, {.type = "ui", .val = "menu"});
   insert_input(SDL_SCANCODE_F1, {.type = "face", .val = "hit"});
@@ -48,9 +48,9 @@ void keyboard_game_instance::reset() {
   insert_input(SDL_SCANCODE_RIGHT, {.type = "action", .val = "right"});
 }
 
-void keyboard_game_instance::load() { reset(); }
+void KeyboardGameInstance::load() { reset(); }
 
-void keyboard_game_instance::load(const character_save &cs) {
+void KeyboardGameInstance::load(const CharacterSaveData &cs) {
   data = {};
   for (auto &k : cs.keys) {
     data[(SDL_Scancode)k.scan_code] = {
@@ -62,7 +62,7 @@ void keyboard_game_instance::load(const character_save &cs) {
 }
 
 SDL_Scancode
-keyboard_game_instance::find_key_by_val(const std::string &target_val) {
+KeyboardGameInstance::find_key_by_val(const std::string &target_val) {
   for (const auto &[scancode, binding] : data) {
     if (binding.val == target_val) {
       return scancode;
@@ -71,269 +71,269 @@ keyboard_game_instance::find_key_by_val(const std::string &target_val) {
   return SDL_SCANCODE_UNKNOWN; // 未找到
 }
 
-game_input keyboard_game_instance::find_input_by_cursor(int i) {
-  game_input input;
-  switch ((cursor_game_instance::cursor_keybind_type)i) {
-  case cursor_game_instance::keybind_action_attack: {
+GameInput KeyboardGameInstance::find_input_by_cursor(int i) {
+  GameInput input;
+  switch ((CursorGameInstance::CursorKeybindType)i) {
+  case CursorGameInstance::keybind_action_attack: {
     input = {
         .type = "action",
         .val = "attack",
     };
     break;
   }
-  case cursor_game_instance::keybind_action_sit: {
+  case CursorGameInstance::keybind_action_sit: {
     input = {
         .type = "action",
         .val = "sit",
     };
     break;
   }
-  case cursor_game_instance::keybind_action_jump: {
+  case CursorGameInstance::keybind_action_jump: {
     input = {
         .type = "action",
         .val = "jump",
     };
     break;
   }
-  case cursor_game_instance::keybind_action_pick: {
+  case CursorGameInstance::keybind_action_pick: {
     input = {
         .type = "action",
         .val = "pick",
     };
     break;
   }
-  case cursor_game_instance::keybind_action_up: {
+  case CursorGameInstance::keybind_action_up: {
     input = {
         .type = "action",
         .val = "up",
     };
     break;
   }
-  case cursor_game_instance::keybind_action_down: {
+  case CursorGameInstance::keybind_action_down: {
     input = {
         .type = "action",
         .val = "down",
     };
     break;
   }
-  case cursor_game_instance::keybind_action_left: {
+  case CursorGameInstance::keybind_action_left: {
     input = {
         .type = "action",
         .val = "left",
     };
     break;
   }
-  case cursor_game_instance::keybind_action_right: {
+  case CursorGameInstance::keybind_action_right: {
     input = {
         .type = "action",
         .val = "right",
     };
     break;
   }
-  case cursor_game_instance::keybind_ui_worldMap: {
+  case CursorGameInstance::keybind_ui_worldMap: {
     input = {
         .type = "ui",
         .val = "worldMap",
     };
     break;
   }
-  case cursor_game_instance::keybind_ui_package: {
+  case CursorGameInstance::keybind_ui_package: {
     input = {
         .type = "ui",
         .val = "package",
     };
     break;
   }
-  case cursor_game_instance::keybind_ui_characterStat: {
+  case CursorGameInstance::keybind_ui_characterStat: {
     input = {
         .type = "ui",
         .val = "characterStat",
     };
     break;
   }
-  case cursor_game_instance::keybind_ui_keyBind: {
+  case CursorGameInstance::keybind_ui_keyBind: {
     input = {
         .type = "ui",
         .val = "keyBind",
     };
     break;
   }
-  case cursor_game_instance::keybind_ui_skill: {
+  case CursorGameInstance::keybind_ui_skill: {
     input = {
         .type = "ui",
         .val = "skill",
     };
     break;
   }
-  case cursor_game_instance::keybind_ui_equip: {
+  case CursorGameInstance::keybind_ui_equip: {
     input = {
         .type = "ui",
         .val = "equip",
     };
     break;
   }
-  case cursor_game_instance::keybind_ui_craft: {
+  case CursorGameInstance::keybind_ui_craft: {
     input = {
         .type = "ui",
         .val = "craft",
     };
     break;
   }
-  case cursor_game_instance::keybind_ui_quest: {
+  case CursorGameInstance::keybind_ui_quest: {
     input = {
         .type = "ui",
         .val = "quest",
     };
     break;
   }
-  case cursor_game_instance::keybind_ui_ok: {
+  case CursorGameInstance::keybind_ui_ok: {
     input = {
         .type = "ui",
         .val = "ok",
     };
     break;
   }
-  case cursor_game_instance::keybind_ui_buddy: {
+  case CursorGameInstance::keybind_ui_buddy: {
     input = {
         .type = "ui",
         .val = "buddy",
     };
     break;
   }
-  case cursor_game_instance::keybind_face_vomit: {
+  case CursorGameInstance::keybind_face_vomit: {
     input = {
         .type = "face",
         .val = "vomit",
     };
     break;
   }
-  case cursor_game_instance::keybind_ui_menu: {
+  case CursorGameInstance::keybind_ui_menu: {
     input = {
         .type = "ui",
         .val = "menu",
     };
     break;
   }
-  case cursor_game_instance::keybind_face_hit: {
+  case CursorGameInstance::keybind_face_hit: {
     input = {
         .type = "face",
         .val = "hit",
     };
     break;
   }
-  case cursor_game_instance::keybind_face_smile: {
+  case CursorGameInstance::keybind_face_smile: {
     input = {
         .type = "face",
         .val = "smile",
     };
     break;
   }
-  case cursor_game_instance::keybind_face_troubled: {
+  case CursorGameInstance::keybind_face_troubled: {
     input = {
         .type = "face",
         .val = "troubled",
     };
     break;
   }
-  case cursor_game_instance::keybind_face_cry: {
+  case CursorGameInstance::keybind_face_cry: {
     input = {
         .type = "face",
         .val = "cry",
     };
     break;
   }
-  case cursor_game_instance::keybind_face_angry: {
+  case CursorGameInstance::keybind_face_angry: {
     input = {
         .type = "face",
         .val = "angry",
     };
     break;
   }
-  case cursor_game_instance::keybind_face_bewildered: {
+  case CursorGameInstance::keybind_face_bewildered: {
     input = {
         .type = "face",
         .val = "bewildered",
     };
     break;
   }
-  case cursor_game_instance::keybind_face_stunned: {
+  case CursorGameInstance::keybind_face_stunned: {
     input = {
         .type = "face",
         .val = "stunned",
     };
     break;
   }
-  case cursor_game_instance::keybind_ui_toAll: {
+  case CursorGameInstance::keybind_ui_toAll: {
     input = {
         .type = "ui",
         .val = "toAll",
     };
     break;
   }
-  case cursor_game_instance::keybind_ui_toParty: {
+  case CursorGameInstance::keybind_ui_toParty: {
     input = {
         .type = "ui",
         .val = "toParty",
     };
     break;
   }
-  case cursor_game_instance::keybind_ui_party: {
+  case CursorGameInstance::keybind_ui_party: {
     input = {
         .type = "ui",
         .val = "party",
     };
     break;
   }
-  case cursor_game_instance::keybind_ui_mapleChat: {
+  case CursorGameInstance::keybind_ui_mapleChat: {
     input = {
         .type = "ui",
         .val = "mapleChat",
     };
     break;
   }
-  case cursor_game_instance::keybind_ui_quickSlot: {
+  case CursorGameInstance::keybind_ui_quickSlot: {
     input = {
         .type = "ui",
         .val = "quickSlot",
     };
     break;
   }
-  case cursor_game_instance::keybind_ui_whisper: {
+  case CursorGameInstance::keybind_ui_whisper: {
     input = {
         .type = "ui",
         .val = "whisper",
     };
     break;
   }
-  case cursor_game_instance::keybind_ui_mailBox: {
+  case CursorGameInstance::keybind_ui_mailBox: {
     input = {
         .type = "ui",
         .val = "mailBox",
     };
     break;
   }
-  case cursor_game_instance::keybind_ui_chatPlus: {
+  case CursorGameInstance::keybind_ui_chatPlus: {
     input = {
         .type = "ui",
         .val = "chat+",
     };
     break;
   }
-  case cursor_game_instance::keybind_ui_miniMap: {
+  case CursorGameInstance::keybind_ui_miniMap: {
     input = {
         .type = "ui",
         .val = "miniMap",
     };
     break;
   }
-  case cursor_game_instance::keybind_ui_changeChannel: {
+  case CursorGameInstance::keybind_ui_changeChannel: {
     input = {
         .type = "ui",
         .val = "changeChannel",
     };
     break;
   }
-  case cursor_game_instance::keybind_action_harvest: {
+  case CursorGameInstance::keybind_action_harvest: {
     input = {
         .type = "action",
         .val = "harvest",
@@ -344,7 +344,7 @@ game_input keyboard_game_instance::find_input_by_cursor(int i) {
   return input;
 }
 
-void keyboard_game_instance::insert_input(SDL_Scancode c, game_input i) {
+void KeyboardGameInstance::insert_input(SDL_Scancode c, GameInput i) {
   erase_input(c);
   erase_input(i);
   switch (c) {
@@ -369,7 +369,7 @@ void keyboard_game_instance::insert_input(SDL_Scancode c, game_input i) {
   }
 }
 
-void keyboard_game_instance::erase_input(SDL_Scancode c) {
+void KeyboardGameInstance::erase_input(SDL_Scancode c) {
   switch (c) {
   case SDL_SCANCODE_LCTRL:
   case SDL_SCANCODE_RCTRL:
@@ -392,37 +392,37 @@ void keyboard_game_instance::erase_input(SDL_Scancode c) {
   }
 }
 
-void keyboard_game_instance::erase_input(game_input i) {
+void KeyboardGameInstance::erase_input(GameInput i) {
   std::erase_if(data, [&](const auto &kv) {
     return kv.second == i; // 举例字段
   });
 }
 
-std::optional<game_input> keyboard_game_instance::load_cursor_input() {
-  if (!cursor_game_instance::cursor_hand.has_value()) {
+std::optional<GameInput> KeyboardGameInstance::load_cursor_input() {
+  if (!CursorGameInstance::cursor_hand.has_value()) {
     return std::nullopt;
   }
-  auto &cursor_hand = cursor_game_instance::cursor_hand.value();
+  auto &cursor_hand = CursorGameInstance::cursor_hand.value();
   std::string id;
   switch (cursor_hand.type) {
-  case cursor_game_instance::keybind: {
-    if (keyboard_game_instance::data.contains((SDL_Scancode)cursor_hand.val)) {
-      return keyboard_game_instance::data.at((SDL_Scancode)cursor_hand.val);
+  case CursorGameInstance::keybind: {
+    if (KeyboardGameInstance::data.contains((SDL_Scancode)cursor_hand.val)) {
+      return KeyboardGameInstance::data.at((SDL_Scancode)cursor_hand.val);
     } else {
       return find_input_by_cursor(cursor_hand.sub_val);
     }
     break;
   }
-  case cursor_game_instance::package: {
+  case CursorGameInstance::package: {
     auto &item =
-        package_game_instance::data[cursor_hand.val][cursor_hand.sub_val];
+        PackageGameInstance::data[cursor_hand.val][cursor_hand.sub_val];
     id = std::string{item->id.begin(), item->id.end()};
     if (id.starts_with("02")) {
       if (id.starts_with("0204") || id.starts_with("0206") ||
           id.starts_with("0207")) {
         break;
       }
-      game_input input{
+      GameInput input{
           .type = "item",
           .val = id,
       };
@@ -430,9 +430,9 @@ std::optional<game_input> keyboard_game_instance::load_cursor_input() {
     }
     break;
   }
-  case cursor_game_instance::skill: {
+  case CursorGameInstance::skill: {
     id = std::format("{:07d}", cursor_hand.sub_val);
-    game_input input{
+    GameInput input{
         .type = "skill",
         .val = id,
     };

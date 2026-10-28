@@ -18,17 +18,17 @@
 #include <string>
 #include <vector>
 
-std::u16string mob_game_instance::load_mob_name(const std::u16string &id) {
+std::u16string MobGameInstance::load_mob_name(const std::u16string &id) {
   std::u16string r = u"";
   auto view = id | std::views::drop_while([](char16_t c) { return c == u'0'; });
 
   std::u16string result(view.begin(), view.end());
-  auto str_node = wz_resource::string->find(u"Mob.img/" + result + u"/name");
+  auto str_node = WzResource::string->find(u"Mob.img/" + result + u"/name");
   auto str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
   return str;
 }
 
-wz::Node *mob_game_instance::load_mob_info(const std::u16string &id) {
+wz::Node *MobGameInstance::load_mob_info(const std::u16string &id) {
   static std::flat_map<std::u16string, wz::Node *> cache;
   if (!cache.contains(id)) {
     auto mob_node = load_link_mob_node(id);
@@ -37,14 +37,14 @@ wz::Node *mob_game_instance::load_mob_info(const std::u16string &id) {
   return cache.at(id);
 }
 
-wz::Node *mob_game_instance::load_link_mob_node(const std::u16string &id) {
-  auto mob_node = wz_resource::mob->find(id + u".img");
+wz::Node *MobGameInstance::load_link_mob_node(const std::u16string &id) {
+  auto mob_node = WzResource::mob->find(id + u".img");
   while (mob_node->find(u"info/link")) {
     auto link_node = mob_node->find(u"info/link");
     auto link = static_cast<wz::Property<std::u16string> *>(link_node)->get();
-    mob_node = wz_resource::mob->find(link + u".img");
+    mob_node = WzResource::mob->find(link + u".img");
   }
   return mob_node;
 }
 
-void mob_game_instance::load(uint32_t map_id) { data = {}; }
+void MobGameInstance::load(uint32_t map_id) { data = {}; }

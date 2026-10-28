@@ -20,22 +20,22 @@
 #include <algorithm>
 #include <ranges>
 
-void character_create_system_instance::enter_prepare() {
-  character_create_ui_system::reset_character(false);
-  character_create_ui_system::str_point = 4;
-  character_create_ui_system::dex_point = 4;
-  character_create_ui_system::int_point = 4;
-  character_create_ui_system::luk_point = 4;
-  character_create_ui_system::remain_point = 9;
+void CharacterCreateSystemInstance::enter_prepare() {
+  CharacterCreateUiSystem::reset_character(false);
+  CharacterCreateUiSystem::str_point = 4;
+  CharacterCreateUiSystem::dex_point = 4;
+  CharacterCreateUiSystem::int_point = 4;
+  CharacterCreateUiSystem::luk_point = 4;
+  CharacterCreateUiSystem::remain_point = 9;
 }
 
-void character_create_system_instance::enter() {
+void CharacterCreateSystemInstance::enter() {
   enter_prepare();
-  auto &camera = camera_game_instance::camera;
+  auto &camera = CameraGameInstance::camera;
   camera.x = -80 - camera.w / 2;
   camera.y = -1294 - camera.h / 2;
 
-  character_create_ui_system::name = {
+  CharacterCreateUiSystem::name = {
       .max_size = 10,
       .text = {},
       .composition = {},
@@ -51,27 +51,27 @@ void character_create_system_instance::enter() {
       .font_color = {255, 255, 255, 255},
       .font_size = 13,
   };
-  character_create_ui_system::name.type.set(text_input::ime);
+  CharacterCreateUiSystem::name.type.set(TextInput::ime);
 
-  auto fn = &login_system_instance::render_game;
-  if (!std::ranges::contains(system::render_systems, fn)) {
-    static auto image = wz_resource::ui->find(u"MapLogin.img");
-    backgrnd_game_instance::load(image);
-    obj_game_instance::load(image);
-    tile_game_instance::load(image);
+  auto fn = &LoginSystemInstance::render_game;
+  if (!std::ranges::contains(System::render_systems, fn)) {
+    static auto image = WzResource::ui->find(u"MapLogin.img");
+    BackgrndGameInstance::load(image);
+    ObjGameInstance::load(image);
+    TileGameInstance::load(image);
   }
 
-  system::logic_systems = {
-      backgrnd_logic_system::run,      obj_logic_system::run,
-      audio_logic_system::run,         cursor_logic_system::run,
-      character_create_ui_system::run,
+  System::logic_systems = {
+      BackgrndLogicSystem::run,      ObjLogicSystem::run,
+      AudioLogicSystem::run,         CursorLogicSystem::run,
+      CharacterCreateUiSystem::run,
   };
-  system::render_systems = {
-      login_system_instance::render_game,
-      character_create_ui_system::render,
-      cursor_render_system::render,
+  System::render_systems = {
+      LoginSystemInstance::render_game,
+      CharacterCreateUiSystem::render,
+      CursorRenderSystem::render,
   };
-  system::event_systems = {
-      character_create_ui_system::event,
+  System::event_systems = {
+      CharacterCreateUiSystem::event,
   };
 }

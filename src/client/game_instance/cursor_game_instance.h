@@ -7,7 +7,7 @@
 
 using namespace fbs;
 
-class cursor_game_instance {
+class CursorGameInstance {
 public:
   static inline std::u16string cursor_type = u"0";
   static inline uint8_t cursor_index;
@@ -18,14 +18,14 @@ public:
   static inline bool (*modal_overlay)(void);
 
   // 点击装备,背包,技能,键盘按钮
-  enum cursor_hand_type {
+  enum CursorHandType {
     equipment,
     deco,
     package,
     skill,
     keybind,
   };
-  enum cursor_keybind_type { // sub_val
+  enum CursorKeybindType { // sub_val
     keybind_ui_menu,
     keybind_face_hit,
     keybind_face_smile,
@@ -65,19 +65,19 @@ public:
     keybind_action_right,
     keybind_face_vomit,
   };
-  struct cursor_hand_data {
-    cursor_hand_type type;
+  struct CursorHandData {
+    CursorHandType type;
     uint32_t val;
     uint32_t sub_val;
   };
-  enum cursor_hand_net_type {
+  enum CursorHandNetType {
     drop,
   };
-  struct cursor_hand_net_data {
-    cursor_hand_net_type type;
+  struct CursorHandNetData {
+    CursorHandNetType type;
     uint64_t id;
   };
 
-  static inline std::optional<cursor_hand_net_data> cursor_hand_net;
-  static inline std::optional<cursor_hand_data> cursor_hand;
+  static inline std::optional<CursorHandNetData> cursor_hand_net;
+  static inline std::optional<CursorHandData> cursor_hand;
 };

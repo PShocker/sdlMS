@@ -2,7 +2,7 @@
 
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_rect.h"
-class minigame_card_ui_system {
+class MinigameCardUiSystem {
 private:
   static void render_backgrnd();
   static SDL_FPoint load_wh();

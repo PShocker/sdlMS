@@ -7,9 +7,9 @@
 #include <cstdint>
 #include <memory>
 #include <string>
-class item_game_instance {
+class ItemGameInstance {
 public:
-  static inline std::vector<game_item_buff> buff;
+  static inline std::vector<GameItemBuff> buff;
 
   static bool check_item(const std::u16string &id);
 
@@ -18,19 +18,19 @@ public:
   static std::u16string load_item_type(const std::u16string &id);
   static wz::Node *load_item_info(const std::u16string &id, uint32_t num);
   static int load_slot_max(const std::u16string &id);
-  static std::polymorphic<game_item> load_item(const std::u16string &id,
+  static std::polymorphic<GameItem> load_item(const std::u16string &id,
                                                uint32_t num);
-  static int load_item_num(std::polymorphic<game_item> &itm);
-  static void add_item_num(std::polymorphic<game_item> &item, int num);
-  static void dec_item_num(std::polymorphic<game_item> &item, int num);
-  static void set_item_num(std::polymorphic<game_item> &itm, int num);
+  static int load_item_num(std::polymorphic<GameItem> &itm);
+  static void add_item_num(std::polymorphic<GameItem> &item, int num);
+  static void dec_item_num(std::polymorphic<GameItem> &item, int num);
+  static void set_item_num(std::polymorphic<GameItem> &itm, int num);
 
-  static void use_morph_item(const std::u16string &id, game_character &g);
-  static void unuse_morph_item(const std::u16string &id, game_character &g);
-  static bool use_mob_item(std::polymorphic<game_item> &itm);
-  static bool use_buff_item(std::polymorphic<game_item> &itm);
+  static void use_morph_item(const std::u16string &id, GameCharacter &g);
+  static void unuse_morph_item(const std::u16string &id, GameCharacter &g);
+  static bool use_mob_item(std::polymorphic<GameItem> &itm);
+  static bool use_buff_item(std::polymorphic<GameItem> &itm);
   static void unuse_buff_item(const std::u16string &id);
   static bool use_consume_item(const std::u16string &id);
-  static bool use_consume_item(std::polymorphic<game_item> &itm);
-  static void use_item(std::polymorphic<game_item> &itm);
+  static bool use_consume_item(std::polymorphic<GameItem> &itm);
+  static void use_item(std::polymorphic<GameItem> &itm);
 };

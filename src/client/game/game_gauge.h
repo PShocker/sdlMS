@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-class game_gauge {
+class GameGauge {
 public:
   float hp_percent;
   float hp_percent_now;

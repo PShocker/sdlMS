@@ -13,13 +13,13 @@
 
 using namespace fbs;
 
-class ball_game_instance {
+class BallGameInstance {
 private:
   static SDL_FPoint closest_point_on_rect(const SDL_FPoint &pos,
                                           const SDL_FRect &rect);
 
 public:
-  static inline std::array<std::vector<game_ball>, 8> data;
+  static inline std::array<std::vector<GameBall>, 8> data;
   static void reset();
 
   static uint64_t load_ball_time(ClientCharacterBallT &cct);
@@ -28,7 +28,7 @@ public:
   static std::u16string load_cash_ball_effect(const std::u16string &id);
 
   static ClientCharacterBallT
-  create_ball_payload(check_mobs &cm, SDL_FPoint pos, SDL_FPoint goal,
+  create_ball_payload(CheckMobs &cm, SDL_FPoint pos, SDL_FPoint goal,
                       uint64_t delay, int page, int speed,
                       const std::u16string &path);
 };

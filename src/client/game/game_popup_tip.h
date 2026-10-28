@@ -7,16 +7,16 @@
 
 using namespace fbs;
 
-enum class popup_tip_enums {
+enum class PopupTipEnums {
   trade,
   party,
   quest,
 };
 
-class game_popup_tip {
+class GamePopupTip {
 public:
-  popup_tip_enums type;
+  PopupTipEnums type;
   int32_t alpha = 0;
-  uint64_t destroy = window::dt_now + 120 * 1000;
+  uint64_t destroy = Window::dt_now + 120 * 1000;
   std::any data;
 };

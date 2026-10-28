@@ -7,16 +7,16 @@
 #include <optional>
 
 
-struct game_drop_pick {
+struct GameDropPick {
   uint64_t client_id;
   std::optional<uint8_t> pet_index;
 };
 
-class game_drop {
+class GameDrop {
 public:
   uint64_t random_id;
 
-  std::polymorphic<game_item> data;
+  std::polymorphic<GameItem> data;
 
   SDL_FPoint pos;
   SDL_FPoint goal;
@@ -29,15 +29,15 @@ public:
 
   uint8_t page;
 
-  enum class drop_enum {
+  enum class DropEnum {
     fly,
     land,
     pick,
     fade,
   };
 
-  drop_enum type = drop_enum::fly;
+  DropEnum type = DropEnum::fly;
 
   uint64_t pick_time;
-  std::optional<game_drop_pick> picker;
+  std::optional<GameDropPick> picker;
 };

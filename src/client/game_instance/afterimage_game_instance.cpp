@@ -14,38 +14,38 @@
 #include <string>
 
 std::u16string
-afterimage_game_instance::load_hit_type(game_character &g_character) {
-  auto weapon_type = equip_game_instance::load_weapon_type(g_character);
-  const static std::flat_map<equip_game_instance::weapon_type, std::u16string>
+AfterimageGameInstance::load_hit_type(GameCharacter &g_character) {
+  auto WeaponType = EquipGameInstance::load_weapon_type(g_character);
+  const static std::flat_map<EquipGameInstance::WeaponType, std::u16string>
       h = {
-          {equip_game_instance::weapon_type::S1A1M1D, u"sword1"},
-          {equip_game_instance::weapon_type::SPEAR, u"sword1"},
-          {equip_game_instance::weapon_type::BOW, u"sword1"},
-          {equip_game_instance::weapon_type::CROSSBOW, u"sword1"},
-          {equip_game_instance::weapon_type::S2A2M2, u"sword1"},
-          {equip_game_instance::weapon_type::WAND, u"sword1"},
-          {equip_game_instance::weapon_type::CLAW, u"sword1"},
-          {equip_game_instance::weapon_type::GUN, u"sword1"},
+          {EquipGameInstance::WeaponType::S1A1M1D, u"sword1"},
+          {EquipGameInstance::WeaponType::SPEAR, u"sword1"},
+          {EquipGameInstance::WeaponType::BOW, u"sword1"},
+          {EquipGameInstance::WeaponType::CROSSBOW, u"sword1"},
+          {EquipGameInstance::WeaponType::S2A2M2, u"sword1"},
+          {EquipGameInstance::WeaponType::WAND, u"sword1"},
+          {EquipGameInstance::WeaponType::CLAW, u"sword1"},
+          {EquipGameInstance::WeaponType::GUN, u"sword1"},
       };
-  return h.at(weapon_type);
+  return h.at(WeaponType);
 }
 
 wz::Node *
-afterimage_game_instance::load_atf_node_cache(const std::u16string &i) {
+AfterimageGameInstance::load_atf_node_cache(const std::u16string &i) {
   static std::flat_map<std::u16string, wz::Node *> cache;
   if (!cache.contains(i)) {
-    cache[i] = wz_resource::character->find(u"Afterimage/" + i + u".img");
+    cache[i] = WzResource::character->find(u"Afterimage/" + i + u".img");
   }
   return cache.at(i);
 }
 
-wz::Node *afterimage_game_instance::load_atf_node(game_character &g_character) {
+wz::Node *AfterimageGameInstance::load_atf_node(GameCharacter &g_character) {
   if (!g_character.weapon.has_value()) {
     return nullptr;
   }
   auto action = g_character.action;
   auto weapon_info =
-      equip_game_instance::load_equip_info(g_character.weapon.value().id);
+      EquipGameInstance::load_equip_info(g_character.weapon.value().id);
   auto weapon_level = weapon_info->get_child(u"reqLevel");
   auto weapon_level2 = static_cast<wz::Property<int> *>(weapon_level)->get();
   auto aft_type = weapon_info->get_child(u"afterImage");
@@ -59,8 +59,8 @@ wz::Node *afterimage_game_instance::load_atf_node(game_character &g_character) {
   return nullptr;
 }
 
-std::optional<afterimage_data>
-afterimage_game_instance::load_data(game_character &g_character) {
+std::optional<AfterimageData>
+AfterimageGameInstance::load_data(GameCharacter &g_character) {
   if (auto data = load_atf_node(g_character)) {
     int32_t action_i = 0;
     wz::Node *n;
@@ -77,7 +77,7 @@ afterimage_game_instance::load_data(game_character &g_character) {
     int32_t character_time = g_character.action_time;
     for (uint8_t i = action_i; i < g_character.action_index; i++) {
       auto delay =
-          character_game_instance::bone_data[g_character.action][i].delay;
+          CharacterGameInstance::bone_data[g_character.action][i].delay;
       character_time += delay;
     }
     // 根据总时间判断是哪一帧
@@ -88,11 +88,11 @@ afterimage_game_instance::load_data(game_character &g_character) {
           static_cast<wz::Property<int> *>(v[0]->get_child(u"delay"))->get();
       afterimage_time += delay;
       if (afterimage_time >= character_time) {
-        afterimage_data r;
+        AfterimageData r;
         // 判断帧内时间
         auto delta = delay - (afterimage_time - character_time);
-        r.texture = wz_resource::load_texture(v[0]);
-        r.origin = wz_resource::load_fpoint(v[0]->get_child(u"origin"));
+        r.texture = WzResource::load_texture(v[0]);
+        r.origin = WzResource::load_fpoint(v[0]->get_child(u"origin"));
         int32_t a0 = 255;
         int32_t a1;
         if (v[0]->get_child(u"a1")) {
@@ -110,10 +110,10 @@ afterimage_game_instance::load_data(game_character &g_character) {
 }
 
 std::optional<SDL_FRect>
-afterimage_game_instance::load_rect(game_character &g_character) {
+AfterimageGameInstance::load_rect(GameCharacter &g_character) {
   if (auto data = load_atf_node(g_character)) {
-    auto lt = wz_resource::load_fpoint(data->get_child(u"lt"));
-    auto rb = wz_resource::load_fpoint(data->get_child(u"rb"));
+    auto lt = WzResource::load_fpoint(data->get_child(u"lt"));
+    auto rb = WzResource::load_fpoint(data->get_child(u"rb"));
     SDL_FRect rect{
         .x = lt.x,
         .y = lt.y,
@@ -130,9 +130,9 @@ afterimage_game_instance::load_rect(game_character &g_character) {
   return std::nullopt;
 }
 
-uint64_t afterimage_game_instance::load_beat_time(game_character &g_character) {
+uint64_t AfterimageGameInstance::load_beat_time(GameCharacter &g_character) {
   uint64_t time = 0;
-  auto speed = character_logic_system::load_attack_speed(g_character);
+  auto speed = CharacterLogicSystem::load_attack_speed(g_character);
   speed = 1.0 / speed;
   if (auto data = load_atf_node(g_character)) {
     auto childs = *data->get_children();
@@ -142,11 +142,11 @@ uint64_t afterimage_game_instance::load_beat_time(game_character &g_character) {
     const auto &key = it->first;
     auto index = std::stoi(std::string{key.begin(), key.end()});
     const auto &bones =
-        character_game_instance::bone_data.at(g_character.action);
+        CharacterGameInstance::bone_data.at(g_character.action);
     for (auto i = 0; i < index; i++) {
       time += bones[i].delay * speed;
     }
-    auto now = window::dt_time;
+    auto now = Window::dt_time;
     time += now;
   }
   return time;

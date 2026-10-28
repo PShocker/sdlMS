@@ -6,16 +6,16 @@
 #include <array>
 #include <cstdint>
 #include <flat_map>
-class trap_game_instance {
+class TrapGameInstance {
 public:
   static void load(wz::Node *image);
   static void load(uint32_t map_id);
-  static inline std::array<std::flat_multimap<int64_t, game_obj>, 8> data;
+  static inline std::array<std::flat_multimap<int64_t, GameObj>, 8> data;
 
-  struct animate_data {
+  struct AnimateData {
     int index;
     int time;
   };
-  static animate_data load_animate_index(std::vector<int> delays);
+  static AnimateData load_animate_index(std::vector<int> delays);
   static std::vector<int> load_animate_delays(wz::Node *node);
 };

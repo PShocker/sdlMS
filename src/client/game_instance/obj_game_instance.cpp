@@ -7,14 +7,14 @@
 #include <cstdint>
 #include <string>
 
-void obj_game_instance::load(wz::Node *image) {
+void ObjGameInstance::load(wz::Node *image) {
   data = {};
   auto map_node = image;
   uint8_t map_layer = 0;
   for (auto i : {u"0", u"1", u"2", u"3", u"4", u"5", u"6", u"7"}) {
     auto layer_node = map_node->get_child(i);
     for (auto [key, val] : *layer_node->get_child(u"obj")->get_children()) {
-      game_obj g_obj;
+      GameObj g_obj;
       auto obj_node = val[0];
       auto oS = static_cast<wz::Property<std::u16string> *>(
                     obj_node->get_child(u"oS"))
@@ -51,7 +51,7 @@ void obj_game_instance::load(wz::Node *image) {
 
       g_obj.z = z * 100000 + load_z * 10;
 
-      obj_node = wz_resource::map->find(g_obj.path);
+      obj_node = WzResource::map->find(g_obj.path);
       uint8_t canvas_count = 0;
       for (auto [k, v] : *obj_node->get_children()) {
         if (v[0]->type == wz::Type::UOL) {
@@ -69,7 +69,7 @@ void obj_game_instance::load(wz::Node *image) {
   }
 }
 
-void obj_game_instance::load(uint32_t map_id) {
-  auto map_node = wz_resource::load_map_node(map_id);
+void ObjGameInstance::load(uint32_t map_id) {
+  auto map_node = WzResource::load_map_node(map_id);
   load(map_node);
 }

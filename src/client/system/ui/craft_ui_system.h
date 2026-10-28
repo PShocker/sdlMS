@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <flat_map>
 
-class craft_ui_system {
+class CraftUiSystem {
 private:
   static void render_backgrnd();
   static void render_tab();

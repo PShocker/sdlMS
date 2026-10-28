@@ -5,7 +5,7 @@
 #include "src/client/system/ui/text_input_ui_system.h"
 #include <cstdint>
 #include <optional>
-class option_ui_system {
+class OptionUiSystem {
 private:
   static void render_backgrnd();
   static void render_button();
@@ -55,39 +55,39 @@ public:
   // game
   static inline uint8_t hp_warn;
   static inline uint8_t mp_warn;
-  enum class enemy_info_enum {
+  enum class EnemyInfoEnum {
     name_hp,
     name,
     hp,
   };
-  static inline combo_box enemy_info_cm = {
+  static inline ComboBox enemy_info_cm = {
       .open = false,
       .w = 226,
       .selected = u"Name and HP",
       .selects = {u"Name and HP", u"Name", u"HP"},
-      .val = (uint8_t)option_ui_system::enemy_info_enum::name_hp,
+      .val = (uint8_t)OptionUiSystem::EnemyInfoEnum::name_hp,
   };
 
-  enum class screenshot_format_enum {
+  enum class ScreenshotFormatEnum {
     jpeg,
     png,
   };
-  static inline combo_box screenshot_format = {
+  static inline ComboBox screenshot_format = {
       .open = false,
       .w = 226,
       .selected = u"JPEG",
       .selects = {u"JPEG", u"PNG"},
-      .val = (uint8_t)option_ui_system::screenshot_format_enum::jpeg,
+      .val = (uint8_t)OptionUiSystem::ScreenshotFormatEnum::jpeg,
   };
-  enum class screenshot_location_enum {
+  enum class ScreenshotLocationEnum {
     folder,
   };
-  static inline combo_box screenshot_location = {
+  static inline ComboBox screenshot_location = {
       .open = false,
       .w = 226,
       .selected = u"MapleStory Folder",
       .selects = {u"MapleStory Folder"},
-      .val = (uint8_t)option_ui_system::screenshot_location_enum::folder,
+      .val = (uint8_t)OptionUiSystem::ScreenshotLocationEnum::folder,
   };
 
   static inline bool continue_capture;
@@ -99,15 +99,15 @@ public:
 
   static inline int32_t memory_limit;
 
-  enum class language_enum {
+  enum class LanguageEnum {
     english,
   };
-  static inline combo_box language = {
+  static inline ComboBox language = {
       .open = false,
       .w = 226,
       .selected = u"English",
       .selects = {u"English"},
-      .val = (uint8_t)option_ui_system::language_enum::english,
+      .val = (uint8_t)OptionUiSystem::LanguageEnum::english,
   };
 
   static inline uint8_t active_tab;

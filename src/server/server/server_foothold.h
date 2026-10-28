@@ -6,7 +6,7 @@
 #include <flat_map>
 #include <optional>
 #include <string>
-class server_foothold {
+class ServerFoothold {
 public:
-  game_foothold fh;
+  GameFoothold fh;
 };

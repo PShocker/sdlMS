@@ -5,9 +5,9 @@
 #include "src/client/game/game_npc.h"
 #include <optional>
 #include <string>
-class cursor_logic_system {
+class CursorLogicSystem {
 private:
-  static std::optional<game_npc> cursor_npc();
+  static std::optional<GameNpc> cursor_npc();
 
   static bool run_package_motion();
   static bool run_vscroll_motion();
@@ -25,6 +25,6 @@ private:
 public:
   static bool run();
 
-  static bool event_click_npc(game_npc npc);
+  static bool event_click_npc(GameNpc npc);
   static bool event(SDL_Event *event);
 };

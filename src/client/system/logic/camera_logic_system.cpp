@@ -5,10 +5,10 @@
 #include "src/client/system_instance/scene_system_instance.h"
 #include <cmath>
 
-bool camera_logic_system::run() {
-  auto self = character_game_instance::self;
+bool CameraLogicSystem::run() {
+  auto self = CharacterGameInstance::self;
   auto self_pos = self.pos;
-  auto &camera = camera_game_instance::camera;
+  auto &camera = CameraGameInstance::camera;
 
   auto prev_x = camera.x;
   auto next_x = self_pos.x - camera.w / 2; // 人物移动后新的摄像机坐标
@@ -25,7 +25,7 @@ bool camera_logic_system::run() {
       std::roundf(std::lerp(prev_y, next_y, std::abs(delta_y) / 6000.0f));
 
   auto border =
-      map_info_game_instance::load_vr_border(scene_system_instance::map_id);
+      MapInfoGameInstance::load_vr_border(SceneSystemInstance::map_id);
   auto [t, l, b, r] = border;
   if (camera.x < l) {
     camera.x = l;

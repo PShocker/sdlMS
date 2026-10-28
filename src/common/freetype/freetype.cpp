@@ -13,28 +13,28 @@
 #include FT_FREETYPE_H
 #include FT_SYNTHESIS_H // 这个宏对应 ftsynth.h
 
-void freetype::load_size(uint8_t i) {
+void Freetype::load_size(uint8_t i) {
   size = i;
   FT_Set_Pixel_Sizes(face, 0, i);
 }
 
-void freetype::load_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+void Freetype::load_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
   color.r = r;
   color.g = g;
   color.b = b;
   color.a = a;
 }
 
-void freetype::init() {
+void Freetype::init() {
   FT_Init_FreeType(&library);
   FT_New_Face(library, "./Font/simsun.ttc", 0, &face);
   FT_Select_Charmap(face, FT_ENCODING_UNICODE);
   return;
 }
 
-float freetype::load_char_w(const char16_t c) {
-  static std::flat_map<freetype_cache_key, float> w_cache;
-  freetype_cache_key t{
+float Freetype::load_char_w(const char16_t c) {
+  static std::flat_map<FreetypeCacheKey, float> w_cache;
+  FreetypeCacheKey t{
       .c = c,
       .size = size,
       .bold = bold,
@@ -47,7 +47,7 @@ float freetype::load_char_w(const char16_t c) {
   return w_cache.at(t);
 }
 
-float freetype::load_w(const std::u16string &str) {
+float Freetype::load_w(const std::u16string &str) {
   float w = 0;
   for (auto c : str) {
     w += load_char_w(c);
@@ -55,17 +55,17 @@ float freetype::load_w(const std::u16string &str) {
   return w;
 }
 
-float freetype::load_lh() { return face->size->metrics.height >> 6; }
+float Freetype::load_lh() { return face->size->metrics.height >> 6; }
 
-float freetype::load_ch(const std::u16string &str, float w, float h) {
+float Freetype::load_ch(const std::u16string &str, float w, float h) {
   return draw_cstr(str, 0, 0, w, h, true).height;
 }
 
-void freetype::load_aligned(bool r) { aligned = r; }
+void Freetype::load_aligned(bool r) { aligned = r; }
 
-void freetype::load_bold(bool r) { bold = r; }
+void Freetype::load_bold(bool r) { bold = r; }
 
-float freetype::draw_char(float x, float y, char16_t c) {
+float Freetype::draw_char(float x, float y, char16_t c) {
   if (c == u'\n') {
     return 0;
   }
@@ -73,7 +73,7 @@ float freetype::draw_char(float x, float y, char16_t c) {
   auto lineHeight = face->size->metrics.height >> 6;
   float advance = 0;
   int bearingY = 0;
-  freetype_cache_key t{
+  FreetypeCacheKey t{
       .c = c,
       .size = size,
       .bold = bold,
@@ -110,7 +110,7 @@ float freetype::draw_char(float x, float y, char16_t c) {
         }
       }
     }
-    texture = SDL_CreateTexture(window::renderer, SDL_PIXELFORMAT_ARGB8888,
+    texture = SDL_CreateTexture(Window::renderer, SDL_PIXELFORMAT_ARGB8888,
                                 SDL_TEXTUREACCESS_STATIC, cWidth, cHeight);
     SDL_UpdateTexture(texture, NULL, buffer, cWidth * 4);
     SDL_free(buffer);
@@ -132,11 +132,11 @@ float freetype::draw_char(float x, float y, char16_t c) {
   }
   SDL_SetTextureColorMod(texture, color.r, color.g, color.b);
   SDL_SetTextureAlphaMod(texture, color.a);
-  SDL_RenderTexture(window::renderer, texture, nullptr, &posRect);
+  SDL_RenderTexture(Window::renderer, texture, nullptr, &posRect);
   return advance;
 }
 
-void freetype::draw_line(const std::u16string &str, float x, float y) {
+void Freetype::draw_line(const std::u16string &str, float x, float y) {
   auto l = x;
   auto t = y;
   for (auto c : str) {
@@ -144,7 +144,7 @@ void freetype::draw_line(const std::u16string &str, float x, float y) {
   }
 }
 
-void freetype::draw_str(const std::u16string &str, float x, float y, float w,
+void Freetype::draw_str(const std::u16string &str, float x, float y, float w,
                         float h) {
   auto l = x;
   auto t = y;
@@ -160,7 +160,7 @@ void freetype::draw_str(const std::u16string &str, float x, float y, float w,
   }
 }
 
-void freetype::draw_dash_line(float x1, float y1, float x2, float y2,
+void Freetype::draw_dash_line(float x1, float y1, float x2, float y2,
                               float dash_len, float gap_len) {
   float dx = x2 - x1;
   float dy = y2 - y1;
@@ -189,13 +189,13 @@ void freetype::draw_dash_line(float x1, float y1, float x2, float y2,
     float ey = sy + uy * current_dash;
 
     // 绘制这一小段
-    SDL_RenderLine(window::renderer, sx, sy, ex, ey);
+    SDL_RenderLine(Window::renderer, sx, sy, ex, ey);
 
     progress += step;
   }
 }
 
-freetype::draw_data freetype::draw_rstr(const std::u16string &str, float x,
+Freetype::DrawData Freetype::draw_rstr(const std::u16string &str, float x,
                                         float y, float w, float h,
                                         std::optional<SDL_FRect> obstacle,
                                         int default_select, bool dryRun,
@@ -393,11 +393,11 @@ freetype::draw_data freetype::draw_rstr(const std::u16string &str, float x,
       case u'i': {
         auto itm_id = str.substr(i + 2, 7);
         itm_id = u"0" + itm_id;
-        auto node = item_game_instance::load_item_info(itm_id, 1);
-        if (!item_game_instance::check_item(itm_id)) {
-          node = equip_game_instance::load_equip_info(itm_id);
+        auto node = ItemGameInstance::load_item_info(itm_id, 1);
+        if (!ItemGameInstance::check_item(itm_id)) {
+          node = EquipGameInstance::load_equip_info(itm_id);
         }
-        icon = wz_resource::load_texture(node->get_child(u"icon"));
+        icon = WzResource::load_texture(node->get_child(u"icon"));
 
         // 行高已在本行开始时确定为 32，这里直接底部对齐绘制
         SDL_FRect pos{
@@ -407,7 +407,7 @@ freetype::draw_data freetype::draw_rstr(const std::u16string &str, float x,
             static_cast<float>(icon->h),
         };
         if (shouldShow() && !dryRun) {
-          SDL_RenderTexture(window::renderer, icon, nullptr, &pos);
+          SDL_RenderTexture(Window::renderer, icon, nullptr, &pos);
         }
 
         l += static_cast<float>(icon->w);
@@ -465,7 +465,7 @@ freetype::draw_data freetype::draw_rstr(const std::u16string &str, float x,
       if (!dryRun) {
         if (select >= 0 && selected == -1) {
           const SDL_FRect pos{l, t, charWidth, charHeight};
-          if (SDL_PointInRectFloat(&window::mouse_pos, &pos)) {
+          if (SDL_PointInRectFloat(&Window::mouse_pos, &pos)) {
             selected = select;
           }
         }
@@ -485,10 +485,10 @@ freetype::draw_data freetype::draw_rstr(const std::u16string &str, float x,
 
   // === 选择按钮 ===
   const auto loadDot = [](bool active) -> SDL_Texture * {
-    static const auto dot0 = wz_resource::load_texture(
-        wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/dot0"));
-    static const auto dot1 = wz_resource::load_texture(
-        wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/dot1"));
+    static const auto dot0 = WzResource::load_texture(
+        WzResource::ui->find(u"UtilDlgEx.img/UtilDlgEx/dot0"));
+    static const auto dot1 = WzResource::load_texture(
+        WzResource::ui->find(u"UtilDlgEx.img/UtilDlgEx/dot1"));
     return active ? dot1 : dot0;
   };
 
@@ -501,7 +501,7 @@ freetype::draw_data freetype::draw_rstr(const std::u16string &str, float x,
         static_cast<float>(tex->w),
         static_cast<float>(tex->h),
     };
-    SDL_RenderTexture(window::renderer, tex, nullptr, &pos);
+    SDL_RenderTexture(Window::renderer, tex, nullptr, &pos);
   }
 
   // === 下划线 ===
@@ -510,12 +510,12 @@ freetype::draw_data freetype::draw_rstr(const std::u16string &str, float x,
       return;
     const auto &r = select_r[idx];
     const float y1 = r.y + lineHeight;
-    SDL_SetRenderDrawColor(window::renderer, color.r, color.g, color.b,
+    SDL_SetRenderDrawColor(Window::renderer, color.r, color.g, color.b,
                            color.a);
     if (dashed) {
       draw_dash_line(r.x, y1, r.x + r.w, y1, kDashOn, kDashOff);
     } else {
-      SDL_RenderLine(window::renderer, r.x, y1, r.x + r.w, y1);
+      SDL_RenderLine(Window::renderer, r.x, y1, r.x + r.w, y1);
     }
   };
 
@@ -523,16 +523,16 @@ freetype::draw_data freetype::draw_rstr(const std::u16string &str, float x,
   drawUnderline(selected, kSelectedLineColor, false);
 
   // === 返回 ===
-  draw_data r;
+  DrawData r;
   r.height = t - y + lineHeight;
   r.select = selected;
   return r;
 }
 
-freetype::draw_data freetype::draw_cstr(const std::u16string &str, float x,
+Freetype::DrawData Freetype::draw_cstr(const std::u16string &str, float x,
                                         float y, float w, float h,
                                         bool dryRun) {
-  draw_data d{.height = 0};
+  DrawData d{.height = 0};
   if (str.empty())
     return d;
 
@@ -596,13 +596,13 @@ freetype::draw_data freetype::draw_cstr(const std::u16string &str, float x,
   return d;
 }
 
-float freetype::load_rh(const std::u16string &str, float w, float h,
+float Freetype::load_rh(const std::u16string &str, float w, float h,
                         std::optional<SDL_FRect> obstacle) {
   return draw_rstr(str, 0, 0, w, h, obstacle, -1, true, INT32_MAX)
       .height; // 添加 dryRun 参数
 }
 
-freetype::draw_data freetype::draw_rstr(const std::u16string &str, float x,
+Freetype::DrawData Freetype::draw_rstr(const std::u16string &str, float x,
                                         float y, float w, float h,
                                         std::optional<SDL_FRect> obstacle) {
   return draw_rstr(str, x, y, w, h, obstacle, -1, false, INT32_MAX);

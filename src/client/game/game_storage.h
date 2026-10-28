@@ -6,8 +6,8 @@
 #include <optional>
 #include <vector>
 
-class game_storage {
+class GameStorage {
 public:
-  std::vector<std::polymorphic<game_item>> data;
+  std::vector<std::polymorphic<GameItem>> data;
   uint64_t meso;
 };

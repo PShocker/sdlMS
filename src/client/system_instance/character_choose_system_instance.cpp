@@ -20,52 +20,52 @@
 #include <optional>
 #include <ranges>
 
-void character_choose_system_instance::enter_prepare(const std::string &login) {
-  game_save_system_instance::load_save(login);
+void CharacterChooseSystemInstance::enter_prepare(const std::string &login) {
+  GameSaveSystemInstance::load_save(login);
   // 进一步解析game_save
-  auto character_size = game_save_system_instance::save.characters.size();
-  character_choose_ui_system::characters.resize(character_size);
+  auto character_size = GameSaveSystemInstance::save.characters.size();
+  CharacterChooseUiSystem::characters.resize(character_size);
   for (int i = 0; i < character_size; i++) {
-    auto &sc = game_save_system_instance::save.characters[i];
-    character_choose_ui_system::characters[i] = sc.character;
-    character_logic_system::run_stand_action(
-        character_choose_ui_system::characters[i]);
-    character_choose_ui_system::characters[i].flip = 1;
+    auto &sc = GameSaveSystemInstance::save.characters[i];
+    CharacterChooseUiSystem::characters[i] = sc.character;
+    CharacterLogicSystem::run_stand_action(
+        CharacterChooseUiSystem::characters[i]);
+    CharacterChooseUiSystem::characters[i].flip = 1;
   }
 }
 
-void character_choose_system_instance::enter(const std::string &login) {
+void CharacterChooseSystemInstance::enter(const std::string &login) {
   enter_prepare(login);
   enter();
 }
 
-void character_choose_system_instance::enter() {
-  auto fn = &login_system_instance::render_game;
-  if (!std::ranges::contains(system::render_systems, fn)) {
-    static auto image = wz_resource::ui->find(u"MapLogin.img");
-    backgrnd_game_instance::load(image);
-    obj_game_instance::load(image);
-    tile_game_instance::load(image);
+void CharacterChooseSystemInstance::enter() {
+  auto fn = &LoginSystemInstance::render_game;
+  if (!std::ranges::contains(System::render_systems, fn)) {
+    static auto image = WzResource::ui->find(u"MapLogin.img");
+    BackgrndGameInstance::load(image);
+    ObjGameInstance::load(image);
+    TileGameInstance::load(image);
   }
-  system::logic_systems = {
-      backgrnd_logic_system::run,      obj_logic_system::run,
-      audio_logic_system::run,         cursor_logic_system::run,
-      character_choose_ui_system::run,
+  System::logic_systems = {
+      BackgrndLogicSystem::run,      ObjLogicSystem::run,
+      AudioLogicSystem::run,         CursorLogicSystem::run,
+      CharacterChooseUiSystem::run,
   };
-  system::render_systems = {
-      login_system_instance::render_game,
-      character_choose_ui_system::render,
-      cursor_render_system::render,
+  System::render_systems = {
+      LoginSystemInstance::render_game,
+      CharacterChooseUiSystem::render,
+      CursorRenderSystem::render,
   };
-  system::event_systems = {
-      character_choose_ui_system::event,
+  System::event_systems = {
+      CharacterChooseUiSystem::event,
   };
-  auto &camera = camera_game_instance::camera;
+  auto &camera = CameraGameInstance::camera;
   camera.x = -80 - camera.w / 2;
   camera.y = -479 - camera.h / 2;
 
-  character_choose_ui_system::choose = std::nullopt;
-  character_choose_ui_system::board.ani_delay = {250, 50, 50, 0};
-  character_choose_ui_system::effect.ani_delay = {150, 100, 100, 100, 0};
-  auto character_size = character_choose_ui_system::characters.size();
+  CharacterChooseUiSystem::choose = std::nullopt;
+  CharacterChooseUiSystem::board.ani_delay = {250, 50, 50, 0};
+  CharacterChooseUiSystem::effect.ani_delay = {150, 100, 100, 100, 0};
+  auto character_size = CharacterChooseUiSystem::characters.size();
 }

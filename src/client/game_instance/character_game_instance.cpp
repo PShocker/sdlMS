@@ -14,22 +14,22 @@
 #include <string>
 #include <vector>
 
-void character_game_instance::init_character_bone() {
-  auto character_node = wz_resource::character;
+void CharacterGameInstance::init_character_bone() {
+  auto character_node = WzResource::character;
 
   auto body_node = character_node->find(u"00002000.img");
   auto head_node = character_node->find(u"00012000.img");
 
-  struct tmp_bone {
+  struct TmpBone {
     std::u16string name;
     wz::Node *node;
   };
-  struct tmp_bone_data {
+  struct TmpBoneData {
     // z node
-    std::flat_multimap<std::u16string, tmp_bone> bones;
+    std::flat_multimap<std::u16string, TmpBone> bones;
   };
   // action index
-  std::flat_map<std::u16string, std::vector<tmp_bone_data>> tmp_bone_map;
+  std::flat_map<std::u16string, std::vector<TmpBoneData>> tmp_bone_map;
   for (auto [key, val] : *body_node->get_children()) {
     if (key == u"info") {
       continue;
@@ -83,7 +83,7 @@ void character_game_instance::init_character_bone() {
           }
         }
       } else {
-        character_extern_action e_action;
+        CharacterExternAction e_action;
         // 引用动作
         e_action.action = static_cast<wz::Property<std::u16string> *>(
                               body_frame_node->get_child(u"action"))
@@ -157,14 +157,14 @@ void character_game_instance::init_character_bone() {
   }
 }
 
-void character_game_instance::init_default_clothes() {
-  game_character g;
+void CharacterGameInstance::init_default_clothes() {
+  GameCharacter g;
   add_coat(g, u"01040000");
   add_pants(g, u"01060000");
   return;
 }
 
-void character_game_instance::load_self_character() {
+void CharacterGameInstance::load_self_character() {
   add_body(self, u"00002000");
   add_head(self, u"00012000");
   add_coat(self, u"01040002");
@@ -189,7 +189,7 @@ void character_game_instance::load_self_character() {
 }
 
 std::flat_set<std::u16string>
-character_game_instance::split_vslot(const std::u16string &vslot) {
+CharacterGameInstance::split_vslot(const std::u16string &vslot) {
   std::flat_set<std::u16string> result;
   for (size_t i = 0; i < vslot.size(); i += 2) {
     result.insert(vslot.substr(i, 2));
@@ -198,7 +198,7 @@ character_game_instance::split_vslot(const std::u16string &vslot) {
 }
 
 std::u16string
-character_game_instance::split_islot(const std::u16string &islot) {
+CharacterGameInstance::split_islot(const std::u16string &islot) {
   auto result = split_vslot(islot);
   for (auto k : zmap2) {
     if (result.contains(k)) {
@@ -208,19 +208,19 @@ character_game_instance::split_islot(const std::u16string &islot) {
   return islot;
 }
 
-void character_game_instance::add_body(game_character &g,
+void CharacterGameInstance::add_body(GameCharacter &g,
                                        const std::u16string &val) {
   g.body = val;
   add_avatar_cache(val, u"");
 }
 
-void character_game_instance::add_head(game_character &g,
+void CharacterGameInstance::add_head(GameCharacter &g,
                                        const std::u16string &val) {
   g.head = val;
   add_avatar_cache(val, u"");
 }
 
-void character_game_instance::add_ear(game_character &g,
+void CharacterGameInstance::add_ear(GameCharacter &g,
                                       const std::u16string &val) {
   g.ear = val;
   std::flat_set<std::u16string> hide_ear = {
@@ -237,184 +237,184 @@ void character_game_instance::add_ear(game_character &g,
   g.hide_part.insert_range(hide_ear);
 }
 
-void character_game_instance::add_coat(game_character &g,
+void CharacterGameInstance::add_coat(GameCharacter &g,
                                        const std::u16string &val) {
-  game_equip_item g_equip;
+  GameEquipItem g_equip;
   g_equip.id = val;
   g.coat = g_equip;
   add_avatar_cache(val, u"");
 }
 
-void character_game_instance::add_coat_deco(game_character &g,
+void CharacterGameInstance::add_coat_deco(GameCharacter &g,
                                             const std::u16string &val) {
-  game_deco_item g_deco;
+  GameDecoItem g_deco;
   g_deco.id = val;
   g.coat_deco = g_deco;
   add_avatar_cache(val, u"");
 }
 
-void character_game_instance::add_cap(game_character &g,
+void CharacterGameInstance::add_cap(GameCharacter &g,
                                       const std::u16string &val) {
-  game_equip_item g_equip;
+  GameEquipItem g_equip;
   g_equip.id = val;
   g.cap = g_equip;
   add_avatar_cache(val, u"");
 }
 
-void character_game_instance::add_cap_deco(game_character &g,
+void CharacterGameInstance::add_cap_deco(GameCharacter &g,
                                            const std::u16string &val) {
-  game_deco_item g_deco;
+  GameDecoItem g_deco;
   g_deco.id = val;
   g.cap_deco = g_deco;
   add_avatar_cache(val, u"");
 }
 
-void character_game_instance::add_pants(game_character &g,
+void CharacterGameInstance::add_pants(GameCharacter &g,
                                         const std::u16string &val) {
-  game_equip_item g_equip;
+  GameEquipItem g_equip;
   g_equip.id = val;
   g.pant = g_equip;
   add_avatar_cache(val, u"");
 }
 
-void character_game_instance::add_pants_deco(game_character &g,
+void CharacterGameInstance::add_pants_deco(GameCharacter &g,
                                              const std::u16string &val) {
-  game_deco_item g_deco;
+  GameDecoItem g_deco;
   g_deco.id = val;
   g.pant_deco = g_deco;
   add_avatar_cache(val, u"");
 }
 
-void character_game_instance::add_weapon(game_character &g,
+void CharacterGameInstance::add_weapon(GameCharacter &g,
                                          const std::u16string &val) {
-  game_equip_item g_equip;
+  GameEquipItem g_equip;
   g_equip.id = val;
   g.weapon = g_equip;
   add_avatar_cache(val, u"");
 }
 
-void character_game_instance::add_weapon_deco(game_character &g,
+void CharacterGameInstance::add_weapon_deco(GameCharacter &g,
                                               const std::u16string &val) {
   if (!g.weapon.has_value()) {
     return;
   }
-  auto weapon_enum = g.weapon->id;
-  std::u16string sub = weapon_enum.substr(2, 2);
-  game_deco_item g_deco;
+  auto WeaponEnum = g.weapon->id;
+  std::u16string sub = WeaponEnum.substr(2, 2);
+  GameDecoItem g_deco;
   g_deco.id = val;
   g.weapon_deco = g_deco;
   add_avatar_cache(val, sub);
 }
 
-void character_game_instance::add_shield(game_character &g,
+void CharacterGameInstance::add_shield(GameCharacter &g,
                                          const std::u16string &val) {
-  game_equip_item g_equip;
+  GameEquipItem g_equip;
   g_equip.id = val;
   g.shield = g_equip;
   add_avatar_cache(val, u"");
 }
 
-void character_game_instance::add_shield_deco(game_character &g,
+void CharacterGameInstance::add_shield_deco(GameCharacter &g,
                                               const std::u16string &val) {
-  game_deco_item g_deco;
+  GameDecoItem g_deco;
   g_deco.id = val;
   g.shield_deco = g_deco;
   add_avatar_cache(val, u"");
 }
 
-void character_game_instance::add_cape(game_character &g,
+void CharacterGameInstance::add_cape(GameCharacter &g,
                                        const std::u16string &val) {
-  game_equip_item g_equip;
+  GameEquipItem g_equip;
   g_equip.id = val;
   g.cape = g_equip;
   add_avatar_cache(val, u"");
 }
 
-void character_game_instance::add_cape_deco(game_character &g,
+void CharacterGameInstance::add_cape_deco(GameCharacter &g,
                                             const std::u16string &val) {
-  game_deco_item g_deco;
+  GameDecoItem g_deco;
   g_deco.id = val;
   g.cape_deco = g_deco;
   add_avatar_cache(val, u"");
 }
 
-void character_game_instance::add_accessory(game_character &g,
+void CharacterGameInstance::add_accessory(GameCharacter &g,
                                             const std::u16string &val) {
-  game_equip_item g_equip;
+  GameEquipItem g_equip;
   g_equip.id = val;
   g.accessory = g_equip;
   add_avatar_cache(val, u"");
 }
 
-void character_game_instance::add_accessory_deco(game_character &g,
+void CharacterGameInstance::add_accessory_deco(GameCharacter &g,
                                                  const std::u16string &val) {
-  game_deco_item g_deco;
+  GameDecoItem g_deco;
   g_deco.id = val;
   g.accessory_deco = g_deco;
   add_avatar_cache(val, u"");
 }
 
-void character_game_instance::add_glove(game_character &g,
+void CharacterGameInstance::add_glove(GameCharacter &g,
                                         const std::u16string &val) {
-  game_equip_item g_equip;
+  GameEquipItem g_equip;
   g_equip.id = val;
   g.glove = g_equip;
   add_avatar_cache(val, u"");
 }
 
-void character_game_instance::add_glove_deco(game_character &g,
+void CharacterGameInstance::add_glove_deco(GameCharacter &g,
                                              const std::u16string &val) {
-  game_deco_item g_deco;
+  GameDecoItem g_deco;
   g_deco.id = val;
   g.glove_deco = g_deco;
   add_avatar_cache(val, u"");
 }
 
-void character_game_instance::add_longcoat(game_character &g,
+void CharacterGameInstance::add_longcoat(GameCharacter &g,
                                            const std::u16string &val) {
-  game_equip_item g_equip;
+  GameEquipItem g_equip;
   g_equip.id = val;
   g.longcoat = g_equip;
   add_avatar_cache(val, u"");
 }
 
-void character_game_instance::add_longcoat_deco(game_character &g,
+void CharacterGameInstance::add_longcoat_deco(GameCharacter &g,
                                                 const std::u16string &val) {
-  game_deco_item g_deco;
+  GameDecoItem g_deco;
   g_deco.id = val;
   g.longcoat_deco = g_deco;
   add_avatar_cache(val, u"");
 }
 
-void character_game_instance::add_shoes(game_character &g,
+void CharacterGameInstance::add_shoes(GameCharacter &g,
                                         const std::u16string &val) {
-  game_equip_item g_equip;
+  GameEquipItem g_equip;
   g_equip.id = val;
   g.shoes = g_equip;
   add_avatar_cache(val, u"");
 }
 
-void character_game_instance::add_shoes_deco(game_character &g,
+void CharacterGameInstance::add_shoes_deco(GameCharacter &g,
                                              const std::u16string &val) {
-  game_deco_item g_deco;
+  GameDecoItem g_deco;
   g_deco.id = val;
   g.shoes_deco = g_deco;
   add_avatar_cache(val, u"");
 }
 
-void character_game_instance::add_hair(game_character &g,
+void CharacterGameInstance::add_hair(GameCharacter &g,
                                        const std::u16string &val) {
   g.hair = val;
   add_avatar_cache(val, u"");
 }
 
-void character_game_instance::add_face(game_character &g,
+void CharacterGameInstance::add_face(GameCharacter &g,
                                        const std::u16string &val) {
-  game_face g_face;
+  GameFace g_face;
   g_face.id = val;
   g.face = g_face;
   if (!face_data.contains(val)) {
-    auto character_node = wz_resource::character;
+    auto character_node = WzResource::character;
     auto face_node = character_node->find(u"Face/" + val + u".img");
     for (auto [k, v] : *face_node->get_children()) {
       if (k == u"info") {
@@ -427,7 +427,7 @@ void character_game_instance::add_face(game_character &g,
             continue;
           }
           auto brow_pos = cbd.bone_pos.at(u"brow");
-          std::vector<character_avatar> vc;
+          std::vector<CharacterAvatar> vc;
           std::vector<uint32_t> vd;
           for (uint8_t frame = 0; frame < v[0]->children_count(); frame++) {
             auto format2 = std::to_string(frame);
@@ -440,11 +440,11 @@ void character_game_instance::add_face(game_character &g,
             } else {
               f_node = f_node->get_child(u"face");
             }
-            character_avatar c;
+            CharacterAvatar c;
             auto f_brow = static_cast<wz::Property<wz::WzVec2D> *>(
                               f_node->find(u"map/brow"))
                               ->get();
-            c.texture = wz_resource::load_texture(f_node);
+            c.texture = WzResource::load_texture(f_node);
             // 直接写face
             c.z = u"face";
             auto ori = static_cast<wz::Property<wz::WzVec2D> *>(
@@ -473,30 +473,30 @@ void character_game_instance::add_face(game_character &g,
   }
 }
 
-void character_game_instance::add_ring0_deco(game_character &g,
+void CharacterGameInstance::add_ring0_deco(GameCharacter &g,
                                              const std::u16string &val) {
-  game_deco_item g_deco;
+  GameDecoItem g_deco;
   g_deco.id = val;
   g.ring0_deco = g_deco;
 }
 
-void character_game_instance::add_ring1_deco(game_character &g,
+void CharacterGameInstance::add_ring1_deco(GameCharacter &g,
                                              const std::u16string &val) {
-  game_deco_item g_deco;
+  GameDecoItem g_deco;
   g_deco.id = val;
   g.ring1_deco = g_deco;
 }
 
-void character_game_instance::add_avatar_cache(const std::u16string &val,
+void CharacterGameInstance::add_avatar_cache(const std::u16string &val,
                                                const std::u16string &sub) {
   std::u16string v = val;
   if (!sub.empty()) {
     v = val + u"/" + sub;
   }
   if (!avatar_data.contains(v)) {
-    character_avatar_render &r = avatar_data[v];
-    auto character_node = wz_resource::character;
-    auto type = equip_game_instance::load_equip_type(val);
+    CharacterAvatarRender &r = avatar_data[v];
+    auto character_node = WzResource::character;
+    auto type = EquipGameInstance::load_equip_type(val);
     wz::Node *node;
     if (type == u"Body" || type == u"Head") {
       node = character_node->find(val + u".img");
@@ -537,8 +537,8 @@ void character_game_instance::add_avatar_cache(const std::u16string &val,
                 static_cast<wz::Property<wz::WzUOL> *>(part_node)->get_uol();
           }
           if (part_node->type == wz::Type::Canvas) {
-            character_avatar c;
-            c.texture = wz_resource::load_texture(part_node);
+            CharacterAvatar c;
+            c.texture = WzResource::load_texture(part_node);
             c.z = static_cast<wz::Property<std::u16string> *>(
                       part_node->get_child(u"z"))
                       ->get();

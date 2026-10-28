@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-struct mob_hit {
+struct MobHit {
   uint64_t hit_id; // client_id
   uint64_t hit_time;
   bool hit_push;
@@ -16,7 +16,7 @@ struct mob_hit {
   bool left;
 };
 
-class server_mob {
+class ServerMob {
 public:
   uint32_t index;
   std::u16string id;
@@ -46,16 +46,16 @@ public:
 
   uint64_t hate_id;
 
-  std::flat_map<uint64_t, mob_hit> hits;
+  std::flat_map<uint64_t, MobHit> hits;
 
-  std::flat_map<game_debuff::debuff_type, server_debuff> debuffs;
+  std::flat_map<GameDebuff::DebuffType, ServerDebuff> debuffs;
 
   bool create = false; // 是否是道具召唤的
 
-  enum class mob_type {
+  enum class MobType {
     stand,
     swim,
     fly,
   };
-  mob_type type;
+  MobType type;
 };

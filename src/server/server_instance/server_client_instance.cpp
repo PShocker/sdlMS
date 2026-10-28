@@ -2,12 +2,12 @@
 #include "server_scene_instance.h"
 #include <ranges>
 
-void server_client_instance::client_exit(uint64_t client_id) {
+void ServerClientInstance::client_exit(uint64_t client_id) {
   if (clients.contains(client_id)) {
     auto map_id = clients[client_id].map_id;
-    auto &map_clients = server_scene_instance::scenes.at(map_id).clients;
+    auto &map_clients = ServerSceneInstance::scenes.at(map_id).clients;
     map_clients.erase(map_id);
-    server_client_instance::clients.erase(client_id);
+    ServerClientInstance::clients.erase(client_id);
   }
   return;
 }

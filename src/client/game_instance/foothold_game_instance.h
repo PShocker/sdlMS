@@ -5,9 +5,9 @@
 #include <cstdint>
 #include <flat_map>
 #include <vector>
-class foothold_game_instance {
+class FootholdGameInstance {
 public:
-  static std::flat_map<int32_t, game_foothold> load(uint32_t map_id);
-  static std::flat_map<int32_t, game_foothold> load(wz::Node *node);
-  static inline std::flat_map<int32_t, game_foothold> data;
+  static std::flat_map<int32_t, GameFoothold> load(uint32_t map_id);
+  static std::flat_map<int32_t, GameFoothold> load(wz::Node *node);
+  static inline std::flat_map<int32_t, GameFoothold> data;
 };

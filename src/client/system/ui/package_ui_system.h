@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-class package_ui_system {
+class PackageUiSystem {
 private:
   static void render_scroll();
   static void render_backgrnd();
@@ -71,9 +71,9 @@ public:
 
   static void cal_mouse_index();
 
-  struct new_item {
-    item_enum type;
+  struct NewItem {
+    ItemEnum type;
     uint16_t index;
   };
-  static inline std::optional<new_item> new_itm;
+  static inline std::optional<NewItem> new_itm;
 };

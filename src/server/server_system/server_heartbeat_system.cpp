@@ -12,50 +12,50 @@
 #include <ranges>
 #include <vector>
 
-bool server_heartbeat_system::run_client_heartbeat() {
-  if (scene_system_instance::map_id == 0 ||
-      scene_system_instance::prepare_map_id == 0) {
+bool ServerHeartbeatSystem::run_client_heartbeat() {
+  if (SceneSystemInstance::map_id == 0 ||
+      SceneSystemInstance::prepare_map_id == 0) {
     return false;
   }
-  auto current_time = window::dt_now;
-  auto server_hb_time = server_heartbeat_instance::host_heartbeat;
+  auto current_time = Window::dt_now;
+  auto server_hb_time = ServerHeartbeatInstance::host_heartbeat;
   // 先检查有没有掉线
   if (server_hb_time != 0 &&
       (current_time - server_hb_time >=
-       server_heartbeat_instance::heartbeat_interval * 2000)) {
+       ServerHeartbeatInstance::heartbeat_interval * 2000)) {
     // 掉线了,客户端退出到人物选择界面
-    character_choose_system_instance::enter();
+    CharacterChooseSystemInstance::enter();
     return false;
   }
   // 客户端发送心跳
   static uint64_t last_execution_time = 0;
   // 检查是否到了执行时间
   if (current_time - last_execution_time >=
-      server_heartbeat_instance::heartbeat_interval * 1000) {
+      ServerHeartbeatInstance::heartbeat_interval * 1000) {
     // 执行你的代码
     ClientHeartbeatT hb;
-    client_request::send_to_host(hb);
+    ClientRequest::send_to_host(hb);
     // 更新最后执行时间
     last_execution_time = current_time;
   }
   return true;
 }
 
-bool server_heartbeat_system::run_server_heartbeat() {
+bool ServerHeartbeatSystem::run_server_heartbeat() {
   // 服务端主动检查心跳
-  auto current_time = window::dt_now;
-  auto &clients = server_client_instance::clients;
+  auto current_time = Window::dt_now;
+  auto &clients = ServerClientInstance::clients;
   for (auto it = clients.begin(); it != clients.end();) {
     auto client = it->second;
     if (current_time - client.heartbeat >=
-        server_heartbeat_instance::heartbeat_interval * 2000) {
+        ServerHeartbeatInstance::heartbeat_interval * 2000) {
       it = clients.erase(it);
-      auto &scenes = server_scene_instance::scenes[client.map_id];
+      auto &scenes = ServerSceneInstance::scenes[client.map_id];
       scenes.clients.erase(client.client_id);
       for (const auto other : scenes.clients) {
         fbs::ServerCharacterOutT r;
         r.client_id = client.client_id;
-        server_response::send_to_client(other, r);
+        ServerResponse::send_to_client(other, r);
       }
     } else {
       ++it;
@@ -65,14 +65,14 @@ bool server_heartbeat_system::run_server_heartbeat() {
   return true;
 }
 
-void server_heartbeat_system::receive_client_heartbeat(uint64_t client_id) {
-  if (server_client_instance::clients.contains(client_id)) {
-    server_client_instance::clients.at(client_id).heartbeat = window::dt_now;
+void ServerHeartbeatSystem::receive_client_heartbeat(uint64_t client_id) {
+  if (ServerClientInstance::clients.contains(client_id)) {
+    ServerClientInstance::clients.at(client_id).heartbeat = Window::dt_now;
   }
   ServerHeartbeatT r;
-  server_response::send_to_client(client_id, r);
+  ServerResponse::send_to_client(client_id, r);
 }
 
-void server_heartbeat_system::receive_server_heartbeat() {
-  server_heartbeat_instance::host_heartbeat = window::dt_now;
+void ServerHeartbeatSystem::receive_server_heartbeat() {
+  ServerHeartbeatInstance::host_heartbeat = Window::dt_now;
 }

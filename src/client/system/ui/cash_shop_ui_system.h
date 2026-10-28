@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SDL3/SDL_events.h"
-class cash_shop_ui_system {
+class CashShopUiSystem {
 private:
   static void render_backgrnd();
 

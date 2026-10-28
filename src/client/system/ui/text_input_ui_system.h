@@ -9,7 +9,7 @@
 
 // 定义标志位索引
 
-struct text_input {
+struct TextInput {
   int max_size;
   std::u16string text;
   std::u16string composition;
@@ -23,7 +23,7 @@ struct text_input {
   int cur = 0;
   std::optional<int> cur_next = std::nullopt;
 
-  enum text_input_type : size_t {
+  enum TextInputType : size_t {
     digit = 0,  // 第0位：允许数字
     letter = 1, // 第1位：允许字母
     symbol = 2, // 第2位：允许符号
@@ -33,10 +33,10 @@ struct text_input {
   std::bitset<count> type;
 };
 
-class text_input_ui_system {
+class TextInputUiSystem {
 public:
-  static void close(text_input &input);
-  static void render(text_input &input, int x, int y);
-  static void active(text_input &input);
-  static bool event(SDL_Event *event, text_input &input);
+  static void close(TextInput &input);
+  static void render(TextInput &input, int x, int y);
+  static void active(TextInput &input);
+  static bool event(SDL_Event *event, TextInput &input);
 };

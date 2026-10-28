@@ -4,7 +4,7 @@
 #include <SDL3/SDL.h>
 #include <cstdint>
 
-class window {
+class Window {
 public:
   static inline SDL_Window *win;
   static inline SDL_Renderer *renderer;

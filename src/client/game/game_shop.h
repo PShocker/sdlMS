@@ -4,12 +4,12 @@
 #include <memory>
 #include <string>
 #include <vector>
-struct game_shop_item {
-  std::polymorphic<game_item> item;
+struct GameShopItem {
+  std::polymorphic<GameItem> item;
   int price;
 };
 
-class game_shop {
+class GameShop {
 public:
-  std::vector<game_shop_item> items;
+  std::vector<GameShopItem> items;
 };

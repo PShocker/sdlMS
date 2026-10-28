@@ -6,7 +6,7 @@
 #include <flat_map>
 #include <functional>
 #include <string>
-class npc_dlg_ui_system {
+class NpcDlgUiSystem {
 private:
   static inline int8_t select_mouse = -1;
   static void reset_pos();
@@ -69,7 +69,7 @@ public:
   static inline int32_t act_meso;
   static inline uint32_t act_exp;
 
-  enum class npc_dlg_enum {
+  enum class NpcDlgEnum {
     quest,
     talk,
     select,
@@ -86,7 +86,7 @@ public:
 
     quest_complete,
   };
-  static inline npc_dlg_enum type;
+  static inline NpcDlgEnum type;
 
   static inline uint64_t time;
   static inline std::function<void()> cb;

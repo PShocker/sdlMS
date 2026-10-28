@@ -1,9 +1,9 @@
 #pragma once
 
 #include <cstdint>
-class login_notice_system_instance {
+class LoginNoticeSystemInstance {
 public:
-  enum notice_type {
+  enum NoticeType {
     charactername_error,
     charactername_used,
     character_delete,
@@ -12,5 +12,5 @@ public:
     logining,
     logining_used,
   };
-  static void enter(notice_type type, void (*fn)());
+  static void enter(NoticeType type, void (*fn)());
 };

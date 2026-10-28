@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-class game_scroll {
+class GameScroll {
 public:
   std::u16string id;
   bool success;

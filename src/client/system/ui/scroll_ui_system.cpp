@@ -6,35 +6,35 @@
 #include <algorithm>
 #include <cmath>
 
-void scroll_ui_system::render_vscroll(float x, float y, uint32_t val,
+void ScrollUiSystem::render_vscroll(float x, float y, uint32_t val,
                                       uint32_t count, int32_t length, bool top,
                                       uint32_t size) {
-  static auto prev0 = wz_resource::load_texture(
-      wz_resource::ui->find(u"Basic.img/VScr4/enabled/prev0"));
-  static auto prev1 = wz_resource::load_texture(
-      wz_resource::ui->find(u"Basic.img/VScr4/enabled/prev1"));
-  static auto prev2 = wz_resource::load_texture(
-      wz_resource::ui->find(u"Basic.img/VScr4/enabled/prev2"));
-  static auto next0 = wz_resource::load_texture(
-      wz_resource::ui->find(u"Basic.img/VScr4/enabled/next0"));
-  static auto next1 = wz_resource::load_texture(
-      wz_resource::ui->find(u"Basic.img/VScr4/enabled/next1"));
-  static auto next2 = wz_resource::load_texture(
-      wz_resource::ui->find(u"Basic.img/VScr4/enabled/next2"));
-  static auto base0 = wz_resource::load_texture(
-      wz_resource::ui->find(u"Basic.img/VScr4/enabled/base"));
-  static auto thumb0 = wz_resource::load_texture(
-      wz_resource::ui->find(u"Basic.img/VScr4/enabled/thumb0"));
-  static auto thumb1 = wz_resource::load_texture(
-      wz_resource::ui->find(u"Basic.img/VScr4/enabled/thumb1"));
-  static auto thumb2 = wz_resource::load_texture(
-      wz_resource::ui->find(u"Basic.img/VScr4/enabled/thumb2"));
-  static auto prev = wz_resource::load_texture(
-      wz_resource::ui->find(u"Basic.img/VScr4/disabled/prev"));
-  static auto next = wz_resource::load_texture(
-      wz_resource::ui->find(u"Basic.img/VScr4/disabled/next"));
-  static auto base = wz_resource::load_texture(
-      wz_resource::ui->find(u"Basic.img/VScr4/disabled/base"));
+  static auto prev0 = WzResource::load_texture(
+      WzResource::ui->find(u"Basic.img/VScr4/enabled/prev0"));
+  static auto prev1 = WzResource::load_texture(
+      WzResource::ui->find(u"Basic.img/VScr4/enabled/prev1"));
+  static auto prev2 = WzResource::load_texture(
+      WzResource::ui->find(u"Basic.img/VScr4/enabled/prev2"));
+  static auto next0 = WzResource::load_texture(
+      WzResource::ui->find(u"Basic.img/VScr4/enabled/next0"));
+  static auto next1 = WzResource::load_texture(
+      WzResource::ui->find(u"Basic.img/VScr4/enabled/next1"));
+  static auto next2 = WzResource::load_texture(
+      WzResource::ui->find(u"Basic.img/VScr4/enabled/next2"));
+  static auto base0 = WzResource::load_texture(
+      WzResource::ui->find(u"Basic.img/VScr4/enabled/base"));
+  static auto thumb0 = WzResource::load_texture(
+      WzResource::ui->find(u"Basic.img/VScr4/enabled/thumb0"));
+  static auto thumb1 = WzResource::load_texture(
+      WzResource::ui->find(u"Basic.img/VScr4/enabled/thumb1"));
+  static auto thumb2 = WzResource::load_texture(
+      WzResource::ui->find(u"Basic.img/VScr4/enabled/thumb2"));
+  static auto prev = WzResource::load_texture(
+      WzResource::ui->find(u"Basic.img/VScr4/disabled/prev"));
+  static auto next = WzResource::load_texture(
+      WzResource::ui->find(u"Basic.img/VScr4/disabled/next"));
+  static auto base = WzResource::load_texture(
+      WzResource::ui->find(u"Basic.img/VScr4/disabled/base"));
   bool pre = true;
   bool nex = true;
   // 判断上按钮是否禁用
@@ -42,12 +42,12 @@ void scroll_ui_system::render_vscroll(float x, float y, uint32_t val,
                      static_cast<float>(prev->w), static_cast<float>(prev->h)};
   if (val <= 0) {
     // 禁用
-    SDL_RenderTexture(window::renderer, prev, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer, prev, nullptr, &pos_rect);
     pre = false;
   } else {
     SDL_Texture *pv;
-    if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect) && top) {
-      if (window::mouse_state & SDL_BUTTON_LMASK) {
+    if (SDL_PointInRectFloat(&Window::mouse_pos, &pos_rect) && top) {
+      if (Window::mouse_state & SDL_BUTTON_LMASK) {
         pv = prev1;
       } else {
         pv = prev2;
@@ -55,7 +55,7 @@ void scroll_ui_system::render_vscroll(float x, float y, uint32_t val,
     } else {
       pv = prev0;
     }
-    SDL_RenderTexture(window::renderer, pv, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer, pv, nullptr, &pos_rect);
   }
 
   // 下按钮
@@ -63,12 +63,12 @@ void scroll_ui_system::render_vscroll(float x, float y, uint32_t val,
               static_cast<float>((int)y + length - next->h),
               static_cast<float>(next->w), static_cast<float>(next->h)};
   if (val >= count || val + size >= count) {
-    SDL_RenderTexture(window::renderer, next, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer, next, nullptr, &pos_rect);
     nex = false;
   } else {
     SDL_Texture *nx;
-    if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect) && top) {
-      if (window::mouse_state & SDL_BUTTON_LMASK) {
+    if (SDL_PointInRectFloat(&Window::mouse_pos, &pos_rect) && top) {
+      if (Window::mouse_state & SDL_BUTTON_LMASK) {
         nx = next1;
       } else {
         nx = next2;
@@ -76,18 +76,18 @@ void scroll_ui_system::render_vscroll(float x, float y, uint32_t val,
     } else {
       nx = next0;
     }
-    SDL_RenderTexture(window::renderer, nx, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer, nx, nullptr, &pos_rect);
   }
   // 滚动条
   pos_rect = {x, y + prev->h, static_cast<float>(base->w),
               static_cast<float>(length - prev->h - next->h)};
   if (pre == false && nex == false) {
-    SDL_RenderTextureTiled(window::renderer, base, nullptr, 1, &pos_rect);
+    SDL_RenderTextureTiled(Window::renderer, base, nullptr, 1, &pos_rect);
   } else {
-    SDL_RenderTextureTiled(window::renderer, base0, nullptr, 1, &pos_rect);
-    if (top && SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
-      if (!cursor_game_instance::cursor_vscr) {
-        cursor_game_instance::cursor_vscr = true;
+    SDL_RenderTextureTiled(Window::renderer, base0, nullptr, 1, &pos_rect);
+    if (top && SDL_PointInRectFloat(&Window::mouse_pos, &pos_rect)) {
+      if (!CursorGameInstance::cursor_vscr) {
+        CursorGameInstance::cursor_vscr = true;
       }
     }
   }
@@ -100,15 +100,15 @@ void scroll_ui_system::render_vscroll(float x, float y, uint32_t val,
               static_cast<float>(int(y + prev->h + h)),
               static_cast<float>(thumb0->w), static_cast<float>(thumb0->h)};
   if (pre == true || nex == true) {
-    if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect) && top) {
-      SDL_RenderTexture(window::renderer, thumb2, nullptr, &pos_rect);
+    if (SDL_PointInRectFloat(&Window::mouse_pos, &pos_rect) && top) {
+      SDL_RenderTexture(Window::renderer, thumb2, nullptr, &pos_rect);
     } else {
-      SDL_RenderTexture(window::renderer, thumb0, nullptr, &pos_rect);
+      SDL_RenderTexture(Window::renderer, thumb0, nullptr, &pos_rect);
     }
   }
 }
 
-uint32_t scroll_ui_system::click_vscroll(float x, float y, uint32_t val,
+uint32_t ScrollUiSystem::click_vscroll(float x, float y, uint32_t val,
                                          uint32_t count, int32_t length,
                                          bool top, SDL_FPoint mouse) {
   if (!top) {
@@ -158,7 +158,7 @@ uint32_t scroll_ui_system::click_vscroll(float x, float y, uint32_t val,
   return val;
 }
 
-bool scroll_ui_system::click_thumb(float x, float y, int32_t length,
+bool ScrollUiSystem::click_thumb(float x, float y, int32_t length,
                                    SDL_FPoint mouse) {
   SDL_FRect pos_rect{
       x,

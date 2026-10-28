@@ -13,10 +13,10 @@
 #include <optional>
 #include <string>
 
-std::vector<game_quest>
-quest_game_instance::load_npc(const std::u16string &id) {
-  std::vector<game_quest> q;
-  auto node = wz_resource::quest->find(u"QuestData");
+std::vector<GameQuest>
+QuestGameInstance::load_npc(const std::u16string &id) {
+  std::vector<GameQuest> q;
+  auto node = WzResource::quest->find(u"QuestData");
   for (auto [k, v] : *node) {
     auto npc = node->find(k + u"/Check/0/npc");
     if (npc != nullptr) {
@@ -24,7 +24,7 @@ quest_game_instance::load_npc(const std::u16string &id) {
       auto tmp = std::format("{:07d}", npc_i);
       std::u16string npc_id{tmp.begin(), tmp.end()};
       if (npc_id == id) {
-        game_quest quest{
+        GameQuest quest{
             .quest_id = k,
         };
         q.push_back(quest);
@@ -34,28 +34,28 @@ quest_game_instance::load_npc(const std::u16string &id) {
   return q;
 }
 
-std::vector<game_quest>
-quest_game_instance::load_npc_quest(const std::u16string &id) {
-  static std::flat_map<std::u16string, std::vector<game_quest>> cache;
+std::vector<GameQuest>
+QuestGameInstance::load_npc_quest(const std::u16string &id) {
+  static std::flat_map<std::u16string, std::vector<GameQuest>> cache;
   if (!cache.contains(id)) {
     cache[id] = load_npc(id);
   }
   return cache.at(id);
 }
 
-std::optional<game_quest>
-quest_game_instance::load_avaliable_quest(const std::u16string &id) {
-  struct key_cache {
+std::optional<GameQuest>
+QuestGameInstance::load_avaliable_quest(const std::u16string &id) {
+  struct KeyCache {
     std::u16string id;
     int level;
     std::u16string job;
 
-    auto operator<=>(const key_cache &) const = default;
+    auto operator<=>(const KeyCache &) const = default;
   };
-  static std::flat_map<key_cache, std::optional<game_quest>> cache;
-  auto &sf = character_game_instance::self;
+  static std::flat_map<KeyCache, std::optional<GameQuest>> cache;
+  auto &sf = CharacterGameInstance::self;
   auto node = load_quest_node(id);
-  key_cache kc{id, sf.level, sf.job};
+  KeyCache kc{id, sf.level, sf.job};
   if (!cache.contains(kc)) {
     if (auto n = node->find(u"Check/0/lvmin"); n != nullptr) {
       auto lv = static_cast<wz::Property<int> *>(n)->get();
@@ -79,17 +79,17 @@ quest_game_instance::load_avaliable_quest(const std::u16string &id) {
         return std::nullopt;
       }
     }
-    cache.emplace(kc, game_quest{.quest_id = id});
+    cache.emplace(kc, GameQuest{.quest_id = id});
   }
   auto q = cache.at(kc);
   if (!q.has_value()) {
     return std::nullopt;
   }
-  struct quest_cache {
+  struct QuestCache {
     std::u16string id;
     int state;
   };
-  static std::flat_map<std::u16string, std::vector<quest_cache>> cache2;
+  static std::flat_map<std::u16string, std::vector<QuestCache>> cache2;
   if (!cache2.contains(id)) {
     if (auto n = node->find(u"Check/0/quest"); n != nullptr) {
       for (auto [k, v] : *n->get_children()) {
@@ -131,9 +131,9 @@ quest_game_instance::load_avaliable_quest(const std::u16string &id) {
   return quest;
 }
 
-std::vector<game_quest> quest_game_instance::load_avaliable_quest() {
-  static auto node = wz_resource::quest->find(u"QuestData");
-  std::vector<game_quest> q;
+std::vector<GameQuest> QuestGameInstance::load_avaliable_quest() {
+  static auto node = WzResource::quest->find(u"QuestData");
+  std::vector<GameQuest> q;
   for (auto k : *node->get_children() | std::views::keys) {
     auto qs = load_avaliable_quest(k);
     if (qs.has_value()) {
@@ -143,18 +143,18 @@ std::vector<game_quest> quest_game_instance::load_avaliable_quest() {
   return q;
 }
 
-int quest_game_instance::load_quest_area(const std::u16string &id) {
+int QuestGameInstance::load_quest_area(const std::u16string &id) {
   auto node = load_quest_node(id);
   auto ar = node->find(u"QuestInfo/area");
   auto area = static_cast<wz::Property<int> *>(ar)->get();
   return area;
 }
 
-std::flat_map<int8_t, std::vector<game_quest>>
-quest_game_instance::load_ui_avaliable_quest() {
-  std::flat_map<int8_t, std::vector<game_quest>> r;
+std::flat_map<int8_t, std::vector<GameQuest>>
+QuestGameInstance::load_ui_avaliable_quest() {
+  std::flat_map<int8_t, std::vector<GameQuest>> r;
   auto quests = load_avaliable_quest();
-  std::vector<game_quest> q;
+  std::vector<GameQuest> q;
   for (auto &quest : quests) {
     auto area = load_quest_area(quest.quest_id);
     r[area].push_back(quest);
@@ -162,15 +162,15 @@ quest_game_instance::load_ui_avaliable_quest() {
   return r;
 }
 
-std::vector<game_quest> quest_game_instance::load_progress_quest() {
+std::vector<GameQuest> QuestGameInstance::load_progress_quest() {
   return progress_quests | std::views::values | std::ranges::to<std::vector>();
 }
 
-std::flat_map<int8_t, std::vector<game_quest>>
-quest_game_instance::load_ui_progress_quest() {
-  std::flat_map<int8_t, std::vector<game_quest>> r;
+std::flat_map<int8_t, std::vector<GameQuest>>
+QuestGameInstance::load_ui_progress_quest() {
+  std::flat_map<int8_t, std::vector<GameQuest>> r;
   auto quests = load_progress_quest();
-  std::vector<game_quest> q;
+  std::vector<GameQuest> q;
   for (auto &quest : quests) {
     auto area = load_quest_area(quest.quest_id);
     r[area].push_back(quest);
@@ -178,15 +178,15 @@ quest_game_instance::load_ui_progress_quest() {
   return r;
 }
 
-std::vector<game_quest> quest_game_instance::load_complete_quest() {
+std::vector<GameQuest> QuestGameInstance::load_complete_quest() {
   return complete_quests | std::views::values | std::ranges::to<std::vector>();
 }
 
-std::flat_map<int8_t, std::vector<game_quest>>
-quest_game_instance::load_ui_complete_quest() {
-  std::flat_map<int8_t, std::vector<game_quest>> r;
+std::flat_map<int8_t, std::vector<GameQuest>>
+QuestGameInstance::load_ui_complete_quest() {
+  std::flat_map<int8_t, std::vector<GameQuest>> r;
   auto quests = load_complete_quest();
-  std::vector<game_quest> q;
+  std::vector<GameQuest> q;
   for (auto &quest : quests) {
     auto area = load_quest_area(quest.quest_id);
     r[area].push_back(quest);
@@ -194,22 +194,22 @@ quest_game_instance::load_ui_complete_quest() {
   return r;
 }
 
-int quest_game_instance::load_quest_index(const std::u16string &id) {
-  auto node = wz_resource::quest->find(u"QuestData/" + id + u"/Act");
+int QuestGameInstance::load_quest_index(const std::u16string &id) {
+  auto node = WzResource::quest->find(u"QuestData/" + id + u"/Act");
   return node->children_count() - 1;
 }
 
-int quest_game_instance::load_quest_progress(const std::u16string &id) {
+int QuestGameInstance::load_quest_progress(const std::u16string &id) {
   if (progress_quests.contains(id)) {
     return progress_quests[id].index;
   }
   return 0;
 }
 
-std::u16string quest_game_instance::load_area_name(int area) {
+std::u16string QuestGameInstance::load_area_name(int area) {
   static std::flat_map<int, std::u16string> cache;
   if (!cache.contains(area)) {
-    auto node = wz_resource::quest->find(u"QuestCategory.img");
+    auto node = WzResource::quest->find(u"QuestCategory.img");
     for (int i = 0;; i++) {
       auto n = node->find(std::to_string(i));
       if (n == nullptr) {
@@ -226,41 +226,41 @@ std::u16string quest_game_instance::load_area_name(int area) {
   return cache.at(area);
 }
 
-wz::Node *quest_game_instance::load_quest_node(const std::u16string &id) {
-  auto node = wz_resource::quest->find(u"QuestData/" + id);
+wz::Node *QuestGameInstance::load_quest_node(const std::u16string &id) {
+  auto node = WzResource::quest->find(u"QuestData/" + id);
   return node;
 }
 
-void quest_game_instance::load(character_save &cs) {
+void QuestGameInstance::load(CharacterSaveData &cs) {
   accept_quest(u"10317.img");
   for (auto &q : cs.quests) {
     switch (q.type) {
-    case quest_enum::progress: {
+    case QuestEnum::progress: {
       accept_quest(q);
       break;
     }
-    case quest_enum::complete: {
+    case QuestEnum::complete: {
       complete_quest(q);
       break;
     }
-    case quest_enum::decline: {
+    case QuestEnum::decline: {
       decline_quest(q);
       break;
     }
     }
   }
 
-  quest_ui_system::detail = true;
-  quest_ui_system::active_tab = 0;
-  quest_ui_system::disable_fold.clear();
-  quest_ui_system::pages = {};
-  quest_ui_system::detail_quest = u"";
-  if (auto aq = quest_game_instance::load_ui_avaliable_quest(); !aq.empty()) {
-    quest_ui_system::detail_quest = aq.begin()->second.begin()->quest_id;
+  QuestUiSystem::detail = true;
+  QuestUiSystem::active_tab = 0;
+  QuestUiSystem::disable_fold.clear();
+  QuestUiSystem::pages = {};
+  QuestUiSystem::detail_quest = u"";
+  if (auto aq = QuestGameInstance::load_ui_avaliable_quest(); !aq.empty()) {
+    QuestUiSystem::detail_quest = aq.begin()->second.begin()->quest_id;
   }
 }
 
-void quest_game_instance::accept_quest(game_quest &q) {
+void QuestGameInstance::accept_quest(GameQuest &q) {
   q.index = 1;
   if (decline_quests.contains(q.quest_id)) {
     q.index = decline_quests[q.quest_id].index;
@@ -276,7 +276,7 @@ void quest_game_instance::accept_quest(game_quest &q) {
       if (auto nn = v[0]->get_child(u"count"); nn != nullptr) {
         count = static_cast<wz::Property<int> *>(nn)->get();
       }
-      quest_item qi;
+      QuestItem qi;
       auto tmp = std::format("{:08d}", id);
       qi.id = {tmp.begin(), tmp.end()};
       qi.count = count;
@@ -290,7 +290,7 @@ void quest_game_instance::accept_quest(game_quest &q) {
       if (auto nn = v[0]->get_child(u"count"); nn != nullptr) {
         count = static_cast<wz::Property<int> *>(nn)->get();
       }
-      quest_mob qm;
+      QuestMob qm;
       auto tmp = std::format("{:07d}", id);
       qm.id = {tmp.begin(), tmp.end()};
       qm.count = count;
@@ -300,16 +300,16 @@ void quest_game_instance::accept_quest(game_quest &q) {
   progress_quests[q.quest_id] = q;
 }
 
-void quest_game_instance::update_accept_quest_tip(
+void QuestGameInstance::update_accept_quest_tip(
     const std::u16string &quest_id) {
   const auto &quest = progress_quests.at(quest_id);
   if (quest.check_item.empty() && quest.item_bool && quest.mob_bool) {
-    popup_tip_game_instance::add_quest_tip(quest.quest_id);
+    PopupTipGameInstance::add_quest_tip(quest.quest_id);
   }
 }
 
-void quest_game_instance::accept_quest(const std::u16string &id) {
-  game_quest q;
+void QuestGameInstance::accept_quest(const std::u16string &id) {
+  GameQuest q;
   q.quest_id = id;
   accept_quest(q);
   update_check_mob(u"", 0);
@@ -317,29 +317,29 @@ void quest_game_instance::accept_quest(const std::u16string &id) {
   update_accept_quest_tip(q.quest_id);
 }
 
-void quest_game_instance::complete_quest(game_quest &q) {
+void QuestGameInstance::complete_quest(GameQuest &q) {
   q.index += 1;
   complete_quests[q.quest_id] = q;
   progress_quests.erase(q.quest_id);
 }
 
-void quest_game_instance::complete_quest(const std::u16string &id) {
+void QuestGameInstance::complete_quest(const std::u16string &id) {
   auto &q = progress_quests.at(id);
   complete_quest(q);
 }
 
-void quest_game_instance::decline_quest(game_quest &q) {
+void QuestGameInstance::decline_quest(GameQuest &q) {
   decline_quests[q.quest_id] = q;
   progress_quests.erase(q.quest_id);
   return;
 }
 
-void quest_game_instance::decline_quest(const std::u16string &id) {
+void QuestGameInstance::decline_quest(const std::u16string &id) {
   auto &q = progress_quests.at(id);
   decline_quest(q);
 }
 
-void quest_game_instance::update_check_item(const std::u16string &quest_id) {
+void QuestGameInstance::update_check_item(const std::u16string &quest_id) {
   auto &quest = progress_quests.at(quest_id);
   bool pop_tip = false;
 
@@ -348,7 +348,7 @@ void quest_game_instance::update_check_item(const std::u16string &quest_id) {
     if (quest.item.contains(k)) {
       back_num = quest.item[k].count;
     }
-    auto num = package_game_instance::load_item_num(k);
+    auto num = PackageGameInstance::load_item_num(k);
     if (back_num < (int32_t)v.count && num >= v.count) {
       pop_tip = true;
     }
@@ -369,17 +369,17 @@ void quest_game_instance::update_check_item(const std::u16string &quest_id) {
     }
   }
   if (pop_tip && quest.item_bool && quest.mob_bool) {
-    popup_tip_game_instance::add_quest_tip(quest.quest_id);
+    PopupTipGameInstance::add_quest_tip(quest.quest_id);
   }
 }
 
-void quest_game_instance::update_check_item() {
+void QuestGameInstance::update_check_item() {
   for (auto [k, v] : progress_quests) {
     update_check_item(k);
   }
 }
 
-void quest_game_instance::update_check_mob(const std::u16string &mob_id,
+void QuestGameInstance::update_check_mob(const std::u16string &mob_id,
                                            int num) {
   for (auto [k, quest] : progress_quests) {
     bool pop_tip = false;
@@ -401,13 +401,13 @@ void quest_game_instance::update_check_mob(const std::u16string &mob_id,
       }
     }
     if (pop_tip && quest.item_bool && quest.mob_bool) {
-      popup_tip_game_instance::add_quest_tip(quest.quest_id);
+      PopupTipGameInstance::add_quest_tip(quest.quest_id);
     }
   }
 }
 
 std::flat_map<std::u16string, int>
-quest_game_instance::load_quest_act_item(const std::u16string &id) {
+QuestGameInstance::load_quest_act_item(const std::u16string &id) {
   std::flat_map<std::u16string, int> r;
   uint8_t index = 0;
   if (progress_quests.contains(id)) {
@@ -432,7 +432,7 @@ quest_game_instance::load_quest_act_item(const std::u16string &id) {
 }
 
 std::flat_map<std::u16string, int>
-quest_game_instance::load_quest_act_random_item(const std::u16string &id) {
+QuestGameInstance::load_quest_act_random_item(const std::u16string &id) {
   std::flat_map<std::u16string, int> r;
   uint8_t index = 0;
   if (progress_quests.contains(id)) {
@@ -456,7 +456,7 @@ quest_game_instance::load_quest_act_random_item(const std::u16string &id) {
   return r;
 }
 
-uint32_t quest_game_instance::load_quest_act_exp(const std::u16string &id) {
+uint32_t QuestGameInstance::load_quest_act_exp(const std::u16string &id) {
   if (progress_quests.contains(id)) {
     auto quest_node = load_quest_node(id);
     auto index = progress_quests.at(id).index;
@@ -468,7 +468,7 @@ uint32_t quest_game_instance::load_quest_act_exp(const std::u16string &id) {
   return 0;
 }
 
-int32_t quest_game_instance::load_quest_act_meso(const std::u16string &id) {
+int32_t QuestGameInstance::load_quest_act_meso(const std::u16string &id) {
   if (progress_quests.contains(id)) {
     auto quest_node = load_quest_node(id);
     auto index = progress_quests.at(id).index;

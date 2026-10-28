@@ -3,7 +3,7 @@
 #include "SDL3/SDL_rect.h"
 #include <cstdint>
 #include <string>
-class game_portal {
+class GamePortal {
 public:
   int32_t tm = 0;
   int32_t pt = 0;

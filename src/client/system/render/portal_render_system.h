@@ -1,11 +1,11 @@
 #pragma once
 
 #include "src/client/game/game_portal.h"
-class portal_render_system {
+class PortalRenderSystem {
 private:
-  static bool render_portal(game_portal &g_portal);
-  static void render_nametag(game_portal &g_portal);
+  static bool render_portal(GamePortal &g_portal);
+  static void render_nametag(GamePortal &g_portal);
 
 public:
-  static bool render(game_portal &g_portal);
+  static bool render(GamePortal &g_portal);
 };

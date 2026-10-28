@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-class server_system {
+class ServerSystem {
 public:
   static inline std::vector<bool (*)()> server_systems;
 };

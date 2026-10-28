@@ -5,7 +5,7 @@
 #include "SDL3/SDL_rect.h"
 #include <cstdint>
 #include <string>
-class context_menu_ui_system {
+class ContextMenuUiSystem {
 private:
   static SDL_FPoint load_wh();
   static void render_backgrnd();

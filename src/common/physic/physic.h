@@ -5,11 +5,11 @@
 #include <cstdint>
 #include <flat_map>
 #include <optional>
-class physic {
+class Physic {
 private:
   static bool walk_fh(SDL_FPoint &pos, bool fall, int32_t next_fh,
                       int32_t &current_fh, float &hspeed, float &vspeed,
-                      const std::flat_map<int32_t, game_foothold> &fhs);
+                      const std::flat_map<int32_t, GameFoothold> &fhs);
 
   static std::optional<SDL_FPoint> fall_intersect(const SDL_FPoint &p1,
                                                   const SDL_FPoint &p2,
@@ -18,27 +18,27 @@ private:
 
 public:
   static bool
-  fall_collide_wall(float hspeed, game_foothold fh,
-                    const std::flat_map<int32_t, game_foothold> &fhs);
+  fall_collide_wall(float hspeed, GameFoothold fh,
+                    const std::flat_map<int32_t, GameFoothold> &fhs);
 
-  struct intersect_pos {
+  struct IntersectPos {
     SDL_FPoint pos;
-    game_foothold fh;
+    GameFoothold fh;
   };
-  static std::flat_multimap<float, intersect_pos>
+  static std::flat_multimap<float, IntersectPos>
   fall_intersect_pos(const SDL_FPoint &p1, const SDL_FPoint &p2,
-                     const std::flat_map<int32_t, game_foothold> &fhs);
+                     const std::flat_map<int32_t, GameFoothold> &fhs);
 
   static bool walk(SDL_FPoint &pos, float delta_time, float &hspeed,
                    float &vspeed, float &hforce, float hspeed_min,
                    float hspeed_max, float friction, bool fall,
                    int32_t &current_fh, std::optional<SDL_FRect> border,
-                   const std::flat_map<int32_t, game_foothold> &fhs);
+                   const std::flat_map<int32_t, GameFoothold> &fhs);
 
   static bool fall(SDL_FPoint &pos, float delta_time, float &hspeed,
                    float &vspeed, float vspeed_min, float vspeed_max,
                    std::optional<SDL_FRect> border, bool fall_collide,
                    bool wall_collide, int32_t &current_fh, uint8_t &page,
-                   const std::flat_map<int32_t, game_foothold> &fhs,
+                   const std::flat_map<int32_t, GameFoothold> &fhs,
                    int32_t fall_fh = INT32_MAX);
 };

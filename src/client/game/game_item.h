@@ -6,44 +6,44 @@
 #include <string>
 #include <vector>
 
-enum class item_enum { equip, consume, install, etc, cash, deco };
+enum class ItemEnum { equip, consume, install, etc, cash, deco };
 
-class game_item {
+class GameItem {
 public:
-  item_enum type;
+  ItemEnum type;
   std::u16string id;
   uint64_t expire = 0;
 };
 
-class game_equip_item : public game_item {
+class GameEquipItem : public GameItem {
 public:
-  game_equip_item() { type = item_enum::equip; }
-  std::vector<game_scroll> scroll;
+  GameEquipItem() { type = ItemEnum::equip; }
+  std::vector<GameScroll> scroll;
 };
 
-class game_consume_item : public game_item {
+class GameConsumeItem : public GameItem {
 public:
-  game_consume_item() { type = item_enum::consume; }
+  GameConsumeItem() { type = ItemEnum::consume; }
   uint32_t num = 0;
 };
 
-class game_etc_item : public game_item {
+class GameEtcItem : public GameItem {
 public:
-  game_etc_item() { type = item_enum::etc; }
+  GameEtcItem() { type = ItemEnum::etc; }
   uint32_t num = 0;
 };
 
-class game_install_item : public game_item {
+class GameInstallItem : public GameItem {
 public:
-  game_install_item() { type = item_enum::install; }
+  GameInstallItem() { type = ItemEnum::install; }
 };
 
-class game_cash_item : public game_item {
+class GameCashItem : public GameItem {
 public:
-  game_cash_item() { type = item_enum::cash; }
+  GameCashItem() { type = ItemEnum::cash; }
 };
 
-class game_deco_item : public game_item {
+class GameDecoItem : public GameItem {
 public:
-  game_deco_item() { type = item_enum::deco; }
+  GameDecoItem() { type = ItemEnum::deco; }
 };

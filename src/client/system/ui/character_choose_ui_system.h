@@ -8,7 +8,7 @@
 #include <optional>
 #include <vector>
 
-class character_choose_ui_system {
+class CharacterChooseUiSystem {
 private:
   static bool new_animate();
   static bool back_animate();
@@ -34,9 +34,9 @@ private:
 
 public:
   static inline std::optional<uint8_t> choose;
-  static inline std::vector<game_character> characters;
-  static inline game_animate board;
-  static inline game_animate effect;
+  static inline std::vector<GameCharacter> characters;
+  static inline GameAnimate board;
+  static inline GameAnimate effect;
 
   static bool render();
   static bool event(SDL_Event *event);

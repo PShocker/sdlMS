@@ -18,31 +18,31 @@
 #include <algorithm>
 #include <ranges>
 
-bool login_system_instance::render_game() {
+bool LoginSystemInstance::render_game() {
   //   后景
-  for (auto &b_backgrnd : backgrnd_game_instance::back | std::views::values) {
-    backgrnd_render_system::render(b_backgrnd);
+  for (auto &b_backgrnd : BackgrndGameInstance::back | std::views::values) {
+    BackgrndRenderSystem::render(b_backgrnd);
   }
   for (uint8_t i = 0; i < 8; i++) {
-    for (auto &obj : obj_game_instance::data[i] | std::views::values) {
-      obj_render_system::render(obj);
+    for (auto &obj : ObjGameInstance::data[i] | std::views::values) {
+      ObjRenderSystem::render(obj);
     }
-    for (auto &tile : tile_game_instance::data[i] | std::views::values) {
-      tile_render_system::render(tile);
+    for (auto &tile : TileGameInstance::data[i] | std::views::values) {
+      TileRenderSystem::render(tile);
     }
   }
   // 前景
-  for (auto &f_backgrnd : backgrnd_game_instance::front | std::views::values) {
-    backgrnd_render_system::render(f_backgrnd);
+  for (auto &f_backgrnd : BackgrndGameInstance::front | std::views::values) {
+    BackgrndRenderSystem::render(f_backgrnd);
   }
   return true;
 }
 
-void login_system_instance::enter_prepare() {
-  auto camera = camera_game_instance::camera;
+void LoginSystemInstance::enter_prepare() {
+  auto camera = CameraGameInstance::camera;
   camera.x = -80 - camera.w / 2;
   camera.y = 1023 - camera.h / 2;
-  login_ui_system::username = {
+  LoginUiSystem::username = {
       .max_size = 12,
       .text = u"sdlMS",
       .composition = {},
@@ -58,41 +58,41 @@ void login_system_instance::enter_prepare() {
       .font_color = {255, 255, 255, 255},
       .font_size = 13,
   };
-  login_ui_system::username.type.set(text_input::letter);
-  login_ui_system::username.type.set(text_input::digit);
-  if (login_ui_system::g_pipe.type == UV_NAMED_PIPE) {
-    uv_close((uv_handle_t *)&login_ui_system::g_pipe, nullptr);
-    login_ui_system::g_pipe = {};
+  LoginUiSystem::username.type.set(TextInput::letter);
+  LoginUiSystem::username.type.set(TextInput::digit);
+  if (LoginUiSystem::g_pipe.type == UV_NAMED_PIPE) {
+    uv_close((uv_handle_t *)&LoginUiSystem::g_pipe, nullptr);
+    LoginUiSystem::g_pipe = {};
   }
 }
 
-void login_system_instance::enter() {
-  audio_game_instance::load_backgrnd_audio(u"BgmUI.img/TitleClassic");
+void LoginSystemInstance::enter() {
+  AudioGameInstance::load_backgrnd_audio(u"BgmUI.img/TitleClassic");
 
   enter_prepare();
-  auto fn = &login_system_instance::render_game;
-  if (!std::ranges::contains(system::render_systems, fn)) {
-    static auto image = wz_resource::ui->find(u"MapLogin.img");
-    backgrnd_game_instance::load(image);
-    obj_game_instance::load(image);
-    tile_game_instance::load(image);
+  auto fn = &LoginSystemInstance::render_game;
+  if (!std::ranges::contains(System::render_systems, fn)) {
+    static auto image = WzResource::ui->find(u"MapLogin.img");
+    BackgrndGameInstance::load(image);
+    ObjGameInstance::load(image);
+    TileGameInstance::load(image);
   }
 
-  system::logic_systems = {
-      backgrnd_logic_system::run,
-      obj_logic_system::run,
-      audio_logic_system::run,
-      cursor_logic_system::run,
+  System::logic_systems = {
+      BackgrndLogicSystem::run,
+      ObjLogicSystem::run,
+      AudioLogicSystem::run,
+      CursorLogicSystem::run,
   };
-  system::render_systems = {
+  System::render_systems = {
       render_game,
-      login_ui_system::render,
-      cursor_render_system::render,
+      LoginUiSystem::render,
+      CursorRenderSystem::render,
   };
-  system::event_systems = {
-      login_ui_system::event,
+  System::event_systems = {
+      LoginUiSystem::event,
   };
-  auto &camera = camera_game_instance::camera;
+  auto &camera = CameraGameInstance::camera;
   camera.x = -80 - camera.w / 2;
   camera.y = 1023 - camera.h / 2;
 }

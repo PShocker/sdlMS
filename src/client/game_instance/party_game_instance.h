@@ -2,7 +2,7 @@
 #include "src/client/game/game_party.h"
 
 #include <optional>
-class party_game_instance {
+class PartyGameInstance {
 public:
-  static inline std::optional<game_party> data;
+  static inline std::optional<GameParty> data;
 };

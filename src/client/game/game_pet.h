@@ -4,9 +4,9 @@
 #include "src/client/game/game_character.h"
 #include <string>
 
-class game_pet {
+class GamePet {
 public:
-  game_character *g_character;
+  GameCharacter *g_character;
 
   std::u16string action;
 

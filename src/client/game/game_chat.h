@@ -2,12 +2,12 @@
 #include <cstdint>
 #include <string>
 
-enum class game_chat_enum {
+enum class GameChatEnum {
   map,
 };
-struct game_chat {
+struct GameChat {
   uint64_t client_id;
-  game_chat_enum type;
+  GameChatEnum type;
   std::u16string owner;
   std::u16string text;
 

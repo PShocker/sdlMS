@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SDL3/SDL_events.h"
-class chat_log_ui_system {
+class ChatLogUiSystem {
 private:
   static void render_backgrnd();
   static void render_chats();

@@ -6,7 +6,7 @@
 
 using namespace fbs;
 
-class server_client {
+class ServerClient {
 public:
   uint64_t client_id;
   uint64_t map_id;

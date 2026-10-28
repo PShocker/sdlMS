@@ -3,9 +3,9 @@
 #include <optional>
 #include <string>
 
-class game_save_system_instance {
+class GameSaveSystemInstance {
 public:
-  static inline game_save save;
+  static inline GameSaveData save;
   static bool load_save(const std::string &login);
 
   static bool save_game();

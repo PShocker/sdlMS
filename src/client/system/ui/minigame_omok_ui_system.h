@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SDL3/SDL_events.h"
-class minigame_omok_ui_system {
+class MinigameOmokUiSystem {
 private:
   static void render_backgrnd();
   static SDL_FPoint load_wh();

@@ -2,7 +2,7 @@
 #include "src/client/game/game_chat.h"
 #include <vector>
 
-class chat_game_instance {
+class ChatGameInstance {
 public:
-  static inline std::vector<game_chat> chats;
+  static inline std::vector<GameChat> chats;
 };

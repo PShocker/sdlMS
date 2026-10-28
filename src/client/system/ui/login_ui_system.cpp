@@ -31,27 +31,27 @@
 #define PIPENAME ""
 #endif
 
-SDL_FPoint login_ui_system::load_pos() {
+SDL_FPoint LoginUiSystem::load_pos() {
   SDL_FPoint pos;
   const auto w = 1366;
   const auto h = 768;
-  auto &camera = camera_game_instance::camera;
+  auto &camera = CameraGameInstance::camera;
   pos.x = (camera.w - w) / 2;
   pos.y = (camera.h - h) / 2;
   return pos;
 }
 
-void login_ui_system::render_button() {
+void LoginUiSystem::render_button() {
   const static std::array buttons_nodes = {
-      wz_resource::ui->find(u"Login.img/ClassicIntro/button:login"),
-      wz_resource::ui->find(u"Login.img/ClassicIntro/button:login_saved"),
-      wz_resource::ui->find(u"Login.img/ClassicIntro/button:find_id"),
-      wz_resource::ui->find(u"Login.img/ClassicIntro/button:find_pw"),
-      wz_resource::ui->find(u"Login.img/ClassicIntro/button:register"),
-      wz_resource::ui->find(u"Login.img/ClassicIntro/button:homepage"),
-      wz_resource::ui->find(u"Login.img/ClassicIntro/button:quit"),
+      WzResource::ui->find(u"Login.img/ClassicIntro/button:login"),
+      WzResource::ui->find(u"Login.img/ClassicIntro/button:login_saved"),
+      WzResource::ui->find(u"Login.img/ClassicIntro/button:find_id"),
+      WzResource::ui->find(u"Login.img/ClassicIntro/button:find_pw"),
+      WzResource::ui->find(u"Login.img/ClassicIntro/button:register"),
+      WzResource::ui->find(u"Login.img/ClassicIntro/button:homepage"),
+      WzResource::ui->find(u"Login.img/ClassicIntro/button:quit"),
   };
-  auto &camera = camera_game_instance::camera;
+  auto &camera = CameraGameInstance::camera;
   auto pos = load_pos();
   std::array buttons_rect = {
       SDL_FRect{160 - camera.x, 960 - camera.y, 122, 61},  // login
@@ -67,25 +67,25 @@ void login_ui_system::render_button() {
     auto pos_rect = buttons_rect[i];
     pos_rect.x = (int)pos_rect.x;
     pos_rect.y = (int)pos_rect.y;
-    auto &mouse_pos = window::mouse_pos;
+    auto &mouse_pos = Window::mouse_pos;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-      if (window::mouse_state & SDL_BUTTON_LMASK) {
-        auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
-        SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);
+      if (Window::mouse_state & SDL_BUTTON_LMASK) {
+        auto pressed = WzResource::load_texture(k->find(u"pressed/0"));
+        SDL_RenderTexture(Window::renderer, pressed, nullptr, &pos_rect);
       } else {
-        auto mouse_over = wz_resource::load_texture(k->find(u"mouseOver/0"));
-        SDL_RenderTexture(window::renderer, mouse_over, nullptr, &pos_rect);
+        auto mouse_over = WzResource::load_texture(k->find(u"mouseOver/0"));
+        SDL_RenderTexture(Window::renderer, mouse_over, nullptr, &pos_rect);
       }
     } else {
-      auto normal = wz_resource::load_texture(k->find(u"normal/0"));
-      SDL_RenderTexture(window::renderer, normal, nullptr, &pos_rect);
+      auto normal = WzResource::load_texture(k->find(u"normal/0"));
+      SDL_RenderTexture(Window::renderer, normal, nullptr, &pos_rect);
     }
   }
 }
 
-void login_ui_system::render_banner() {
-  static auto t = wz_resource::load_texture(
-      wz_resource::ui->find(u"Login.img/LoginStart/StepBanner/ClassicIntro"));
+void LoginUiSystem::render_banner() {
+  static auto t = WzResource::load_texture(
+      WzResource::ui->find(u"Login.img/LoginStart/StepBanner/ClassicIntro"));
   auto pos = load_pos();
   SDL_FRect pos_rect{
       pos.x + 160,
@@ -93,10 +93,10 @@ void login_ui_system::render_banner() {
       static_cast<float>(t->w),
       static_cast<float>(t->h),
   };
-  SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
 
   const static std::array buttons_nodes = {
-      wz_resource::ui->find(u"Login.img/LoginStart/BtClassicPrev"),
+      WzResource::ui->find(u"Login.img/LoginStart/BtClassicPrev"),
   };
   std::array buttons_rect = {
       SDL_FRect{163 + pos.x, 574 + pos.y, 161, 69},
@@ -106,25 +106,25 @@ void login_ui_system::render_banner() {
     auto pos_rect = buttons_rect[i];
     pos_rect.x = (int)pos_rect.x;
     pos_rect.y = (int)pos_rect.y;
-    auto &mouse_pos = window::mouse_pos;
+    auto &mouse_pos = Window::mouse_pos;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-      if (window::mouse_state & SDL_BUTTON_LMASK) {
-        auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
-        SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);
+      if (Window::mouse_state & SDL_BUTTON_LMASK) {
+        auto pressed = WzResource::load_texture(k->find(u"pressed/0"));
+        SDL_RenderTexture(Window::renderer, pressed, nullptr, &pos_rect);
       } else {
-        auto mouse_over = wz_resource::load_texture(k->find(u"mouseOver/0"));
-        SDL_RenderTexture(window::renderer, mouse_over, nullptr, &pos_rect);
+        auto mouse_over = WzResource::load_texture(k->find(u"mouseOver/0"));
+        SDL_RenderTexture(Window::renderer, mouse_over, nullptr, &pos_rect);
       }
     } else {
-      auto normal = wz_resource::load_texture(k->find(u"normal/0"));
-      SDL_RenderTexture(window::renderer, normal, nullptr, &pos_rect);
+      auto normal = WzResource::load_texture(k->find(u"normal/0"));
+      SDL_RenderTexture(Window::renderer, normal, nullptr, &pos_rect);
     }
   }
 }
 
-void login_ui_system::render_backgrnd() {
-  static auto t = wz_resource::load_texture(
-      wz_resource::ui->find(u"Login.img/Common/classicFrame"));
+void LoginUiSystem::render_backgrnd() {
+  static auto t = WzResource::load_texture(
+      WzResource::ui->find(u"Login.img/Common/classicFrame"));
   auto pos = load_pos();
   SDL_FRect pos_rect{
       pos.x,
@@ -132,18 +132,18 @@ void login_ui_system::render_backgrnd() {
       static_cast<float>(t->w),
       static_cast<float>(t->h),
   };
-  SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
 }
 
-void login_ui_system::render_effect() {
+void LoginUiSystem::render_effect() {
   auto pos = load_pos();
   const static std::array effect_nodes = {
-      wz_resource::ui->find(u"Login.img/ClassicIntro/animation:effect0"),
-      wz_resource::ui->find(u"Login.img/ClassicIntro/animation:effect1"),
-      wz_resource::ui->find(u"Login.img/ClassicIntro/animation:effect2"),
-      wz_resource::ui->find(u"Login.img/ClassicIntro/animation:effect3"),
-      wz_resource::ui->find(u"Login.img/ClassicIntro/animation:effect4"),
-      wz_resource::ui->find(u"Login.img/ClassicIntro/animation:effect5"),
+      WzResource::ui->find(u"Login.img/ClassicIntro/animation:effect0"),
+      WzResource::ui->find(u"Login.img/ClassicIntro/animation:effect1"),
+      WzResource::ui->find(u"Login.img/ClassicIntro/animation:effect2"),
+      WzResource::ui->find(u"Login.img/ClassicIntro/animation:effect3"),
+      WzResource::ui->find(u"Login.img/ClassicIntro/animation:effect4"),
+      WzResource::ui->find(u"Login.img/ClassicIntro/animation:effect5"),
   };
   const static std::vector<std::vector<int>> delays = {
       {1500, 1500, 1000}, //
@@ -153,7 +153,7 @@ void login_ui_system::render_effect() {
       {2800, 2800},       //
       {1000, 1000, 2500}, //
   };
-  auto &camera = camera_game_instance::camera;
+  auto &camera = CameraGameInstance::camera;
   const std::vector<SDL_FPoint> origins = {
       {75 - camera.x, 502 - camera.y},   {-121 - camera.x, 438 - camera.y},
       {-145 - camera.x, 448 - camera.y}, {39 - camera.x, 478 - camera.y},
@@ -162,8 +162,8 @@ void login_ui_system::render_effect() {
   for (auto i = 0; i < effect_nodes.size(); i++) {
     auto ds = delays[i];
     // render
-    auto animate_data = trap_game_instance::load_animate_index(ds);
-    auto render_index = animate_data.index;
+    auto AnimateData = TrapGameInstance::load_animate_index(ds);
+    auto render_index = AnimateData.index;
     auto index = std::to_string(render_index);
     auto node = effect_nodes[i]->get_child(index);
     uint8_t a0 = 255;
@@ -174,10 +174,10 @@ void login_ui_system::render_effect() {
     if (node->get_child(u"a1")) {
       a1 = static_cast<wz::Property<int> *>(node->get_child(u"a1"))->get();
     }
-    auto ani_time = animate_data.time;
+    auto ani_time = AnimateData.time;
     float t = (float)ani_time / (float)ds[render_index];
     auto alpha = a0 + (a1 - a0) * t;
-    auto texture = wz_resource::load_texture(node);
+    auto texture = WzResource::load_texture(node);
     SDL_FRect pos_rect{
         origins[i].x,
         origins[i].y,
@@ -185,15 +185,15 @@ void login_ui_system::render_effect() {
         static_cast<float>(texture->h),
     };
     SDL_SetTextureAlphaMod(texture, alpha);
-    SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer, texture, nullptr, &pos_rect);
   }
 }
 
-void login_ui_system::render_username() {
-  text_input_ui_system::render(username, 5, 5);
+void LoginUiSystem::render_username() {
+  TextInputUiSystem::render(username, 5, 5);
 }
 
-bool login_ui_system::render() {
+bool LoginUiSystem::render() {
   render_button();
   render_effect();
   render_backgrnd();
@@ -202,8 +202,8 @@ bool login_ui_system::render() {
   return true;
 }
 
-bool login_ui_system::camera_animate(float x, float y) {
-  auto &camera = camera_game_instance::camera;
+bool LoginUiSystem::camera_animate(float x, float y) {
+  auto &camera = CameraGameInstance::camera;
   auto prev_x = camera.x;
   auto next_x = x - camera.w / 2; // 人物移动后新的摄像机坐标
   auto delta_x = next_x - prev_x;
@@ -227,16 +227,16 @@ bool login_ui_system::camera_animate(float x, float y) {
   }
 }
 
-bool login_ui_system::login_animate() {
-  text_input_ui_system::close(username);
+bool LoginUiSystem::login_animate() {
+  TextInputUiSystem::close(username);
   if (camera_animate(-80, -479)) {
-    character_choose_system_instance::enter();
+    CharacterChooseSystemInstance::enter();
     return false;
   }
   return true;
 }
 
-void login_ui_system::event_button_login() {
+void LoginUiSystem::event_button_login() {
   if (username.text.empty()) {
     return;
   }
@@ -247,7 +247,7 @@ void login_ui_system::event_button_login() {
   name = "__sdlMS__" + name;
   name = PIPENAME + name;
 
-  init_result = uv_pipe_init(server_main::loop, &g_pipe, 0);
+  init_result = uv_pipe_init(ServerMain::loop, &g_pipe, 0);
   if (init_result != 0) {
     assert(0);
     std::abort();
@@ -266,9 +266,9 @@ void login_ui_system::event_button_login() {
   });
   // 阻塞等待
   while (!con_connect) {
-    uv_run(server_main::loop, UV_RUN_ONCE);
+    uv_run(ServerMain::loop, UV_RUN_ONCE);
   }
-  init_result = uv_pipe_init(server_main::loop, &g_pipe, 0);
+  init_result = uv_pipe_init(ServerMain::loop, &g_pipe, 0);
   if (init_result != 0) {
     assert(0);
     std::abort();
@@ -276,52 +276,52 @@ void login_ui_system::event_button_login() {
   auto bind_result = uv_pipe_bind(&g_pipe, name.c_str());
   if (bind_result != 0) {
     // 绑定失败
-    login_notice_system_instance::enter(
-        login_notice_system_instance::logining_used, nullptr);
-    audio_game_instance::load_audio(u"UI.img/DlgNotice", 0);
+    LoginNoticeSystemInstance::enter(
+        LoginNoticeSystemInstance::logining_used, nullptr);
+    AudioGameInstance::load_audio(u"UI.img/DlgNotice", 0);
     return;
   }
 
-  character_choose_system_instance::enter_prepare(name);
-  system::logic_systems.push_back(login_animate);
-  system::render_systems = {
-      login_system_instance::render_game,
-      character_choose_ui_system::render,
-      cursor_render_system::render,
+  CharacterChooseSystemInstance::enter_prepare(name);
+  System::logic_systems.push_back(login_animate);
+  System::render_systems = {
+      LoginSystemInstance::render_game,
+      CharacterChooseUiSystem::render,
+      CursorRenderSystem::render,
   };
-  system::event_systems = {};
-  audio_game_instance::load_audio(u"UI.img/ScrollUp", 0);
+  System::event_systems = {};
+  AudioGameInstance::load_audio(u"UI.img/ScrollUp", 0);
 }
 
-void login_ui_system::event_button_login_save() {
-  audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+void LoginUiSystem::event_button_login_save() {
+  AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
 }
 
-void login_ui_system::event_button_find_id() {
-  audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+void LoginUiSystem::event_button_find_id() {
+  AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
 }
 
-void login_ui_system::event_button_find_pw() {
-  audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+void LoginUiSystem::event_button_find_pw() {
+  AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
 }
 
-void login_ui_system::event_button_register() {
-  audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+void LoginUiSystem::event_button_register() {
+  AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
 }
-void login_ui_system::event_button_homepage() {
-  audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
-}
-
-void login_ui_system::event_button_quit() {
-  audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+void LoginUiSystem::event_button_homepage() {
+  AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
 }
 
-void login_ui_system::event_button_back() { event_button_quit(); }
+void LoginUiSystem::event_button_quit() {
+  AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
+}
 
-bool login_ui_system::event_button(SDL_Event *event) {
+void LoginUiSystem::event_button_back() { event_button_quit(); }
+
+bool LoginUiSystem::event_button(SDL_Event *event) {
   std::vector<SDL_FRect> r;
   std::vector<void (*)()> fns;
-  auto &camera = camera_game_instance::camera;
+  auto &camera = CameraGameInstance::camera;
   auto pos = load_pos();
   r = {
       SDL_FRect{160 - camera.x, 960 - camera.y, 122, 61},  // login
@@ -340,7 +340,7 @@ bool login_ui_system::event_button(SDL_Event *event) {
     auto pos_rect = r[i];
     pos_rect.x = (int)pos_rect.x;
     pos_rect.y = (int)pos_rect.y;
-    if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
+    if (SDL_PointInRectFloat(&Window::mouse_pos, &pos_rect)) {
       fns[i]();
       return false;
     }
@@ -349,8 +349,8 @@ bool login_ui_system::event_button(SDL_Event *event) {
   return false;
 }
 
-bool login_ui_system::event(SDL_Event *event) {
-  text_input_ui_system::event(event, username);
+bool LoginUiSystem::event(SDL_Event *event) {
+  TextInputUiSystem::event(event, username);
   switch (event->type) {
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
     if (event->button.button == SDL_BUTTON_LEFT) {

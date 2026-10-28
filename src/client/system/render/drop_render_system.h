@@ -1,7 +1,7 @@
 #pragma once
 
 #include "src/client/game/game_drop.h"
-class drop_render_system {
+class DropRenderSystem {
 public:
-  static bool render(game_drop &g_drop);
+  static bool render(GameDrop &g_drop);
 };

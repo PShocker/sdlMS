@@ -1,6 +1,6 @@
 #pragma once
 
-class login_system_instance {
+class LoginSystemInstance {
 public:
   static void enter_prepare();
   static void enter();

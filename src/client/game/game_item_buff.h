@@ -2,7 +2,7 @@
 
 #include <cstdint>
 #include <string>
-class game_item_buff {
+class GameItemBuff {
 public:
   std::u16string id;
   uint64_t destroy = 0;

@@ -8,20 +8,20 @@
 #include <optional>
 #include <string>
 
-struct afterimage_data {
+struct AfterimageData {
   SDL_Texture *texture;
   SDL_FPoint origin;
   uint8_t alpha;
 };
 
-class afterimage_game_instance {
+class AfterimageGameInstance {
 private:
   static wz::Node *load_atf_node_cache(const std::u16string &i);
-  static wz::Node *load_atf_node(game_character &g_character);
+  static wz::Node *load_atf_node(GameCharacter &g_character);
 
 public:
-  static std::u16string load_hit_type(game_character &g_character);
-  static std::optional<afterimage_data> load_data(game_character &g_character);
-  static std::optional<SDL_FRect> load_rect(game_character &g_character);
-  static uint64_t load_beat_time(game_character &g_character);
+  static std::u16string load_hit_type(GameCharacter &g_character);
+  static std::optional<AfterimageData> load_data(GameCharacter &g_character);
+  static std::optional<SDL_FRect> load_rect(GameCharacter &g_character);
+  static uint64_t load_beat_time(GameCharacter &g_character);
 };

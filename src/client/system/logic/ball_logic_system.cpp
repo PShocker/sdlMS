@@ -7,12 +7,12 @@
 #include "wz/Node.h"
 #include "wz/Property.h"
 
-void ball_logic_system::run_animate(game_ball &b) {
-  wz::Node *n = wz_resource::skill->find(b.path);
+void BallLogicSystem::run_animate(GameBall &b) {
+  wz::Node *n = WzResource::skill->find(b.path);
   if (!n) {
-    n = wz_resource::item->find(b.path);
+    n = WzResource::item->find(b.path);
   }
-  b.ani_time += window::delta_time;
+  b.ani_time += Window::delta_time;
   auto index = std::to_string(b.ani_index);
   auto texture_node = n->get_child(index);
   int delay = 100;
@@ -34,8 +34,8 @@ void ball_logic_system::run_animate(game_ball &b) {
   }
   float dx = b.goal.x - b.pos.x;
   float dy = b.goal.y - b.pos.y;
-  if (mob_game_instance::data.contains(b.mob_index)) {
-    const auto &mob = mob_game_instance::data.at(b.mob_index).mob;
+  if (MobGameInstance::data.contains(b.mob_index)) {
+    const auto &mob = MobGameInstance::data.at(b.mob_index).mob;
     dx = (b.goal.x + mob.pos.x) - b.pos.x;
     dy = (b.goal.y + mob.pos.y) - b.pos.y;
   }
@@ -48,8 +48,8 @@ void ball_logic_system::run_animate(game_ball &b) {
   return;
 }
 
-SDL_FPoint ball_logic_system::move(SDL_FPoint p1, SDL_FPoint p2, int speed) {
-  auto step = speed * window::delta_time / 1000.0f;
+SDL_FPoint BallLogicSystem::move(SDL_FPoint p1, SDL_FPoint p2, int speed) {
+  auto step = speed * Window::delta_time / 1000.0f;
 
   float dx = p2.x - p1.x;
   float dy = p2.y - p1.y;
@@ -71,9 +71,9 @@ SDL_FPoint ball_logic_system::move(SDL_FPoint p1, SDL_FPoint p2, int speed) {
   return result;
 }
 
-bool ball_logic_system::run_move(game_ball &b) {
-  if (mob_game_instance::data.contains(b.mob_index)) {
-    auto mob_pos = mob_game_instance::data.at(b.mob_index).mob.pos;
+bool BallLogicSystem::run_move(GameBall &b) {
+  if (MobGameInstance::data.contains(b.mob_index)) {
+    auto mob_pos = MobGameInstance::data.at(b.mob_index).mob.pos;
     auto p2 = b.goal;
     p2.x += mob_pos.x;
     p2.y += mob_pos.y;
@@ -95,9 +95,9 @@ bool ball_logic_system::run_move(game_ball &b) {
   return true;
 }
 
-bool ball_logic_system::run() {
-  auto now = window::dt_time;
-  for (auto &bs : ball_game_instance::data) {
+bool BallLogicSystem::run() {
+  auto now = Window::dt_time;
+  for (auto &bs : BallGameInstance::data) {
     // 使用迭代器遍历并安全删除
     for (auto it = bs.begin(); it != bs.end();) {
       if (it->delay >= now) {

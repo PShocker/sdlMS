@@ -11,7 +11,7 @@
 
 using namespace fbs;
 
-class character_extern_action {
+class CharacterExternAction {
 public:
   std::u16string action;
   int8_t frame;
@@ -19,7 +19,7 @@ public:
   SDL_FPoint move;
 };
 
-struct character_avatar {
+struct CharacterAvatar {
   SDL_Texture *texture = nullptr;
   SDL_FPoint origin;
   SDL_FPoint pos;
@@ -27,26 +27,26 @@ struct character_avatar {
   std::u16string name = u"";
 };
 
-struct character_avatar_render {
+struct CharacterAvatarRender {
   std::u16string islot;
   std::flat_set<std::u16string> vslot;
-  std::flat_map<std::u16string, std::vector<std::vector<character_avatar>>>
+  std::flat_map<std::u16string, std::vector<std::vector<CharacterAvatar>>>
       data;
 };
 
-struct character_face_render {
+struct CharacterFaceRender {
   // defalut ,stand0,0,0,0
-  std::flat_map<std::u16string, character_avatar_render> data;
+  std::flat_map<std::u16string, CharacterAvatarRender> data;
   std::flat_map<std::u16string, std::vector<uint32_t>> delay;
 };
 
-struct character_other_data {
-  game_character g_character;
+struct CharacterOtherData {
+  GameCharacter g_character;
   std::vector<MovementT> mvs;
   PlayerT player_t;
 };
 
-class character_bone_data {
+class CharacterBoneData {
 public:
   std::flat_map<std::u16string, SDL_FPoint> bone_pos;
   std::flat_map<std::u16string, SDL_FPoint> part_pos;
@@ -55,7 +55,7 @@ public:
   uint8_t face;
 };
 
-class character_game_instance {
+class CharacterGameInstance {
 private:
   static std::flat_set<std::u16string> split_vslot(const std::u16string &vslot);
   static std::u16string split_islot(const std::u16string &islot);
@@ -63,57 +63,57 @@ private:
                                const std::u16string &sub);
 
 public:
-  static inline game_character self;
+  static inline GameCharacter self;
 
   static void init_character_bone();
   static void init_default_clothes();
 
   static void load_self_character();
 
-  static void add_body(game_character &g, const std::u16string &val);
-  static void add_coat(game_character &g, const std::u16string &val);
-  static void add_cap(game_character &g, const std::u16string &val);
-  static void add_pants(game_character &g, const std::u16string &val);
-  static void add_head(game_character &g, const std::u16string &val);
-  static void add_ear(game_character &g, const std::u16string &val);
-  static void add_face(game_character &g, const std::u16string &val);
-  static void add_hair(game_character &g, const std::u16string &val);
-  static void add_shoes(game_character &g, const std::u16string &val);
-  static void add_weapon(game_character &g, const std::u16string &val);
-  static void add_shield(game_character &g, const std::u16string &val);
-  static void add_cape(game_character &g, const std::u16string &val);
-  static void add_accessory(game_character &g, const std::u16string &val);
-  static void add_glove(game_character &g, const std::u16string &val);
-  static void add_longcoat(game_character &g, const std::u16string &val);
+  static void add_body(GameCharacter &g, const std::u16string &val);
+  static void add_coat(GameCharacter &g, const std::u16string &val);
+  static void add_cap(GameCharacter &g, const std::u16string &val);
+  static void add_pants(GameCharacter &g, const std::u16string &val);
+  static void add_head(GameCharacter &g, const std::u16string &val);
+  static void add_ear(GameCharacter &g, const std::u16string &val);
+  static void add_face(GameCharacter &g, const std::u16string &val);
+  static void add_hair(GameCharacter &g, const std::u16string &val);
+  static void add_shoes(GameCharacter &g, const std::u16string &val);
+  static void add_weapon(GameCharacter &g, const std::u16string &val);
+  static void add_shield(GameCharacter &g, const std::u16string &val);
+  static void add_cape(GameCharacter &g, const std::u16string &val);
+  static void add_accessory(GameCharacter &g, const std::u16string &val);
+  static void add_glove(GameCharacter &g, const std::u16string &val);
+  static void add_longcoat(GameCharacter &g, const std::u16string &val);
 
-  static void add_coat_deco(game_character &g, const std::u16string &val);
-  static void add_cap_deco(game_character &g, const std::u16string &val);
-  static void add_pants_deco(game_character &g, const std::u16string &val);
-  static void add_shoes_deco(game_character &g, const std::u16string &val);
-  static void add_shield_deco(game_character &g, const std::u16string &val);
-  static void add_cape_deco(game_character &g, const std::u16string &val);
-  static void add_accessory_deco(game_character &g, const std::u16string &val);
-  static void add_glove_deco(game_character &g, const std::u16string &val);
-  static void add_longcoat_deco(game_character &g, const std::u16string &val);
-  static void add_weapon_deco(game_character &g, const std::u16string &val);
+  static void add_coat_deco(GameCharacter &g, const std::u16string &val);
+  static void add_cap_deco(GameCharacter &g, const std::u16string &val);
+  static void add_pants_deco(GameCharacter &g, const std::u16string &val);
+  static void add_shoes_deco(GameCharacter &g, const std::u16string &val);
+  static void add_shield_deco(GameCharacter &g, const std::u16string &val);
+  static void add_cape_deco(GameCharacter &g, const std::u16string &val);
+  static void add_accessory_deco(GameCharacter &g, const std::u16string &val);
+  static void add_glove_deco(GameCharacter &g, const std::u16string &val);
+  static void add_longcoat_deco(GameCharacter &g, const std::u16string &val);
+  static void add_weapon_deco(GameCharacter &g, const std::u16string &val);
 
-  static void add_ring0_deco(game_character &g, const std::u16string &val);
-  static void add_ring1_deco(game_character &g, const std::u16string &val);
+  static void add_ring0_deco(GameCharacter &g, const std::u16string &val);
+  static void add_ring1_deco(GameCharacter &g, const std::u16string &val);
 
-  static inline std::flat_map<uint64_t, character_other_data> others;
+  static inline std::flat_map<uint64_t, CharacterOtherData> others;
 
   static inline std::flat_map<std::u16string,
-                              std::vector<character_extern_action>>
+                              std::vector<CharacterExternAction>>
       extern_action;
 
   // action index
-  static inline std::flat_map<std::u16string, std::vector<character_bone_data>>
+  static inline std::flat_map<std::u16string, std::vector<CharacterBoneData>>
       bone_data;
 
-  static inline std::flat_map<std::u16string, character_avatar_render>
+  static inline std::flat_map<std::u16string, CharacterAvatarRender>
       avatar_data;
 
-  static inline std::flat_map<std::u16string, character_face_render> face_data;
+  static inline std::flat_map<std::u16string, CharacterFaceRender> face_data;
 
   const static inline std::vector<std::u16string> zmap = {
       u"backTamingMobMid",

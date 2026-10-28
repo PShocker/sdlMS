@@ -12,14 +12,14 @@
 #include <string>
 #include <vector>
 
-void trap_game_instance::load(wz::Node *image) {
+void TrapGameInstance::load(wz::Node *image) {
   data = {};
   auto map_node = image;
   uint8_t map_layer = 0;
   for (auto i : {u"0", u"1", u"2", u"3", u"4", u"5", u"6", u"7"}) {
     auto layer_node = map_node->get_child(i);
     for (auto [key, val] : *layer_node->get_child(u"obj")->get_children()) {
-      game_obj g_obj;
+      GameObj g_obj;
       auto obj_node = val[0];
       auto oS = static_cast<wz::Property<std::u16string> *>(
                     obj_node->get_child(u"oS"))
@@ -56,7 +56,7 @@ void trap_game_instance::load(wz::Node *image) {
 
       g_obj.z = z * 100000 + load_z * 10;
 
-      obj_node = wz_resource::map->find(g_obj.path);
+      obj_node = WzResource::map->find(g_obj.path);
       uint8_t canvas_count = 0;
 
       std::vector<int> delays;
@@ -79,9 +79,9 @@ void trap_game_instance::load(wz::Node *image) {
       g_obj.ani_index = delays.size() - 1;
       g_obj.ani_time = 0;
 
-      auto animate_data = load_animate_index(delays);
-      g_obj.ani_index = animate_data.index;
-      g_obj.ani_time = animate_data.time;
+      auto AnimateData = load_animate_index(delays);
+      g_obj.ani_index = AnimateData.index;
+      g_obj.ani_time = AnimateData.time;
 
       data[map_layer].emplace(g_obj.z, g_obj);
     }
@@ -89,11 +89,11 @@ void trap_game_instance::load(wz::Node *image) {
   }
 }
 
-trap_game_instance::animate_data
-trap_game_instance::load_animate_index(std::vector<int> delays) {
+TrapGameInstance::AnimateData
+TrapGameInstance::load_animate_index(std::vector<int> delays) {
   auto ds = delays;
   auto sum = std::accumulate(ds.begin(), ds.end(), 0);
-  auto offset = window::dt_time % sum; // 取余，得到周期内偏移
+  auto offset = Window::dt_time % sum; // 取余，得到周期内偏移
   uint32_t accumulated = 0;
   uint8_t index = 0;
   for (auto j = 0; j < ds.size(); j++) {
@@ -103,13 +103,13 @@ trap_game_instance::load_animate_index(std::vector<int> delays) {
     }
     accumulated += ds[j];
   }
-  animate_data data;
+  AnimateData data;
   data.index = index;
   data.time = offset - accumulated;
   return data;
 }
 
-std::vector<int> trap_game_instance::load_animate_delays(wz::Node *node) {
+std::vector<int> TrapGameInstance::load_animate_delays(wz::Node *node) {
   static std::flat_map<wz::Node *, std::vector<int>> cache;
   if (!cache.contains(node)) {
     for (int i = 0;; i++) {
@@ -125,7 +125,7 @@ std::vector<int> trap_game_instance::load_animate_delays(wz::Node *node) {
   return cache.at(node);
 }
 
-void trap_game_instance::load(uint32_t map_id) {
-  auto map_node = wz_resource::load_map_node(map_id);
+void TrapGameInstance::load(uint32_t map_id) {
+  auto map_node = WzResource::load_map_node(map_id);
   load(map_node);
 }

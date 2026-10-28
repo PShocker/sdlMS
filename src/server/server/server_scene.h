@@ -11,17 +11,17 @@
 #include <flat_set>
 #include <vector>
 
-class server_scene {
+class ServerSceneState {
 public:
   uint32_t map_id;
 
-  std::flat_map<uint32_t, server_mob> mobs;
-  std::flat_map<uint64_t, server_drop> drops;
-  std::flat_map<uint64_t, std::vector<server_drop>> delay_drops;
+  std::flat_map<uint32_t, ServerMob> mobs;
+  std::flat_map<uint64_t, ServerDrop> drops;
+  std::flat_map<uint64_t, std::vector<ServerDrop>> delay_drops;
   std::flat_set<uint64_t> clients;
-  std::flat_map<int32_t, server_foothold> fhs;
-  std::vector<server_reactor> reactors;
-  std::vector<server_region_skill> rskis;
+  std::flat_map<int32_t, ServerFoothold> fhs;
+  std::vector<ServerReactorState> reactors;
+  std::vector<ServerRegionSkill> rskis;
 
   bool unique = false;
 };

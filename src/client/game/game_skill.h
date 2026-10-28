@@ -9,21 +9,21 @@
 #include <cstdint>
 #include <functional>
 #include <string>
-class game_skill {
+class GameSkill {
 public:
   std::u16string id;
   std::function<void(uint64_t, int)> use;
   std::function<void()> frame;
   std::function<void(int)> passive;
   std::function<void()> end;
-  std::function<bool(SDL_FPoint, game_effect *, bool)> effect;
-  std::function<void(game_skill *, std::u16string)>
+  std::function<bool(SDL_FPoint, GameEffect *, bool)> effect;
+  std::function<void(GameSkill *, std::u16string)>
       action;                                        // 斗气集中,终极攻击,影分身
-  std::function<uint64_t(game_mob *, uint64_t)> hit; // 魔法盾，金钱护盾
-  std::function<void(game_character *, int)> state;
+  std::function<uint64_t(GameMob *, uint64_t)> hit; // 魔法盾，金钱护盾
+  std::function<void(GameCharacter *, int)> state;
 
-  std::function<void(game_region_skill *)> client_region;
-  std::function<void(server_region_skill *)> server_region;
+  std::function<void(GameRegionSkill *)> client_region;
+  std::function<void(ServerRegionSkill *)> server_region;
 
   bool fall = false;
   bool climb = false;

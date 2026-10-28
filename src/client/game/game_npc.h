@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <optional>
 #include <string>
-class game_npc {
+class GameNpc {
 public:
   std::u16string id;
   int32_t rx0;
@@ -24,7 +24,7 @@ public:
 
   uint64_t duration;
 
-  std::optional<game_chatballoon> chatballoon;
+  std::optional<GameChatballoon> chatballoon;
   std::optional<float> hspeed = 100.0f;
   std::optional<float> hforce;
 };

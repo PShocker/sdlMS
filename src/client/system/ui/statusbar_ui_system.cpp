@@ -41,17 +41,17 @@
 #include <string>
 #include <vector>
 
-void statusbar_ui_system::render_hm_alert() {
-  static auto backgrnd = wz_resource::load_texture(
-      wz_resource::ui->find(u"StatusBar.img/backgrnd2"));
+void StatusbarUiSystem::render_hm_alert() {
+  static auto backgrnd = WzResource::load_texture(
+      WzResource::ui->find(u"StatusBar.img/backgrnd2"));
 
-  auto screen_w = camera_game_instance::camera.w;
-  auto screen_h = camera_game_instance::camera.h;
+  auto screen_w = CameraGameInstance::camera.w;
+  auto screen_h = CameraGameInstance::camera.h;
   auto base_x = (screen_w - backgrnd->w) / 2;
   auto base_y = (screen_h - backgrnd->h);
 
-  auto hp = character_stat_game_instance::get_hp();
-  auto max_hp = character_stat_game_instance::get_hp_max();
+  auto hp = CharacterStatGameInstance::get_hp();
+  auto max_hp = CharacterStatGameInstance::get_hp_max();
   auto hp_percent_now = (float)hp / max_hp;
   static auto hp_percent = hp_percent_now;
   hp_percent = std::lerp(hp_percent, hp_percent_now, 0.05);
@@ -60,24 +60,24 @@ void statusbar_ui_system::render_hm_alert() {
     hp_percent = hp_percent_now;
   }
   if (hp_percent_now < hp_percent && hp_percent <= 0.3) {
-    auto now = window::dt_now;
+    auto now = Window::dt_now;
     auto sum = 5 * 130;
     auto offset = now % sum; // 取余，得到周期内偏移
     auto i = offset / 130;
-    auto node = wz_resource::ui->find(u"StatusBar.img/alertHP");
+    auto node = WzResource::ui->find(u"StatusBar.img/alertHP");
     node = node->get_child(std::to_string(i));
-    auto icon = wz_resource::load_texture(node);
+    auto icon = WzResource::load_texture(node);
     SDL_FRect pos_rect{
         base_x + 223,
         base_y + 54,
         static_cast<float>(icon->w),
         static_cast<float>(icon->h),
     };
-    SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer, icon, nullptr, &pos_rect);
   }
 
-  auto mp = character_stat_game_instance::get_mp();
-  auto max_mp = character_stat_game_instance::get_mp_max();
+  auto mp = CharacterStatGameInstance::get_mp();
+  auto max_mp = CharacterStatGameInstance::get_mp_max();
   auto mp_percent_now = (float)mp / max_mp;
   static auto mp_percent = mp_percent_now;
   mp_percent = std::lerp(mp_percent, mp_percent_now, 0.05);
@@ -86,62 +86,62 @@ void statusbar_ui_system::render_hm_alert() {
     mp_percent = mp_percent_now;
   }
   if (mp_percent_now < mp_percent && mp_percent <= 0.3) {
-    auto now = window::dt_now;
+    auto now = Window::dt_now;
     auto sum = 5 * 130;
     auto offset = now % sum; // 取余，得到周期内偏移
     auto i = offset / 130;
-    auto node = wz_resource::ui->find(u"StatusBar.img/alertMP");
+    auto node = WzResource::ui->find(u"StatusBar.img/alertMP");
     node = node->get_child(std::to_string(i));
-    auto icon = wz_resource::load_texture(node);
+    auto icon = WzResource::load_texture(node);
     SDL_FRect pos_rect{
         base_x + 331,
         base_y + 54,
         static_cast<float>(icon->w),
         static_cast<float>(icon->h),
     };
-    SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer, icon, nullptr, &pos_rect);
   }
 }
 
-void statusbar_ui_system::render_backgrnd() {
-  static auto backgrnd = wz_resource::load_texture(
-      wz_resource::ui->find(u"StatusBar.img/backgrnd2"));
-  auto screen_w = camera_game_instance::camera.w;
-  auto screen_h = camera_game_instance::camera.h;
+void StatusbarUiSystem::render_backgrnd() {
+  static auto backgrnd = WzResource::load_texture(
+      WzResource::ui->find(u"StatusBar.img/backgrnd2"));
+  auto screen_w = CameraGameInstance::camera.w;
+  auto screen_h = CameraGameInstance::camera.h;
   auto base_x = (screen_w - backgrnd->w) / 2;
   auto base_y = (screen_h - backgrnd->h);
   SDL_FRect pos_rect = {base_x, base_y, static_cast<float>(backgrnd->w),
                         static_cast<float>(backgrnd->h)};
-  SDL_RenderTexture(window::renderer, backgrnd, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer, backgrnd, nullptr, &pos_rect);
 
-  static auto backgrnd2 = wz_resource::load_texture(
-      wz_resource::ui->find(u"StatusBar.img/canvas:backgrnd1"));
+  static auto backgrnd2 = WzResource::load_texture(
+      WzResource::ui->find(u"StatusBar.img/canvas:backgrnd1"));
   pos_rect = {base_x + 7, base_y + 9, static_cast<float>(backgrnd2->w),
               static_cast<float>(backgrnd2->h)};
-  SDL_RenderTexture(window::renderer, backgrnd2, nullptr, &pos_rect);
-  static auto gaugeLabel = wz_resource::load_texture(
-      wz_resource::ui->find(u"StatusBar.img/canvas:gaugeLabel"));
+  SDL_RenderTexture(Window::renderer, backgrnd2, nullptr, &pos_rect);
+  static auto gaugeLabel = WzResource::load_texture(
+      WzResource::ui->find(u"StatusBar.img/canvas:gaugeLabel"));
   pos_rect = {base_x + 223, base_y + 40, static_cast<float>(gaugeLabel->w),
               static_cast<float>(gaugeLabel->h)};
-  SDL_RenderTexture(window::renderer, gaugeLabel, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer, gaugeLabel, nullptr, &pos_rect);
 }
 
-void statusbar_ui_system::render_gauge_text() {
-  static auto backgrnd = wz_resource::load_texture(
-      wz_resource::ui->find(u"StatusBar.img/backgrnd2"));
+void StatusbarUiSystem::render_gauge_text() {
+  static auto backgrnd = WzResource::load_texture(
+      WzResource::ui->find(u"StatusBar.img/backgrnd2"));
 
-  auto screen_w = camera_game_instance::camera.w;
-  auto screen_h = camera_game_instance::camera.h;
+  auto screen_w = CameraGameInstance::camera.w;
+  auto screen_h = CameraGameInstance::camera.h;
   auto base_x = (screen_w - backgrnd->w) / 2;
   auto base_y = (screen_h - backgrnd->h);
-  static auto num_node = wz_resource::ui->find(u"StatusBar.img/gauge/number");
+  static auto num_node = WzResource::ui->find(u"StatusBar.img/gauge/number");
   std::array<int32_t, 2> a = {
-      character_stat_game_instance::get_hp(),
-      character_stat_game_instance::get_mp(),
+      CharacterStatGameInstance::get_hp(),
+      CharacterStatGameInstance::get_mp(),
   };
   std::array<int32_t, 2> a2 = {
-      character_stat_game_instance::get_hp_max(),
-      character_stat_game_instance::get_mp_max(),
+      CharacterStatGameInstance::get_hp_max(),
+      CharacterStatGameInstance::get_mp_max(),
   };
   std::array<SDL_FPoint, 2> a3 = {
       SDL_FPoint{245, 42},
@@ -149,106 +149,106 @@ void statusbar_ui_system::render_gauge_text() {
   };
   SDL_FRect pos_rect;
   for (auto i : {0, 1}) {
-    auto l_bracket = wz_resource::load_texture(num_node->get_child(u"["));
-    auto r_bracket = wz_resource::load_texture(num_node->get_child(u"]"));
+    auto l_bracket = WzResource::load_texture(num_node->get_child(u"["));
+    auto r_bracket = WzResource::load_texture(num_node->get_child(u"]"));
     pos_rect = {base_x + a3[i].x, base_y + a3[i].y,
                 static_cast<float>(l_bracket->w),
                 static_cast<float>(l_bracket->h)};
-    SDL_RenderTexture(window::renderer, l_bracket, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer, l_bracket, nullptr, &pos_rect);
     int32_t w = 6;
     a[i] = std::max(a[i], 0);
     auto num = std::to_string(a[i]);
     for (auto c : num) {
       pos_rect.x = base_x + w + a3[i].x;
       auto texture =
-          wz_resource::load_texture(num_node->get_child(std::string{c}));
+          WzResource::load_texture(num_node->get_child(std::string{c}));
       pos_rect.w = texture->w;
       pos_rect.h = texture->h;
-      SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+      SDL_RenderTexture(Window::renderer, texture, nullptr, &pos_rect);
       w += 6;
     }
-    auto texture = wz_resource::load_texture(num_node->get_child(u"slash"));
+    auto texture = WzResource::load_texture(num_node->get_child(u"slash"));
     pos_rect.x = base_x + w + a3[i].x;
     pos_rect.w = texture->w;
     pos_rect.h = texture->h;
-    SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer, texture, nullptr, &pos_rect);
     w += 6;
 
     num = std::to_string(a2[i]);
     for (auto c : num) {
       pos_rect.x = base_x + w + a3[i].x;
       auto texture =
-          wz_resource::load_texture(num_node->get_child(std::string{c}));
+          WzResource::load_texture(num_node->get_child(std::string{c}));
       pos_rect.w = texture->w;
       pos_rect.h = texture->h;
-      SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+      SDL_RenderTexture(Window::renderer, texture, nullptr, &pos_rect);
       w += 6;
     }
 
     pos_rect.x = base_x + w + a3[i].x;
     pos_rect.w = r_bracket->w;
     pos_rect.h = r_bracket->h;
-    SDL_RenderTexture(window::renderer, r_bracket, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer, r_bracket, nullptr, &pos_rect);
   }
   SDL_FPoint a4{473, 42};
-  auto self_exp = character_stat_game_instance::get_exp();
-  auto self_max_exp = character_stat_game_instance::get_exp_max();
+  auto self_exp = CharacterStatGameInstance::get_exp();
+  auto self_max_exp = CharacterStatGameInstance::get_exp_max();
   float self_exp_percent = (float)self_exp / self_max_exp;
   auto num = std::to_string(self_exp);
   int32_t w = 0;
   for (auto c : num) {
     pos_rect.x = base_x + w + a4.x;
     auto texture =
-        wz_resource::load_texture(num_node->get_child(std::string{c}));
+        WzResource::load_texture(num_node->get_child(std::string{c}));
     pos_rect.w = texture->w;
     pos_rect.h = texture->h;
-    SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer, texture, nullptr, &pos_rect);
     w += 6;
   }
-  auto l_bracket = wz_resource::load_texture(num_node->get_child(u"["));
-  auto r_bracket = wz_resource::load_texture(num_node->get_child(u"]"));
+  auto l_bracket = WzResource::load_texture(num_node->get_child(u"["));
+  auto r_bracket = WzResource::load_texture(num_node->get_child(u"]"));
 
   pos_rect.x += 8;
-  SDL_RenderTexture(window::renderer, l_bracket, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer, l_bracket, nullptr, &pos_rect);
 
   auto exp_percent_num = std::format("{:.2f}", self_exp_percent * 100);
   for (auto c : exp_percent_num) {
     auto texture =
-        wz_resource::load_texture(num_node->get_child(std::string{c}));
+        WzResource::load_texture(num_node->get_child(std::string{c}));
     pos_rect.x += 6;
     pos_rect.w = texture->w;
     pos_rect.h = texture->h;
-    SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer, texture, nullptr, &pos_rect);
   }
-  auto percent_texture = wz_resource::load_texture(num_node->get_child(u"%"));
+  auto percent_texture = WzResource::load_texture(num_node->get_child(u"%"));
   pos_rect.x += 6;
   pos_rect.w = percent_texture->w;
   pos_rect.h = percent_texture->h;
-  SDL_RenderTexture(window::renderer, percent_texture, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer, percent_texture, nullptr, &pos_rect);
 
   pos_rect.x += 8;
   pos_rect.w = r_bracket->w;
   pos_rect.h = r_bracket->h;
-  SDL_RenderTexture(window::renderer, r_bracket, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer, r_bracket, nullptr, &pos_rect);
 }
 
-void statusbar_ui_system::render_character_stat() {
-  static auto backgrnd = wz_resource::load_texture(
-      wz_resource::ui->find(u"StatusBar.img/backgrnd2"));
+void StatusbarUiSystem::render_character_stat() {
+  static auto backgrnd = WzResource::load_texture(
+      WzResource::ui->find(u"StatusBar.img/backgrnd2"));
 
-  auto screen_w = camera_game_instance::camera.w;
-  auto screen_h = camera_game_instance::camera.h;
+  auto screen_w = CameraGameInstance::camera.w;
+  auto screen_h = CameraGameInstance::camera.h;
   auto base_x = (screen_w - backgrnd->w) / 2;
   auto base_y = (screen_h - backgrnd->h);
 
-  static auto gaugeHp = wz_resource::load_texture(
-      wz_resource::ui->find(u"StatusBar.img/gauge/layer:gaugeHp"));
+  static auto gaugeHp = WzResource::load_texture(
+      WzResource::ui->find(u"StatusBar.img/gauge/layer:gaugeHp"));
 
-  static auto gray = wz_resource::load_texture(
-      wz_resource::ui->find(u"StatusBar.img/gauge/canvas:gaugeBack"));
+  static auto gray = WzResource::load_texture(
+      WzResource::ui->find(u"StatusBar.img/gauge/canvas:gaugeBack"));
 
-  auto hp = character_stat_game_instance::get_hp();
-  auto max_hp = character_stat_game_instance::get_hp_max();
+  auto hp = CharacterStatGameInstance::get_hp();
+  auto max_hp = CharacterStatGameInstance::get_hp_max();
   auto hp_percent_now = (float)hp / max_hp;
   static auto hp_percent = hp_percent_now;
   SDL_FRect pos_rect;
@@ -258,7 +258,7 @@ void statusbar_ui_system::render_character_stat() {
       static_cast<float>(gaugeHp->w),
       static_cast<float>(gray->h),
   };
-  SDL_RenderTexture(window::renderer, gray, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer, gray, nullptr, &pos_rect);
 
   hp_percent = std::lerp(hp_percent, hp_percent_now, 0.05);
   SDL_FRect src_rect{
@@ -273,20 +273,20 @@ void statusbar_ui_system::render_character_stat() {
       static_cast<float>(src_rect.w),
       static_cast<float>(gaugeHp->h),
   };
-  SDL_RenderTexture(window::renderer, gaugeHp, &src_rect, &pos_rect);
+  SDL_RenderTexture(Window::renderer, gaugeHp, &src_rect, &pos_rect);
 
-  auto mp = character_stat_game_instance::get_mp();
-  auto max_mp = character_stat_game_instance::get_mp_max();
+  auto mp = CharacterStatGameInstance::get_mp();
+  auto max_mp = CharacterStatGameInstance::get_mp_max();
   auto mp_percent = (float)mp / max_mp;
-  static auto gaugeMp = wz_resource::load_texture(
-      wz_resource::ui->find(u"StatusBar.img/gauge/layer:gaugeMp"));
+  static auto gaugeMp = WzResource::load_texture(
+      WzResource::ui->find(u"StatusBar.img/gauge/layer:gaugeMp"));
   pos_rect = {
       base_x + 332,
       base_y + 56,
       static_cast<float>(gaugeMp->w),
       static_cast<float>(gray->h),
   };
-  SDL_RenderTexture(window::renderer, gray, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer, gray, nullptr, &pos_rect);
 
   src_rect = {
       0,
@@ -297,12 +297,12 @@ void statusbar_ui_system::render_character_stat() {
 
   pos_rect = {base_x + 332, base_y + 56, static_cast<float>(src_rect.w),
               static_cast<float>(gaugeMp->h)};
-  SDL_RenderTexture(window::renderer, gaugeMp, &src_rect, &pos_rect);
+  SDL_RenderTexture(Window::renderer, gaugeMp, &src_rect, &pos_rect);
 
-  static auto gaugeExp = wz_resource::load_texture(
-      wz_resource::ui->find(u"StatusBar.img/gauge/layer:gaugeExp"));
-  auto exp = character_stat_game_instance::get_exp();
-  auto max_exp = character_stat_game_instance::get_exp_max();
+  static auto gaugeExp = WzResource::load_texture(
+      WzResource::ui->find(u"StatusBar.img/gauge/layer:gaugeExp"));
+  auto exp = CharacterStatGameInstance::get_exp();
+  auto max_exp = CharacterStatGameInstance::get_exp_max();
   auto exp_percent = (float)exp / max_exp;
   exp_percent = std::min(1.0f, exp_percent);
 
@@ -312,7 +312,7 @@ void statusbar_ui_system::render_character_stat() {
       static_cast<float>(gaugeExp->w),
       static_cast<float>(gray->h),
   };
-  SDL_RenderTexture(window::renderer, gray, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer, gray, nullptr, &pos_rect);
 
   src_rect = {
       0,
@@ -323,32 +323,32 @@ void statusbar_ui_system::render_character_stat() {
 
   pos_rect = {base_x + 445, base_y + 56, static_cast<float>(src_rect.w),
               static_cast<float>(gaugeExp->h)};
-  SDL_RenderTexture(window::renderer, gaugeExp, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer, gaugeExp, nullptr, &pos_rect);
 
-  static auto gaugeCover = wz_resource::load_texture(
-      wz_resource::ui->find(u"StatusBar.img/layer:gaugeCover"));
+  static auto gaugeCover = WzResource::load_texture(
+      WzResource::ui->find(u"StatusBar.img/layer:gaugeCover"));
   pos_rect = {base_x + 223, base_y + 55, static_cast<float>(gaugeCover->w),
               static_cast<float>(gaugeCover->h)};
-  SDL_RenderTexture(window::renderer, gaugeCover, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer, gaugeCover, nullptr, &pos_rect);
 
   // job
-  auto job_node = wz_resource::ms->get_root()->find(
-      u"String.img/Job/" + character_game_instance::self.job);
+  auto job_node = WzResource::ms->get_root()->find(
+      u"String.img/Job/" + CharacterGameInstance::self.job);
   auto job_name = static_cast<wz::Property<std::u16string> *>(job_node)->get();
-  freetype::load_size(12);
-  freetype::load_color(255, 255, 255, 255);
-  freetype::load_aligned(true);
-  freetype::draw_line(job_name, base_x + 88, base_y + 36);
+  Freetype::load_size(12);
+  Freetype::load_color(255, 255, 255, 255);
+  Freetype::load_aligned(true);
+  Freetype::draw_line(job_name, base_x + 88, base_y + 36);
   // name
-  const auto &self = character_game_instance::self;
+  const auto &self = CharacterGameInstance::self;
   auto &self_name = self.name;
-  freetype::load_size(12);
-  freetype::load_color(255, 255, 255, 255);
-  freetype::draw_line(self_name, base_x + 88, base_y + 52);
-  freetype::load_aligned(false);
+  Freetype::load_size(12);
+  Freetype::load_color(255, 255, 255, 255);
+  Freetype::draw_line(self_name, base_x + 88, base_y + 52);
+  Freetype::load_aligned(false);
 
   // level
-  static auto lvNumber = wz_resource::ui->find(u"StatusBar.img/lvNumber");
+  static auto lvNumber = WzResource::ui->find(u"StatusBar.img/lvNumber");
   auto level = self.level;
   auto level_str = std::to_string(level);
   pos_rect.x = base_x + 44;
@@ -357,39 +357,39 @@ void statusbar_ui_system::render_character_stat() {
   int digits = level == 0 ? 1 : static_cast<int>(std::log10(level)) + 1;
   pos_rect.x += (36 - digits * 12) / (digits + 1);
   for (auto c : level_str) {
-    auto t = wz_resource::load_texture(lvNumber->get_child(std::string{c}));
+    auto t = WzResource::load_texture(lvNumber->get_child(std::string{c}));
     pos_rect.x += w;
     pos_rect.w = t->w;
     pos_rect.h = t->h;
-    SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
     w = 12;
   }
 
   render_gauge_text();
 }
 
-void statusbar_ui_system::render_button() {
+void StatusbarUiSystem::render_button() {
   static auto CashShop =
-      wz_resource::ui->find(u"StatusBar.img/button:CashShop");
-  static auto Menu = wz_resource::ui->find(u"StatusBar.img/button:Menu");
+      WzResource::ui->find(u"StatusBar.img/button:CashShop");
+  static auto Menu = WzResource::ui->find(u"StatusBar.img/button:Menu");
   static auto Shortcut =
-      wz_resource::ui->find(u"StatusBar.img/button:Shortcut");
-  static auto Mailbox = wz_resource::ui->find(u"StatusBar.img/button:Mailbox");
-  static auto Equip = wz_resource::ui->find(u"StatusBar.img/button:Equip");
-  static auto Inven = wz_resource::ui->find(u"StatusBar.img/button:Inven");
-  static auto Stat = wz_resource::ui->find(u"StatusBar.img/button:Stat");
-  static auto StatUp = wz_resource::ui->find(u"StatusBar.img/button:StatUp");
-  static auto Skill = wz_resource::ui->find(u"StatusBar.img/button:Skill");
-  static auto SkillUp = wz_resource::ui->find(u"StatusBar.img/button:SkillUp");
-  static auto Key = wz_resource::ui->find(u"StatusBar.img/button:Key");
+      WzResource::ui->find(u"StatusBar.img/button:Shortcut");
+  static auto Mailbox = WzResource::ui->find(u"StatusBar.img/button:Mailbox");
+  static auto Equip = WzResource::ui->find(u"StatusBar.img/button:Equip");
+  static auto Inven = WzResource::ui->find(u"StatusBar.img/button:Inven");
+  static auto Stat = WzResource::ui->find(u"StatusBar.img/button:Stat");
+  static auto StatUp = WzResource::ui->find(u"StatusBar.img/button:StatUp");
+  static auto Skill = WzResource::ui->find(u"StatusBar.img/button:Skill");
+  static auto SkillUp = WzResource::ui->find(u"StatusBar.img/button:SkillUp");
+  static auto Key = WzResource::ui->find(u"StatusBar.img/button:Key");
   static auto QuickSlot =
-      wz_resource::ui->find(u"StatusBar.img/button:QuickSlot");
+      WzResource::ui->find(u"StatusBar.img/button:QuickSlot");
   static auto QuickSlotD =
-      wz_resource::ui->find(u"StatusBar.img/button:QuickSlotD");
+      WzResource::ui->find(u"StatusBar.img/button:QuickSlotD");
   static auto ChatLogMin =
-      wz_resource::ui->find(u"StatusBar.img/button:ChatLogMin");
+      WzResource::ui->find(u"StatusBar.img/button:ChatLogMin");
   static auto ChatLogMax =
-      wz_resource::ui->find(u"StatusBar.img/button:ChatLogMax");
+      WzResource::ui->find(u"StatusBar.img/button:ChatLogMax");
 
   std::array buttons_node = {
       CashShop,   //
@@ -418,8 +418,8 @@ void statusbar_ui_system::render_button() {
       SDL_FRect{539, 14, 12, 12}, // ChatLogMin ChatLogMax
   };
 
-  auto screen_w = camera_game_instance::camera.w;
-  auto screen_h = camera_game_instance::camera.h;
+  auto screen_w = CameraGameInstance::camera.w;
+  auto screen_h = CameraGameInstance::camera.h;
   auto base_x = (screen_w - 808) / 2;
   auto base_y = (screen_h - 73);
 
@@ -428,109 +428,109 @@ void statusbar_ui_system::render_button() {
     auto pos_rect = buttons_rect[i];
     pos_rect.x += base_x;
     pos_rect.y += base_y;
-    auto &mouse_pos = window::mouse_pos;
+    auto &mouse_pos = Window::mouse_pos;
     // 判断按钮是否被遮挡
-    auto cursor_in = cursor_game_instance::cursor_ui;
+    auto cursor_in = CursorGameInstance::cursor_ui;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render &&
-        !cursor_game_instance::modal_overlay) {
-      if (window::mouse_state & SDL_BUTTON_LMASK) {
-        auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
-        SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);
+        !CursorGameInstance::modal_overlay) {
+      if (Window::mouse_state & SDL_BUTTON_LMASK) {
+        auto pressed = WzResource::load_texture(k->find(u"pressed/0"));
+        SDL_RenderTexture(Window::renderer, pressed, nullptr, &pos_rect);
       } else {
-        auto mouse_over = wz_resource::load_texture(k->find(u"mouseOver/0"));
-        SDL_RenderTexture(window::renderer, mouse_over, nullptr, &pos_rect);
+        auto mouse_over = WzResource::load_texture(k->find(u"mouseOver/0"));
+        SDL_RenderTexture(Window::renderer, mouse_over, nullptr, &pos_rect);
       }
     } else {
-      auto normal = wz_resource::load_texture(k->find(u"normal/0"));
-      SDL_RenderTexture(window::renderer, normal, nullptr, &pos_rect);
+      auto normal = WzResource::load_texture(k->find(u"normal/0"));
+      SDL_RenderTexture(Window::renderer, normal, nullptr, &pos_rect);
     }
   }
 }
 
-void statusbar_ui_system::render_chat() {
-  auto screen_w = camera_game_instance::camera.w;
-  auto screen_h = camera_game_instance::camera.h;
+void StatusbarUiSystem::render_chat() {
+  auto screen_w = CameraGameInstance::camera.w;
+  auto screen_h = CameraGameInstance::camera.h;
   auto base_x = (screen_w - 808) / 2;
   auto base_y = (screen_h - 73);
   if (chat_type.has_value()) {
     static auto TargetSelect =
-        wz_resource::ui->find(u"StatusBar.img/chat/button:ChatTargetSelect");
+        WzResource::ui->find(u"StatusBar.img/chat/button:ChatTargetSelect");
     SDL_FRect pos_rect{6, 11, 80, 18};
     pos_rect.x += base_x;
     pos_rect.y += base_y;
-    auto &mouse_pos = window::mouse_pos;
+    auto &mouse_pos = Window::mouse_pos;
     // 判断按钮是否被遮挡
-    auto cursor_in = cursor_game_instance::cursor_ui;
+    auto cursor_in = CursorGameInstance::cursor_ui;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render &&
-        !cursor_game_instance::modal_overlay) {
-      if (window::mouse_state & SDL_BUTTON_LMASK) {
+        !CursorGameInstance::modal_overlay) {
+      if (Window::mouse_state & SDL_BUTTON_LMASK) {
         auto pressed =
-            wz_resource::load_texture(TargetSelect->find(u"pressed/0"));
-        SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);
+            WzResource::load_texture(TargetSelect->find(u"pressed/0"));
+        SDL_RenderTexture(Window::renderer, pressed, nullptr, &pos_rect);
       } else {
         auto mouse_over =
-            wz_resource::load_texture(TargetSelect->find(u"mouseOver/0"));
-        SDL_RenderTexture(window::renderer, mouse_over, nullptr, &pos_rect);
+            WzResource::load_texture(TargetSelect->find(u"mouseOver/0"));
+        SDL_RenderTexture(Window::renderer, mouse_over, nullptr, &pos_rect);
       }
     } else {
-      auto normal = wz_resource::load_texture(TargetSelect->find(u"normal/0"));
-      SDL_RenderTexture(window::renderer, normal, nullptr, &pos_rect);
+      auto normal = WzResource::load_texture(TargetSelect->find(u"normal/0"));
+      SDL_RenderTexture(Window::renderer, normal, nullptr, &pos_rect);
     }
-    freetype::load_size(12);
-    freetype::load_aligned(true);
-    freetype::load_color(255, 255, 255, 255);
+    Freetype::load_size(12);
+    Freetype::load_aligned(true);
+    Freetype::load_color(255, 255, 255, 255);
     auto s = load_chat_type();
-    auto w = freetype::load_w(s);
-    freetype::draw_line(s, pos_rect.x + 40 - w / 2, pos_rect.y);
-    freetype::load_aligned(false);
+    auto w = Freetype::load_w(s);
+    Freetype::draw_line(s, pos_rect.x + 40 - w / 2, pos_rect.y);
+    Freetype::load_aligned(false);
 
-    text_input_ui_system::render(chat, 5, 5);
+    TextInputUiSystem::render(chat, 5, 5);
   } else {
-    static auto chatBackgrnd = wz_resource::load_texture(
-        wz_resource::ui->find(u"StatusBar.img/chat/canvas:chatbackgrnd2"));
+    static auto chatBackgrnd = WzResource::load_texture(
+        WzResource::ui->find(u"StatusBar.img/chat/canvas:chatbackgrnd2"));
     SDL_FRect pos_rect = {
         base_x + 7,
         base_y + 8,
         static_cast<float>(chatBackgrnd->w),
         static_cast<float>(chatBackgrnd->h),
     };
-    SDL_RenderTexture(window::renderer, chatBackgrnd, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer, chatBackgrnd, nullptr, &pos_rect);
   }
 }
 
-void statusbar_ui_system::render_back_chat() {
+void StatusbarUiSystem::render_back_chat() {
   auto it =
-      std::ranges::find(system::render_systems, &chat_log_ui_system::render);
-  if (it != system::render_systems.end()) {
+      std::ranges::find(System::render_systems, &ChatLogUiSystem::render);
+  if (it != System::render_systems.end()) {
     return;
   }
-  if (chat_game_instance::chats.empty()) {
+  if (ChatGameInstance::chats.empty()) {
     return;
   }
-  auto back = chat_game_instance::chats.back();
-  freetype::load_aligned(true);
-  freetype::load_size(12);
+  auto back = ChatGameInstance::chats.back();
+  Freetype::load_aligned(true);
+  Freetype::load_size(12);
   auto str = back.owner + u":" + back.text;
-  auto screen_w = camera_game_instance::camera.w;
-  auto screen_h = camera_game_instance::camera.h;
+  auto screen_w = CameraGameInstance::camera.w;
+  auto screen_h = CameraGameInstance::camera.h;
   auto base_x = (screen_w - 808) / 2;
   auto base_y = (screen_h - 73);
-  freetype::load_color(255, 255, 255, 255);
-  auto w = freetype::load_w(str);
+  Freetype::load_color(255, 255, 255, 255);
+  auto w = Freetype::load_w(str);
   bool point = false;
   while (w > 476) {
     str.pop_back();
-    w = freetype::load_w(str);
+    w = Freetype::load_w(str);
     point = true;
   }
   if (point) {
     str = str + u"...";
   }
-  freetype::draw_line(str, base_x + 18, base_y + 10);
-  freetype::load_aligned(false);
+  Freetype::draw_line(str, base_x + 18, base_y + 10);
+  Freetype::load_aligned(false);
 }
 
-bool statusbar_ui_system::render() {
+bool StatusbarUiSystem::render() {
   render_backgrnd();
   render_chat();
   render_button();
@@ -540,76 +540,76 @@ bool statusbar_ui_system::render() {
   return true;
 }
 
-SDL_FPoint statusbar_ui_system::load_wh() { return {808, 73}; }
+SDL_FPoint StatusbarUiSystem::load_wh() { return {808, 73}; }
 
-bool statusbar_ui_system::cursor_in() {
+bool StatusbarUiSystem::cursor_in() {
   auto wh = load_wh();
-  auto screen_w = camera_game_instance::camera.w;
-  auto screen_h = camera_game_instance::camera.h;
+  auto screen_w = CameraGameInstance::camera.w;
+  auto screen_h = CameraGameInstance::camera.h;
   auto base_x = (screen_w - wh.x) / 2;
   auto base_y = (screen_h - wh.y);
   SDL_FRect pos_rect = {base_x, base_y, wh.x, wh.y};
-  return SDL_PointInRectFloat(&window::mouse_pos, &pos_rect);
+  return SDL_PointInRectFloat(&Window::mouse_pos, &pos_rect);
 }
 
-void statusbar_ui_system::event_button_cashshop() { return; }
+void StatusbarUiSystem::event_button_cashshop() { return; }
 
-void statusbar_ui_system::event_button_menu() {
-  statusbar_menu_ui_system::menu_type =
-      statusbar_menu_ui_system::menu_enums::menu;
-  statusbar_menu_ui_system::toggle();
+void StatusbarUiSystem::event_button_menu() {
+  StatusbarMenuUiSystem::menu_type =
+      StatusbarMenuUiSystem::MenuEnums::menu;
+  StatusbarMenuUiSystem::toggle();
   return;
 }
 
-void statusbar_ui_system::event_button_shortcut() {
-  statusbar_menu_ui_system::menu_type =
-      statusbar_menu_ui_system::menu_enums::shortcut;
-  statusbar_menu_ui_system::toggle();
+void StatusbarUiSystem::event_button_shortcut() {
+  StatusbarMenuUiSystem::menu_type =
+      StatusbarMenuUiSystem::MenuEnums::shortcut;
+  StatusbarMenuUiSystem::toggle();
   return;
 }
 
-void statusbar_ui_system::event_button_mailbox() { return; }
+void StatusbarUiSystem::event_button_mailbox() { return; }
 
-void statusbar_ui_system::event_button_equip() {
-  equip_ui_system::toggle();
+void StatusbarUiSystem::event_button_equip() {
+  EquipUiSystem::toggle();
   return;
 }
 
-void statusbar_ui_system::event_button_inven() {
-  package_ui_system::toggle();
+void StatusbarUiSystem::event_button_inven() {
+  PackageUiSystem::toggle();
   return;
 }
 
-void statusbar_ui_system::event_button_stat() {
-  character_stat_ui_system::toggle();
+void StatusbarUiSystem::event_button_stat() {
+  CharacterStatUiSystem::toggle();
   return;
 }
 
-void statusbar_ui_system::event_button_skill() {
-  skill_ui_system::toggle();
+void StatusbarUiSystem::event_button_skill() {
+  SkillUiSystem::toggle();
   return;
 }
 
-void statusbar_ui_system::event_button_keybind() {
-  keybinding_ui_system::toggle();
+void StatusbarUiSystem::event_button_keybind() {
+  KeybindingUiSystem::toggle();
   return;
 }
 
-void statusbar_ui_system::event_button_quickslot() { return; }
+void StatusbarUiSystem::event_button_quickslot() { return; }
 
-void statusbar_ui_system::event_button_chatlog() {
-  chat_log_ui_system::toggle();
+void StatusbarUiSystem::event_button_chatlog() {
+  ChatLogUiSystem::toggle();
   if (chat_type.has_value()) {
     chat_type = std::nullopt;
   } else {
-    chat_type = game_chat_enum::map;
+    chat_type = GameChatEnum::map;
   }
   return;
 }
 
-std::u16string statusbar_ui_system::load_chat_type() {
+std::u16string StatusbarUiSystem::load_chat_type() {
   switch (chat_type.value()) {
-  case game_chat_enum::map: {
+  case GameChatEnum::map: {
     return u"All";
     break;
   }
@@ -617,7 +617,7 @@ std::u16string statusbar_ui_system::load_chat_type() {
   return u"";
 }
 
-bool statusbar_ui_system::event_button(SDL_Event *event) {
+bool StatusbarUiSystem::event_button(SDL_Event *event) {
   const static std::array buttons_rect = {
       SDL_FRect{578, 38, 73, 34}, // CashShop
       SDL_FRect{652, 38, 73, 34}, // Menu
@@ -637,8 +637,8 @@ bool statusbar_ui_system::event_button(SDL_Event *event) {
       event_button_stat,      event_button_skill,   event_button_keybind,
       event_button_quickslot, event_button_chatlog,
   };
-  auto screen_w = camera_game_instance::camera.w;
-  auto screen_h = camera_game_instance::camera.h;
+  auto screen_w = CameraGameInstance::camera.w;
+  auto screen_h = CameraGameInstance::camera.h;
   auto [w, h] = load_wh();
   auto base_x = (screen_w - w) / 2;
   auto base_y = (screen_h - h);
@@ -647,7 +647,7 @@ bool statusbar_ui_system::event_button(SDL_Event *event) {
     auto pos_rect = buttons_rect[i];
     pos_rect.x += base_x;
     pos_rect.y += base_y;
-    if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
+    if (SDL_PointInRectFloat(&Window::mouse_pos, &pos_rect)) {
       buttons_func[i]();
       return true;
     }
@@ -655,8 +655,8 @@ bool statusbar_ui_system::event_button(SDL_Event *event) {
   return false;
 }
 
-void statusbar_ui_system::event_motion_bt_audio(SDL_Event *event) {
-  if (cursor_game_instance::cursor_ui != render) {
+void StatusbarUiSystem::event_motion_bt_audio(SDL_Event *event) {
+  if (CursorGameInstance::cursor_ui != render) {
     return;
   }
   const static std::array buttons_rect = {
@@ -672,13 +672,13 @@ void statusbar_ui_system::event_motion_bt_audio(SDL_Event *event) {
       SDL_FRect{771, 10, 28, 20}, // QuickSlot QuickSlotD
       SDL_FRect{539, 14, 12, 12}, // ChatLogMin ChatLogMax
   };
-  auto screen_w = camera_game_instance::camera.w;
-  auto screen_h = camera_game_instance::camera.h;
+  auto screen_w = CameraGameInstance::camera.w;
+  auto screen_h = CameraGameInstance::camera.h;
   auto [w, h] = load_wh();
   auto base_x = (screen_w - w) / 2;
   auto base_y = (screen_h - h);
   static int8_t bt_audio = -1;
-  auto &mouse_pos = window::mouse_pos;
+  auto &mouse_pos = Window::mouse_pos;
   int8_t bt_in = -1;
   for (size_t i = 0; i < buttons_rect.size(); ++i) {
     auto pos_rect = buttons_rect[i];
@@ -690,18 +690,18 @@ void statusbar_ui_system::event_motion_bt_audio(SDL_Event *event) {
     }
   }
   if (bt_in != -1 && bt_audio != bt_in) {
-    audio_game_instance::load_audio(u"UI.img/BtMouseOver", 0);
+    AudioGameInstance::load_audio(u"UI.img/BtMouseOver", 0);
   }
   bt_audio = bt_in;
 }
 
-bool statusbar_ui_system::event(SDL_Event *event) {
-  auto cr = text_input_ui_system::event(event, chat);
+bool StatusbarUiSystem::event(SDL_Event *event) {
+  auto cr = TextInputUiSystem::event(event, chat);
   bool r = true;
   switch (event->type) {
   case SDL_EVENT_MOUSE_BUTTON_UP: {
     if (event->button.button == SDL_BUTTON_LEFT) {
-      if (cursor_game_instance::cursor_ui == render) {
+      if (CursorGameInstance::cursor_ui == render) {
         event_button(event);
         r = false;
       }
@@ -710,10 +710,10 @@ bool statusbar_ui_system::event(SDL_Event *event) {
   }
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
     if (event->button.button == SDL_BUTTON_LEFT) {
-      std::erase(system::event_systems, keyboard_input_system::event);
+      std::erase(System::event_systems, KeyboardInputSystem::event);
       if (cr) {
         // close input
-        system::event_systems.push_back(keyboard_input_system::event);
+        System::event_systems.push_back(KeyboardInputSystem::event);
       }
       r = false;
     }
@@ -722,17 +722,17 @@ bool statusbar_ui_system::event(SDL_Event *event) {
     auto scan_code = event->key.scancode;
     switch (scan_code) {
     case SDL_SCANCODE_RETURN: {
-      std::erase(system::event_systems, keyboard_input_system::event);
-      chat_log_ui_system::toggle();
+      std::erase(System::event_systems, KeyboardInputSystem::event);
+      ChatLogUiSystem::toggle();
       if (chat_type.has_value()) {
         event_chat_send();
         chat_type = std::nullopt;
-        text_input_ui_system::close(chat);
-        system::event_systems.push_back(keyboard_input_system::event);
+        TextInputUiSystem::close(chat);
+        System::event_systems.push_back(KeyboardInputSystem::event);
       } else {
-        chat_type = game_chat_enum::map;
-        text_input_ui_system::active(chat);
-        keyboard_input_system::reset();
+        chat_type = GameChatEnum::map;
+        TextInputUiSystem::active(chat);
+        KeyboardInputSystem::reset();
       }
       r = false;
       break;
@@ -766,22 +766,22 @@ bool statusbar_ui_system::event(SDL_Event *event) {
   return r;
 }
 
-void statusbar_ui_system::event_chat_send() {
+void StatusbarUiSystem::event_chat_send() {
   if (chat.text == u"") {
     return;
   }
   ClientCharacterChatT cct;
-  cct.map_id = scene_system_instance::map_id;
+  cct.map_id = SceneSystemInstance::map_id;
   cct.payload = std::make_unique<CharacterChatT>();
   cct.payload->type = ChatEnum_MAP;
   cct.payload->payload = {chat.text.begin(), chat.text.end()};
-  client_request::send_to_host(cct);
+  ClientRequest::send_to_host(cct);
   reset();
 }
 
-void statusbar_ui_system::reset() {
-  auto screen_w = camera_game_instance::camera.w;
-  auto screen_h = camera_game_instance::camera.h;
+void StatusbarUiSystem::reset() {
+  auto screen_w = CameraGameInstance::camera.w;
+  auto screen_h = CameraGameInstance::camera.h;
   auto base_x = (screen_w - 808) / 2;
   auto base_y = (screen_h - 73);
   chat = {
@@ -801,6 +801,6 @@ void statusbar_ui_system::reset() {
       .cur_color = {0, 0, 0, 255},
       .font_size = 12,
   };
-  chat.type.set(text_input::ime);
+  chat.type.set(TextInput::ime);
   chat_type = std::nullopt;
 }

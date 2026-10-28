@@ -17,17 +17,17 @@
 #include <utility>
 #include <vector>
 
-void server_reactor_instance::load_reactor(server_scene &scene) {
-  std::vector<server_reactor> data;
+void ServerReactorInstance::load_reactor(ServerSceneState &scene) {
+  std::vector<ServerReactorState> data;
   auto map_id = scene.map_id;
-  auto map_node = wz_resource::load_map_node(map_id);
+  auto map_node = WzResource::load_map_node(map_id);
 
   auto map_reactor_node = map_node->get_child(u"reactor");
   if (map_reactor_node != nullptr) {
     int i = 0;
     for (auto [key, val] : *map_reactor_node->get_children()) {
       auto reactor_node = val[0];
-      server_reactor reactor;
+      ServerReactorState reactor;
       reactor.id = static_cast<wz::Property<std::u16string> *>(
                        reactor_node->get_child(u"id"))
                        ->get();
@@ -45,9 +45,9 @@ void server_reactor_instance::load_reactor(server_scene &scene) {
   scene.reactors = data;
 }
 
-int server_reactor_instance::load_next_state(const std::u16string &id,
+int ServerReactorInstance::load_next_state(const std::u16string &id,
                                              uint8_t state) {
-  auto node = wz_resource::reactor->find(id + u".img");
+  auto node = WzResource::reactor->find(id + u".img");
   node = node->get_child(std::to_string(state));
   if (node->get_child(u"event")) {
     node = node->find(u"event/0/state");
@@ -56,9 +56,9 @@ int server_reactor_instance::load_next_state(const std::u16string &id,
   return state;
 }
 
-std::u16string server_reactor_instance::load_script(const std::u16string &id) {
+std::u16string ServerReactorInstance::load_script(const std::u16string &id) {
   std::u16string r;
-  auto node = wz_resource::reactor->find(id + u".img");
+  auto node = WzResource::reactor->find(id + u".img");
   if (node->get_child(u"action")) {
     node = node->get_child(u"action");
     r = static_cast<wz::Property<std::u16string> *>(node)->get();
@@ -66,9 +66,9 @@ std::u16string server_reactor_instance::load_script(const std::u16string &id) {
   return r;
 }
 
-uint64_t server_reactor_instance::load_hit_cd(server_reactor &r) {
-  auto res = window::dt_time;
-  auto node = wz_resource::reactor->find(r.id + u".img");
+uint64_t ServerReactorInstance::load_hit_cd(ServerReactorState &r) {
+  auto res = Window::dt_time;
+  auto node = WzResource::reactor->find(r.id + u".img");
   node = node->get_child(std::to_string(r.state));
   if (node->get_child(u"hit")) {
     node = node->get_child(u"hit");
@@ -83,12 +83,12 @@ uint64_t server_reactor_instance::load_hit_cd(server_reactor &r) {
   return res;
 }
 
-void server_reactor_instance::handle_reactor(uint64_t client_id,
+void ServerReactorInstance::handle_reactor(uint64_t client_id,
                                              ClientReactorT &r) {
-  if (!server_client_instance::clients.contains(client_id)) {
+  if (!ServerClientInstance::clients.contains(client_id)) {
     return;
   }
-  auto &scene = server_scene_instance::scenes.at(r.map_id);
+  auto &scene = ServerSceneInstance::scenes.at(r.map_id);
   auto &reactor = scene.reactors.at(r.payload->reactor_index);
   if (reactor.revive != 0) {
     return;
@@ -102,9 +102,9 @@ void server_reactor_instance::handle_reactor(uint64_t client_id,
   return;
 }
 
-void server_reactor_instance::handle_s_reactor(const ReactorT &r) {
-  game_reactor *reactor = nullptr;
-  for (auto &rs : reactor_game_instance::data) {
+void ServerReactorInstance::handle_s_reactor(const ReactorT &r) {
+  GameReactor *reactor = nullptr;
+  for (auto &rs : ReactorGameInstance::data) {
     for (auto &gr : rs) {
       if (gr.index == r.reactor_index) {
         reactor = &gr;
@@ -128,7 +128,7 @@ void server_reactor_instance::handle_s_reactor(const ReactorT &r) {
     std::u16string r(view.begin(), view.end());
 
     std::u16string path = u"Reactor.img/" + r + u"/" + tmp_state2 + u"/Hit";
-    audio_game_instance::load_audio(path, 0);
+    AudioGameInstance::load_audio(path, 0);
   } else if (r.action == "revive") {
     reactor->alpha = 0;
     reactor->hit = false;
@@ -136,16 +136,16 @@ void server_reactor_instance::handle_s_reactor(const ReactorT &r) {
   return;
 }
 
-void server_reactor_instance::handle_server_reactor(uint64_t client_id,
-                                                    ServerReactorT &r) {
+void ServerReactorInstance::handle_server_reactor(uint64_t client_id,
+                                                    fbs::ServerReactorT &r) {
   handle_s_reactor(*r.payload);
   return;
 }
 
-void server_reactor_instance::handle_server_reactor_drop(
+void ServerReactorInstance::handle_server_reactor_drop(
     ServerReactorDropT &r) {
   // Drop
   for (const auto &dt : r.payload) {
-    server_drop_instance::handle_server_dt(*dt);
+    ServerDropInstance::handle_server_dt(*dt);
   }
 }

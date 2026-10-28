@@ -4,7 +4,7 @@
 #include "src/client/game/game_input.h"
 #include <cstdint>
 #include <optional>
-class keybinding_ui_system {
+class KeybindingUiSystem {
 private:
   static void render_button();
   static bool render_info();

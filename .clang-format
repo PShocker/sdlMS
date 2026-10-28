@@ -1,0 +1,56 @@
+---
+# Google C++ style guide formatting.
+Language: Cpp
+BasedOnStyle: Google
+Standard: Latest
+
+ColumnLimit: 80
+IndentWidth: 2
+TabWidth: 2
+UseTab: Never
+
+# Google style: pointer/reference asterisk binds to the type: `int* p`.
+DerivePointerAlignment: false
+PointerAlignment: Left
+
+AccessModifierOffset: -1
+AlignAfterOpenBracket: Align
+AllowShortFunctionsOnASingleLine: Empty
+BreakBeforeBraces: Attach
+ConstructorInitializerIndentWidth: 4
+ContinuationIndentWidth: 4
+EmptyLineBeforeAccessModifier: LogicalBlock
+FixedIndentWidth: 2
+IndentAccessModifiers: false
+IndentCaseLabels: true
+IndentWrappedFunctionNames: false
+NamespaceIndentation: None
+ObjCSpaceAfterProperty: false
+PointerBinding: Left
+
+# Include handling: related header first, then project headers, then
+# C/C++ standard library, then other libraries.
+SortIncludes: CaseSensitive
+IncludeBlocks: Regroup
+IncludeIsMainRegex: '(Test)?$'
+IncludeCategories:
+  - Regex: '^"src/'
+    Priority: 1
+    SortPriority: 1
+  - Regex: '^"[a-z_]+\.(h|hpp)"$'
+    Priority: 2
+    SortPriority: 2
+  - Regex: '^<(SDL3|SDL|uv|flatbuffers|av|freetype|sw|lib|ft2build)'
+    Priority: 3
+    SortPriority: 3
+  - Regex: '^<'
+    Priority: 4
+    SortPriority: 4
+  - Regex: '.*'
+    Priority: 5
+    SortPriority: 5
+
+FixNamespaceComments: true
+SpacesBeforeTrailingComments: 2
+ReflowComments: true
+MaxEmptyLinesToKeep: 2

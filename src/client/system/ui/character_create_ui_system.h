@@ -5,7 +5,7 @@
 #include "text_input_ui_system.h"
 #include <string>
 #include <vector>
-class character_create_ui_system {
+class CharacterCreateUiSystem {
 private:
   static std::vector<std::u16string> load_default_face();
   static std::vector<std::u16string> load_default_hair();
@@ -27,7 +27,7 @@ private:
   static void render_custom();
   static void render_name();
 
-  enum class choose_type {
+  enum class ChooseType {
     gender,
     face,
     hairstyle,
@@ -39,7 +39,7 @@ private:
     weapon,
   };
 
-  static void render_custom_item(float cx, float cy, choose_type type);
+  static void render_custom_item(float cx, float cy, ChooseType type);
 
   static void event_button_face_prev();
   static void event_button_face_next();
@@ -85,7 +85,7 @@ private:
   static bool event_button_custom(SDL_Event *event);
 
 public:
-  static inline text_input name;
+  static inline TextInput name;
 
   static inline int str_point;
   static inline int dex_point;
@@ -101,5 +101,5 @@ public:
   static bool event(SDL_Event *event);
   static bool run();
 
-  static inline game_character g_character;
+  static inline GameCharacter g_character;
 };

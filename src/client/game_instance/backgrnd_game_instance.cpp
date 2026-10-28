@@ -7,7 +7,7 @@
 #include <cstdlib>
 #include <string>
 
-void backgrnd_game_instance::load(wz::Node *image) {
+void BackgrndGameInstance::load(wz::Node *image) {
   front = {};
   back = {};
 
@@ -16,7 +16,7 @@ void backgrnd_game_instance::load(wz::Node *image) {
   for (auto [key, val] : *map_back_node->get_children()) {
 
     auto backgrnd_node = val[0];
-    game_backgrnd g_backgrnd;
+    GameBackgrnd g_backgrnd;
     auto id = std::stoi(std::string{key.begin(), key.end()});
 
     auto bs = static_cast<wz::Property<std::u16string> *>(
@@ -123,13 +123,13 @@ void backgrnd_game_instance::load(wz::Node *image) {
     }
 
     SDL_Texture *texture;
-    auto back_node = wz_resource::map->find(g_backgrnd.path);
+    auto back_node = WzResource::map->find(g_backgrnd.path);
     if (g_backgrnd.ani) {
       auto index =
           std::to_string(g_backgrnd.ani_index % back_node->children_count());
       back_node = back_node->get_child(index);
     }
-    texture = wz_resource::load_texture(back_node);
+    texture = WzResource::load_texture(back_node);
 
     g_backgrnd.cx = g_backgrnd.cx == 0 ? texture->w : g_backgrnd.cx;
     g_backgrnd.cy = g_backgrnd.cy == 0 ? texture->h : g_backgrnd.cy;
@@ -148,7 +148,7 @@ void backgrnd_game_instance::load(wz::Node *image) {
   }
 }
 
-void backgrnd_game_instance::load(uint32_t map_id) {
-  auto map_node = wz_resource::load_map_node(map_id);
+void BackgrndGameInstance::load(uint32_t map_id) {
+  auto map_node = WzResource::load_map_node(map_id);
   load(map_node);
 }

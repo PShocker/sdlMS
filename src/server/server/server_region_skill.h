@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <string>
 
-class server_region_skill {
+class ServerRegionSkill {
 public:
   uint64_t client_id;
   uint64_t map_id;

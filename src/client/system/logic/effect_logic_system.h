@@ -2,18 +2,18 @@
 
 #include "src/client/game/game_effect.h"
 #include <vector>
-class effect_logic_system {
+class EffectLogicSystem {
 private:
-  static bool run_damage(game_effect &g_effect);
-  static bool run_skill_affected(game_effect &g_effect);
-  static bool run_skill_hit(game_effect &g_effect);
-  static bool run_skill_region(game_effect &g_effect);
+  static bool run_damage(GameEffect &g_effect);
+  static bool run_skill_affected(GameEffect &g_effect);
+  static bool run_skill_hit(GameEffect &g_effect);
+  static bool run_skill_region(GameEffect &g_effect);
 
-  static void run_animate(std::vector<game_effect> &v);
+  static void run_animate(std::vector<GameEffect> &v);
 
 public:
-  static bool run_effect(game_effect &g_effect);
-  static bool run_skill_use(game_effect &g_effect);
+  static bool run_effect(GameEffect &g_effect);
+  static bool run_skill_use(GameEffect &g_effect);
 
   static bool run();
 };

@@ -1,6 +1,6 @@
 #pragma once
 
-class portal_logic_system {
+class PortalLogicSystem {
 public:
   static bool run();
 };

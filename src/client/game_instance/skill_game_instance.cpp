@@ -16,7 +16,7 @@
 
 using namespace fbs;
 
-wz::Node *skill_game_instance::load_ski_level_node(const std::u16string &id,
+wz::Node *SkillGameInstance::load_ski_level_node(const std::u16string &id,
                                                    uint8_t l) {
   auto skill_node = load_ski_node(id);
   auto l2 = std::to_string(l);
@@ -24,32 +24,32 @@ wz::Node *skill_game_instance::load_ski_level_node(const std::u16string &id,
   return level_node;
 }
 
-wz::Node *skill_game_instance::load_ski_node(uint32_t id) {
+wz::Node *SkillGameInstance::load_ski_node(uint32_t id) {
   auto tmp = std::format("{:07d}", id);
   std::u16string ski_id{tmp.begin(), tmp.end()};
   return load_ski_node(ski_id);
 }
 
-wz::Node *skill_game_instance::load_ski_node(const std::string &id) {
+wz::Node *SkillGameInstance::load_ski_node(const std::string &id) {
   return load_ski_node(std::u16string{id.begin(), id.end()});
 }
 
-wz::Node *skill_game_instance::load_ski_node(const std::u16string &id) {
+wz::Node *SkillGameInstance::load_ski_node(const std::u16string &id) {
   static std::flat_map<std::u16string, wz::Node *> cache;
   if (!cache.contains(id)) {
     auto id2 = id.substr(0, id.length() - 4);
-    cache[id] = wz_resource::skill->find(id2 + u".img/skill/" + id);
+    cache[id] = WzResource::skill->find(id2 + u".img/skill/" + id);
   }
   return cache.at(id);
 }
 
-uint64_t skill_game_instance::load_ski_time(game_character &g_character) {
-  uint64_t r = window::dt_time;
-  if (character_game_instance::bone_data.contains(g_character.action)) {
-    r = afterimage_game_instance::load_beat_time(g_character);
+uint64_t SkillGameInstance::load_ski_time(GameCharacter &g_character) {
+  uint64_t r = Window::dt_time;
+  if (CharacterGameInstance::bone_data.contains(g_character.action)) {
+    r = AfterimageGameInstance::load_beat_time(g_character);
   } else {
     auto &externs =
-        character_game_instance::extern_action.at(g_character.action);
+        CharacterGameInstance::extern_action.at(g_character.action);
     for (auto e : externs) {
       if (e.delay < 0) {
         r -= e.delay;
@@ -61,7 +61,7 @@ uint64_t skill_game_instance::load_ski_time(game_character &g_character) {
   return r;
 }
 
-SDL_FRect skill_game_instance::load_r(SDL_FPoint lt, SDL_FPoint rb,
+SDL_FRect SkillGameInstance::load_r(SDL_FPoint lt, SDL_FPoint rb,
                                       SDL_FPoint pos, bool flip) {
   SDL_FRect rect{
       .x = lt.x,
@@ -77,17 +77,17 @@ SDL_FRect skill_game_instance::load_r(SDL_FPoint lt, SDL_FPoint rb,
   return rect;
 }
 
-skill_game_instance::skill_name
-skill_game_instance::load_ski_name(const std::u16string &id) {
-  static std::flat_map<std::u16string, skill_name> cache;
+SkillGameInstance::SkillName
+SkillGameInstance::load_ski_name(const std::u16string &id) {
+  static std::flat_map<std::u16string, SkillName> cache;
   if (!cache.contains(id)) {
-    static auto ski_node = wz_resource::string->find(u"Skill.img");
+    static auto ski_node = WzResource::string->find(u"Skill.img");
     auto node = ski_node->get_child(id);
-    skill_name ski_name;
+    SkillName ski_name;
     ski_name.name =
         static_cast<wz::Property<std::u16string> *>(node->get_child(u"name"))
             ->get();
-    ski_name.desc = text_game_instance::load_rstr(node->get_child(u"desc"));
+    ski_name.desc = TextGameInstance::load_rstr(node->get_child(u"desc"));
     auto child = node->get_children();
     child->erase(u"name");
     child->erase(u"desc");
@@ -100,12 +100,12 @@ skill_game_instance::load_ski_name(const std::u16string &id) {
   return cache.at(id);
 }
 
-int skill_game_instance::load_ski_max_lvl(const std::u16string &id) {
+int SkillGameInstance::load_ski_max_lvl(const std::u16string &id) {
   auto ski_name = load_ski_name(id);
   return ski_name.level.size();
 }
 
-bool skill_game_instance::load_ski_active(const std::u16string &id) {
+bool SkillGameInstance::load_ski_active(const std::u16string &id) {
   auto ski_node = load_ski_node(id);
   if (ski_node->get_child(u"action")) {
     return true;
@@ -119,14 +119,14 @@ bool skill_game_instance::load_ski_active(const std::u16string &id) {
   return false;
 }
 
-SDL_FRect skill_game_instance::load_ski_r(const std::u16string &id,
+SDL_FRect SkillGameInstance::load_ski_r(const std::u16string &id,
                                           SDL_FPoint pos, bool flip) {
-  auto ski_lv = job_skill_game_instance::load_ski_level(id);
+  auto ski_lv = JobSkillGameInstance::load_ski_level(id);
   auto ski_node = load_ski_level_node(id, ski_lv);
   if (ski_node->get_child(u"lt")) {
-    auto lt = wz_resource::load_fpoint(ski_node->get_child(u"lt"));
-    auto rb = wz_resource::load_fpoint(ski_node->get_child(u"rb"));
-    auto g_r = skill_game_instance::load_r(lt, rb, pos, flip);
+    auto lt = WzResource::load_fpoint(ski_node->get_child(u"lt"));
+    auto rb = WzResource::load_fpoint(ski_node->get_child(u"rb"));
+    auto g_r = SkillGameInstance::load_r(lt, rb, pos, flip);
     return g_r;
   }
   if (ski_node->get_child(u"range")) {
@@ -134,31 +134,31 @@ SDL_FRect skill_game_instance::load_ski_r(const std::u16string &id,
         static_cast<wz::Property<int> *>(ski_node->get_child(u"range"))->get();
     SDL_FPoint lt = {static_cast<float>(-range), -100};
     SDL_FPoint rb = {0, 0};
-    auto g_r = skill_game_instance::load_r(lt, rb, pos, flip);
+    auto g_r = SkillGameInstance::load_r(lt, rb, pos, flip);
     return g_r;
   }
   // mag
   if (id.starts_with(u"2")) {
     SDL_FPoint lt = {-300, -90};
     SDL_FPoint rb = {-25, 10};
-    auto g_r = skill_game_instance::load_r(lt, rb, pos, flip);
+    auto g_r = SkillGameInstance::load_r(lt, rb, pos, flip);
     return g_r;
   }
   // afterimage
-  auto &sf = character_game_instance::self;
-  auto g_r = afterimage_game_instance::load_rect(sf);
+  auto &sf = CharacterGameInstance::self;
+  auto g_r = AfterimageGameInstance::load_rect(sf);
   if (g_r.has_value()) {
     return g_r.value();
   }
   return {0, 0, 0, 0};
 }
 
-SDL_FRect skill_game_instance::load_ski_r(const std::u16string &id) {
-  auto &sf = character_game_instance::self;
+SDL_FRect SkillGameInstance::load_ski_r(const std::u16string &id) {
+  auto &sf = CharacterGameInstance::self;
   return load_ski_r(id, sf.pos, sf.flip);
 }
 
-int skill_game_instance::load_ski_ball_num(const std::u16string &id,
+int SkillGameInstance::load_ski_ball_num(const std::u16string &id,
                                            uint8_t lv) {
   auto ski_node = load_ski_level_node(id, lv);
   int r = 0;
@@ -169,7 +169,7 @@ int skill_game_instance::load_ski_ball_num(const std::u16string &id,
   return r;
 }
 
-int skill_game_instance::load_ski_mob_count(const std::u16string &id,
+int SkillGameInstance::load_ski_mob_count(const std::u16string &id,
                                             uint8_t lv) {
   auto ski_node = load_ski_level_node(id, lv);
   int r = 1;
@@ -180,7 +180,7 @@ int skill_game_instance::load_ski_mob_count(const std::u16string &id,
   return r;
 }
 
-int skill_game_instance::load_ski_atk_count(const std::u16string &id,
+int SkillGameInstance::load_ski_atk_count(const std::u16string &id,
                                             uint8_t lv) {
   auto ski_node = load_ski_level_node(id, lv);
   int r = 1;
@@ -191,14 +191,14 @@ int skill_game_instance::load_ski_atk_count(const std::u16string &id,
   return r;
 }
 
-ClientCharacterAttackT skill_game_instance::create_attack_payload(
-    check_mobs &cm, SDL_FPoint pos, uint64_t delay, uint32_t interval,
+ClientCharacterAttackT SkillGameInstance::create_attack_payload(
+    CheckMobs &cm, SDL_FPoint pos, uint64_t delay, uint32_t interval,
     std::string effect, std::string sound) {
   ClientCharacterAttackT attack_payload;
-  auto &mobs = cm.data;
-  for (int m = 0; m < mobs.size(); m++) {
-    auto &mob = mobs[m];
-    auto &mb = mob_game_instance::data.at(mob.mob.index).mob;
+  auto &Mobs = cm.data;
+  for (int m = 0; m < Mobs.size(); m++) {
+    auto &mob = Mobs[m];
+    auto &mb = MobGameInstance::data.at(mob.mob.index).mob;
     for (int n = 0; n < mob.hits.size(); n++) {
       CharacterAttackT ct;
       ct.mob_index = mob.mob.index;
@@ -215,7 +215,7 @@ ClientCharacterAttackT skill_game_instance::create_attack_payload(
     }
     // gauge
     if (!mb.gauge.has_value()) {
-      game_gauge g;
+      GameGauge g;
       g.hp_percent = (float)mob.mob.hp / mob.mob.max_hp;
       g.hp_percent_now = g.hp_percent;
       mb.gauge = g;
@@ -225,12 +225,12 @@ ClientCharacterAttackT skill_game_instance::create_attack_payload(
 }
 
 ClientCharacterAttackT
-skill_game_instance::create_attack_payload(check_mobs &cm, SDL_FPoint pos,
+SkillGameInstance::create_attack_payload(CheckMobs &cm, SDL_FPoint pos,
                                            uint64_t delay) {
   return create_attack_payload(cm, pos, delay, 60, "", "");
 }
 
-ClientCharacterSkillT skill_game_instance::create_skill_payload(
+ClientCharacterSkillT SkillGameInstance::create_skill_payload(
     const ClientCharacterAttackT &attack_payload, int ski_id, uint8_t ski_lv) {
   ClientCharacterSkillT skill_payload;
   skill_payload.ski_id = ski_id;
@@ -250,7 +250,7 @@ ClientCharacterSkillT skill_game_instance::create_skill_payload(
   return skill_payload;
 }
 
-ClientCharacterSkillT skill_game_instance::create_skill_payload(
+ClientCharacterSkillT SkillGameInstance::create_skill_payload(
     const std::vector<uint64_t> &buff_payload, int ski_id, uint8_t ski_lv) {
   ClientCharacterSkillT skill_payload;
   skill_payload.ski_id = ski_id;
@@ -269,7 +269,7 @@ ClientCharacterSkillT skill_game_instance::create_skill_payload(
 }
 
 ClientCharacterSkillT
-skill_game_instance::create_skill_payload(int ski_id, uint8_t ski_lv) {
+SkillGameInstance::create_skill_payload(int ski_id, uint8_t ski_lv) {
   ClientCharacterSkillT skill_payload;
   skill_payload.ski_id = ski_id;
   skill_payload.ski_lv = ski_lv;

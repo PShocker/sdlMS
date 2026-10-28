@@ -7,27 +7,27 @@
 #include <ctime>
 
 // 分配缓冲区回调
-void server_main::alloc_cb(uv_handle_t *handle, size_t suggested_size,
+void ServerMain::alloc_cb(uv_handle_t *handle, size_t suggested_size,
                            uv_buf_t *buf) {
   buf->base = (char *)malloc(suggested_size);
   buf->len = suggested_size;
 }
 
 // 将uint32 IP和uint16端口组合为uint64
-uint64_t server_main::combine_ip_port(uint32_t ip, uint16_t port) {
+uint64_t ServerMain::combine_ip_port(uint32_t ip, uint16_t port) {
   // 将ip放入高32位，port放入低32位
   return ((uint64_t)ip << 32) | port;
 }
 
 // 分解uint64为IP和端口
-void server_main::split_ip_port(uint64_t combined, uint32_t &ip,
+void ServerMain::split_ip_port(uint64_t combined, uint32_t &ip,
                                 uint16_t &port) {
   ip = (uint32_t)(combined >> 32);      // 取高32位
   port = (uint16_t)(combined & 0xFFFF); // 取低16位（注意是16位，不是32位）
 }
 
 // 接收回调：当收到数据时被调用
-void server_main::on_recv(uv_udp_t *handle, ssize_t nread, const uv_buf_t *buf,
+void ServerMain::on_recv(uv_udp_t *handle, ssize_t nread, const uv_buf_t *buf,
                           const struct sockaddr *addr, unsigned flags) {
   if (nread < 0) {
     fprintf(stderr, "Read error: %s\n", uv_err_name(nread));
@@ -46,7 +46,7 @@ void server_main::on_recv(uv_udp_t *handle, ssize_t nread, const uv_buf_t *buf,
   auto port = ntohs(addr_in->sin_port);
   auto client_id = combine_ip_port(ip, port);
 
-  request_handler::handle_request(client_id, buf->base, nread);
+  RequestHandler::handle_request(client_id, buf->base, nread);
 
   char sender_ip[17] = {0};
   uint16_t sender_port = 0;
@@ -59,7 +59,7 @@ void server_main::on_recv(uv_udp_t *handle, ssize_t nread, const uv_buf_t *buf,
   free(buf->base); // 释放由 alloc_cb 分配的内存
 }
 
-void server_main::server_init() {
+void ServerMain::server_init() {
   loop = uv_default_loop();
   // 1. 创建UDP句柄
   uv_udp_init(loop, &local_socket);
@@ -97,16 +97,16 @@ void server_main::server_init() {
   }
   printf("Started receiving on port %d...\n", local_port);
 
-  server_system_instance::enter(host);
+  ServerSystemInstance::enter(host);
 }
 
-void server_main::server_init(const std::string &ip, uint32_t port) {
+void ServerMain::server_init(const std::string &ip, uint32_t port) {
   host = false;
   uv_ip4_addr(ip.c_str(), port, &host_addr);
   server_init();
 }
 
-bool server_main::server_send(const uint8_t *data, size_t len,
+bool ServerMain::server_send(const uint8_t *data, size_t len,
                               sockaddr_in *addr) {
   auto buffer = (uint8_t *)malloc(len);
   memcpy(buffer, data, len);
@@ -133,7 +133,7 @@ bool server_main::server_send(const uint8_t *data, size_t len,
   return true;
 }
 
-bool server_main::server_send(const uint8_t *data, size_t len,
+bool ServerMain::server_send(const uint8_t *data, size_t len,
                               uint64_t client_id) {
   uint32_t ip;
   uint16_t port;
@@ -146,7 +146,7 @@ bool server_main::server_send(const uint8_t *data, size_t len,
   return server_send(data, len, &send_addr);
 }
 
-bool server_main::run() {
+bool ServerMain::run() {
   uv_run(loop, UV_RUN_NOWAIT);
   return true;
 }

@@ -5,7 +5,7 @@
 #include <optional>
 #include <string>
 
-class game_chair {
+class GameChair {
 public:
   std::u16string id;
   uint8_t ani_index = 0;

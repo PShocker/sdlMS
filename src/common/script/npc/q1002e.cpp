@@ -11,19 +11,19 @@
 // roger apple
 
 static void q1002e(std::any data) {
-  npc_dlg_ui_system::type = npc_dlg_ui_system::npc_dlg_enum::quest_complete;
-  npc_dlg_ui_system::index = 0;
-  npc_dlg_ui_system::max_index = 0;
-  npc_dlg_ui_system::npc_id = u"0000003";
-  npc_dlg_ui_system::time = window::dt_now;
-  npc_dlg_ui_system::act_exp = 5;
-  npc_dlg_ui_system::act_item = {{u"02010000", 10}};
-  npc_dlg_ui_system::text = u"q1002e complete";
+  NpcDlgUiSystem::type = NpcDlgUiSystem::NpcDlgEnum::quest_complete;
+  NpcDlgUiSystem::index = 0;
+  NpcDlgUiSystem::max_index = 0;
+  NpcDlgUiSystem::npc_id = u"0000003";
+  NpcDlgUiSystem::time = Window::dt_now;
+  NpcDlgUiSystem::act_exp = 5;
+  NpcDlgUiSystem::act_item = {{u"02010000", 10}};
+  NpcDlgUiSystem::text = u"q1002e complete";
   return;
 };
 
 [[maybe_unused]] static const bool r = [] {
-  auto &fns = script::fns();
+  auto &fns = Script::fns();
   fns[u"q1002e"] = q1002e;
   return true;
 }();

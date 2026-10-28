@@ -2,7 +2,7 @@
 
 #include "wz/Node.h"
 #include <string>
-class text_game_instance {
+class TextGameInstance {
 private:
   static std::u16string replace_n(std::u16string str);
   static std::u16string replace_r(std::u16string text);

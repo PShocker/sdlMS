@@ -5,7 +5,7 @@
 #include <flat_set>
 #include <optional>
 #include <string>
-class quest_alarm_ui_system {
+class QuestAlarmUiSystem {
 private:
   static void render_backgrnd();
   static void render_quests();

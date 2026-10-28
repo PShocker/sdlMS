@@ -5,7 +5,7 @@ static void npc_14(std::any data) {
 };
 
 [[maybe_unused]] static const bool r = [] {
-  auto &fns = script::fns();
+  auto &fns = Script::fns();
   fns[u"npc_14"] = npc_14;
   return true;
 }();

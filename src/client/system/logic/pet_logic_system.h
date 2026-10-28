@@ -1,10 +1,10 @@
 #pragma once
 #include "src/client/game/game_pet.h"
 
-class pet_logic_system {
+class PetLogicSystem {
 private:
   static void run_state_machine();
-  static void run_animate(game_pet &pet);
+  static void run_animate(GamePet &pet);
 
 public:
   static bool run();

@@ -1,6 +1,6 @@
 
 
-class gain_log_ui_system {
+class GainLogUiSystem {
 private:
   static void render_text();
   static void destory();

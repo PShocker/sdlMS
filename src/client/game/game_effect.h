@@ -6,13 +6,13 @@
 #include <optional>
 #include <string>
 
-struct damage_data {
+struct DamageData {
   uint64_t num;
   enum t { r, b, v };
   t type;
 };
 
-class game_effect {
+class GameEffect {
 public:
   std::u16string id;
 
@@ -23,7 +23,7 @@ public:
   uint64_t delay;
   uint8_t lv = 0;
 
-  enum class effect_type {
+  enum class EffectType {
     effect,
     damage,
     skill_use,
@@ -33,14 +33,14 @@ public:
     skill_region,
   };
 
-  enum effect_sub_type : uint8_t {
+  enum EffectSubType : uint8_t {
     character,
     effect,
     item,
     skill,
   };
 
-  effect_type type;
+  EffectType type;
 
   std::optional<SDL_FPoint> pos;
   std::optional<bool> z;

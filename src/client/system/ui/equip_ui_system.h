@@ -7,7 +7,7 @@
 #include <optional>
 #include <string>
 
-enum class equip_mouse_index {
+enum class EquipMouseIndex {
   cap,
   earcc,
   clothes,
@@ -23,7 +23,7 @@ enum class equip_mouse_index {
   ring3,
 };
 
-class equip_ui_system {
+class EquipUiSystem {
 private:
   static void render_backgrnd();
   static void render_backgrnd2();
@@ -31,10 +31,10 @@ private:
   static void render_equip();
   static void render_deco();
   static void render_disable_texture(SDL_FPoint slot);
-  static void render_equip_texture(std::optional<game_equip_item> &equip,
-                                   SDL_FPoint slot, equip_mouse_index i);
-  static void render_deco_texture(std::optional<game_deco_item> &deco,
-                                  SDL_FPoint slot, equip_mouse_index i);
+  static void render_equip_texture(std::optional<GameEquipItem> &equip,
+                                   SDL_FPoint slot, EquipMouseIndex i);
+  static void render_deco_texture(std::optional<GameDecoItem> &deco,
+                                  SDL_FPoint slot, EquipMouseIndex i);
   static bool render_info();
   static void render_button();
 
@@ -59,7 +59,7 @@ private:
   static inline uint8_t active_tab;
 
 public:
-  static inline std::optional<equip_mouse_index> mouse_index;
+  static inline std::optional<EquipMouseIndex> mouse_index;
 
   static inline SDL_FPoint pos;
 

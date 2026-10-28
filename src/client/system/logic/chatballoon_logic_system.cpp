@@ -4,22 +4,22 @@
 #include "src/client/window/window.h"
 #include <optional>
 
-bool chatballoon_logic_system::run() {
+bool ChatballoonLogicSystem::run() {
   // self
-  auto &self = character_game_instance::self;
+  auto &self = CharacterGameInstance::self;
   if (self.chatballoon.has_value()) {
-    if (self.chatballoon.value().destroy <= window::dt_now) {
+    if (self.chatballoon.value().destroy <= Window::dt_now) {
       // self.chatballoon = std::nullopt;
     }
   }
 
   // npc
-  for (auto &v_npc : npc_game_instance::data) {
+  for (auto &v_npc : NpcGameInstance::data) {
     for (auto &npc : v_npc) {
       if (!npc.chatballoon.has_value()) {
         continue;
       }
-      if (npc.chatballoon.value().destroy <= window::dt_now) {
+      if (npc.chatballoon.value().destroy <= Window::dt_now) {
         npc.chatballoon = std::nullopt;
       }
     }

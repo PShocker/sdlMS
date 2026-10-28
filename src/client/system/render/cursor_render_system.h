@@ -1,6 +1,6 @@
 #pragma once
 
-class cursor_render_system {
+class CursorRenderSystem {
 private:
   static void render_cursor();
   static void render_hand();

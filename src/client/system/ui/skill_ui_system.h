@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <optional>
 
-class skill_ui_system {
+class SkillUiSystem {
 private:
   static void render_backgrnd();
   static void render_tab();

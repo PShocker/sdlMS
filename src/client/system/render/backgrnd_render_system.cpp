@@ -7,22 +7,22 @@
 #include <cstdint>
 #include <string>
 
-bool backgrnd_render_system::render(game_backgrnd &g_backgrnd) {
-  auto delta_time = window::delta_time;
+bool BackgrndRenderSystem::render(GameBackgrnd &g_backgrnd) {
+  auto delta_time = Window::delta_time;
 
-  auto viewprot_x = camera_game_instance::camera.x;
-  auto viewprot_y = camera_game_instance::camera.y;
-  auto viewprot_w = camera_game_instance::camera.w;
-  auto viewprot_h = camera_game_instance::camera.h;
+  auto viewprot_x = CameraGameInstance::camera.x;
+  auto viewprot_y = CameraGameInstance::camera.y;
+  auto viewprot_w = CameraGameInstance::camera.w;
+  auto viewprot_h = CameraGameInstance::camera.h;
 
   SDL_Texture *texture;
-  auto back_node = wz_resource::map->find(g_backgrnd.path);
+  auto back_node = WzResource::map->find(g_backgrnd.path);
   if (g_backgrnd.ani) {
     auto index =
         std::to_string(g_backgrnd.ani_index % back_node->children_count());
     back_node = back_node->get_child(index);
   }
-  texture = wz_resource::load_texture(back_node);
+  texture = WzResource::load_texture(back_node);
 
   auto v =
       static_cast<wz::Property<wz::WzVec2D> *>(back_node->get_child(u"origin"))
@@ -79,7 +79,7 @@ bool backgrnd_render_system::render(game_backgrnd &g_backgrnd) {
         (float)tile_cnt_x * cx,      // 总宽度
         (float)tile_cnt_y * cy       // 总高度
     };
-    SDL_RenderTextureTiled(window::renderer, texture, nullptr, 1, &dst_rect);
+    SDL_RenderTextureTiled(Window::renderer, texture, nullptr, 1, &dst_rect);
   } else {
     for (int i = 0; i < tile_cnt_y; i++) {
       for (int j = 0; j < tile_cnt_x; j++) {
@@ -89,7 +89,7 @@ bool backgrnd_render_system::render(game_backgrnd &g_backgrnd) {
             (float)texture->w,                    // 总宽度
             (float)texture->h                     // 总高度
         };
-        SDL_RenderTextureRotated(window::renderer, texture, nullptr, &dst_rect,
+        SDL_RenderTextureRotated(Window::renderer, texture, nullptr, &dst_rect,
                                  0, nullptr, (SDL_FlipMode)g_backgrnd.flip);
       }
     }

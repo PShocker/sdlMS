@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 
-class statusbar_ui_system {
+class StatusbarUiSystem {
 private:
   static void render_hm_alert();
   static void render_gauge_text();
@@ -44,8 +44,8 @@ private:
   static void event_button_chatlog();
 
 public:
-  static inline std::optional<game_chat_enum> chat_type;
-  static inline text_input chat;
+  static inline std::optional<GameChatEnum> chat_type;
+  static inline TextInput chat;
 
   static void reset();
   static bool render();

@@ -8,7 +8,7 @@
 
 using namespace fbs;
 
-class server_drop {
+class ServerDrop {
 public:
   DropT dt;
   uint64_t available;

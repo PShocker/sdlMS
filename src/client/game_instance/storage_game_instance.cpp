@@ -1,6 +1,6 @@
 #include "storage_game_instance.h"
 
-void storage_game_instance::load(const game_save &gs) {
+void StorageGameInstance::load(const GameSaveData &gs) {
   storage = gs.storage;
   return;
 }

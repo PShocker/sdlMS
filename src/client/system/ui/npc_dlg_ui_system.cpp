@@ -37,35 +37,35 @@
 
 static std::u16string selected;
 
-void npc_dlg_ui_system::reset_pos() {
+void NpcDlgUiSystem::reset_pos() {
   auto wh = load_wh();
-  auto &camera = camera_game_instance::camera;
+  auto &camera = CameraGameInstance::camera;
   pos.x = (camera.w - wh.x) / 2;
   pos.y = (camera.h - wh.y) / 2;
 }
 
-void npc_dlg_ui_system::render_backgrnd() {
+void NpcDlgUiSystem::render_backgrnd() {
   auto [w, h] = load_wh();
-  static auto t = wz_resource::load_texture(
-      wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/t"));
+  static auto t = WzResource::load_texture(
+      WzResource::ui->find(u"UtilDlgEx.img/UtilDlgEx/t"));
   SDL_FRect pos_rect{
       pos.x,
       pos.y,
       static_cast<float>(t->w),
       static_cast<float>(t->h),
   };
-  SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
-  static auto c = wz_resource::load_texture(
-      wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/c"));
-  static auto s = wz_resource::load_texture(
-      wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/s"));
+  SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
+  static auto c = WzResource::load_texture(
+      WzResource::ui->find(u"UtilDlgEx.img/UtilDlgEx/c"));
+  static auto s = WzResource::load_texture(
+      WzResource::ui->find(u"UtilDlgEx.img/UtilDlgEx/s"));
   pos_rect = {
       pos.x,
       pos.y + t->h,
       static_cast<float>(c->w),
       static_cast<float>(h - t->h - s->h),
   };
-  SDL_RenderTextureTiled(window::renderer, c, nullptr, 1, &pos_rect);
+  SDL_RenderTextureTiled(Window::renderer, c, nullptr, 1, &pos_rect);
 
   pos_rect = {
       pos.x,
@@ -73,44 +73,44 @@ void npc_dlg_ui_system::render_backgrnd() {
       static_cast<float>(s->w),
       static_cast<float>(s->h),
   };
-  SDL_RenderTexture(window::renderer, s, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer, s, nullptr, &pos_rect);
 }
 
-void npc_dlg_ui_system::render_npc() {
+void NpcDlgUiSystem::render_npc() {
   auto [w, h] = load_wh();
-  game_npc npc;
+  GameNpc npc;
   npc.action = u"stand";
-  const auto &camera = camera_game_instance::camera;
+  const auto &camera = CameraGameInstance::camera;
   npc.pos.x = camera.x + pos.x + 80;
   npc.pos.y = camera.y + pos.y + 15 + h / 2;
   npc.ani_index = 0;
   npc.id = npc_id;
-  npc_render_system::render_npc(npc);
+  NpcRenderSystem::render_npc(npc);
 
   //   render bar
-  static auto t = wz_resource::load_texture(
-      wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/bar"));
+  static auto t = WzResource::load_texture(
+      WzResource::ui->find(u"UtilDlgEx.img/UtilDlgEx/bar"));
   SDL_FRect pos_rect{
       pos.x + 80 - t->w / 2,
       pos.y + 15 + h / 2,
       static_cast<float>(t->w),
       static_cast<float>(t->h),
   };
-  SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
 
-  freetype::load_size(12);
-  freetype::load_aligned(true);
-  freetype::load_color(255, 255, 255, 255);
-  auto npc_name = npc_game_instance::load_npc_text(npc.id, u"name");
-  w = freetype::load_w(npc_name);
-  freetype::draw_line(npc_name, pos_rect.x + 61 - w / 2, pos_rect.y);
-  freetype::load_aligned(false);
+  Freetype::load_size(12);
+  Freetype::load_aligned(true);
+  Freetype::load_color(255, 255, 255, 255);
+  auto npc_name = NpcGameInstance::load_npc_text(npc.id, u"name");
+  w = Freetype::load_w(npc_name);
+  Freetype::draw_line(npc_name, pos_rect.x + 61 - w / 2, pos_rect.y);
+  Freetype::load_aligned(false);
 }
 
-void npc_dlg_ui_system::render_button() {
+void NpcDlgUiSystem::render_button() {
   auto [w, h] = load_wh();
   std::vector<wz::Node *> buttons_node = {
-      wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/BtClose"),
+      WzResource::ui->find(u"UtilDlgEx.img/UtilDlgEx/BtClose"),
   };
   std::vector<SDL_FRect> buttons_rect = {
       SDL_FRect{10, h - 25, 85, 18}, //
@@ -119,24 +119,24 @@ void npc_dlg_ui_system::render_button() {
   auto w0 = w - 72;
   if (index < max_index) {
     buttons_node.push_back(
-        wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/BtNext"));
+        WzResource::ui->find(u"UtilDlgEx.img/UtilDlgEx/BtNext"));
     buttons_rect.push_back(SDL_FRect{w0, h - 76, 46, 18});
     w0 -= 52;
   }
   if (index > 0) {
     buttons_node.push_back(
-        wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/BtPrev"));
+        WzResource::ui->find(u"UtilDlgEx.img/UtilDlgEx/BtPrev"));
     buttons_rect.push_back(SDL_FRect{w0, h - 76, 46, 18});
   }
-  if (type == npc_dlg_enum::quest_avaliable && index == max_index) {
-    buttons_node.push_back(wz_resource::ui->find(u"UIWindow.img/Quest/BtOK"));
+  if (type == NpcDlgEnum::quest_avaliable && index == max_index) {
+    buttons_node.push_back(WzResource::ui->find(u"UIWindow.img/Quest/BtOK"));
     buttons_rect.push_back(SDL_FRect{w - 128, h - 25, 57, 17});
 
-    buttons_node.push_back(wz_resource::ui->find(u"UIWindow.img/Quest/BtNo"));
+    buttons_node.push_back(WzResource::ui->find(u"UIWindow.img/Quest/BtNo"));
     buttons_rect.push_back(SDL_FRect{w - 66, h - 25, 57, 17});
   } else {
     buttons_node.push_back(
-        wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/BtOK"));
+        WzResource::ui->find(u"UtilDlgEx.img/UtilDlgEx/BtOK"));
     buttons_rect.push_back(SDL_FRect{w - 56, h - 25, 46, 18});
   }
 
@@ -145,44 +145,44 @@ void npc_dlg_ui_system::render_button() {
     auto pos_rect = buttons_rect[i];
     pos_rect.x += (int)pos.x;
     pos_rect.y += (int)pos.y;
-    auto &mouse_pos = window::mouse_pos;
+    auto &mouse_pos = Window::mouse_pos;
     // 判断按钮是否被遮挡
-    auto cursor_in = cursor_game_instance::cursor_ui;
+    auto cursor_in = CursorGameInstance::cursor_ui;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render) {
-      if (window::mouse_state & SDL_BUTTON_LMASK) {
-        auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
-        SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);
+      if (Window::mouse_state & SDL_BUTTON_LMASK) {
+        auto pressed = WzResource::load_texture(k->find(u"pressed/0"));
+        SDL_RenderTexture(Window::renderer, pressed, nullptr, &pos_rect);
       } else {
-        auto mouse_over = wz_resource::load_texture(k->find(u"mouseOver/0"));
-        SDL_RenderTexture(window::renderer, mouse_over, nullptr, &pos_rect);
+        auto mouse_over = WzResource::load_texture(k->find(u"mouseOver/0"));
+        SDL_RenderTexture(Window::renderer, mouse_over, nullptr, &pos_rect);
       }
     } else {
-      auto normal = wz_resource::load_texture(k->find(u"normal/0"));
-      SDL_RenderTexture(window::renderer, normal, nullptr, &pos_rect);
+      auto normal = WzResource::load_texture(k->find(u"normal/0"));
+      SDL_RenderTexture(Window::renderer, normal, nullptr, &pos_rect);
     }
   }
 }
 
-void npc_dlg_ui_system::render_text() {
-  auto dt = window::dt_now - time;
+void NpcDlgUiSystem::render_text() {
+  auto dt = Window::dt_now - time;
   int visibleCount = int(dt * 0.05);
   switch (type) {
-  case npc_dlg_enum::quest:
-  case npc_dlg_enum::quest_avaliable:
-  case npc_dlg_enum::quest_complete:
-  case npc_dlg_enum::quest_yes:
-  case npc_dlg_enum::quest_no:
-  case npc_dlg_enum::quest_stop_item:
-  case npc_dlg_enum::quest_stop_lost:
-  case npc_dlg_enum::quest_stop_mob:
-  case npc_dlg_enum::quest_stop_npc:
-  case npc_dlg_enum::talk:
-  case npc_dlg_enum::select: {
-    freetype::load_size(12);
-    freetype::load_aligned(true);
-    freetype::load_color(0, 0, 0, 255);
+  case NpcDlgEnum::quest:
+  case NpcDlgEnum::quest_avaliable:
+  case NpcDlgEnum::quest_complete:
+  case NpcDlgEnum::quest_yes:
+  case NpcDlgEnum::quest_no:
+  case NpcDlgEnum::quest_stop_item:
+  case NpcDlgEnum::quest_stop_lost:
+  case NpcDlgEnum::quest_stop_mob:
+  case NpcDlgEnum::quest_stop_npc:
+  case NpcDlgEnum::talk:
+  case NpcDlgEnum::select: {
+    Freetype::load_size(12);
+    Freetype::load_aligned(true);
+    Freetype::load_color(0, 0, 0, 255);
     select_mouse =
-        freetype::draw_rstr(text, pos.x + 165, pos.y + 30, 330, 1.3,
+        Freetype::draw_rstr(text, pos.x + 165, pos.y + 30, 330, 1.3,
                             std::nullopt, select, false, visibleCount)
             .select;
     break;
@@ -193,8 +193,8 @@ void npc_dlg_ui_system::render_text() {
   }
 }
 
-void npc_dlg_ui_system::render_list() {
-  if (type != npc_dlg_enum::quest) {
+void NpcDlgUiSystem::render_list() {
+  if (type != NpcDlgEnum::quest) {
     return;
   }
   if (index != 0) {
@@ -202,17 +202,17 @@ void npc_dlg_ui_system::render_list() {
   }
   auto [w, h] = load_wh();
 
-  static auto t0 = wz_resource::load_texture(
-      wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/list0"));
-  static auto t1 = wz_resource::load_texture(
-      wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/list1"));
-  static auto t2 = wz_resource::load_texture(
-      wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/list3"));
+  static auto t0 = WzResource::load_texture(
+      WzResource::ui->find(u"UtilDlgEx.img/UtilDlgEx/list0"));
+  static auto t1 = WzResource::load_texture(
+      WzResource::ui->find(u"UtilDlgEx.img/UtilDlgEx/list1"));
+  static auto t2 = WzResource::load_texture(
+      WzResource::ui->find(u"UtilDlgEx.img/UtilDlgEx/list3"));
 
-  auto avaliable_quest = npc_game_instance::load_avaliable_quest(npc_id);
-  auto progress_quest = npc_game_instance::load_progress_quest(npc_id);
+  auto avaliable_quest = NpcGameInstance::load_avaliable_quest(npc_id);
+  auto progress_quest = NpcGameInstance::load_progress_quest(npc_id);
   auto progress_complete_quest =
-      npc_game_instance::load_progress_complete_quest(npc_id);
+      NpcGameInstance::load_progress_complete_quest(npc_id);
 
   std::ranges::sort(progress_quest);
   std::ranges::sort(progress_complete_quest);
@@ -222,12 +222,12 @@ void npc_dlg_ui_system::render_list() {
                               std::back_inserter(result));
   progress_quest = result;
 
-  const auto &mouse_pos = window::mouse_pos;
+  const auto &mouse_pos = Window::mouse_pos;
   selected = u"";
-  freetype::load_size(12);
-  freetype::load_aligned(true);
-  freetype::load_color(128, 0, 128, 255);
-  auto lh = freetype::load_lh();
+  Freetype::load_size(12);
+  Freetype::load_aligned(true);
+  Freetype::load_color(128, 0, 128, 255);
+  auto lh = Freetype::load_lh();
 
   const auto render_q = [&](SDL_Texture *t, std::vector<std::u16string> &q,
                             float &y, std::u16string type) {
@@ -240,10 +240,10 @@ void npc_dlg_ui_system::render_list() {
         static_cast<float>(t->w),
         static_cast<float>(t->h),
     };
-    SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
     y += 20;
     for (int i = 0; i < q.size(); i++) {
-      auto quest_node = quest_game_instance::load_quest_node(q[i]);
+      auto quest_node = QuestGameInstance::load_quest_node(q[i]);
       auto name_node = quest_node->find(u"QuestInfo/name");
       auto name = static_cast<wz::Property<std::u16string> *>(name_node)->get();
       auto lv_node = quest_node->find(u"Check/0/lvmin");
@@ -256,8 +256,8 @@ void npc_dlg_ui_system::render_list() {
       name = u"(Lv." + lv3 + u") " + name + u" (" + type + u")";
       auto text_x = pos_rect.x + 12;
       auto text_y = pos.y + y;
-      freetype::draw_line(name, text_x, text_y);
-      auto text_w = freetype::load_w(name);
+      Freetype::draw_line(name, text_x, text_y);
+      auto text_w = Freetype::load_w(name);
       SDL_FRect r{
           text_x,
           text_y,
@@ -265,8 +265,8 @@ void npc_dlg_ui_system::render_list() {
           lh,
       };
       if (SDL_PointInRectFloat(&mouse_pos, &r)) {
-        SDL_SetRenderDrawColor(window::renderer, 128, 0, 128, 255);
-        SDL_RenderLine(window::renderer, text_x, text_y + lh, text_x + text_w,
+        SDL_SetRenderDrawColor(Window::renderer, 128, 0, 128, 255);
+        SDL_RenderLine(Window::renderer, text_x, text_y + lh, text_x + text_w,
                        text_y + lh);
         selected = q[i];
       }
@@ -274,7 +274,7 @@ void npc_dlg_ui_system::render_list() {
     }
     y += 12;
   };
-  auto y = freetype::load_ch(text, 330, 1.3) + 40;
+  auto y = Freetype::load_ch(text, 330, 1.3) + 40;
   render_q(t2, progress_complete_quest, y, u"Complete");
   render_q(t1, avaliable_quest, y, u"Avaliable");
   render_q(t0, progress_quest, y, u"Progress");
@@ -282,9 +282,9 @@ void npc_dlg_ui_system::render_list() {
   // script
   y += 10;
   script_id = u"";
-  static auto t_etc = wz_resource::load_texture(
-      wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/list2"));
-  auto scp_id = npc_game_instance::load_npc_script(npc_id);
+  static auto t_etc = WzResource::load_texture(
+      WzResource::ui->find(u"UtilDlgEx.img/UtilDlgEx/list2"));
+  auto scp_id = NpcGameInstance::load_npc_script(npc_id);
   if (!scp_id.empty()) {
     SDL_FRect pos_rect{
         static_cast<float>((int)pos.x + 165),
@@ -292,14 +292,14 @@ void npc_dlg_ui_system::render_list() {
         static_cast<float>(t_etc->w),
         static_cast<float>(t_etc->h),
     };
-    SDL_RenderTexture(window::renderer, t_etc, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer, t_etc, nullptr, &pos_rect);
     auto text_x = pos_rect.x + 12;
     auto text_y = pos_rect.y + 16;
     std::u16string str;
     str = u"(" + scp_id + u")" + u" Talk to " +
-          npc_game_instance::load_npc_text(npc_id, u"name");
-    freetype::draw_line(str, text_x, text_y);
-    auto text_w = freetype::load_w(str);
+          NpcGameInstance::load_npc_text(npc_id, u"name");
+    Freetype::draw_line(str, text_x, text_y);
+    auto text_w = Freetype::load_w(str);
     SDL_FRect r{
         text_x,
         text_y,
@@ -307,67 +307,67 @@ void npc_dlg_ui_system::render_list() {
         lh,
     };
     if (SDL_PointInRectFloat(&mouse_pos, &r)) {
-      SDL_SetRenderDrawColor(window::renderer, 128, 0, 128, 255);
-      SDL_RenderLine(window::renderer, text_x, text_y + lh, text_x + text_w,
+      SDL_SetRenderDrawColor(Window::renderer, 128, 0, 128, 255);
+      SDL_RenderLine(Window::renderer, text_x, text_y + lh, text_x + text_w,
                      text_y + lh);
       script_id = scp_id;
     }
   }
 }
 
-void npc_dlg_ui_system::render_obtain() {
-  if (type != npc_dlg_enum::quest_complete) {
+void NpcDlgUiSystem::render_obtain() {
+  if (type != NpcDlgEnum::quest_complete) {
     return;
   }
   if (index != max_index) {
     return;
   }
   static auto t =
-      wz_resource::load_texture(wz_resource::ui->find(u"QuestIcon.img/4/0"));
-  auto y = freetype::load_rh(text, 330, 1.3, std::nullopt) + 40;
+      WzResource::load_texture(WzResource::ui->find(u"QuestIcon.img/4/0"));
+  auto y = Freetype::load_rh(text, 330, 1.3, std::nullopt) + 40;
   SDL_FRect pos_rect{
       static_cast<float>((int)pos.x + 165),
       (int)pos.y + y,
       static_cast<float>(t->w),
       static_cast<float>(t->h),
   };
-  SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
   pos_rect.y += 20;
   if (act_exp != 0) {
     static auto t2 =
-        wz_resource::load_texture(wz_resource::ui->find(u"QuestIcon.img/8/0"));
+        WzResource::load_texture(WzResource::ui->find(u"QuestIcon.img/8/0"));
     pos_rect.w = t2->w;
     pos_rect.h = t2->h;
-    SDL_RenderTexture(window::renderer, t2, nullptr, &pos_rect);
-    freetype::load_size(12);
-    freetype::load_aligned(true);
-    freetype::load_color(0, 0, 0, 255);
+    SDL_RenderTexture(Window::renderer, t2, nullptr, &pos_rect);
+    Freetype::load_size(12);
+    Freetype::load_aligned(true);
+    Freetype::load_color(0, 0, 0, 255);
     auto tmp = std::to_string(act_exp);
-    freetype::draw_line({tmp.begin(), tmp.end()}, pos_rect.x + 22, pos_rect.y);
+    Freetype::draw_line({tmp.begin(), tmp.end()}, pos_rect.x + 22, pos_rect.y);
     pos_rect.y += t2->h + 8;
   }
   if (act_meso != 0) {
     static auto t3 =
-        wz_resource::load_texture(wz_resource::ui->find(u"QuestIcon.img/7/0"));
+        WzResource::load_texture(WzResource::ui->find(u"QuestIcon.img/7/0"));
     pos_rect.y += 3;
     pos_rect.w = t3->w;
     pos_rect.h = t3->h;
-    SDL_RenderTexture(window::renderer, t3, nullptr, &pos_rect);
-    freetype::load_size(12);
-    freetype::load_aligned(true);
-    freetype::load_color(0, 0, 0, 255);
+    SDL_RenderTexture(Window::renderer, t3, nullptr, &pos_rect);
+    Freetype::load_size(12);
+    Freetype::load_aligned(true);
+    Freetype::load_color(0, 0, 0, 255);
     auto tmp = std::to_string(act_meso);
-    freetype::draw_line({tmp.begin(), tmp.end()}, pos_rect.x + 22, pos_rect.y);
+    Freetype::draw_line({tmp.begin(), tmp.end()}, pos_rect.x + 22, pos_rect.y);
     pos_rect.y += t3->h + 8;
   }
   if (!act_random_item.empty()) {
     static auto t =
-        wz_resource::load_texture(wz_resource::ui->find(u"QuestIcon.img/5/0"));
+        WzResource::load_texture(WzResource::ui->find(u"QuestIcon.img/5/0"));
     pos_rect.w = t->w;
     pos_rect.h = t->h;
-    SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
     std::u16string name = u"Random Item";
-    freetype::draw_line(name, pos_rect.x + t->w + 4, pos_rect.y + t->h - 18);
+    Freetype::draw_line(name, pos_rect.x + t->w + 4, pos_rect.y + t->h - 18);
     pos_rect.y += t->h + 8;
   }
   if (!act_item.empty()) {
@@ -377,30 +377,30 @@ void npc_dlg_ui_system::render_obtain() {
       }
       SDL_Texture *t;
       std::u16string name;
-      if (item_game_instance::check_item(k)) {
-        auto info = item_game_instance::load_item_info(k, 0);
-        t = wz_resource::load_texture(info->get_child(u"icon"));
-        name = item_game_instance::load_item_text(k, u"name");
+      if (ItemGameInstance::check_item(k)) {
+        auto info = ItemGameInstance::load_item_info(k, 0);
+        t = WzResource::load_texture(info->get_child(u"icon"));
+        name = ItemGameInstance::load_item_text(k, u"name");
       } else {
-        auto info = equip_game_instance::load_equip_info(k);
-        t = wz_resource::load_texture(info->get_child(u"icon"));
-        name = equip_game_instance::load_equip_name(k);
+        auto info = EquipGameInstance::load_equip_info(k);
+        t = WzResource::load_texture(info->get_child(u"icon"));
+        name = EquipGameInstance::load_equip_name(k);
       }
       pos_rect.w = t->w;
       pos_rect.h = t->h;
-      SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
-      freetype::load_size(12);
-      freetype::load_aligned(true);
-      freetype::load_color(0, 0, 0, 255);
+      SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
+      Freetype::load_size(12);
+      Freetype::load_aligned(true);
+      Freetype::load_color(0, 0, 0, 255);
       auto tmp = std::to_string(v);
       name = name + u" x" + std::u16string{tmp.begin(), tmp.end()};
-      freetype::draw_line(name, pos_rect.x + t->w + 4, pos_rect.y + t->h - 18);
+      Freetype::draw_line(name, pos_rect.x + t->w + 4, pos_rect.y + t->h - 18);
       pos_rect.y += t->h + 8;
     }
   }
 }
 
-bool npc_dlg_ui_system::render() {
+bool NpcDlgUiSystem::render() {
   render_backgrnd();
   render_npc();
   render_button();
@@ -410,15 +410,15 @@ bool npc_dlg_ui_system::render() {
   return true;
 }
 
-SDL_FPoint npc_dlg_ui_system::load_wh() {
-  freetype::load_size(12);
-  auto h = freetype::load_rh(text, 330, 1.3, std::nullopt);
+SDL_FPoint NpcDlgUiSystem::load_wh() {
+  Freetype::load_size(12);
+  auto h = Freetype::load_rh(text, 330, 1.3, std::nullopt);
   h = h + 130;
-  if (type == npc_dlg_enum::quest && index == 0) {
-    auto avaliable_quest = npc_game_instance::load_avaliable_quest(npc_id);
-    auto progress_quest = npc_game_instance::load_progress_quest(npc_id);
+  if (type == NpcDlgEnum::quest && index == 0) {
+    auto avaliable_quest = NpcGameInstance::load_avaliable_quest(npc_id);
+    auto progress_quest = NpcGameInstance::load_progress_quest(npc_id);
     auto progress_complete_quest =
-        npc_game_instance::load_progress_complete_quest(npc_id);
+        NpcGameInstance::load_progress_complete_quest(npc_id);
 
     std::ranges::sort(progress_quest);
     std::ranges::sort(progress_complete_quest);
@@ -427,8 +427,8 @@ SDL_FPoint npc_dlg_ui_system::load_wh() {
     std::ranges::set_difference(progress_quest, progress_complete_quest,
                                 std::back_inserter(result));
     progress_quest = result;
-    freetype::load_size(12);
-    auto lh = freetype::load_lh();
+    Freetype::load_size(12);
+    auto lh = Freetype::load_lh();
     for (const auto &v :
          {avaliable_quest, progress_quest, progress_complete_quest}) {
       if (!v.empty()) {
@@ -436,11 +436,11 @@ SDL_FPoint npc_dlg_ui_system::load_wh() {
         h += 18;
       }
     }
-    auto scp_id = npc_game_instance::load_npc_script(npc_id);
+    auto scp_id = NpcGameInstance::load_npc_script(npc_id);
     if (!scp_id.empty()) {
       h += 36;
     }
-  } else if (type == npc_dlg_enum::quest_complete && index == max_index) {
+  } else if (type == NpcDlgEnum::quest_complete && index == max_index) {
     if (act_exp != 0) {
       h += 22;
     }
@@ -461,41 +461,41 @@ SDL_FPoint npc_dlg_ui_system::load_wh() {
   return {529, h};
 }
 
-void npc_dlg_ui_system::open() {
+void NpcDlgUiSystem::open() {
   auto it =
-      std::ranges::find(system::render_systems, &cursor_render_system::render);
-  if (it != system::render_systems.end()) {
+      std::ranges::find(System::render_systems, &CursorRenderSystem::render);
+  if (it != System::render_systems.end()) {
     reset_pos();
 
-    keyboard_input_system::reset();
+    KeyboardInputSystem::reset();
 
-    system::render_systems.insert(it, render);
-    system::event_systems.insert(system::event_systems.begin(), event);
+    System::render_systems.insert(it, render);
+    System::event_systems.insert(System::event_systems.begin(), event);
   }
 }
 
-void npc_dlg_ui_system::close() {
-  std::erase(system::render_systems, render);
-  std::erase(system::event_systems, event);
+void NpcDlgUiSystem::close() {
+  std::erase(System::render_systems, render);
+  std::erase(System::event_systems, event);
 }
 
-void npc_dlg_ui_system::toggle() {
+void NpcDlgUiSystem::toggle() {
   auto fn = &render;
-  if (std::ranges::contains(system::render_systems, fn)) {
+  if (std::ranges::contains(System::render_systems, fn)) {
     close();
   } else {
     open();
   }
 }
 
-void npc_dlg_ui_system::event_button_close() { close(); }
+void NpcDlgUiSystem::event_button_close() { close(); }
 
-void npc_dlg_ui_system::event_button_ok() {
-  if (type == npc_dlg_enum::quest_complete && index == max_index) {
-    auto back_meso = package_game_instance::meso;
-    auto back_data = package_game_instance::data;
+void NpcDlgUiSystem::event_button_ok() {
+  if (type == NpcDlgEnum::quest_complete && index == max_index) {
+    auto back_meso = PackageGameInstance::meso;
+    auto back_data = PackageGameInstance::data;
     if (!act_random_item.empty()) {
-      auto &r = random_game_instance::gen;
+      auto &r = RandomGameInstance::gen;
       std::uniform_int_distribution<int> dist(0, act_random_item.size() - 1);
       auto it = act_random_item.begin();
       std::advance(it, dist(r));
@@ -503,36 +503,36 @@ void npc_dlg_ui_system::event_button_ok() {
     }
     for (auto [k, v] : act_item) {
       if (v > 0) {
-        std::polymorphic<game_item> item;
-        if (item_game_instance::check_item(k)) {
-          item = item_game_instance::load_item(k, v);
+        std::polymorphic<GameItem> item;
+        if (ItemGameInstance::check_item(k)) {
+          item = ItemGameInstance::load_item(k, v);
         } else {
-          item = equip_game_instance::load_item(k);
+          item = EquipGameInstance::load_item(k);
         }
-        if (!package_game_instance::add_new_item(item)) {
-          notice_ui_system::open_no_space(item->type);
-          package_game_instance::meso = back_meso;
-          package_game_instance::data = back_data;
+        if (!PackageGameInstance::add_new_item(item)) {
+          NoticeUiSystem::open_no_space(item->type);
+          PackageGameInstance::meso = back_meso;
+          PackageGameInstance::data = back_data;
           close();
           return;
         }
       } else {
-        auto item = package_game_instance::load_item(k);
-        item_game_instance::dec_item_num(*item, -v);
+        auto item = PackageGameInstance::load_item(k);
+        ItemGameInstance::dec_item_num(*item, -v);
       }
     }
-    package_game_instance::add_meso(act_meso);
-    character_stat_game_instance::add_exp(act_exp);
+    PackageGameInstance::add_meso(act_meso);
+    CharacterStatGameInstance::add_exp(act_exp);
     if (start_next_quest()) {
       return;
     }
-    quest_game_instance::complete_quest(quest_id);
-    quest_alarm_ui_system::complete_quest(quest_id);
-    quest_ui_system::complete_quest(quest_id);
-    auto quest_node = quest_game_instance::load_quest_node(quest_id);
+    QuestGameInstance::complete_quest(quest_id);
+    QuestAlarmUiSystem::complete_quest(quest_id);
+    QuestUiSystem::complete_quest(quest_id);
+    auto quest_node = QuestGameInstance::load_quest_node(quest_id);
     if (auto n = quest_node->find(u"Say/1/yes/0"); n != nullptr) {
-      time = window::dt_now;
-      text = text_game_instance::load_rstr(n);
+      time = Window::dt_now;
+      text = TextGameInstance::load_rstr(n);
       index = 0;
       max_index = n->children_count() - 1;
       return;
@@ -541,14 +541,14 @@ void npc_dlg_ui_system::event_button_ok() {
   close();
 }
 
-void npc_dlg_ui_system::event_button_update() {
+void NpcDlgUiSystem::event_button_update() {
   if (cb) {
     cb();
     reset_pos();
     return;
   }
   if (!script_id.empty()) {
-    script::fns().at(script_id)(nullptr);
+    Script::fns().at(script_id)(nullptr);
     reset_pos();
     return;
   }
@@ -558,51 +558,51 @@ void npc_dlg_ui_system::event_button_update() {
   // 根据 type 决定后缀，统一拼接路径
   std::u16string suffix;
   switch (type) {
-  case npc_dlg_enum::quest_complete:
-  case npc_dlg_enum::quest:
+  case NpcDlgEnum::quest_complete:
+  case NpcDlgEnum::quest:
     suffix = u"";
     break;
-  case npc_dlg_enum::quest_yes:
+  case NpcDlgEnum::quest_yes:
     suffix = u"/yes";
     break;
-  case npc_dlg_enum::quest_stop_item:
+  case NpcDlgEnum::quest_stop_item:
     suffix = u"/item";
     break;
-  case npc_dlg_enum::quest_stop_lost:
+  case NpcDlgEnum::quest_stop_lost:
     suffix = u"/lost";
     break;
-  case npc_dlg_enum::quest_stop_npc:
+  case NpcDlgEnum::quest_stop_npc:
     suffix = u"/npc";
     break;
   default:
     suffix = u"";
   }
-  auto node = quest_game_instance::load_quest_node(quest_id);
+  auto node = QuestGameInstance::load_quest_node(quest_id);
   if (node) {
     node = node->find(u"Say/" + quest_index + suffix);
   }
   if (node != nullptr) {
     text =
-        text_game_instance::load_rstr(node->get_child(std::to_string(index)));
+        TextGameInstance::load_rstr(node->get_child(std::to_string(index)));
   }
   reset_pos();
-  time = window::dt_now;
+  time = Window::dt_now;
 }
 
-void npc_dlg_ui_system::event_button_prev() {
+void NpcDlgUiSystem::event_button_prev() {
   selected = u"";
   --index;
   event_button_update();
 }
 
-void npc_dlg_ui_system::event_button_next() {
+void NpcDlgUiSystem::event_button_next() {
   switch (type) {
-  case npc_dlg_enum::select: {
+  case NpcDlgEnum::select: {
     if (cb) {
       cb();
       return;
     }
-    auto node = quest_game_instance::load_quest_node(quest_id);
+    auto node = QuestGameInstance::load_quest_node(quest_id);
     node = node->find(u"Say/" + quest_index + u"/stop/0/answer");
     auto ans = static_cast<wz::Property<int> *>(node)->get() - 1;
     auto st = select;
@@ -610,26 +610,26 @@ void npc_dlg_ui_system::event_button_next() {
       st = select_mouse;
     }
     if (ans == st) {
-      type = npc_dlg_enum::quest_complete;
-      node = quest_game_instance::load_quest_node(quest_id);
+      type = NpcDlgEnum::quest_complete;
+      node = QuestGameInstance::load_quest_node(quest_id);
       node = node->find(u"Say/" + quest_index);
       node = node->get_child(std::to_string(index + 1));
-      time = window::dt_now;
-      text = text_game_instance::load_rstr(node);
+      time = Window::dt_now;
+      text = TextGameInstance::load_rstr(node);
       index = 0;
       max_index = 0;
 
-      act_meso = quest_game_instance::load_quest_act_meso(quest_id);
-      act_item = quest_game_instance::load_quest_act_item(quest_id);
-      act_exp = quest_game_instance::load_quest_act_exp(quest_id);
+      act_meso = QuestGameInstance::load_quest_act_meso(quest_id);
+      act_item = QuestGameInstance::load_quest_act_item(quest_id);
+      act_exp = QuestGameInstance::load_quest_act_exp(quest_id);
     } else {
-      type = npc_dlg_enum::talk;
-      node = quest_game_instance::load_quest_node(quest_id);
+      type = NpcDlgEnum::talk;
+      node = QuestGameInstance::load_quest_node(quest_id);
       node = node->find(u"Say/" + quest_index + u"/stop");
       node = node->get_child(std::to_string(index));
       node = node->get_child(std::to_string(st));
-      time = window::dt_now;
-      text = text_game_instance::load_rstr(node);
+      time = Window::dt_now;
+      text = TextGameInstance::load_rstr(node);
       index = 0;
       max_index = 0;
     }
@@ -644,15 +644,15 @@ void npc_dlg_ui_system::event_button_next() {
   }
 }
 
-void npc_dlg_ui_system::event_list() {
-  if (type != npc_dlg_enum::quest) {
+void NpcDlgUiSystem::event_list() {
+  if (type != NpcDlgEnum::quest) {
     return;
   }
   if (index != 0) {
     return;
   }
-  if (type == npc_dlg_enum::quest && !script_id.empty()) {
-    script::fns().at(script_id)(nullptr);
+  if (type == NpcDlgEnum::quest && !script_id.empty()) {
+    Script::fns().at(script_id)(nullptr);
     return;
   }
   if (selected.empty()) {
@@ -661,27 +661,27 @@ void npc_dlg_ui_system::event_list() {
   script_id = u"";
   quest_id = selected;
 
-  auto progress = quest_game_instance::load_quest_progress(selected);
+  auto progress = QuestGameInstance::load_quest_progress(selected);
   auto tmp = std::to_string(progress);
   quest_index = {tmp.begin(), tmp.end()};
   auto progress_complete =
-      npc_game_instance::load_progress_complete_quest(npc_id);
+      NpcGameInstance::load_progress_complete_quest(npc_id);
 
   wz::Node *node = nullptr;
   if (std::ranges::contains(progress_complete, quest_id)) {
     // 待完成
-    node = quest_game_instance::load_quest_node(quest_id);
+    node = QuestGameInstance::load_quest_node(quest_id);
     if (auto n = node->find(u"Check/" + quest_index + u"/endscript");
         n != nullptr) {
       auto spt = static_cast<wz::Property<std::u16string> *>(n)->get();
-      script::fns().at(spt)(nullptr);
+      Script::fns().at(spt)(nullptr);
       script_id = spt;
       return;
     }
     if (node->find(u"Say/" + quest_index + u"/ask")) {
-      text = text_game_instance::load_rstr(
+      text = TextGameInstance::load_rstr(
           node->find(u"Say/" + quest_index + u"/0"));
-      type = npc_dlg_enum::select;
+      type = NpcDlgEnum::select;
       select = 0;
       max_select = -1;
       for (size_t i = 0; i + 1 < text.size(); ++i) {
@@ -696,12 +696,12 @@ void npc_dlg_ui_system::event_list() {
       m.erase(u"stop");
       index = 0;
       max_index = m.size() - 1;
-      time = window::dt_now;
+      time = Window::dt_now;
       select_mouse = -1;
       return;
     }
 
-    type = npc_dlg_enum::quest_complete;
+    type = NpcDlgEnum::quest_complete;
     node = node->find(u"Say/" + quest_index);
     auto child = node->children;
     child.erase(u"yes");
@@ -710,10 +710,10 @@ void npc_dlg_ui_system::event_list() {
     child.erase(u"lost");
     max_index = child.size() - 1;
 
-    act_meso = quest_game_instance::load_quest_act_meso(quest_id);
-    act_item = quest_game_instance::load_quest_act_item(quest_id);
-    act_exp = quest_game_instance::load_quest_act_exp(quest_id);
-    act_random_item = quest_game_instance::load_quest_act_random_item(quest_id);
+    act_meso = QuestGameInstance::load_quest_act_meso(quest_id);
+    act_item = QuestGameInstance::load_quest_act_item(quest_id);
+    act_exp = QuestGameInstance::load_quest_act_exp(quest_id);
+    act_random_item = QuestGameInstance::load_quest_act_random_item(quest_id);
     if (act_meso == 0 && act_exp == 0 || max_index == -1) {
       max_index = 0;
       index = max_index;
@@ -721,31 +721,31 @@ void npc_dlg_ui_system::event_list() {
       return;
     }
 
-  } else if (quest_game_instance::progress_quests.contains(quest_id)) {
+  } else if (QuestGameInstance::progress_quests.contains(quest_id)) {
     // 判断是否是进行中的任务
-    auto &q = quest_game_instance::progress_quests.at(quest_id);
+    auto &q = QuestGameInstance::progress_quests.at(quest_id);
     if (!q.item_bool) {
-      type = npc_dlg_enum::quest_stop_item;
-      node = quest_game_instance::load_quest_node(selected);
+      type = NpcDlgEnum::quest_stop_item;
+      node = QuestGameInstance::load_quest_node(selected);
       node = node->find(u"Say/" + quest_index + u"/stop/npc");
     } else if (!q.mob_bool) {
-      type = npc_dlg_enum::quest_stop_item;
-      node = quest_game_instance::load_quest_node(selected);
+      type = NpcDlgEnum::quest_stop_item;
+      node = QuestGameInstance::load_quest_node(selected);
       node = node->find(u"Say/" + quest_index + u"/stop/mob");
     } else {
-      type = npc_dlg_enum::quest_stop_npc;
-      node = quest_game_instance::load_quest_node(selected);
+      type = NpcDlgEnum::quest_stop_npc;
+      node = QuestGameInstance::load_quest_node(selected);
       node = node->find(u"Say/" + quest_index + u"/stop/item");
     }
     if (node) {
       max_index = node->children_count();
     }
   } else {
-    type = npc_dlg_enum::quest_avaliable;
-    node = quest_game_instance::load_quest_node(selected);
+    type = NpcDlgEnum::quest_avaliable;
+    node = QuestGameInstance::load_quest_node(selected);
     if (auto n = node->find(u"Check/0/startscript"); n != nullptr) {
       auto spt = static_cast<wz::Property<std::u16string> *>(n)->get();
-      script::fns().at(spt)(nullptr);
+      Script::fns().at(spt)(nullptr);
       script_id = spt;
       return;
     }
@@ -759,76 +759,76 @@ void npc_dlg_ui_system::event_list() {
   }
   if (node != nullptr && node->get_child(u"0")) {
     index = 0;
-    text = text_game_instance::load_rstr(node->get_child(u"0"));
-    time = window::dt_now;
+    text = TextGameInstance::load_rstr(node->get_child(u"0"));
+    time = Window::dt_now;
     reset_pos();
   }
 }
 
-void npc_dlg_ui_system::event_button_quest_yes() {
+void NpcDlgUiSystem::event_button_quest_yes() {
   if (!script_id.empty()) {
     index++;
-    script::fns().at(script_id)(nullptr);
+    Script::fns().at(script_id)(nullptr);
     return;
   }
-  act_item = quest_game_instance::load_quest_act_item(quest_id);
-  auto back_data = package_game_instance::data;
+  act_item = QuestGameInstance::load_quest_act_item(quest_id);
+  auto back_data = PackageGameInstance::data;
   for (auto [k, v] : act_item) {
     if (v > 0) {
-      std::polymorphic<game_item> item;
-      if (item_game_instance::check_item(k)) {
-        item = item_game_instance::load_item(k, v);
+      std::polymorphic<GameItem> item;
+      if (ItemGameInstance::check_item(k)) {
+        item = ItemGameInstance::load_item(k, v);
       } else {
-        item = equip_game_instance::load_item(k);
+        item = EquipGameInstance::load_item(k);
       }
-      if (!package_game_instance::add_new_item(item)) {
-        notice_ui_system::open_no_space(item->type);
-        package_game_instance::data = back_data;
+      if (!PackageGameInstance::add_new_item(item)) {
+        NoticeUiSystem::open_no_space(item->type);
+        PackageGameInstance::data = back_data;
         close();
         return;
       }
     } else {
-      auto item = package_game_instance::load_item(k);
-      item_game_instance::dec_item_num(*item, -v);
+      auto item = PackageGameInstance::load_item(k);
+      ItemGameInstance::dec_item_num(*item, -v);
     }
   }
   // accept quest
-  quest_game_instance::accept_quest(quest_id);
-  quest_alarm_ui_system::accept_quest(quest_id);
+  QuestGameInstance::accept_quest(quest_id);
+  QuestAlarmUiSystem::accept_quest(quest_id);
   static wz::Node *yes_node;
-  yes_node = quest_game_instance::load_quest_node(quest_id);
+  yes_node = QuestGameInstance::load_quest_node(quest_id);
   yes_node = yes_node->find(u"Say/" + quest_index + u"/yes");
   if (yes_node == nullptr) {
     close();
     return;
   } else {
-    type = npc_dlg_enum::quest_yes;
+    type = NpcDlgEnum::quest_yes;
     index = 0;
     max_index = yes_node->children_count() - 1;
     auto node = yes_node->get_child(u"0");
-    text = text_game_instance::load_rstr(node);
-    time = window::dt_now;
+    text = TextGameInstance::load_rstr(node);
+    time = Window::dt_now;
   }
 }
 
-void npc_dlg_ui_system::event_button_quest_no() {
+void NpcDlgUiSystem::event_button_quest_no() {
   static wz::Node *no_node;
-  no_node = quest_game_instance::load_quest_node(quest_id);
+  no_node = QuestGameInstance::load_quest_node(quest_id);
   no_node = no_node->find(u"Say/" + quest_index + u"/no");
   if (no_node == nullptr) {
     close();
     return;
   } else {
-    type = npc_dlg_enum::quest_no;
+    type = NpcDlgEnum::quest_no;
     index = 0;
     max_index = no_node->children_count() - 1;
     auto node = no_node->get_child(u"0");
-    text = text_game_instance::load_rstr(node);
-    time = window::dt_now;
+    text = TextGameInstance::load_rstr(node);
+    time = Window::dt_now;
   }
 }
 
-bool npc_dlg_ui_system::event_button(SDL_Event *event) {
+bool NpcDlgUiSystem::event_button(SDL_Event *event) {
   auto [w, h] = load_wh();
   std::vector<SDL_FRect> buttons_rect = {
       SDL_FRect{10, h - 25, 85, 18}, //
@@ -848,7 +848,7 @@ bool npc_dlg_ui_system::event_button(SDL_Event *event) {
     func.push_back(event_button_prev);
   }
   if (index == max_index && cb == nullptr &&
-      type == npc_dlg_enum::quest_avaliable) {
+      type == NpcDlgEnum::quest_avaliable) {
     buttons_rect.push_back(SDL_FRect{w - 128, h - 25, 57, 17});
     func.push_back(event_button_quest_yes);
 
@@ -863,24 +863,24 @@ bool npc_dlg_ui_system::event_button(SDL_Event *event) {
     auto pos_rect = buttons_rect[i];
     pos_rect.x += pos.x;
     pos_rect.y += pos.y;
-    if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
+    if (SDL_PointInRectFloat(&Window::mouse_pos, &pos_rect)) {
       func[i]();
-      audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+      AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
       return true;
     }
   }
   return false;
 }
 
-bool npc_dlg_ui_system::cursor_in() {
+bool NpcDlgUiSystem::cursor_in() {
   auto [w, h] = load_wh();
-  auto &mouse = window::mouse_pos;
+  auto &mouse = Window::mouse_pos;
   SDL_FRect pos_rect{pos.x, pos.y, w, h};
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
-void npc_dlg_ui_system::event_motion_bt_audio(SDL_Event *event) {
-  if (cursor_game_instance::cursor_ui != render) {
+void NpcDlgUiSystem::event_motion_bt_audio(SDL_Event *event) {
+  if (CursorGameInstance::cursor_ui != render) {
     return;
   }
   auto [w, h] = load_wh();
@@ -896,14 +896,14 @@ void npc_dlg_ui_system::event_motion_bt_audio(SDL_Event *event) {
     buttons_rect.push_back(SDL_FRect{w0, h - 76, 46, 18});
   }
   if (index == max_index && cb == nullptr &&
-      type == npc_dlg_enum::quest_avaliable) {
+      type == NpcDlgEnum::quest_avaliable) {
     buttons_rect.push_back(SDL_FRect{w - 128, h - 25, 57, 17});
     buttons_rect.push_back(SDL_FRect{w - 66, h - 25, 57, 17});
   } else {
     buttons_rect.push_back(SDL_FRect{w - 56, h - 25, 46, 18});
   }
   static int8_t bt_audio = -1;
-  auto &mouse_pos = window::mouse_pos;
+  auto &mouse_pos = Window::mouse_pos;
   int8_t bt_in = -1;
   for (size_t i = 0; i < buttons_rect.size(); ++i) {
     auto pos_rect = buttons_rect[i];
@@ -915,26 +915,26 @@ void npc_dlg_ui_system::event_motion_bt_audio(SDL_Event *event) {
     }
   }
   if (bt_in != -1 && bt_audio != bt_in) {
-    audio_game_instance::load_audio(u"UI.img/BtMouseOver", 0);
+    AudioGameInstance::load_audio(u"UI.img/BtMouseOver", 0);
   }
   bt_audio = bt_in;
 }
 
-bool npc_dlg_ui_system::event(SDL_Event *event) {
+bool NpcDlgUiSystem::event(SDL_Event *event) {
   bool r = false;
   switch (event->type) {
   case SDL_EVENT_KEY_DOWN: {
     auto scan_code = event->key.scancode;
     switch (scan_code) {
     case SDL_SCANCODE_UP: {
-      if (type == npc_dlg_enum::select) {
+      if (type == NpcDlgEnum::select) {
         select--;
         select = std::max((int8_t)0, select);
       }
       break;
     }
     case SDL_SCANCODE_DOWN: {
-      if (type == npc_dlg_enum::select) {
+      if (type == NpcDlgEnum::select) {
         select++;
         select = std::min(select, max_select);
       }
@@ -947,15 +947,15 @@ bool npc_dlg_ui_system::event(SDL_Event *event) {
     }
     case SDL_SCANCODE_RETURN: {
       if (index == max_index && cb == nullptr &&
-          type == npc_dlg_enum::quest_avaliable) {
+          type == NpcDlgEnum::quest_avaliable) {
         event_button_quest_yes();
         return false;
       }
-      if (type == npc_dlg_enum::quest_avaliable && index < max_index) {
+      if (type == NpcDlgEnum::quest_avaliable && index < max_index) {
         event_button_next();
         return false;
       }
-      if (type == npc_dlg_enum::quest_complete) {
+      if (type == NpcDlgEnum::quest_complete) {
         event_button_ok();
         return false;
       }
@@ -971,7 +971,7 @@ bool npc_dlg_ui_system::event(SDL_Event *event) {
   }
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
     if (event->button.button == SDL_BUTTON_LEFT) {
-      if (cursor_game_instance::cursor_ui == render) {
+      if (CursorGameInstance::cursor_ui == render) {
         time = UINT64_MAX;
       }
     }
@@ -979,11 +979,11 @@ bool npc_dlg_ui_system::event(SDL_Event *event) {
   }
   case SDL_EVENT_MOUSE_BUTTON_UP: {
     if (event->button.button == SDL_BUTTON_LEFT) {
-      if (cursor_game_instance::cursor_ui == render) {
+      if (CursorGameInstance::cursor_ui == render) {
         time = UINT64_MAX;
         event_list();
         event_button(event);
-        if (type == npc_dlg_enum::select && select_mouse >= 0) {
+        if (type == NpcDlgEnum::select && select_mouse >= 0) {
           event_button_next();
         }
       }
@@ -1002,17 +1002,17 @@ bool npc_dlg_ui_system::event(SDL_Event *event) {
   return r;
 }
 
-bool npc_dlg_ui_system::start_next_quest() {
-  auto node = quest_game_instance::load_quest_node(quest_id);
+bool NpcDlgUiSystem::start_next_quest() {
+  auto node = QuestGameInstance::load_quest_node(quest_id);
   if (auto n = node->find(u"Act/" + quest_index + u"/nextQuest");
       n != nullptr) {
-    quest_game_instance::complete_quest(selected);
-    quest_alarm_ui_system::complete_quest(selected);
-    quest_ui_system::complete_quest(quest_id);
+    QuestGameInstance::complete_quest(selected);
+    QuestAlarmUiSystem::complete_quest(selected);
+    QuestUiSystem::complete_quest(quest_id);
     auto nq = static_cast<wz::Property<int> *>(n)->get();
     auto tmp = std::to_string(nq);
     selected = std::u16string{tmp.begin(), tmp.end()} + u".img";
-    type = npc_dlg_enum::quest;
+    type = NpcDlgEnum::quest;
     event_list();
     return true;
   }

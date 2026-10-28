@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <optional>
 #include <string>
-class scene_system_instance {
+class SceneSystemInstance {
 public:
   static inline uint32_t map_id;
   static inline uint32_t prepare_map_id;

@@ -24,7 +24,7 @@
 #include <optional>
 #include <utility>
 
-float server_drop_instance::cal_available_time(float y1, float y2) {
+float ServerDropInstance::cal_available_time(float y1, float y2) {
   const float VY = 400.0f;                     // 初速度（向上）
   const float G = 800.0f;                      // 重力加速度
   const float MAX_RISE = VY * VY / (2.0f * G); // 最大上升高度 = 100.0f
@@ -48,27 +48,27 @@ float server_drop_instance::cal_available_time(float y1, float y2) {
   return rise_time + fall_time;
 }
 
-void server_drop_instance::save_drop(uint64_t map_id, const DropT &drop) {
-  auto &scene = server_scene_instance::scenes[map_id];
-  server_drop sd;
+void ServerDropInstance::save_drop(uint64_t map_id, const DropT &drop) {
+  auto &scene = ServerSceneInstance::scenes[map_id];
+  ServerDrop sd;
   sd.dt = drop;
-  sd.destroy = window::dt_now + 60 * 5 * 1000;
-  sd.available = window::dt_now + cal_available_time(drop.y1, drop.y2) * 1000;
+  sd.destroy = Window::dt_now + 60 * 5 * 1000;
+  sd.available = Window::dt_now + cal_available_time(drop.y1, drop.y2) * 1000;
   scene.drops.emplace(drop.random_id, sd);
 }
 
-void server_drop_instance::save_delay_drop(uint64_t map_id, uint64_t d,
+void ServerDropInstance::save_delay_drop(uint64_t map_id, uint64_t d,
                                            const DropT &drop) {
-  auto &scene = server_scene_instance::scenes[map_id];
-  server_drop sd;
+  auto &scene = ServerSceneInstance::scenes[map_id];
+  ServerDrop sd;
   sd.dt = drop;
-  sd.destroy = window::dt_now + (d - window::dt_time) + 60 * 5 * 1000;
-  sd.available = window::dt_now + (d - window::dt_time) +
+  sd.destroy = Window::dt_now + (d - Window::dt_time) + 60 * 5 * 1000;
+  sd.available = Window::dt_now + (d - Window::dt_time) +
                  cal_available_time(drop.y1, drop.y2) * 1000;
   scene.delay_drops[d].emplace_back(sd);
 }
 
-void server_drop_instance::handle_client_drop(uint64_t client_id,
+void ServerDropInstance::handle_client_drop(uint64_t client_id,
                                               ClientCharacterDropT &r) {
   auto map_id = r.map_id;
 
@@ -76,71 +76,71 @@ void server_drop_instance::handle_client_drop(uint64_t client_id,
   for (const auto &dt : dts) {
     save_drop(map_id, *dt);
   }
-  const auto &clients = server_scene_instance::scenes[map_id].clients;
+  const auto &clients = ServerSceneInstance::scenes[map_id].clients;
   ServerCharacterDropT t;
   t.client_id = client_id;
   t.payload = std::move(dts[0]);
   for (const auto c : clients) {
-    server_response::send_to_client(c, t);
+    ServerResponse::send_to_client(c, t);
   }
 }
 
-void server_drop_instance::handle_pick(uint64_t client_id,
+void ServerDropInstance::handle_pick(uint64_t client_id,
                                        ClientCharacterPickT &r) {
   auto map_id = r.map_id;
-  auto &scene = server_scene_instance::scenes[map_id];
+  auto &scene = ServerSceneInstance::scenes[map_id];
   if (scene.drops.contains(r.random_id)) {
-    if (scene.drops[r.random_id].available <= window::dt_now) {
+    if (scene.drops[r.random_id].available <= Window::dt_now) {
       ServerCharacterPickT t;
       t.random_id = r.random_id;
       t.client_id = client_id;
-      auto clients = server_scene_instance::scenes[map_id].clients;
+      auto clients = ServerSceneInstance::scenes[map_id].clients;
       for (const auto c : clients) {
-        server_response::send_to_client(c, t);
+        ServerResponse::send_to_client(c, t);
       }
       scene.drops.erase(r.random_id);
     } else {
       ServerCharacterPickT t;
       t.random_id = 0;
-      server_response::send_to_client(client_id, t);
+      ServerResponse::send_to_client(client_id, t);
     }
   }
 }
 
-void server_drop_instance::handle_server_pick(uint64_t client_id,
+void ServerDropInstance::handle_server_pick(uint64_t client_id,
                                               ServerCharacterPickT &r) {
-  if (r.client_id == server_main::local_addr && r.random_id == 0) {
+  if (r.client_id == ServerMain::local_addr && r.random_id == 0) {
     // 捡取物品失败
-    character_logic_system::ccp = {};
+    CharacterLogicSystem::ccp = {};
     return;
   }
-  if (drop_game_instance::data.contains(r.random_id)) {
-    auto &dt = drop_game_instance::data.at(r.random_id);
-    game_drop_pick gdp;
+  if (DropGameInstance::data.contains(r.random_id)) {
+    auto &dt = DropGameInstance::data.at(r.random_id);
+    GameDropPick gdp;
     gdp.client_id = r.client_id;
     if (r.pet) {
       gdp.pet_index = r.pet_index;
     }
     dt.picker = gdp;
-    dt.pick_time = window::dt_now;
-    dt.type = game_drop::drop_enum::pick;
+    dt.pick_time = Window::dt_now;
+    dt.type = GameDrop::DropEnum::pick;
 
-    if (r.client_id == server_main::local_addr) {
+    if (r.client_id == ServerMain::local_addr) {
       auto itm = dt.data;
-      package_game_instance::add_new_item(itm);
-      audio_game_instance::load_audio(u"Game.img/PickUpItem", 0);
+      PackageGameInstance::add_new_item(itm);
+      AudioGameInstance::load_audio(u"Game.img/PickUpItem", 0);
 
-      character_logic_system::ccp = {};
+      CharacterLogicSystem::ccp = {};
 
-      auto itm_num = item_game_instance::load_item_num(dt.data);
+      auto itm_num = ItemGameInstance::load_item_num(dt.data);
       itm_num = std::max(1, itm_num);
-      gain_log_game_instance::add(dt.data->id, itm_num, gain_enum::item);
+      GainLogGameInstance::add(dt.data->id, itm_num, GainEnum::item);
     }
   }
 }
 
-void server_drop_instance::handle_server_dt(const DropT &dt) {
-  game_drop drop;
+void ServerDropInstance::handle_server_dt(const DropT &dt) {
+  GameDrop drop;
   drop.random_id = dt.random_id;
   drop.page = dt.page;
   drop.vspeed = -400;
@@ -151,49 +151,49 @@ void server_drop_instance::handle_server_dt(const DropT &dt) {
   switch (dt.drop.type) {
   case fbs::ItemUnion_Equip: {
     auto equipT = dt.drop.AsEquip();
-    game_equip_item equip;
+    GameEquipItem equip;
     auto tmp = std::format("{:08d}", equipT->equip_id);
     equip.id = {tmp.begin(), tmp.end()};
     drop.data =
-        std::polymorphic<game_item>(std::in_place_type<game_equip_item>, equip);
+        std::polymorphic<GameItem>(std::in_place_type<GameEquipItem>, equip);
     break;
   }
   case fbs::ItemUnion_Item: {
     auto item = dt.drop.AsItem();
     auto tmp = std::format("{:08d}", item->item_id);
     drop.data =
-        item_game_instance::load_item({tmp.begin(), tmp.end()}, item->item_num);
+        ItemGameInstance::load_item({tmp.begin(), tmp.end()}, item->item_num);
     break;
   }
   default: {
     break;
   }
   }
-  drop_game_instance::data.emplace(dt.random_id, drop);
+  DropGameInstance::data.emplace(dt.random_id, drop);
 }
 
-void server_drop_instance::handle_server_scene_dt(const DropT &dt) {
+void ServerDropInstance::handle_server_scene_dt(const DropT &dt) {
   handle_server_dt(dt);
-  auto &drop = drop_game_instance::data.at(dt.random_id);
+  auto &drop = DropGameInstance::data.at(dt.random_id);
   drop.hspeed = 0;
   drop.pos.x = dt.x2;
   drop.pos.y = dt.y2;
-  drop.type = game_drop::drop_enum::land;
+  drop.type = GameDrop::DropEnum::land;
   return;
 }
 
-void server_drop_instance::handle_server_drop(uint64_t client_id,
+void ServerDropInstance::handle_server_drop(uint64_t client_id,
                                               ServerCharacterDropT &r) {
-  if (cursor_game_instance::cursor_hand_net.has_value()) {
-    if (r.client_id == server_main::local_addr) {
-      cursor_game_instance::cursor_hand_net = std::nullopt;
-      if (cursor_game_instance::cursor_hand.has_value()) {
-        auto &hand = cursor_game_instance::cursor_hand.value();
+  if (CursorGameInstance::cursor_hand_net.has_value()) {
+    if (r.client_id == ServerMain::local_addr) {
+      CursorGameInstance::cursor_hand_net = std::nullopt;
+      if (CursorGameInstance::cursor_hand.has_value()) {
+        auto &hand = CursorGameInstance::cursor_hand.value();
         switch (hand.type) {
-        case cursor_game_instance::equipment: {
+        case CursorGameInstance::equipment: {
           break;
         }
-        case cursor_game_instance::package: {
+        case CursorGameInstance::package: {
           int num = 1;
           switch (r.payload->drop.type) {
           case fbs::ItemUnion_Item: {
@@ -205,19 +205,19 @@ void server_drop_instance::handle_server_drop(uint64_t client_id,
             break;
           }
           }
-          auto &itm = package_game_instance::data[hand.val][hand.sub_val];
-          switch (static_cast<item_enum>(hand.val)) {
-          case item_enum::equip: {
-            itm = std::polymorphic<game_item>(game_equip_item{});
+          auto &itm = PackageGameInstance::data[hand.val][hand.sub_val];
+          switch (static_cast<ItemEnum>(hand.val)) {
+          case ItemEnum::equip: {
+            itm = std::polymorphic<GameItem>(GameEquipItem{});
             break;
           }
-          case item_enum::deco: {
-            itm = std::polymorphic<game_item>(game_deco_item{});
+          case ItemEnum::deco: {
+            itm = std::polymorphic<GameItem>(GameDecoItem{});
             break;
           }
           default: {
-            item_game_instance::dec_item_num(itm, num);
-            auto itm_num = item_game_instance::load_item_num(itm);
+            ItemGameInstance::dec_item_num(itm, num);
+            auto itm_num = ItemGameInstance::load_item_num(itm);
             if (itm_num == 0) {
               itm->id = u"";
             }
@@ -234,30 +234,30 @@ void server_drop_instance::handle_server_drop(uint64_t client_id,
         // meso
         auto item = r.payload->drop.AsItem();
         auto num = item->item_num;
-        package_game_instance::meso -= num;
+        PackageGameInstance::meso -= num;
       }
 
-      cursor_game_instance::cursor_hand = std::nullopt;
+      CursorGameInstance::cursor_hand = std::nullopt;
     }
   }
   handle_server_dt(*r.payload);
-  audio_game_instance::load_audio(u"Game.img/DropItem", 0);
+  AudioGameInstance::load_audio(u"Game.img/DropItem", 0);
 }
 
 std::vector<std::unique_ptr<fbs::DropT>>
-server_drop_instance::create_dts(const std::vector<DropT> &dts,
+ServerDropInstance::create_dts(const std::vector<DropT> &dts,
                                  uint32_t map_id) {
   std::vector<std::unique_ptr<fbs::DropT>> r;
 
-  auto &gen = random_game_instance::gen;
+  auto &gen = RandomGameInstance::gen;
   std::uniform_int_distribution<uint64_t> dist(1, UINT64_MAX);
 
-  const auto &s_fhs = server_scene_instance::scenes.at(map_id).fhs;
-  std::flat_map<int32_t, game_foothold> g_fhs;
+  const auto &s_fhs = ServerSceneInstance::scenes.at(map_id).fhs;
+  std::flat_map<int32_t, GameFoothold> g_fhs;
   for (const auto &[key, value] : s_fhs) {
     g_fhs.emplace(key, value.fh);
   }
-  auto border = map_info_game_instance::load_mr_border(map_id);
+  auto border = MapInfoGameInstance::load_mr_border(map_id);
   border.w -= 80;
   auto dts_size = dts.size();
   const auto dt_w = 24;
@@ -269,7 +269,7 @@ server_drop_instance::create_dts(const std::vector<DropT> &dts,
     uint64_t random_id = 0;
     do {
       random_id = dist(gen);
-    } while (server_scene_instance::scenes[map_id].drops.contains(random_id));
+    } while (ServerSceneInstance::scenes[map_id].drops.contains(random_id));
     dt.random_id = dist(gen);
     int x;
     if (dts_size == 1) {
@@ -284,12 +284,12 @@ server_drop_instance::create_dts(const std::vector<DropT> &dts,
 
     // 提取判断墙面
     auto ins =
-        physic::fall_intersect_pos({dt.x1, dt.y1}, {dt.x2, dt.y2}, g_fhs);
+        Physic::fall_intersect_pos({dt.x1, dt.y1}, {dt.x2, dt.y2}, g_fhs);
     auto hspeed = (dt.x1 > dt.x2) ? -1 : 1;
 
     for (const auto &[k, v] : ins) {
       if (!v.fh.k.has_value()) {
-        auto check = physic::fall_collide_wall(hspeed, v.fh, g_fhs);
+        auto check = Physic::fall_collide_wall(hspeed, v.fh, g_fhs);
         if (check) {
           dt.x2 = v.pos.x;
           break;
@@ -302,12 +302,12 @@ server_drop_instance::create_dts(const std::vector<DropT> &dts,
     float tmp_hsp = 0;
     float tmp_vsp = 10000;
     SDL_FPoint tmp_fp{dt.x2, dt.y2};
-    physic::fall(tmp_fp, 100000, tmp_hsp, tmp_vsp, tmp_vsp, tmp_vsp, border,
+    Physic::fall(tmp_fp, 100000, tmp_hsp, tmp_vsp, tmp_vsp, tmp_vsp, border,
                  true, true, tmp_fh, tmp_page, g_fhs);
     if (tmp_fp.y == border.h) {
       // 如果这个掉落物会掉落在地图外，则修正x为原始x
       tmp_fp = {dt.x1, dt.y2};
-      physic::fall(tmp_fp, 100000, tmp_hsp, tmp_vsp, tmp_vsp, tmp_vsp, border,
+      Physic::fall(tmp_fp, 100000, tmp_hsp, tmp_vsp, tmp_vsp, tmp_vsp, border,
                    true, true, tmp_fh, tmp_page, g_fhs);
     }
     dt.page = tmp_page;
@@ -321,28 +321,28 @@ server_drop_instance::create_dts(const std::vector<DropT> &dts,
   return r;
 }
 
-void server_drop_instance::handle_server_drop_fade(ServerDropFadeT &r) {
-  auto &data = drop_game_instance::data;
+void ServerDropInstance::handle_server_drop_fade(ServerDropFadeT &r) {
+  auto &data = DropGameInstance::data;
   for (const auto id : r.drop_ids) {
     if (data.contains(id)) {
-      data.at(id).type = game_drop::drop_enum::fade;
+      data.at(id).type = GameDrop::DropEnum::fade;
     }
   }
   return;
 }
 
-void server_drop_instance::handle_client_drop_fade(ClientDropFadeT &r) {
+void ServerDropInstance::handle_client_drop_fade(ClientDropFadeT &r) {
   auto map_id = r.map_id;
-  auto &drops = server_scene_instance::scenes.at(map_id).drops;
+  auto &drops = ServerSceneInstance::scenes.at(map_id).drops;
   for (auto id : r.random_id) {
     if (drops.contains(id)) {
-      drops.at(id).destroy = window::dt_now;
+      drops.at(id).destroy = Window::dt_now;
     }
   }
   return;
 }
 
-void server_drop_instance::handle_client_create_drop(uint64_t client_id,
+void ServerDropInstance::handle_client_create_drop(uint64_t client_id,
                                                      ClientCreateDropT &r) {
   auto map_id = r.map_id;
 
@@ -356,10 +356,10 @@ void server_drop_instance::handle_client_create_drop(uint64_t client_id,
   }
 }
 
-void server_drop_instance::handle_server_create_drop(uint64_t client_id,
+void ServerDropInstance::handle_server_create_drop(uint64_t client_id,
                                                      ServerCreateDropT &r) {
   for (const auto &dt : r.payload) {
-    server_drop_instance::handle_server_dt(*dt);
+    ServerDropInstance::handle_server_dt(*dt);
   }
-  audio_game_instance::load_audio(u"Game.img/DropItem", 0);
+  AudioGameInstance::load_audio(u"Game.img/DropItem", 0);
 }

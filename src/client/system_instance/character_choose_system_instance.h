@@ -2,7 +2,7 @@
 
 #include <string>
 #include <vector>
-class character_choose_system_instance {
+class CharacterChooseSystemInstance {
 public:
   static void enter_prepare(const std::string &login);
 

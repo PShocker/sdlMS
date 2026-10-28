@@ -3,7 +3,7 @@
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_rect.h"
 #include "src/client/game/game_character.h"
-class trade_ui_system {
+class TradeUiSystem {
 private:
   static void render_backgrnd();
   static void render_button();
@@ -13,7 +13,7 @@ private:
 
 public:
   static inline SDL_FPoint pos;
-  static inline game_character other;
+  static inline GameCharacter other;
 
   static bool cursor_in();
 

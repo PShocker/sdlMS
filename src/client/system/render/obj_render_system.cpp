@@ -6,14 +6,14 @@
 #include "wz/Property.h"
 #include "wz/Wz.h"
 
-bool obj_render_system::render(game_obj &g_obj) {
-  auto obj_node = wz_resource::map->find(g_obj.path);
+bool ObjRenderSystem::render(GameObj &g_obj) {
+  auto obj_node = WzResource::map->find(g_obj.path);
   auto index = std::to_string(g_obj.ani_index);
   obj_node = obj_node->get_child(index);
   if (obj_node->type == wz::Type::UOL) {
     obj_node = static_cast<wz::Property<wz::WzUOL> *>(obj_node)->get_uol();
   }
-  auto texture = wz_resource::load_texture(obj_node);
+  auto texture = WzResource::load_texture(obj_node);
   auto v =
       static_cast<wz::Property<wz::WzVec2D> *>(obj_node->get_child(u"origin"))
           ->get();
@@ -24,17 +24,17 @@ bool obj_render_system::render(game_obj &g_obj) {
       .w = static_cast<float>(texture->w),
       .h = static_cast<float>(texture->h),
   };
-  auto &camera = camera_game_instance::camera;
+  auto &camera = CameraGameInstance::camera;
   if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
     pos_rect.x -= camera.x;
     pos_rect.y -= camera.y;
     SDL_SetTextureAlphaMod(texture, g_obj.alpha);
     auto flip = g_obj.flip;
-    SDL_RenderTextureRotated(window::renderer, texture, nullptr, &pos_rect, 0,
+    SDL_RenderTextureRotated(Window::renderer, texture, nullptr, &pos_rect, 0,
                              nullptr, (SDL_FlipMode)flip);
   }
 
   return true;
 }
 
-void obj_render_system::render_clock(SDL_FRect &r) {}
+void ObjRenderSystem::render_clock(SDL_FRect &r) {}

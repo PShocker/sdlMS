@@ -5,7 +5,7 @@
 #include "SDL3/SDL_scancode.h"
 #include "src/client/game/game_input.h"
 #include <cstdint>
-class quick_slot_ui_system {
+class QuickSlotUiSystem {
 private:
   static void render_quickSlot();
   static void render_button();
@@ -16,12 +16,12 @@ private:
   static SDL_FPoint load_wh();
 
 public:
-  enum class quick_slot {
+  enum class QuickSlot {
     hide,
     two,
     three,
   };
-  static inline quick_slot quickSlot = quick_slot::two;
+  static inline QuickSlot quickSlot = QuickSlot::two;
 
   static void open();
   static void close();
@@ -33,6 +33,6 @@ public:
 
   static void toggle();
 
-  static void render_input_icon(const game_input &i, int x, int y,
+  static void render_input_icon(const GameInput &i, int x, int y,
                                 uint8_t alpha = 255);
 };

@@ -6,17 +6,17 @@
 #include <cmath>
 #include <optional>
 
-void slider_ui_system::render_hslider(int x, int y, uint32_t val,
+void SliderUiSystem::render_hslider(int x, int y, uint32_t val,
                                       uint32_t count, int32_t length, bool top,
                                       bool disable) {
-  static auto normal = wz_resource::load_texture(
-      wz_resource::ui->find(u"Slider.img/0/thumbNormal"));
-  static auto pressed = wz_resource::load_texture(
-      wz_resource::ui->find(u"Slider.img/0/thumbPressed"));
-  static auto disabled = wz_resource::load_texture(
-      wz_resource::ui->find(u"Slider.img/0/thumbDisabled"));
-  static auto mouse_over = wz_resource::load_texture(
-      wz_resource::ui->find(u"Slider.img/0/thumbMouseOver"));
+  static auto normal = WzResource::load_texture(
+      WzResource::ui->find(u"Slider.img/0/thumbNormal"));
+  static auto pressed = WzResource::load_texture(
+      WzResource::ui->find(u"Slider.img/0/thumbPressed"));
+  static auto disabled = WzResource::load_texture(
+      WzResource::ui->find(u"Slider.img/0/thumbDisabled"));
+  static auto mouse_over = WzResource::load_texture(
+      WzResource::ui->find(u"Slider.img/0/thumbMouseOver"));
   //   render
   SDL_FRect pos_rect;
   float persent = (float)val / count;
@@ -28,9 +28,9 @@ void slider_ui_system::render_hslider(int x, int y, uint32_t val,
   if (disable) {
     t = disabled;
   } else {
-    auto mouse_pos = window::mouse_pos;
+    auto mouse_pos = Window::mouse_pos;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-      if (window::mouse_state & SDL_BUTTON_LMASK) {
+      if (Window::mouse_state & SDL_BUTTON_LMASK) {
         t = pressed;
       } else {
         t = mouse_over;
@@ -39,10 +39,10 @@ void slider_ui_system::render_hslider(int x, int y, uint32_t val,
       t = normal;
     }
   }
-  SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
 }
 
-std::optional<int> slider_ui_system::click_thumb(int x, int y, uint32_t val,
+std::optional<int> SliderUiSystem::click_thumb(int x, int y, uint32_t val,
                                                  uint32_t count, int32_t length,
                                                  bool top, SDL_FPoint mouse) {
   SDL_FRect pos_rect = {

@@ -14,39 +14,39 @@
 #include "src/server/server_main.h"
 #include <cstddef>
 
-SDL_FPoint context_menu_ui_system::load_wh() { return {100, 122}; }
+SDL_FPoint ContextMenuUiSystem::load_wh() { return {100, 122}; }
 
-bool context_menu_ui_system::cursor_in() {
+bool ContextMenuUiSystem::cursor_in() {
   bool r = false;
-  auto &mouse = window::mouse_pos;
+  auto &mouse = Window::mouse_pos;
   auto [w, h] = load_wh();
   SDL_FRect pos_rect{pos.x + 3, pos.y, w - 3, h};
   r = SDL_PointInRectFloat(&mouse, &pos_rect);
   return r;
 }
 
-void context_menu_ui_system::render_backgrnd() {
+void ContextMenuUiSystem::render_backgrnd() {
   auto [w, h] = load_wh();
-  static auto t2 = wz_resource::load_texture(
-      wz_resource::ui->find(u"ContextMenu.img/ContextMenu/t2"));
+  static auto t2 = WzResource::load_texture(
+      WzResource::ui->find(u"ContextMenu.img/ContextMenu/t2"));
   SDL_FRect pos_rect{
       pos.x,
       pos.y,
       static_cast<float>(t2->w),
       static_cast<float>(t2->h),
   };
-  SDL_RenderTexture(window::renderer, t2, nullptr, &pos_rect);
-  static auto c = wz_resource::load_texture(
-      wz_resource::ui->find(u"ContextMenu.img/ContextMenu/c"));
-  static auto s = wz_resource::load_texture(
-      wz_resource::ui->find(u"ContextMenu.img/ContextMenu/s"));
+  SDL_RenderTexture(Window::renderer, t2, nullptr, &pos_rect);
+  static auto c = WzResource::load_texture(
+      WzResource::ui->find(u"ContextMenu.img/ContextMenu/c"));
+  static auto s = WzResource::load_texture(
+      WzResource::ui->find(u"ContextMenu.img/ContextMenu/s"));
   pos_rect = {
       pos.x + 3,
       pos.y + t2->h,
       static_cast<float>(c->w),
       static_cast<float>(h - t2->h - s->h),
   };
-  SDL_RenderTextureTiled(window::renderer, c, nullptr, 1, &pos_rect);
+  SDL_RenderTextureTiled(Window::renderer, c, nullptr, 1, &pos_rect);
 
   pos_rect = {
       pos.x + 3,
@@ -54,18 +54,18 @@ void context_menu_ui_system::render_backgrnd() {
       static_cast<float>(s->w),
       static_cast<float>(s->h),
   };
-  SDL_RenderTexture(window::renderer, s, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer, s, nullptr, &pos_rect);
 }
 
-void context_menu_ui_system::render_button() {
+void ContextMenuUiSystem::render_button() {
   const static std::array buttons_nodes = {
-      wz_resource::ui->find(u"ContextMenu.img/ContextMenu/BtInfo"),
-      wz_resource::ui->find(u"ContextMenu.img/ContextMenu/BtSave"),
-      wz_resource::ui->find(u"ContextMenu.img/ContextMenu/BtWhisper"),
-      wz_resource::ui->find(u"ContextMenu.img/ContextMenu/BtParty"),
-      wz_resource::ui->find(u"ContextMenu.img/ContextMenu/BtTrade"),
-      wz_resource::ui->find(u"ContextMenu.img/ContextMenu/BtFriend"),
-      wz_resource::ui->find(u"ContextMenu.img/ContextMenu/BtMapleChat"),
+      WzResource::ui->find(u"ContextMenu.img/ContextMenu/BtInfo"),
+      WzResource::ui->find(u"ContextMenu.img/ContextMenu/BtSave"),
+      WzResource::ui->find(u"ContextMenu.img/ContextMenu/BtWhisper"),
+      WzResource::ui->find(u"ContextMenu.img/ContextMenu/BtParty"),
+      WzResource::ui->find(u"ContextMenu.img/ContextMenu/BtTrade"),
+      WzResource::ui->find(u"ContextMenu.img/ContextMenu/BtFriend"),
+      WzResource::ui->find(u"ContextMenu.img/ContextMenu/BtMapleChat"),
   };
   std::array buttons_rect = {
       SDL_FRect{pos.x + 9, pos.y + 6, 85, 14},
@@ -84,72 +84,72 @@ void context_menu_ui_system::render_button() {
     auto pos_rect = buttons_rect[i];
     pos_rect.x = (int)pos_rect.x;
     pos_rect.y = (int)pos_rect.y;
-    auto &mouse_pos = window::mouse_pos;
+    auto &mouse_pos = Window::mouse_pos;
     if (disable[i]) {
-      auto d = wz_resource::load_texture(k->find(u"disabled/0"));
-      SDL_RenderTexture(window::renderer, d, nullptr, &pos_rect);
+      auto d = WzResource::load_texture(k->find(u"disabled/0"));
+      SDL_RenderTexture(Window::renderer, d, nullptr, &pos_rect);
     } else if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-      if (window::mouse_state & SDL_BUTTON_LMASK) {
-        auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
-        SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);
+      if (Window::mouse_state & SDL_BUTTON_LMASK) {
+        auto pressed = WzResource::load_texture(k->find(u"pressed/0"));
+        SDL_RenderTexture(Window::renderer, pressed, nullptr, &pos_rect);
       } else {
-        auto mouse_over = wz_resource::load_texture(k->find(u"mouseOver/0"));
-        SDL_RenderTexture(window::renderer, mouse_over, nullptr, &pos_rect);
+        auto mouse_over = WzResource::load_texture(k->find(u"mouseOver/0"));
+        SDL_RenderTexture(Window::renderer, mouse_over, nullptr, &pos_rect);
       }
     } else {
-      auto normal = wz_resource::load_texture(k->find(u"normal/0"));
-      SDL_RenderTexture(window::renderer, normal, nullptr, &pos_rect);
+      auto normal = WzResource::load_texture(k->find(u"normal/0"));
+      SDL_RenderTexture(Window::renderer, normal, nullptr, &pos_rect);
     }
   }
 }
 
-bool context_menu_ui_system::render() {
+bool ContextMenuUiSystem::render() {
   render_backgrnd();
   render_button();
   return true;
 }
 
-void context_menu_ui_system::event_button_info() {
-  if (client_id == server_main::local_addr) {
+void ContextMenuUiSystem::event_button_info() {
+  if (client_id == ServerMain::local_addr) {
     // self
-    character_info_ui_system::character = character_game_instance::self;
-    character_info_ui_system::close();
-    character_info_ui_system::open();
-  } else if (character_game_instance::others.contains(client_id)) {
-    character_info_ui_system::character =
-        character_game_instance::others[client_id].g_character;
-    character_info_ui_system::close();
-    character_info_ui_system::open();
+    CharacterInfoUiSystem::character = CharacterGameInstance::self;
+    CharacterInfoUiSystem::close();
+    CharacterInfoUiSystem::open();
+  } else if (CharacterGameInstance::others.contains(client_id)) {
+    CharacterInfoUiSystem::character =
+        CharacterGameInstance::others[client_id].g_character;
+    CharacterInfoUiSystem::close();
+    CharacterInfoUiSystem::open();
   } else {
     fbs::ClientCharacterInfoT ct;
     ct.payload = client_id;
-    client_request::send_to_host(ct);
+    ClientRequest::send_to_host(ct);
   }
 }
 
-void context_menu_ui_system::event_button_save() {
+void ContextMenuUiSystem::event_button_save() {
   auto name = client_name;
-  auto utf8_str = text_game_instance::load_u8str(name);
+  auto utf8_str = TextGameInstance::load_u8str(name);
   SDL_SetClipboardText(utf8_str.c_str());
 }
 
-void context_menu_ui_system::event_button_whisper() {}
+void ContextMenuUiSystem::event_button_whisper() {}
 
-void context_menu_ui_system::event_button_party() {}
+void ContextMenuUiSystem::event_button_party() {}
 
-void context_menu_ui_system::event_button_trade() {
+void ContextMenuUiSystem::event_button_trade() {
   fbs::ClientCharacterTradeT ct;
   ct.to_id = client_id;
-  client_request::send_to_host(ct);
+  ClientRequest::send_to_host(ct);
 }
 
-void context_menu_ui_system::event_button_friend() {}
+void ContextMenuUiSystem::event_button_friend() {}
 
-void context_menu_ui_system::event_button_chat() {}
+void ContextMenuUiSystem::event_button_chat() {}
 
-bool context_menu_ui_system::event_button(SDL_Event *event) {
+bool ContextMenuUiSystem::event_button(SDL_Event *event) {
   std::vector<void (*)()> fns;
-  auto &camera = camera_game_instance::camera;
+  auto &camera = CameraGameInstance::camera;
   std::array r = {
       SDL_FRect{pos.x + 9, pos.y + 6, 85, 14},
       SDL_FRect{pos.x + 9, pos.y + 22, 85, 14},
@@ -174,7 +174,7 @@ bool context_menu_ui_system::event_button(SDL_Event *event) {
     auto pos_rect = r[i];
     pos_rect.x = (int)pos_rect.x;
     pos_rect.y = (int)pos_rect.y;
-    if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect) && !disable[i]) {
+    if (SDL_PointInRectFloat(&Window::mouse_pos, &pos_rect) && !disable[i]) {
       fns[i]();
       return false;
     }
@@ -183,9 +183,9 @@ bool context_menu_ui_system::event_button(SDL_Event *event) {
   return true;
 }
 
-void context_menu_ui_system::event_close() { close(); };
+void ContextMenuUiSystem::event_close() { close(); };
 
-bool context_menu_ui_system::event(SDL_Event *event) {
+bool ContextMenuUiSystem::event(SDL_Event *event) {
   bool r = true;
   switch (event->type) {
   case SDL_EVENT_KEY_DOWN: {
@@ -204,7 +204,7 @@ bool context_menu_ui_system::event(SDL_Event *event) {
   }
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
     if (event->button.button == SDL_BUTTON_LEFT) {
-      if (cursor_game_instance::cursor_ui == render) {
+      if (CursorGameInstance::cursor_ui == render) {
         r = false;
       }
     }
@@ -212,7 +212,7 @@ bool context_menu_ui_system::event(SDL_Event *event) {
   }
   case SDL_EVENT_MOUSE_BUTTON_UP: {
     if (event->button.button == SDL_BUTTON_LEFT) {
-      if (cursor_game_instance::cursor_ui == render) {
+      if (CursorGameInstance::cursor_ui == render) {
         event_button(event);
       }
     }
@@ -227,16 +227,16 @@ bool context_menu_ui_system::event(SDL_Event *event) {
 
   return r;
 }
-void context_menu_ui_system::open() {
+void ContextMenuUiSystem::open() {
   auto it =
-      std::ranges::find(system::render_systems, &cursor_render_system::render);
-  if (it != system::render_systems.end()) {
-    system::render_systems.insert(it, render);
-    system::event_systems.insert(system::event_systems.begin(), event);
+      std::ranges::find(System::render_systems, &CursorRenderSystem::render);
+  if (it != System::render_systems.end()) {
+    System::render_systems.insert(it, render);
+    System::event_systems.insert(System::event_systems.begin(), event);
   }
 }
 
-void context_menu_ui_system::close() {
-  std::erase(system::render_systems, render);
-  std::erase(system::event_systems, event);
+void ContextMenuUiSystem::close() {
+  std::erase(System::render_systems, render);
+  std::erase(System::event_systems, event);
 }

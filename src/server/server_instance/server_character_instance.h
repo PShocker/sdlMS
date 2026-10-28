@@ -7,7 +7,7 @@
 #include <cstdint>
 using namespace fbs;
 
-class server_character_instance {
+class ServerCharacterInstance {
 private:
   static void handle_save_state(const StateT &v, CharacterT &c);
 
@@ -34,10 +34,10 @@ public:
 
   static void handle_server_atk(uint64_t client_id, ServerCharacterAttackT &r);
 
-  static void load_g_character(game_character &g_character,
+  static void load_g_character(GameCharacter &g_character,
                                const std::unique_ptr<CharacterT> &c);
-  static game_character load_g_character(const std::unique_ptr<CharacterT> &c);
-  static CharacterT load_charactert(const game_character &g);
+  static GameCharacter load_g_character(const std::unique_ptr<CharacterT> &c);
+  static CharacterT load_charactert(const GameCharacter &g);
   static void handle_server_playert(const std::unique_ptr<fbs::PlayerT> &c);
 
   static void
@@ -51,18 +51,18 @@ public:
   static void handle_server_ski(uint64_t client_id, ServerCharacterSkillT &r);
 
   static void
-  handle_s_state(game_character &g_character,
+  handle_s_state(GameCharacter &g_character,
                  const std::vector<std::unique_ptr<fbs::StateT>> &v);
 
   static void handle_state(uint64_t client_id, ClientCharacterStateT &r);
   static void handle_server_state(uint64_t client_id, ServerCharacterStateT &r);
 
-  static void handle_lv_up(game_character &g_character);
+  static void handle_lv_up(GameCharacter &g_character);
   static void handle_lv_up(uint64_t client_id, ClientCharacterLvUpT &r);
 
-  static void handle_buff_item(game_character &g_character, const StateT &st);
+  static void handle_buff_item(GameCharacter &g_character, const StateT &st);
 
-  static void handle_morph_use(game_character &g_character, bool success);
-  static void handle_scroll_use(game_character &g_character, bool success);
-  static void handle_item_use(game_character &g_character, const StateT &st);
+  static void handle_morph_use(GameCharacter &g_character, bool success);
+  static void handle_scroll_use(GameCharacter &g_character, bool success);
+  static void handle_item_use(GameCharacter &g_character, const StateT &st);
 };

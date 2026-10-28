@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <string>
 
-class game_region_skill {
+class GameRegionSkill {
 public:
   std::u16string id;
   uint8_t lv;

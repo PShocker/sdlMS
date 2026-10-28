@@ -23,24 +23,24 @@
 #include <SDL3/SDL_main.h>
 
 SDL_AppResult SDL_AppIterate(void *appstate) {
-  window::tick();
-  window::clear();
-  for (const auto &fn : system::logic_systems) {
+  Window::tick();
+  Window::clear();
+  for (const auto &fn : System::logic_systems) {
     if (!fn()) {
       break;
     }
   }
 
   // shader_game_instance::start(shader_enum::grayscale);
-  for (const auto &fn : system::render_systems) {
+  for (const auto &fn : System::render_systems) {
     if (!fn()) {
       break;
     }
   }
   // shader_game_instance::end();
 
-  window::update();
-  for (const auto &fn : server_system::server_systems) {
+  Window::update();
+  for (const auto &fn : ServerSystem::server_systems) {
     if (fn() == false) {
       break;
     }
@@ -57,35 +57,35 @@ static int32_t window_w = 1366;
 static int32_t window_h = 768;
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
-  wz_resource::init();
-  freetype::init();
+  WzResource::init();
+  Freetype::init();
 
   if (argc == 3) {
-    server_main::server_init(argv[1], SDL_atoi(argv[2]));
+    ServerMain::server_init(argv[1], SDL_atoi(argv[2]));
   } else {
-    server_main::server_init();
+    ServerMain::server_init();
   }
-  window::create("sdlMS", logic_w, logic_h, window_w, window_h);
-  camera_game_instance::load(0, 0, logic_w, logic_h);
-  keyboard_game_instance::load();
-  audio_game_instance::init();
+  Window::create("sdlMS", logic_w, logic_h, window_w, window_h);
+  CameraGameInstance::load(0, 0, logic_w, logic_h);
+  KeyboardGameInstance::load();
+  AudioGameInstance::init();
   // shader_game_instance::init();
 
-  character_game_instance::init_character_bone();
-  character_game_instance::init_default_clothes();
-  character_game_instance::load_self_character();
-  character_game_instance::self.job = u"000";
-  character_game_instance::self.level = 1;
-  character_game_instance::self.name = u"进击的蓝蘑菇";
+  CharacterGameInstance::init_character_bone();
+  CharacterGameInstance::init_default_clothes();
+  CharacterGameInstance::load_self_character();
+  CharacterGameInstance::self.job = u"000";
+  CharacterGameInstance::self.level = 1;
+  CharacterGameInstance::self.name = u"进击的蓝蘑菇";
   // character_game_instance::self.morph = u"0001";
 
   SDL_HideCursor();
-  character_save cs;
-  package_game_instance::load(cs);
-  character_stat_game_instance::load(cs);
-  quest_game_instance::load(cs);
+  CharacterSaveData cs;
+  PackageGameInstance::load(cs);
+  CharacterStatGameInstance::load(cs);
+  QuestGameInstance::load(cs);
 
-  scene_system_instance::enter_prepare(1010, u"sp", 0);
+  SceneSystemInstance::enter_prepare(1010, u"sp", 0);
   // scene_system_instance::prepare_pos = {600, -470};
   // character_create_system_instance::enter();
   // login_system_instance::enter();
@@ -95,7 +95,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
 
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
   auto r = (event->type == SDL_EVENT_QUIT) ? SDL_APP_SUCCESS : SDL_APP_CONTINUE;
-  for (auto &fn : system::event_systems) {
+  for (auto &fn : System::event_systems) {
     if (fn(event) == false) {
       break;
     }
@@ -105,6 +105,6 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result) {
   // save
-  game_save_system_instance::save_game();
+  GameSaveSystemInstance::save_game();
   SDL_Quit();
 }

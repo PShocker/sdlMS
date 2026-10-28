@@ -8,11 +8,11 @@ const static std::u16string pt_list[] = {
     u"sp",  u"ph",  u"pv", u"pc",  u"pg",  u"tp",  u"ps",   u"pgi",
     u"psi", u"pcs", u"ph", u"psh", u"pcj", u"pci", u"pcig", u"pshg"};
 
-std::flat_multimap<std::u16string, game_portal>
-portal_game_instance::load(uint32_t map_id) {
-  std::flat_multimap<std::u16string, game_portal> data;
+std::flat_multimap<std::u16string, GamePortal>
+PortalGameInstance::load(uint32_t map_id) {
+  std::flat_multimap<std::u16string, GamePortal> data;
 
-  auto map_node = wz_resource::load_map_node(map_id);
+  auto map_node = WzResource::load_map_node(map_id);
   auto map_portal_node = map_node->get_child(u"portal");
   for (auto [key, val] : *map_portal_node->get_children()) {
     auto id = std::stoi(std::string{key.begin(), key.end()});
@@ -20,7 +20,7 @@ portal_game_instance::load(uint32_t map_id) {
     auto pt =
         static_cast<wz::Property<int> *>(portal_node->get_child(u"pt"))->get();
     if (!(pt < 0 || pt >= sizeof(pt_list))) {
-      game_portal g_portal;
+      GamePortal g_portal;
       g_portal.pt = pt;
       g_portal.tm =
           static_cast<wz::Property<int> *>(portal_node->get_child(u"tm"))

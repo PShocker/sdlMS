@@ -6,20 +6,20 @@
 #include "src/server/server/server_region_skill.h"
 #include <format>
 
-void server_region_skill_instance::handle_rskill(uint64_t client_id,
+void ServerRegionSkillInstance::handle_rskill(uint64_t client_id,
                                                  ClientRSkillT &r) {
   auto map_id = r.map_id;
-  auto &scene = server_scene_instance::scenes.at(map_id);
+  auto &scene = ServerSceneInstance::scenes.at(map_id);
   for (const auto &v : r.payload) {
-    server_region_skill srs;
+    ServerRegionSkill srs;
     srs.client_id = client_id;
     srs.id = v->ski_id;
   }
 }
 
-void server_region_skill_instance::handle_s_rskill(ServerRSkillT &r) {
+void ServerRegionSkillInstance::handle_s_rskill(ServerRSkillT &r) {
   for (const auto &v : r.payload) {
-    game_region_skill grs;
+    GameRegionSkill grs;
     auto tmp = std::format("{:07d}", v->ski_id);
     grs.id = {tmp.begin(), tmp.end()};
     grs.start = v->start;
@@ -28,10 +28,10 @@ void server_region_skill_instance::handle_s_rskill(ServerRSkillT &r) {
     grs.lv = v->ski_lv;
     grs.pos = {v->x, v->y};
 
-    game_effect e = {
-        .type = game_effect::effect_type::skill_region,
+    GameEffect e = {
+        .type = GameEffect::EffectType::skill_region,
         .data = grs,
     };
-    effect_game_instance::data[v->page].emplace_back(e);
+    EffectGameInstance::data[v->page].emplace_back(e);
   }
 }

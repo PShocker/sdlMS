@@ -1,6 +1,6 @@
 #pragma once
 
-class cash_shop_system_instance {
+class CashShopSystemInstance {
 public:
   static void enter();
 };

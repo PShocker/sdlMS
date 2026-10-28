@@ -3,13 +3,13 @@
 #include <cstdint>
 #include <string>
 
-enum class gain_enum { item, experience };
+enum class GainEnum { item, experience };
 
-class game_gain_log {
+class GameGainLog {
 public:
   std::u16string id;
   int32_t num;
   uint64_t destroy;
 
-  gain_enum type;
+  GainEnum type;
 };

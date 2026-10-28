@@ -2,7 +2,7 @@
 
 #include "SDL3/SDL_rect.h"
 #include <string>
-class video_ui_system {
+class VideoUiSystem {
 public:
   static bool render();
   static void open(const std::string &path);

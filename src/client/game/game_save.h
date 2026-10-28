@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-struct ap_save {
+struct ApSave {
   uint32_t hp_ap;
   uint32_t mp_ap;
   uint32_t str_ap;
@@ -17,29 +17,29 @@ struct ap_save {
   uint32_t luk_ap;
 };
 
-struct sp_save {
+struct SpSave {
   std::flat_map<uint32_t, uint8_t> ski_sp;
 };
 
-struct package_save {
+struct PackageSaveData {
   uint32_t index;
-  std::polymorphic<game_item> val;
+  std::polymorphic<GameItem> val;
 };
 
-struct key_save {
+struct KeySave {
   uint16_t scan_code;
   std::string type;
   std::string val;
   std::string sub_val;
 };
 
-struct character_save {
-  game_character character;
-  ap_save ap;
+struct CharacterSaveData {
+  GameCharacter character;
+  ApSave ap;
   uint32_t remain_ap;
-  sp_save sp;
+  SpSave sp;
   std::vector<uint32_t> remain_sp;
-  std::vector<package_save> package;
+  std::vector<PackageSaveData> package;
   uint64_t meso;
   uint32_t map_id;
   uint32_t return_map_id;
@@ -49,13 +49,13 @@ struct character_save {
   uint32_t mp;
   uint64_t exp;
 
-  std::vector<game_quest> quests;
-  std::vector<key_save> keys;
+  std::vector<GameQuest> quests;
+  std::vector<KeySave> keys;
 };
 
-class game_save {
+class GameSaveData {
 public:
   std::string username;
-  std::vector<character_save> characters;
-  game_storage storage;
+  std::vector<CharacterSaveData> characters;
+  GameStorage storage;
 };

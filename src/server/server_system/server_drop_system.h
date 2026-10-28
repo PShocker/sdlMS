@@ -1,6 +1,6 @@
 #pragma once
 
-class server_drop_system {
+class ServerDropSystem {
 private:
   static void run_fade();
   static void run_delay_drops();

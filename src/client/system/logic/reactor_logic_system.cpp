@@ -9,10 +9,10 @@
 #include <ranges>
 #include <string>
 
-bool reactor_logic_system::run_animate(game_reactor &g_reactor) {
+bool ReactorLogicSystem::run_animate(GameReactor &g_reactor) {
   bool finish = false;
   if (g_reactor.hit) {
-    auto node = wz_resource::reactor->find(g_reactor.id + u".img");
+    auto node = WzResource::reactor->find(g_reactor.id + u".img");
     node = node->get_child(std::to_string(g_reactor.state));
     node = node->get_child(u"hit");
     if (node == nullptr) {
@@ -33,7 +33,7 @@ bool reactor_logic_system::run_animate(game_reactor &g_reactor) {
     if (delay_node != nullptr) {
       delay = static_cast<wz::Property<int> *>(delay_node)->get();
     }
-    g_reactor.ani_time += window::delta_time;
+    g_reactor.ani_time += Window::delta_time;
     if (g_reactor.ani_time > delay) {
       g_reactor.ani_time = 0;
       g_reactor.ani_index += 1;
@@ -44,20 +44,20 @@ bool reactor_logic_system::run_animate(game_reactor &g_reactor) {
   return finish;
 }
 
-void reactor_logic_system::run_alpha(game_reactor &g_reactor) {
+void ReactorLogicSystem::run_alpha(GameReactor &g_reactor) {
   if (g_reactor.alpha < 255) {
     int alpha = g_reactor.alpha;
-    alpha += window::delta_time;
+    alpha += Window::delta_time;
     g_reactor.alpha = std::min(255, alpha);
   }
 }
 
-bool reactor_logic_system::run() {
-  for (auto &rs : reactor_game_instance::data) {
+bool ReactorLogicSystem::run() {
+  for (auto &rs : ReactorGameInstance::data) {
     for (auto &r : rs) {
       run_alpha(r);
       if (run_animate(r)) {
-        r.state = server_reactor_instance::load_next_state(r.id, r.state);
+        r.state = ServerReactorInstance::load_next_state(r.id, r.state);
         r.ani_index = 0;
         r.ani_time = 0;
         r.hit = false;

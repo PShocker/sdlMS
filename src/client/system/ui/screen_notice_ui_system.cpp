@@ -8,67 +8,67 @@
 #include "src/common/wz/wz_resource.h"
 #include <ranges>
 
-SDL_FPoint screen_notice_ui_system::load_wh() { return {209, 289}; }
+SDL_FPoint ScreenNoticeUiSystem::load_wh() { return {209, 289}; }
 
-void screen_notice_ui_system::render_backgrnd() {
+void ScreenNoticeUiSystem::render_backgrnd() {
   auto [w, h] = load_wh();
-  auto n = wz_resource::ui->find(u"UIWindow.img/FloatNotice/" + path);
-  auto l = wz_resource::load_texture(n->get_child(u"0"));
-  auto m = wz_resource::load_texture(n->get_child(u"1"));
-  auto r = wz_resource::load_texture(n->get_child(u"2"));
+  auto n = WzResource::ui->find(u"UIWindow.img/FloatNotice/" + path);
+  auto l = WzResource::load_texture(n->get_child(u"0"));
+  auto m = WzResource::load_texture(n->get_child(u"1"));
+  auto r = WzResource::load_texture(n->get_child(u"2"));
   SDL_FRect pos_rect{
       pos.x,
       pos.y,
       static_cast<float>(l->w),
       static_cast<float>(l->h),
   };
-  SDL_RenderTexture(window::renderer, l, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer, l, nullptr, &pos_rect);
   pos_rect = {
       pos.x + l->w,
       pos.y,
       static_cast<float>(w - l->w - r->w),
       static_cast<float>(m->h),
   };
-  SDL_RenderTextureTiled(window::renderer, m, nullptr, 1, &pos_rect);
+  SDL_RenderTextureTiled(Window::renderer, m, nullptr, 1, &pos_rect);
   pos_rect = {
       pos.x,
       pos.y,
       static_cast<float>(r->w),
       static_cast<float>(r->h),
   };
-  SDL_RenderTexture(window::renderer, r, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer, r, nullptr, &pos_rect);
 }
 
-void screen_notice_ui_system::render_text() {
-  freetype::load_size(12);
-  freetype::load_aligned(true);
-  freetype::load_color(255, 255, 255, 255);
+void ScreenNoticeUiSystem::render_text() {
+  Freetype::load_size(12);
+  Freetype::load_aligned(true);
+  Freetype::load_color(255, 255, 255, 255);
   // freetype::draw_str();
 }
 
-void screen_notice_ui_system::open() {
+void ScreenNoticeUiSystem::open() {
   auto it =
-      std::ranges::find(system::render_systems, &cursor_render_system::render);
-  if (it != system::render_systems.end()) {
+      std::ranges::find(System::render_systems, &CursorRenderSystem::render);
+  if (it != System::render_systems.end()) {
     auto wh = load_wh();
-    auto &camera = camera_game_instance::camera;
+    auto &camera = CameraGameInstance::camera;
     pos.x = (camera.w - wh.x) / 2;
     pos.y = (camera.h - wh.y) / 2;
 
-    system::render_systems.insert(it, render);
-    system::event_systems.insert(system::event_systems.begin(), event);
+    System::render_systems.insert(it, render);
+    System::event_systems.insert(System::event_systems.begin(), event);
   }
 }
 
-bool screen_notice_ui_system::render() {
+bool ScreenNoticeUiSystem::render() {
   render_backgrnd();
 
   return true;
 }
 
-bool screen_notice_ui_system::event(SDL_Event *event) { return true; }
+bool ScreenNoticeUiSystem::event(SDL_Event *event) { return true; }
 
-void screen_notice_ui_system::close() {
-  std::erase(system::render_systems, render);
-  std::erase(system::event_systems, event);
+void ScreenNoticeUiSystem::close() {
+  std::erase(System::render_systems, render);
+  std::erase(System::event_systems, event);
 }

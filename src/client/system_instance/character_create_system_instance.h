@@ -1,6 +1,6 @@
 #pragma once
 
-class character_create_system_instance {
+class CharacterCreateSystemInstance {
 public:
   static void enter();
   static void enter_prepare();

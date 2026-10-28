@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-class request_handler {
+class RequestHandler {
 public:
   static void handle_request(uint64_t client_id, void *buf, ssize_t nread);
 };

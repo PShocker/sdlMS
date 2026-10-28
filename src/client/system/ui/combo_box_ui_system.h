@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-struct combo_box {
+struct ComboBox {
   bool open;
   uint32_t w;
   std::u16string selected;
@@ -15,8 +15,8 @@ struct combo_box {
   uint8_t val;
 };
 
-class combo_box_ui_system {
+class ComboBoxUiSystem {
 public:
-  static void render(int x, int y, combo_box cm, bool top, bool disable);
-  static bool click(int x, int y, combo_box cm, bool top, bool disable);
+  static void render(int x, int y, ComboBox cm, bool top, bool disable);
+  static bool click(int x, int y, ComboBox cm, bool top, bool disable);
 };

@@ -7,7 +7,7 @@
 #include <optional>
 #include <string>
 #include <vector>
-class beauty_ui_system {
+class BeautyUiSystem {
 private:
   static void render_backgrnd();
   static void render_npc();

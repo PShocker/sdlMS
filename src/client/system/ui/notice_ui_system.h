@@ -4,7 +4,7 @@
 #include "src/client/game/game_item.h"
 #include "text_input_ui_system.h"
 #include <any>
-class notice_ui_system {
+class NoticeUiSystem {
 private:
   static void render_backgrnd();
   static void render_button();
@@ -34,7 +34,7 @@ private:
   static void event_motion_bt_audio(SDL_Event *event);
 
 public:
-  enum class notice_enum {
+  enum class NoticeEnum {
     shopbuy,
     shopbuy_sell,
     shopbuy_sell_mul,
@@ -63,15 +63,15 @@ public:
     trade_block,
   };
 
-  static inline notice_enum type;
+  static inline NoticeEnum type;
   static inline SDL_FPoint pos;
-  static inline text_input text;
+  static inline TextInput text;
   static inline std::any data;
 
   static bool render();
 
   static void open();
-  static void open_no_space(item_enum type);
+  static void open_no_space(ItemEnum type);
   static void close();
 
   static bool event(SDL_Event *event);

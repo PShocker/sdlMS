@@ -5,4 +5,4 @@
 #include <format>
 #include <optional>
 
-void drop_game_instance::reset() { data = {}; }
+void DropGameInstance::reset() { data = {}; }

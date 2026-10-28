@@ -3,9 +3,9 @@
 #include "wz/Property.h"
 #include <vector>
 
-std::flat_map<int32_t, game_foothold>
-foothold_game_instance::load(wz::Node *node) {
-  std::flat_map<int32_t, game_foothold> data;
+std::flat_map<int32_t, GameFoothold>
+FootholdGameInstance::load(wz::Node *node) {
+  std::flat_map<int32_t, GameFoothold> data;
   auto map_node = node;
   auto map_foothold_node = map_node->get_child(u"foothold");
   for (auto [page, val0] : *map_foothold_node->get_children()) {
@@ -13,7 +13,7 @@ foothold_game_instance::load(wz::Node *node) {
       for (auto [key, val2] : *val1[0]->get_children()) {
 
         auto foothold_node = val2[0];
-        game_foothold g_foothold;
+        GameFoothold g_foothold;
 
         g_foothold.id = std::stoi(std::string{key.begin(), key.end()});
         g_foothold.page = std::stoi(std::string{page.begin(), page.end()});
@@ -57,8 +57,8 @@ foothold_game_instance::load(wz::Node *node) {
   return data;
 }
 
-std::flat_map<int32_t, game_foothold>
-foothold_game_instance::load(uint32_t map_id) {
-  auto map_node = wz_resource::load_map_node(map_id);
+std::flat_map<int32_t, GameFoothold>
+FootholdGameInstance::load(uint32_t map_id) {
+  auto map_node = WzResource::load_map_node(map_id);
   return load(map_node);
 }

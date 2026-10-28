@@ -4,7 +4,7 @@
 #include "src/common/flatbuffers/server.h"
 using namespace fbs;
 
-class server_region_skill_instance {
+class ServerRegionSkillInstance {
 public:
   static void handle_rskill(uint64_t client_id, ClientRSkillT &r);
   static void handle_s_rskill(ServerRSkillT &r);

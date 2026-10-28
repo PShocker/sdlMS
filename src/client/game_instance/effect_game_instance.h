@@ -12,8 +12,8 @@
 
 using namespace fbs;
 
-class effect_game_instance {
+class EffectGameInstance {
 public:
-  static inline std::array<std::vector<game_effect>, 8> data;
+  static inline std::array<std::vector<GameEffect>, 8> data;
   static void reset();
 };

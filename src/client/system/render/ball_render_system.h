@@ -1,7 +1,7 @@
 #pragma once
 
 #include "src/client/game/game_ball.h"
-class ball_render_system {
+class BallRenderSystem {
 public:
-  static bool render(game_ball &g_ball);
+  static bool render(GameBall &g_ball);
 };

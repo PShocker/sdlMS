@@ -10,39 +10,39 @@
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server_instance/server_trap_instance.h"
 
-void trap_logic_system::run_move(game_obj &g_trap) {
-  auto node = wz_resource::map->find(g_trap.path);
+void TrapLogicSystem::run_move(GameObj &g_trap) {
+  auto node = WzResource::map->find(g_trap.path);
 
   return;
 }
 
-bool trap_logic_system::run_attack_check(game_obj &g_trap) { return false; }
+bool TrapLogicSystem::run_attack_check(GameObj &g_trap) { return false; }
 
-void trap_logic_system::run_collision() {
-  if (character_logic_system::self_invincible_cooldown >= window::dt_now) {
+void TrapLogicSystem::run_collision() {
+  if (CharacterLogicSystem::self_invincible_cooldown >= Window::dt_now) {
     return;
   }
-  auto &self = character_game_instance::self;
+  auto &self = CharacterGameInstance::self;
   if (self.action == u"dead") {
     return;
   }
-  for (auto &m : trap_game_instance::data) {
+  for (auto &m : TrapGameInstance::data) {
     for (auto &g_trap : m | std::views::values) {
       if (run_attack_check(g_trap)) {
         uint64_t hit_num = 1;
-        character_logic_system::run_being_hit(g_trap.pos.x, hit_num);
+        CharacterLogicSystem::run_being_hit(g_trap.pos.x, hit_num);
         AttackT at{
-            .delay = window::dt_time,
+            .delay = Window::dt_time,
             .num = hit_num,
             .x = self.pos.x,
             .y = self.pos.y - 30,
-            .type = damage_data::v,
+            .type = DamageData::v,
         };
-        server_trap_instance::handle_s_attack(0, at);
+        ServerTrapInstance::handle_s_attack(0, at);
         ClientTrapAttackT cta;
-        cta.map_id = scene_system_instance::map_id;
+        cta.map_id = SceneSystemInstance::map_id;
         cta.payload = std::make_unique<AttackT>(std::move(at));
-        client_request::send_to_host(cta);
+        ClientRequest::send_to_host(cta);
         return;
       }
     }
@@ -50,11 +50,11 @@ void trap_logic_system::run_collision() {
   return;
 }
 
-bool trap_logic_system::run() {
-  for (auto &o : trap_game_instance::data) {
+bool TrapLogicSystem::run() {
+  for (auto &o : TrapGameInstance::data) {
     for (auto &g_trap : o | std::views::values) {
-      obj_logic_system::run_animate(g_trap);
-      obj_logic_system::run_alpha(g_trap);
+      ObjLogicSystem::run_animate(g_trap);
+      ObjLogicSystem::run_alpha(g_trap);
     }
   }
   run_collision();

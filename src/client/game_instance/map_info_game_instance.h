@@ -6,7 +6,7 @@
 #include <optional>
 #include <string>
 #include <vector>
-class map_info_game_instance {
+class MapInfoGameInstance {
 public:
   static wz::Node *load(uint32_t map_id);
   static SDL_FRect load_vr_border(uint32_t map_id);

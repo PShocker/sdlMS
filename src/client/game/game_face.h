@@ -2,7 +2,7 @@
 
 #include <cstdint>
 #include <string>
-class game_face {
+class GameFace {
 public:
   std::u16string id;
   std::u16string action = u"default";

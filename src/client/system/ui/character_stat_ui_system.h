@@ -4,7 +4,7 @@
 #include "SDL3/SDL_rect.h"
 #include <optional>
 #include <vector>
-class character_stat_ui_system {
+class CharacterStatUiSystem {
 private:
   static void render_backgrnd();
   static void render_text();

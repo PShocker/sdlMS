@@ -3,14 +3,14 @@
 #include "SDL3/SDL_render.h"
 #include <flat_map>
 #include <vector>
-enum class shader_enum {
+enum class ShaderEnum {
   grayscale,
   outline,
 };
 
-class shader_game_instance {
+class ShaderGameInstance {
 public:
   static bool init();
-  static void start(shader_enum type);
+  static void start(ShaderEnum type);
   static void end();
 };

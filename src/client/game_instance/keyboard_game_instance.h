@@ -7,18 +7,18 @@
 #include <flat_map>
 #include <optional>
 #include <string>
-class keyboard_game_instance {
+class KeyboardGameInstance {
 public:
   static void reset();
 
-  static void load(const character_save &cs);
+  static void load(const CharacterSaveData &cs);
   static void load();
-  static inline std::flat_map<SDL_Scancode, game_input> data;
+  static inline std::flat_map<SDL_Scancode, GameInput> data;
   static SDL_Scancode find_key_by_val(const std::string &target_val);
-  static game_input find_input_by_cursor(int i);
-  static std::optional<game_input> load_cursor_input();
+  static GameInput find_input_by_cursor(int i);
+  static std::optional<GameInput> load_cursor_input();
 
-  static void insert_input(SDL_Scancode c, game_input i);
+  static void insert_input(SDL_Scancode c, GameInput i);
   static void erase_input(SDL_Scancode c);
-  static void erase_input(game_input i);
+  static void erase_input(GameInput i);
 };

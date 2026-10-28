@@ -19,23 +19,23 @@
 #include <string>
 
 static void duanhunjian() {
-  game_skill g_skill;
+  GameSkill g_skill;
   g_skill.id = u"3001001";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
-    game_triangle tri = {
+    GameTriangle tri = {
         {
             SDL_FPoint{-350, -100},
             SDL_FPoint{-350, 100},
             SDL_FPoint{0, -28},
         },
     };
-    auto &sf = character_game_instance::self;
-    character_logic_system::run_action(sf, u"swingO1");
-    auto cm = character_logic_system::run_attack_check(sf, tri);
+    auto &sf = CharacterGameInstance::self;
+    CharacterLogicSystem::run_action(sf, u"swingO1");
+    auto cm = CharacterLogicSystem::run_attack_check(sf, tri);
     if (!cm.data.empty()) {
       cm.data = {cm.data[0]};
     }
-    auto delay = skill_game_instance::load_ski_time(sf);
+    auto delay = SkillGameInstance::load_ski_time(sf);
     auto ski_lvl2 = std::to_string(ski_lv);
     std::u16string path = u"300.img/skill/3001001/ball";
     auto pos = sf.pos;
@@ -47,58 +47,58 @@ static void duanhunjian() {
     } else {
       goal.x -= 350;
     }
-    auto cct = ball_game_instance::create_ball_payload(cm, pos, goal, delay,
+    auto cct = BallGameInstance::create_ball_payload(cm, pos, goal, delay,
                                                        page, 700, path);
-    client_request::send_to_host(cct);
-    server_ball_instance::handle_server_b(cct.payload);
+    ClientRequest::send_to_host(cct);
+    ServerBallInstance::handle_server_b(cct.payload);
 
     ClientCharacterAttackT cat;
     if (!cm.data.empty()) {
-      auto d = ball_game_instance::load_ball_time(cct);
+      auto d = BallGameInstance::load_ball_time(cct);
       // Create and send attack payload
       cm.data[0].y = 0;
       cm.data[0].hits = {10};
-      cat = skill_game_instance::create_attack_payload(cm, sf.pos, d);
-      client_request::send_to_host(cat);
+      cat = SkillGameInstance::create_attack_payload(cm, sf.pos, d);
+      ClientRequest::send_to_host(cat);
     }
-    auto ckt = skill_game_instance::create_skill_payload(cat, 3001001, ski_lv);
-    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
-    client_request::send_to_host(ckt);
+    auto ckt = SkillGameInstance::create_skill_payload(cat, 3001001, ski_lv);
+    ServerCharacterInstance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
+    ClientRequest::send_to_host(ckt);
   };
-  auto &skis = skill_game_instance::skis();
+  auto &skis = SkillGameInstance::skis();
   skis[g_skill.id] = g_skill;
 }
 
 static void shuangfeizhan() {
-  game_skill g_skill;
+  GameSkill g_skill;
   g_skill.id = u"3001002";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
-    const game_triangle tri = {
+    const GameTriangle tri = {
         {
             SDL_FPoint{-350, -100},
             SDL_FPoint{-350, 100},
             SDL_FPoint{0, -28},
         },
     };
-    auto &sf = character_game_instance::self;
-    auto weapon_type = equip_game_instance::load_weapon_type(sf);
-    if (!(weapon_type == equip_game_instance::weapon_type::BOW ||
-          weapon_type == equip_game_instance::weapon_type::CROSSBOW)) {
+    auto &sf = CharacterGameInstance::self;
+    auto WeaponType = EquipGameInstance::load_weapon_type(sf);
+    if (!(WeaponType == EquipGameInstance::WeaponType::BOW ||
+          WeaponType == EquipGameInstance::WeaponType::CROSSBOW)) {
       return;
     }
-    auto ball = package_game_instance::load_active_ball();
+    auto ball = PackageGameInstance::load_active_ball();
     if (ball == nullptr) {
       return;
     }
     auto ball_id = (*ball)->id;
-    character_logic_system::run_action(sf, u"shoot1");
-    auto cm = character_logic_system::run_attack_check(sf, tri);
+    CharacterLogicSystem::run_action(sf, u"shoot1");
+    auto cm = CharacterLogicSystem::run_attack_check(sf, tri);
     if (!cm.data.empty()) {
       cm.data = {cm.data[0]};
     }
-    auto delay = skill_game_instance::load_ski_time(sf);
+    auto delay = SkillGameInstance::load_ski_time(sf);
     auto pre = ball_id.substr(0, 4);
-    std::u16string path = ball_game_instance::load_ball_path(ball_id);
+    std::u16string path = BallGameInstance::load_ball_path(ball_id);
     auto pos = sf.pos;
     pos.y -= 32;
     auto page = sf.page;
@@ -108,7 +108,7 @@ static void shuangfeizhan() {
     } else {
       goal.x -= 350;
     }
-    auto cct = ball_game_instance::create_ball_payload(cm, pos, goal, delay,
+    auto cct = BallGameInstance::create_ball_payload(cm, pos, goal, delay,
                                                        page, 750, path);
     if (cct.payload->ball->mob_index != UINT32_MAX) {
       if (cct.payload->ball->y2 >= -8) {
@@ -119,26 +119,26 @@ static void shuangfeizhan() {
 
     ClientCharacterAttackT cat;
     if (!cm.data.empty()) {
-      auto d = ball_game_instance::load_ball_time(cct);
+      auto d = BallGameInstance::load_ball_time(cct);
       // Create and send attack payload
       cm.data[0].hits = {5, 5};
-      cat = skill_game_instance::create_attack_payload(cm, sf.pos, d);
-      client_request::send_to_host(cat);
+      cat = SkillGameInstance::create_attack_payload(cm, sf.pos, d);
+      ClientRequest::send_to_host(cat);
     }
     for (auto i : {0, 1}) {
       cct.payload->ball->y1 = sf.pos.y - 28;
       cct.payload->ball->y2 += i * 8;
-      client_request::send_to_host(cct);
-      server_ball_instance::handle_server_b(cct.payload);
+      ClientRequest::send_to_host(cct);
+      ServerBallInstance::handle_server_b(cct.payload);
     }
-    auto ckt = skill_game_instance::create_skill_payload(cat, 3001002, ski_lv);
+    auto ckt = SkillGameInstance::create_skill_payload(cat, 3001002, ski_lv);
     if (!ckt.payload.empty()) {
       ckt.payload[1]->y += 8;
     }
-    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
-    client_request::send_to_host(ckt);
+    ServerCharacterInstance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
+    ClientRequest::send_to_host(ckt);
   };
-  auto &skis = skill_game_instance::skis();
+  auto &skis = SkillGameInstance::skis();
   skis[g_skill.id] = g_skill;
 }
 

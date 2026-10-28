@@ -7,7 +7,7 @@
 
 using namespace fbs;
 
-class client_request {
+class ClientRequest {
 public:
   template <typename T> static void send_to_host(T &message_data) {
     // 构建 NetPacket
@@ -20,10 +20,10 @@ public:
     flatbuffers::FlatBufferBuilder builder;
     auto packet_offset = NetPacket::Pack(builder, &packet);
     builder.Finish(packet_offset);
-    auto addr = server_main::host ? &server_main::host_addr : nullptr;
+    auto addr = ServerMain::host ? &ServerMain::host_addr : nullptr;
 
     auto point = builder.GetBufferPointer();
     auto size = builder.GetSize();
-    server_main::server_send(point, size, addr);
+    ServerMain::server_send(point, size, addr);
   }
 };

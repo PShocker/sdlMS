@@ -4,7 +4,7 @@
 #include "wz/Property.h"
 #include <string>
 
-void tile_game_instance::load(wz::Node *image) {
+void TileGameInstance::load(wz::Node *image) {
   data = {};
   auto map_node = image;
   uint8_t map_layer = 0;
@@ -17,7 +17,7 @@ void tile_game_instance::load(wz::Node *image) {
     }
     auto tS2 = static_cast<wz::Property<std::u16string> *>(tS)->get();
     for (auto [key, val] : *layer_node->get_child(u"tile")->get_children()) {
-      game_tile g_tile;
+      GameTile g_tile;
       auto tile_node = val[0];
 
       auto u = static_cast<wz::Property<std::u16string> *>(
@@ -41,19 +41,19 @@ void tile_game_instance::load(wz::Node *image) {
           static_cast<wz::Property<int> *>(tile_node->get_child(u"zM"))->get();
 
       auto load_z = std::stoi(std::string{key.begin(), key.end()});
-      auto frame_node = wz_resource::map->find(g_tile.path);
+      auto frame_node = WzResource::map->find(g_tile.path);
       auto frame_z =
           static_cast<wz::Property<int> *>(frame_node->get_child(u"z"))->get();
 
       g_tile.z = frame_z * 100000 + load_z * 10 + zm;
 
-      tile_game_instance::data[map_layer].emplace(g_tile.z, g_tile);
+      TileGameInstance::data[map_layer].emplace(g_tile.z, g_tile);
     }
     map_layer++;
   }
 }
 
-void tile_game_instance::load(uint32_t map_id) {
-  auto map_node = wz_resource::load_map_node(map_id);
+void TileGameInstance::load(uint32_t map_id) {
+  auto map_node = WzResource::load_map_node(map_id);
   load(map_node);
 }

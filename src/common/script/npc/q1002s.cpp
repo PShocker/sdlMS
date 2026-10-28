@@ -11,43 +11,43 @@
 // roger apple
 
 static void state() {
-  switch (npc_dlg_ui_system::index) {
+  switch (NpcDlgUiSystem::index) {
   case 1: {
-    npc_dlg_ui_system::close();
-    game_consume_item con;
+    NpcDlgUiSystem::close();
+    GameConsumeItem con;
     con.num = 1;
     con.id = u"02010000";
-    std::polymorphic<game_item> itm{con};
-    auto i = package_game_instance::add_new_item(itm);
+    std::polymorphic<GameItem> itm{con};
+    auto i = PackageGameInstance::add_new_item(itm);
     if (!i.has_value()) {
-      notice_ui_system::open_no_space(itm->type);
+      NoticeUiSystem::open_no_space(itm->type);
     } else {
       // accept quest
-      quest_game_instance::accept_quest(u"1002.img");
+      QuestGameInstance::accept_quest(u"1002.img");
     }
     break;
   }
   case 0: {
     auto text_node =
-        wz_resource::ms->get_root()->find(u"String.img/Script/npc_3/t0");
+        WzResource::ms->get_root()->find(u"String.img/Script/npc_3/t0");
     auto text = static_cast<wz::Property<std::u16string> *>(text_node)->get();
-    npc_dlg_ui_system::text = text;
+    NpcDlgUiSystem::text = text;
     break;
   }
   }
-  npc_dlg_ui_system::time = window::dt_now;
+  NpcDlgUiSystem::time = Window::dt_now;
 }
 
 static void q1002s(std::any data) {
-  npc_dlg_ui_system::type = npc_dlg_ui_system::npc_dlg_enum::quest_avaliable;
-  npc_dlg_ui_system::max_index = 0;
-  npc_dlg_ui_system::npc_id = u"0000003";
+  NpcDlgUiSystem::type = NpcDlgUiSystem::NpcDlgEnum::quest_avaliable;
+  NpcDlgUiSystem::max_index = 0;
+  NpcDlgUiSystem::npc_id = u"0000003";
   state();
   return;
 };
 
 [[maybe_unused]] static const bool r = [] {
-  auto &fns = script::fns();
+  auto &fns = Script::fns();
   fns[u"q1002s"] = q1002s;
   return true;
 }();

@@ -6,8 +6,8 @@
 #include <flat_map>
 #include <optional>
 #include <string>
-class server_debuff {
+class ServerDebuff {
 public:
   uint64_t client_id;
-  game_debuff db;
+  GameDebuff db;
 };

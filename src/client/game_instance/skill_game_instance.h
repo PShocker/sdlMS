@@ -12,11 +12,11 @@
 
 using namespace fbs;
 
-class skill_game_instance {
+class SkillGameInstance {
 public:
-  static inline std::vector<game_skill> ski; // buff
+  static inline std::vector<GameSkill> ski; // buff
   static auto &skis() {
-    static std::flat_map<std::u16string, game_skill> instance;
+    static std::flat_map<std::u16string, GameSkill> instance;
     return instance;
   }
 
@@ -25,16 +25,16 @@ public:
   static wz::Node *load_ski_node(const std::u16string &id);
   static wz::Node *load_ski_level_node(const std::u16string &id, uint8_t l);
 
-  static uint64_t load_ski_time(game_character &g_character);
+  static uint64_t load_ski_time(GameCharacter &g_character);
   static SDL_FRect load_r(SDL_FPoint lt, SDL_FPoint rb, SDL_FPoint pos,
                           bool flip);
 
-  struct skill_name {
+  struct SkillName {
     std::u16string name;
     std::u16string desc;
     std::vector<std::u16string> level;
   };
-  static skill_name load_ski_name(const std::u16string &id);
+  static SkillName load_ski_name(const std::u16string &id);
   static int load_ski_max_lvl(const std::u16string &id);
   static bool load_ski_active(const std::u16string &id);
 
@@ -46,9 +46,9 @@ public:
   static int load_ski_atk_count(const std::u16string &id, uint8_t lv);
 
   static ClientCharacterAttackT
-  create_attack_payload(check_mobs &cm, SDL_FPoint pos, uint64_t delay);
+  create_attack_payload(CheckMobs &cm, SDL_FPoint pos, uint64_t delay);
   static ClientCharacterAttackT
-  create_attack_payload(check_mobs &cm, SDL_FPoint pos, uint64_t delay,
+  create_attack_payload(CheckMobs &cm, SDL_FPoint pos, uint64_t delay,
                         uint32_t interval, std::string effect,
                         std::string sound);
 

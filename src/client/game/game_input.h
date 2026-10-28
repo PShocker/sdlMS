@@ -5,11 +5,11 @@
 #include <string>
 #include <vector>
 
-class game_input {
+class GameInput {
 public:
   std::string type;
   std::string val;
   std::string sub_val;
 
-  auto operator<=>(const game_input &) const = default;
+  auto operator<=>(const GameInput &) const = default;
 };

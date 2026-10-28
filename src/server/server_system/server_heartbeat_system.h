@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-class server_heartbeat_system {
+class ServerHeartbeatSystem {
 public:
   static bool run_client_heartbeat();
   static bool run_server_heartbeat(); // server only

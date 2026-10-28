@@ -1,10 +1,10 @@
 #pragma once
 
 #include "src/client/game/game_reactor.h"
-class reactor_logic_system {
+class ReactorLogicSystem {
 private:
-  static bool run_animate(game_reactor &g_reactor);
-  static void run_alpha(game_reactor &g_reactor);
+  static bool run_animate(GameReactor &g_reactor);
+  static void run_alpha(GameReactor &g_reactor);
 
 public:
   static bool run();

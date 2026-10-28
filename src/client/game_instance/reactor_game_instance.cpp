@@ -6,8 +6,8 @@
 #include "wz/Property.h"
 #include <cstdint>
 
-uint8_t reactor_game_instance::load_reactor_layer(SDL_FPoint pos) {
-  for (const auto &[key, val] : foothold_game_instance::data) {
+uint8_t ReactorGameInstance::load_reactor_layer(SDL_FPoint pos) {
+  for (const auto &[key, val] : FootholdGameInstance::data) {
     if (val.l <= pos.x && val.r >= pos.x && pos.y >= val.t && pos.y <= val.b) {
       return val.page;
     }
@@ -15,16 +15,16 @@ uint8_t reactor_game_instance::load_reactor_layer(SDL_FPoint pos) {
   return 0;
 }
 
-void reactor_game_instance::load(uint32_t map_id) {
+void ReactorGameInstance::load(uint32_t map_id) {
   data = {};
 
-  auto map_node = wz_resource::load_map_node(map_id);
+  auto map_node = WzResource::load_map_node(map_id);
   auto map_reactor_node = map_node->get_child(u"reactor");
   if (map_reactor_node != nullptr) {
     uint8_t index = 0;
     for (auto [key, val] : *map_reactor_node->get_children()) {
       auto reactor_node = val[0];
-      game_reactor g_reactor;
+      GameReactor g_reactor;
       g_reactor.id = static_cast<wz::Property<std::u16string> *>(
                          reactor_node->get_child(u"id"))
                          ->get();
@@ -42,7 +42,7 @@ void reactor_game_instance::load(uint32_t map_id) {
               ->get();
       auto layer = load_reactor_layer(g_reactor.pos);
 
-      reactor_game_instance::data[layer].emplace_back(g_reactor);
+      ReactorGameInstance::data[layer].emplace_back(g_reactor);
       index++;
     }
   }

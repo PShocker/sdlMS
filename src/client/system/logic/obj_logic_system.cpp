@@ -8,13 +8,13 @@
 #include <ranges>
 #include <string>
 
-void obj_logic_system::run_animate(game_obj &g_obj) {
+void ObjLogicSystem::run_animate(GameObj &g_obj) {
   if (g_obj.ani_count > 1) {
-    g_obj.ani_time += window::delta_time;
+    g_obj.ani_time += Window::delta_time;
 
     auto index = std::to_string(g_obj.ani_index);
 
-    auto obj_node = wz_resource::map->find(g_obj.path);
+    auto obj_node = WzResource::map->find(g_obj.path);
     obj_node = obj_node->get_child(index);
     if (obj_node->type == wz::Type::UOL) {
       obj_node = static_cast<wz::Property<wz::WzUOL> *>(obj_node)->get_uol();
@@ -33,8 +33,8 @@ void obj_logic_system::run_animate(game_obj &g_obj) {
   }
 }
 
-void obj_logic_system::run_alpha(game_obj &g_obj) {
-  auto obj_node = wz_resource::map->find(g_obj.path);
+void ObjLogicSystem::run_alpha(GameObj &g_obj) {
+  auto obj_node = WzResource::map->find(g_obj.path);
   auto index = std::to_string(g_obj.ani_index);
   obj_node = obj_node->get_child(index);
   if (obj_node->type == wz::Type::UOL) {
@@ -53,8 +53,8 @@ void obj_logic_system::run_alpha(game_obj &g_obj) {
   }
 }
 
-bool obj_logic_system::run() {
-  for (auto &o : obj_game_instance::data) {
+bool ObjLogicSystem::run() {
+  for (auto &o : ObjGameInstance::data) {
     for (auto &g_obj : o | std::views::values) {
       run_animate(g_obj);
       run_alpha(g_obj);

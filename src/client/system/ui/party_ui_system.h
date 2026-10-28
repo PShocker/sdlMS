@@ -2,7 +2,7 @@
 
 #include "SDL3/SDL_events.h"
 #include <optional>
-class party_ui_system {
+class PartyUiSystem {
 private:
   static void render_backgrnd(float x, float y, float w, float h);
   static void render_party_hp();

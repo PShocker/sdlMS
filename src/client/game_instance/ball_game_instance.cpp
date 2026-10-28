@@ -14,9 +14,9 @@
 #include <memory>
 #include <string>
 
-void ball_game_instance::reset() { data = {}; }
+void BallGameInstance::reset() { data = {}; }
 
-SDL_FPoint ball_game_instance::closest_point_on_rect(const SDL_FPoint &pos,
+SDL_FPoint BallGameInstance::closest_point_on_rect(const SDL_FPoint &pos,
                                                      const SDL_FRect &rect) {
   SDL_FPoint closest;
 
@@ -39,8 +39,8 @@ SDL_FPoint ball_game_instance::closest_point_on_rect(const SDL_FPoint &pos,
   return closest;
 }
 
-ClientCharacterBallT ball_game_instance::create_ball_payload(
-    check_mobs &cm, SDL_FPoint pos, SDL_FPoint goal, uint64_t delay, int page,
+ClientCharacterBallT BallGameInstance::create_ball_payload(
+    CheckMobs &cm, SDL_FPoint pos, SDL_FPoint goal, uint64_t delay, int page,
     int speed, const std::u16string &path) {
 
   ClientCharacterBallT ccb;
@@ -57,12 +57,12 @@ ClientCharacterBallT ball_game_instance::create_ball_payload(
       .page = (uint8_t)page,
   });
 
-  const auto &fhs = foothold_game_instance::data;
+  const auto &fhs = FootholdGameInstance::data;
   auto hspeed = (goal.x > pos.x) ? speed : -speed;
 
   // 2. 提取目标计算逻辑为lambda，减少重复
   auto calculate_target = [&](SDL_FPoint target) -> SDL_FPoint {
-    auto ins = physic::fall_intersect_pos(pos, target, fhs);
+    auto ins = Physic::fall_intersect_pos(pos, target, fhs);
 
     SDL_FPoint best_point = target;
     float min_dx = std::numeric_limits<float>::max();
@@ -76,7 +76,7 @@ ClientCharacterBallT ball_game_instance::create_ball_payload(
         continue; // 提前剪枝
 
       if (!v.fh.k.has_value()) {
-        check = physic::fall_collide_wall(hspeed, v.fh, fhs);
+        check = Physic::fall_collide_wall(hspeed, v.fh, fhs);
       } else if (v.fh.k == 0) {
         check = (pos.y < target.y); // 禁止从上到下
       } else {
@@ -97,7 +97,7 @@ ClientCharacterBallT ball_game_instance::create_ball_payload(
   // 3. 主逻辑流
   if (!cm.data.empty()) {
     const auto &mob = cm.data[0].mob;
-    auto mob_r = mob_logic_system::load_rect(mob);
+    auto mob_r = MobLogicSystem::load_rect(mob);
 
     if (mob_r.has_value()) {
       auto closest_pos = closest_point_on_rect(pos, mob_r.value());
@@ -140,12 +140,12 @@ ClientCharacterBallT ball_game_instance::create_ball_payload(
   return ccb;
 }
 
-uint64_t ball_game_instance::load_ball_time(ClientCharacterBallT &cct) {
+uint64_t BallGameInstance::load_ball_time(ClientCharacterBallT &cct) {
   const auto &b = cct.payload->ball;
 
   // 一次查找，避免 contains + at 的双重开销
-  auto it = mob_game_instance::data.find(b->mob_index);
-  if (it == mob_game_instance::data.end()) {
+  auto it = MobGameInstance::data.find(b->mob_index);
+  if (it == MobGameInstance::data.end()) {
     return 0;
   }
 
@@ -167,12 +167,12 @@ uint64_t ball_game_instance::load_ball_time(ClientCharacterBallT &cct) {
   return static_cast<uint64_t>(dt + 0.5) + b->delay;
 }
 
-std::u16string ball_game_instance::load_ball_path(const std::u16string &id) {
+std::u16string BallGameInstance::load_ball_path(const std::u16string &id) {
   std::u16string path;
   // 硬编码判断无影箭
-  auto &ski = skill_game_instance::ski;
+  auto &ski = SkillGameInstance::ski;
   auto it = std::ranges::find_if(
-      ski, [](const game_skill &s) { return s.id == u"3101003"; });
+      ski, [](const GameSkill &s) { return s.id == u"3101003"; });
   if (it != ski.end()) {
     path = u"310.img/skill/3101003/ball";
   } else {
@@ -183,7 +183,7 @@ std::u16string ball_game_instance::load_ball_path(const std::u16string &id) {
 }
 
 std::u16string
-ball_game_instance::load_cash_ball_path(const std::u16string &id) {
+BallGameInstance::load_cash_ball_path(const std::u16string &id) {
   std::u16string path;
   if (!id.empty()) {
     auto sub_id = id.substr(0, 4) + u".img";
@@ -193,7 +193,7 @@ ball_game_instance::load_cash_ball_path(const std::u16string &id) {
 }
 
 std::u16string
-ball_game_instance::load_cash_ball_effect(const std::u16string &id) {
+BallGameInstance::load_cash_ball_effect(const std::u16string &id) {
   std::u16string effect;
   if (!id.empty()) {
     auto sub_id = id.substr(0, 4) + u".img";

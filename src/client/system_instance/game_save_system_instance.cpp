@@ -23,7 +23,7 @@
 #include <memory>
 #include <string>
 
-bool game_save_system_instance::load_save(const std::string &login) {
+bool GameSaveSystemInstance::load_save(const std::string &login) {
   save = {};
   save.username = login;
   if (!SDL_CreateDirectory("./Save")) {
@@ -34,20 +34,20 @@ bool game_save_system_instance::load_save(const std::string &login) {
   std::string path = "./Save/" + login + ".bin";
   void *data = SDL_LoadFile(path.c_str(), &file_size);
   if (data != nullptr) {
-    auto game_save = flatbuffers::GetRoot<GameSave>(data);
-    GameSaveT gst;
-    game_save->UnPackTo(&gst);
+    auto root = flatbuffers::GetRoot<fbs::GameSave>(data);
+    fbs::GameSaveT gst;
+    root->UnPackTo(&gst);
     for (const auto &c : gst.data->data) {
-      character_save cs;
+      CharacterSaveData cs;
       cs.map_id = c->map_id;
-      cs.character = server_character_instance::load_g_character(c->character);
+      cs.character = ServerCharacterInstance::load_g_character(c->character);
       std::u16string name{c->character->name.begin(), c->character->name.end()};
       cs.character.name = name;
       for (auto &item : c->package) {
         switch (item->data.type) {
         case fbs::ItemUnion_Equip: {
           auto eqp = item->data.AsEquip();
-          game_equip_item g_equip;
+          GameEquipItem g_equip;
           auto tmp = std::format("{:08d}", eqp->equip_id);
           g_equip.id = {tmp.begin(), tmp.end()};
           for (const auto &scroll : eqp->scroll) {
@@ -55,8 +55,8 @@ bool game_save_system_instance::load_save(const std::string &login) {
             std::u16string scroll_id{tmp.begin(), tmp.end()};
             g_equip.scroll.push_back({scroll_id, scroll->success});
           }
-          auto g_item = std::polymorphic<game_item>(
-              std::in_place_type<game_equip_item>, g_equip);
+          auto g_item = std::polymorphic<GameItem>(
+              std::in_place_type<GameEquipItem>, g_equip);
           cs.package.emplace_back(item->index, g_item);
           break;
         }
@@ -64,7 +64,7 @@ bool game_save_system_instance::load_save(const std::string &login) {
           auto itm = item->data.AsItem();
           auto tmp = std::format("{:08d}", itm->item_id);
           std::u16string item_id{tmp.begin(), tmp.end()};
-          auto item2 = item_game_instance::load_item(item_id, itm->item_num);
+          auto item2 = ItemGameInstance::load_item(item_id, itm->item_num);
           cs.package.emplace_back(item->index, std::move(item2));
           break;
         }
@@ -85,12 +85,12 @@ bool game_save_system_instance::load_save(const std::string &login) {
       cs.exp = c->exp;
 
       for (const auto &quest : c->quest) {
-        game_quest g_quest;
+        GameQuest g_quest;
         g_quest.quest_id = {quest->id.begin(), quest->id.end()};
         g_quest.index = quest->index;
-        g_quest.type = (quest_enum)quest->type;
+        g_quest.type = (QuestEnum)quest->type;
         for (const auto &v : quest->mob) {
-          quest_mob q_mob;
+          QuestMob q_mob;
           auto tmp = std::format("{:07d}", v->mob_id);
           q_mob.id = {tmp.begin(), tmp.end()};
           q_mob.count = v->mob_num;
@@ -100,7 +100,7 @@ bool game_save_system_instance::load_save(const std::string &login) {
       }
 
       for (const auto &k : c->key) {
-        key_save ks;
+        KeySave ks;
         ks.scan_code = k->scan_code;
         ks.type = k->type;
         ks.val = k->val;
@@ -117,11 +117,11 @@ bool game_save_system_instance::load_save(const std::string &login) {
       switch (s.type) {
       case fbs::ItemUnion_Equip: {
         auto eqp = s.AsEquip();
-        game_equip_item g_equip;
+        GameEquipItem g_equip;
         auto tmp = std::format("{:08d}", eqp->equip_id);
         g_equip.id = {tmp.begin(), tmp.end()};
-        auto g_item = std::polymorphic<game_item>(
-            std::in_place_type<game_equip_item>, g_equip);
+        auto g_item = std::polymorphic<GameItem>(
+            std::in_place_type<GameEquipItem>, g_equip);
         break;
       }
       case fbs::ItemUnion_Item: {
@@ -138,29 +138,29 @@ bool game_save_system_instance::load_save(const std::string &login) {
   return false;
 }
 
-bool game_save_system_instance::save_game() {
+bool GameSaveSystemInstance::save_game() {
   if (save.username.empty()) {
     return false;
   }
-  if (character_choose_ui_system::characters.empty()) {
+  if (CharacterChooseUiSystem::characters.empty()) {
     return false;
   }
   // save
-  auto character = character_game_instance::self;
+  auto character = CharacterGameInstance::self;
   if (!character.name.empty()) {
-    character_save cs;
+    CharacterSaveData cs;
     cs.character = character;
-    cs.ap.hp_ap = character_stat_game_instance::get_hp_ap(),
-    cs.ap.mp_ap = character_stat_game_instance::get_mp_ap(),
-    cs.ap.str_ap = character_stat_game_instance::get_str_ap(),
-    cs.ap.dex_ap = character_stat_game_instance::get_dex_ap(),
-    cs.ap.int_ap = character_stat_game_instance::get_int_ap(),
-    cs.ap.luk_ap = character_stat_game_instance::get_luk_ap(),
-    cs.sp = {job_skill_game_instance::skill_point};
+    cs.ap.hp_ap = CharacterStatGameInstance::get_hp_ap(),
+    cs.ap.mp_ap = CharacterStatGameInstance::get_mp_ap(),
+    cs.ap.str_ap = CharacterStatGameInstance::get_str_ap(),
+    cs.ap.dex_ap = CharacterStatGameInstance::get_dex_ap(),
+    cs.ap.int_ap = CharacterStatGameInstance::get_int_ap(),
+    cs.ap.luk_ap = CharacterStatGameInstance::get_luk_ap(),
+    cs.sp = {JobSkillGameInstance::skill_point};
 
-    cs.map_id = scene_system_instance::map_id;
+    cs.map_id = SceneSystemInstance::map_id;
 
-    auto [first, last] = portal_game_instance::data.equal_range(u"sp");
+    auto [first, last] = PortalGameInstance::data.equal_range(u"sp");
     std::flat_map<uint64_t, int> por_dis;
     const auto &character_pos = character.pos;
     for (auto it = first; it != last; ++it) {
@@ -171,23 +171,23 @@ bool game_save_system_instance::save_game() {
     }
     cs.portal_id = por_dis.begin()->second;
 
-    cs.meso = package_game_instance::meso;
+    cs.meso = PackageGameInstance::meso;
 
-    cs.hp = character_stat_game_instance::get_hp();
-    cs.mp = character_stat_game_instance::get_mp();
-    cs.exp = character_stat_game_instance::get_exp();
+    cs.hp = CharacterStatGameInstance::get_hp();
+    cs.mp = CharacterStatGameInstance::get_mp();
+    cs.exp = CharacterStatGameInstance::get_exp();
 
-    for (auto [k, v] : quest_game_instance::progress_quests) {
+    for (auto [k, v] : QuestGameInstance::progress_quests) {
       cs.quests.push_back(std::move(v));
     }
-    for (auto [k, v] : quest_game_instance::complete_quests) {
+    for (auto [k, v] : QuestGameInstance::complete_quests) {
       cs.quests.push_back(std::move(v));
     }
-    for (auto [k, v] : quest_game_instance::decline_quests) {
+    for (auto [k, v] : QuestGameInstance::decline_quests) {
       cs.quests.push_back(std::move(v));
     }
 
-    for (auto [k, v] : keyboard_game_instance::data) {
+    for (auto [k, v] : KeyboardGameInstance::data) {
       cs.keys.push_back({
           .scan_code = static_cast<uint16_t>(k),
           .type = v.type,
@@ -196,7 +196,7 @@ bool game_save_system_instance::save_game() {
       });
     }
 
-    for (auto &d : package_game_instance::data) {
+    for (auto &d : PackageGameInstance::data) {
       for (uint32_t i = 0; i < d.size(); ++i) {
         auto &v = d[i];
         if (!v->id.empty()) {
@@ -214,13 +214,13 @@ bool game_save_system_instance::save_game() {
   }
 
   // save
-  GameSaveT gst;
+  fbs::GameSaveT gst;
   PlayerSaveT pst;
   gst.username = save.username;
   for (uint32_t i = 0; i < save.characters.size(); i++) {
-    CharacterSaveT cst;
+    fbs::CharacterSaveT cst;
     auto character_s = std::move(save.characters[i]);
-    auto ct = server_character_instance::load_charactert(character_s.character);
+    auto ct = ServerCharacterInstance::load_charactert(character_s.character);
     cst.character = std::make_unique<CharacterT>(ct);
     cst.ap = std::make_unique<APSaveT>();
     cst.ap->hp_ap = character_s.ap.hp_ap;
@@ -270,13 +270,13 @@ bool game_save_system_instance::save_game() {
       cst.sp.push_back(std::make_unique<SPSaveT>(spt));
     }
     for (auto &pkg : character_s.package) {
-      PackageSaveT pst;
+      fbs::PackageSaveT pst;
       uint32_t item_num = 1;
       uint32_t item_id =
           std::stoi(std::string{pkg.val->id.begin(), pkg.val->id.end()});
       switch (pkg.val->type) {
-      case item_enum::equip: {
-        game_equip_item &equip = static_cast<game_equip_item &>(*pkg.val);
+      case ItemEnum::equip: {
+        GameEquipItem &equip = static_cast<GameEquipItem &>(*pkg.val);
         EquipT et;
         et.equip_id = item_id;
         for (auto &scroll : equip.scroll) {
@@ -289,24 +289,24 @@ bool game_save_system_instance::save_game() {
         pst.data.Set(et);
         break;
       }
-      case item_enum::consume: {
-        game_consume_item &consume = static_cast<game_consume_item &>(*pkg.val);
+      case ItemEnum::consume: {
+        GameConsumeItem &consume = static_cast<GameConsumeItem &>(*pkg.val);
         item_num = consume.num;
       }
-      case item_enum::etc: {
-        game_etc_item &etc = static_cast<game_etc_item &>(*pkg.val);
+      case ItemEnum::etc: {
+        GameEtcItem &etc = static_cast<GameEtcItem &>(*pkg.val);
         item_num = etc.num;
       }
-      case item_enum::install: {
+      case ItemEnum::install: {
       }
-      case item_enum::cash: {
+      case ItemEnum::cash: {
         ItemT it;
         it.item_id = item_id;
         it.item_num = item_num;
         pst.data.Set(it);
         break;
       }
-      case item_enum::deco: {
+      case ItemEnum::deco: {
         EquipT et;
         et.equip_id = item_id;
         pst.data.Set(et);
@@ -315,13 +315,13 @@ bool game_save_system_instance::save_game() {
       }
       pst.expire = pkg.val->expire;
       pst.index = pkg.index;
-      cst.package.push_back(std::make_unique<PackageSaveT>(pst));
+      cst.package.push_back(std::make_unique<fbs::PackageSaveT>(pst));
     }
-    pst.data.push_back(std::make_unique<CharacterSaveT>(cst));
+    pst.data.push_back(std::make_unique<fbs::CharacterSaveT>(cst));
   }
   gst.data = std::make_unique<PlayerSaveT>(pst);
   flatbuffers::FlatBufferBuilder builder;
-  auto offset = GameSave::Pack(builder, &gst);
+  auto offset = fbs::GameSave::Pack(builder, &gst);
   builder.Finish(offset);
   uint8_t *pointer = builder.GetBufferPointer();
   size_t size = builder.GetSize();

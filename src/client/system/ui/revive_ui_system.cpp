@@ -15,17 +15,17 @@
 #include <algorithm>
 #include <optional>
 
-void revive_ui_system::render_backgrnd() {
+void ReviveUiSystem::render_backgrnd() {
   static auto texture =
-      wz_resource::load_texture(wz_resource::ui->find(u"Revive.img/backgrnd"));
+      WzResource::load_texture(WzResource::ui->find(u"Revive.img/backgrnd"));
   SDL_FRect pos_rect{pos.x, pos.y, static_cast<float>(texture->w),
                      static_cast<float>(texture->h)};
-  SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer, texture, nullptr, &pos_rect);
 }
 
-void revive_ui_system::render_button() {
+void ReviveUiSystem::render_button() {
   const static std::array buttons_node = {
-      wz_resource::ui->find(u"Basic.img/BtOK2"),
+      WzResource::ui->find(u"Basic.img/BtOK2"),
   };
   const std::array buttons_rect = {
       SDL_FRect{15, 84, 47, 18}, //
@@ -35,77 +35,77 @@ void revive_ui_system::render_button() {
     auto pos_rect = buttons_rect[i];
     pos_rect.x += pos.x;
     pos_rect.y += pos.y;
-    auto &mouse_pos = window::mouse_pos;
+    auto &mouse_pos = Window::mouse_pos;
     // 判断按钮是否被遮挡
-    auto cursor_in = cursor_game_instance::cursor_ui;
+    auto cursor_in = CursorGameInstance::cursor_ui;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render &&
-        !cursor_game_instance::modal_overlay) {
-      if (window::mouse_state & SDL_BUTTON_LMASK) {
-        auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
-        SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);
+        !CursorGameInstance::modal_overlay) {
+      if (Window::mouse_state & SDL_BUTTON_LMASK) {
+        auto pressed = WzResource::load_texture(k->find(u"pressed/0"));
+        SDL_RenderTexture(Window::renderer, pressed, nullptr, &pos_rect);
       } else {
-        auto mouse_over = wz_resource::load_texture(k->find(u"mouseOver/0"));
-        SDL_RenderTexture(window::renderer, mouse_over, nullptr, &pos_rect);
+        auto mouse_over = WzResource::load_texture(k->find(u"mouseOver/0"));
+        SDL_RenderTexture(Window::renderer, mouse_over, nullptr, &pos_rect);
       }
     } else {
-      auto normal = wz_resource::load_texture(k->find(u"normal/0"));
-      SDL_RenderTexture(window::renderer, normal, nullptr, &pos_rect);
+      auto normal = WzResource::load_texture(k->find(u"normal/0"));
+      SDL_RenderTexture(Window::renderer, normal, nullptr, &pos_rect);
     }
   }
 }
 
-bool revive_ui_system::render() {
+bool ReviveUiSystem::render() {
   render_backgrnd();
   render_button();
   return true;
 }
 
-SDL_FPoint revive_ui_system::load_wh() { return {286, 146}; }
+SDL_FPoint ReviveUiSystem::load_wh() { return {286, 146}; }
 
-void revive_ui_system::open() {
+void ReviveUiSystem::open() {
   auto it =
-      std::ranges::find(system::render_systems, &cursor_render_system::render);
-  if (it != system::render_systems.end()) {
+      std::ranges::find(System::render_systems, &CursorRenderSystem::render);
+  if (it != System::render_systems.end()) {
     auto wh = load_wh();
-    auto &camera = camera_game_instance::camera;
+    auto &camera = CameraGameInstance::camera;
     pos.x = (camera.w - wh.x) / 2;
     pos.y = (camera.h - wh.y) / 2;
 
-    system::render_systems.insert(it, render);
-    system::event_systems.insert(system::event_systems.begin(), event);
+    System::render_systems.insert(it, render);
+    System::event_systems.insert(System::event_systems.begin(), event);
   }
 }
 
-void revive_ui_system::close() {
-  std::erase(system::render_systems, render);
-  std::erase(system::event_systems, event);
+void ReviveUiSystem::close() {
+  std::erase(System::render_systems, render);
+  std::erase(System::event_systems, event);
 }
 
-void revive_ui_system::toggle() {
+void ReviveUiSystem::toggle() {
   auto fn = &render;
-  if (std::ranges::contains(system::render_systems, fn)) {
+  if (std::ranges::contains(System::render_systems, fn)) {
     close();
   } else {
     open();
   }
 }
 
-bool revive_ui_system::cursor_in() {
+bool ReviveUiSystem::cursor_in() {
   auto [w, h] = load_wh();
-  auto &mouse = window::mouse_pos;
+  auto &mouse = Window::mouse_pos;
   SDL_FRect pos_rect{pos.x, pos.y, w, h};
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
-void revive_ui_system::event_motion_bt_audio(SDL_Event *event) {
-  if (cursor_game_instance::cursor_ui != render) {
+void ReviveUiSystem::event_motion_bt_audio(SDL_Event *event) {
+  if (CursorGameInstance::cursor_ui != render) {
     return;
   }
   const std::array buttons_rect = {
       SDL_FRect{15, 84, 47, 18}, //
   };
   static int8_t bt_audio = -1;
-  auto &mouse_pos = window::mouse_pos;
+  auto &mouse_pos = Window::mouse_pos;
   int8_t bt_in = -1;
   for (size_t i = 0; i < buttons_rect.size(); ++i) {
     auto pos_rect = buttons_rect[i];
@@ -117,18 +117,18 @@ void revive_ui_system::event_motion_bt_audio(SDL_Event *event) {
     }
   }
   if (bt_in != -1 && bt_audio != bt_in) {
-    audio_game_instance::load_audio(u"UI.img/BtMouseOver", 0);
+    AudioGameInstance::load_audio(u"UI.img/BtMouseOver", 0);
   }
   bt_audio = bt_in;
 }
 
-bool revive_ui_system::event(SDL_Event *event) {
-  keyboard_input_system::event(event);
+bool ReviveUiSystem::event(SDL_Event *event) {
+  KeyboardInputSystem::event(event);
   bool r = false;
   switch (event->type) {
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
     if (event->button.button == SDL_BUTTON_LEFT) {
-      if (cursor_game_instance::cursor_ui == render) {
+      if (CursorGameInstance::cursor_ui == render) {
         r = false;
       }
     }
@@ -136,7 +136,7 @@ bool revive_ui_system::event(SDL_Event *event) {
   }
   case SDL_EVENT_MOUSE_BUTTON_UP: {
     if (event->button.button == SDL_BUTTON_LEFT) {
-      if (cursor_game_instance::cursor_ui == render) {
+      if (CursorGameInstance::cursor_ui == render) {
         r = !event_button(event);
       }
     }
@@ -154,15 +154,15 @@ bool revive_ui_system::event(SDL_Event *event) {
   return r;
 }
 
-void revive_ui_system::event_button_ok() {
-  auto map_id = scene_system_instance::map_id;
-  auto r_map = map_info_game_instance::load_return_map(map_id);
+void ReviveUiSystem::event_button_ok() {
+  auto map_id = SceneSystemInstance::map_id;
+  auto r_map = MapInfoGameInstance::load_return_map(map_id);
 
-  scene_system_instance::enter_prepare(r_map, u"sp", 0);
+  SceneSystemInstance::enter_prepare(r_map, u"sp", 0);
 
-  character_logic_system::self_portal_cooldown = window::dt_now + 1500;
+  CharacterLogicSystem::self_portal_cooldown = Window::dt_now + 1500;
 
-  auto &v = skill_game_instance::ski;
+  auto &v = SkillGameInstance::ski;
   std::vector<std::function<void()>> ends;
   for (const auto &sk : v) {
     ends.push_back(sk.end);
@@ -170,15 +170,15 @@ void revive_ui_system::event_button_ok() {
   for (auto fn : ends) {
     fn();
   }
-  auto hp_max = character_stat_game_instance::get_hp_max();
-  auto mp_max = character_stat_game_instance::get_mp_max();
-  character_stat_game_instance::set_hp(hp_max);
-  character_stat_game_instance::set_mp(mp_max);
+  auto hp_max = CharacterStatGameInstance::get_hp_max();
+  auto mp_max = CharacterStatGameInstance::get_mp_max();
+  CharacterStatGameInstance::set_hp(hp_max);
+  CharacterStatGameInstance::set_mp(mp_max);
   close();
   return;
 }
 
-bool revive_ui_system::event_button(SDL_Event *event) {
+bool ReviveUiSystem::event_button(SDL_Event *event) {
   const std::array buttons_rect = {
       SDL_FRect{15, 84, 47, 18}, //
   };
@@ -190,9 +190,9 @@ bool revive_ui_system::event_button(SDL_Event *event) {
     auto pos_rect = buttons_rect[i];
     pos_rect.x += pos.x;
     pos_rect.y += pos.y;
-    if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
+    if (SDL_PointInRectFloat(&Window::mouse_pos, &pos_rect)) {
       buttons_func[i]();
-      audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+      AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
       return true;
     }
   }

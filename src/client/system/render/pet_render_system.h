@@ -1,5 +1,5 @@
 #pragma once
 
-class pet_render_system {
+class PetRenderSystem {
   static bool render();
 };

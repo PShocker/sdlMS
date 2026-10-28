@@ -6,12 +6,12 @@
 #include <flat_set>
 #include <string>
 
-void job_skill_game_instance::load(const character_save &cs) {
+void JobSkillGameInstance::load(const CharacterSaveData &cs) {
   skill_point = cs.sp.ski_sp;
   remain_point = cs.remain_sp;
 }
 
-uint8_t job_skill_game_instance::load_ski_level(const std::u16string &id) {
+uint8_t JobSkillGameInstance::load_ski_level(const std::u16string &id) {
   auto ski_id = std::stoi(std::string(id.begin(), id.end()));
   if (skill_point.contains(ski_id)) {
     return skill_point.at(ski_id);
@@ -20,9 +20,9 @@ uint8_t job_skill_game_instance::load_ski_level(const std::u16string &id) {
   }
 }
 
-std::vector<job_type>
-job_skill_game_instance::load_ski_tree(const std::u16string &id) {
-  std::vector<job_type> r = {job_type::BEGINNER};
+std::vector<JobType>
+JobSkillGameInstance::load_ski_tree(const std::u16string &id) {
+  std::vector<JobType> r = {JobType::BEGINNER};
   if (id == u"0") {
     return r;
   }
@@ -34,64 +34,64 @@ job_skill_game_instance::load_ski_tree(const std::u16string &id) {
   }
   switch (ch) {
   case u'1': {
-    r.push_back(job_type::WARRIOR);
+    r.push_back(JobType::WARRIOR);
     switch (ch2) {
     case u'1': {
-      r.push_back(job_type::FIGHTER);
+      r.push_back(JobType::FIGHTER);
       break;
     }
     case u'2': {
-      r.push_back(job_type::PAGE);
+      r.push_back(JobType::PAGE);
       break;
     }
     case u'3': {
-      r.push_back(job_type::SPEARMAN);
+      r.push_back(JobType::SPEARMAN);
       break;
     }
     }
     break;
   }
   case u'2': {
-    r.push_back(job_type::MAGICIAN);
+    r.push_back(JobType::MAGICIAN);
     switch (ch2) {
     case u'1': {
-      r.push_back(job_type::FP_WIZARD);
+      r.push_back(JobType::FP_WIZARD);
       break;
     }
     case u'2': {
-      r.push_back(job_type::IL_WIZARD);
+      r.push_back(JobType::IL_WIZARD);
       break;
     }
     case u'3': {
-      r.push_back(job_type::CLERIC);
+      r.push_back(JobType::CLERIC);
       break;
     }
     }
     break;
   }
   case u'3': {
-    r.push_back(job_type::BOWMAN);
+    r.push_back(JobType::BOWMAN);
     switch (ch2) {
     case u'1': {
-      r.push_back(job_type::HUNTER);
+      r.push_back(JobType::HUNTER);
       break;
     }
     case u'2': {
-      r.push_back(job_type::CROSSBOWMAN);
+      r.push_back(JobType::CROSSBOWMAN);
       break;
     }
     }
     break;
   }
   case u'4': {
-    r.push_back(job_type::THIEF);
+    r.push_back(JobType::THIEF);
     switch (ch2) {
     case u'1': {
-      r.push_back(job_type::ASSASSIN);
+      r.push_back(JobType::ASSASSIN);
       break;
     }
     case u'2': {
-      r.push_back(job_type::BANDIT);
+      r.push_back(JobType::BANDIT);
       break;
     }
     }
@@ -102,47 +102,47 @@ job_skill_game_instance::load_ski_tree(const std::u16string &id) {
   return r;
 }
 
-std::u16string job_skill_game_instance::load_job_id(job_type type) {
+std::u16string JobSkillGameInstance::load_job_id(JobType type) {
   switch (type) {
-  case job_type::BEGINNER:
+  case JobType::BEGINNER:
     return u"000";
-  case job_type::WARRIOR:
+  case JobType::WARRIOR:
     return u"100";
-  case job_type::MAGICIAN:
+  case JobType::MAGICIAN:
     return u"200";
-  case job_type::BOWMAN:
+  case JobType::BOWMAN:
     return u"300";
-  case job_type::THIEF:
+  case JobType::THIEF:
     return u"400";
-  case job_type::FIGHTER:
+  case JobType::FIGHTER:
     return u"110";
-  case job_type::PAGE:
+  case JobType::PAGE:
     return u"120";
-  case job_type::SPEARMAN:
+  case JobType::SPEARMAN:
     return u"130";
-  case job_type::FP_WIZARD:
+  case JobType::FP_WIZARD:
     return u"210";
-  case job_type::IL_WIZARD:
+  case JobType::IL_WIZARD:
     return u"220";
-  case job_type::CLERIC:
+  case JobType::CLERIC:
     return u"230";
-  case job_type::HUNTER:
+  case JobType::HUNTER:
     return u"310";
-  case job_type::CROSSBOWMAN:
+  case JobType::CROSSBOWMAN:
     return u"320";
-  case job_type::ASSASSIN:
+  case JobType::ASSASSIN:
     return u"410";
-  case job_type::BANDIT:
+  case JobType::BANDIT:
     return u"420";
   }
   return u"";
 }
 
-wz::WzMap job_skill_game_instance::load_job_skis(job_type type) {
+wz::WzMap JobSkillGameInstance::load_job_skis(JobType type) {
   wz::WzMap r;
-  auto job = job_skill_game_instance::load_job_id(type);
+  auto job = JobSkillGameInstance::load_job_id(type);
   // 根据active_tab获取技能组
-  auto skill_node = wz_resource::skill->find(job + u".img");
+  auto skill_node = WzResource::skill->find(job + u".img");
   skill_node = skill_node->get_child(u"skill");
   r = skill_node->children;
   // 删除所有长度大于5的key
@@ -157,13 +157,13 @@ wz::WzMap job_skill_game_instance::load_job_skis(job_type type) {
   return r;
 }
 
-std::vector<job_type> job_skill_game_instance::load_ski_tree(int i) {
+std::vector<JobType> JobSkillGameInstance::load_ski_tree(int i) {
   auto tmp = std::to_string(i);
   std::u16string id{tmp.begin(), tmp.end()};
   return load_ski_tree(id);
 }
 
-std::u16string job_skill_game_instance::load_two_jump() {
+std::u16string JobSkillGameInstance::load_two_jump() {
   const static std::flat_set<std::u16string> strs = {
       u"4111005",
   };

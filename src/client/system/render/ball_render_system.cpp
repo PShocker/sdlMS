@@ -8,19 +8,19 @@
 #include "wz/Property.h"
 #include <string>
 
-bool ball_render_system::render(game_ball &g_ball) {
-  auto now = window::dt_time;
+bool BallRenderSystem::render(GameBall &g_ball) {
+  auto now = Window::dt_time;
   if (g_ball.delay >= now) {
     return false;
   }
   SDL_Texture *t;
-  wz::Node *n = wz_resource::skill->find(g_ball.path);
+  wz::Node *n = WzResource::skill->find(g_ball.path);
   if (!n) {
-    n = wz_resource::item->find(g_ball.path);
+    n = WzResource::item->find(g_ball.path);
   }
   auto index = std::to_string(g_ball.ani_index);
   auto texture_node = n->get_child(index);
-  t = wz_resource::load_texture(texture_node);
+  t = WzResource::load_texture(texture_node);
   auto v = static_cast<wz::Property<wz::WzVec2D> *>(
                texture_node->get_child(u"origin"))
                ->get();
@@ -31,12 +31,12 @@ bool ball_render_system::render(game_ball &g_ball) {
       .w = static_cast<float>(t->w),
       .h = static_cast<float>(t->h),
   };
-  auto &camera = camera_game_instance::camera;
+  auto &camera = CameraGameInstance::camera;
   if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
     pos_rect.x -= camera.x;
     pos_rect.y -= camera.y;
     auto flip = g_ball.flip;
-    SDL_RenderTextureRotated(window::renderer, t, nullptr, &pos_rect,
+    SDL_RenderTextureRotated(Window::renderer, t, nullptr, &pos_rect,
                              g_ball.rotate, nullptr, (SDL_FlipMode)flip);
   }
   return true;

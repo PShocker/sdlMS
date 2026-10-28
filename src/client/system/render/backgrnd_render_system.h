@@ -1,7 +1,7 @@
 #pragma once
 
 #include "src/client/game/game_backgrnd.h"
-class backgrnd_render_system {
+class BackgrndRenderSystem {
 public:
-  static bool render(game_backgrnd &g_backgrnd);
+  static bool render(GameBackgrnd &g_backgrnd);
 };

@@ -10,9 +10,9 @@ extern "C" {
 #include <libavformat/avformat.h>
 }
 
-game_audio_cache
-ffmpeg::decode_audio_pcm(const std::vector<uint8_t> &audio_data) {
-  game_audio_cache gac;
+GameAudioCache
+Ffmpeg::decode_audio_pcm(const std::vector<uint8_t> &audio_data) {
+  GameAudioCache gac;
 
   if (audio_data.empty()) {
     return gac;

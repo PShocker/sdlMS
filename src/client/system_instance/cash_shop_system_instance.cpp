@@ -5,16 +5,16 @@
 #include "src/client/system/ui/cash_shop_ui_system.h"
 #include "src/common/wz/wz_resource.h"
 
-void cash_shop_system_instance::enter() {
-  auto node = wz_resource::ui->find(u"CashShopPreview.img");
-  foothold_game_instance::data = foothold_game_instance::load(node);
+void CashShopSystemInstance::enter() {
+  auto node = WzResource::ui->find(u"CashShopPreview.img");
+  FootholdGameInstance::data = FootholdGameInstance::load(node);
 
-  system::logic_systems = {character_logic_system::run};
+  System::logic_systems = {CharacterLogicSystem::run};
 
-  system::render_systems = {
-      cash_shop_ui_system::render,
+  System::render_systems = {
+      CashShopUiSystem::render,
   };
-  system::event_systems = {
-      cash_shop_ui_system::event,
+  System::event_systems = {
+      CashShopUiSystem::event,
   };
 }

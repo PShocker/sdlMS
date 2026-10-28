@@ -1,6 +1,6 @@
 #pragma once
 
-class skill_logic_system {
+class SkillLogicSystem {
 public:
   static bool run();
 };

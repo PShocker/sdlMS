@@ -2,7 +2,7 @@
 
 #include "SDL3/SDL_render.h"
 #include <functional>
-class fade_system_instance {
+class FadeSystemInstance {
 private:
   static inline int fade_in;
   static inline int mask_alpha;

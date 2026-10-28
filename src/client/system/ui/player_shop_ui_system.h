@@ -2,7 +2,7 @@
 
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_rect.h"
-class player_shop_ui_system {
+class PlayerShopUiSystem {
 private:
   static void render_backgrnd();
   static void render_button();

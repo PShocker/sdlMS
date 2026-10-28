@@ -1,9 +1,9 @@
 #pragma once
 
 #include "src/client/game/game_obj.h"
-class obj_logic_system {
+class ObjLogicSystem {
 public:
-  static void run_animate(game_obj &g_obj);
-  static void run_alpha(game_obj &g_obj);
+  static void run_animate(GameObj &g_obj);
+  static void run_alpha(GameObj &g_obj);
   static bool run();
 };

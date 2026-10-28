@@ -12,8 +12,8 @@ using namespace fbs;
 
 // reactor1
 static void q90008(std::any data) {
-  auto map_id = server_reactor_system::map_id;
-  auto r = std::any_cast<server_reactor *>(data);
+  auto map_id = ServerReactorSystem::map_id;
+  auto r = std::any_cast<ServerReactorState *>(data);
   auto pos = r->pos;
   std::vector<DropT> dts;
 
@@ -41,20 +41,20 @@ static void q90008(std::any data) {
   }
 
   ServerReactorDropT srd;
-  srd.payload = server_drop_instance::create_dts(dts, map_id);
+  srd.payload = ServerDropInstance::create_dts(dts, map_id);
 
   for (const auto &dt : srd.payload) {
-    server_drop_instance::save_drop(map_id, *dt);
+    ServerDropInstance::save_drop(map_id, *dt);
   }
-  auto scenes = server_scene_instance::scenes[map_id].clients;
+  auto scenes = ServerSceneInstance::scenes[map_id].clients;
   for (auto c : scenes) {
-    server_response::send_to_client(c, srd);
+    ServerResponse::send_to_client(c, srd);
   }
   return;
 };
 
 [[maybe_unused]] static const bool r = [] {
-  auto &fns = script::fns();
+  auto &fns = Script::fns();
   fns[u"q90008"] = q90008;
   return true;
 }();

@@ -9,9 +9,9 @@
 
 using namespace fbs;
 
-class drop_game_instance {
+class DropGameInstance {
 public:
   static void reset();
 
-  static inline std::flat_map<uint64_t, game_drop> data;
+  static inline std::flat_map<uint64_t, GameDrop> data;
 };

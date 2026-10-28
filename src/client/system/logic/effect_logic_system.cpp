@@ -14,22 +14,22 @@
 #include <ranges>
 #include <string>
 
-bool effect_logic_system::run_damage(game_effect &g_effect) {
+bool EffectLogicSystem::run_damage(GameEffect &g_effect) {
   bool r = false;
-  auto current_time = window::dt_time;
+  auto current_time = Window::dt_time;
   if (g_effect.delay >= current_time) {
     return r;
   }
   if (g_effect.z == false) {
-    auto &mobs = mob_game_instance::data;
-    auto &mob = mobs.at(g_effect.time).mob;
+    auto &Mobs = MobGameInstance::data;
+    auto &mob = Mobs.at(g_effect.time).mob;
     g_effect.pos = SDL_FPoint{
         g_effect.pos->x + mob.pos.x,
         g_effect.pos->y + mob.pos.y,
     };
     g_effect.z = true;
   }
-  int32_t a = g_effect.alpha - window::delta_time / 3.5f;
+  int32_t a = g_effect.alpha - Window::delta_time / 3.5f;
   if (a <= 0) {
     r = true;
   } else {
@@ -38,29 +38,29 @@ bool effect_logic_system::run_damage(game_effect &g_effect) {
   return r;
 }
 
-bool effect_logic_system::run_effect(game_effect &g_effect) {
+bool EffectLogicSystem::run_effect(GameEffect &g_effect) {
   bool r = false;
-  auto current_time = window::dt_time;
+  auto current_time = Window::dt_time;
   if (g_effect.delay >= current_time) {
     return r;
   }
-  g_effect.time += window::delta_time;
+  g_effect.time += Window::delta_time;
   wz::Node *node;
-  switch ((game_effect::effect_sub_type)g_effect.lv) {
-  case game_effect::character: {
-    node = wz_resource::character->find(g_effect.id);
+  switch ((GameEffect::EffectSubType)g_effect.lv) {
+  case GameEffect::character: {
+    node = WzResource::character->find(g_effect.id);
     break;
   }
-  case game_effect::effect: {
-    node = wz_resource::effect->find(g_effect.id);
+  case GameEffect::effect: {
+    node = WzResource::effect->find(g_effect.id);
     break;
   }
-  case game_effect::item: {
-    node = wz_resource::item->find(g_effect.id);
+  case GameEffect::item: {
+    node = WzResource::item->find(g_effect.id);
     break;
   }
-  case game_effect::skill: {
-    node = wz_resource::skill->find(g_effect.id);
+  case GameEffect::skill: {
+    node = WzResource::skill->find(g_effect.id);
     break;
   }
   }
@@ -82,9 +82,9 @@ bool effect_logic_system::run_effect(game_effect &g_effect) {
   return r;
 }
 
-bool effect_logic_system::run_skill_use(game_effect &g_effect) {
+bool EffectLogicSystem::run_skill_use(GameEffect &g_effect) {
   bool r = false;
-  auto ski_node = skill_game_instance::load_ski_node(g_effect.id);
+  auto ski_node = SkillGameInstance::load_ski_node(g_effect.id);
   if (g_effect.order.has_value()) {
     ski_node =
         ski_node->get_child("effect" + std::to_string(g_effect.order.value()));
@@ -98,20 +98,20 @@ bool effect_logic_system::run_skill_use(game_effect &g_effect) {
   if (delay_node) {
     delay = static_cast<wz::Property<std::int32_t> *>(delay_node)->get();
   }
-  auto g_character = std::any_cast<game_character *>(g_effect.data);
-  auto action_type = character_logic_system::load_action_type(*g_character);
+  auto g_character = std::any_cast<GameCharacter *>(g_effect.data);
+  auto action_type = CharacterLogicSystem::load_action_type(*g_character);
   float speed = 1;
   switch (action_type) {
-  case character_logic_system::action_enum::attack:
-  case character_logic_system::action_enum::skill: {
-    speed = character_logic_system::load_attack_speed(*g_character);
+  case CharacterLogicSystem::ActionEnum::attack:
+  case CharacterLogicSystem::ActionEnum::skill: {
+    speed = CharacterLogicSystem::load_attack_speed(*g_character);
     break;
   }
   default: {
     break;
   }
   }
-  g_effect.time += window::delta_time * speed;
+  g_effect.time += Window::delta_time * speed;
   if (g_effect.time >= delay) {
     g_effect.time = 0;
     g_effect.index += 1;
@@ -124,9 +124,9 @@ bool effect_logic_system::run_skill_use(game_effect &g_effect) {
   return r;
 }
 
-bool effect_logic_system::run_skill_affected(game_effect &g_effect) {
+bool EffectLogicSystem::run_skill_affected(GameEffect &g_effect) {
   bool r = false;
-  auto ski_node = skill_game_instance::load_ski_node(g_effect.id);
+  auto ski_node = SkillGameInstance::load_ski_node(g_effect.id);
   ski_node = ski_node->get_child(u"affected");
   if (ski_node == nullptr) {
     return true;
@@ -138,7 +138,7 @@ bool effect_logic_system::run_skill_affected(game_effect &g_effect) {
   if (delay_node) {
     delay = static_cast<wz::Property<std::int32_t> *>(delay_node)->get();
   }
-  g_effect.time += window::delta_time;
+  g_effect.time += Window::delta_time;
   if (g_effect.time >= delay) {
     g_effect.time = 0;
     g_effect.index += 1;
@@ -149,18 +149,18 @@ bool effect_logic_system::run_skill_affected(game_effect &g_effect) {
   return r;
 }
 
-bool effect_logic_system::run_skill_hit(game_effect &g_effect) {
-  auto now = window::dt_time;
+bool EffectLogicSystem::run_skill_hit(GameEffect &g_effect) {
+  auto now = Window::dt_time;
   if (g_effect.delay >= now) {
     return false;
   }
   bool r = false;
-  auto ski_node = skill_game_instance::load_ski_node(g_effect.id);
+  auto ski_node = SkillGameInstance::load_ski_node(g_effect.id);
   if (ski_node->find(u"hit/0")) {
     ski_node = ski_node->find(u"hit/0");
   } else {
     ski_node =
-        skill_game_instance::load_ski_level_node(g_effect.id, g_effect.lv);
+        SkillGameInstance::load_ski_level_node(g_effect.id, g_effect.lv);
     ski_node = ski_node->find(u"hit/0");
   }
   auto index = std::to_string(g_effect.index);
@@ -170,7 +170,7 @@ bool effect_logic_system::run_skill_hit(game_effect &g_effect) {
   if (delay_node) {
     delay = static_cast<wz::Property<int> *>(delay_node)->get();
   }
-  g_effect.time += window::delta_time;
+  g_effect.time += Window::delta_time;
   if (g_effect.time >= delay) {
     g_effect.time = 0;
     g_effect.index += 1;
@@ -181,40 +181,40 @@ bool effect_logic_system::run_skill_hit(game_effect &g_effect) {
   return r;
 }
 
-bool effect_logic_system::run_skill_region(game_effect &g_effect) {
-  auto rski = std::any_cast<game_region_skill>(&g_effect.data);
-  if (rski->end <= window::dt_time) {
+bool EffectLogicSystem::run_skill_region(GameEffect &g_effect) {
+  auto rski = std::any_cast<GameRegionSkill>(&g_effect.data);
+  if (rski->end <= Window::dt_time) {
     return true;
   }
   return false;
 }
 
-void effect_logic_system::run_animate(std::vector<game_effect> &v) {
+void EffectLogicSystem::run_animate(std::vector<GameEffect> &v) {
   for (auto it = v.begin(); it != v.end();) {
     bool remove = false;
     auto &g_effect = *it;
     switch (g_effect.type) {
-    case game_effect::effect_type::effect: {
+    case GameEffect::EffectType::effect: {
       remove = run_effect(g_effect);
       break;
     }
-    case game_effect::effect_type::skill_use: {
+    case GameEffect::EffectType::skill_use: {
       remove = run_skill_use(g_effect);
       break;
     }
-    case game_effect::effect_type::skill_affected: {
+    case GameEffect::EffectType::skill_affected: {
       remove = run_skill_affected(g_effect);
       break;
     }
-    case game_effect::effect_type::skill_hit: {
+    case GameEffect::EffectType::skill_hit: {
       remove = run_skill_hit(g_effect);
       break;
     }
-    case game_effect::effect_type::damage: {
+    case GameEffect::EffectType::damage: {
       remove = run_damage(g_effect);
       break;
     }
-    case game_effect::effect_type::skill_region: {
+    case GameEffect::EffectType::skill_region: {
       remove = run_skill_region(g_effect);
       break;
     }
@@ -231,15 +231,15 @@ void effect_logic_system::run_animate(std::vector<game_effect> &v) {
   }
 }
 
-bool effect_logic_system::run() {
-  run_animate(character_game_instance::self.effect);
-  for (auto &o : character_game_instance::others | std::views::values) {
+bool EffectLogicSystem::run() {
+  run_animate(CharacterGameInstance::self.effect);
+  for (auto &o : CharacterGameInstance::others | std::views::values) {
     run_animate(o.g_character.effect);
   }
-  for (auto &m : mob_game_instance::data | std::views::values) {
+  for (auto &m : MobGameInstance::data | std::views::values) {
     run_animate(m.mob.effect);
   }
-  for (auto &de : effect_game_instance::data) {
+  for (auto &de : EffectGameInstance::data) {
     run_animate(de);
   }
   return true;

@@ -3,13 +3,13 @@
 #include <cstdint>
 #include <string>
 
-class game_debuff {
+class GameDebuff {
 public:
-  enum debuff_type {
+  enum DebuffType {
     dizz,
     slow,
   };
-  debuff_type type;
+  DebuffType type;
   int64_t val;
   uint64_t delay = 0;
   uint64_t destroy = 0;

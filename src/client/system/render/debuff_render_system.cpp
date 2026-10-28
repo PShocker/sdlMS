@@ -7,17 +7,17 @@
 #include "wz/Node.h"
 #include <string>
 
-void debuff_render_system::render(game_debuff::debuff_type type,
+void DebuffRenderSystem::render(GameDebuff::DebuffType type,
                                   SDL_FPoint pos) {
   wz::Node *n;
   switch (type) {
-  case game_debuff::dizz: {
-    static auto node = wz_resource::skill->find(u"AttackType.img/1001/level/1");
+  case GameDebuff::dizz: {
+    static auto node = WzResource::skill->find(u"AttackType.img/1001/level/1");
     n = node;
     break;
   }
-  case game_debuff::slow: {
-    static auto node = wz_resource::skill->find(u"AttackType.img/1002/level/1");
+  case GameDebuff::slow: {
+    static auto node = WzResource::skill->find(u"AttackType.img/1002/level/1");
     n = node;
     break;
   }
@@ -25,33 +25,33 @@ void debuff_render_system::render(game_debuff::debuff_type type,
     break;
   }
   }
-  auto delays = trap_game_instance::load_animate_delays(n);
-  auto data = trap_game_instance::load_animate_index(delays);
+  auto delays = TrapGameInstance::load_animate_delays(n);
+  auto data = TrapGameInstance::load_animate_index(delays);
   auto index = data.index;
   n = n->get_child(std::to_string(index));
-  auto t = wz_resource::load_texture(n);
-  auto origin = wz_resource::load_fpoint(n->get_child(u"origin"));
+  auto t = WzResource::load_texture(n);
+  auto origin = WzResource::load_fpoint(n->get_child(u"origin"));
   SDL_FRect pos_rect = {
       .x = pos.x - origin.x,
       .y = pos.y - origin.y,
       .w = static_cast<float>(t->w),
       .h = static_cast<float>(t->h),
   };
-  auto &camera = camera_game_instance::camera;
+  auto &camera = CameraGameInstance::camera;
   if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
     pos_rect.x -= camera.x;
     pos_rect.y -= camera.y;
-    SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
   }
 }
 
-void debuff_render_system::render_character(game_character &character) {
+void DebuffRenderSystem::render_character(GameCharacter &character) {
   for (auto k : character.debuffs | std::views::keys) {
     render(k, character.pos);
   }
 }
 
-void debuff_render_system::render_mob(game_mob &mob) {
+void DebuffRenderSystem::render_mob(GameMob &mob) {
   for (auto k : mob.debuffs | std::views::keys) {
     render(k, mob.pos);
   }

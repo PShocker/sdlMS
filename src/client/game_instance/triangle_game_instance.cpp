@@ -1,7 +1,7 @@
 #include "triangle_game_instance.h"
 #include "src/client/game/game_triangle.h"
 
-bool triangle_game_instance::rect_ins_tri(SDL_FRect &r, game_triangle &t) {
+bool TriangleGameInstance::rect_ins_tri(SDL_FRect &r, GameTriangle &t) {
   // 1. 获取矩形4个顶点
   std::array<SDL_FPoint, 4> rect_pts = {
       {{r.x, r.y}, {r.x + r.w, r.y}, {r.x, r.y + r.h}, {r.x + r.w, r.y + r.h}}};
@@ -61,7 +61,7 @@ bool triangle_game_instance::rect_ins_tri(SDL_FRect &r, game_triangle &t) {
   return true;
 }
 
-game_triangle triangle_game_instance::load_tri(game_triangle t, bool flip,
+GameTriangle TriangleGameInstance::load_tri(GameTriangle t, bool flip,
                                                SDL_FPoint &pos) {
   if (flip) {
     for (auto &p : t.point) {

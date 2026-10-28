@@ -9,7 +9,7 @@
 #include <string>
 #include <variant>
 #include <vector>
-class character_info_ui_system {
+class CharacterInfoUiSystem {
 private:
   static void render_backgrnd();
   static void render_button();
@@ -56,13 +56,13 @@ private:
 
   static inline bool item;
   static inline uint8_t item_page;
-  static inline std::optional<std::variant<game_equip_item, game_deco_item>>
+  static inline std::optional<std::variant<GameEquipItem, GameDecoItem>>
       item_info;
 
   static inline bool pet;
 
 public:
-  static inline game_character character;
+  static inline GameCharacter character;
 
   static inline SDL_FPoint pos;
 

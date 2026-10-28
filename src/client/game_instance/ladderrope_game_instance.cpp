@@ -3,15 +3,15 @@
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
 
-void ladderrope_game_instance::load(uint32_t map_id) {
+void LadderropeGameInstance::load(uint32_t map_id) {
   data.clear();
-  auto map_node = wz_resource::load_map_node(map_id);
+  auto map_node = WzResource::load_map_node(map_id);
   auto map_ladder_node = map_node->get_child(u"ladderRope");
   for (auto [key, val] : *map_ladder_node->get_children()) {
     auto id = std::stoi(std::string{key.begin(), key.end()});
 
     auto ladder_node = val[0];
-    game_ladderrope g_ladderrope;
+    GameLadderrope g_ladderrope;
     g_ladderrope.l =
         static_cast<wz::Property<int> *>(ladder_node->get_child(u"l"))->get();
     g_ladderrope.uf =

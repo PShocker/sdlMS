@@ -3,8 +3,8 @@
 #include "src/client/game/game_audio.h"
 #include <cstdint>
 #include <vector>
-class ffmpeg {
+class Ffmpeg {
 public:
-  static game_audio_cache
+  static GameAudioCache
   decode_audio_pcm(const std::vector<uint8_t> &audio_data);
 };

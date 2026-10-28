@@ -8,9 +8,9 @@
 #include <ranges>
 #include <string>
 
-void backgrnd_logic_system::run_animate(game_backgrnd &g_backgrnd) {
+void BackgrndLogicSystem::run_animate(GameBackgrnd &g_backgrnd) {
   if (g_backgrnd.ani == 1) {
-    auto texture_node = wz_resource::map->find(g_backgrnd.path);
+    auto texture_node = WzResource::map->find(g_backgrnd.path);
     auto ani_index = g_backgrnd.ani_index % texture_node->children_count();
     texture_node = texture_node->get_child(std::to_string(ani_index));
 
@@ -18,7 +18,7 @@ void backgrnd_logic_system::run_animate(game_backgrnd &g_backgrnd) {
         static_cast<wz::Property<int> *>(texture_node->get_child(u"delay"))
             ->get();
 
-    g_backgrnd.ani_time += window::delta_time;
+    g_backgrnd.ani_time += Window::delta_time;
     if (g_backgrnd.ani_time >= delay) {
       g_backgrnd.ani_time = 0;
       g_backgrnd.ani_index = 0;
@@ -26,15 +26,15 @@ void backgrnd_logic_system::run_animate(game_backgrnd &g_backgrnd) {
   }
 }
 
-void backgrnd_logic_system::run_offset(game_backgrnd &g_backgrnd) {
-  auto viewprot_x = camera_game_instance::camera.x;
-  auto viewprot_y = camera_game_instance::camera.y;
-  auto viewprot_w = camera_game_instance::camera.w;
-  auto viewprot_h = camera_game_instance::camera.h;
+void BackgrndLogicSystem::run_offset(GameBackgrnd &g_backgrnd) {
+  auto viewprot_x = CameraGameInstance::camera.x;
+  auto viewprot_y = CameraGameInstance::camera.y;
+  auto viewprot_w = CameraGameInstance::camera.w;
+  auto viewprot_h = CameraGameInstance::camera.h;
 
   if (g_backgrnd.hspeed) {
     g_backgrnd.offset_x = fmodf(
-        g_backgrnd.offset_x + g_backgrnd.rx * 5 * window::delta_time / 1000.0f,
+        g_backgrnd.offset_x + g_backgrnd.rx * 5 * Window::delta_time / 1000.0f,
         g_backgrnd.cx);
   } else {
     g_backgrnd.offset_x =
@@ -42,7 +42,7 @@ void backgrnd_logic_system::run_offset(game_backgrnd &g_backgrnd) {
   }
   if (g_backgrnd.vspeed) {
     g_backgrnd.offset_y = fmodf(
-        g_backgrnd.offset_y + g_backgrnd.ry * 5 * window::delta_time / 1000.0,
+        g_backgrnd.offset_y + g_backgrnd.ry * 5 * Window::delta_time / 1000.0,
         g_backgrnd.cy);
   } else {
     g_backgrnd.offset_y =
@@ -50,9 +50,9 @@ void backgrnd_logic_system::run_offset(game_backgrnd &g_backgrnd) {
   }
 }
 
-bool backgrnd_logic_system::run() {
+bool BackgrndLogicSystem::run() {
   for (auto m :
-       {&backgrnd_game_instance::front, &backgrnd_game_instance::back}) {
+       {&BackgrndGameInstance::front, &BackgrndGameInstance::back}) {
     for (auto &backgrnd : *m | std::views::values) {
       run_offset(backgrnd);
       run_animate(backgrnd);

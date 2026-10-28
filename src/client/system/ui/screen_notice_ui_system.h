@@ -3,7 +3,7 @@
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_rect.h"
 #include <string>
-class screen_notice_ui_system {
+class ScreenNoticeUiSystem {
 private:
   static void render_backgrnd();
   static void render_text();

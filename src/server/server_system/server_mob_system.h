@@ -9,43 +9,43 @@
 
 using namespace fbs;
 
-class server_mob_system {
+class ServerMobSystem {
 private:
   static inline uint32_t map_id = 0;
   static inline uint32_t delta_time = 0;
-  static inline std::flat_map<int32_t, game_foothold> g_fhs;
+  static inline std::flat_map<int32_t, GameFoothold> g_fhs;
   static inline ServerMobEventT events;
 
-  static int load_mob_hit_cd(server_mob &mob);
+  static int load_mob_hit_cd(ServerMob &mob);
 
-  static bool run_try_jump(server_mob &mob);
+  static bool run_try_jump(ServerMob &mob);
 
-  static bool run_hit_check(server_mob &mob);
+  static bool run_hit_check(ServerMob &mob);
 
-  static bool run_debuff_action(server_mob &mob);
+  static bool run_debuff_action(ServerMob &mob);
 
-  static void run_hit_action(server_mob &mob);
-  static void run_default_action(server_mob &mob);
-  static void run_move_action(server_mob &mob);
-  static void run_stand_action(server_mob &mob);
-  static void run_fly_action(server_mob &mob);
-  static void run_swim_action(server_mob &mob);
-  static void run_die_action(server_mob &mob);
-  static void run_walk(server_mob &mob);
-  static void run_state_machine(server_mob &mob);
-  static void run_duration(server_mob &mob);
-  static bool run_hitting(server_mob &mob);
-  static void run_hit(server_mob &mob);
-  static void run_die(server_mob &mob, uint64_t client_id);
+  static void run_hit_action(ServerMob &mob);
+  static void run_default_action(ServerMob &mob);
+  static void run_move_action(ServerMob &mob);
+  static void run_stand_action(ServerMob &mob);
+  static void run_fly_action(ServerMob &mob);
+  static void run_swim_action(ServerMob &mob);
+  static void run_die_action(ServerMob &mob);
+  static void run_walk(ServerMob &mob);
+  static void run_state_machine(ServerMob &mob);
+  static void run_duration(ServerMob &mob);
+  static bool run_hitting(ServerMob &mob);
+  static void run_hit(ServerMob &mob);
+  static void run_die(ServerMob &mob, uint64_t client_id);
   static void run_send();
-  static bool run_fall(server_mob &mob);
+  static bool run_fall(ServerMob &mob);
 
-  static void run_network_sync_pos(server_mob &mob, server_mob &o_mob);
-  static void run_network_sync_flip(server_mob &mob, server_mob &o_mob);
-  static void run_network_sync_action(server_mob &mob, server_mob &o_mob);
-  static void run_network_sync_hp(server_mob &mob, server_mob &o_mob);
+  static void run_network_sync_pos(ServerMob &mob, ServerMob &o_mob);
+  static void run_network_sync_flip(ServerMob &mob, ServerMob &o_mob);
+  static void run_network_sync_action(ServerMob &mob, ServerMob &o_mob);
+  static void run_network_sync_hp(ServerMob &mob, ServerMob &o_mob);
 
-  static void run_network_sync(server_mob &mob, server_mob &o_mob);
+  static void run_network_sync(ServerMob &mob, ServerMob &o_mob);
 
 public:
   static bool run();

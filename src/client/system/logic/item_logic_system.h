@@ -1,6 +1,6 @@
 #pragma once
 
-class item_logic_system {
+class ItemLogicSystem {
 public:
   static bool run();
 };

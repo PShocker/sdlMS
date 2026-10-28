@@ -1,6 +1,6 @@
 #pragma once
 
-class audio_logic_system {
+class AudioLogicSystem {
 private:
   static void run_backgrnd();
   static void run_audios();

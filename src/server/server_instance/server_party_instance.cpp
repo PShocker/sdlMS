@@ -13,7 +13,7 @@
 #include <memory>
 #include <optional>
 
-server_party &server_party_instance::load_party(uint64_t captain_id) {
+ServerParty &ServerPartyInstance::load_party(uint64_t captain_id) {
   if (data.contains(captain_id)) {
     return data.at(captain_id);
   }
@@ -21,16 +21,16 @@ server_party &server_party_instance::load_party(uint64_t captain_id) {
   return data[captain_id];
 }
 
-void server_party_instance::handle_party(uint64_t client_id,
+void ServerPartyInstance::handle_party(uint64_t client_id,
                                          ClientCharacterPartyT &r) {
   switch (r.step) {
   case 0: {
     auto to_id = r.to_id;
-    if (server_client_instance::clients.contains(to_id)) {
+    if (ServerClientInstance::clients.contains(to_id)) {
       ServerCharacterPartyT scp;
       scp.step = 0;
       scp.to_id = client_id;
-      server_response::send_to_client(to_id, scp);
+      ServerResponse::send_to_client(to_id, scp);
     }
     return;
   }
@@ -41,49 +41,49 @@ void server_party_instance::handle_party(uint64_t client_id,
     ServerCharacterPartyT scp;
     scp.to_id = captain_id;
     scp.step = 1;
-    const auto captain_t = server_client_instance::clients[captain_id].player_t;
+    const auto captain_t = ServerClientInstance::clients[captain_id].player_t;
     scp.players.push_back(std::make_unique<PlayerT>(captain_t));
     for (auto c_id : party.client_ids) {
-      const auto player_t = server_client_instance::clients[c_id].player_t;
+      const auto player_t = ServerClientInstance::clients[c_id].player_t;
       scp.players.push_back(std::make_unique<PlayerT>(player_t));
-      server_response::send_to_client(c_id, scp);
+      ServerResponse::send_to_client(c_id, scp);
     }
     scp.to_id = 0;
-    server_response::send_to_client(captain_id, scp);
+    ServerResponse::send_to_client(captain_id, scp);
     return;
   }
   }
   return;
 }
 
-void server_party_instance::handle_server_party(uint64_t client_id,
+void ServerPartyInstance::handle_server_party(uint64_t client_id,
                                                 ServerCharacterPartyT &r) {
   switch (r.step) {
   case 0: {
-    if (!character_game_instance::others.contains(r.to_id)) {
+    if (!CharacterGameInstance::others.contains(r.to_id)) {
       return;
     }
     // show popup tip
-    popup_tip_game_instance::add_tip(
-        popup_tip_enums::party,
-        character_game_instance::others[r.to_id].player_t);
+    PopupTipGameInstance::add_tip(
+        PopupTipEnums::party,
+        CharacterGameInstance::others[r.to_id].player_t);
     return;
   }
   case 1: {
-    party_game_instance::data = {};
-    auto &pt = party_game_instance::data.value();
+    PartyGameInstance::data = {};
+    auto &pt = PartyGameInstance::data.value();
     pt.captain_id = r.to_id;
     for (const auto &p : r.players) {
       pt.clients.push_back(*p);
     }
-    party_ui_system::open();
+    PartyUiSystem::open();
     return;
   }
   }
 }
 
-std::optional<server_party>
-server_party_instance::load_client_party(uint64_t client_id) {
+std::optional<ServerParty>
+ServerPartyInstance::load_client_party(uint64_t client_id) {
   for (const auto [k, v] : data) {
     auto clients = v.client_ids;
     clients.push_back(k);

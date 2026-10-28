@@ -7,19 +7,19 @@
 #include "src/server/server_system/server_system.h"
 #include <algorithm>
 
-void server_system_instance::enter(bool host) {
+void ServerSystemInstance::enter(bool host) {
   if (host) {
-    server_system::server_systems = {
-        server_main::run,
+    ServerSystem::server_systems = {
+        ServerMain::run,
         // server_heartbeat_system::run_server_heartbeat,
         // server_heartbeat_system::run_client_heartbeat,
-        server_mob_system::run,
-        server_drop_system::run,
-        server_reactor_system::run,
+        ServerMobSystem::run,
+        ServerDropSystem::run,
+        ServerReactorSystem::run,
     };
   } else {
-    server_system::server_systems = {
-        server_main::run,
+    ServerSystem::server_systems = {
+        ServerMain::run,
         // server_heartbeat_system::run_client_heartbeat,
     };
   }

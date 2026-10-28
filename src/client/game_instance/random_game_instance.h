@@ -4,7 +4,7 @@
 #include <ctime>
 #include <random>
 
-class random_game_instance {
+class RandomGameInstance {
 public:
   static inline std::mt19937 gen{std::random_device{}()};
 };

@@ -26,160 +26,160 @@
 #include <string>
 
 static void shunjianyidong() {
-  game_skill g_skill;
+  GameSkill g_skill;
   g_skill.id = u"2301000";
 
-  g_skill.effect = [](SDL_FPoint p, game_effect *e, bool f) {
+  g_skill.effect = [](SDL_FPoint p, GameEffect *e, bool f) {
     e->id = u"BasicEff.img/Teleport";
     e->lv = 1;
     e->pos = SDL_FPoint{0, 0};
-    if (effect_logic_system::run_effect(*e)) {
+    if (EffectLogicSystem::run_effect(*e)) {
       return false;
     }
-    auto g_character = std::any_cast<game_character *>(e->data);
-    effect_render_system::render_effect(g_character->pos, *e);
+    auto g_character = std::any_cast<GameCharacter *>(e->data);
+    EffectRenderSystem::render_effect(g_character->pos, *e);
     e->id = u"2301000";
     return true;
   };
 
   g_skill.use = [g_skill](uint64_t client_id, int ski_lv) {
-    character_stat_game_instance::add_exp(1000);
-    skill_game_instance::skis()[u"2301000"].cd = window::dt_now + 500;
-    auto &sf = character_game_instance::self;
+    CharacterStatGameInstance::add_exp(1000);
+    SkillGameInstance::skis()[u"2301000"].cd = Window::dt_now + 500;
+    auto &sf = CharacterGameInstance::self;
 
-    auto up = keyboard_game_instance::find_key_by_val("up");
-    auto down = keyboard_game_instance::find_key_by_val("down");
-    auto left = keyboard_game_instance::find_key_by_val("left");
-    auto right = keyboard_game_instance::find_key_by_val("right");
+    auto up = KeyboardGameInstance::find_key_by_val("up");
+    auto down = KeyboardGameInstance::find_key_by_val("down");
+    auto left = KeyboardGameInstance::find_key_by_val("left");
+    auto right = KeyboardGameInstance::find_key_by_val("right");
 
     auto x = sf.pos.x;
     auto y = sf.pos.y;
 
-    if (window::keyboard_state[right]) {
+    if (Window::keyboard_state[right]) {
       x += 200;
-    } else if (window::keyboard_state[left]) {
+    } else if (Window::keyboard_state[left]) {
       x -= 200;
-    } else if (window::keyboard_state[down]) {
+    } else if (Window::keyboard_state[down]) {
       y += 200;
-    } else if (window::keyboard_state[up]) {
+    } else if (Window::keyboard_state[up]) {
       y -= 200;
     }
 
-    const auto &fhs = foothold_game_instance::data;
+    const auto &fhs = FootholdGameInstance::data;
     auto border =
-        map_info_game_instance::load_mr_border(scene_system_instance::map_id);
+        MapInfoGameInstance::load_mr_border(SceneSystemInstance::map_id);
     auto [l, t, r, b] = border;
     x = std::clamp(x, l, r);
     y = std::clamp(y, t, b);
     if (y != sf.pos.y) {
       // 垂直移动
-      auto ins = physic::fall_intersect_pos(sf.pos, {x, y}, fhs);
+      auto ins = Physic::fall_intersect_pos(sf.pos, {x, y}, fhs);
       if (!ins.empty()) {
         if (sf.pos.y < y) {
           sf.pos = ins.rbegin()->second.pos;
-          character_logic_system::self_fh = ins.rbegin()->second.fh.id;
+          CharacterLogicSystem::self_fh = ins.rbegin()->second.fh.id;
         } else {
           sf.pos = ins.begin()->second.pos;
-          character_logic_system::self_fh = ins.begin()->second.fh.id;
+          CharacterLogicSystem::self_fh = ins.begin()->second.fh.id;
         }
       }
     } else if (x != sf.pos.x) {
-      auto ins = physic::fall_intersect_pos({x, y}, {x, y + 70}, fhs);
+      auto ins = Physic::fall_intersect_pos({x, y}, {x, y + 70}, fhs);
       if (!ins.empty()) {
         auto top = ins.begin()->first;
         sf.pos = ins.begin()->second.pos;
-        character_logic_system::self_fh = ins.begin()->second.fh.id;
+        CharacterLogicSystem::self_fh = ins.begin()->second.fh.id;
       } else {
-        auto ins = physic::fall_intersect_pos({x, y}, {x, y - 70}, fhs);
+        auto ins = Physic::fall_intersect_pos({x, y}, {x, y - 70}, fhs);
         if (!ins.empty()) {
           auto top = ins.rbegin()->first;
           sf.pos = ins.rbegin()->second.pos;
-          character_logic_system::self_fh = ins.begin()->second.fh.id;
+          CharacterLogicSystem::self_fh = ins.begin()->second.fh.id;
         }
       }
     }
 
-    character_logic_system::self_hspeed = 0;
-    character_logic_system::self_vspeed = 0;
+    CharacterLogicSystem::self_hspeed = 0;
+    CharacterLogicSystem::self_vspeed = 0;
 
-    auto ckt = skill_game_instance::create_skill_payload(2301000, ski_lv);
-    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
-    client_request::send_to_host(ckt);
+    auto ckt = SkillGameInstance::create_skill_payload(2301000, ski_lv);
+    ServerCharacterInstance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
+    ClientRequest::send_to_host(ckt);
   };
-  auto &skis = skill_game_instance::skis();
+  auto &skis = SkillGameInstance::skis();
   skis[g_skill.id] = g_skill;
 }
 
 static void huixueshu() {
-  game_skill g_skill;
+  GameSkill g_skill;
   g_skill.climb = true;
   g_skill.id = u"2301001";
 
   static uint64_t now;
   g_skill.use = [g_skill](uint64_t client_id, int ski_lv) mutable {
-    skill_game_instance::skis()[u"2301001"].cd = window::dt_now + 1000;
+    SkillGameInstance::skis()[u"2301001"].cd = Window::dt_now + 1000;
 
-    auto &ski = skill_game_instance::ski;
+    auto &ski = SkillGameInstance::ski;
     g_skill.end();
     g_skill.lv = ski_lv;
     g_skill.duration = 30 * 1000;
-    g_skill.destroy = window::dt_now + g_skill.duration;
+    g_skill.destroy = Window::dt_now + g_skill.duration;
     ski.push_back(g_skill);
 
-    auto &sf = character_game_instance::self;
-    auto ckt = skill_game_instance::create_skill_payload(1001, ski_lv);
-    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
-    client_request::send_to_host(ckt);
+    auto &sf = CharacterGameInstance::self;
+    auto ckt = SkillGameInstance::create_skill_payload(1001, ski_lv);
+    ServerCharacterInstance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
+    ClientRequest::send_to_host(ckt);
   };
 
-  auto &skis = skill_game_instance::skis();
+  auto &skis = SkillGameInstance::skis();
   skis[g_skill.id] = g_skill;
 }
 
 static void qidao() {
-  game_skill g_skill;
+  GameSkill g_skill;
   g_skill.climb = true;
   g_skill.id = u"2301003";
   g_skill.end = []() {
-    auto &ski = skill_game_instance::ski;
+    auto &ski = SkillGameInstance::ski;
     auto it = std::ranges::find_if(
-        ski, [](const game_skill &s) { return s.id == u"2301003"; });
+        ski, [](const GameSkill &s) { return s.id == u"2301003"; });
     if (it != ski.end()) {
       ski.erase(it);
-      character_logic_system::self_hspeed_max -= 100;
-      character_logic_system::self_hspeed_min += 100;
+      CharacterLogicSystem::self_hspeed_max -= 100;
+      CharacterLogicSystem::self_hspeed_min += 100;
     }
   };
 
   g_skill.frame = []() { return; };
 
   g_skill.use = [g_skill](uint64_t client_id, int ski_lv) mutable {
-    auto &ski = skill_game_instance::ski;
+    auto &ski = SkillGameInstance::ski;
     g_skill.end();
     g_skill.lv = ski_lv;
     g_skill.duration = 30 * 1000;
-    g_skill.destroy = window::dt_now + g_skill.duration;
+    g_skill.destroy = Window::dt_now + g_skill.duration;
     ski.push_back(g_skill);
 
-    character_logic_system::self_hspeed_max += 100;
-    character_logic_system::self_hspeed_min -= 100;
+    CharacterLogicSystem::self_hspeed_max += 100;
+    CharacterLogicSystem::self_hspeed_min -= 100;
 
     if (client_id != 0) {
       return;
     }
 
-    skill_game_instance::skis()[u"2301003"].cd = window::dt_now + 1000;
+    SkillGameInstance::skis()[u"2301003"].cd = Window::dt_now + 1000;
 
-    auto &sf = character_game_instance::self;
-    auto g_r = skill_game_instance::load_ski_r(u"2301003");
-    auto players = character_logic_system::run_buff_check(sf, g_r);
+    auto &sf = CharacterGameInstance::self;
+    auto g_r = SkillGameInstance::load_ski_r(u"2301003");
+    auto players = CharacterLogicSystem::run_buff_check(sf, g_r);
     auto ckt =
-        skill_game_instance::create_skill_payload(players, 2301003, ski_lv);
-    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
-    client_request::send_to_host(ckt);
+        SkillGameInstance::create_skill_payload(players, 2301003, ski_lv);
+    ServerCharacterInstance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
+    ClientRequest::send_to_host(ckt);
   };
 
-  auto &skis = skill_game_instance::skis();
+  auto &skis = SkillGameInstance::skis();
   skis[g_skill.id] = g_skill;
 }
 

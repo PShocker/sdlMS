@@ -10,16 +10,16 @@
 
 #include FT_FREETYPE_H
 
-class freetype {
-  struct freetype_cache_key {
+class Freetype {
+  struct FreetypeCacheKey {
     char16_t c;
     uint8_t size;
     bool bold;
 
-    auto operator<=>(const freetype_cache_key &) const = default;
+    auto operator<=>(const FreetypeCacheKey &) const = default;
   };
 
-  struct freetype_cache_value {
+  struct FreetypeCacheValue {
     float advance;
     int32_t bearingY;
     SDL_Texture *texture;
@@ -30,7 +30,7 @@ private:
   static inline FT_Face face = nullptr;
   static inline uint8_t size;
   static inline SDL_Color color;
-  static inline std::flat_map<freetype_cache_key, freetype_cache_value> cache;
+  static inline std::flat_map<FreetypeCacheKey, FreetypeCacheValue> cache;
 
   static inline bool aligned;
   static inline bool bold;
@@ -60,17 +60,17 @@ public:
 
   static void draw_str(const std::u16string &str, float x, float y, float w,
                        float h);
-  struct draw_data {
+  struct DrawData {
     float height;
     int select;
   };
-  static draw_data draw_rstr(const std::u16string &str, float x, float y,
+  static DrawData draw_rstr(const std::u16string &str, float x, float y,
                              float w, float h,
                              std::optional<SDL_FRect> obstacle);
-  static draw_data draw_rstr(const std::u16string &str, float x, float y,
+  static DrawData draw_rstr(const std::u16string &str, float x, float y,
                              float w, float h,
                              std::optional<SDL_FRect> obstacle,
                              int default_select, bool dryRun, int visibleCount);
-  static draw_data draw_cstr(const std::u16string &str, float x, float y,
+  static DrawData draw_cstr(const std::u16string &str, float x, float y,
                              float w, float h, bool dryRun = false);
 };

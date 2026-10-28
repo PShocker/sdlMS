@@ -6,7 +6,7 @@
 
 using namespace fbs;
 
-class server_trap_instance {
+class ServerTrapInstance {
 public:
   static void handle_s_attack(uint64_t client_id, AttackT &at);
   static void handle_attack(uint64_t client_id, ClientTrapAttackT &r);

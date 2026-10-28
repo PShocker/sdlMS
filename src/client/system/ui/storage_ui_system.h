@@ -9,9 +9,9 @@
 #include <optional>
 #include <string>
 
-class storage_ui_system {
+class StorageUiSystem {
 private:
-  static bool add_item(std::polymorphic<game_item> &item);
+  static bool add_item(std::polymorphic<GameItem> &item);
 
   static std::optional<uint32_t> load_mouse_index();
   static SDL_FPoint load_wh();

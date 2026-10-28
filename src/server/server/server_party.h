@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <vector>
 
-class server_party {
+class ServerParty {
 public:
   uint64_t id;
   uint64_t captain;

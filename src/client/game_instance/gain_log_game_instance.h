@@ -4,9 +4,9 @@
 #include <cstdint>
 #include <string>
 #include <vector>
-class gain_log_game_instance {
+class GainLogGameInstance {
 public:
-  static inline std::vector<game_gain_log> data;
+  static inline std::vector<GameGainLog> data;
 
-  static void add(const std::u16string &id, int num, gain_enum type);
+  static void add(const std::u16string &id, int num, GainEnum type);
 };

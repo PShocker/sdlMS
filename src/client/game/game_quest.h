@@ -6,38 +6,38 @@
 #include <string>
 #include <vector>
 
-struct quest_mob {
+struct QuestMob {
   std::u16string id;
   uint32_t count;
 };
 
-struct quest_item {
+struct QuestItem {
   std::u16string id;
   uint32_t count;
 };
 
-struct quest_npc {
+struct QuestNpc {
   std::u16string id;
 };
 
-enum class quest_enum : uint8_t {
+enum class QuestEnum : uint8_t {
   progress,
   complete,
   decline,
 };
 
-class game_quest {
+class GameQuest {
 public:
   std::u16string quest_id;
   uint8_t index;
 
-  quest_enum type;
+  QuestEnum type;
 
-  std::flat_map<std::u16string, quest_mob> mob;
-  std::flat_map<std::u16string, quest_item> item;
+  std::flat_map<std::u16string, QuestMob> mob;
+  std::flat_map<std::u16string, QuestItem> item;
 
-  std::flat_map<std::u16string, quest_mob> check_mob;
-  std::flat_map<std::u16string, quest_item> check_item;
+  std::flat_map<std::u16string, QuestMob> check_mob;
+  std::flat_map<std::u16string, QuestItem> check_item;
 
   bool mob_bool;
   bool item_bool;

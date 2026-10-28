@@ -1,6 +1,6 @@
 #pragma once
 
-class server_region_skill_system {
+class ServerRegionSkillSystem {
 private:
 public:
   static bool run();

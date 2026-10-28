@@ -3,9 +3,9 @@
 #include "src/client/window/window.h"
 #include <ranges>
 
-bool portal_logic_system::run() {
-  for (auto &portal : portal_game_instance::data | std::views::values) {
-    portal.ani_time += window::delta_time;
+bool PortalLogicSystem::run() {
+  for (auto &portal : PortalGameInstance::data | std::views::values) {
+    portal.ani_time += Window::delta_time;
     if (portal.ani_time >= 100) {
       portal.ani_index += 1;
       portal.ani_time = 0;

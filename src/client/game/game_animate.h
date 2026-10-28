@@ -2,7 +2,7 @@
 
 #include <cstdint>
 #include <vector>
-class game_animate {
+class GameAnimate {
 public:
   uint8_t ani_index = 0;
   uint32_t ani_time = 0;

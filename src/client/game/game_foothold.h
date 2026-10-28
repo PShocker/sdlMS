@@ -3,7 +3,7 @@
 #include "SDL3/SDL_rect.h"
 #include <cstdint>
 #include <optional>
-class game_foothold {
+class GameFoothold {
 public:
   uint32_t id;
   uint32_t page;

@@ -3,7 +3,7 @@
 #include "src/client/game/game_save.h"
 #include <cstdint>
 
-class character_stat_game_instance {
+class CharacterStatGameInstance {
 private:
   // ============ 私有静态方法 ============
   static uint32_t get_base_hp_max();
@@ -121,7 +121,7 @@ public:
   // ============================================================
   static void add_exp(uint32_t num);
   static void update();
-  static void load(const character_save &cs);
+  static void load(const CharacterSaveData &cs);
 
   // ============================================================
   // HP / MP

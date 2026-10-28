@@ -13,12 +13,12 @@
 #include <algorithm>
 #include <string>
 
-bool mob_render_system::render_mob(game_mob &g_mob) {
-  auto action_type = mob_logic_system::load_action_type(g_mob.action);
-  if (action_type == mob_logic_system::action_enum::revive) {
+bool MobRenderSystem::render_mob(GameMob &g_mob) {
+  auto action_type = MobLogicSystem::load_action_type(g_mob.action);
+  if (action_type == MobLogicSystem::ActionEnum::revive) {
     return false;
   }
-  auto mob_node = mob_game_instance::load_link_mob_node(g_mob.id);
+  auto mob_node = MobGameInstance::load_link_mob_node(g_mob.id);
 
   auto action_node = mob_node->get_child(g_mob.action);
 
@@ -42,7 +42,7 @@ bool mob_render_system::render_mob(game_mob &g_mob) {
     mob_node = static_cast<wz::Property<wz::WzUOL> *>(mob_node)->get_uol();
   }
 
-  auto texture = wz_resource::load_texture(mob_node);
+  auto texture = WzResource::load_texture(mob_node);
 
   auto v =
       static_cast<wz::Property<wz::WzVec2D> *>(mob_node->get_child(u"origin"))
@@ -59,47 +59,47 @@ bool mob_render_system::render_mob(game_mob &g_mob) {
     pos_rect.x = g_mob.pos.x;
     pos_rect.x = (pos_rect.x - (texture->w - origin.x));
   }
-  auto &camera = camera_game_instance::camera;
+  auto &camera = CameraGameInstance::camera;
   if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
     pos_rect.x -= camera.x;
     pos_rect.y -= camera.y;
     SDL_SetTextureAlphaMod(texture, g_mob.alpha);
-    SDL_RenderTextureRotated(window::renderer, texture, nullptr, &pos_rect, 0,
+    SDL_RenderTextureRotated(Window::renderer, texture, nullptr, &pos_rect, 0,
                              nullptr, (SDL_FlipMode)g_mob.flip);
   }
 
   return true;
 }
 
-bool mob_render_system::render_gauge(game_mob &g_mob) {
+bool MobRenderSystem::render_gauge(GameMob &g_mob) {
   if (g_mob.gauge.has_value()) {
-    auto r = mob_logic_system::load_rect(g_mob);
+    auto r = MobLogicSystem::load_rect(g_mob);
     if (!r.has_value()) {
       return false;
     }
     auto pos = g_mob.pos;
-    auto head = mob_logic_system::load_head(g_mob);
+    auto head = MobLogicSystem::load_head(g_mob);
     pos.y = pos.y + head->y - 20;
     auto hp_percent_now = (float)g_mob.hp / g_mob.max_hp;
     hp_percent_now = std::max(0.0f, hp_percent_now);
     g_mob.gauge->hp_percent =
         std::lerp(g_mob.gauge->hp_percent, hp_percent_now, 0.03);
     g_mob.gauge->hp_percent_now = hp_percent_now;
-    gauge_render_system::render_mob(pos, g_mob.gauge.value());
+    GaugeRenderSystem::render_mob(pos, g_mob.gauge.value());
     return true;
   }
   return false;
 }
 
-bool mob_render_system::render_effect_back(game_mob &g_mob) {
-  return effect_render_system::render_mob_effects(g_mob, false);
+bool MobRenderSystem::render_effect_back(GameMob &g_mob) {
+  return EffectRenderSystem::render_mob_effects(g_mob, false);
 }
 
-void mob_render_system::render_debuff(game_mob &g_mob) {
-  debuff_render_system::render_mob(g_mob);
+void MobRenderSystem::render_debuff(GameMob &g_mob) {
+  DebuffRenderSystem::render_mob(g_mob);
 }
 
-bool mob_render_system::render(game_mob &g_mob) {
+bool MobRenderSystem::render(GameMob &g_mob) {
   render_mob(g_mob);
   render_effect_back(g_mob);
   render_debuff(g_mob);
@@ -117,13 +117,13 @@ bool mob_render_system::render(game_mob &g_mob) {
   return true;
 }
 
-void mob_render_system::render_nametag(const std::u16string &text,
+void MobRenderSystem::render_nametag(const std::u16string &text,
                                        SDL_FPoint p) {
-  const auto &camera = camera_game_instance::camera;
-  freetype::load_aligned(true);
-  freetype::load_size(13);
-  auto w = freetype::load_w(text);
-  auto h = freetype::load_lh();
+  const auto &camera = CameraGameInstance::camera;
+  Freetype::load_aligned(true);
+  Freetype::load_size(13);
+  auto w = Freetype::load_w(text);
+  auto h = Freetype::load_lh();
 
   auto x = p.x;
   auto y = p.y;
@@ -135,24 +135,24 @@ void mob_render_system::render_nametag(const std::u16string &text,
   if (SDL_HasRectIntersectionFloat(&rect, &camera)) {
     rect.x -= camera.x;
     rect.y -= camera.y;
-    SDL_SetRenderDrawBlendMode(window::renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(window::renderer, 0, 0, 0, 178);
-    SDL_RenderFillRect(window::renderer, &rect);
-    freetype::load_color(255, 255, 255, 255);
-    freetype::draw_line(text, x - camera.x - w / 2, y - camera.y);
+    SDL_SetRenderDrawBlendMode(Window::renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(Window::renderer, 0, 0, 0, 178);
+    SDL_RenderFillRect(Window::renderer, &rect);
+    Freetype::load_color(255, 255, 255, 255);
+    Freetype::draw_line(text, x - camera.x - w / 2, y - camera.y);
   }
   return;
 }
 
-bool mob_render_system::render_nametag(game_mob &g_mob) {
+bool MobRenderSystem::render_nametag(GameMob &g_mob) {
   if (!g_mob.gauge.has_value()) {
     return false;
   }
-  auto r = mob_logic_system::load_rect(g_mob);
+  auto r = MobLogicSystem::load_rect(g_mob);
   if (!r.has_value()) {
     return false;
   }
-  auto mob_name = mob_game_instance::load_mob_name(g_mob.id);
+  auto mob_name = MobGameInstance::load_mob_name(g_mob.id);
   render_nametag(mob_name, {g_mob.pos.x, g_mob.pos.y + 5});
   return true;
 }

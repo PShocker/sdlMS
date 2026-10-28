@@ -14,7 +14,7 @@
 #include <flat_map>
 #include <string>
 
-void wz_resource::init_key() {
+void WzResource::init_key() {
   std::array<uint8_t, 4> iv{
       0x4d,
       0x23,
@@ -29,7 +29,7 @@ void wz_resource::init_key() {
   wz::init_key(iv, aes_key);
 }
 
-void wz_resource::init_files() {
+void WzResource::init_files() {
   character = new wz::Files("Data/", "Character/Character");
   map = new wz::Files("Data/", "Map/Map");
   ui = new wz::Files("Data/", "UI/UI");
@@ -47,12 +47,12 @@ void wz_resource::init_files() {
   ms = new wz::File("Data/sdlMS.wz");
 }
 
-void wz_resource::init() {
+void WzResource::init() {
   init_key();
   init_files();
 }
 
-std::string wz_resource::load_map_path(uint32_t map_id) {
+std::string WzResource::load_map_path(uint32_t map_id) {
   auto s = std::to_string(map_id);
   if (s.size() < 9) {
     s.insert(0, 9 - s.size(), '0');
@@ -60,7 +60,7 @@ std::string wz_resource::load_map_path(uint32_t map_id) {
   return s;
 }
 
-wz::Node *wz_resource::load_map_node(uint32_t map_id) {
+wz::Node *WzResource::load_map_node(uint32_t map_id) {
   if (!map_node_cache.contains(map_id)) {
     auto s = load_map_path(map_id);
     std::string path =
@@ -70,7 +70,7 @@ wz::Node *wz_resource::load_map_node(uint32_t map_id) {
   return map_node_cache.at(map_id);
 }
 
-SDL_Texture *wz_resource::load_node_texture(wz::Node *node) {
+SDL_Texture *WzResource::load_node_texture(wz::Node *node) {
   SDL_Texture *texture = nullptr;
   if (node->type != wz::Type::Canvas) {
     std::abort();
@@ -84,14 +84,14 @@ SDL_Texture *wz_resource::load_node_texture(wz::Node *node) {
   switch (format) {
   case 1: {
     pixel = raw_data;
-    texture = SDL_CreateTexture(window::renderer, SDL_PIXELFORMAT_ARGB4444,
+    texture = SDL_CreateTexture(Window::renderer, SDL_PIXELFORMAT_ARGB4444,
                                 SDL_TEXTUREACCESS_STATIC, w, h);
     SDL_UpdateTexture(texture, NULL, pixel.data(), w * sizeof(Uint16));
     break;
   }
   case 2: {
     pixel = raw_data;
-    texture = SDL_CreateTexture(window::renderer, SDL_PIXELFORMAT_ARGB8888,
+    texture = SDL_CreateTexture(Window::renderer, SDL_PIXELFORMAT_ARGB8888,
                                 SDL_TEXTUREACCESS_STATIC, w, h);
     SDL_UpdateTexture(texture, NULL, pixel.data(), w * sizeof(Uint32));
     break;
@@ -119,7 +119,7 @@ SDL_Texture *wz_resource::load_node_texture(wz::Node *node) {
       }
       lineIndex += w * 32;
     }
-    texture = SDL_CreateTexture(window::renderer, SDL_PIXELFORMAT_RGB565,
+    texture = SDL_CreateTexture(Window::renderer, SDL_PIXELFORMAT_RGB565,
                                 SDL_TEXTUREACCESS_STATIC, w, h);
     SDL_UpdateTexture(texture, NULL, pixel.data(), w * sizeof(Uint16));
     break;
@@ -131,7 +131,7 @@ SDL_Texture *wz_resource::load_node_texture(wz::Node *node) {
   return texture;
 }
 
-wz::Node *wz_resource::load_real_node_texture(wz::Node *node) {
+wz::Node *WzResource::load_real_node_texture(wz::Node *node) {
   if (node->type == wz::Type::UOL) {
     node = static_cast<wz::Property<wz::WzUOL> *>(node)->get_uol();
   }
@@ -166,7 +166,7 @@ wz::Node *wz_resource::load_real_node_texture(wz::Node *node) {
   return node;
 }
 
-SDL_Texture *wz_resource::load_texture(wz::Node *node) {
+SDL_Texture *WzResource::load_texture(wz::Node *node) {
   if (!texture_cache.contains(node)) {
     auto real_node = load_real_node_texture(node);
     auto texture = load_node_texture(real_node);
@@ -175,7 +175,7 @@ SDL_Texture *wz_resource::load_texture(wz::Node *node) {
   return texture_cache.at(node);
 }
 
-SDL_FPoint wz_resource::load_fpoint(wz::Node *node) {
+SDL_FPoint WzResource::load_fpoint(wz::Node *node) {
   if (node->type == wz::Type::UOL) {
     node = static_cast<wz::Property<wz::WzUOL> *>(node)->get_uol();
   }

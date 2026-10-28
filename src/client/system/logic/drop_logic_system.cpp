@@ -9,10 +9,10 @@
 #include <cmath>
 #include <ranges>
 
-void drop_logic_system::run_state_machine(game_drop &drop) {
+void DropLogicSystem::run_state_machine(GameDrop &drop) {
   switch (drop.type) {
-  case game_drop::drop_enum::fly: {
-    auto delta_time = window::delta_time / 1000.0;
+  case GameDrop::DropEnum::fly: {
+    auto delta_time = Window::delta_time / 1000.0;
     drop.vspeed = drop.vspeed + delta_time * 800;
     drop.vspeed = std::min(drop.vspeed, 400.0f);
     auto dy = drop.vspeed * delta_time;
@@ -24,25 +24,25 @@ void drop_logic_system::run_state_machine(game_drop &drop) {
     if (drop.pos.y >= drop.goal.y && drop.vspeed > 0) {
       drop.pos.x = drop.goal.x;
       drop.pos.y = drop.goal.y;
-      drop.type = game_drop::drop_enum::land;
+      drop.type = GameDrop::DropEnum::land;
       drop.vspeed = 0;
       drop.hspeed = 0;
       drop.rotate = 0;
       break;
     }
     if (drop.data->id != u"00000000") {
-      drop.rotate += (float)window::delta_time;
+      drop.rotate += (float)Window::delta_time;
     }
     break;
   }
-  case game_drop::drop_enum::land: {
-    drop.hspeed += window::delta_time;
+  case GameDrop::DropEnum::land: {
+    drop.hspeed += Window::delta_time;
     double t = fmod((double)drop.hspeed / 3500, 1.0);
     auto dy = (1.0 - fabs(2.0 * t - 1.0)) * 8.0 - 4.0;
     drop.pos.y = drop.goal.y + dy;
     break;
   }
-  case game_drop::drop_enum::pick: {
+  case GameDrop::DropEnum::pick: {
     constexpr auto PICK_UP_DURATION = 700;
     constexpr auto ALPHA_FADE_START = 420;
     constexpr auto ALPHA_FADE_DURATION =
@@ -51,7 +51,7 @@ void drop_logic_system::run_state_machine(game_drop &drop) {
     constexpr auto PARABOLA_PEAK_TIME = 350;
     constexpr auto PARABOLA_SCALE = 160;
 
-    int elapsed = window::dt_now - drop.pick_time;
+    int elapsed = Window::dt_now - drop.pick_time;
     bool is_animating = elapsed <= PICK_UP_DURATION;
 
     if (!is_animating) {
@@ -75,10 +75,10 @@ void drop_logic_system::run_state_machine(game_drop &drop) {
     if (pk->pet_index.has_value()) {
     } else {
       auto client_id = pk->client_id;
-      if (client_id == server_main::local_addr) {
-        pos = character_game_instance::self.pos;
-      } else if (character_game_instance::others.contains(client_id)) {
-        pos = character_game_instance::others[client_id].g_character.pos;
+      if (client_id == ServerMain::local_addr) {
+        pos = CharacterGameInstance::self.pos;
+      } else if (CharacterGameInstance::others.contains(client_id)) {
+        pos = CharacterGameInstance::others[client_id].g_character.pos;
       }
     }
 
@@ -105,22 +105,22 @@ void drop_logic_system::run_state_machine(game_drop &drop) {
     drop.pos = {x, y};
     break;
   }
-  case game_drop::drop_enum::fade: {
+  case GameDrop::DropEnum::fade: {
     break;
   }
   }
   return;
 }
 
-void drop_logic_system::run_destroy() {
-  std::erase_if(drop_game_instance::data, [](const auto &pair) {
+void DropLogicSystem::run_destroy() {
+  std::erase_if(DropGameInstance::data, [](const auto &pair) {
     const auto &[id, drop] = pair;
     return drop.alpha == 0;
   });
 }
 
-bool drop_logic_system::run() {
-  for (auto &drop : drop_game_instance::data | std::views::values) {
+bool DropLogicSystem::run() {
+  for (auto &drop : DropGameInstance::data | std::views::values) {
     run_state_machine(drop);
   }
   run_destroy();

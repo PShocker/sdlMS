@@ -17,7 +17,7 @@
 #include <string>
 #include <vector>
 
-class game_character {
+class GameCharacter {
 public:
   uint8_t page;
 
@@ -35,53 +35,53 @@ public:
   std::u16string ear;
   std::u16string hair;
 
-  game_face face;
+  GameFace face;
 
-  std::optional<game_equip_item> weapon;
-  std::optional<game_equip_item> cap;
-  std::optional<game_equip_item> cape;
-  std::optional<game_equip_item> coat;
-  std::optional<game_equip_item> glove;
-  std::optional<game_equip_item> pant;
+  std::optional<GameEquipItem> weapon;
+  std::optional<GameEquipItem> cap;
+  std::optional<GameEquipItem> cape;
+  std::optional<GameEquipItem> coat;
+  std::optional<GameEquipItem> glove;
+  std::optional<GameEquipItem> pant;
 
-  std::optional<game_equip_item> ring0;
-  std::optional<game_equip_item> ring1;
-  std::optional<game_equip_item> ring2;
-  std::optional<game_equip_item> ring3;
+  std::optional<GameEquipItem> ring0;
+  std::optional<GameEquipItem> ring1;
+  std::optional<GameEquipItem> ring2;
+  std::optional<GameEquipItem> ring3;
 
-  std::optional<game_equip_item> shield;
-  std::optional<game_equip_item> longcoat;
-  std::optional<game_equip_item> shoes;
+  std::optional<GameEquipItem> shield;
+  std::optional<GameEquipItem> longcoat;
+  std::optional<GameEquipItem> shoes;
 
-  std::optional<game_equip_item> accessory;
+  std::optional<GameEquipItem> accessory;
 
-  std::optional<game_deco_item> weapon_deco;
-  std::optional<game_deco_item> cap_deco;
-  std::optional<game_deco_item> cape_deco;
-  std::optional<game_deco_item> coat_deco;
-  std::optional<game_deco_item> glove_deco;
-  std::optional<game_deco_item> pant_deco;
+  std::optional<GameDecoItem> weapon_deco;
+  std::optional<GameDecoItem> cap_deco;
+  std::optional<GameDecoItem> cape_deco;
+  std::optional<GameDecoItem> coat_deco;
+  std::optional<GameDecoItem> glove_deco;
+  std::optional<GameDecoItem> pant_deco;
 
-  std::optional<game_deco_item> ring0_deco;
-  std::optional<game_deco_item> ring1_deco;
+  std::optional<GameDecoItem> ring0_deco;
+  std::optional<GameDecoItem> ring1_deco;
 
-  std::optional<game_deco_item> shield_deco;
-  std::optional<game_deco_item> longcoat_deco;
-  std::optional<game_deco_item> shoes_deco;
+  std::optional<GameDecoItem> shield_deco;
+  std::optional<GameDecoItem> longcoat_deco;
+  std::optional<GameDecoItem> shoes_deco;
 
-  std::optional<game_deco_item> accessory_deco;
+  std::optional<GameDecoItem> accessory_deco;
 
-  std::optional<game_chatballoon> chatballoon;
+  std::optional<GameChatballoon> chatballoon;
 
-  std::optional<game_chair> chair;
+  std::optional<GameChair> chair;
 
   SDL_FPoint pos;
 
-  std::flat_map<game_debuff::debuff_type, game_debuff> debuffs;
+  std::flat_map<GameDebuff::DebuffType, GameDebuff> debuffs;
 
-  std::vector<game_effect> effect;
+  std::vector<GameEffect> effect;
   std::optional<std::u16string> skill;
-  std::optional<game_tomb> tomb;
+  std::optional<GameTomb> tomb;
 
   // characterinfo
   std::u16string name;

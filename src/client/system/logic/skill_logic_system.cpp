@@ -4,11 +4,11 @@
 #include <functional>
 #include <vector>
 
-bool skill_logic_system::run() {
-  auto &v = skill_game_instance::ski;
+bool SkillLogicSystem::run() {
+  auto &v = SkillGameInstance::ski;
   std::vector<std::function<void()>> ends;
   for (const auto &sk : v) {
-    if (sk.destroy <= window::dt_now && sk.destroy != 0) {
+    if (sk.destroy <= Window::dt_now && sk.destroy != 0) {
       ends.push_back(sk.end);
     }
   }

@@ -7,7 +7,7 @@
 #include <flat_map>
 #include <string>
 
-class worldmap_ui_system {
+class WorldmapUiSystem {
 private:
   static void render_backgrnd();
   static void render_map();

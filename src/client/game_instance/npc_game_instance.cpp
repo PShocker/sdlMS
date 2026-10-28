@@ -17,32 +17,32 @@
 #include <string>
 #include <vector>
 
-std::u16string npc_game_instance::load_npc_text(const std::u16string &id,
+std::u16string NpcGameInstance::load_npc_text(const std::u16string &id,
                                                 const std::u16string &val) {
   std::u16string r = u"";
   auto view = id | std::views::drop_while([](char16_t c) { return c == u'0'; });
 
   std::u16string result(view.begin(), view.end());
-  auto str_node = wz_resource::string->find(u"Npc.img/" + result);
+  auto str_node = WzResource::string->find(u"Npc.img/" + result);
 
   if (auto node = str_node->get_child(val)) {
-    r = text_game_instance::load_rstr(node);
+    r = TextGameInstance::load_rstr(node);
   }
   return r;
 }
 
-wz::Node *npc_game_instance::load_link_npc_node(const std::u16string &id) {
-  auto npc_node = wz_resource::npc->find(id + u".img");
+wz::Node *NpcGameInstance::load_link_npc_node(const std::u16string &id) {
+  auto npc_node = WzResource::npc->find(id + u".img");
   while (npc_node->find(u"info/link")) {
     auto link_node = npc_node->find(u"info/link");
     auto link = static_cast<wz::Property<std::u16string> *>(link_node)->get();
-    npc_node = wz_resource::npc->find(link + u".img");
+    npc_node = WzResource::npc->find(link + u".img");
   }
   return npc_node;
 }
 
-SDL_FRect npc_game_instance::load_rect(const game_npc &g_npc) {
-  auto npc_node = npc_game_instance::load_link_npc_node(g_npc.id);
+SDL_FRect NpcGameInstance::load_rect(const GameNpc &g_npc) {
+  auto npc_node = NpcGameInstance::load_link_npc_node(g_npc.id);
   auto action_node = npc_node->get_child(g_npc.action);
 
   auto index = std::to_string(g_npc.ani_index);
@@ -51,8 +51,8 @@ SDL_FRect npc_game_instance::load_rect(const game_npc &g_npc) {
   if (npc_node->type == wz::Type::UOL) {
     npc_node = static_cast<wz::Property<wz::WzUOL> *>(npc_node)->get_uol();
   }
-  auto texture = wz_resource::load_texture(npc_node);
-  auto origin = wz_resource::load_fpoint(npc_node->get_child(u"origin"));
+  auto texture = WzResource::load_texture(npc_node);
+  auto origin = WzResource::load_fpoint(npc_node->get_child(u"origin"));
   SDL_FRect pos_rect = {
       .x = g_npc.pos.x - origin.x,
       .y = g_npc.pos.y - origin.y,
@@ -66,23 +66,23 @@ SDL_FRect npc_game_instance::load_rect(const game_npc &g_npc) {
   return pos_rect;
 }
 
-wz::Node *npc_game_instance::load_quest_node(const game_npc &g_npc) {
+wz::Node *NpcGameInstance::load_quest_node(const GameNpc &g_npc) {
   wz::Node *node = nullptr;
-  auto avaliable = npc_game_instance::load_avaliable_quest(g_npc.id);
-  auto progress = npc_game_instance::load_progress_quest(g_npc.id);
+  auto avaliable = NpcGameInstance::load_avaliable_quest(g_npc.id);
+  auto progress = NpcGameInstance::load_progress_quest(g_npc.id);
   auto progress_complete =
-      npc_game_instance::load_progress_complete_quest(g_npc.id);
+      NpcGameInstance::load_progress_complete_quest(g_npc.id);
   if (!progress_complete.empty()) {
-    node = wz_resource::ui->find(u"QuestIcon.img/2");
+    node = WzResource::ui->find(u"QuestIcon.img/2");
   } else if (!avaliable.empty()) {
-    node = wz_resource::ui->find(u"QuestIcon.img/0");
+    node = WzResource::ui->find(u"QuestIcon.img/0");
   } else if (!progress.empty()) {
-    node = wz_resource::ui->find(u"QuestIcon.img/1");
+    node = WzResource::ui->find(u"QuestIcon.img/1");
   } else {
     return nullptr;
   }
   // 直接用当前时间控制灯泡时间
-  auto now = window::dt_now;
+  auto now = Window::dt_now;
   const int delay = 150;
   auto index = std::to_string((now % (node->children_count() * delay)) / delay);
   node = node->get_child(index);
@@ -90,12 +90,12 @@ wz::Node *npc_game_instance::load_quest_node(const game_npc &g_npc) {
 }
 
 std::optional<SDL_FRect>
-npc_game_instance::load_quest_rect(const game_npc &g_npc) {
+NpcGameInstance::load_quest_rect(const GameNpc &g_npc) {
   auto node = load_quest_node(g_npc);
   if (node != nullptr) {
-    auto npc_rect = npc_game_instance::load_rect(g_npc);
-    auto origin = wz_resource::load_fpoint(node->get_child(u"origin"));
-    auto texture = wz_resource::load_texture(node);
+    auto npc_rect = NpcGameInstance::load_rect(g_npc);
+    auto origin = WzResource::load_fpoint(node->get_child(u"origin"));
+    auto texture = WzResource::load_texture(node);
     SDL_FRect pos_rect{
         g_npc.pos.x - origin.x + (npc_rect.w / 2) + 5,
         g_npc.pos.y - origin.y - npc_rect.h - 10,
@@ -107,10 +107,10 @@ npc_game_instance::load_quest_rect(const game_npc &g_npc) {
   return std::nullopt;
 }
 
-void npc_game_instance::load(uint32_t map_id) {
+void NpcGameInstance::load(uint32_t map_id) {
   data = {};
 
-  auto map_node = wz_resource::load_map_node(map_id);
+  auto map_node = WzResource::load_map_node(map_id);
   auto map_life_node = map_node->get_child(u"life");
   for (auto [key, val] : *map_life_node->get_children()) {
     auto type =
@@ -119,7 +119,7 @@ void npc_game_instance::load(uint32_t map_id) {
     if (type == u"m") {
       continue;
     }
-    game_npc g_npc;
+    GameNpc g_npc;
 
     auto npc_node = val[0];
     g_npc.id =
@@ -137,90 +137,90 @@ void npc_game_instance::load(uint32_t map_id) {
         static_cast<wz::Property<int> *>(npc_node->get_child(u"rx1"))->get();
     auto x = static_cast<wz::Property<int> *>(npc_node->get_child(u"x"))->get();
 
-    auto &fh = foothold_game_instance::data[g_npc.fh];
+    auto &fh = FootholdGameInstance::data[g_npc.fh];
     auto y = fh.k.value() * x + fh.intercept.value();
     g_npc.pos = {static_cast<float>(x), static_cast<float>(y)};
 
     // default action
     g_npc.action = u"stand";
-    g_npc.duration = window::dt_now + 1000;
+    g_npc.duration = Window::dt_now + 1000;
 
-    auto page = foothold_game_instance::data.at(g_npc.fh).page;
+    auto page = FootholdGameInstance::data.at(g_npc.fh).page;
     data[page].push_back(g_npc);
   }
 }
 
-std::u16string npc_game_instance::load_npc_script(const std::u16string &id) {
-  auto npc_node = wz_resource::npc->find(id + u".img");
+std::u16string NpcGameInstance::load_npc_script(const std::u16string &id) {
+  auto npc_node = WzResource::npc->find(id + u".img");
   if (auto n = npc_node->find(u"info/script/0/script"); n != nullptr) {
     return static_cast<wz::Property<std::u16string> *>(n)->get();
   }
   return u"";
 }
 
-npc_game_instance::npc_type
-npc_game_instance::load_npc_type(const std::u16string &id) {
-  if (shop_game_instance::load_npc_shop(id)) {
-    return npc_type::shop;
+NpcGameInstance::NpcType
+NpcGameInstance::load_npc_type(const std::u16string &id) {
+  if (ShopGameInstance::load_npc_shop(id)) {
+    return NpcType::shop;
   }
-  auto npc_node = wz_resource::npc->find(id + u".img");
-  if (!quest_game_instance::load_npc_quest(id).empty() ||
-      !npc_game_instance::load_progress_complete_quest(id).empty()) {
-    return npc_type::quest;
+  auto npc_node = WzResource::npc->find(id + u".img");
+  if (!QuestGameInstance::load_npc_quest(id).empty() ||
+      !NpcGameInstance::load_progress_complete_quest(id).empty()) {
+    return NpcType::quest;
   }
   if (npc_node->find(u"info/script")) {
-    return npc_type::script;
+    return NpcType::Script;
   }
-  return npc_type::none;
+  return NpcType::none;
 }
 
 std::vector<std::u16string>
-npc_game_instance::load_avaliable_quest(const std::u16string &id) {
-  auto quests = quest_game_instance::load_npc_quest(id);
-  std::vector<game_quest> avaliable_quests;
+NpcGameInstance::load_avaliable_quest(const std::u16string &id) {
+  auto quests = QuestGameInstance::load_npc_quest(id);
+  std::vector<GameQuest> avaliable_quests;
   for (auto q : quests) {
-    auto qs = quest_game_instance::load_avaliable_quest(q.quest_id);
+    auto qs = QuestGameInstance::load_avaliable_quest(q.quest_id);
     if (qs.has_value()) {
       avaliable_quests.push_back(qs.value());
     }
   }
 
-  std::ranges::sort(quests, {}, &game_quest::quest_id);
-  std::ranges::sort(avaliable_quests, {}, &game_quest::quest_id);
+  std::ranges::sort(quests, {}, &GameQuest::quest_id);
+  std::ranges::sort(avaliable_quests, {}, &GameQuest::quest_id);
 
   // 直接在视图上操作，避免创建临时vector
   std::vector<std::u16string> result;
-  auto q1 = quests | std::views::transform(&game_quest::quest_id);
-  auto q2 = avaliable_quests | std::views::transform(&game_quest::quest_id);
+  auto q1 = quests | std::views::transform(&GameQuest::quest_id);
+  auto q2 = avaliable_quests | std::views::transform(&GameQuest::quest_id);
   std::ranges::set_intersection(q1, q2, std::back_inserter(result));
 
   return result;
 }
 
 std::vector<std::u16string>
-npc_game_instance::load_progress_quest(const std::u16string &id) {
-  auto quests = quest_game_instance::load_npc_quest(id);
-  auto progress_quests = quest_game_instance::load_progress_quest();
+NpcGameInstance::load_progress_quest(const std::u16string &id) {
+  auto quests = QuestGameInstance::load_npc_quest(id);
+  auto progress_quests = QuestGameInstance::load_progress_quest();
 
-  std::ranges::sort(quests, {}, &game_quest::quest_id);
-  std::ranges::sort(progress_quests, {}, &game_quest::quest_id);
+  std::ranges::sort(quests, {}, &GameQuest::quest_id);
+  std::ranges::sort(progress_quests, {}, &GameQuest::quest_id);
 
   // 直接在视图上操作，避免创建临时vector
   std::vector<std::u16string> result;
-  auto q1 = quests | std::views::transform(&game_quest::quest_id);
-  auto q2 = progress_quests | std::views::transform(&game_quest::quest_id);
+  auto q1 = quests | std::views::transform(&GameQuest::quest_id);
+  auto q2 = progress_quests | std::views::transform(&GameQuest::quest_id);
   std::ranges::set_intersection(q1, q2, std::back_inserter(result));
 
   return result;
 }
 
 std::vector<std::u16string>
-npc_game_instance::load_progress_complete_quest(const std::u16string &id) {
+NpcGameInstance::load_progress_complete_quest(const std::u16string &id) {
   std::vector<std::u16string> result;
-  auto progress = quest_game_instance::load_progress_quest();
+  auto progress = QuestGameInstance::load_progress_quest();
   for (auto &p : progress) {
     if (p.item_bool && p.mob_bool) {
-      auto node = quest_game_instance::load_quest_node(p.quest_id);
+      auto node = QuestGameInstance::load_quest_node(p.quest_id);
       auto tmp = std::to_string(p.index);
       node = node->find("Check/" + tmp + "/npc");
       auto npc_id = static_cast<wz::Property<int> *>(node)->get();

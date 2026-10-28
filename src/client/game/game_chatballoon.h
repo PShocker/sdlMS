@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <optional>
 #include <string>
-class game_chatballoon {
+class GameChatballoon {
 public:
   std::u16string text;
   std::u16string path = u"0";

@@ -8,7 +8,7 @@
 
 using namespace fbs;
 
-class game_party {
+class GameParty {
 public:
   uint64_t captain_id;
   std::vector<PlayerT> clients;

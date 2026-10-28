@@ -3,7 +3,7 @@
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_rect.h"
 #include <optional>
-class statusbar_menu_ui_system {
+class StatusbarMenuUiSystem {
 private:
   static SDL_FRect load_r();
   static void render_backgrnd();
@@ -28,11 +28,11 @@ private:
   static inline int alpha;
 
 public:
-  enum class menu_enums {
+  enum class MenuEnums {
     menu,
     shortcut,
   };
-  static inline std::optional<menu_enums> menu_type;
+  static inline std::optional<MenuEnums> menu_type;
 
   static bool cursor_in();
 

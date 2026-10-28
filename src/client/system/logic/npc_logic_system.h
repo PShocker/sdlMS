@@ -4,18 +4,18 @@
 #include "src/client/game/game_npc.h"
 #include <optional>
 #include <string>
-class npc_logic_system {
+class NpcLogicSystem {
 private:
-  static bool run_animate(game_npc &g_npc);
-  static bool run_move(game_npc &g_npc);
-  static bool run_duration(game_npc &g_npc);
-  static bool run_chatballoon(game_npc &g_npc);
+  static bool run_animate(GameNpc &g_npc);
+  static bool run_move(GameNpc &g_npc);
+  static bool run_duration(GameNpc &g_npc);
+  static bool run_chatballoon(GameNpc &g_npc);
 
-  enum class action_enum {
+  enum class ActionEnum {
     stand,
     move,
   };
-  static action_enum load_action_type(game_npc &g_npc);
+  static ActionEnum load_action_type(GameNpc &g_npc);
 
 public:
   static bool run();

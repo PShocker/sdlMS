@@ -7,9 +7,9 @@
 #include <cstdint>
 #include <flat_map>
 #include <vector>
-class obj_game_instance {
+class ObjGameInstance {
 public:
   static void load(wz::Node *image);
   static void load(uint32_t map_id);
-  static inline std::array<std::flat_multimap<int64_t, game_obj>, 8> data;
+  static inline std::array<std::flat_multimap<int64_t, GameObj>, 8> data;
 };

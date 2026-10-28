@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SDL3/SDL_rect.h"
-class camera_game_instance {
+class CameraGameInstance {
 public:
   static void reset();
   static void load(float x, float y, float w, float h);

@@ -4,11 +4,11 @@
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_debuff.h"
 #include "src/client/game/game_mob.h"
-class debuff_render_system {
+class DebuffRenderSystem {
 private:
-  static void render(game_debuff::debuff_type type, SDL_FPoint pos);
+  static void render(GameDebuff::DebuffType type, SDL_FPoint pos);
 
 public:
-  static void render_character(game_character &character);
-  static void render_mob(game_mob &mob);
+  static void render_character(GameCharacter &character);
+  static void render_mob(GameMob &mob);
 };

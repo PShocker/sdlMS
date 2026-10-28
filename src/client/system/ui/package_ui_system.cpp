@@ -41,9 +41,9 @@
 #include <utility>
 #include <vector>
 
-void package_ui_system::cal_mouse_index() {
+void PackageUiSystem::cal_mouse_index() {
   mouse_index = std::nullopt;
-  auto cursor_in = cursor_game_instance::cursor_ui;
+  auto cursor_in = CursorGameInstance::cursor_ui;
   if (cursor_in != render) {
     return;
   }
@@ -51,7 +51,7 @@ void package_ui_system::cal_mouse_index() {
   const auto slot_space_x = 4;
   const auto slot_space_y = 2;
 
-  auto &mouse_pos = window::mouse_pos;
+  auto &mouse_pos = Window::mouse_pos;
   auto lx = pos.x + slot_pos.x;
   auto rx = lx + 36 * 5;
 
@@ -68,20 +68,20 @@ void package_ui_system::cal_mouse_index() {
   return;
 }
 
-void package_ui_system::render_backgrnd() {
+void PackageUiSystem::render_backgrnd() {
   static auto texture =
-      wz_resource::load_texture(wz_resource::ui->find(u"Item.img/backgrnd"));
+      WzResource::load_texture(WzResource::ui->find(u"Item.img/backgrnd"));
   SDL_FRect pos_rect{
       pos.x,
       pos.y,
       static_cast<float>(texture->w),
       static_cast<float>(texture->h),
   };
-  SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer, texture, nullptr, &pos_rect);
 }
 
-void package_ui_system::render_number(uint32_t num, int x, int y) {
-  auto node = wz_resource::ui->find(u"Basic.img/ItemNo");
+void PackageUiSystem::render_number(uint32_t num, int x, int y) {
+  auto node = WzResource::ui->find(u"Basic.img/ItemNo");
   // 计算数字位数
   int digits = num == 0 ? 1 : static_cast<int>(std::log10(num)) + 1;
   // 从最高位开始遍历
@@ -89,19 +89,19 @@ void package_ui_system::render_number(uint32_t num, int x, int y) {
   for (int i = digits - 1; i >= 0; --i) {
     int divisor = static_cast<int>(std::pow(10, i));
     int digit = (num / divisor) % 10;
-    auto t = wz_resource::load_texture(node->get_child(std::to_string(digit)));
+    auto t = WzResource::load_texture(node->get_child(std::to_string(digit)));
     SDL_FRect pos_rect = {
         (float)x + w,
         (float)y,
         (float)t->w,
         (float)t->h,
     };
-    SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
     w += t->w;
   }
 }
 
-void package_ui_system::render_tab() {
+void PackageUiSystem::render_tab() {
   const static std::array tab_pos = {
       SDL_FPoint{5, 24},   //
       SDL_FPoint{38, 24},  //
@@ -110,22 +110,22 @@ void package_ui_system::render_tab() {
       SDL_FPoint{137, 24}, //
       SDL_FPoint{170, 24}, //
   };
-  const static auto tab_node = wz_resource::ui->find(u"Item.img/Tab");
+  const static auto tab_node = WzResource::ui->find(u"Item.img/Tab");
   const static std::array active_texture = {
-      wz_resource::load_texture(tab_node->find(u"enabled/0")),
-      wz_resource::load_texture(tab_node->find(u"enabled/1")),
-      wz_resource::load_texture(tab_node->find(u"enabled/2")),
-      wz_resource::load_texture(tab_node->find(u"enabled/3")),
-      wz_resource::load_texture(tab_node->find(u"enabled/4")),
-      wz_resource::load_texture(tab_node->find(u"enabled/5")),
+      WzResource::load_texture(tab_node->find(u"enabled/0")),
+      WzResource::load_texture(tab_node->find(u"enabled/1")),
+      WzResource::load_texture(tab_node->find(u"enabled/2")),
+      WzResource::load_texture(tab_node->find(u"enabled/3")),
+      WzResource::load_texture(tab_node->find(u"enabled/4")),
+      WzResource::load_texture(tab_node->find(u"enabled/5")),
   };
   const static std::array disabled_texture = {
-      wz_resource::load_texture(tab_node->find(u"disabled/0")),
-      wz_resource::load_texture(tab_node->find(u"disabled/1")),
-      wz_resource::load_texture(tab_node->find(u"disabled/2")),
-      wz_resource::load_texture(tab_node->find(u"disabled/3")),
-      wz_resource::load_texture(tab_node->find(u"disabled/4")),
-      wz_resource::load_texture(tab_node->find(u"disabled/5")),
+      WzResource::load_texture(tab_node->find(u"disabled/0")),
+      WzResource::load_texture(tab_node->find(u"disabled/1")),
+      WzResource::load_texture(tab_node->find(u"disabled/2")),
+      WzResource::load_texture(tab_node->find(u"disabled/3")),
+      WzResource::load_texture(tab_node->find(u"disabled/4")),
+      WzResource::load_texture(tab_node->find(u"disabled/5")),
   };
   for (uint8_t i = 0; i < tab_pos.size(); i++) {
     SDL_Texture *t = active_tab == i ? active_texture[i] : disabled_texture[i];
@@ -135,20 +135,20 @@ void package_ui_system::render_tab() {
         static_cast<float>(t->w),
         static_cast<float>(t->h),
     };
-    SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
   }
   if (new_itm.has_value()) {
     // render new tab
     if (active_tab != (int)new_itm->type) {
-      auto now = window::dt_now;
-      auto new_item_node = wz_resource::ui->find(u"Item.img/New/Tab0");
+      auto now = Window::dt_now;
+      auto new_item_node = WzResource::ui->find(u"Item.img/New/Tab0");
       auto sum = new_item_node->children_count() * 100;
       auto offset = now % sum; // 取余，得到周期内偏移
       auto i = offset / 100;
       new_item_node = new_item_node->get_child(std::to_string(i));
-      auto icon = wz_resource::load_texture(new_item_node);
+      auto icon = WzResource::load_texture(new_item_node);
       auto origin =
-          wz_resource::load_fpoint(new_item_node->get_child(u"origin"));
+          WzResource::load_fpoint(new_item_node->get_child(u"origin"));
       auto pos_point = tab_pos[(int)new_itm->type];
       SDL_FRect pos_rect{
           pos_point.x + pos.x - origin.x,
@@ -156,16 +156,16 @@ void package_ui_system::render_tab() {
           static_cast<float>(icon->w),
           static_cast<float>(icon->h),
       };
-      SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
+      SDL_RenderTexture(Window::renderer, icon, nullptr, &pos_rect);
     }
   }
 }
 
-bool package_ui_system::render_items_info() {
-  if (cursor_game_instance::cursor_ui != render) {
+bool PackageUiSystem::render_items_info() {
+  if (CursorGameInstance::cursor_ui != render) {
     return true;
   }
-  if (cursor_game_instance::modal_overlay) {
+  if (CursorGameInstance::modal_overlay) {
     return true;
   }
   constexpr int tooltip_offset = 15;
@@ -174,30 +174,30 @@ bool package_ui_system::render_items_info() {
     return true;
   }
   const size_t index = static_cast<size_t>(index_opt.value());
-  auto &items = package_game_instance::data[active_tab];
+  auto &items = PackageGameInstance::data[active_tab];
 
   if (index >= items.size() || items[index]->id.empty()) {
     return true;
   }
   const SDL_FPoint show_pos{
-      window::mouse_pos.x + tooltip_offset,
-      window::mouse_pos.y + tooltip_offset,
+      Window::mouse_pos.x + tooltip_offset,
+      Window::mouse_pos.y + tooltip_offset,
   };
 
   // 统一使用指针，通过重载或模板区分类型
-  if (active_tab == (int)item_enum::equip) {
-    auto &equip = static_cast<game_equip_item &>(*items[index]);
-    tooltip_ui_system::render_equip(equip, show_pos.x, show_pos.y);
-  } else if (active_tab == (int)item_enum::deco) {
-    auto &deco = static_cast<game_deco_item &>(*items[index]);
-    tooltip_ui_system::render_deco(deco, show_pos.x, show_pos.y);
+  if (active_tab == (int)ItemEnum::equip) {
+    auto &equip = static_cast<GameEquipItem &>(*items[index]);
+    TooltipUiSystem::render_equip(equip, show_pos.x, show_pos.y);
+  } else if (active_tab == (int)ItemEnum::deco) {
+    auto &deco = static_cast<GameDecoItem &>(*items[index]);
+    TooltipUiSystem::render_deco(deco, show_pos.x, show_pos.y);
   } else {
-    tooltip_ui_system::render_item(*items[index], show_pos.x, show_pos.y);
+    TooltipUiSystem::render_item(*items[index], show_pos.x, show_pos.y);
   }
   return true;
 }
 
-void package_ui_system::render_items() {
+void PackageUiSystem::render_items() {
   constexpr SDL_FPoint slot_pos{8, 51};
   constexpr int slot_space_x = 4;
   constexpr int slot_space_y = 2;
@@ -207,7 +207,7 @@ void package_ui_system::render_items() {
   constexpr int items_per_page = slots_per_row * max_rows;
 
   // 获取数据
-  auto &items = package_game_instance::data[active_tab];
+  auto &items = PackageGameInstance::data[active_tab];
 
   const size_t start_index = static_cast<size_t>(page) * slots_per_row;
   const size_t end_index = std::min(start_index + items_per_page, items.size());
@@ -221,15 +221,15 @@ void package_ui_system::render_items() {
       auto x = pos.x + slot_pos.x + col * (slot_size + slot_space_x);
       auto y = pos.y + slot_pos.y + row * (slot_size + slot_space_y);
 
-      auto icon = wz_resource::load_texture(
-          wz_resource::ui->find(u"Item.img/canvas:disabled"));
+      auto icon = WzResource::load_texture(
+          WzResource::ui->find(u"Item.img/canvas:disabled"));
       SDL_FRect pos_rect{
           std::floor(x),
           std::floor(y),
           static_cast<float>(icon->w),
           static_cast<float>(icon->h),
       };
-      SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
+      SDL_RenderTexture(Window::renderer, icon, nullptr, &pos_rect);
       continue;
     }
     auto &item = items[i];
@@ -238,14 +238,14 @@ void package_ui_system::render_items() {
 
     wz::Node *info;
     // 加载信息
-    if (active_tab == (int)item_enum::equip ||
-        active_tab == (int)item_enum::deco) {
-      info = equip_game_instance::load_equip_info(item->id);
+    if (active_tab == (int)ItemEnum::equip ||
+        active_tab == (int)ItemEnum::deco) {
+      info = EquipGameInstance::load_equip_info(item->id);
     } else {
-      info = item_game_instance::load_item_info(item->id, 0);
+      info = ItemGameInstance::load_item_info(item->id, 0);
     }
 
-    auto icon = wz_resource::load_texture(info->get_child(u"icon"));
+    auto icon = WzResource::load_texture(info->get_child(u"icon"));
     if (!icon)
       continue;
 
@@ -262,83 +262,83 @@ void package_ui_system::render_items() {
         static_cast<float>(icon->h),
     };
 
-    SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer, icon, nullptr, &pos_rect);
 
-    if (active_tab == (int)item_enum::deco) {
-      icon = wz_resource::load_texture(
-          wz_resource::ms->get_root()->find(u"UI.img/CashItem"));
+    if (active_tab == (int)ItemEnum::deco) {
+      icon = WzResource::load_texture(
+          WzResource::ms->get_root()->find(u"UI.img/CashItem"));
       pos_rect.x =
           (int)pos.x + slot_pos.x + col * (slot_size + slot_space_x) + 19;
       pos_rect.y =
           (int)pos.y + slot_pos.y + row * (slot_size + slot_space_y) + 19;
       pos_rect.w = icon->w;
       pos_rect.h = icon->h;
-      SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
+      SDL_RenderTexture(Window::renderer, icon, nullptr, &pos_rect);
     }
 
     // render new item
     if (new_itm.has_value()) {
       if (active_tab == (int)new_itm->type && i == new_itm->index) {
-        auto now = window::dt_now;
-        auto new_item_node = wz_resource::ui->find(u"Item.img/New/inventory");
+        auto now = Window::dt_now;
+        auto new_item_node = WzResource::ui->find(u"Item.img/New/inventory");
         auto sum = new_item_node->children_count() * 100;
         auto offset = now % sum; // 取余，得到周期内偏移
         auto i = offset / 100;
         new_item_node = new_item_node->get_child(std::to_string(i));
-        icon = wz_resource::load_texture(new_item_node);
+        icon = WzResource::load_texture(new_item_node);
         pos_rect.x =
             (int)pos.x + slot_pos.x + col * (slot_size + slot_space_x) - 1;
         pos_rect.y =
             (int)pos.y + slot_pos.y + row * (slot_size + slot_space_y) - 2;
         pos_rect.w = icon->w;
         pos_rect.h = icon->h;
-        SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
+        SDL_RenderTexture(Window::renderer, icon, nullptr, &pos_rect);
       }
     }
     // render active ball
-    if (active_tab == (int)item_enum::consume) {
-      auto active_ball = package_game_instance::load_active_ball();
+    if (active_tab == (int)ItemEnum::consume) {
+      auto active_ball = PackageGameInstance::load_active_ball();
       if (active_ball == &item) {
-        auto node = wz_resource::ui->find(u"Item.img/canvas:activeIcon");
-        icon = wz_resource::load_texture(node);
+        auto node = WzResource::ui->find(u"Item.img/canvas:activeIcon");
+        icon = WzResource::load_texture(node);
         pos_rect.x =
             (int)pos.x + slot_pos.x + col * (slot_size + slot_space_x) - 1;
         pos_rect.y =
             (int)pos.y + slot_pos.y + row * (slot_size + slot_space_y) - 2;
         pos_rect.w = icon->w;
         pos_rect.h = icon->h;
-        SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
+        SDL_RenderTexture(Window::renderer, icon, nullptr, &pos_rect);
       }
     }
 
     // render num
-    auto item_num = item_game_instance::load_item_num(item);
-    if (item->type == item_enum::consume || item->type == item_enum::etc) {
-      package_ui_system::render_number(
+    auto item_num = ItemGameInstance::load_item_num(item);
+    if (item->type == ItemEnum::consume || item->type == ItemEnum::etc) {
+      PackageUiSystem::render_number(
           item_num, pos.x + slot_pos.x + col * (slot_size + slot_space_x) + 1,
           pos.y + slot_pos.y + row * (slot_size + slot_space_y) + 20);
     }
   }
 }
 
-void package_ui_system::render_scroll() {
+void PackageUiSystem::render_scroll() {
   const SDL_FPoint lt{188, 51};
   const uint32_t length = 202;
-  const auto &r = package_game_instance::data[active_tab];
+  const auto &r = PackageGameInstance::data[active_tab];
   auto size = static_cast<size_t>(std::ceil(r.size() / 5.0));
-  auto cursor_in = cursor_game_instance::cursor_ui;
-  bool top = cursor_in == render && !cursor_game_instance::modal_overlay;
-  scroll_ui_system::render_vscroll((int)pos.x + lt.x, (int)pos.y + lt.y, page,
+  auto cursor_in = CursorGameInstance::cursor_ui;
+  bool top = cursor_in == render && !CursorGameInstance::modal_overlay;
+  ScrollUiSystem::render_vscroll((int)pos.x + lt.x, (int)pos.y + lt.y, page,
                                    size, length, top, 6);
   return;
 }
 
-void package_ui_system::render_button() {
+void PackageUiSystem::render_button() {
   const static std::array buttons_nodes = {
-      wz_resource::ui->find(u"Basic.img/BtClose"),
-      wz_resource::ui->find(u"Item.img/AutoBuild/button:Coin"),
-      wz_resource::ui->find(u"Item.img/AutoBuild/button:Gather"),
-      wz_resource::ui->find(u"Item.img/AutoBuild/button:Sort"),
+      WzResource::ui->find(u"Basic.img/BtClose"),
+      WzResource::ui->find(u"Item.img/AutoBuild/button:Coin"),
+      WzResource::ui->find(u"Item.img/AutoBuild/button:Gather"),
+      WzResource::ui->find(u"Item.img/AutoBuild/button:Sort"),
   };
   auto wh = load_wh();
   const std::array buttons_rect = {
@@ -355,37 +355,37 @@ void package_ui_system::render_button() {
     pos_rect.y += pos.y;
     pos_rect.x = (int)pos_rect.x;
     pos_rect.y = (int)pos_rect.y;
-    auto &mouse_pos = window::mouse_pos;
+    auto &mouse_pos = Window::mouse_pos;
     // 判断按钮是否被遮挡
-    auto cursor_in = cursor_game_instance::cursor_ui;
+    auto cursor_in = CursorGameInstance::cursor_ui;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render &&
-        !cursor_game_instance::modal_overlay) {
-      if (window::mouse_state & SDL_BUTTON_LMASK) {
-        auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
-        SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);
+        !CursorGameInstance::modal_overlay) {
+      if (Window::mouse_state & SDL_BUTTON_LMASK) {
+        auto pressed = WzResource::load_texture(k->find(u"pressed/0"));
+        SDL_RenderTexture(Window::renderer, pressed, nullptr, &pos_rect);
       } else {
-        auto mouse_over = wz_resource::load_texture(k->find(u"mouseOver/0"));
-        SDL_RenderTexture(window::renderer, mouse_over, nullptr, &pos_rect);
+        auto mouse_over = WzResource::load_texture(k->find(u"mouseOver/0"));
+        SDL_RenderTexture(Window::renderer, mouse_over, nullptr, &pos_rect);
       }
     } else {
-      auto normal = wz_resource::load_texture(k->find(u"normal/0"));
-      SDL_RenderTexture(window::renderer, normal, nullptr, &pos_rect);
+      auto normal = WzResource::load_texture(k->find(u"normal/0"));
+      SDL_RenderTexture(Window::renderer, normal, nullptr, &pos_rect);
     }
   }
 }
 
-void package_ui_system::render_meso() {
-  freetype::load_size(12);
-  freetype::load_aligned(true);
-  freetype::load_color(0, 0, 0, 255);
+void PackageUiSystem::render_meso() {
+  Freetype::load_size(12);
+  Freetype::load_aligned(true);
+  Freetype::load_color(0, 0, 0, 255);
   auto meso =
-      text_game_instance::format_with_commas(package_game_instance::meso);
+      TextGameInstance::format_with_commas(PackageGameInstance::meso);
   std::u16string meso2 = {meso.begin(), meso.end()};
-  auto w = freetype::load_w(meso2);
-  freetype::draw_line(meso2, pos.x + 165 - w, pos.y + 266);
+  auto w = Freetype::load_w(meso2);
+  Freetype::draw_line(meso2, pos.x + 165 - w, pos.y + 266);
 }
 
-bool package_ui_system::render() {
+bool PackageUiSystem::render() {
   cal_mouse_index();
   render_backgrnd();
   render_tab();
@@ -396,52 +396,52 @@ bool package_ui_system::render() {
   return true;
 }
 
-SDL_FPoint package_ui_system::load_wh() { return {209, 289}; }
+SDL_FPoint PackageUiSystem::load_wh() { return {209, 289}; }
 
-void package_ui_system::open() {
+void PackageUiSystem::open() {
   auto it =
-      std::ranges::find(system::render_systems, &cursor_render_system::render);
-  if (it != system::render_systems.end()) {
+      std::ranges::find(System::render_systems, &CursorRenderSystem::render);
+  if (it != System::render_systems.end()) {
     auto wh = load_wh();
-    auto &camera = camera_game_instance::camera;
+    auto &camera = CameraGameInstance::camera;
     pos.x = (camera.w - wh.x) / 2;
     pos.y = (camera.h - wh.y) / 2;
 
     active_tab = 0;
 
-    system::render_systems.insert(it, render);
-    system::event_systems.insert(system::event_systems.begin(), event);
+    System::render_systems.insert(it, render);
+    System::event_systems.insert(System::event_systems.begin(), event);
 
     event_motion(nullptr);
   }
 }
 
-void package_ui_system::close() {
-  std::erase(system::render_systems, render);
-  std::erase(system::render_systems, render_items_info);
-  std::erase(system::event_systems, event);
+void PackageUiSystem::close() {
+  std::erase(System::render_systems, render);
+  std::erase(System::render_systems, render_items_info);
+  std::erase(System::event_systems, event);
 
   event_drag_end();
   event_vscr_end();
   new_itm = std::nullopt;
 }
 
-void package_ui_system::event_top() {
-  std::erase(system::render_systems, render);
-  std::erase(system::event_systems, event);
+void PackageUiSystem::event_top() {
+  std::erase(System::render_systems, render);
+  std::erase(System::event_systems, event);
   auto it =
-      std::ranges::find(system::render_systems, &cursor_render_system::render);
-  if (it != system::render_systems.end()) {
-    system::render_systems.insert(it, render);
-    system::event_systems.insert(system::event_systems.begin(), event);
+      std::ranges::find(System::render_systems, &CursorRenderSystem::render);
+  if (it != System::render_systems.end()) {
+    System::render_systems.insert(it, render);
+    System::event_systems.insert(System::event_systems.begin(), event);
 
     event_motion(nullptr);
   }
 }
 
-bool package_ui_system::event_click_item(SDL_Event *event) {
+bool PackageUiSystem::event_click_item(SDL_Event *event) {
   // 网络手占用时拒绝操作
-  if (cursor_game_instance::cursor_hand_net.has_value()) {
+  if (CursorGameInstance::cursor_hand_net.has_value()) {
     return false;
   }
 
@@ -458,123 +458,123 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
   }
 
   // 无手持物品：拾取
-  if (!cursor_game_instance::cursor_hand.has_value()) {
-    const auto &r = package_game_instance::data[active_tab];
+  if (!CursorGameInstance::cursor_hand.has_value()) {
+    const auto &r = PackageGameInstance::data[active_tab];
     if (index.value() >= r.size() || r[index.value()]->id.empty()) {
       return false;
     }
-    cursor_game_instance::cursor_hand = {
-        .type = cursor_game_instance::package,
+    CursorGameInstance::cursor_hand = {
+        .type = CursorGameInstance::package,
         .val = active_tab,
         .sub_val = index.value(),
     };
-    audio_game_instance::load_audio(u"UI.img/DragStart", 0);
+    AudioGameInstance::load_audio(u"UI.img/DragStart", 0);
     return true;
   }
 
   // 有手持物品
-  auto &sf = character_game_instance::self;
-  auto &hand = cursor_game_instance::cursor_hand.value();
-  auto &r = package_game_instance::data[hand.val];
+  auto &sf = CharacterGameInstance::self;
+  auto &hand = CursorGameInstance::cursor_hand.value();
+  auto &r = PackageGameInstance::data[hand.val];
   if (index.value() >= r.size()) {
-    audio_game_instance::load_audio(u"UI.img/DragEnd", 0);
-    cursor_game_instance::cursor_hand = std::nullopt;
+    AudioGameInstance::load_audio(u"UI.img/DragEnd", 0);
+    CursorGameInstance::cursor_hand = std::nullopt;
     return false;
   }
-  switch ((cursor_game_instance::cursor_hand_type)hand.type) {
-  case cursor_game_instance::equipment: {
-    if (active_tab != (int)item_enum::equip) {
+  switch ((CursorGameInstance::CursorHandType)hand.type) {
+  case CursorGameInstance::equipment: {
+    if (active_tab != (int)ItemEnum::equip) {
       break;
     }
-    auto &r = package_game_instance::data[(int)item_enum::equip];
+    auto &r = PackageGameInstance::data[(int)ItemEnum::equip];
     if (r[index.value()]->id.empty()) {
-      auto eqp = equip_game_instance::load_equip(hand.sub_val);
-      auto eqp2 = std::polymorphic<game_item>(eqp->value());
+      auto eqp = EquipGameInstance::load_equip(hand.sub_val);
+      auto eqp2 = std::polymorphic<GameItem>(eqp->value());
       r[index.value()] = eqp2;
       *eqp = std::nullopt;
-      audio_game_instance::load_audio(u"UI.img/DragEnd", 0);
-      cursor_game_instance::cursor_hand = std::nullopt;
-      character_logic_system::cct.map_id = scene_system_instance::map_id;
+      AudioGameInstance::load_audio(u"UI.img/DragEnd", 0);
+      CursorGameInstance::cursor_hand = std::nullopt;
+      CharacterLogicSystem::cct.map_id = SceneSystemInstance::map_id;
     }
     break;
   }
-  case cursor_game_instance::deco: {
-    if (active_tab != (int)item_enum::deco) {
+  case CursorGameInstance::deco: {
+    if (active_tab != (int)ItemEnum::deco) {
       break;
     }
-    auto &r = package_game_instance::data[(int)item_enum::deco];
+    auto &r = PackageGameInstance::data[(int)ItemEnum::deco];
     if (r[index.value()]->id.empty()) {
-      auto eqp = equip_game_instance::load_deco(hand.sub_val);
-      auto eqp2 = std::polymorphic<game_item>(eqp->value());
+      auto eqp = EquipGameInstance::load_deco(hand.sub_val);
+      auto eqp2 = std::polymorphic<GameItem>(eqp->value());
       r[index.value()] = eqp2;
       *eqp = std::nullopt;
-      audio_game_instance::load_audio(u"UI.img/DragEnd", 0);
-      cursor_game_instance::cursor_hand = std::nullopt;
-      character_logic_system::cct.map_id = scene_system_instance::map_id;
+      AudioGameInstance::load_audio(u"UI.img/DragEnd", 0);
+      CursorGameInstance::cursor_hand = std::nullopt;
+      CharacterLogicSystem::cct.map_id = SceneSystemInstance::map_id;
     }
     break;
   }
-  case cursor_game_instance::package: {
+  case CursorGameInstance::package: {
     if (hand.val != active_tab) {
       // 只有卷轴类道具可以跨tab使用
       auto &itm = r.at(hand.sub_val);
-      if (!((item_enum)active_tab == item_enum::equip &&
-            hand.val == (int)item_enum::consume &&
+      if (!((ItemEnum)active_tab == ItemEnum::equip &&
+            hand.val == (int)ItemEnum::consume &&
             itm->id.starts_with(u"0204"))) {
-        cursor_game_instance::cursor_hand = std::nullopt;
+        CursorGameInstance::cursor_hand = std::nullopt;
         return true;
       }
     }
-    switch ((item_enum)hand.val) {
-    case item_enum::equip: {
+    switch ((ItemEnum)hand.val) {
+    case ItemEnum::equip: {
       // 点击的是同一个格子：尝试穿戴
       if (hand.val == active_tab) {
-        audio_game_instance::load_audio(u"UI.img/DragEnd", 0);
+        AudioGameInstance::load_audio(u"UI.img/DragEnd", 0);
         if (hand.sub_val == index.value()) {
-          equip_game_instance::use_equip(index.value());
-          cursor_game_instance::cursor_hand = std::nullopt;
+          EquipGameInstance::use_equip(index.value());
+          CursorGameInstance::cursor_hand = std::nullopt;
           return true;
         } else {
           auto &equips = r;
           // 点击不同格子：交换
           std::swap(equips[hand.sub_val], equips[index.value()]);
-          cursor_game_instance::cursor_hand = std::nullopt;
+          CursorGameInstance::cursor_hand = std::nullopt;
           return true;
         }
       } else {
       }
       break;
     }
-    case item_enum::deco: {
-      audio_game_instance::load_audio(u"UI.img/DragEnd", 0);
+    case ItemEnum::deco: {
+      AudioGameInstance::load_audio(u"UI.img/DragEnd", 0);
       if (hand.sub_val == index.value()) {
-        equip_game_instance::use_deco(index.value());
-        cursor_game_instance::cursor_hand = std::nullopt;
+        EquipGameInstance::use_deco(index.value());
+        CursorGameInstance::cursor_hand = std::nullopt;
         return true;
       } else {
         auto &decos = r;
         // 点击不同格子：交换
         std::swap(decos[hand.sub_val], decos[index.value()]);
-        cursor_game_instance::cursor_hand = std::nullopt;
+        CursorGameInstance::cursor_hand = std::nullopt;
         return true;
       }
       break;
     }
-    case item_enum::etc:
-    case item_enum::install:
-    case item_enum::consume: {
-      audio_game_instance::load_audio(u"UI.img/DragEnd", 0);
+    case ItemEnum::etc:
+    case ItemEnum::install:
+    case ItemEnum::consume: {
+      AudioGameInstance::load_audio(u"UI.img/DragEnd", 0);
       // 处理普通背包栏
-      auto &r = package_game_instance::data[hand.val];
-      if ((int)item_enum::equip == active_tab) {
+      auto &r = PackageGameInstance::data[hand.val];
+      if ((int)ItemEnum::equip == active_tab) {
         // 卷轴
-        auto &equips = package_game_instance::data[active_tab];
+        auto &equips = PackageGameInstance::data[active_tab];
         auto &equip = equips[index.value()];
         auto &itm = r.at(hand.sub_val);
-        auto &eq = static_cast<game_equip_item &>(*equip);
-        auto &it = static_cast<game_consume_item &>(*itm);
-        equip_game_instance::use_equip_scroll(eq, it);
-        cursor_game_instance::cursor_hand = std::nullopt;
+        auto &eq = static_cast<GameEquipItem &>(*equip);
+        auto &it = static_cast<GameConsumeItem &>(*itm);
+        EquipGameInstance::use_equip_scroll(eq, it);
+        CursorGameInstance::cursor_hand = std::nullopt;
         return true;
       }
       if (hand.sub_val != index.value()) {
@@ -582,21 +582,21 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
         auto &itm0 = r.at(index.value());
         auto &itm1 = r.at(hand.sub_val);
         if (itm0->id == itm1->id && !itm0->id.starts_with(u"0207")) {
-          auto itm_num0 = item_game_instance::load_item_num(itm0);
-          auto itm_num1 = item_game_instance::load_item_num(itm1);
-          auto slot_max = item_game_instance::load_slot_max(itm0->id);
+          auto itm_num0 = ItemGameInstance::load_item_num(itm0);
+          auto itm_num1 = ItemGameInstance::load_item_num(itm1);
+          auto slot_max = ItemGameInstance::load_slot_max(itm0->id);
           auto add_num = std::min(slot_max - itm_num0, itm_num1);
-          item_game_instance::add_item_num(itm0, add_num);
-          item_game_instance::dec_item_num(itm1, add_num);
+          ItemGameInstance::add_item_num(itm0, add_num);
+          ItemGameInstance::dec_item_num(itm1, add_num);
         } else {
           std::swap(r.at(hand.sub_val), r.at(index.value()));
         }
       } else {
         // 使用道具
         auto &itm = r.at(index.value());
-        item_game_instance::use_item(itm);
+        ItemGameInstance::use_item(itm);
       }
-      cursor_game_instance::cursor_hand = std::nullopt;
+      CursorGameInstance::cursor_hand = std::nullopt;
       break;
     }
     default: {
@@ -612,7 +612,7 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
   return true;
 }
 
-void package_ui_system::event_drag_start(SDL_Event *event) {
+void PackageUiSystem::event_drag_start(SDL_Event *event) {
   auto wh = load_wh();
   SDL_FRect pos_rect = {pos.x, pos.y, wh.x, 20};
   SDL_FPoint mouse_pos = {event->button.x, event->button.y};
@@ -622,15 +622,15 @@ void package_ui_system::event_drag_start(SDL_Event *event) {
   return;
 }
 
-void package_ui_system::event_drag_end() {
+void PackageUiSystem::event_drag_end() {
   drag = std::nullopt;
   return;
 }
 
-void package_ui_system::event_drag_move(SDL_Event *event) {
+void PackageUiSystem::event_drag_move(SDL_Event *event) {
   if (drag.has_value()) {
     pos = {event->motion.x + drag->x, event->motion.y + drag->y};
-    auto &camera = camera_game_instance::camera;
+    auto &camera = CameraGameInstance::camera;
     auto [w, h] = load_wh();
     pos.x = std::clamp(pos.x, (float)0, camera.w - w);
     pos.y = std::clamp(pos.y, (float)0, camera.h - h);
@@ -638,24 +638,24 @@ void package_ui_system::event_drag_move(SDL_Event *event) {
   return;
 }
 
-void package_ui_system::toggle() {
-  audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+void PackageUiSystem::toggle() {
+  AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
   auto fn = &render;
-  if (std::ranges::contains(system::render_systems, fn)) {
+  if (std::ranges::contains(System::render_systems, fn)) {
     close();
   } else {
     open();
   }
 }
 
-bool package_ui_system::cursor_in() {
+bool PackageUiSystem::cursor_in() {
   auto [w, h] = load_wh();
-  auto &mouse = window::mouse_pos;
+  auto &mouse = Window::mouse_pos;
   SDL_FRect pos_rect{pos.x, pos.y, w, h};
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
-void package_ui_system::event_tab(SDL_Event *event) {
+void PackageUiSystem::event_tab(SDL_Event *event) {
   const static std::array tab_rect = {
       SDL_FRect{5, 24, 33, 19},   //
       SDL_FRect{38, 24, 33, 19},  //
@@ -668,8 +668,8 @@ void package_ui_system::event_tab(SDL_Event *event) {
     auto pos_rect = tab_rect[i];
     pos_rect.x += pos.x;
     pos_rect.y += pos.y;
-    if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
-      audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+    if (SDL_PointInRectFloat(&Window::mouse_pos, &pos_rect)) {
+      AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
       if (active_tab == i) {
         return;
       }
@@ -685,30 +685,30 @@ void package_ui_system::event_tab(SDL_Event *event) {
   }
 }
 
-void package_ui_system::event_close() { close(); }
+void PackageUiSystem::event_close() { close(); }
 
-void package_ui_system::event_button_coin() {
-  notice_ui_system::type = notice_ui_system::notice_enum::throw_mul;
-  notice_ui_system::data = nullptr;
+void PackageUiSystem::event_button_coin() {
+  NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::throw_mul;
+  NoticeUiSystem::data = nullptr;
   // notice_ui_system::close();
-  notice_ui_system::open();
+  NoticeUiSystem::open();
 }
 
-void package_ui_system::event_button_gather() {}
+void PackageUiSystem::event_button_gather() {}
 
-void package_ui_system::event_button_sort() {
-  const auto cmp = [](const std::polymorphic<game_item> &a,
-                      const std::polymorphic<game_item> &b) {
+void PackageUiSystem::event_button_sort() {
+  const auto cmp = [](const std::polymorphic<GameItem> &a,
+                      const std::polymorphic<GameItem> &b) {
     bool aEmpty = a->id.empty();
     bool bEmpty = b->id.empty();
     if (aEmpty != bEmpty)
       return bEmpty;
     return a->id < b->id;
   };
-  std::ranges::sort(package_game_instance::data[active_tab], cmp);
+  std::ranges::sort(PackageGameInstance::data[active_tab], cmp);
 }
 
-bool package_ui_system::event_button(SDL_Event *event) {
+bool PackageUiSystem::event_button(SDL_Event *event) {
   std::vector<SDL_FRect> r;
   std::vector<void (*)()> fns;
   auto wh = load_wh();
@@ -729,9 +729,9 @@ bool package_ui_system::event_button(SDL_Event *event) {
     auto pos_rect = r[i];
     pos_rect.x += pos.x;
     pos_rect.y += pos.y;
-    if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
+    if (SDL_PointInRectFloat(&Window::mouse_pos, &pos_rect)) {
       fns[i]();
-      audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+      AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
       return true;
     }
   }
@@ -739,17 +739,17 @@ bool package_ui_system::event_button(SDL_Event *event) {
   return false;
 }
 
-void package_ui_system::event_motion(SDL_Event *event) {
-  auto &sys = system::render_systems;
+void PackageUiSystem::event_motion(SDL_Event *event) {
+  auto &sys = System::render_systems;
   std::erase(sys, render_items_info);
-  auto it = std::ranges::find(sys, &cursor_render_system::render);
+  auto it = std::ranges::find(sys, &CursorRenderSystem::render);
   if (it != sys.end()) {
     sys.insert(it, render_items_info);
   }
 }
 
-void package_ui_system::event_vscr_move(SDL_Event *event) {
-  auto mouse_state = window::mouse_state;
+void PackageUiSystem::event_vscr_move(SDL_Event *event) {
+  auto mouse_state = Window::mouse_state;
   if (vscr_motion) {
     const SDL_FPoint lt{188, 51};
     const uint32_t length = 202;
@@ -761,34 +761,34 @@ void package_ui_system::event_vscr_move(SDL_Event *event) {
   }
 }
 
-bool package_ui_system::event_vscr(SDL_Event *event) {
+bool PackageUiSystem::event_vscr(SDL_Event *event) {
   const SDL_FPoint lt{188, 51};
   const uint32_t length = 202;
 
-  auto &items = package_game_instance::data[active_tab];
+  auto &items = PackageGameInstance::data[active_tab];
   auto size = static_cast<int>(std::ceil((items.size() - 30) / 5.0));
 
   size = std::max(0, size);
   auto mouse_pos = SDL_FPoint{event->button.x, event->button.y};
-  auto val = scroll_ui_system::click_vscroll(pos.x + lt.x, pos.y + lt.y, page,
+  auto val = ScrollUiSystem::click_vscroll(pos.x + lt.x, pos.y + lt.y, page,
                                              size, length, true, mouse_pos);
   page = val;
   return true;
 }
 
-void package_ui_system::event_vscr_start(SDL_Event *event) {
+void PackageUiSystem::event_vscr_start(SDL_Event *event) {
   const SDL_FPoint lt{188, 51};
   const uint32_t length = 202;
   if (vscr_motion == false) {
     vscr_motion =
-        scroll_ui_system::click_thumb(pos.x + lt.x, pos.y + lt.y, length);
+        ScrollUiSystem::click_thumb(pos.x + lt.x, pos.y + lt.y, length);
   }
 }
 
-void package_ui_system::event_vscr_end() { vscr_motion = false; }
+void PackageUiSystem::event_vscr_end() { vscr_motion = false; }
 
-void package_ui_system::event_wheel(SDL_Event *event) {
-  if (cursor_game_instance::cursor_ui != render) {
+void PackageUiSystem::event_wheel(SDL_Event *event) {
+  if (CursorGameInstance::cursor_ui != render) {
     return;
   }
   auto dy = event->wheel.integer_y;
@@ -799,7 +799,7 @@ void package_ui_system::event_wheel(SDL_Event *event) {
     }
   } else {
     // down
-    auto &items = package_game_instance::data[active_tab];
+    auto &items = PackageGameInstance::data[active_tab];
     auto size = static_cast<int>(std::ceil((items.size() - 30) / 5.0));
     size = std::max(0, size);
     if (page < size) {
@@ -808,8 +808,8 @@ void package_ui_system::event_wheel(SDL_Event *event) {
   }
 }
 
-void package_ui_system::event_motion_bt_audio(SDL_Event *event) {
-  if (cursor_game_instance::cursor_ui != render) {
+void PackageUiSystem::event_motion_bt_audio(SDL_Event *event) {
+  if (CursorGameInstance::cursor_ui != render) {
     return;
   }
   auto wh = load_wh();
@@ -820,7 +820,7 @@ void package_ui_system::event_motion_bt_audio(SDL_Event *event) {
       SDL_FRect{177, 6, 12, 12},       //
   };
   static int8_t bt_audio = -1;
-  auto &mouse_pos = window::mouse_pos;
+  auto &mouse_pos = Window::mouse_pos;
   int8_t bt_in = -1;
   for (size_t i = 0; i < buttons_rect.size(); ++i) {
     auto pos_rect = buttons_rect[i];
@@ -832,12 +832,12 @@ void package_ui_system::event_motion_bt_audio(SDL_Event *event) {
     }
   }
   if (bt_in != -1 && bt_audio != bt_in) {
-    audio_game_instance::load_audio(u"UI.img/BtMouseOver", 0);
+    AudioGameInstance::load_audio(u"UI.img/BtMouseOver", 0);
   }
   bt_audio = bt_in;
 }
 
-bool package_ui_system::event(SDL_Event *event) {
+bool PackageUiSystem::event(SDL_Event *event) {
   bool r = true;
   switch (event->type) {
   case SDL_EVENT_KEY_DOWN: {
@@ -856,7 +856,7 @@ bool package_ui_system::event(SDL_Event *event) {
   }
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
     if (event->button.button == SDL_BUTTON_LEFT) {
-      if (cursor_game_instance::cursor_ui == render) {
+      if (CursorGameInstance::cursor_ui == render) {
         event_top();
         event_drag_start(event);
         event_vscr_start(event);
@@ -867,7 +867,7 @@ bool package_ui_system::event(SDL_Event *event) {
   }
   case SDL_EVENT_MOUSE_BUTTON_UP: {
     if (event->button.button == SDL_BUTTON_LEFT) {
-      if (cursor_game_instance::cursor_ui == render) {
+      if (CursorGameInstance::cursor_ui == render) {
         event_tab(event);
         event_click_item(event);
         r = !event_button(event);

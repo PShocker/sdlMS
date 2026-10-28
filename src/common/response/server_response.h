@@ -7,7 +7,7 @@
 
 using namespace fbs;
 
-class server_response {
+class ServerResponse {
 public:
   template <typename T>
   static void send_to_client(uint64_t client_id, T &message_data) {
@@ -24,6 +24,6 @@ public:
 
     auto point = builder.GetBufferPointer();
     auto size = builder.GetSize();
-    server_main::server_send(point, size, client_id);
+    ServerMain::server_send(point, size, client_id);
   }
 };

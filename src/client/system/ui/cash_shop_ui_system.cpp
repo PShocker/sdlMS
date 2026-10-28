@@ -3,24 +3,24 @@
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 
-void cash_shop_ui_system::render_backgrnd() {
-  static auto backgrnd = wz_resource::load_texture(
-      wz_resource::ui->find(u"Login.img/NewChar/customize/canvas:top"));
+void CashShopUiSystem::render_backgrnd() {
+  static auto backgrnd = WzResource::load_texture(
+      WzResource::ui->find(u"Login.img/NewChar/customize/canvas:top"));
   SDL_FRect pos_rect = {
       160,
       85,
       static_cast<float>(backgrnd->w),
       static_cast<float>(backgrnd->h),
   };
-  SDL_RenderTexture(window::renderer, backgrnd, nullptr, &pos_rect);
+  SDL_RenderTexture(Window::renderer, backgrnd, nullptr, &pos_rect);
 }
 
-bool cash_shop_ui_system::render() {
+bool CashShopUiSystem::render() {
   render_backgrnd();
   return true;
 }
 
-bool cash_shop_ui_system::event(SDL_Event *event) {
+bool CashShopUiSystem::event(SDL_Event *event) {
   bool r = true;
   switch (event->type) {
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {

@@ -3,7 +3,7 @@
 #include "SDL3/SDL_rect.h"
 #include <cstdint>
 #include <string>
-class game_tomb {
+class GameTomb {
 public:
   std::u16string ani_type;
   uint8_t ani_index;

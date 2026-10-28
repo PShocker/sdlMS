@@ -5,12 +5,12 @@
 #include <string>
 #include <vector>
 
-struct game_audio_cache {
+struct GameAudioCache {
   SDL_AudioSpec spec;
   std::vector<uint8_t> data;
 };
 
-class game_audio {
+class GameAudio {
 public:
   std::u16string path;
   uint64_t delay;

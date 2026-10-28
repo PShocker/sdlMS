@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-class game_mob {
+class GameMob {
 public:
   uint32_t index;
   std::u16string id;
@@ -33,11 +33,11 @@ public:
   uint8_t page;
   bool flip;
 
-  std::vector<game_effect> effect;
+  std::vector<GameEffect> effect;
 
-  std::optional<game_gauge> gauge;
+  std::optional<GameGauge> gauge;
 
-  std::flat_map<game_debuff::debuff_type, game_debuff> debuffs;
+  std::flat_map<GameDebuff::DebuffType, GameDebuff> debuffs;
 
   // 人物总共打出的伤害，分配经验，伤害统计
   uint64_t attack_val = 0;

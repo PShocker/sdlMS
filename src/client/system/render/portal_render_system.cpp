@@ -14,18 +14,18 @@
 #include <flat_map>
 #include <string>
 
-bool portal_render_system::render_portal(game_portal &g_portal) {
+bool PortalRenderSystem::render_portal(GamePortal &g_portal) {
   if (!(g_portal.pt == 1 || g_portal.pt == 2)) {
     return true;
   }
   auto path = g_portal.path + g_portal.path2;
 
-  auto portal_node = wz_resource::map->find(path);
+  auto portal_node = WzResource::map->find(path);
   auto portal_pos = g_portal.pos;
   wz::Node *texture_node;
   if (portal_node->get_child(u"portalStart")) {
     // 三段式传送门
-    auto self_character = character_game_instance::self;
+    auto self_character = CharacterGameInstance::self;
     auto distance_x = (portal_pos.x - self_character.pos.x);
     auto distance_y = (portal_pos.y - self_character.pos.y);
     auto distance = distance_x * distance_x + distance_y * distance_y;
@@ -42,7 +42,7 @@ bool portal_render_system::render_portal(game_portal &g_portal) {
   auto index =
       std::to_string(g_portal.ani_index % texture_node->children_count());
   texture_node = texture_node->get_child(index);
-  auto texture = wz_resource::load_texture(texture_node);
+  auto texture = WzResource::load_texture(texture_node);
   auto v = static_cast<wz::Property<wz::WzVec2D> *>(
                texture_node->get_child(u"origin"))
                ->get();
@@ -54,27 +54,27 @@ bool portal_render_system::render_portal(game_portal &g_portal) {
       .w = static_cast<float>(texture->w),
       .h = static_cast<float>(texture->h),
   };
-  auto &camera = camera_game_instance::camera;
+  auto &camera = CameraGameInstance::camera;
   if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
     pos_rect.x -= camera.x;
     pos_rect.y -= camera.y;
-    SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer, texture, nullptr, &pos_rect);
   }
   return true;
 }
 
-void portal_render_system::render_nametag(game_portal &g_portal) {
-  if (g_portal.tm == scene_system_instance::map_id) {
+void PortalRenderSystem::render_nametag(GamePortal &g_portal) {
+  if (g_portal.tm == SceneSystemInstance::map_id) {
     return;
   }
   if (g_portal.tm == 999999999) {
     return;
   }
-  auto name = minimap_ui_system::load_map_name(g_portal.tm).map_name;
-  npc_render_system::render_nametag(name, {g_portal.pos.x, g_portal.pos.y + 4});
+  auto name = MinimapUiSystem::load_map_name(g_portal.tm).map_name;
+  NpcRenderSystem::render_nametag(name, {g_portal.pos.x, g_portal.pos.y + 4});
 }
 
-bool portal_render_system::render(game_portal &g_portal) {
+bool PortalRenderSystem::render(GamePortal &g_portal) {
   render_portal(g_portal);
   render_nametag(g_portal);
   return true;

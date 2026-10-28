@@ -7,7 +7,7 @@
 #include <optional>
 #include <string>
 
-class minimap_ui_system {
+class MinimapUiSystem {
 private:
   static void render_max_backgrnd();
   static void render_min_backgrnd();
@@ -50,12 +50,12 @@ public:
   static inline bool max = true;
   static inline bool disable;
 
-  struct map_name {
+  struct MapName {
     std::u16string street_name;
     std::u16string map_name;
     std::u16string map_desc = u"";
   };
-  static map_name load_map_name(uint32_t map_id);
+  static MapName load_map_name(uint32_t map_id);
 
   static void load();
   static bool render();

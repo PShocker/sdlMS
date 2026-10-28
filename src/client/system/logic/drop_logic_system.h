@@ -4,10 +4,10 @@
 #include "src/client/game/game_drop.h"
 #include <cstdint>
 #include <vector>
-class drop_logic_system {
+class DropLogicSystem {
 private:
   static void run_destroy();
-  static void run_state_machine(game_drop &drop);
+  static void run_state_machine(GameDrop &drop);
 
 public:
   static bool run();

@@ -1,6 +1,6 @@
 #pragma once
 
-class server_system_instance {
+class ServerSystemInstance {
 public:
   static void enter(bool host);
 };

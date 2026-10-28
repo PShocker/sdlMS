@@ -6,7 +6,7 @@
 #include "uv.h"
 #include <cstdint>
 #include <string>
-class login_ui_system {
+class LoginUiSystem {
 private:
   static bool login_animate();
 
@@ -30,7 +30,7 @@ private:
 
 public:
   static inline uv_pipe_t g_pipe;
-  static inline text_input username;
+  static inline TextInput username;
   static bool camera_animate(float x, float y);
 
   static bool render();

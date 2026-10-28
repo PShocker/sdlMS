@@ -1,7 +1,7 @@
 #pragma once
 
 #include "src/client/game/game_tile.h"
-class tile_render_system {
+class TileRenderSystem {
 public:
-  static bool render(game_tile &g_tile);
+  static bool render(GameTile &g_tile);
 };
