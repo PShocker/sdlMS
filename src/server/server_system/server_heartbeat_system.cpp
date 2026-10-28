@@ -35,7 +35,7 @@ bool ServerHeartbeatSystem::RunClientHeartbeat() {
   if (current_time - last_execution_time >=
       ServerHeartbeatInstance::heartbeat_interval * 1000) {
     // 执行你的代码
-    ClientHeartbeatT hb;
+    fbs::ClientHeartbeatT hb;
     ClientRequest::send_to_host(hb);
     // 更新最后执行时间
     last_execution_time = current_time;
@@ -71,7 +71,7 @@ void ServerHeartbeatSystem::ReceiveClientHeartbeat(uint64_t client_id) {
   if (ServerClientInstance::clients_.contains(client_id)) {
     ServerClientInstance::clients_.at(client_id).heartbeat = Window::dt_now_;
   }
-  ServerHeartbeatT r;
+  fbs::ServerHeartbeatT r;
   ServerResponse::send_to_client(client_id, r);
 }
 

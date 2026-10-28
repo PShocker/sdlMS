@@ -9,7 +9,6 @@
 namespace sdlms {
 
 
-using namespace fbs;
 
 class ServerPartyInstance {
 private:
@@ -20,8 +19,8 @@ public:
 
   static std::optional<ServerParty> LoadClientParty(uint64_t client_id);
 
-  static void HandleParty(uint64_t client_id, ClientCharacterPartyT &r);
-  static void HandleServerParty(uint64_t client_id, ServerCharacterPartyT &r);
+  static void HandleParty(uint64_t client_id, fbs::ClientCharacterPartyT &r);
+  static void HandleServerParty(uint64_t client_id, fbs::ServerCharacterPartyT &r);
 };
 
 }  // namespace sdlms

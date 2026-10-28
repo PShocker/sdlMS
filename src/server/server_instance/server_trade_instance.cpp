@@ -11,14 +11,14 @@ namespace sdlms {
 
 
 void ServerTradeInstance::HandleClient(uint64_t client_id,
-                                          ClientCharacterTradeT &r) {
+                                          fbs::ClientCharacterTradeT &r) {
   switch (r.step) {
   case 0: {
     if (ServerClientInstance::clients_.contains(r.to_id)) {
-      ServerCharacterTradeT sct;
+      fbs::ServerCharacterTradeT sct;
       sct.step = 0;
       const auto client_t = ServerClientInstance::clients_[client_id].player_t;
-      sct.player = std::make_unique<PlayerT>(client_t);
+      sct.player = std::make_unique<fbs::PlayerT>(client_t);
       ServerResponse::send_to_client(r.to_id, sct);
     }
     return;
@@ -27,11 +27,11 @@ void ServerTradeInstance::HandleClient(uint64_t client_id,
     // 建立交易
     const auto to_t = ServerClientInstance::clients_[r.to_id].player_t;
     const auto client_t = ServerClientInstance::clients_[client_id].player_t;
-    ServerCharacterTradeT sct;
+    fbs::ServerCharacterTradeT sct;
     sct.step = 1;
-    sct.player = std::make_unique<PlayerT>(client_t);
+    sct.player = std::make_unique<fbs::PlayerT>(client_t);
     ServerResponse::send_to_client(r.to_id, sct);
-    sct.player = std::make_unique<PlayerT>(to_t);
+    sct.player = std::make_unique<fbs::PlayerT>(to_t);
     ServerResponse::send_to_client(client_id, sct);
     return;
   }
@@ -39,7 +39,7 @@ void ServerTradeInstance::HandleClient(uint64_t client_id,
 }
 
 void ServerTradeInstance::HandleServer(uint64_t client_id,
-                                          ServerCharacterTradeT &r) {
+                                          fbs::ServerCharacterTradeT &r) {
   switch (r.step) {
   case 0: {
     PopupTipGameInstance::AddTip(PopupTipEnums::kTrade, *r.player);

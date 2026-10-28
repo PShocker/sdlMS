@@ -9,7 +9,6 @@
 namespace sdlms {
 
 
-using namespace fbs;
 
 class DropGameInstance {
 public:

@@ -14,11 +14,10 @@
 namespace sdlms {
 
 
-using namespace fbs;
 
 struct MobServerData {
   GameMob mob;
-  std::vector<MovementT> mvs;
+  std::vector<fbs::MovementT> mvs;
 };
 
 class MobGameInstance {

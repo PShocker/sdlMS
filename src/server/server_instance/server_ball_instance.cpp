@@ -11,12 +11,12 @@ namespace sdlms {
 
 
 void ServerBallInstance::HandleBall(uint64_t client_id,
-                                       ClientCharacterBallT &r) {
+                                       fbs::ClientCharacterBallT &r) {
   if (ServerClientInstance::clients_.contains(client_id)) {
     auto map_id = ServerClientInstance::clients_.at(client_id).map_id;
     auto clients = ServerSceneInstance::scenes_[map_id].clients;
     clients.erase(client_id);
-    ServerCharacterBallT t;
+    fbs::ServerCharacterBallT t;
     t.client_id = client_id;
     t.payload = std::move(r.payload);
     for (auto c : clients) {
@@ -50,7 +50,7 @@ void ServerBallInstance::HandleServerB(
 }
 
 void ServerBallInstance::HandleServerBall(uint64_t client_id,
-                                              ServerCharacterBallT &r) {
+                                              fbs::ServerCharacterBallT &r) {
   HandleServerB(r.payload);
 }
 

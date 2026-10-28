@@ -33,7 +33,7 @@ void TrapLogicSystem::RunCollision() {
       if (RunAttackCheck(g_trap)) {
         uint64_t hit_num = 1;
         CharacterLogicSystem::RunBeingHit(g_trap.pos.x, hit_num);
-        AttackT at{
+        fbs::AttackT at{
             .delay = Window::dt_time_,
             .num = hit_num,
             .x = self.pos.x,
@@ -41,9 +41,9 @@ void TrapLogicSystem::RunCollision() {
             .type = static_cast<uint8_t>(DamageData::T::kV),
         };
         ServerTrapInstance::HandleSAttack(0, at);
-        ClientTrapAttackT cta;
+        fbs::ClientTrapAttackT cta;
         cta.map_id = SceneSystemInstance::map_id_;
-        cta.payload = std::make_unique<AttackT>(std::move(at));
+        cta.payload = std::make_unique<fbs::AttackT>(std::move(at));
         ClientRequest::send_to_host(cta);
         return;
       }

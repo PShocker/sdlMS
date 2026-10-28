@@ -26,8 +26,8 @@ static void Jinqianzhadan() {
     CharacterLogicSystem::RunAction(sf, u"prone2");
     auto g_r = SkillGameInstance::LoadSkiR(u"4211004");
     auto cm = CharacterLogicSystem::RunAttackCheck(sf, g_r);
-    ClientCharacterAttackT cat;
-    ClientDropFadeT ccdf;
+    fbs::ClientCharacterAttackT cat;
+    fbs::ClientDropFadeT ccdf;
     uint64_t meso = 0;
     for (const auto &[k, v] : DropGameInstance::data_) {
       if (v.type != GameDrop::DropEnum::kLand) {
@@ -104,7 +104,7 @@ static void Luoyezhan() {
     CharacterLogicSystem::RunAttackAction(sf, false);
     auto g_r = SkillGameInstance::LoadSkiR(u"4211001");
     auto cm = CharacterLogicSystem::RunAttackCheck(sf, g_r);
-    ClientCharacterAttackT cat;
+    fbs::ClientCharacterAttackT cat;
     if (!cm.data.empty()) {
       auto delay = SkillGameInstance::LoadSkiTime(sf);
       // Create and send attack payload

@@ -6,7 +6,7 @@
 namespace sdlms {
 
 
-static void State() {
+static void state() {
   switch (NpcDlgUiSystem::index_) {
   case 0: {
     auto text_node =
@@ -32,9 +32,9 @@ static void Npc8(std::any data) {
   NpcDlgUiSystem::type_ = NpcDlgUiSystem::NpcDlgEnum::kTalk;
   NpcDlgUiSystem::index_ = 0;
   NpcDlgUiSystem::max_index_ = 1;
-  NpcDlgUiSystem::cb_ = State;
+  NpcDlgUiSystem::cb_ = state;
   NpcDlgUiSystem::npc_id_ = u"0000008";
-  State();
+  state();
   return;
 };
 

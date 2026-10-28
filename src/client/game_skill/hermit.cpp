@@ -85,7 +85,7 @@ static void Dafeibiao() {
     ClientRequest::send_to_host(cct);
     ServerBallInstance::HandleServerB(cct.payload);
 
-    ClientCharacterAttackT cat;
+    fbs::ClientCharacterAttackT cat;
     SDL_FPoint lt{-w, -h};
     SDL_FPoint rb{0, 0};
     auto g_r = SkillGameInstance::LoadR(lt, rb, sf.pos, sf.flip);

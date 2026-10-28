@@ -41,14 +41,14 @@ SDL_FPoint BallGameInstance::ClosestPointOnRect(const SDL_FPoint &pos,
   return closest;
 }
 
-ClientCharacterBallT BallGameInstance::CreateBallPayload(
+fbs::ClientCharacterBallT BallGameInstance::CreateBallPayload(
     CheckMobs &cm, SDL_FPoint pos, SDL_FPoint goal, uint64_t delay, int page,
     int speed, const std::u16string &path) {
 
-  ClientCharacterBallT ccb;
+  fbs::ClientCharacterBallT ccb;
 
   // 1. 直接构造BallT，避免unique_ptr的单独分配
-  auto ball = std::make_unique<BallT>(BallT{
+  auto ball = std::make_unique<fbs::BallT>(fbs::BallT{
       .x1 = pos.x,
       .y1 = pos.y,
       .x2 = goal.x, // 默认值
@@ -135,14 +135,14 @@ ClientCharacterBallT BallGameInstance::CreateBallPayload(
   }
 
   // 4. 构造payload
-  ccb.payload = std::make_unique<CharacterBallT>();
+  ccb.payload = std::make_unique<fbs::CharacterBallT>();
   ccb.payload->path.assign(path.begin(), path.end());
   ccb.payload->ball = std::move(ball);
 
   return ccb;
 }
 
-uint64_t BallGameInstance::LoadBallTime(ClientCharacterBallT &cct) {
+uint64_t BallGameInstance::LoadBallTime(fbs::ClientCharacterBallT &cct) {
   const auto &b = cct.payload->ball;
 
   // 一次查找，避免 contains + at 的双重开销

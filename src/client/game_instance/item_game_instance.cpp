@@ -237,15 +237,15 @@ void ItemGameInstance::UseMorphItem(const std::u16string &id,
   if (&g_character == &CharacterGameInstance::self_) {
     CharacterLogicSystem::RunUnsitChair(g_character);
 
-    StateT st;
+    fbs::StateT st;
     st.state = fbs::StateEnum_BUFF_ITEM;
     st.val = std::stoi(std::string{id.begin(), id.end()});
     st.sub_val = 1;
-    CharacterLogicSystem::ccs_.payload.push_back(std::make_unique<StateT>(st));
+    CharacterLogicSystem::ccs_.payload.push_back(std::make_unique<fbs::StateT>(st));
 
     st.state = fbs::StateEnum_ITEM_USE;
     st.sub_val = 1;
-    CharacterLogicSystem::ccs_.payload.push_back(std::make_unique<StateT>(st));
+    CharacterLogicSystem::ccs_.payload.push_back(std::make_unique<fbs::StateT>(st));
 
     ServerCharacterInstance::HandleMorphUse(g_character, true);
   }
@@ -258,17 +258,17 @@ void ItemGameInstance::UnuseMorphItem(const std::u16string &id,
   g_character.action_time = 0;
 
   if (&g_character == &CharacterGameInstance::self_) {
-    StateT st;
+    fbs::StateT st;
     st.state = fbs::StateEnum_BUFF_ITEM;
     st.val = std::stoi(std::string{id.begin(), id.end()});
     st.sub_val = 0;
 
     auto &ccs = CharacterLogicSystem::ccs_;
-    ccs.payload.push_back(std::make_unique<StateT>(st));
+    ccs.payload.push_back(std::make_unique<fbs::StateT>(st));
 
     st.state = fbs::StateEnum_ITEM_USE;
     st.sub_val = 0;
-    CharacterLogicSystem::ccs_.payload.push_back(std::make_unique<StateT>(st));
+    CharacterLogicSystem::ccs_.payload.push_back(std::make_unique<fbs::StateT>(st));
 
     ServerCharacterInstance::HandleMorphUse(g_character, false);
   }
@@ -411,13 +411,13 @@ bool ItemGameInstance::UseMobItem(std::polymorphic<GameItem> &itm) {
       auto mob_id =
           static_cast<wz::Property<int> *>(v[0]->get_child(u"id"))->get();
       auto mob_num = 1;
-      ClientCreateMobT ccm;
+      fbs::ClientCreateMobT ccm;
       ccm.map_id = SceneSystemInstance::map_id_;
       for (int i = 0; i < mob_num; i++) {
-        ccm.mobs.emplace_back(std::make_unique<MobT>());
+        ccm.mobs.emplace_back(std::make_unique<fbs::MobT>());
         auto &mob = ccm.mobs.back();
         mob->mob_id = mob_id;
-        mob->state = std::make_unique<LifeStateT>(LifeStateT{
+        mob->state = std::make_unique<fbs::LifeStateT>(fbs::LifeStateT{
             .x = g_character.pos.x,
             .y = g_character.pos.y,
             .action_animate = true,

@@ -78,7 +78,7 @@ static void Huixuanzhan() {
     CharacterLogicSystem::RunAction(sf, u"savage");
     auto g_r = SkillGameInstance::LoadSkiR(u"4201003");
     auto cm = CharacterLogicSystem::RunAttackCheck(sf, g_r);
-    ClientCharacterAttackT cat;
+    fbs::ClientCharacterAttackT cat;
     if (!cm.data.empty()) {
       auto delay = SkillGameInstance::LoadSkiTime(sf);
       // Create and send attack payload
@@ -108,20 +108,20 @@ static void Shentoushu() {
     CharacterLogicSystem::RunAttackAction(sf, false);
     auto g_r = SkillGameInstance::LoadSkiR(u"4001002");
     auto cm = CharacterLogicSystem::RunAttackCheck(sf, g_r);
-    ClientCharacterAttackT cat;
+    fbs::ClientCharacterAttackT cat;
     if (!cm.data.empty()) {
       auto delay = SkillGameInstance::LoadSkiTime(sf);
       // Create and send attack payload
       cat = SkillGameInstance::CreateAttackPayload(cm, sf.pos, delay);
       ClientRequest::send_to_host(cat);
       // drop
-      ClientCreateDropT ccd;
+      fbs::ClientCreateDropT ccd;
       ccd.map_id = SceneSystemInstance::map_id_;
       auto &mob = cm.data[0].mob;
       auto dts = ServerMobInstance::CreateMobDts(mob.id, mob.pos.x,
                                                      mob.pos.y, mob.page);
       for (auto dt : dts) {
-        ccd.drops.push_back(std::make_unique<DropT>(dt));
+        ccd.drops.push_back(std::make_unique<fbs::DropT>(dt));
       }
       if (!ccd.drops.empty()) {
         ClientRequest::send_to_host(ccd);

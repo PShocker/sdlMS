@@ -12,7 +12,6 @@
 namespace sdlms {
 
 
-using namespace fbs;
 
 class SkillGameInstance {
 public:
@@ -47,20 +46,20 @@ public:
   static int LoadSkiMobCount(const std::u16string &id, uint8_t lv);
   static int LoadSkiAtkCount(const std::u16string &id, uint8_t lv);
 
-  static ClientCharacterAttackT
+  static fbs::ClientCharacterAttackT
   CreateAttackPayload(CheckMobs &cm, SDL_FPoint pos, uint64_t delay);
-  static ClientCharacterAttackT
+  static fbs::ClientCharacterAttackT
   CreateAttackPayload(CheckMobs &cm, SDL_FPoint pos, uint64_t delay,
                         uint32_t interval, std::string effect,
                         std::string sound);
 
-  static ClientCharacterSkillT
-  CreateSkillPayload(const ClientCharacterAttackT &attack_payload, int ski_id,
+  static fbs::ClientCharacterSkillT
+  CreateSkillPayload(const fbs::ClientCharacterAttackT &attack_payload, int ski_id,
                        uint8_t ski_lv);
-  static ClientCharacterSkillT
+  static fbs::ClientCharacterSkillT
   CreateSkillPayload(const std::vector<uint64_t> &buff_payload, int ski_id,
                        uint8_t ski_lv);
-  static ClientCharacterSkillT CreateSkillPayload(int ski_id, uint8_t ski_lv);
+  static fbs::ClientCharacterSkillT CreateSkillPayload(int ski_id, uint8_t ski_lv);
 };
 
 }  // namespace sdlms

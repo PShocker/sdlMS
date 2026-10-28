@@ -143,7 +143,7 @@ void MobLogicSystem::RunCollision() {
       }
     }
     CharacterLogicSystem::RunBeingHit(mob.pos.x, hit_num);
-    AttackT at{
+    fbs::AttackT at{
         .delay = Window::dt_time_,
         .num = hit_num,
         .x = self.pos.x,
@@ -151,9 +151,9 @@ void MobLogicSystem::RunCollision() {
         .type = static_cast<uint8_t>(DamageData::T::kV),
     };
     ServerMobInstance::HandleSAttack(0, at);
-    ClientMobAttackT cma;
+    fbs::ClientMobAttackT cma;
     cma.map_id = SceneSystemInstance::map_id_;
-    cma.payload = std::make_unique<AttackT>(std::move(at));
+    cma.payload = std::make_unique<fbs::AttackT>(std::move(at));
     ClientRequest::send_to_host(cma);
   }
 }

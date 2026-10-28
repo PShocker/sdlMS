@@ -12,7 +12,6 @@
 namespace sdlms {
 
 
-using namespace fbs;
 
 class EffectGameInstance {
 public:

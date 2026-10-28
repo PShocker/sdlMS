@@ -32,11 +32,11 @@ static void Yinshenshu() {
     if (it != ski.end()) {
       ski.erase(it);
       auto &ccs = CharacterLogicSystem::ccs_;
-      StateT st;
-      st.state = StateEnum_BUFF_SKILL;
+      fbs::StateT st;
+      st.state = fbs::StateEnum_BUFF_SKILL;
       st.val = 4001001;
       st.sub_val = 0;
-      ccs.payload.push_back(std::make_unique<StateT>(st));
+      ccs.payload.push_back(std::make_unique<fbs::StateT>(st));
     }
   };
 
@@ -81,11 +81,11 @@ static void Yinshenshu() {
     ClientRequest::send_to_host(ckt);
 
     auto &ccs = CharacterLogicSystem::ccs_;
-    StateT st;
-    st.state = StateEnum_BUFF_SKILL;
+    fbs::StateT st;
+    st.state = fbs::StateEnum_BUFF_SKILL;
     st.val = 4001001;
     st.sub_val = 1;
-    ccs.payload.push_back(std::make_unique<StateT>(st));
+    ccs.payload.push_back(std::make_unique<fbs::StateT>(st));
 
     g_skill.state(&sf, 0);
   };
@@ -152,7 +152,7 @@ static void Shuangfeizhan() {
     }
     auto cct = BallGameInstance::CreateBallPayload(cm, pos, goal, delay,
                                                        page, 700, path);
-    ClientCharacterAttackT cat;
+    fbs::ClientCharacterAttackT cat;
     if (!cm.data.empty()) {
       auto d = BallGameInstance::LoadBallTime(cct);
       // Create and send attack payload
@@ -187,7 +187,7 @@ static void Erlianji() {
     CharacterLogicSystem::RunAttackAction(sf, false);
     auto g_r = SkillGameInstance::LoadSkiR(u"4001002");
     auto cm = CharacterLogicSystem::RunAttackCheck(sf, g_r, 1);
-    ClientCharacterAttackT cat;
+    fbs::ClientCharacterAttackT cat;
     if (!cm.data.empty()) {
       auto delay = SkillGameInstance::LoadSkiTime(sf);
       // Create and send attack payload

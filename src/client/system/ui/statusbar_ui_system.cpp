@@ -377,7 +377,7 @@ void StatusbarUiSystem::RenderButton() {
   static auto Shortcut =
       WzResource::ui_->find(u"StatusBar.img/button:Shortcut");
   static auto Mailbox = WzResource::ui_->find(u"StatusBar.img/button:Mailbox");
-  static auto Equip = WzResource::ui_->find(u"StatusBar.img/button:Equip");
+  static auto equip = WzResource::ui_->find(u"StatusBar.img/button:Equip");
   static auto Inven = WzResource::ui_->find(u"StatusBar.img/button:Inven");
   static auto Stat = WzResource::ui_->find(u"StatusBar.img/button:Stat");
   static auto StatUp = WzResource::ui_->find(u"StatusBar.img/button:StatUp");
@@ -398,7 +398,7 @@ void StatusbarUiSystem::RenderButton() {
       Menu,       //
       Shortcut,   //
       Mailbox,    //
-      Equip,      //
+      equip,      //
       Inven,      //
       Stat,       // Stat StatUp
       Skill,      // Skill SkillUp
@@ -772,10 +772,10 @@ void StatusbarUiSystem::EventChatSend() {
   if (chat_.text == u"") {
     return;
   }
-  ClientCharacterChatT cct;
+  fbs::ClientCharacterChatT cct;
   cct.map_id = SceneSystemInstance::map_id_;
-  cct.payload = std::make_unique<CharacterChatT>();
-  cct.payload->type = ChatEnum_MAP;
+  cct.payload = std::make_unique<fbs::CharacterChatT>();
+  cct.payload->type = fbs::ChatEnum_MAP;
   cct.payload->payload = {chat_.text.begin(), chat_.text.end()};
   ClientRequest::send_to_host(cct);
   Reset();

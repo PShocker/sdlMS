@@ -175,7 +175,7 @@ void QuestUiSystem::RenderAreaName(int i, int y) {
   SDL_SetRenderDrawColor(Window::renderer_, 154, 176, 203, 255);
   SDL_RenderFillRect(Window::renderer_, &pos_rect);
 
-  std::u16string State = u"normal";
+  std::u16string state = u"normal";
 
   pos_rect = {
       static_cast<float>(px),
@@ -189,13 +189,13 @@ void QuestUiSystem::RenderAreaName(int i, int y) {
   bool cursor_on_ui = CursorGameInstance::cursor_ui == Render;
   bool modal_blocked = CursorGameInstance::modal_overlay;
   if (cursor_on_ui && !modal_blocked && mouse_in) {
-    State = mouse_down ? u"pressed" : u"mouseOver";
+    state = mouse_down ? u"pressed" : u"mouseOver";
   }
   auto node = WzResource::ui_->find(u"Basic.img/BtMin");
   if (disable_fold_.contains(i)) {
     node = WzResource::ui_->find(u"Basic.img/BtMax");
   }
-  auto texture = WzResource::LoadTexture(node->find((State + u"/0")));
+  auto texture = WzResource::LoadTexture(node->find((state + u"/0")));
   SDL_RenderTexture(Window::renderer_, texture, nullptr, &pos_rect);
   if (mouse_in) {
     fold = i;

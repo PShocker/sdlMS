@@ -14,14 +14,14 @@ class ServerReactorInstance {
 public:
   static void LoadReactor(ServerSceneState &scene);
   static uint64_t LoadHitCd(ServerReactorState &r);
-  static int LoadNextState(const std::u16string &id, uint8_t State);
+  static int LoadNextState(const std::u16string &id, uint8_t state);
   static std::u16string LoadScript(const std::u16string &id);
 
-  static void HandleSReactor(const ReactorT &r);
+  static void HandleSReactor(const fbs::ReactorT &r);
 
-  static void HandleReactor(uint64_t client_id, ClientReactorT &r);
+  static void HandleReactor(uint64_t client_id, fbs::ClientReactorT &r);
   static void HandleServerReactor(uint64_t client_id, fbs::ServerReactorT &r);
-  static void HandleServerReactorDrop(ServerReactorDropT &r);
+  static void HandleServerReactorDrop(fbs::ServerReactorDropT &r);
 };
 
 }  // namespace sdlms

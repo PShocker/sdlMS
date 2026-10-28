@@ -10,20 +10,19 @@
 namespace sdlms {
 
 
-using namespace fbs;
 
 // reactor1
 static void Q90008(std::any data) {
   auto map_id = ServerReactorSystem::map_id_;
   auto r = std::any_cast<ServerReactorState *>(data);
   auto pos = r->pos;
-  std::vector<DropT> dts;
+  std::vector<fbs::DropT> dts;
 
-  DropT dt;
+  fbs::DropT dt;
   dt.x1 = pos.x;
   dt.y1 = pos.y;
   dt.page = 7;
-  ItemT it;
+  fbs::ItemT it;
   it.item_id = 2000000;
   it.item_num = 1;
   dt.drop.Set(it);
@@ -42,7 +41,7 @@ static void Q90008(std::any data) {
     dts.push_back(dt);
   }
 
-  ServerReactorDropT srd;
+  fbs::ServerReactorDropT srd;
   srd.payload = ServerDropInstance::CreateDts(dts, map_id);
 
   for (const auto &dt : srd.payload) {

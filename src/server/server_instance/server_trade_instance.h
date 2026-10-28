@@ -4,12 +4,11 @@
 #include "src/common/flatbuffers/server.h"
 namespace sdlms {
 
-using namespace fbs;
 
 class ServerTradeInstance {
 public:
-  static void HandleClient(uint64_t client_id, ClientCharacterTradeT &r);
-  static void HandleServer(uint64_t client_id, ServerCharacterTradeT &r);
+  static void HandleClient(uint64_t client_id, fbs::ClientCharacterTradeT &r);
+  static void HandleServer(uint64_t client_id, fbs::ServerCharacterTradeT &r);
 };
 
 }  // namespace sdlms

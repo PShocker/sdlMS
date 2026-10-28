@@ -10,7 +10,6 @@
 namespace sdlms {
 
 
-using namespace fbs;
 
 class ServerMobInstance {
 public:
@@ -22,32 +21,32 @@ public:
   };
   static std::vector<MobDrop> LoadMobDrops(const std::u16string &mob_id);
 
-  static std::vector<DropT> CreateMobDts(const std::u16string &mob_id,
+  static std::vector<fbs::DropT> CreateMobDts(const std::u16string &mob_id,
                                            float x, float y, int page);
 
   static void LoadDefaultMob(const std::u16string id, ServerMob &mob);
   static void LoadMob(ServerSceneState &scene);
 
-  static void HandleCreateMob(ClientCreateMobT &r);
-  static void HandleSCreateMob(ServerCreateMobT &r);
+  static void HandleCreateMob(fbs::ClientCreateMobT &r);
+  static void HandleSCreateMob(fbs::ServerCreateMobT &r);
 
   static void HanleServerMob(const std::unique_ptr<fbs::MobT> &m);
 
-  static void HandleSAttack(uint64_t client_id, AttackT &at);
+  static void HandleSAttack(uint64_t client_id, fbs::AttackT &at);
 
-  static void HandleAttack(uint64_t client_id, ClientMobAttackT &r);
-  static void HandleServerAttack(ServerMobAttackT &r);
+  static void HandleAttack(uint64_t client_id, fbs::ClientMobAttackT &r);
+  static void HandleServerAttack(fbs::ServerMobAttackT &r);
 
-  static void HandleServerMv(const ServerMobMvT &m);
-  static void HandleServerFlip(const ServerMobFlipT &m);
-  static void HandleServerAction(const ServerMobActionT &m);
-  static void HandleServerState(const ServerMobStateT &m);
-  static void HandleServerDie(const ServerMobDieT &m);
-  static void HandleServerDrop(const ServerMobDropT &m);
-  static void HandleServerEvent(const ServerMobEventT &m);
+  static void HandleServerMv(const fbs::ServerMobMvT &m);
+  static void HandleServerFlip(const fbs::ServerMobFlipT &m);
+  static void HandleServerAction(const fbs::ServerMobActionT &m);
+  static void HandleServerState(const fbs::ServerMobStateT &m);
+  static void HandleServerDie(const fbs::ServerMobDieT &m);
+  static void HandleServerDrop(const fbs::ServerMobDropT &m);
+  static void HandleServerEvent(const fbs::ServerMobEventT &m);
 
-  static void HandleDebuff(uint64_t client_id, ClientMobDebuffT &r);
-  static void HandleSDebuff(ServerMobDebuffT &r);
+  static void HandleDebuff(uint64_t client_id, fbs::ClientMobDebuffT &r);
+  static void HandleSDebuff(fbs::ServerMobDebuffT &r);
 };
 
 }  // namespace sdlms

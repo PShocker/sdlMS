@@ -12,7 +12,7 @@ namespace sdlms {
 
 // roger apple
 
-static void State() {
+static void state() {
   switch (NpcDlgUiSystem::index_) {
   case 1: {
     NpcDlgUiSystem::Close();
@@ -44,7 +44,7 @@ static void Q1002s(std::any data) {
   NpcDlgUiSystem::type_ = NpcDlgUiSystem::NpcDlgEnum::kQuestAvaliable;
   NpcDlgUiSystem::max_index_ = 0;
   NpcDlgUiSystem::npc_id_ = u"0000003";
-  State();
+  state();
   return;
 };
 

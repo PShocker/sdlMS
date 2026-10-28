@@ -901,9 +901,9 @@ bool CharacterLogicSystem::RunAttack(GameCharacter &g_character) {
   // reactor
   if (!rt.data.empty()) {
     auto &r = rt.data[0];
-    ClientReactorT crt;
+    fbs::ClientReactorT crt;
     crt.map_id = SceneSystemInstance::map_id_;
-    crt.payload = std::make_unique<ReactorT>();
+    crt.payload = std::make_unique<fbs::ReactorT>();
     crt.payload->reactor_index = r.r.index;
     crt.payload->delay = delay;
     ClientRequest::send_to_host(crt);
@@ -1100,14 +1100,14 @@ void CharacterLogicSystem::RunNetworkSyncAction() {
   static std::u16string action;
   static bool action_animate;
   if (action != sf.action || action_animate != sf.action_animate) {
-    ActionT a;
+    fbs::ActionT a;
     a.action = {sf.action.begin(), sf.action.end()};
     a.action_animate = sf.action_animate;
     a.action_index = sf.action_index;
 
-    ClientCharacterActionT cct;
+    fbs::ClientCharacterActionT cct;
     cct.map_id = map_id;
-    cct.payload = std::make_unique<ActionT>(a);
+    cct.payload = std::make_unique<fbs::ActionT>(a);
 
     ClientRequest::send_to_host(cct);
     action = sf.action;
@@ -1121,7 +1121,7 @@ void CharacterLogicSystem::RunNetworkSyncPos() {
   auto map_id = SceneSystemInstance::map_id_;
   static SDL_FPoint pos;
   if ((sf.pos.x != pos.x || sf.pos.y != pos.y) && sf.action != u"dead") {
-    MovementT mv;
+    fbs::MovementT mv;
     mv.x1 = pos.x;
     mv.y1 = pos.y;
     mv.x2 = sf.pos.x;
@@ -1129,9 +1129,9 @@ void CharacterLogicSystem::RunNetworkSyncPos() {
     mv.page = sf.page;
     mv.time = std::min(Window::delta_time_, MIN_SEND_INTERVAL_MS);
     pos = sf.pos;
-    ClientCharacterMvT mvt;
+    fbs::ClientCharacterMvT mvt;
     mvt.map_id = map_id;
-    mvt.payload = std::make_unique<MovementT>(mv);
+    mvt.payload = std::make_unique<fbs::MovementT>(mv);
     ClientRequest::send_to_host(mvt);
   }
 }
@@ -1141,11 +1141,11 @@ void CharacterLogicSystem::RunNetworkSyncFlip() {
   auto map_id = SceneSystemInstance::map_id_;
   static bool flip;
   if (flip != sf.flip) {
-    FlipT f;
+    fbs::FlipT f;
     f.flip = sf.flip;
-    ClientCharacterFlipT fpt;
+    fbs::ClientCharacterFlipT fpt;
     fpt.map_id = map_id;
-    fpt.payload = std::make_unique<FlipT>(f);
+    fpt.payload = std::make_unique<fbs::FlipT>(f);
     ClientRequest::send_to_host(fpt);
     flip = sf.flip;
   }
@@ -1157,14 +1157,14 @@ void CharacterLogicSystem::RunNetworkSyncFace() {
   static std::u16string face;
   if (face != sf.face.action) {
     if (sf.face.action != u"blink") {
-      FaceT ft;
+      fbs::FaceT ft;
       ft.face_action = {
           sf.face.action.begin(),
           sf.face.action.end(),
       };
-      ClientCharacterFcT fct;
+      fbs::ClientCharacterFcT fct;
       fct.map_id = map_id;
-      fct.payload = std::make_unique<FaceT>(ft);
+      fct.payload = std::make_unique<fbs::FaceT>(ft);
       ClientRequest::send_to_host(fct);
       face = sf.face.action;
     }
@@ -1185,10 +1185,10 @@ void CharacterLogicSystem::RunNetworkSyncHp() {
   static int32_t hp;
   auto sf_hp = CharacterStatGameInstance::GetHp();
   if (hp != sf_hp) {
-    StateT st;
-    st.state = StateEnum_HP;
+    fbs::StateT st;
+    st.state = fbs::StateEnum_HP;
     st.val = sf_hp;
-    ccs_.payload.push_back(std::make_unique<StateT>(st));
+    ccs_.payload.push_back(std::make_unique<fbs::StateT>(st));
     hp = sf_hp;
   }
 }
@@ -1197,10 +1197,10 @@ void CharacterLogicSystem::RunNetworkSyncMaxHp() {
   static int32_t max_hp;
   auto sf_max_hp = CharacterStatGameInstance::GetHpMax();
   if (max_hp != sf_max_hp) {
-    StateT st;
-    st.state = StateEnum_MAX_HP;
+    fbs::StateT st;
+    st.state = fbs::StateEnum_MAX_HP;
     st.val = sf_max_hp;
-    ccs_.payload.push_back(std::make_unique<StateT>(st));
+    ccs_.payload.push_back(std::make_unique<fbs::StateT>(st));
     max_hp = sf_max_hp;
   }
 }
@@ -1223,12 +1223,12 @@ void CharacterLogicSystem::RunNetworkSync() {
 }
 
 void CharacterLogicSystem::RunNetworkDieSync(GameCharacter &g_character) {
-  DieT d;
+  fbs::DieT d;
   d.x = g_character.pos.x;
   d.y = g_character.pos.y;
-  ClientCharacterDieT req;
+  fbs::ClientCharacterDieT req;
   req.map_id = SceneSystemInstance::map_id_;
-  req.payload = std::make_unique<DieT>(d);
+  req.payload = std::make_unique<fbs::DieT>(d);
   ClientRequest::send_to_host(req);
   return;
 }
@@ -1669,11 +1669,11 @@ void CharacterLogicSystem::RunSitChair(GameCharacter &g_character,
   g_character.chair = GameChair{};
   g_character.chair->id = id;
   if (&g_character == &CharacterGameInstance::self_) {
-    StateT st;
+    fbs::StateT st;
     st.state = fbs::StateEnum_BUFF_ITEM;
     st.val = std::stoi(std::string{id.begin(), id.end()});
     st.sub_val = 1;
-    ccs_.payload.push_back(std::make_unique<StateT>(st));
+    ccs_.payload.push_back(std::make_unique<fbs::StateT>(st));
   }
 
   return;
@@ -1683,7 +1683,7 @@ void CharacterLogicSystem::RunUnsitChair(GameCharacter &g_character) {
   if (g_character.chair.has_value()) {
     RunStandAction(g_character);
     if (&g_character == &CharacterGameInstance::self_) {
-      StateT st;
+      fbs::StateT st;
       st.state = fbs::StateEnum_BUFF_ITEM;
       auto tmp = std::string{
           g_character.chair->id.begin(),
@@ -1691,7 +1691,7 @@ void CharacterLogicSystem::RunUnsitChair(GameCharacter &g_character) {
       };
       st.val = std::stoi(tmp);
       st.sub_val = 0;
-      ccs_.payload.push_back(std::make_unique<StateT>(st));
+      ccs_.payload.push_back(std::make_unique<fbs::StateT>(st));
     }
   }
   g_character.chair = std::nullopt;

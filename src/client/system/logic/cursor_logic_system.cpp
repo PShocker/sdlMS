@@ -57,7 +57,6 @@
 namespace sdlms {
 
 
-using namespace fbs;
 
 std::optional<GameNpc> CursorLogicSystem::CursorNpc() {
   const auto &pos = Window::mouse_pos_;
@@ -350,9 +349,9 @@ bool CursorLogicSystem::EventCursorHand(SDL_Event *Event) {
     // 处理装备丢弃
     if (active_tab == static_cast<int>(ItemEnum::kEquip)) {
       auto &equip = PackageGameInstance::data_[0][sub_index];
-      DropT dt;
+      fbs::DropT dt;
 
-      EquipT et;
+      fbs::EquipT et;
       et.equip_id = std::stoi(std::string(equip->id.begin(), equip->id.end()));
       dt.drop.Set(et);
 
@@ -360,9 +359,9 @@ bool CursorLogicSystem::EventCursorHand(SDL_Event *Event) {
       dt.y1 = CharacterGameInstance::self_.pos.y;
       dt.page = CharacterGameInstance::self_.page;
 
-      ClientCharacterDropT cct;
+      fbs::ClientCharacterDropT cct;
       cct.map_id = SceneSystemInstance::map_id_;
-      cct.payload = std::make_unique<DropT>(dt);
+      cct.payload = std::make_unique<fbs::DropT>(dt);
       ClientRequest::send_to_host(cct);
 
       cursor_hand_net = {.type = CursorGameInstance::CursorHandNetType::kDrop};
@@ -390,8 +389,8 @@ bool CursorLogicSystem::EventCursorHand(SDL_Event *Event) {
       }
 
       // 执行物品丢弃
-      DropT dt;
-      ItemT it;
+      fbs::DropT dt;
+      fbs::ItemT it;
       it.item_id = std::stoi(std::string(itm->id.begin(), itm->id.end()));
       it.item_num = std::max(0, num);
       dt.drop.Set(it);
@@ -400,9 +399,9 @@ bool CursorLogicSystem::EventCursorHand(SDL_Event *Event) {
       dt.y1 = CharacterGameInstance::self_.pos.y;
       dt.page = CharacterGameInstance::self_.page;
 
-      ClientCharacterDropT cct;
+      fbs::ClientCharacterDropT cct;
       cct.map_id = SceneSystemInstance::map_id_;
-      cct.payload = std::make_unique<DropT>(dt);
+      cct.payload = std::make_unique<fbs::DropT>(dt);
       ClientRequest::send_to_host(cct);
 
       cursor_hand_net = {.type = CursorGameInstance::CursorHandNetType::kDrop};

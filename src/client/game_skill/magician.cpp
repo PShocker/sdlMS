@@ -62,7 +62,7 @@ static void Mfdan() {
     ClientRequest::send_to_host(cct);
     ServerBallInstance::HandleServerB(cct.payload);
 
-    ClientCharacterAttackT cat;
+    fbs::ClientCharacterAttackT cat;
     if (!cm.data.empty()) {
       auto d = BallGameInstance::LoadBallTime(cct);
       // Create and send attack payload
@@ -124,7 +124,7 @@ static void Mfsj() {
     CharacterLogicSystem::RunAttackAction(sf, false);
     auto g_r = SkillGameInstance::LoadSkiR(u"2001003");
     auto cm = CharacterLogicSystem::RunAttackCheck(sf, g_r);
-    ClientCharacterAttackT cat;
+    fbs::ClientCharacterAttackT cat;
     if (!cm.data.empty()) {
       cm.data = {cm.data[0]};
       auto delay = SkillGameInstance::LoadSkiTime(sf);

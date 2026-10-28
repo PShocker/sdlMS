@@ -7,7 +7,6 @@
 namespace sdlms {
 
 
-using namespace fbs;
 
 enum class PopupTipEnums {
   kTrade,

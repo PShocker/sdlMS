@@ -16,7 +16,6 @@
 namespace sdlms {
 
 
-using namespace fbs;
 
 wz::Node *SkillGameInstance::LoadSkiLevelNode(const std::u16string &id,
                                                    uint8_t l) {
@@ -193,18 +192,18 @@ int SkillGameInstance::LoadSkiAtkCount(const std::u16string &id,
   return r;
 }
 
-ClientCharacterAttackT SkillGameInstance::CreateAttackPayload(
+fbs::ClientCharacterAttackT SkillGameInstance::CreateAttackPayload(
     CheckMobs &cm, SDL_FPoint pos, uint64_t delay, uint32_t interval,
     std::string effect, std::string sound) {
-  ClientCharacterAttackT attack_payload;
+  fbs::ClientCharacterAttackT attack_payload;
   auto &Mobs = cm.data;
   for (int m = 0; m < Mobs.size(); m++) {
     auto &mob = Mobs[m];
     auto &mb = MobGameInstance::data_.at(mob.mob.index).mob;
     for (int n = 0; n < mob.hits.size(); n++) {
-      CharacterAttackT ct;
+      fbs::CharacterAttackT ct;
       ct.mob_index = mob.mob.index;
-      ct.attack = std::make_unique<AttackT>();
+      ct.attack = std::make_unique<fbs::AttackT>();
       ct.attack->num = mob.hits[n];
       ct.attack->delay = delay + n * interval + mob.delay;
       ct.attack->x = mob.x;
@@ -213,7 +212,7 @@ ClientCharacterAttackT SkillGameInstance::CreateAttackPayload(
       ct.effect = effect;
       ct.sound = sound;
       attack_payload.payload.push_back(
-          std::make_unique<CharacterAttackT>(std::move(ct)));
+          std::make_unique<fbs::CharacterAttackT>(std::move(ct)));
     }
     // gauge
     if (!mb.gauge.has_value()) {
@@ -226,53 +225,53 @@ ClientCharacterAttackT SkillGameInstance::CreateAttackPayload(
   return attack_payload;
 }
 
-ClientCharacterAttackT
+fbs::ClientCharacterAttackT
 SkillGameInstance::CreateAttackPayload(CheckMobs &cm, SDL_FPoint pos,
                                            uint64_t delay) {
   return CreateAttackPayload(cm, pos, delay, 60, "", "");
 }
 
-ClientCharacterSkillT SkillGameInstance::CreateSkillPayload(
-    const ClientCharacterAttackT &attack_payload, int ski_id, uint8_t ski_lv) {
-  ClientCharacterSkillT skill_payload;
+fbs::ClientCharacterSkillT SkillGameInstance::CreateSkillPayload(
+    const fbs::ClientCharacterAttackT &attack_payload, int ski_id, uint8_t ski_lv) {
+  fbs::ClientCharacterSkillT skill_payload;
   skill_payload.ski_id = ski_id;
   skill_payload.ski_lv = ski_lv;
   skill_payload.x = INT32_MAX;
   skill_payload.y = INT32_MAX;
 
   for (const auto &a : attack_payload.payload) {
-    CharacterSkillT c;
+    fbs::CharacterSkillT c;
     c.delay = a->attack->delay;
     c.mob = a->mob_index;
     c.x = a->attack->x;
     c.y = a->attack->y;
     skill_payload.payload.push_back(
-        std::make_unique<CharacterSkillT>(std::move(c)));
+        std::make_unique<fbs::CharacterSkillT>(std::move(c)));
   }
   return skill_payload;
 }
 
-ClientCharacterSkillT SkillGameInstance::CreateSkillPayload(
+fbs::ClientCharacterSkillT SkillGameInstance::CreateSkillPayload(
     const std::vector<uint64_t> &buff_payload, int ski_id, uint8_t ski_lv) {
-  ClientCharacterSkillT skill_payload;
+  fbs::ClientCharacterSkillT skill_payload;
   skill_payload.ski_id = ski_id;
   skill_payload.ski_lv = ski_lv;
   skill_payload.x = INT32_MAX;
   skill_payload.y = INT32_MAX;
 
   for (const auto &client_id : buff_payload) {
-    CharacterSkillT c;
+    fbs::CharacterSkillT c;
     c.delay = 0;
     c.player = client_id;
     skill_payload.payload.push_back(
-        std::make_unique<CharacterSkillT>(std::move(c)));
+        std::make_unique<fbs::CharacterSkillT>(std::move(c)));
   }
   return skill_payload;
 }
 
-ClientCharacterSkillT
+fbs::ClientCharacterSkillT
 SkillGameInstance::CreateSkillPayload(int ski_id, uint8_t ski_lv) {
-  ClientCharacterSkillT skill_payload;
+  fbs::ClientCharacterSkillT skill_payload;
   skill_payload.ski_id = ski_id;
   skill_payload.ski_lv = ski_lv;
   skill_payload.x = INT32_MAX;

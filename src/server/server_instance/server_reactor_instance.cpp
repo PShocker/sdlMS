@@ -48,14 +48,14 @@ void ServerReactorInstance::LoadReactor(ServerSceneState &scene) {
 }
 
 int ServerReactorInstance::LoadNextState(const std::u16string &id,
-                                             uint8_t State) {
+                                             uint8_t state) {
   auto node = WzResource::reactor_->find(id + u".img");
-  node = node->get_child(std::to_string(State));
+  node = node->get_child(std::to_string(state));
   if (node->get_child(u"event")) {
     node = node->find(u"event/0/state");
-    State = static_cast<wz::Property<int> *>(node)->get();
+    state = static_cast<wz::Property<int> *>(node)->get();
   }
-  return State;
+  return state;
 }
 
 std::u16string ServerReactorInstance::LoadScript(const std::u16string &id) {
@@ -86,7 +86,7 @@ uint64_t ServerReactorInstance::LoadHitCd(ServerReactorState &r) {
 }
 
 void ServerReactorInstance::HandleReactor(uint64_t client_id,
-                                             ClientReactorT &r) {
+                                             fbs::ClientReactorT &r) {
   if (!ServerClientInstance::clients_.contains(client_id)) {
     return;
   }
@@ -104,7 +104,7 @@ void ServerReactorInstance::HandleReactor(uint64_t client_id,
   return;
 }
 
-void ServerReactorInstance::HandleSReactor(const ReactorT &r) {
+void ServerReactorInstance::HandleSReactor(const fbs::ReactorT &r) {
   GameReactor *reactor = nullptr;
   for (auto &rs : ReactorGameInstance::data_) {
     for (auto &gr : rs) {
@@ -145,7 +145,7 @@ void ServerReactorInstance::HandleServerReactor(uint64_t client_id,
 }
 
 void ServerReactorInstance::HandleServerReactorDrop(
-    ServerReactorDropT &r) {
+    fbs::ServerReactorDropT &r) {
   // Drop
   for (const auto &dt : r.payload) {
     ServerDropInstance::HandleServerDt(*dt);

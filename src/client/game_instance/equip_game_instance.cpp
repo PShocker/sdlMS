@@ -617,11 +617,11 @@ int EquipGameInstance::UseEquipScroll(GameEquipItem &eqp,
     auto &sf = CharacterGameInstance::self_;
     ServerCharacterInstance::HandleScrollUse(sf, true);
 
-    StateT st;
+    fbs::StateT st;
     st.state = fbs::StateEnum_ITEM_USE;
     st.val = std::stoi(std::string{s.id.begin(), s.id.end()});
     st.sub_val = 1;
-    CharacterLogicSystem::ccs_.payload.push_back(std::make_unique<StateT>(st));
+    CharacterLogicSystem::ccs_.payload.push_back(std::make_unique<fbs::StateT>(st));
 
     s.num -= 1;
     if (s.num == 0) {

@@ -14,9 +14,9 @@ void ServerReactorSystem::RunScript(ServerReactorState &r) {
   if (r.revive != 0) {
     return;
   }
-  auto State = r.state;
+  auto state = r.state;
   auto next_state = ServerReactorInstance::LoadNextState(r.id, r.state);
-  if (State == next_state && r.hit_cd <= Window::dt_time_) {
+  if (state == next_state && r.hit_cd <= Window::dt_time_) {
     r.revive = Window::dt_time_ + 30000;
     auto Script = ServerReactorInstance::LoadScript(r.id);
     if (!Script.empty()) {
@@ -32,7 +32,7 @@ void ServerReactorSystem::RunRevive(ServerReactorState &r) {
   }
   if (Window::dt_time_ >= r.revive) {
     fbs::ServerReactorT srt;
-    srt.payload = std::make_unique<ReactorT>();
+    srt.payload = std::make_unique<fbs::ReactorT>();
     srt.payload->reactor_index = r.index;
     srt.payload->state = 0;
     srt.payload->action = "revive";
@@ -52,9 +52,9 @@ void ServerReactorSystem::RunHit(ServerReactorState &r) {
   if (r.hit_time == 0) {
     return;
   }
-  auto State = r.state;
+  auto state = r.state;
   auto next_state = ServerReactorInstance::LoadNextState(r.id, r.state);
-  if (State == next_state) {
+  if (state == next_state) {
     return;
   }
   if (r.hit_time <= Window::dt_time_) {
@@ -62,7 +62,7 @@ void ServerReactorSystem::RunHit(ServerReactorState &r) {
       r.hit_cd = ServerReactorInstance::LoadHitCd(r);
 
       fbs::ServerReactorT srt;
-      srt.payload = std::make_unique<ReactorT>();
+      srt.payload = std::make_unique<fbs::ReactorT>();
       srt.payload->reactor_index = r.index;
       srt.payload->state = r.state;
       srt.payload->action = "hit";

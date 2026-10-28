@@ -8,11 +8,10 @@
 namespace sdlms {
 
 
-using namespace fbs;
 
 struct GameParty{
   uint64_t captain_id;
-  std::vector<PlayerT> clients;
+  std::vector<fbs::PlayerT> clients;
 };
 
 }  // namespace sdlms

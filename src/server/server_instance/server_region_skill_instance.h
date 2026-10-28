@@ -4,12 +4,11 @@
 #include "src/common/flatbuffers/server.h"
 namespace sdlms {
 
-using namespace fbs;
 
 class ServerRegionSkillInstance {
 public:
-  static void HandleRskill(uint64_t client_id, ClientRSkillT &r);
-  static void HandleSRskill(ServerRSkillT &r);
+  static void HandleRskill(uint64_t client_id, fbs::ClientRSkillT &r);
+  static void HandleSRskill(fbs::ServerRSkillT &r);
 };
 
 }  // namespace sdlms

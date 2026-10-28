@@ -21,7 +21,7 @@ static void Jianyu() {
     CharacterLogicSystem::RunAttackAction(sf, false);
     auto g_r = SkillGameInstance::LoadSkiR(u"3111002");
     auto cm = CharacterLogicSystem::RunAttackCheck(sf, g_r);
-    ClientCharacterAttackT cat;
+    fbs::ClientCharacterAttackT cat;
     if (!cm.data.empty()) {
       auto delay = SkillGameInstance::LoadSkiTime(sf);
       // Create and send attack payload

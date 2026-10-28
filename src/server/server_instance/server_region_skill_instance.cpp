@@ -9,7 +9,7 @@ namespace sdlms {
 
 
 void ServerRegionSkillInstance::HandleRskill(uint64_t client_id,
-                                                 ClientRSkillT &r) {
+                                                 fbs::ClientRSkillT &r) {
   auto map_id = r.map_id;
   auto &scene = ServerSceneInstance::scenes_.at(map_id);
   for (const auto &v : r.payload) {
@@ -19,7 +19,7 @@ void ServerRegionSkillInstance::HandleRskill(uint64_t client_id,
   }
 }
 
-void ServerRegionSkillInstance::HandleSRskill(ServerRSkillT &r) {
+void ServerRegionSkillInstance::HandleSRskill(fbs::ServerRSkillT &r) {
   for (const auto &v : r.payload) {
     GameRegionSkill grs;
     auto tmp = std::format("{:07d}", v->ski_id);

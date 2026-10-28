@@ -57,7 +57,7 @@ static void Baozhajian() {
     ClientRequest::send_to_host(cct);
     ServerBallInstance::HandleServerB(cct.payload);
 
-    ClientCharacterAttackT cat;
+    fbs::ClientCharacterAttackT cat;
     if (!cm.data.empty()) {
       auto d = BallGameInstance::LoadBallTime(cct);
       auto mob_pos = cm.data[0].mob.pos;
@@ -80,11 +80,11 @@ static void Baozhajian() {
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
     ClientRequest::send_to_host(ckt);
 
-    ClientMobDebuffT cmb;
+    fbs::ClientMobDebuffT cmb;
     cmb.map_id = SceneSystemInstance::map_id_;
     for (int i = 0; i < cm.data.size(); i++) {
       auto &data = cm.data[i];
-      MobDebuffT md;
+      fbs::MobDebuffT md;
       md.mob_index = data.mob.index;
       md.payload->val = static_cast<int64_t>(GameDebuff::DebuffType::kDizz);
       md.payload->delay = Window::dt_time_;

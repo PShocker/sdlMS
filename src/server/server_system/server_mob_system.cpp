@@ -84,7 +84,7 @@ int ServerMobSystem::LoadMobHitCd(ServerMob &mob) {
 void ServerMobSystem::RunNetworkSyncPos(ServerMob &mob,
                                              ServerMob &o_mob) {
   if (o_mob.pos.x != mob.pos.x || o_mob.pos.y != mob.pos.y) {
-    MovementT mv;
+    fbs::MovementT mv;
     mv.x1 = o_mob.pos.x;
     mv.y1 = o_mob.pos.y;
     mv.x2 = mob.pos.x;
@@ -92,11 +92,11 @@ void ServerMobSystem::RunNetworkSyncPos(ServerMob &mob,
     mv.page = mob.page;
     mv.time = std::min((uint32_t)Window::delta_time_, MIN_FRAME_INTERVAL_MS);
 
-    ServerMobMvT mvt;
+    fbs::ServerMobMvT mvt;
     mvt.mob_index = mob.index;
-    mvt.payload = std::make_unique<MovementT>(std::move(mv));
+    mvt.payload = std::make_unique<fbs::MovementT>(std::move(mv));
 
-    MobEventUnionUnion muu;
+    fbs::MobEventUnionUnion muu;
     muu.Set(std::move(mvt));
     events_.payload.push_back(std::move(muu));
   }
@@ -105,14 +105,14 @@ void ServerMobSystem::RunNetworkSyncPos(ServerMob &mob,
 void ServerMobSystem::RunNetworkSyncFlip(ServerMob &mob,
                                               ServerMob &o_mob) {
   if (o_mob.flip != mob.flip) {
-    FlipT ft;
+    fbs::FlipT ft;
     ft.flip = mob.flip;
 
-    ServerMobFlipT smf;
+    fbs::ServerMobFlipT smf;
     smf.mob_index = mob.index;
-    smf.payload = std::make_unique<FlipT>(std::move(ft));
+    smf.payload = std::make_unique<fbs::FlipT>(std::move(ft));
 
-    MobEventUnionUnion muu;
+    fbs::MobEventUnionUnion muu;
     muu.Set(std::move(smf));
     events_.payload.push_back(std::move(muu));
   }
@@ -121,16 +121,16 @@ void ServerMobSystem::RunNetworkSyncFlip(ServerMob &mob,
 void ServerMobSystem::RunNetworkSyncAction(ServerMob &mob,
                                                 ServerMob &o_mob) {
   if (o_mob.action != mob.action) {
-    ActionT a;
+    fbs::ActionT a;
     a.action = std::string{mob.action.begin(), mob.action.end()};
     a.action_animate = true;
     a.action_index = 0;
 
-    ServerMobActionT sma;
+    fbs::ServerMobActionT sma;
     sma.mob_index = mob.index;
-    sma.payload = std::make_unique<ActionT>(std::move(a));
+    sma.payload = std::make_unique<fbs::ActionT>(std::move(a));
 
-    MobEventUnionUnion muu;
+    fbs::MobEventUnionUnion muu;
     muu.Set(std::move(sma));
     events_.payload.push_back(std::move(muu));
   }
@@ -139,15 +139,15 @@ void ServerMobSystem::RunNetworkSyncAction(ServerMob &mob,
 void ServerMobSystem::RunNetworkSyncHp(ServerMob &mob,
                                             ServerMob &o_mob) {
   if (o_mob.hp != mob.hp) {
-    StateT st;
-    st.state = StateEnum_HP;
+    fbs::StateT st;
+    st.state = fbs::StateEnum_HP;
     st.val = mob.hp;
 
-    ServerMobStateT smb;
+    fbs::ServerMobStateT smb;
     smb.mob_index = mob.index;
-    smb.payload.push_back(std::make_unique<StateT>(std::move(st)));
+    smb.payload.push_back(std::make_unique<fbs::StateT>(std::move(st)));
 
-    MobEventUnionUnion muu;
+    fbs::MobEventUnionUnion muu;
     muu.Set(std::move(smb));
     events_.payload.push_back(std::move(muu));
   }
@@ -295,26 +295,26 @@ void ServerMobSystem::RunDieAction(ServerMob &mob) {
 void ServerMobSystem::RunDie(ServerMob &mob, uint64_t client_id) {
   mob.hate_id = 0;
   RunDieAction(mob);
-  ServerMobDieT smd;
+  fbs::ServerMobDieT smd;
   smd.client_id = client_id;
   smd.mob_index = mob.index;
 
-  MobEventUnionUnion muu;
+  fbs::MobEventUnionUnion muu;
   muu.Set(std::move(smd));
   events_.payload.push_back(std::move(muu));
 
   auto mob_drops = ServerMobInstance::LoadMobDrops(mob.id);
-  std::vector<DropT> dts = ServerMobInstance::CreateMobDts(
+  std::vector<fbs::DropT> dts = ServerMobInstance::CreateMobDts(
       mob.id, mob.pos.x, mob.pos.y, mob.page);
 
-  ServerMobDropT smt;
+  fbs::ServerMobDropT smt;
   smt.mob_index = mob.index;
   smt.drop = ServerDropInstance::CreateDts(dts, map_id_);
   for (const auto &dt : smt.drop) {
     ServerDropInstance::SaveDrop(map_id_, *dt);
   }
 
-  MobEventUnionUnion mu;
+  fbs::MobEventUnionUnion mu;
   mu.Set(std::move(smt));
   events_.payload.push_back(std::move(mu));
 

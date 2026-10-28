@@ -54,7 +54,7 @@ static void ThreeSnail() {
     ClientRequest::send_to_host(cct);
     ServerBallInstance::HandleServerB(cct.payload);
 
-    ClientCharacterAttackT cat;
+    fbs::ClientCharacterAttackT cat;
     if (!cm.data.empty()) {
       auto d = BallGameInstance::LoadBallTime(cct);
       // Create and send attack payload
@@ -90,7 +90,7 @@ static void Recover() {
     if (now <= Window::dt_now_) {
       const auto &pos = CharacterGameInstance::self_.pos;
       now = Window::dt_now_ + 1000;
-      AttackT at;
+      fbs::AttackT at;
       at.x = pos.x - 10;
       at.y = pos.y - 30;
       at.type = static_cast<uint8_t>(DamageData::T::kB);

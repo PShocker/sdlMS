@@ -100,7 +100,7 @@ void ServerMobInstance::LoadMob(ServerSceneState &scene) {
 }
 
 void ServerMobInstance::HandleAttack(uint64_t client_id,
-                                        ClientMobAttackT &r) {
+                                        fbs::ClientMobAttackT &r) {
   if (!ServerClientInstance::clients_.contains(client_id)) {
     return;
   }
@@ -108,7 +108,7 @@ void ServerMobInstance::HandleAttack(uint64_t client_id,
   auto map_id = r.map_id;
   auto clients = ServerSceneInstance::scenes_.at(map_id).clients;
   clients.erase(client_id);
-  ServerMobAttackT t;
+  fbs::ServerMobAttackT t;
   t.client_id = client_id;
   t.payload = std::move(r.payload);
   for (auto c : clients) {
@@ -116,17 +116,17 @@ void ServerMobInstance::HandleAttack(uint64_t client_id,
   }
 }
 
-void ServerMobInstance::HandleServerMv(const ServerMobMvT &m) {
+void ServerMobInstance::HandleServerMv(const fbs::ServerMobMvT &m) {
   auto &mvs = MobGameInstance::data_.at(m.mob_index).mvs;
   mvs.push_back(*m.payload);
 }
 
-void ServerMobInstance::HandleServerFlip(const ServerMobFlipT &m) {
+void ServerMobInstance::HandleServerFlip(const fbs::ServerMobFlipT &m) {
   auto &mob = MobGameInstance::data_.at(m.mob_index).mob;
   mob.flip = m.payload->flip;
 }
 
-void ServerMobInstance::HandleServerAction(const ServerMobActionT &m) {
+void ServerMobInstance::HandleServerAction(const fbs::ServerMobActionT &m) {
   auto &mob = MobGameInstance::data_.at(m.mob_index).mob;
   const auto &a = m.payload;
   mob.action = std::u16string{a->action.begin(), a->action.end()};
@@ -145,7 +145,7 @@ void ServerMobInstance::HandleServerAction(const ServerMobActionT &m) {
   }
 }
 
-void ServerMobInstance::HandleServerState(const ServerMobStateT &m) {
+void ServerMobInstance::HandleServerState(const fbs::ServerMobStateT &m) {
   auto &mob = MobGameInstance::data_.at(m.mob_index).mob;
   for (const auto &s : m.payload) {
     switch (s->state) {
@@ -160,7 +160,7 @@ void ServerMobInstance::HandleServerState(const ServerMobStateT &m) {
   }
 }
 
-void ServerMobInstance::HandleServerDie(const ServerMobDieT &m) {
+void ServerMobInstance::HandleServerDie(const fbs::ServerMobDieT &m) {
   auto &mob = MobGameInstance::data_.at(m.mob_index).mob;
   float percent = (float)mob.attack_val / mob.max_hp;
   if (percent) {
@@ -179,7 +179,7 @@ void ServerMobInstance::HandleServerDie(const ServerMobDieT &m) {
   mob.attack_val = 0;
 }
 
-void ServerMobInstance::HandleServerDrop(const ServerMobDropT &m) {
+void ServerMobInstance::HandleServerDrop(const fbs::ServerMobDropT &m) {
   // Drop
   for (const auto &dt : m.drop) {
     ServerDropInstance::HandleServerDt(*dt);
@@ -188,7 +188,7 @@ void ServerMobInstance::HandleServerDrop(const ServerMobDropT &m) {
   return;
 }
 
-void ServerMobInstance::HandleServerEvent(const ServerMobEventT &m) {
+void ServerMobInstance::HandleServerEvent(const fbs::ServerMobEventT &m) {
   if (m.map_id != SceneSystemInstance::map_id_) {
     return;
   }
@@ -231,7 +231,7 @@ void ServerMobInstance::HandleServerEvent(const ServerMobEventT &m) {
   }
 }
 
-void ServerMobInstance::HandleSAttack(uint64_t client_id, AttackT &at) {
+void ServerMobInstance::HandleSAttack(uint64_t client_id, fbs::AttackT &at) {
   const auto &attack = at;
   // 伤害数字
   DamageData data = {
@@ -252,7 +252,7 @@ void ServerMobInstance::HandleSAttack(uint64_t client_id, AttackT &at) {
   EffectGameInstance::data_[7].emplace_back(d);
 }
 
-void ServerMobInstance::HandleServerAttack(ServerMobAttackT &r) {
+void ServerMobInstance::HandleServerAttack(fbs::ServerMobAttackT &r) {
   HandleSAttack(r.client_id, *r.payload);
 }
 
@@ -263,15 +263,15 @@ void ServerMobInstance::HanleServerMob(
   auto tmp = std::format("{:07d}", m->mob_id);
   g_mob.id = {tmp.begin(), tmp.end()};
   g_mob.index = m->mob_index;
-  const auto &State = m->state;
+  const auto &state = m->state;
   g_mob.action = {
-      State->action.begin(),
-      State->action.end(),
+      state->action.begin(),
+      state->action.end(),
   };
-  g_mob.page = State->page;
-  g_mob.flip = State->flip;
-  g_mob.pos.x = State->x;
-  g_mob.pos.y = State->y;
+  g_mob.page = state->page;
+  g_mob.flip = state->flip;
+  g_mob.pos.x = state->x;
+  g_mob.pos.y = state->y;
   g_mob.hp = m->mob_hp;
   auto info_node = MobGameInstance::LoadMobInfo(g_mob.id);
   g_mob.max_hp =
@@ -290,7 +290,7 @@ void ServerMobInstance::HanleServerMob(
   return;
 }
 
-void ServerMobInstance::HandleCreateMob(ClientCreateMobT &r) {
+void ServerMobInstance::HandleCreateMob(fbs::ClientCreateMobT &r) {
   auto map_id = r.map_id;
   auto &scene = ServerSceneInstance::scenes_[map_id];
   int i = 0;
@@ -315,7 +315,7 @@ void ServerMobInstance::HandleCreateMob(ClientCreateMobT &r) {
     r.mobs[i]->state->action = {mob.action.begin(), mob.action.end()};
     i++;
   }
-  ServerCreateMobT sct;
+  fbs::ServerCreateMobT sct;
   sct.mobs = std::move(r.mobs);
   for (auto client_id : scene.clients) {
     ServerResponse::send_to_client(client_id, sct);
@@ -323,7 +323,7 @@ void ServerMobInstance::HandleCreateMob(ClientCreateMobT &r) {
   return;
 }
 
-void ServerMobInstance::HandleSCreateMob(ServerCreateMobT &r) {
+void ServerMobInstance::HandleSCreateMob(fbs::ServerCreateMobT &r) {
   for (const auto &m : r.mobs) {
     HanleServerMob(m);
   }
@@ -384,11 +384,11 @@ ServerMobInstance::LoadMobDrops(const std::u16string &mob_id) {
   return drops;
 }
 
-std::vector<DropT>
+std::vector<fbs::DropT>
 ServerMobInstance::CreateMobDts(const std::u16string &mob_id, float x,
                                     float y, int page) {
   auto mob_drops = LoadMobDrops(mob_id);
-  std::vector<DropT> dts;
+  std::vector<fbs::DropT> dts;
   for (const auto &drop : mob_drops) {
     auto &gen = RandomGameInstance::gen;
     std::uniform_real_distribution<float> dis(0.0f, 1.0f);
@@ -396,7 +396,7 @@ ServerMobInstance::CreateMobDts(const std::u16string &mob_id, float x,
     if (!success) {
       continue;
     }
-    DropT dt;
+    fbs::DropT dt;
     dt.x1 = x;
     dt.y1 = y;
     dt.page = page;
@@ -405,12 +405,12 @@ ServerMobInstance::CreateMobDts(const std::u16string &mob_id, float x,
       auto max_quantity = drop.max_quantity;
       std::uniform_int_distribution<int> dis(min_quantity, max_quantity);
       int random_num = dis(gen);
-      ItemT it;
+      fbs::ItemT it;
       it.item_id = std::stoi(std::string{drop.id.begin(), drop.id.end()});
       it.item_num = random_num;
       dt.drop.Set(it);
     } else {
-      EquipT et;
+      fbs::EquipT et;
       et.equip_id = std::stoi(std::string{drop.id.begin(), drop.id.end()});
       dt.drop.Set(et);
     }
@@ -420,7 +420,7 @@ ServerMobInstance::CreateMobDts(const std::u16string &mob_id, float x,
 }
 
 void ServerMobInstance::HandleDebuff(uint64_t client_id,
-                                        ClientMobDebuffT &r) {
+                                        fbs::ClientMobDebuffT &r) {
   auto map_id = r.map_id;
   auto &scene = ServerSceneInstance::scenes_[map_id];
   auto &Mobs = scene.mobs;
@@ -438,7 +438,7 @@ void ServerMobInstance::HandleDebuff(uint64_t client_id,
       mb.debuffs[debuff.type] = sd;
     }
   }
-  ServerMobDebuffT smd;
+  fbs::ServerMobDebuffT smd;
   smd.payload = std::move(r.payload);
   for (auto c : scene.clients) {
     ServerResponse::send_to_client(c, smd);
@@ -446,7 +446,7 @@ void ServerMobInstance::HandleDebuff(uint64_t client_id,
   return;
 }
 
-void ServerMobInstance::HandleSDebuff(ServerMobDebuffT &r) {
+void ServerMobInstance::HandleSDebuff(fbs::ServerMobDebuffT &r) {
   auto &Mobs = MobGameInstance::data_;
   for (const auto &db : r.payload) {
     if (db->payload->time <= Window::dt_time_) {

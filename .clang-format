@@ -1,35 +1,24 @@
 ---
-# Google C++ style guide formatting.
+# Google C++ style formatting for the sdlMS project.
 Language: Cpp
 BasedOnStyle: Google
 Standard: Latest
 
+# Google style is 2-space indented, 80 columns.
 ColumnLimit: 80
 IndentWidth: 2
 TabWidth: 2
 UseTab: Never
 
-# Google style: pointer/reference asterisk binds to the type: `int* p`.
+# Google style binds the asterisk to the type: `int* p`.
 DerivePointerAlignment: false
 PointerAlignment: Left
 
-AccessModifierOffset: -1
-AlignAfterOpenBracket: Align
-AllowShortFunctionsOnASingleLine: Empty
-BreakBeforeBraces: Attach
-ConstructorInitializerIndentWidth: 4
-ContinuationIndentWidth: 4
-EmptyLineBeforeAccessModifier: LogicalBlock
-FixedIndentWidth: 2
-IndentAccessModifiers: false
-IndentCaseLabels: true
-IndentWrappedFunctionNames: false
-NamespaceIndentation: None
-ObjCSpaceAfterProperty: false
-PointerBinding: Left
+# `namespace foo { ... }  // namespace foo`
+FixNamespaceComments: true
 
-# Include handling: related header first, then project headers, then
-# C/C++ standard library, then other libraries.
+# Include ordering: the related header first, then project headers, then
+# other libraries, then C/C++ standard headers.
 SortIncludes: CaseSensitive
 IncludeBlocks: Regroup
 IncludeIsMainRegex: '(Test)?$'
@@ -40,7 +29,7 @@ IncludeCategories:
   - Regex: '^"[a-z_]+\.(h|hpp)"$'
     Priority: 2
     SortPriority: 2
-  - Regex: '^<(SDL3|SDL|uv|flatbuffers|av|freetype|sw|lib|ft2build)'
+  - Regex: '^<(SDL3|SDL|uv|flatbuffers|av|libav|libsw|ft2build|freetype|wz)'
     Priority: 3
     SortPriority: 3
   - Regex: '^<'
@@ -50,7 +39,14 @@ IncludeCategories:
     Priority: 5
     SortPriority: 5
 
-FixNamespaceComments: true
-SpacesBeforeTrailingComments: 2
 ReflowComments: true
+SpacesBeforeTrailingComments: 2
 MaxEmptyLinesToKeep: 2
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+BreakBeforeBraces: Attach
+IndentCaseLabels: true
+NamespaceIndentation: None
+AccessModifierOffset: -1
+EmptyLineBeforeAccessModifier: LogicalBlock

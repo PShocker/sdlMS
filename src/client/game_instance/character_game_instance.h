@@ -11,7 +11,6 @@
 namespace sdlms {
 
 
-using namespace fbs;
 
 struct CharacterExternAction{
   std::u16string action;
@@ -43,8 +42,8 @@ struct CharacterFaceRender {
 
 struct CharacterOtherData {
   GameCharacter g_character;
-  std::vector<MovementT> mvs;
-  PlayerT player_t;
+  std::vector<fbs::MovementT> mvs;
+  fbs::PlayerT player_t;
 };
 
 struct CharacterBoneData{

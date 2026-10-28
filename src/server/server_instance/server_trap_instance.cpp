@@ -9,7 +9,7 @@ namespace sdlms {
 
 
 void ServerTrapInstance::HandleAttack(uint64_t client_id,
-                                         ClientTrapAttackT &r) {
+                                         fbs::ClientTrapAttackT &r) {
   if (!ServerClientInstance::clients_.contains(client_id)) {
     return;
   }
@@ -17,7 +17,7 @@ void ServerTrapInstance::HandleAttack(uint64_t client_id,
   auto map_id = r.map_id;
   auto clients = ServerSceneInstance::scenes_.at(map_id).clients;
   clients.erase(client_id);
-  ServerTrapAttackT t;
+  fbs::ServerTrapAttackT t;
   t.client_id = client_id;
   t.payload = std::move(r.payload);
   for (auto c : clients) {
@@ -25,7 +25,7 @@ void ServerTrapInstance::HandleAttack(uint64_t client_id,
   }
 }
 
-void ServerTrapInstance::HandleSAttack(uint64_t client_id, AttackT &at) {
+void ServerTrapInstance::HandleSAttack(uint64_t client_id, fbs::AttackT &at) {
   const auto &attack = at;
   // 伤害数字
   DamageData data = {
@@ -47,7 +47,7 @@ void ServerTrapInstance::HandleSAttack(uint64_t client_id, AttackT &at) {
 }
 
 void ServerTrapInstance::HandleServerAttack(uint64_t client_id,
-                                                ServerTrapAttackT &r) {
+                                                fbs::ServerTrapAttackT &r) {
   HandleSAttack(client_id, *r.payload);
 }
 

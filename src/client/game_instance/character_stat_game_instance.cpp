@@ -552,7 +552,7 @@ bool CharacterStatGameInstance::Upgrade() {
       JobSkillGameInstance::remain_point[job.size() - 1] += 3;
     }
 
-    ClientCharacterLvUpT ccl;
+    fbs::ClientCharacterLvUpT ccl;
     ccl.map_id = SceneSystemInstance::map_id_;
     ClientRequest::send_to_host(ccl);
 

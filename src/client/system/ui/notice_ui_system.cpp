@@ -622,8 +622,8 @@ void NoticeUiSystem::EventButtonThrowMul() {
     CursorGameInstance::cursor_hand_ = std::nullopt;
     return;
   } else {
-    DropT dt;
-    ItemT it;
+    fbs::DropT dt;
+    fbs::ItemT it;
     it.item_id = std::stoi(std::string{itm_id.begin(), itm_id.end()});
     it.item_num = throw_num;
     dt.drop.Set(it);
@@ -633,9 +633,9 @@ void NoticeUiSystem::EventButtonThrowMul() {
 
     dt.page = CharacterGameInstance::self_.page;
 
-    ClientCharacterDropT cct;
+    fbs::ClientCharacterDropT cct;
     cct.map_id = SceneSystemInstance::map_id_;
-    cct.payload = std::make_unique<DropT>(dt);
+    cct.payload = std::make_unique<fbs::DropT>(dt);
     ClientRequest::send_to_host(cct);
 
     CursorGameInstance::cursor_hand_net_ = {

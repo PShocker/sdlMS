@@ -24,12 +24,12 @@ ServerParty &ServerPartyInstance::LoadParty(uint64_t captain_id) {
 }
 
 void ServerPartyInstance::HandleParty(uint64_t client_id,
-                                         ClientCharacterPartyT &r) {
+                                         fbs::ClientCharacterPartyT &r) {
   switch (r.step) {
   case 0: {
     auto to_id = r.to_id;
     if (ServerClientInstance::clients_.contains(to_id)) {
-      ServerCharacterPartyT scp;
+      fbs::ServerCharacterPartyT scp;
       scp.step = 0;
       scp.to_id = client_id;
       ServerResponse::send_to_client(to_id, scp);
@@ -40,14 +40,14 @@ void ServerPartyInstance::HandleParty(uint64_t client_id,
     auto captain_id = r.to_id;
     auto party = LoadParty(captain_id);
     party.client_ids.push_back(client_id);
-    ServerCharacterPartyT scp;
+    fbs::ServerCharacterPartyT scp;
     scp.to_id = captain_id;
     scp.step = 1;
     const auto captain_t = ServerClientInstance::clients_[captain_id].player_t;
-    scp.players.push_back(std::make_unique<PlayerT>(captain_t));
+    scp.players.push_back(std::make_unique<fbs::PlayerT>(captain_t));
     for (auto c_id : party.client_ids) {
       const auto player_t = ServerClientInstance::clients_[c_id].player_t;
-      scp.players.push_back(std::make_unique<PlayerT>(player_t));
+      scp.players.push_back(std::make_unique<fbs::PlayerT>(player_t));
       ServerResponse::send_to_client(c_id, scp);
     }
     scp.to_id = 0;
@@ -59,7 +59,7 @@ void ServerPartyInstance::HandleParty(uint64_t client_id,
 }
 
 void ServerPartyInstance::HandleServerParty(uint64_t client_id,
-                                                ServerCharacterPartyT &r) {
+                                                fbs::ServerCharacterPartyT &r) {
   switch (r.step) {
   case 0: {
     if (!CharacterGameInstance::others_.contains(r.to_id)) {

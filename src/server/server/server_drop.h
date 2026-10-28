@@ -8,10 +8,9 @@
 namespace sdlms {
 
 
-using namespace fbs;
 
 struct ServerDrop{
-  DropT dt;
+  fbs::DropT dt;
   uint64_t available;
   uint64_t destroy;
 };

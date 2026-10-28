@@ -97,11 +97,11 @@ QuestGameInstance::LoadAvaliableQuest(const std::u16string &id) {
       for (auto [k, v] : *n->get_children()) {
         auto q_id =
             static_cast<wz::Property<int> *>(v[0]->get_child(u"id"))->get();
-        auto State =
+        auto state =
             static_cast<wz::Property<int> *>(v[0]->get_child(u"state"))->get();
         auto tmp = std::format("{}.img", q_id);
         std::u16string id2{tmp.begin(), tmp.end()};
-        cache2[id].push_back({id2, State});
+        cache2[id].push_back({id2, state});
       }
     } else {
       cache2[id] = {};

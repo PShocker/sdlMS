@@ -7,10 +7,9 @@
 namespace sdlms {
 
 
-using namespace fbs;
 
 void ServerDropSystem::RunFade() {
-  ServerDropFadeT sdf;
+  fbs::ServerDropFadeT sdf;
   auto &scene = ServerSceneInstance::scenes_;
   for (auto [map_id, sc] : scene) {
     sdf.drop_ids.clear();
@@ -44,10 +43,10 @@ void ServerDropSystem::RunDelayDrops() {
     auto &delay_drops = sc.delay_drops;
     for (auto [k, v] : delay_drops) {
       if (k <= Window::dt_time_) {
-        ServerCreateDropT scd;
+        fbs::ServerCreateDropT scd;
         for (auto dt : v) {
           sc.drops.emplace(dt.dt.random_id, dt);
-          scd.payload.emplace_back(std::make_unique<DropT>(dt.dt));
+          scd.payload.emplace_back(std::make_unique<fbs::DropT>(dt.dt));
         }
         if (scd.payload.empty()) {
           continue;

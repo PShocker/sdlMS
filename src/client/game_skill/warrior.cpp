@@ -26,7 +26,7 @@ static void PowerStrke() {
     CharacterLogicSystem::RunAttackAction(sf, false);
     SDL_FRect g_r = AfterimageGameInstance::LoadRect(sf).value();
     auto cm = CharacterLogicSystem::RunAttackCheck(sf, g_r);
-    ClientCharacterAttackT cat;
+    fbs::ClientCharacterAttackT cat;
     if (!cm.data.empty()) {
       auto delay = SkillGameInstance::LoadSkiTime(sf);
       // Create and send attack payload
@@ -49,7 +49,7 @@ static void SlashBlast() {
     CharacterLogicSystem::RunAttackAction(sf, false);
     auto g_r = SkillGameInstance::LoadSkiR(u"1001002");
     auto cm = CharacterLogicSystem::RunAttackCheck(sf, g_r);
-    ClientCharacterAttackT cat;
+    fbs::ClientCharacterAttackT cat;
     if (!cm.data.empty()) {
       auto delay = SkillGameInstance::LoadSkiTime(sf);
       // Create and send attack payload

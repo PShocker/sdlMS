@@ -12,7 +12,7 @@ bool PopupTipGameInstance::CheckType(PopupTipEnums type) {
   return true;
 }
 
-void PopupTipGameInstance::AddTip(PopupTipEnums type, PlayerT player_t) {
+void PopupTipGameInstance::AddTip(PopupTipEnums type, fbs::PlayerT player_t) {
   if (!CheckType(type)) {
     return;
   }

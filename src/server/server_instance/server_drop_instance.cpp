@@ -50,7 +50,7 @@ float ServerDropInstance::CalAvailableTime(float y1, float y2) {
   return rise_time + fall_time;
 }
 
-void ServerDropInstance::SaveDrop(uint64_t map_id, const DropT &drop) {
+void ServerDropInstance::SaveDrop(uint64_t map_id, const fbs::DropT &drop) {
   auto &scene = ServerSceneInstance::scenes_[map_id];
   ServerDrop sd;
   sd.dt = drop;
@@ -60,7 +60,7 @@ void ServerDropInstance::SaveDrop(uint64_t map_id, const DropT &drop) {
 }
 
 void ServerDropInstance::SaveDelayDrop(uint64_t map_id, uint64_t d,
-                                           const DropT &drop) {
+                                           const fbs::DropT &drop) {
   auto &scene = ServerSceneInstance::scenes_[map_id];
   ServerDrop sd;
   sd.dt = drop;
@@ -71,7 +71,7 @@ void ServerDropInstance::SaveDelayDrop(uint64_t map_id, uint64_t d,
 }
 
 void ServerDropInstance::HandleClientDrop(uint64_t client_id,
-                                              ClientCharacterDropT &r) {
+                                              fbs::ClientCharacterDropT &r) {
   auto map_id = r.map_id;
 
   auto dts = CreateDts({*r.payload}, map_id);
@@ -79,7 +79,7 @@ void ServerDropInstance::HandleClientDrop(uint64_t client_id,
     SaveDrop(map_id, *dt);
   }
   const auto &clients = ServerSceneInstance::scenes_[map_id].clients;
-  ServerCharacterDropT t;
+  fbs::ServerCharacterDropT t;
   t.client_id = client_id;
   t.payload = std::move(dts[0]);
   for (const auto c : clients) {
@@ -88,12 +88,12 @@ void ServerDropInstance::HandleClientDrop(uint64_t client_id,
 }
 
 void ServerDropInstance::HandlePick(uint64_t client_id,
-                                       ClientCharacterPickT &r) {
+                                       fbs::ClientCharacterPickT &r) {
   auto map_id = r.map_id;
   auto &scene = ServerSceneInstance::scenes_[map_id];
   if (scene.drops.contains(r.random_id)) {
     if (scene.drops[r.random_id].available <= Window::dt_now_) {
-      ServerCharacterPickT t;
+      fbs::ServerCharacterPickT t;
       t.random_id = r.random_id;
       t.client_id = client_id;
       auto clients = ServerSceneInstance::scenes_[map_id].clients;
@@ -102,7 +102,7 @@ void ServerDropInstance::HandlePick(uint64_t client_id,
       }
       scene.drops.erase(r.random_id);
     } else {
-      ServerCharacterPickT t;
+      fbs::ServerCharacterPickT t;
       t.random_id = 0;
       ServerResponse::send_to_client(client_id, t);
     }
@@ -110,7 +110,7 @@ void ServerDropInstance::HandlePick(uint64_t client_id,
 }
 
 void ServerDropInstance::HandleServerPick(uint64_t client_id,
-                                              ServerCharacterPickT &r) {
+                                              fbs::ServerCharacterPickT &r) {
   if (r.client_id == ServerMain::local_addr_ && r.random_id == 0) {
     // 捡取物品失败
     CharacterLogicSystem::ccp_ = {};
@@ -141,7 +141,7 @@ void ServerDropInstance::HandleServerPick(uint64_t client_id,
   }
 }
 
-void ServerDropInstance::HandleServerDt(const DropT &dt) {
+void ServerDropInstance::HandleServerDt(const fbs::DropT &dt) {
   GameDrop drop;
   drop.random_id = dt.random_id;
   drop.page = dt.page;
@@ -174,7 +174,7 @@ void ServerDropInstance::HandleServerDt(const DropT &dt) {
   DropGameInstance::data_.emplace(dt.random_id, drop);
 }
 
-void ServerDropInstance::HandleServerSceneDt(const DropT &dt) {
+void ServerDropInstance::HandleServerSceneDt(const fbs::DropT &dt) {
   HandleServerDt(dt);
   auto &drop = DropGameInstance::data_.at(dt.random_id);
   drop.hspeed = 0;
@@ -185,7 +185,7 @@ void ServerDropInstance::HandleServerSceneDt(const DropT &dt) {
 }
 
 void ServerDropInstance::HandleServerDrop(uint64_t client_id,
-                                              ServerCharacterDropT &r) {
+                                              fbs::ServerCharacterDropT &r) {
   if (CursorGameInstance::cursor_hand_net_.has_value()) {
     if (r.client_id == ServerMain::local_addr_) {
       CursorGameInstance::cursor_hand_net_ = std::nullopt;
@@ -247,7 +247,7 @@ void ServerDropInstance::HandleServerDrop(uint64_t client_id,
 }
 
 std::vector<std::unique_ptr<fbs::DropT>>
-ServerDropInstance::CreateDts(const std::vector<DropT> &dts,
+ServerDropInstance::CreateDts(const std::vector<fbs::DropT> &dts,
                                  uint32_t map_id) {
   std::vector<std::unique_ptr<fbs::DropT>> r;
 
@@ -323,7 +323,7 @@ ServerDropInstance::CreateDts(const std::vector<DropT> &dts,
   return r;
 }
 
-void ServerDropInstance::HandleServerDropFade(ServerDropFadeT &r) {
+void ServerDropInstance::HandleServerDropFade(fbs::ServerDropFadeT &r) {
   auto &data = DropGameInstance::data_;
   for (const auto id : r.drop_ids) {
     if (data.contains(id)) {
@@ -333,7 +333,7 @@ void ServerDropInstance::HandleServerDropFade(ServerDropFadeT &r) {
   return;
 }
 
-void ServerDropInstance::HandleClientDropFade(ClientDropFadeT &r) {
+void ServerDropInstance::HandleClientDropFade(fbs::ClientDropFadeT &r) {
   auto map_id = r.map_id;
   auto &drops = ServerSceneInstance::scenes_.at(map_id).drops;
   for (auto id : r.random_id) {
@@ -345,7 +345,7 @@ void ServerDropInstance::HandleClientDropFade(ClientDropFadeT &r) {
 }
 
 void ServerDropInstance::HandleClientCreateDrop(uint64_t client_id,
-                                                     ClientCreateDropT &r) {
+                                                     fbs::ClientCreateDropT &r) {
   auto map_id = r.map_id;
 
   std::vector<fbs::DropT> dt;
@@ -359,7 +359,7 @@ void ServerDropInstance::HandleClientCreateDrop(uint64_t client_id,
 }
 
 void ServerDropInstance::HandleServerCreateDrop(uint64_t client_id,
-                                                     ServerCreateDropT &r) {
+                                                     fbs::ServerCreateDropT &r) {
   for (const auto &dt : r.payload) {
     ServerDropInstance::HandleServerDt(*dt);
   }

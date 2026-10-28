@@ -43,11 +43,11 @@ static void Douqijizhong() {
   const static auto end_ski = [](GameCharacter *c) {
     if (c == nullptr) {
       auto &ccs = CharacterLogicSystem::ccs_;
-      StateT st;
-      st.state = StateEnum_BUFF_SKILL;
+      fbs::StateT st;
+      st.state = fbs::StateEnum_BUFF_SKILL;
       st.val = 1111000;
       st.sub_val = 0;
-      ccs.payload.push_back(std::make_unique<StateT>(st));
+      ccs.payload.push_back(std::make_unique<fbs::StateT>(st));
       c = &CharacterGameInstance::self_;
     }
     auto &eff = c->effect;
@@ -123,11 +123,11 @@ static void Douqijizhong() {
     }
     if (c == &CharacterGameInstance::self_) {
       auto &ccs = CharacterLogicSystem::ccs_;
-      StateT st;
-      st.state = StateEnum_BUFF_SKILL;
+      fbs::StateT st;
+      st.state = fbs::StateEnum_BUFF_SKILL;
       st.val = 1111000;
       st.sub_val = index;
-      ccs.payload.push_back(std::make_unique<StateT>(st));
+      ccs.payload.push_back(std::make_unique<fbs::StateT>(st));
     }
   };
 
@@ -260,11 +260,11 @@ static void Douqijizhong() {
 
     CharacterLogicSystem::RunAction(sf, u"alert4");
     auto &ccs = CharacterLogicSystem::ccs_;
-    StateT st;
-    st.state = StateEnum_BUFF_SKILL;
+    fbs::StateT st;
+    st.state = fbs::StateEnum_BUFF_SKILL;
     st.val = 1111000;
     st.sub_val = 1;
-    ccs.payload.push_back(std::make_unique<StateT>(st));
+    ccs.payload.push_back(std::make_unique<fbs::StateT>(st));
   };
 
   auto &Skis = SkillGameInstance::Skis();
@@ -279,7 +279,7 @@ static void Hupaoxiao() {
     CharacterLogicSystem::RunAction(sf, u"alert3");
     auto g_r = SkillGameInstance::LoadSkiR(u"1111003");
     auto cm = CharacterLogicSystem::RunAttackCheck(sf, g_r);
-    ClientCharacterAttackT cat;
+    fbs::ClientCharacterAttackT cat;
     if (!cm.data.empty()) {
       auto delay = SkillGameInstance::LoadSkiTime(sf);
       // Create and send attack payload

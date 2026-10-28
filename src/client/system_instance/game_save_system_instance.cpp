@@ -217,14 +217,14 @@ bool GameSaveSystemInstance::SaveGame() {
 
   // save
   fbs::GameSaveT gst;
-  PlayerSaveT pst;
+  fbs::PlayerSaveT pst;
   gst.username = save_.username;
   for (uint32_t i = 0; i < save_.characters.size(); i++) {
     fbs::CharacterSaveT cst;
     auto character_s = std::move(save_.characters[i]);
     auto ct = ServerCharacterInstance::LoadCharactert(character_s.character);
-    cst.character = std::make_unique<CharacterT>(ct);
-    cst.ap = std::make_unique<APSaveT>();
+    cst.character = std::make_unique<fbs::CharacterT>(ct);
+    cst.ap = std::make_unique<fbs::APSaveT>();
     cst.ap->hp_ap = character_s.ap.hp_ap;
     cst.ap->mp_ap = character_s.ap.mp_ap;
 
@@ -242,34 +242,34 @@ bool GameSaveSystemInstance::SaveGame() {
     cst.exp = character_s.exp;
 
     for (auto &quest : character_s.quests) {
-      QuestSaveT qt;
+      fbs::QuestSaveT qt;
       qt.id = {quest.quest_id.begin(), quest.quest_id.end()};
       qt.index = quest.index;
       qt.type = (uint8_t)quest.type;
       for (const auto &v : quest.mob | std::views::values) {
-        QuestMobSaveT qmt;
+        fbs::QuestMobSaveT qmt;
         qmt.mob_id = std::stoi(std::string{v.id.begin(), v.id.end()});
         qmt.mob_num = v.count;
-        qt.mob.push_back(std::make_unique<QuestMobSaveT>(qmt));
+        qt.mob.push_back(std::make_unique<fbs::QuestMobSaveT>(qmt));
       }
-      cst.quest.push_back(std::make_unique<QuestSaveT>(qt));
+      cst.quest.push_back(std::make_unique<fbs::QuestSaveT>(qt));
     }
 
     for (auto &k : character_s.keys) {
-      KeyConfigSaveT kcs;
+      fbs::KeyConfigSaveT kcs;
       kcs.scan_code = k.scan_code;
       kcs.type = k.type;
       kcs.val = k.val;
       kcs.sub_val = k.sub_val;
-      cst.key.push_back(std::make_unique<KeyConfigSaveT>(kcs));
+      cst.key.push_back(std::make_unique<fbs::KeyConfigSaveT>(kcs));
     }
 
     for (auto [k, v] : character_s.sp.ski_sp) {
-      SPSaveT spt = {
+      fbs::SPSaveT spt = {
           .id = k,
           .val = v,
       };
-      cst.sp.push_back(std::make_unique<SPSaveT>(spt));
+      cst.sp.push_back(std::make_unique<fbs::SPSaveT>(spt));
     }
     for (auto &pkg : character_s.package) {
       fbs::PackageSaveT pst;
@@ -279,14 +279,14 @@ bool GameSaveSystemInstance::SaveGame() {
       switch (pkg.val->type) {
       case ItemEnum::kEquip: {
         GameEquipItem &equip = static_cast<GameEquipItem &>(*pkg.val);
-        EquipT et;
+        fbs::EquipT et;
         et.equip_id = item_id;
         for (auto &scroll : equip.scroll) {
-          EquipScrollT est;
+          fbs::EquipScrollT est;
           est.scroll_id =
               std::stoi(std::string{scroll.id.begin(), scroll.id.end()});
           est.success = scroll.success;
-          et.scroll.push_back(std::make_unique<EquipScrollT>(est));
+          et.scroll.push_back(std::make_unique<fbs::EquipScrollT>(est));
         }
         pst.data.Set(et);
         break;
@@ -302,14 +302,14 @@ bool GameSaveSystemInstance::SaveGame() {
       case ItemEnum::kInstall: {
       }
       case ItemEnum::kCash: {
-        ItemT it;
+        fbs::ItemT it;
         it.item_id = item_id;
         it.item_num = item_num;
         pst.data.Set(it);
         break;
       }
       case ItemEnum::kDeco: {
-        EquipT et;
+        fbs::EquipT et;
         et.equip_id = item_id;
         pst.data.Set(et);
         break;
@@ -321,7 +321,7 @@ bool GameSaveSystemInstance::SaveGame() {
     }
     pst.data.push_back(std::make_unique<fbs::CharacterSaveT>(cst));
   }
-  gst.data = std::make_unique<PlayerSaveT>(pst);
+  gst.data = std::make_unique<fbs::PlayerSaveT>(pst);
   flatbuffers::FlatBufferBuilder builder;
   auto offset = fbs::GameSave::Pack(builder, &gst);
   builder.Finish(offset);

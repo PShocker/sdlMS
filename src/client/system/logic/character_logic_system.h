@@ -15,7 +15,6 @@
 namespace sdlms {
 
 
-using namespace fbs;
 
 struct CheckMobs {
   struct Mobs {
@@ -88,9 +87,9 @@ private:
   static void RunAnimateChair(GameCharacter &g_character);
 
 public:
-  static inline ClientCharacterStateT ccs_;
-  static inline ClientCharacterPickT ccp_;
-  static inline ClientCharacterT cct_;
+  static inline fbs::ClientCharacterStateT ccs_;
+  static inline fbs::ClientCharacterPickT ccp_;
+  static inline fbs::ClientCharacterT cct_;
 
   static bool RunHarvest(GameCharacter &g_character); //or npc talk
 

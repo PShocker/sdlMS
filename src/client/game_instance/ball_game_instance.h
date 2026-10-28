@@ -13,7 +13,6 @@
 namespace sdlms {
 
 
-using namespace fbs;
 
 class BallGameInstance {
 private:
@@ -24,12 +23,12 @@ public:
   static inline std::array<std::vector<GameBall>, 8> data_;
   static void Reset();
 
-  static uint64_t LoadBallTime(ClientCharacterBallT &cct);
+  static uint64_t LoadBallTime(fbs::ClientCharacterBallT &cct);
   static std::u16string LoadBallPath(const std::u16string &id);
   static std::u16string LoadCashBallPath(const std::u16string &id);
   static std::u16string LoadCashBallEffect(const std::u16string &id);
 
-  static ClientCharacterBallT
+  static fbs::ClientCharacterBallT
   CreateBallPayload(CheckMobs &cm, SDL_FPoint pos, SDL_FPoint goal,
                       uint64_t delay, int page, int speed,
                       const std::u16string &path);

@@ -101,13 +101,13 @@ void QuestAlarmUiSystem::RenderButton() {
         rects[i].h,
     };
 
-    std::u16string State = u"normal";
+    std::u16string state = u"normal";
     bool mouse_in = SDL_PointInRectFloat(&Window::mouse_pos_, &rect);
 
     if (cursor_on_ui && !modal_blocked && mouse_in) {
-      State = mouse_down ? u"pressed" : u"mouseOver";
+      state = mouse_down ? u"pressed" : u"mouseOver";
     }
-    auto texture = WzResource::LoadTexture(nodes[i]->find((State + u"/0")));
+    auto texture = WzResource::LoadTexture(nodes[i]->find((state + u"/0")));
     SDL_RenderTexture(Window::renderer_, texture, nullptr, &rect);
   }
 }
