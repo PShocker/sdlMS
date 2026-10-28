@@ -28,6 +28,31 @@ private:
   static inline std::optional<SDL_FPoint> drag;
 
 public:
+  // sound
+  static inline uint8_t master_volume;
+  static inline bool master_volume_mute;
+  static inline uint8_t bgm_volume;
+  static inline bool bgm_volume_mute;
+  static inline uint8_t normal_volume;
+  static inline bool normal_volume_mute;
+  static inline uint8_t monster_volume;
+  static inline bool monster_volume_mute;
+  static inline uint8_t skill_volume;
+  static inline bool skill_volume_mute;
+
+  //social
+  static inline bool whisper;
+  static inline bool chat_invite;
+  static inline bool friend_chat;
+  static inline bool party_invite;
+  static inline bool trade_request;
+  static inline bool friend_request;
+  static inline bool friend_login;
+  static inline bool message_time;
+  static inline uint8_t chatbox_size;
+
+
+  // game
   static inline uint8_t hp_warn;
   static inline uint8_t mp_warn;
   enum class enemy_info_enum {
