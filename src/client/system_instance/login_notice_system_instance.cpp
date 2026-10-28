@@ -14,8 +14,8 @@ void LoginNoticeSystemInstance::Enter(NoticeType type, void (*fn)()) {
 
   System::logic_systems_.push_back(LoginNoticeUiSystem::Run);
 
-  auto Event = LoginNoticeUiSystem::Event;
-  System::event_systems_.insert(System::event_systems_.begin(), Event);
+  auto event = LoginNoticeUiSystem::Event;
+  System::event_systems_.insert(System::event_systems_.begin(), event);
 }
 
 }  // namespace sdlms

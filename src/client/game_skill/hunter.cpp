@@ -96,8 +96,8 @@ static void Baozhajian() {
       ClientRequest::send_to_host(cmb);
     }
   };
-  auto& Skis = SkillGameInstance::Skis();
-  Skis[g_skill.id] = g_skill;
+  auto& skills = SkillGameInstance::Skis();
+  skills[g_skill.id] = g_skill;
 }
 
 static void Wuyingjian() {
@@ -156,8 +156,8 @@ static void Wuyingjian() {
     ClientRequest::send_to_host(ckt);
   };
 
-  auto& Skis = SkillGameInstance::Skis();
-  Skis[g_skill.id] = g_skill;
+  auto& skills = SkillGameInstance::Skis();
+  skills[g_skill.id] = g_skill;
 }
 
 [[maybe_unused]] static const bool r = [] {

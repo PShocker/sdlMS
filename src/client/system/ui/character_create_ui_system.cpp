@@ -840,7 +840,7 @@ void CharacterCreateUiSystem::EventButtonLukDec() {
   }
 }
 
-bool CharacterCreateUiSystem::EventButtonCustom(SDL_Event* Event) {
+bool CharacterCreateUiSystem::EventButtonCustom(SDL_Event* event) {
   auto& camera = CameraGameInstance::camera_;
   auto cx = -440 - camera.x;
   auto cy = -1370 - camera.y;
@@ -1014,7 +1014,7 @@ void CharacterCreateUiSystem::EventButtonCancel() {
   EventButtonBack();
 }
 
-bool CharacterCreateUiSystem::EventButton(SDL_Event* Event) {
+bool CharacterCreateUiSystem::EventButton(SDL_Event* event) {
   std::vector<SDL_FRect> r;
   std::vector<void (*)()> fns;
   auto& camera = CameraGameInstance::camera_;
@@ -1056,12 +1056,12 @@ bool CharacterCreateUiSystem::EventButton(SDL_Event* Event) {
   return false;
 }
 
-bool CharacterCreateUiSystem::Event(SDL_Event* Event) {
-  TextInputUiSystem::Event(Event, name_);
+bool CharacterCreateUiSystem::Event(SDL_Event* event) {
+  TextInputUiSystem::Event(event, name_);
   bool r = true;
-  switch (Event->type) {
+  switch (event->type) {
     case SDL_EVENT_KEY_DOWN: {
-      auto scan_code = Event->key.scancode;
+      auto scan_code = event->key.scancode;
       switch (scan_code) {
         case SDL_SCANCODE_ESCAPE: {
           return false;
@@ -1074,15 +1074,15 @@ bool CharacterCreateUiSystem::Event(SDL_Event* Event) {
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         r = false;
       }
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
-        EventButton(Event);
-        EventButtonCustom(Event);
+      if (event->button.button == SDL_BUTTON_LEFT) {
+        EventButton(event);
+        EventButtonCustom(event);
       }
       break;
     }

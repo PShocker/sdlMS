@@ -34,8 +34,8 @@ class CharacterChooseUiSystem {
   static void EventButtonDelete();
   static void EventButtonBack();
 
-  static bool EventButton(SDL_Event* Event);
-  static bool EventChooseCharacter(SDL_Event* Event);
+  static bool EventButton(SDL_Event* event);
+  static bool EventChooseCharacter(SDL_Event* event);
 
  public:
   static inline std::optional<uint8_t> choose_;
@@ -44,7 +44,7 @@ class CharacterChooseUiSystem {
   static inline GameAnimate effect_;
 
   static bool Render();
-  static bool Event(SDL_Event* Event);
+  static bool Event(SDL_Event* event);
   static bool Run();
 };
 

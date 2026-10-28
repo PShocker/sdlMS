@@ -24,15 +24,15 @@ class CursorLogicSystem {
 
   static bool RunDefault();
 
-  static bool EventCursorHand(SDL_Event* Event);
-  static bool EventCharacter(SDL_Event* Event);
-  static bool EventNpc(SDL_Event* Event);
+  static bool EventCursorHand(SDL_Event* event);
+  static bool EventCharacter(SDL_Event* event);
+  static bool EventNpc(SDL_Event* event);
 
  public:
   static bool Run();
 
   static bool EventClickNpc(GameNpc npc);
-  static bool Event(SDL_Event* Event);
+  static bool Event(SDL_Event* event);
 };
 
 }  // namespace sdlms

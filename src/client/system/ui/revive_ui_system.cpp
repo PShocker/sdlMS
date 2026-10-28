@@ -41,8 +41,8 @@ void ReviveUiSystem::RenderButton() {
     pos_rect.y += pos_.y;
     auto& mouse_pos = Window::mouse_pos_;
     // 判断按钮是否被遮挡
-    auto CursorIn = CursorGameInstance::cursor_ui;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && CursorIn == Render &&
+    auto cursor_in = CursorGameInstance::cursor_ui;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == Render &&
         !CursorGameInstance::modal_overlay) {
       if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
         auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
@@ -103,7 +103,7 @@ bool ReviveUiSystem::CursorIn() {
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
-void ReviveUiSystem::EventMotionBtAudio(SDL_Event* Event) {
+void ReviveUiSystem::EventMotionBtAudio(SDL_Event* event) {
   if (CursorGameInstance::cursor_ui != Render) {
     return;
   }
@@ -128,12 +128,12 @@ void ReviveUiSystem::EventMotionBtAudio(SDL_Event* Event) {
   bt_audio = bt_in;
 }
 
-bool ReviveUiSystem::Event(SDL_Event* Event) {
-  KeyboardInputSystem::Event(Event);
+bool ReviveUiSystem::Event(SDL_Event* event) {
+  KeyboardInputSystem::Event(event);
   bool r = false;
-  switch (Event->type) {
+  switch (event->type) {
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
           r = false;
         }
@@ -141,15 +141,15 @@ bool ReviveUiSystem::Event(SDL_Event* Event) {
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
-          r = !EventButton(Event);
+          r = !EventButton(event);
         }
       }
       break;
     }
     case SDL_EVENT_MOUSE_MOTION: {
-      EventMotionBtAudio(Event);
+      EventMotionBtAudio(event);
       break;
     }
     default: {
@@ -184,7 +184,7 @@ void ReviveUiSystem::EventButtonOk() {
   return;
 }
 
-bool ReviveUiSystem::EventButton(SDL_Event* Event) {
+bool ReviveUiSystem::EventButton(SDL_Event* event) {
   const std::array buttons_rect = {
       SDL_FRect{15, 84, 47, 18},  //
   };

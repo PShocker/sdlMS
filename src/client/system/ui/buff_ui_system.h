@@ -15,12 +15,12 @@ class BuffUiSystem {
   static void RenderUi();
   static void RenderUi(GameSkill& sk, float x, float y);
   static void RenderUi(GameItemBuff& gb, float x, float y);
-  static void EventMotion(SDL_Event* Event);
+  static void EventMotion(SDL_Event* event);
 
  public:
   static bool RenderUiInfo();
   static bool Render();
-  static bool Event(SDL_Event* Event);
+  static bool Event(SDL_Event* event);
 };
 
 }  // namespace sdlms

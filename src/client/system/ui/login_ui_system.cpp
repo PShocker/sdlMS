@@ -326,7 +326,7 @@ void LoginUiSystem::EventButtonBack() {
   EventButtonQuit();
 }
 
-bool LoginUiSystem::EventButton(SDL_Event* Event) {
+bool LoginUiSystem::EventButton(SDL_Event* event) {
   std::vector<SDL_FRect> r;
   std::vector<void (*)()> fns;
   auto& camera = CameraGameInstance::camera_;
@@ -357,17 +357,17 @@ bool LoginUiSystem::EventButton(SDL_Event* Event) {
   return false;
 }
 
-bool LoginUiSystem::Event(SDL_Event* Event) {
-  TextInputUiSystem::Event(Event, username_);
-  switch (Event->type) {
+bool LoginUiSystem::Event(SDL_Event* event) {
+  TextInputUiSystem::Event(event, username_);
+  switch (event->type) {
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
       }
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
-        EventButton(Event);
+      if (event->button.button == SDL_BUTTON_LEFT) {
+        EventButton(event);
       }
       break;
     }

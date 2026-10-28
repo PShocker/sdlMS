@@ -35,20 +35,20 @@ class ShopUiSystem {
 
   static void RenderItemInfo(std::polymorphic<GameItem>& item);
 
-  static std::optional<int> EventItemClick(SDL_Event* Event, SDL_FPoint p);
-  static bool EventItem(SDL_Event* Event);
+  static std::optional<int> EventItemClick(SDL_Event* event, SDL_FPoint p);
+  static bool EventItem(SDL_Event* event);
 
-  static bool EventVscr(SDL_Event* Event);
+  static bool EventVscr(SDL_Event* event);
   static void EventClose();
-  static bool EventButton(SDL_Event* Event);
+  static bool EventButton(SDL_Event* event);
 
-  static void EventVscrStart(SDL_Event* Event);
+  static void EventVscrStart(SDL_Event* event);
   static void EventVscrEnd();
-  static void EventVscrMove(SDL_Event* Event);
+  static void EventVscrMove(SDL_Event* event);
 
   static inline std::array<bool, 2> vscr_motion_;
 
-  static bool EventTab(SDL_Event* Event);
+  static bool EventTab(SDL_Event* event);
 
   static SDL_FPoint LoadWh();
 
@@ -67,7 +67,7 @@ class ShopUiSystem {
   static void Close();
 
   static bool Render();
-  static bool Event(SDL_Event* Event);
+  static bool Event(SDL_Event* event);
 
   static bool CursorIn();
 

@@ -130,7 +130,7 @@ void BuffUiSystem::RenderUi() {
   }
 }
 
-void BuffUiSystem::EventMotion(SDL_Event* Event) {
+void BuffUiSystem::EventMotion(SDL_Event* event) {
   auto& sys = System::render_systems_;
   std::erase(sys, RenderUiInfo);
   auto it = std::ranges::find(sys, &CursorRenderSystem::Render);
@@ -146,10 +146,10 @@ bool BuffUiSystem::Render() {
   return true;
 }
 
-bool BuffUiSystem::Event(SDL_Event* Event) {
-  switch (Event->type) {
+bool BuffUiSystem::Event(SDL_Event* event) {
+  switch (event->type) {
     case SDL_EVENT_MOUSE_BUTTON_UP: {
-      if (Event->button.button == SDL_BUTTON_RIGHT) {
+      if (event->button.button == SDL_BUTTON_RIGHT) {
         if (CursorGameInstance::cursor_ui == nullptr) {
           if (mouse_ski.has_value()) {
             mouse_ski->end();
@@ -162,7 +162,7 @@ bool BuffUiSystem::Event(SDL_Event* Event) {
       break;
     }
     case SDL_EVENT_MOUSE_MOTION: {
-      EventMotion(Event);
+      EventMotion(event);
       break;
     }
     default: {

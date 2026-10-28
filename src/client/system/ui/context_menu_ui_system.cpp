@@ -154,7 +154,7 @@ void ContextMenuUiSystem::EventButtonFriend() {}
 
 void ContextMenuUiSystem::EventButtonChat() {}
 
-bool ContextMenuUiSystem::EventButton(SDL_Event* Event) {
+bool ContextMenuUiSystem::EventButton(SDL_Event* event) {
   std::vector<void (*)()> fns;
   auto& camera = CameraGameInstance::camera_;
   std::array r = {
@@ -193,11 +193,11 @@ void ContextMenuUiSystem::EventClose() {
   Close();
 };
 
-bool ContextMenuUiSystem::Event(SDL_Event* Event) {
+bool ContextMenuUiSystem::Event(SDL_Event* event) {
   bool r = true;
-  switch (Event->type) {
+  switch (event->type) {
     case SDL_EVENT_KEY_DOWN: {
-      auto scan_code = Event->key.scancode;
+      auto scan_code = event->key.scancode;
       switch (scan_code) {
         case SDL_SCANCODE_ESCAPE: {
           EventClose();
@@ -211,7 +211,7 @@ bool ContextMenuUiSystem::Event(SDL_Event* Event) {
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
           r = false;
         }
@@ -219,9 +219,9 @@ bool ContextMenuUiSystem::Event(SDL_Event* Event) {
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
-          EventButton(Event);
+          EventButton(event);
         }
       }
       EventClose();

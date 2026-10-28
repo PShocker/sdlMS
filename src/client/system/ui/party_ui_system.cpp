@@ -169,12 +169,12 @@ void PartyUiSystem::EventTop() {
   }
 }
 
-void PartyUiSystem::EventDragStart(SDL_Event* Event) {
+void PartyUiSystem::EventDragStart(SDL_Event* event) {
   auto wh = LoadWh();
   SDL_FRect pos_rect = {pos_.x, pos_.y, wh.x, 20};
-  SDL_FPoint mouse_pos = {Event->button.x, Event->button.y};
+  SDL_FPoint mouse_pos = {event->button.x, event->button.y};
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    drag_ = {pos_.x - Event->button.x, pos_.y - Event->button.y};
+    drag_ = {pos_.x - event->button.x, pos_.y - event->button.y};
   }
   return;
 }
@@ -184,9 +184,9 @@ void PartyUiSystem::EventDragEnd() {
   return;
 }
 
-void PartyUiSystem::EventDragMove(SDL_Event* Event) {
+void PartyUiSystem::EventDragMove(SDL_Event* event) {
   if (drag_.has_value()) {
-    pos_ = {Event->motion.x + drag_->x, Event->motion.y + drag_->y};
+    pos_ = {event->motion.x + drag_->x, event->motion.y + drag_->y};
     auto& camera = CameraGameInstance::camera_;
     auto [w, h] = LoadWh();
     pos_.x = std::clamp(pos_.x, (float)0, camera.w - w);
@@ -211,21 +211,21 @@ bool PartyUiSystem::CursorIn() {
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
-bool PartyUiSystem::Event(SDL_Event* Event) {
+bool PartyUiSystem::Event(SDL_Event* event) {
   bool r = true;
-  switch (Event->type) {
+  switch (event->type) {
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
           EventTop();
-          EventDragStart(Event);
+          EventDragStart(event);
           r = false;
         }
       }
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
         }
         EventDragEnd();
@@ -233,7 +233,7 @@ bool PartyUiSystem::Event(SDL_Event* Event) {
       break;
     }
     case SDL_EVENT_MOUSE_MOTION: {
-      EventDragMove(Event);
+      EventDragMove(event);
       break;
     }
     default: {

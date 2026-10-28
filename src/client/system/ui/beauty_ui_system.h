@@ -27,7 +27,7 @@ class BeautyUiSystem {
   static void EventButtonPrev();
   static void EventButtonNext();
 
-  static bool EventButton(SDL_Event* Event);
+  static bool EventButton(SDL_Event* event);
 
  public:
   static bool Render();
@@ -35,7 +35,7 @@ class BeautyUiSystem {
   static void Open();
   static void Close();
 
-  static bool Event(SDL_Event* Event);
+  static bool Event(SDL_Event* event);
 
   static bool CursorIn();
 

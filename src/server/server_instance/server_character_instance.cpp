@@ -452,9 +452,9 @@ void ServerCharacterInstance::HandleSki(
   }
 
   g_character->skill = ski_id3;
-  auto Skis = SkillGameInstance::Skis();
+  auto skills = SkillGameInstance::Skis();
 
-  if (Skis.at(ski_id3).effect) {
+  if (skills.at(ski_id3).effect) {
     GameEffect e = {
         .id = ski_id3,
         .index = 0,
@@ -546,8 +546,8 @@ void ServerCharacterInstance::HandleSki(
       } else if (s->player == ServerMain::local_addr_) {
         c = &CharacterGameInstance::self_;
         // ski_buff
-        auto& Skis = SkillGameInstance::Skis();
-        Skis.at(ski_id3).use(client_id, ski_lv);
+        auto& skills = SkillGameInstance::Skis();
+        skills.at(ski_id3).use(client_id, ski_lv);
       }
       if (c != nullptr) {
         GameEffect e = {
@@ -868,13 +868,13 @@ void ServerCharacterInstance::HandleSState(
   for (auto& st : v) {
     switch (st->state) {
       case fbs::StateEnum_BUFF_SKILL: {
-        auto& Skis = SkillGameInstance::Skis();
+        auto& skills = SkillGameInstance::Skis();
         auto ski_id2 = std::to_string(st->val);
         auto ski_id3 = std::u16string{ski_id2.begin(), ski_id2.end()};
         if (ski_id3.length() < 7) {
           ski_id3.insert(0, 7 - ski_id3.length(), u'0');
         }
-        Skis.at(ski_id3).state(&g_character, st->sub_val);
+        skills.at(ski_id3).state(&g_character, st->sub_val);
         break;
       }
       case fbs::StateEnum_BUFF_ITEM: {

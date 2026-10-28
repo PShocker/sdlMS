@@ -184,7 +184,7 @@ void LoginNoticeUiSystem::EventClose() {
   std::erase(System::event_systems_, Event);
 }
 
-bool LoginNoticeUiSystem::EventButton(SDL_Event* Event) {
+bool LoginNoticeUiSystem::EventButton(SDL_Event* event) {
   const auto w = 1366;
   const auto h = 768;
   std::vector<SDL_FRect> buttons_rect;
@@ -226,15 +226,15 @@ bool LoginNoticeUiSystem::EventButton(SDL_Event* Event) {
   return true;
 }
 
-bool LoginNoticeUiSystem::Event(SDL_Event* Event) {
+bool LoginNoticeUiSystem::Event(SDL_Event* event) {
   bool r = true;
-  switch (Event->type) {
+  switch (event->type) {
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
-        r = EventButton(Event);
+      if (event->button.button == SDL_BUTTON_LEFT) {
+        r = EventButton(event);
       }
       break;
     }

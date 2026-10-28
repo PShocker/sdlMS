@@ -294,7 +294,7 @@ void CharacterStatGameInstance::UpdateSfSkillStat() {
 
   auto job_id = CharacterGameInstance::self_.job;
   auto ski_tree = JobSkillGameInstance::LoadSkiTree(job_id);
-  auto& Skis = SkillGameInstance::Skis();
+  auto& skills = SkillGameInstance::Skis();
   for (auto ski_t : ski_tree) {
     auto job_skis = JobSkillGameInstance::LoadJobSkis(ski_t);
     for (auto [k, v] : job_skis) {
@@ -302,10 +302,10 @@ void CharacterStatGameInstance::UpdateSfSkillStat() {
       if (ski_lv == 0) {
         continue;
       }
-      if (!Skis.contains(k)) {
+      if (!skills.contains(k)) {
         continue;
       }
-      auto& ski = Skis.at(k);
+      auto& ski = skills.at(k);
       if (ski.passive) {
         ski.passive(ski_lv);
       }

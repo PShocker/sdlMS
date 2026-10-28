@@ -34,7 +34,7 @@ class StorageUiSystem {
   static void EventButtonPut();
   static void EventButtonSort();
   static void EventButtonExit();
-  static bool EventButton(SDL_Event* Event);
+  static bool EventButton(SDL_Event* event);
   static void EventClose();
 
   static inline std::array<std::optional<uint16_t>, 2> active_item_;
@@ -52,7 +52,7 @@ class StorageUiSystem {
   static void Open();
   static void Close();
   static bool Render();
-  static bool Event(SDL_Event* Event);
+  static bool Event(SDL_Event* event);
 };
 
 }  // namespace sdlms

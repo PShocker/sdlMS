@@ -29,14 +29,14 @@ class MinimapUiSystem {
   static void EventMin();
   static void EventMax();
 
-  static bool EventButton(SDL_Event* Event);
+  static bool EventButton(SDL_Event* event);
   static void EventTop();
 
-  static void EventMotionBtAudio(SDL_Event* Event);
+  static void EventMotionBtAudio(SDL_Event* event);
 
-  static void EventDragStart(SDL_Event* Event);
+  static void EventDragStart(SDL_Event* event);
   static void EventDragEnd();
-  static void EventDragMove(SDL_Event* Event);
+  static void EventDragMove(SDL_Event* event);
 
   static SDL_FPoint LoadCanvasPoint(SDL_FPoint point, int8_t ox, int8_t oy);
   static SDL_FPoint LoadCanvasWh();
@@ -63,7 +63,7 @@ class MinimapUiSystem {
 
   static void Load();
   static bool Render();
-  static bool Event(SDL_Event* Event);
+  static bool Event(SDL_Event* event);
 
   static bool CursorIn();
 };

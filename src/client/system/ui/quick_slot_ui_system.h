@@ -16,8 +16,8 @@ class QuickSlotUiSystem {
   static void RenderQuickSlot();
   static void RenderButton();
 
-  static bool EventButton(SDL_Event* Event);
-  static bool EventClickQuickslot(SDL_Event* Event);
+  static bool EventButton(SDL_Event* event);
+  static bool EventClickQuickslot(SDL_Event* event);
 
   static SDL_FPoint LoadWh();
 
@@ -33,7 +33,7 @@ class QuickSlotUiSystem {
   static void Close();
 
   static bool Render();
-  static bool Event(SDL_Event* Event);
+  static bool Event(SDL_Event* event);
 
   static bool CursorIn();
 

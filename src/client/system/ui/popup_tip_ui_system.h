@@ -18,7 +18,7 @@ class PopupTipUiSystem {
   static void EventButtonOk(GamePopupTip& t);
   static void EventButtonCancel(GamePopupTip& t);
 
-  static bool EventButton(SDL_Event* Event);
+  static bool EventButton(SDL_Event* event);
 
   static void Destory();
 
@@ -26,7 +26,7 @@ class PopupTipUiSystem {
   static inline SDL_FPoint pos = {429, -32};
 
   static bool Render();
-  static bool Event(SDL_Event* Event);
+  static bool Event(SDL_Event* event);
 };
 
 }  // namespace sdlms

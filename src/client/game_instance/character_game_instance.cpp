@@ -117,8 +117,8 @@ void CharacterGameInstance::InitCharacterBone() {
           continue;
         }
         // const auto &bones = tbd.bones.at(zp);
-        auto [beg, End] = tbd.bones.equal_range(zp);
-        for (auto it = beg; it != End; ++it) {
+        auto [beg, end] = tbd.bones.equal_range(zp);
+        for (auto it = beg; it != end; ++it) {
           auto& bones = it->second;
           // 构建骨骼
           std::u16string parent_bone_name = u"";

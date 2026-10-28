@@ -75,8 +75,8 @@ static void Mfdan() {
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
     ClientRequest::send_to_host(ckt);
   };
-  auto& Skis = SkillGameInstance::Skis();
-  Skis[g_skill.id] = g_skill;
+  auto& skills = SkillGameInstance::Skis();
+  skills[g_skill.id] = g_skill;
 }
 
 static void Mfdun() {
@@ -113,8 +113,8 @@ static void Mfdun() {
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
     ClientRequest::send_to_host(ckt);
   };
-  auto& Skis = SkillGameInstance::Skis();
-  Skis[g_skill.id] = g_skill;
+  auto& skills = SkillGameInstance::Skis();
+  skills[g_skill.id] = g_skill;
 }
 
 static void Mfsj() {
@@ -140,8 +140,8 @@ static void Mfsj() {
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
     ClientRequest::send_to_host(ckt);
   };
-  auto& Skis = SkillGameInstance::Skis();
-  Skis[g_skill.id] = g_skill;
+  auto& skills = SkillGameInstance::Skis();
+  skills[g_skill.id] = g_skill;
 }
 
 static void Mfkaijia() {
@@ -159,8 +159,8 @@ static void Mfkaijia() {
 
   g_skill.effect = [](SDL_FPoint p, GameEffect* e, bool f) {
     const int duration = 300;
-    auto Start = e->delay;
-    auto dt = Window::dt_now_ - Start;
+    auto start = e->delay;
+    auto dt = Window::dt_now_ - start;
     if (dt <= duration) {
       float scale = 1 + 1.2 * (float)dt / duration;
       auto g_character = std::any_cast<GameCharacter*>(e->data);
@@ -186,8 +186,8 @@ static void Mfkaijia() {
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
     ClientRequest::send_to_host(ckt);
   };
-  auto& Skis = SkillGameInstance::Skis();
-  Skis[g_skill.id] = g_skill;
+  auto& skills = SkillGameInstance::Skis();
+  skills[g_skill.id] = g_skill;
 }
 
 static void Molitisheng() {
@@ -195,16 +195,16 @@ static void Molitisheng() {
   g_skill.id = u"2001099";
 
   g_skill.end = []() {
-    auto& Skis = SkillGameInstance::Skis();
-    auto ski_lv = Skis[u"2001099"].lv;
+    auto& skills = SkillGameInstance::Skis();
+    auto ski_lv = skills[u"2001099"].lv;
   };
   g_skill.passive = [](int ski_lv) {
-    auto& Skis = SkillGameInstance::Skis();
-    Skis[u"2001099"].lv = ski_lv;
+    auto& skills = SkillGameInstance::Skis();
+    skills[u"2001099"].lv = ski_lv;
   };
-  auto& Skis = SkillGameInstance::Skis();
+  auto& skills = SkillGameInstance::Skis();
 
-  Skis[g_skill.id] = g_skill;
+  skills[g_skill.id] = g_skill;
 }
 
 [[maybe_unused]] static const bool r = [] {

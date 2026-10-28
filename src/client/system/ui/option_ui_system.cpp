@@ -367,8 +367,8 @@ void OptionUiSystem::RenderOption() {
     pos_rect.y = (int)pos_rect.y;
     auto& mouse_pos = Window::mouse_pos_;
     // 判断按钮是否被遮挡
-    auto CursorIn = CursorGameInstance::cursor_ui;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && CursorIn == Render &&
+    auto cursor_in = CursorGameInstance::cursor_ui;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == Render &&
         !CursorGameInstance::modal_overlay) {
       if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
         auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
@@ -402,8 +402,8 @@ void OptionUiSystem::RenderButton() {
     pos_rect.y += (int)pos_.y;
     auto& mouse_pos = Window::mouse_pos_;
     // 判断按钮是否被遮挡
-    auto CursorIn = CursorGameInstance::cursor_ui;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && CursorIn == Render &&
+    auto cursor_in = CursorGameInstance::cursor_ui;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == Render &&
         !CursorGameInstance::modal_overlay) {
       if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
         auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
@@ -498,12 +498,12 @@ void OptionUiSystem::EventTop() {
   }
 }
 
-void OptionUiSystem::EventDragStart(SDL_Event* Event) {
+void OptionUiSystem::EventDragStart(SDL_Event* event) {
   auto wh = LoadWh();
   SDL_FRect pos_rect = {pos_.x, pos_.y, wh.x, 20};
-  SDL_FPoint mouse_pos = {Event->button.x, Event->button.y};
+  SDL_FPoint mouse_pos = {event->button.x, event->button.y};
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    drag_ = {pos_.x - Event->button.x, pos_.y - Event->button.y};
+    drag_ = {pos_.x - event->button.x, pos_.y - event->button.y};
   }
   return;
 }
@@ -513,9 +513,9 @@ void OptionUiSystem::EventDragEnd() {
   return;
 }
 
-void OptionUiSystem::EventDragMove(SDL_Event* Event) {
+void OptionUiSystem::EventDragMove(SDL_Event* event) {
   if (drag_.has_value()) {
-    pos_ = {Event->motion.x + drag_->x, Event->motion.y + drag_->y};
+    pos_ = {event->motion.x + drag_->x, event->motion.y + drag_->y};
     auto& camera = CameraGameInstance::camera_;
     auto [w, h] = LoadWh();
     pos_.x = std::clamp(pos_.x, (float)0, camera.w - w);
@@ -528,7 +528,7 @@ void OptionUiSystem::EventButtonOk() {
   Close();
 }
 
-void OptionUiSystem::EventTab(SDL_Event* Event) {
+void OptionUiSystem::EventTab(SDL_Event* event) {
   const static std::array tab_rect = {
       SDL_FRect{5, 26, 33, 19},   //
       SDL_FRect{38, 26, 33, 19},  //
@@ -543,7 +543,7 @@ void OptionUiSystem::EventTab(SDL_Event* Event) {
   }
 }
 
-bool OptionUiSystem::EventButton(SDL_Event* Event) {
+bool OptionUiSystem::EventButton(SDL_Event* event) {
   const static std::array buttons_rect = {
       SDL_FRect{119, 115, 47, 18},  //
   };
@@ -564,7 +564,7 @@ bool OptionUiSystem::EventButton(SDL_Event* Event) {
   return false;
 }
 
-void OptionUiSystem::EventMotionBtAudio(SDL_Event* Event) {
+void OptionUiSystem::EventMotionBtAudio(SDL_Event* event) {
   if (CursorGameInstance::cursor_ui != Render) {
     return;
   }
@@ -589,30 +589,30 @@ void OptionUiSystem::EventMotionBtAudio(SDL_Event* Event) {
   bt_audio = bt_in;
 }
 
-bool OptionUiSystem::Event(SDL_Event* Event) {
+bool OptionUiSystem::Event(SDL_Event* event) {
   bool r = true;
-  switch (Event->type) {
+  switch (event->type) {
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
           EventTop();
-          EventDragStart(Event);
+          EventDragStart(event);
           r = false;
         }
       }
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
-          r = !EventButton(Event);
+          r = !EventButton(event);
         }
         EventDragEnd();
       }
       break;
     }
     case SDL_EVENT_MOUSE_MOTION: {
-      EventDragMove(Event);
+      EventDragMove(event);
       break;
     }
     default: {

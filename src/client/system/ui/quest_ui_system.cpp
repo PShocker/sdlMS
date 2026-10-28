@@ -142,8 +142,8 @@ void QuestUiSystem::RenderButton() {
     pos_rect.y = (int)pos_rect.y;
     auto& mouse_pos = Window::mouse_pos_;
     // 判断按钮是否被遮挡
-    auto CursorIn = CursorGameInstance::cursor_ui;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && CursorIn == Render &&
+    auto cursor_in = CursorGameInstance::cursor_ui;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == Render &&
         !CursorGameInstance::modal_overlay) {
       if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
         auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
@@ -617,8 +617,9 @@ void QuestUiSystem::RenderVscr() {
   int px = pos_.x + lt.x;
   int py = pos_.y + lt.y;
   const uint32_t length = 318;
-  auto CursorIn = CursorGameInstance::cursor_ui;
-  bool top = CursorIn == Render && CursorGameInstance::modal_overlay == nullptr;
+  auto cursor_in = CursorGameInstance::cursor_ui;
+  bool top =
+      cursor_in == Render && CursorGameInstance::modal_overlay == nullptr;
   auto count = LoadVscrNum0();
   ScrollUiSystem::RenderVscroll(px, py, pages_[0], count, length, top, 16);
 
@@ -630,8 +631,9 @@ void QuestUiSystem::RenderDetailVscr() {
   int px = pos_.x + lt.x;
   int py = pos_.y + lt.y;
   const uint32_t length = 244;
-  auto CursorIn = CursorGameInstance::cursor_ui;
-  bool top = CursorIn == Render && CursorGameInstance::modal_overlay == nullptr;
+  auto cursor_in = CursorGameInstance::cursor_ui;
+  bool top =
+      cursor_in == Render && CursorGameInstance::modal_overlay == nullptr;
   auto count = LoadVscrNum1();
   ScrollUiSystem::RenderVscroll(px, py, pages_[1], count, length, top, 16);
 
@@ -683,7 +685,7 @@ void QuestUiSystem::Close() {
   EventVscrEnd();
 }
 
-void QuestUiSystem::EventTab(SDL_Event* Event) {
+void QuestUiSystem::EventTab(SDL_Event* event) {
   const static std::array tab_rect = {
       SDL_FRect{6, 24, 72, 19},    //
       SDL_FRect{78, 24, 72, 19},   //
@@ -719,12 +721,12 @@ void QuestUiSystem::EventTop() {
   }
 }
 
-void QuestUiSystem::EventDragStart(SDL_Event* Event) {
+void QuestUiSystem::EventDragStart(SDL_Event* event) {
   auto wh = LoadWh();
   SDL_FRect pos_rect = {pos_.x, pos_.y, wh.x, 20};
-  SDL_FPoint mouse_pos = {Event->button.x, Event->button.y};
+  SDL_FPoint mouse_pos = {event->button.x, event->button.y};
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    drag_ = {pos_.x - Event->button.x, pos_.y - Event->button.y};
+    drag_ = {pos_.x - event->button.x, pos_.y - event->button.y};
   }
   return;
 }
@@ -734,9 +736,9 @@ void QuestUiSystem::EventDragEnd() {
   return;
 }
 
-void QuestUiSystem::EventDragMove(SDL_Event* Event) {
+void QuestUiSystem::EventDragMove(SDL_Event* event) {
   if (drag_.has_value()) {
-    pos_ = {Event->motion.x + drag_->x, Event->motion.y + drag_->y};
+    pos_ = {event->motion.x + drag_->x, event->motion.y + drag_->y};
     auto& camera = CameraGameInstance::camera_;
     auto [w, h] = LoadWh();
     pos_.x = std::clamp(pos_.x, (float)0, camera.w - w);
@@ -801,7 +803,7 @@ void QuestUiSystem::EventQuest() {
   return;
 }
 
-bool QuestUiSystem::EventVscr(SDL_Event* Event) {
+bool QuestUiSystem::EventVscr(SDL_Event* event) {
   SDL_FPoint lt{225, 48};
   int px = pos_.x + lt.x;
   int py = pos_.y + lt.y;
@@ -810,7 +812,7 @@ bool QuestUiSystem::EventVscr(SDL_Event* Event) {
   auto size = LoadVscrNum0() - 16;
   size = std::max(0, size);
 
-  auto mouse_pos = SDL_FPoint{Event->button.x, Event->button.y};
+  auto mouse_pos = SDL_FPoint{event->button.x, event->button.y};
   bool top = true;
   auto val = ScrollUiSystem::ClickVscroll(px, py, pages_[0], size, length, top,
                                           mouse_pos);
@@ -830,29 +832,29 @@ bool QuestUiSystem::EventVscr(SDL_Event* Event) {
   return true;
 }
 
-void QuestUiSystem::EventVscrMove(SDL_Event* Event) {
+void QuestUiSystem::EventVscrMove(SDL_Event* event) {
   auto mouse_state = Window::mouse_state_;
   if (vscr_motion_[0]) {
     const SDL_FPoint lt{225, 48};
     const uint32_t length = 318;
 
-    Event->button.x = pos_.x + lt.x;
-    Event->button.y =
-        std::clamp(Event->button.y, pos_.y + lt.y, pos_.y + lt.y + length);
-    EventVscr(Event);
+    event->button.x = pos_.x + lt.x;
+    event->button.y =
+        std::clamp(event->button.y, pos_.y + lt.y, pos_.y + lt.y + length);
+    EventVscr(event);
   }
   if (vscr_motion_[1]) {
     const SDL_FPoint lt{532, 122};
     const uint32_t length = 244;
 
-    Event->button.x = pos_.x + lt.x;
-    Event->button.y =
-        std::clamp(Event->button.y, pos_.y + lt.y, pos_.y + lt.y + length);
-    EventVscr(Event);
+    event->button.x = pos_.x + lt.x;
+    event->button.y =
+        std::clamp(event->button.y, pos_.y + lt.y, pos_.y + lt.y + length);
+    EventVscr(event);
   }
 }
 
-void QuestUiSystem::EventVscrStart(SDL_Event* Event) {
+void QuestUiSystem::EventVscrStart(SDL_Event* event) {
   SDL_FPoint lt{225, 48};
   uint32_t length = 318;
   if (vscr_motion_[0] == false) {
@@ -879,7 +881,7 @@ void QuestUiSystem::EventButtonDetail() {
   detail_ = !detail_;
 }
 
-bool QuestUiSystem::EventButton(SDL_Event* Event) {
+bool QuestUiSystem::EventButton(SDL_Event* event) {
   std::vector<SDL_FRect> buttons_rect = {
       SDL_FRect{227, 6, 12, 12},    //
       SDL_FRect{183, 374, 57, 17},  //
@@ -907,7 +909,7 @@ bool QuestUiSystem::EventButton(SDL_Event* Event) {
   return false;
 }
 
-void QuestUiSystem::EventMotionBtAudio(SDL_Event* Event) {
+void QuestUiSystem::EventMotionBtAudio(SDL_Event* event) {
   if (CursorGameInstance::cursor_ui != Render) {
     return;
   }
@@ -948,7 +950,7 @@ bool QuestUiSystem::RenderInfo() {
   return true;
 }
 
-void QuestUiSystem::EventMotion(SDL_Event* Event) {
+void QuestUiSystem::EventMotion(SDL_Event* event) {
   auto& sys = System::render_systems_;
   std::erase(sys, RenderInfo);
   auto it = std::ranges::find(sys, &CursorRenderSystem::Render);
@@ -957,7 +959,7 @@ void QuestUiSystem::EventMotion(SDL_Event* Event) {
   }
 }
 
-void QuestUiSystem::EventWheel(SDL_Event* Event) {
+void QuestUiSystem::EventWheel(SDL_Event* event) {
   if (CursorGameInstance::cursor_ui != Render) {
     return;
   }
@@ -968,7 +970,7 @@ void QuestUiSystem::EventWheel(SDL_Event* Event) {
   pos_r.w = 305;
   pos_r.h = 396;
   const auto wheel_func = [&](int& page, int size) {
-    auto dy = Event->wheel.integer_y;
+    auto dy = event->wheel.integer_y;
     if (page > 0 && dy > 0) {
       page--;
     }
@@ -990,11 +992,11 @@ void QuestUiSystem::EventWheel(SDL_Event* Event) {
   return;
 }
 
-bool QuestUiSystem::Event(SDL_Event* Event) {
+bool QuestUiSystem::Event(SDL_Event* event) {
   bool r = true;
-  switch (Event->type) {
+  switch (event->type) {
     case SDL_EVENT_KEY_DOWN: {
-      auto scan_code = Event->key.scancode;
+      auto scan_code = event->key.scancode;
       switch (scan_code) {
         case SDL_SCANCODE_ESCAPE: {
           Close();
@@ -1008,27 +1010,27 @@ bool QuestUiSystem::Event(SDL_Event* Event) {
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
           EventTop();
-          EventDragStart(Event);
-          EventVscrStart(Event);
+          EventDragStart(event);
+          EventVscrStart(event);
           r = false;
         }
       }
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
           EventFold();
           EventQuest();
           if (EventCheckbox()) {
             return false;
           }
-          EventTab(Event);
-          EventVscr(Event);
-          r = !EventButton(Event);
+          EventTab(event);
+          EventVscr(event);
+          r = !EventButton(event);
         }
         EventDragEnd();
         EventVscrEnd();
@@ -1036,14 +1038,14 @@ bool QuestUiSystem::Event(SDL_Event* Event) {
       break;
     }
     case SDL_EVENT_MOUSE_MOTION: {
-      EventDragMove(Event);
-      EventVscrMove(Event);
-      EventMotionBtAudio(Event);
-      EventMotion(Event);
+      EventDragMove(event);
+      EventVscrMove(event);
+      EventMotionBtAudio(event);
+      EventMotion(event);
       break;
     }
     case SDL_EVENT_MOUSE_WHEEL: {
-      EventWheel(Event);
+      EventWheel(event);
       break;
     }
     default: {

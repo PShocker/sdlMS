@@ -14,7 +14,7 @@ class TradeUiSystem {
   static void RenderButton();
 
   static void EventButtonClose();
-  static bool EventButton(SDL_Event* Event);
+  static bool EventButton(SDL_Event* event);
 
  public:
   static inline SDL_FPoint pos_;
@@ -28,7 +28,7 @@ class TradeUiSystem {
   static void Open();
   static void Close();
   static bool Render();
-  static bool Event(SDL_Event* Event);
+  static bool Event(SDL_Event* event);
 };
 
 }  // namespace sdlms

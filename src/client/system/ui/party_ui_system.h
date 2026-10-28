@@ -13,9 +13,9 @@ class PartyUiSystem {
   static void RenderPartyHp();
 
   static void EventTop();
-  static void EventDragStart(SDL_Event* Event);
+  static void EventDragStart(SDL_Event* event);
   static void EventDragEnd();
-  static void EventDragMove(SDL_Event* Event);
+  static void EventDragMove(SDL_Event* event);
 
   static SDL_FPoint LoadWh();
 
@@ -28,7 +28,7 @@ class PartyUiSystem {
   static void Close();
 
   static bool Render();
-  static bool Event(SDL_Event* Event);
+  static bool Event(SDL_Event* event);
 
   static bool CursorIn();
 

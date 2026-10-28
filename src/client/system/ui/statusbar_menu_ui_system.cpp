@@ -144,13 +144,13 @@ void StatusbarMenuUiSystem::RenderButton() {
     pos_rect.y = (int)pos_rect.y;
     auto& mouse_pos = Window::mouse_pos_;
     // 判断按钮是否被遮挡
-    auto CursorIn = CursorGameInstance::cursor_ui;
+    auto cursor_in = CursorGameInstance::cursor_ui;
     if (disable[i]) {
       auto disabled = WzResource::LoadTexture(k->find(u"disabled/0"));
       SDL_SetTextureAlphaMod(disabled, alpha_);
       SDL_RenderTexture(Window::renderer_, disabled, nullptr, &pos_rect);
     } else if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) &&
-               CursorIn == Render && !CursorGameInstance::modal_overlay) {
+               cursor_in == Render && !CursorGameInstance::modal_overlay) {
       if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
         auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
         SDL_SetTextureAlphaMod(pressed, alpha_);
@@ -278,7 +278,7 @@ void StatusbarMenuUiSystem::EventButtonCraft() {
   return;
 }
 
-bool StatusbarMenuUiSystem::EventButton(SDL_Event* Event) {
+bool StatusbarMenuUiSystem::EventButton(SDL_Event* event) {
   std::vector<wz::Node*> buttons_nodes;
   std::vector<SDL_FRect> buttons_rect;
   std::vector<void (*)()> fns;
@@ -329,11 +329,11 @@ bool StatusbarMenuUiSystem::EventButton(SDL_Event* Event) {
   return false;
 }
 
-bool StatusbarMenuUiSystem::Event(SDL_Event* Event) {
+bool StatusbarMenuUiSystem::Event(SDL_Event* event) {
   bool r = true;
-  switch (Event->type) {
+  switch (event->type) {
     case SDL_EVENT_KEY_DOWN: {
-      auto scan_code = Event->key.scancode;
+      auto scan_code = event->key.scancode;
       switch (scan_code) {
         case SDL_SCANCODE_ESCAPE: {
           return r;
@@ -346,7 +346,7 @@ bool StatusbarMenuUiSystem::Event(SDL_Event* Event) {
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
         }
       }
@@ -354,9 +354,9 @@ bool StatusbarMenuUiSystem::Event(SDL_Event* Event) {
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       r = false;
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
-          r = !EventButton(Event);
+          r = !EventButton(event);
         }
         Close();
       }

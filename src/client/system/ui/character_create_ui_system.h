@@ -87,8 +87,8 @@ class CharacterCreateUiSystem {
   static void EventButtonCancel();
   static void EventButtonBack();
 
-  static bool EventButton(SDL_Event* Event);
-  static bool EventButtonCustom(SDL_Event* Event);
+  static bool EventButton(SDL_Event* event);
+  static bool EventButtonCustom(SDL_Event* event);
 
  public:
   static inline TextInput name_;
@@ -104,7 +104,7 @@ class CharacterCreateUiSystem {
 
   static void ResetCharacter(bool g);
   static bool Render();
-  static bool Event(SDL_Event* Event);
+  static bool Event(SDL_Event* event);
   static bool Run();
 
   static inline GameCharacter g_character_;

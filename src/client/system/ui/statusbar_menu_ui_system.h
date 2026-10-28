@@ -27,7 +27,7 @@ class StatusbarMenuUiSystem {
   static void EventButtonQuest();
   static void EventButtonCraft();
 
-  static bool EventButton(SDL_Event* Event);
+  static bool EventButton(SDL_Event* event);
 
   static inline int alpha_;
 
@@ -45,7 +45,7 @@ class StatusbarMenuUiSystem {
   static void Open();
   static void Close();
   static bool Render();
-  static bool Event(SDL_Event* Event);
+  static bool Event(SDL_Event* event);
 };
 
 }  // namespace sdlms

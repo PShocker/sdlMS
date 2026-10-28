@@ -92,8 +92,8 @@ static void Yinshenshu() {
     g_skill.state(&sf, 0);
   };
 
-  auto& Skis = SkillGameInstance::Skis();
-  Skis[g_skill.id] = g_skill;
+  auto& skills = SkillGameInstance::Skis();
+  skills[g_skill.id] = g_skill;
 }
 
 static void Huibishu() {
@@ -101,16 +101,16 @@ static void Huibishu() {
   g_skill.id = u"2001099";
 
   g_skill.end = []() {
-    auto& Skis = SkillGameInstance::Skis();
-    auto ski_lv = Skis[u"2001099"].lv;
+    auto& skills = SkillGameInstance::Skis();
+    auto ski_lv = skills[u"2001099"].lv;
   };
   g_skill.passive = [](int ski_lv) {
-    auto& Skis = SkillGameInstance::Skis();
-    Skis[u"2001099"].lv = ski_lv;
+    auto& skills = SkillGameInstance::Skis();
+    skills[u"2001099"].lv = ski_lv;
   };
-  auto& Skis = SkillGameInstance::Skis();
+  auto& skills = SkillGameInstance::Skis();
 
-  Skis[g_skill.id] = g_skill;
+  skills[g_skill.id] = g_skill;
 }
 
 static void Shuangfeizhan() {
@@ -176,8 +176,8 @@ static void Shuangfeizhan() {
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
     ClientRequest::send_to_host(ckt);
   };
-  auto& Skis = SkillGameInstance::Skis();
-  Skis[g_skill.id] = g_skill;
+  auto& skills = SkillGameInstance::Skis();
+  skills[g_skill.id] = g_skill;
 }
 
 static void Erlianji() {
@@ -199,8 +199,8 @@ static void Erlianji() {
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
     ClientRequest::send_to_host(ckt);
   };
-  auto& Skis = SkillGameInstance::Skis();
-  Skis[g_skill.id] = g_skill;
+  auto& skills = SkillGameInstance::Skis();
+  skills[g_skill.id] = g_skill;
 }
 
 [[maybe_unused]] static const bool r = [] {

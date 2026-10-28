@@ -43,8 +43,8 @@ void CharacterInfoUiSystem::RenderScroll() {
   auto v = EquipGameInstance::LoadEquips(character_).size();
   auto v2 = EquipGameInstance::LoadDecos(character_).size();
   auto size = v + v2;
-  auto CursorIn = CursorGameInstance::cursor_ui;
-  bool top = CursorIn == Render && !CursorGameInstance::modal_overlay;
+  auto cursor_in = CursorGameInstance::cursor_ui;
+  bool top = cursor_in == Render && !CursorGameInstance::modal_overlay;
   ScrollUiSystem::RenderVscroll((int)pos_.x + lt.x, (int)pos_.y + lt.y,
                                 item_page_, size, length, top, 3);
   return;
@@ -123,8 +123,8 @@ void CharacterInfoUiSystem::RenderButton() {
     pos_rect.y = (int)pos_rect.y;
     auto& mouse_pos = Window::mouse_pos_;
     // 判断按钮是否被遮挡
-    auto CursorIn = CursorGameInstance::cursor_ui;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && CursorIn == Render &&
+    auto cursor_in = CursorGameInstance::cursor_ui;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == Render &&
         !CursorGameInstance::modal_overlay) {
       if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
         auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
@@ -278,8 +278,8 @@ void CharacterInfoUiSystem::RenderItems() {
     y = pos_.y + item_lt.y + h + line_h * (i - item_page_) + 17;
     Freetype::DrawLine(req3, x, y);
 
-    auto CursorIn = CursorGameInstance::cursor_ui;
-    if (CursorIn != Render) {
+    auto cursor_in = CursorGameInstance::cursor_ui;
+    if (cursor_in != Render) {
       continue;
     }
     auto& mouse_pos = Window::mouse_pos_;
@@ -320,7 +320,7 @@ bool CharacterInfoUiSystem::Render() {
   return true;
 }
 
-bool CharacterInfoUiSystem::EventVscr(SDL_Event* Event) {
+bool CharacterInfoUiSystem::EventVscr(SDL_Event* event) {
   if (!item_) {
     return false;
   }
@@ -329,10 +329,10 @@ bool CharacterInfoUiSystem::EventVscr(SDL_Event* Event) {
   auto v = EquipGameInstance::LoadEquips(character_).size();
   auto v2 = EquipGameInstance::LoadDecos(character_).size();
   int size = v + v2 - 3;
-  auto CursorIn = CursorGameInstance::cursor_ui;
-  bool top = CursorIn == Render;
+  auto cursor_in = CursorGameInstance::cursor_ui;
+  bool top = cursor_in == Render;
   size = std::max(0, size);
-  auto mouse_pos = SDL_FPoint{Event->button.x, Event->button.y};
+  auto mouse_pos = SDL_FPoint{event->button.x, event->button.y};
   auto val =
       ScrollUiSystem::ClickVscroll((int)pos_.x + lt.x, (int)pos_.y + lt.y,
                                    item_page_, size, length, top, mouse_pos);
@@ -382,12 +382,12 @@ void CharacterInfoUiSystem::EventTop() {
   }
 }
 
-void CharacterInfoUiSystem::EventDragStart(SDL_Event* Event) {
+void CharacterInfoUiSystem::EventDragStart(SDL_Event* event) {
   auto wh = LoadWh();
   SDL_FRect pos_rect = {pos_.x, pos_.y, wh.x, 20};
-  SDL_FPoint mouse_pos = {Event->button.x, Event->button.y};
+  SDL_FPoint mouse_pos = {event->button.x, event->button.y};
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    drag_ = {pos_.x - Event->button.x, pos_.y - Event->button.y};
+    drag_ = {pos_.x - event->button.x, pos_.y - event->button.y};
   }
   return;
 }
@@ -397,9 +397,9 @@ void CharacterInfoUiSystem::EventDragEnd() {
   return;
 }
 
-void CharacterInfoUiSystem::EventDragMove(SDL_Event* Event) {
+void CharacterInfoUiSystem::EventDragMove(SDL_Event* event) {
   if (drag_.has_value()) {
-    pos_ = {Event->motion.x + drag_->x, Event->motion.y + drag_->y};
+    pos_ = {event->motion.x + drag_->x, event->motion.y + drag_->y};
     auto& camera = CameraGameInstance::camera_;
     auto [w, h] = LoadWh();
     pos_.x = std::clamp(pos_.x, (float)0, camera.w - w);
@@ -462,7 +462,7 @@ void CharacterInfoUiSystem::EventClose() {
   Close();
 }
 
-bool CharacterInfoUiSystem::EventButton(SDL_Event* Event) {
+bool CharacterInfoUiSystem::EventButton(SDL_Event* event) {
   std::vector<void (*)()> fns;
   auto wh = LoadWh();
   std::vector<SDL_FRect> buttons_rect = {
@@ -499,7 +499,7 @@ bool CharacterInfoUiSystem::EventButton(SDL_Event* Event) {
   return false;
 }
 
-void CharacterInfoUiSystem::EventVscrStart(SDL_Event* Event) {
+void CharacterInfoUiSystem::EventVscrStart(SDL_Event* event) {
   const SDL_FPoint lt{219 + item_lt.x, 32 + item_lt.y};
   const uint32_t length = 115;
   if (vscr_motion_ == false) {
@@ -512,20 +512,20 @@ void CharacterInfoUiSystem::EventVscrEnd() {
   vscr_motion_ = false;
 }
 
-void CharacterInfoUiSystem::EventVscrMove(SDL_Event* Event) {
+void CharacterInfoUiSystem::EventVscrMove(SDL_Event* event) {
   auto mouse_state = Window::mouse_state_;
   if (vscr_motion_) {
     const SDL_FPoint lt{219 + item_lt.x, 32 + item_lt.y};
     const uint32_t length = 115;
 
-    Event->button.x = pos_.x + lt.x;
-    Event->button.y =
-        std::clamp(Event->button.y, pos_.y + lt.y, pos_.y + lt.y + length);
-    EventVscr(Event);
+    event->button.x = pos_.x + lt.x;
+    event->button.y =
+        std::clamp(event->button.y, pos_.y + lt.y, pos_.y + lt.y + length);
+    EventVscr(event);
   }
 }
 
-void CharacterInfoUiSystem::EventMotionBtAudio(SDL_Event* Event) {
+void CharacterInfoUiSystem::EventMotionBtAudio(SDL_Event* event) {
   if (CursorGameInstance::cursor_ui != Render) {
     return;
   }
@@ -561,11 +561,11 @@ void CharacterInfoUiSystem::EventMotionBtAudio(SDL_Event* Event) {
   bt_audio = bt_in;
 }
 
-void CharacterInfoUiSystem::EventWheel(SDL_Event* Event) {
+void CharacterInfoUiSystem::EventWheel(SDL_Event* event) {
   if (CursorGameInstance::cursor_ui != Render) {
     return;
   }
-  auto dy = Event->wheel.integer_y;
+  auto dy = event->wheel.integer_y;
   if (dy > 0) {
     // up
     if (item_page_ > 0) {
@@ -582,11 +582,11 @@ void CharacterInfoUiSystem::EventWheel(SDL_Event* Event) {
   }
 }
 
-bool CharacterInfoUiSystem::Event(SDL_Event* Event) {
+bool CharacterInfoUiSystem::Event(SDL_Event* event) {
   bool r = true;
-  switch (Event->type) {
+  switch (event->type) {
     case SDL_EVENT_KEY_DOWN: {
-      auto scan_code = Event->key.scancode;
+      auto scan_code = event->key.scancode;
       switch (scan_code) {
         case SDL_SCANCODE_ESCAPE: {
           EventClose();
@@ -600,34 +600,34 @@ bool CharacterInfoUiSystem::Event(SDL_Event* Event) {
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
           EventTop();
-          EventDragStart(Event);
+          EventDragStart(event);
           r = false;
         }
       }
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
-          EventVscr(Event);
-          r = !EventButton(Event);
+          EventVscr(event);
+          r = !EventButton(event);
         }
         EventDragEnd();
       }
       break;
     }
     case SDL_EVENT_MOUSE_MOTION: {
-      EventMotion(Event);
-      EventMotionBtAudio(Event);
-      EventDragMove(Event);
-      EventVscrMove(Event);
+      EventMotion(event);
+      EventMotionBtAudio(event);
+      EventDragMove(event);
+      EventVscrMove(event);
       break;
     }
     case SDL_EVENT_MOUSE_WHEEL: {
-      EventWheel(Event);
+      EventWheel(event);
       break;
     }
     default: {
@@ -638,7 +638,7 @@ bool CharacterInfoUiSystem::Event(SDL_Event* Event) {
   return r;
 }
 
-void CharacterInfoUiSystem::EventMotion(SDL_Event* Event) {
+void CharacterInfoUiSystem::EventMotion(SDL_Event* event) {
   auto& sys = System::render_systems_;
   std::erase(sys, RenderItemsInfo);
   auto it = std::ranges::find(sys, &CursorRenderSystem::Render);

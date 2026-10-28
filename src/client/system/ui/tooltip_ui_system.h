@@ -40,7 +40,7 @@ class TooltipUiSystem {
                           float y);
   static void RenderWorldMapInfo(uint32_t id, float x, float y);
   static void RenderStr(const std::u16string& str, float x, float y);
-  static bool Event(SDL_Event* Event);
+  static bool Event(SDL_Event* event);
 };
 
 }  // namespace sdlms

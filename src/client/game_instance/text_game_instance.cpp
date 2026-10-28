@@ -42,27 +42,27 @@ std::u16string TextGameInstance::ReplaceR(std::u16string text) {
 
   while (true) {
     // 查找 '#'
-    size_t Start = result.find(u'#', pos);
-    if (Start == std::u16string::npos)
+    size_t start = result.find(u'#', pos);
+    if (start == std::u16string::npos)
       break;
 
     // 检查是否是 #m 或 #p
-    if (Start + 2 >= result.length())
+    if (start + 2 >= result.length())
       break;
 
-    char type = result[Start + 1];
+    char type = result[start + 1];
     if (type != u'm' && type != u'p' && type != u'o' && type != u't') {
-      pos = Start + 1;
+      pos = start + 1;
       continue;
     }
 
     // 查找结束的 '#'
-    size_t End = result.find(u'#', Start + 2);
-    if (End == std::u16string::npos)
+    size_t end = result.find(u'#', start + 2);
+    if (end == std::u16string::npos)
       break;
 
     // 提取数字
-    std::u16string num_str = result.substr(Start + 2, End - Start - 2);
+    std::u16string num_str = result.substr(start + 2, end - start - 2);
 
     // 检查是否全是数字
     bool is_number = true;
@@ -74,7 +74,7 @@ std::u16string TextGameInstance::ReplaceR(std::u16string text) {
     }
 
     if (!is_number || num_str.empty()) {
-      pos = Start + 1;
+      pos = start + 1;
       continue;
     }
 
@@ -116,8 +116,8 @@ std::u16string TextGameInstance::ReplaceR(std::u16string text) {
     }
 
     // 执行替换
-    result.replace(Start, End - Start + 1, replacement);
-    pos = Start + replacement.length();
+    result.replace(start, end - start + 1, replacement);
+    pos = start + replacement.length();
   }
 
   return result;

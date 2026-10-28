@@ -22,13 +22,13 @@ class KeybindingUiSystem {
   static void RenderRemainKey();
   static SDL_FPoint LoadWh();
   static void EventTop();
-  static void EventDragStart(SDL_Event* Event);
+  static void EventDragStart(SDL_Event* event);
   static void EventDragEnd();
-  static void EventDragMove(SDL_Event* Event);
+  static void EventDragMove(SDL_Event* event);
 
-  static void EventMotionBtAudio(SDL_Event* Event);
+  static void EventMotionBtAudio(SDL_Event* event);
 
-  static void EventMotion(SDL_Event* Event);
+  static void EventMotion(SDL_Event* event);
 
   static void EventButtonClose();
   static void EventButtonDefault();
@@ -43,7 +43,7 @@ class KeybindingUiSystem {
   static void EventBackgrndKey();
   static void EventRemainKey();
 
-  static bool EventButton(SDL_Event* Event);
+  static bool EventButton(SDL_Event* event);
 
   static inline std::optional<SDL_FPoint> drag_;
   static inline uint8_t active_tab_;
@@ -56,7 +56,7 @@ class KeybindingUiSystem {
 
   static void RenderRemainIcon(int i, int x, int y, uint8_t alpha = 255);
   static bool Render();
-  static bool Event(SDL_Event* Event);
+  static bool Event(SDL_Event* event);
 
   static bool CursorIn();
 

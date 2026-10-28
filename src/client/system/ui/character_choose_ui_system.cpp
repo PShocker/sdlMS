@@ -363,7 +363,7 @@ void CharacterChooseUiSystem::EventButtonBack() {
   System::event_systems_ = {};
 }
 
-bool CharacterChooseUiSystem::EventChooseCharacter(SDL_Event* Event) {
+bool CharacterChooseUiSystem::EventChooseCharacter(SDL_Event* event) {
   std::optional<uint8_t> cse;
   const std::array character_pos = {
       SDL_FPoint{-270, -404},
@@ -403,7 +403,7 @@ bool CharacterChooseUiSystem::EventChooseCharacter(SDL_Event* Event) {
   return true;
 }
 
-bool CharacterChooseUiSystem::EventButton(SDL_Event* Event) {
+bool CharacterChooseUiSystem::EventButton(SDL_Event* event) {
   std::vector<SDL_FRect> r;
   std::vector<void (*)()> fns;
   auto& camera = CameraGameInstance::camera_;
@@ -439,19 +439,19 @@ bool CharacterChooseUiSystem::EventButton(SDL_Event* Event) {
   return true;
 }
 
-bool CharacterChooseUiSystem::Event(SDL_Event* Event) {
+bool CharacterChooseUiSystem::Event(SDL_Event* event) {
   bool r = true;
-  switch (Event->type) {
+  switch (event->type) {
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         r = false;
       }
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
-        EventChooseCharacter(Event);
-        r = EventButton(Event);
+      if (event->button.button == SDL_BUTTON_LEFT) {
+        EventChooseCharacter(event);
+        r = EventButton(event);
       }
       break;
     }

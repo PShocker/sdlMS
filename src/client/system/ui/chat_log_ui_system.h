@@ -12,7 +12,7 @@ class ChatLogUiSystem {
   static void RenderVscr();
 
   static void EventClickChatVscr();
-  static bool EventButton(SDL_Event* Event);
+  static bool EventButton(SDL_Event* event);
 
  public:
   static inline int page_;
@@ -21,7 +21,7 @@ class ChatLogUiSystem {
   static void Close();
 
   static bool Render();
-  static bool Event(SDL_Event* Event);
+  static bool Event(SDL_Event* event);
 
   static bool CursorIn();
 

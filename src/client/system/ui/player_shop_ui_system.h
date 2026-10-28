@@ -11,13 +11,13 @@ class PlayerShopUiSystem {
   static void RenderBackgrnd();
   static void RenderButton();
 
-  static bool EventButton(SDL_Event* Event);
+  static bool EventButton(SDL_Event* event);
 
  public:
   static inline SDL_FPoint pos_;
 
   static bool Render();
-  static bool Event(SDL_Event* Event);
+  static bool Event(SDL_Event* event);
 };
 
 }  // namespace sdlms

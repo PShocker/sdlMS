@@ -32,12 +32,12 @@ class NoticeUiSystem {
 
   static void EventButtonEquipNoAp();
 
-  static bool EventButton(SDL_Event* Event);
-  static void EventInput(SDL_Event* Event);
+  static bool EventButton(SDL_Event* event);
+  static void EventInput(SDL_Event* event);
 
   static SDL_FPoint LoadWh();
 
-  static void EventMotionBtAudio(SDL_Event* Event);
+  static void EventMotionBtAudio(SDL_Event* event);
 
  public:
   enum class NoticeEnum {
@@ -80,7 +80,7 @@ class NoticeUiSystem {
   static void OpenNoSpace(ItemEnum type);
   static void Close();
 
-  static bool Event(SDL_Event* Event);
+  static bool Event(SDL_Event* event);
 
   static bool CursorIn();
 

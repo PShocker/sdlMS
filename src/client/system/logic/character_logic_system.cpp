@@ -732,10 +732,10 @@ bool CharacterLogicSystem::RunSkill(GameCharacter& g_character,
   if (!g_character.morph.empty()) {
     return false;
   }
-  auto& Skis = SkillGameInstance::Skis();
-  if (Skis.contains(id)) {
+  auto& skills = SkillGameInstance::Skis();
+  if (skills.contains(id)) {
     auto ski_lv = JobSkillGameInstance::LoadSkiLevel(id);
-    const auto& ski = Skis[id];
+    const auto& ski = skills[id];
     if (!ski.use) {
       return false;
     }
@@ -1429,12 +1429,12 @@ void CharacterLogicSystem::RunStateMachine() {
     }
     case ActionEnum::kSkill:
     case ActionEnum::kAttack: {
-      bool Fall = RunFall(g_character);
+      bool fall = RunFall(g_character);
       if (RunAnimate(g_character)) {
         // 冷却
         self_flip_cooldown_ = Window::dt_now_ + 33;
         self_attack_cooldown_ = Window::dt_now_ + 33;
-        if (!Fall) {
+        if (!fall) {
           // 落地
           self_vspeed_ = 0;
           self_hspeed_ = 0;

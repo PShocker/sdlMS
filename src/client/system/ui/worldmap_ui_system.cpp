@@ -274,7 +274,7 @@ void WorldmapUiSystem::EventClickSpot() {
   }
 }
 
-bool WorldmapUiSystem::EventButton(SDL_Event* Event) {
+bool WorldmapUiSystem::EventButton(SDL_Event* event) {
   auto [w, h] = LoadWh();
   std::vector<SDL_FRect> buttons_rect = {
       {w - 18, 6, 12, 12},  //
@@ -296,7 +296,7 @@ bool WorldmapUiSystem::EventButton(SDL_Event* Event) {
   return false;
 }
 
-void WorldmapUiSystem::EventMotion(SDL_Event* Event) {
+void WorldmapUiSystem::EventMotion(SDL_Event* event) {
   auto& sys = System::render_systems_;
   std::erase(sys, RenderSpotInfo);
   auto it = std::ranges::find(sys, &CursorRenderSystem::Render);
@@ -305,11 +305,11 @@ void WorldmapUiSystem::EventMotion(SDL_Event* Event) {
   }
 }
 
-bool WorldmapUiSystem::Event(SDL_Event* Event) {
+bool WorldmapUiSystem::Event(SDL_Event* event) {
   bool r = true;
-  switch (Event->type) {
+  switch (event->type) {
     case SDL_EVENT_KEY_DOWN: {
-      auto scan_code = Event->key.scancode;
+      auto scan_code = event->key.scancode;
       switch (scan_code) {
         case SDL_SCANCODE_ESCAPE: {
           EventClose();
@@ -323,26 +323,26 @@ bool WorldmapUiSystem::Event(SDL_Event* Event) {
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
           EventTop();
-          EventDragStart(Event);
+          EventDragStart(event);
           r = false;
         }
       }
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
-        r = !EventButton(Event);
+      if (event->button.button == SDL_BUTTON_LEFT) {
+        r = !EventButton(event);
         EventDragEnd();
         EventClickSpot();
       }
       break;
     }
     case SDL_EVENT_MOUSE_MOTION: {
-      EventMotion(Event);
-      EventDragMove(Event);
+      EventMotion(event);
+      EventDragMove(event);
       break;
     }
     default: {
@@ -382,12 +382,12 @@ void WorldmapUiSystem::EventTop() {
   }
 }
 
-void WorldmapUiSystem::EventDragStart(SDL_Event* Event) {
+void WorldmapUiSystem::EventDragStart(SDL_Event* event) {
   auto wh = LoadWh();
   SDL_FRect pos_rect = {pos_.x, pos_.y, wh.x, 20};
-  SDL_FPoint mouse_pos = {Event->button.x, Event->button.y};
+  SDL_FPoint mouse_pos = {event->button.x, event->button.y};
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    drag_ = {pos_.x - Event->button.x, pos_.y - Event->button.y};
+    drag_ = {pos_.x - event->button.x, pos_.y - event->button.y};
   }
   return;
 }
@@ -397,9 +397,9 @@ void WorldmapUiSystem::EventDragEnd() {
   return;
 }
 
-void WorldmapUiSystem::EventDragMove(SDL_Event* Event) {
+void WorldmapUiSystem::EventDragMove(SDL_Event* event) {
   if (drag_.has_value()) {
-    pos_ = {Event->motion.x + drag_->x, Event->motion.y + drag_->y};
+    pos_ = {event->motion.x + drag_->x, event->motion.y + drag_->y};
     auto& camera = CameraGameInstance::camera_;
     auto [w, h] = LoadWh();
     pos_.x = std::clamp(pos_.x, (float)0, camera.w - w);

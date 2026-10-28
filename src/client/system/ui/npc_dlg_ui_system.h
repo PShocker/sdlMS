@@ -25,7 +25,7 @@ class NpcDlgUiSystem {
 
   static SDL_FPoint LoadWh();
 
-  static void EventMotionBtAudio(SDL_Event* Event);
+  static void EventMotionBtAudio(SDL_Event* event);
 
   static void EventList();
 
@@ -38,7 +38,7 @@ class NpcDlgUiSystem {
   static void EventButtonQuestYes();
   static void EventButtonQuestNo();
 
-  static bool EventButton(SDL_Event* Event);
+  static bool EventButton(SDL_Event* event);
   static void EventButtonUpdate();
 
   static bool StartNextQuest();
@@ -49,7 +49,7 @@ class NpcDlgUiSystem {
   static void Open();
   static void Close();
 
-  static bool Event(SDL_Event* Event);
+  static bool Event(SDL_Event* event);
 
   static bool CursorIn();
 

@@ -309,10 +309,10 @@ bool CursorLogicSystem::Run() {
   return true;
 }
 
-bool CursorLogicSystem::EventCursorHand(SDL_Event* Event) {
+bool CursorLogicSystem::EventCursorHand(SDL_Event* event) {
   // 1. 事件类型检查
-  if (!Event || Event->type != SDL_EVENT_MOUSE_BUTTON_UP ||
-      Event->button.button != SDL_BUTTON_LEFT) {
+  if (!event || event->type != SDL_EVENT_MOUSE_BUTTON_UP ||
+      event->button.button != SDL_BUTTON_LEFT) {
     return false;
   }
 
@@ -421,12 +421,12 @@ bool CursorLogicSystem::EventCursorHand(SDL_Event* Event) {
   return false;
 }
 
-bool CursorLogicSystem::EventCharacter(SDL_Event* Event) {
+bool CursorLogicSystem::EventCharacter(SDL_Event* event) {
   bool r = false;
-  switch (Event->type) {
+  switch (event->type) {
     case SDL_EVENT_MOUSE_BUTTON_UP: {
-      if (Event->button.button == SDL_BUTTON_LEFT &&
-          Event->button.clicks >= 2) {
+      if (event->button.button == SDL_BUTTON_LEFT &&
+          event->button.clicks >= 2) {
         if (CursorGameInstance::cursor_ui != nullptr) {
           break;
         }
@@ -446,7 +446,7 @@ bool CursorLogicSystem::EventCharacter(SDL_Event* Event) {
             return true;
           }
         }
-      } else if (Event->button.button == SDL_BUTTON_RIGHT) {
+      } else if (event->button.button == SDL_BUTTON_RIGHT) {
         if (CursorGameInstance::cursor_ui != nullptr) {
           break;
         }
@@ -522,15 +522,15 @@ bool CursorLogicSystem::EventClickNpc(GameNpc npc) {
   return r;
 }
 
-bool CursorLogicSystem::EventNpc(SDL_Event* Event) {
+bool CursorLogicSystem::EventNpc(SDL_Event* event) {
   if (CursorGameInstance::cursor_hand_net_.has_value()) {
     return false;
   }
   bool r = false;
-  switch (Event->type) {
+  switch (event->type) {
     case SDL_EVENT_MOUSE_BUTTON_UP: {
-      if (Event->button.button == SDL_BUTTON_LEFT &&
-          Event->button.clicks >= 2) {
+      if (event->button.button == SDL_BUTTON_LEFT &&
+          event->button.clicks >= 2) {
         if (CursorGameInstance::cursor_ui != nullptr) {
           break;
         }
@@ -547,14 +547,14 @@ bool CursorLogicSystem::EventNpc(SDL_Event* Event) {
   return r;
 }
 
-bool CursorLogicSystem::Event(SDL_Event* Event) {
-  if (EventCursorHand(Event)) {
+bool CursorLogicSystem::Event(SDL_Event* event) {
+  if (EventCursorHand(event)) {
     return false;
   }
-  if (EventCharacter(Event)) {
+  if (EventCharacter(event)) {
     return false;
   }
-  if (EventNpc(Event)) {
+  if (EventNpc(event)) {
     return false;
   }
 

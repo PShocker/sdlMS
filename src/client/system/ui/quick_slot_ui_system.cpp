@@ -299,7 +299,7 @@ bool QuickSlotUiSystem::CursorIn() {
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
-bool QuickSlotUiSystem::EventClickQuickslot(SDL_Event* Event) {
+bool QuickSlotUiSystem::EventClickQuickslot(SDL_Event* event) {
   if (CursorGameInstance::cursor_hand_net_.has_value()) {
     return false;
   }
@@ -367,11 +367,11 @@ bool QuickSlotUiSystem::EventClickQuickslot(SDL_Event* Event) {
   return false;
 }
 
-bool QuickSlotUiSystem::Event(SDL_Event* Event) {
+bool QuickSlotUiSystem::Event(SDL_Event* event) {
   bool r = true;
-  switch (Event->type) {
+  switch (event->type) {
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
           r = false;
         }
@@ -379,9 +379,9 @@ bool QuickSlotUiSystem::Event(SDL_Event* Event) {
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
-          r = !EventClickQuickslot(Event);
+          r = !EventClickQuickslot(event);
         }
       }
       break;

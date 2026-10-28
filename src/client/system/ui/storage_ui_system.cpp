@@ -26,8 +26,8 @@ bool StorageUiSystem::CursorIn() {
 }
 
 std::optional<uint32_t> StorageUiSystem::LoadMouseIndex() {
-  auto CursorIn = CursorGameInstance::cursor_ui;
-  if (CursorIn != Render) {
+  auto cursor_in = CursorGameInstance::cursor_ui;
+  if (cursor_in != Render) {
     return std::nullopt;
   }
   SDL_FPoint slot_pos{8, 51};
@@ -98,8 +98,8 @@ void StorageUiSystem::RenderButton() {
     pos_rect.y += (int)pos_.y;
     auto& mouse_pos = Window::mouse_pos_;
     // 判断按钮是否被遮挡
-    auto CursorIn = CursorGameInstance::cursor_ui;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && CursorIn == Render &&
+    auto cursor_in = CursorGameInstance::cursor_ui;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == Render &&
         CursorGameInstance::modal_overlay == Render) {
       if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
         auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
@@ -159,7 +159,7 @@ void StorageUiSystem::Close() {
   std::erase(System::event_systems_, Event);
 }
 
-bool StorageUiSystem::EventButton(SDL_Event* Event) {
+bool StorageUiSystem::EventButton(SDL_Event* event) {
   std::vector<SDL_FRect> r;
   std::vector<void (*)()> fns;
   r = {
@@ -268,11 +268,11 @@ void StorageUiSystem::EventButtonExit() {
   EventClose();
 }
 
-bool StorageUiSystem::Event(SDL_Event* Event) {
+bool StorageUiSystem::Event(SDL_Event* event) {
   bool r = true;
-  switch (Event->type) {
+  switch (event->type) {
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
           r = false;
         }
@@ -280,10 +280,10 @@ bool StorageUiSystem::Event(SDL_Event* Event) {
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
           EventTab();
-          r = !EventButton(Event);
+          r = !EventButton(event);
         }
       }
       break;

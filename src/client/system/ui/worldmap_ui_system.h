@@ -20,17 +20,17 @@ class WorldmapUiSystem {
   static bool RenderSpotInfo();
   static void RenderCurPos(SDL_FPoint point);
 
-  static void EventMotion(SDL_Event* Event);
+  static void EventMotion(SDL_Event* event);
   static void EventClose();
 
   static SDL_FPoint LoadWh();
   static void EventTop();
-  static void EventDragStart(SDL_Event* Event);
+  static void EventDragStart(SDL_Event* event);
   static void EventDragEnd();
-  static void EventDragMove(SDL_Event* Event);
+  static void EventDragMove(SDL_Event* event);
 
   static void EventClickSpot();
-  static bool EventButton(SDL_Event* Event);
+  static bool EventButton(SDL_Event* event);
 
   static inline std::optional<SDL_FPoint> drag_;
 
@@ -47,7 +47,7 @@ class WorldmapUiSystem {
   static void Open();
   static void Close();
   static bool Render();
-  static bool Event(SDL_Event* Event);
+  static bool Event(SDL_Event* event);
 };
 
 }  // namespace sdlms

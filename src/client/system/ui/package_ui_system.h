@@ -29,25 +29,25 @@ class PackageUiSystem {
   static void EventButtonGather();
   static void EventButtonSort();
 
-  static void EventMotion(SDL_Event* Event);
+  static void EventMotion(SDL_Event* event);
 
-  static bool EventClickItem(SDL_Event* Event);
+  static bool EventClickItem(SDL_Event* event);
 
-  static bool EventVscr(SDL_Event* Event);
-  static bool EventButton(SDL_Event* Event);
-  static void EventTab(SDL_Event* Event);
+  static bool EventVscr(SDL_Event* event);
+  static bool EventButton(SDL_Event* event);
+  static void EventTab(SDL_Event* event);
   static void EventTop();
-  static void EventDragStart(SDL_Event* Event);
+  static void EventDragStart(SDL_Event* event);
   static void EventDragEnd();
-  static void EventDragMove(SDL_Event* Event);
+  static void EventDragMove(SDL_Event* event);
 
-  static void EventVscrStart(SDL_Event* Event);
+  static void EventVscrStart(SDL_Event* event);
   static void EventVscrEnd();
-  static void EventVscrMove(SDL_Event* Event);
+  static void EventVscrMove(SDL_Event* event);
 
-  static void EventWheel(SDL_Event* Event);
+  static void EventWheel(SDL_Event* event);
 
-  static void EventMotionBtAudio(SDL_Event* Event);
+  static void EventMotionBtAudio(SDL_Event* event);
 
   static SDL_FPoint LoadWh();
 
@@ -68,7 +68,7 @@ class PackageUiSystem {
   static void Close();
 
   static bool Render();
-  static bool Event(SDL_Event* Event);
+  static bool Event(SDL_Event* event);
 
   static bool CursorIn();
 

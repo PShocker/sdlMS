@@ -32,9 +32,9 @@ class StatusbarUiSystem {
   static void EventChatSend();
   static std::u16string LoadChatType();
 
-  static void EventMotionBtAudio(SDL_Event* Event);
+  static void EventMotionBtAudio(SDL_Event* event);
 
-  static bool EventButton(SDL_Event* Event);
+  static bool EventButton(SDL_Event* event);
   // button_func
   static void EventButtonCashshop();
   static void EventButtonMenu();
@@ -54,7 +54,7 @@ class StatusbarUiSystem {
 
   static void Reset();
   static bool Render();
-  static bool Event(SDL_Event* Event);
+  static bool Event(SDL_Event* event);
 
   static bool CursorIn();
 };

@@ -428,7 +428,7 @@ void CharacterStatUiSystem::EventButtonLukIncMax() {
   NoticeUiSystem::Open();
 }
 
-bool CharacterStatUiSystem::EventButton(SDL_Event* Event) {
+bool CharacterStatUiSystem::EventButton(SDL_Event* event) {
   std::vector<void (*)()> fns;
   auto wh = LoadWh();
   std::vector<SDL_FRect> buttons_rect = {
@@ -482,11 +482,11 @@ bool CharacterStatUiSystem::EventButton(SDL_Event* Event) {
   return false;
 }
 
-bool CharacterStatUiSystem::Event(SDL_Event* Event) {
+bool CharacterStatUiSystem::Event(SDL_Event* event) {
   bool r = true;
-  switch (Event->type) {
+  switch (event->type) {
     case SDL_EVENT_KEY_DOWN: {
-      auto scan_code = Event->key.scancode;
+      auto scan_code = event->key.scancode;
       switch (scan_code) {
         case SDL_SCANCODE_ESCAPE: {
           Close();
@@ -500,26 +500,26 @@ bool CharacterStatUiSystem::Event(SDL_Event* Event) {
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
           EventTop();
-          EventDragStart(Event);
+          EventDragStart(event);
           r = false;
         }
       }
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
-          r = !EventButton(Event);
+          r = !EventButton(event);
         }
         EventDragEnd();
       }
       break;
     }
     case SDL_EVENT_MOUSE_MOTION: {
-      EventDragMove(Event);
+      EventDragMove(event);
       break;
     }
     default: {
@@ -541,12 +541,12 @@ void CharacterStatUiSystem::EventTop() {
   }
 }
 
-void CharacterStatUiSystem::EventDragStart(SDL_Event* Event) {
+void CharacterStatUiSystem::EventDragStart(SDL_Event* event) {
   auto wh = LoadWh();
   SDL_FRect pos_rect = {pos_.x, pos_.y, wh.x, 20};
-  SDL_FPoint mouse_pos = {Event->button.x, Event->button.y};
+  SDL_FPoint mouse_pos = {event->button.x, event->button.y};
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    drag_ = {pos_.x - Event->button.x, pos_.y - Event->button.y};
+    drag_ = {pos_.x - event->button.x, pos_.y - event->button.y};
   }
   return;
 }
@@ -556,9 +556,9 @@ void CharacterStatUiSystem::EventDragEnd() {
   return;
 }
 
-void CharacterStatUiSystem::EventDragMove(SDL_Event* Event) {
+void CharacterStatUiSystem::EventDragMove(SDL_Event* event) {
   if (drag_.has_value()) {
-    pos_ = {Event->motion.x + drag_->x, Event->motion.y + drag_->y};
+    pos_ = {event->motion.x + drag_->x, event->motion.y + drag_->y};
     auto& camera = CameraGameInstance::camera_;
     auto wh = LoadWh();
     pos_.x = std::clamp(pos_.x, (float)0, camera.w - wh.x);

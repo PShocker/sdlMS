@@ -254,8 +254,8 @@ void EquipUiSystem::RenderButton() {
     pos_rect.y = (int)pos_rect.y;
     auto& mouse_pos = Window::mouse_pos_;
     // 判断按钮是否被遮挡
-    auto CursorIn = CursorGameInstance::cursor_ui;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && CursorIn == Render &&
+    auto cursor_in = CursorGameInstance::cursor_ui;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == Render &&
         !CursorGameInstance::modal_overlay) {
       if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
         auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
@@ -286,7 +286,7 @@ bool EquipUiSystem::Render() {
   return true;
 }
 
-bool EquipUiSystem::EventClickEquip(SDL_Event* Event) {
+bool EquipUiSystem::EventClickEquip(SDL_Event* event) {
   if (CursorGameInstance::cursor_hand_net_.has_value()) {
     return false;
   }
@@ -353,7 +353,7 @@ bool EquipUiSystem::EventClickEquip(SDL_Event* Event) {
       }
     }
   } else {
-    if (Event->button.button == SDL_BUTTON_LEFT) {
+    if (event->button.button == SDL_BUTTON_LEFT) {
       bool Click = false;
       if (active_tab_ == 0) {
         Click = EquipGameInstance::LoadEquip(index)->has_value();
@@ -435,12 +435,12 @@ void EquipUiSystem::EventTop() {
   }
 }
 
-void EquipUiSystem::EventDragStart(SDL_Event* Event) {
+void EquipUiSystem::EventDragStart(SDL_Event* event) {
   auto wh = LoadWh();
   SDL_FRect pos_rect = {pos_.x, pos_.y, wh.x, 20};
-  SDL_FPoint mouse_pos = {Event->button.x, Event->button.y};
+  SDL_FPoint mouse_pos = {event->button.x, event->button.y};
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    drag_ = {pos_.x - Event->button.x, pos_.y - Event->button.y};
+    drag_ = {pos_.x - event->button.x, pos_.y - event->button.y};
   }
   return;
 }
@@ -450,9 +450,9 @@ void EquipUiSystem::EventDragEnd() {
   return;
 }
 
-void EquipUiSystem::EventDragMove(SDL_Event* Event) {
+void EquipUiSystem::EventDragMove(SDL_Event* event) {
   if (drag_.has_value()) {
-    pos_ = {Event->motion.x + drag_->x, Event->motion.y + drag_->y};
+    pos_ = {event->motion.x + drag_->x, event->motion.y + drag_->y};
     auto& camera = CameraGameInstance::camera_;
     auto [w, h] = LoadWh();
     pos_.x = std::clamp(pos_.x, (float)0, camera.w - w);
@@ -465,7 +465,7 @@ void EquipUiSystem::EventClose() {
   Close();
 }
 
-bool EquipUiSystem::EventButton(SDL_Event* Event) {
+bool EquipUiSystem::EventButton(SDL_Event* event) {
   std::vector<SDL_FRect> r;
   std::vector<void (*)()> fns;
   auto wh = LoadWh();
@@ -489,7 +489,7 @@ bool EquipUiSystem::EventButton(SDL_Event* Event) {
   return false;
 }
 
-void EquipUiSystem::EventTab(SDL_Event* Event) {
+void EquipUiSystem::EventTab(SDL_Event* event) {
   const static std::array tab_rect = {
       SDL_FRect{5, 26, 33, 19},   //
       SDL_FRect{38, 26, 33, 19},  //
@@ -504,7 +504,7 @@ void EquipUiSystem::EventTab(SDL_Event* Event) {
   }
 }
 
-void EquipUiSystem::EventMotion(SDL_Event* Event) {
+void EquipUiSystem::EventMotion(SDL_Event* event) {
   auto& sys = System::render_systems_;
   std::erase(sys, RenderInfo);
   auto it = std::ranges::find(sys, &CursorRenderSystem::Render);
@@ -513,7 +513,7 @@ void EquipUiSystem::EventMotion(SDL_Event* Event) {
   }
 }
 
-void EquipUiSystem::EventMotionBtAudio(SDL_Event* Event) {
+void EquipUiSystem::EventMotionBtAudio(SDL_Event* event) {
   if (CursorGameInstance::cursor_ui != Render) {
     return;
   }
@@ -540,11 +540,11 @@ void EquipUiSystem::EventMotionBtAudio(SDL_Event* Event) {
   bt_audio = bt_in;
 }
 
-bool EquipUiSystem::Event(SDL_Event* Event) {
+bool EquipUiSystem::Event(SDL_Event* event) {
   bool r = true;
-  switch (Event->type) {
+  switch (event->type) {
     case SDL_EVENT_KEY_DOWN: {
-      auto scan_code = Event->key.scancode;
+      auto scan_code = event->key.scancode;
       switch (scan_code) {
         case SDL_SCANCODE_ESCAPE: {
           EventClose();
@@ -558,30 +558,30 @@ bool EquipUiSystem::Event(SDL_Event* Event) {
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
           EventTop();
-          EventDragStart(Event);
+          EventDragStart(event);
           r = false;
         }
       }
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
-          EventTab(Event);
-          EventClickEquip(Event);
-          r = !EventButton(Event);
+          EventTab(event);
+          EventClickEquip(event);
+          r = !EventButton(event);
         }
         EventDragEnd();
       }
       break;
     }
     case SDL_EVENT_MOUSE_MOTION: {
-      EventMotionBtAudio(Event);
-      EventMotion(Event);
-      EventDragMove(Event);
+      EventMotionBtAudio(event);
+      EventMotion(event);
+      EventDragMove(event);
       break;
     }
     default: {

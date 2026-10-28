@@ -152,8 +152,8 @@ void NpcDlgUiSystem::RenderButton() {
     pos_rect.y += (int)pos_.y;
     auto& mouse_pos = Window::mouse_pos_;
     // 判断按钮是否被遮挡
-    auto CursorIn = CursorGameInstance::cursor_ui;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && CursorIn == Render) {
+    auto cursor_in = CursorGameInstance::cursor_ui;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == Render) {
       if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
         auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
         SDL_RenderTexture(Window::renderer_, pressed, nullptr, &pos_rect);
@@ -833,7 +833,7 @@ void NpcDlgUiSystem::EventButtonQuestNo() {
   }
 }
 
-bool NpcDlgUiSystem::EventButton(SDL_Event* Event) {
+bool NpcDlgUiSystem::EventButton(SDL_Event* event) {
   auto [w, h] = LoadWh();
   std::vector<SDL_FRect> buttons_rect = {
       SDL_FRect{10, h - 25, 85, 18},  //
@@ -884,7 +884,7 @@ bool NpcDlgUiSystem::CursorIn() {
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
-void NpcDlgUiSystem::EventMotionBtAudio(SDL_Event* Event) {
+void NpcDlgUiSystem::EventMotionBtAudio(SDL_Event* event) {
   if (CursorGameInstance::cursor_ui != Render) {
     return;
   }
@@ -925,11 +925,11 @@ void NpcDlgUiSystem::EventMotionBtAudio(SDL_Event* Event) {
   bt_audio = bt_in;
 }
 
-bool NpcDlgUiSystem::Event(SDL_Event* Event) {
+bool NpcDlgUiSystem::Event(SDL_Event* event) {
   bool r = false;
-  switch (Event->type) {
+  switch (event->type) {
     case SDL_EVENT_KEY_DOWN: {
-      auto scan_code = Event->key.scancode;
+      auto scan_code = event->key.scancode;
       switch (scan_code) {
         case SDL_SCANCODE_UP: {
           if (type_ == NpcDlgEnum::kSelect) {
@@ -975,7 +975,7 @@ bool NpcDlgUiSystem::Event(SDL_Event* Event) {
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
           time_ = UINT64_MAX;
         }
@@ -983,11 +983,11 @@ bool NpcDlgUiSystem::Event(SDL_Event* Event) {
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
           time_ = UINT64_MAX;
           EventList();
-          EventButton(Event);
+          EventButton(event);
           if (type_ == NpcDlgEnum::kSelect && select_mouse_ >= 0) {
             EventButtonNext();
           }
@@ -996,7 +996,7 @@ bool NpcDlgUiSystem::Event(SDL_Event* Event) {
       break;
     }
     case SDL_EVENT_MOUSE_MOTION: {
-      EventMotionBtAudio(Event);
+      EventMotionBtAudio(event);
       break;
     }
     default: {

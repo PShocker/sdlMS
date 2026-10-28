@@ -27,11 +27,11 @@ class CharacterInfoUiSystem {
 
   static SDL_FPoint LoadWh();
   static void EventTop();
-  static void EventDragStart(SDL_Event* Event);
+  static void EventDragStart(SDL_Event* event);
   static void EventDragEnd();
-  static void EventDragMove(SDL_Event* Event);
+  static void EventDragMove(SDL_Event* event);
 
-  static bool EventVscr(SDL_Event* Event);
+  static bool EventVscr(SDL_Event* event);
 
   static void EventButtonParty();
   static void EventButtonTrade();
@@ -43,16 +43,16 @@ class CharacterInfoUiSystem {
   static void EventButtonShowPet();
   static void EventClose();
 
-  static void EventMotionBtAudio(SDL_Event* Event);
-  static void EventMotion(SDL_Event* Event);
+  static void EventMotionBtAudio(SDL_Event* event);
+  static void EventMotion(SDL_Event* event);
 
-  static bool EventButton(SDL_Event* Event);
+  static bool EventButton(SDL_Event* event);
 
-  static void EventWheel(SDL_Event* Event);
+  static void EventWheel(SDL_Event* event);
 
-  static void EventVscrStart(SDL_Event* Event);
+  static void EventVscrStart(SDL_Event* event);
   static void EventVscrEnd();
-  static void EventVscrMove(SDL_Event* Event);
+  static void EventVscrMove(SDL_Event* event);
 
   static inline bool vscr_motion_;
 
@@ -79,7 +79,7 @@ class CharacterInfoUiSystem {
   static void Open();
   static void Close();
   static bool Render();
-  static bool Event(SDL_Event* Event);
+  static bool Event(SDL_Event* event);
 };
 
 }  // namespace sdlms

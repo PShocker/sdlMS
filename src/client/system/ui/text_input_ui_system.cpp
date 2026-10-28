@@ -254,11 +254,11 @@ void TextInputUiSystem::Render(TextInput& input, int x, int y) {
   Freetype::LoadBold(false);
 }
 
-bool TextInputUiSystem::Event(SDL_Event* Event, TextInput& input) {
+bool TextInputUiSystem::Event(SDL_Event* event, TextInput& input) {
   bool r = false;
-  switch (Event->type) {
+  switch (event->type) {
     case SDL_EVENT_TEXT_EDITING: {
-      auto text = Event->edit.text;
+      auto text = event->edit.text;
       if (text[0] != '\0') {
         input.composition = TextGameInstance::LoadU16str(text);
       } else {
@@ -270,7 +270,7 @@ bool TextInputUiSystem::Event(SDL_Event* Event, TextInput& input) {
       if (input.text.length() >= input.max_size) {
         break;
       }
-      auto text = Event->edit.text;
+      auto text = event->edit.text;
       auto cur0 = input.text.length();
       auto str1 = input.text.substr(0, input.cur);
       auto str2 = TextGameInstance::LoadU16str(text);
@@ -294,7 +294,7 @@ bool TextInputUiSystem::Event(SDL_Event* Event, TextInput& input) {
       if (input.active == false) {
         break;
       }
-      auto scan_code = Event->key.scancode;
+      auto scan_code = event->key.scancode;
       switch (scan_code) {
         case SDL_SCANCODE_LEFT: {
           input.cur--;
@@ -325,7 +325,7 @@ bool TextInputUiSystem::Event(SDL_Event* Event, TextInput& input) {
         }
         default: {
           SDL_Keycode key =
-              SDL_GetKeyFromScancode(Event->key.scancode, Event->key.mod, true);
+              SDL_GetKeyFromScancode(event->key.scancode, event->key.mod, true);
           // 过滤
           bool digit = (key >= SDLK_0 && key <= SDLK_9);
           bool letter = (key >= SDLK_A && key <= SDLK_Z);
@@ -348,7 +348,7 @@ bool TextInputUiSystem::Event(SDL_Event* Event, TextInput& input) {
           SDL_Event e;
           e.type = SDL_EVENT_TEXT_INPUT;
           // 如果是字母且 Caps Lock 开启，手动转换
-          if ((Event->key.mod & SDL_KMOD_CAPS) && (key >= 'a' && key <= 'z')) {
+          if ((event->key.mod & SDL_KMOD_CAPS) && (key >= 'a' && key <= 'z')) {
             key -= 32;  // 小写转大写
           }
           char c[2] = {0, 0};
@@ -361,7 +361,7 @@ bool TextInputUiSystem::Event(SDL_Event* Event, TextInput& input) {
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         SDL_Point p = {
             static_cast<int>(Window::mouse_pos_.x),
             static_cast<int>(Window::mouse_pos_.y),
@@ -397,7 +397,7 @@ bool TextInputUiSystem::Event(SDL_Event* Event, TextInput& input) {
       break;
     }
     case SDL_EVENT_MOUSE_MOTION: {
-      if (Event->motion.state & SDL_BUTTON_LMASK) {
+      if (event->motion.state & SDL_BUTTON_LMASK) {
         if (input.active) {
           SDL_Point p = {
               static_cast<int>(Window::mouse_pos_.x),

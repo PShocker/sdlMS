@@ -39,8 +39,8 @@ static void PowerStrke() {
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
     ClientRequest::send_to_host(ckt);
   };
-  auto& Skis = SkillGameInstance::Skis();
-  Skis[g_skill.id] = g_skill;
+  auto& skills = SkillGameInstance::Skis();
+  skills[g_skill.id] = g_skill;
 }
 
 static void SlashBlast() {
@@ -62,8 +62,8 @@ static void SlashBlast() {
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
     ClientRequest::send_to_host(ckt);
   };
-  auto& Skis = SkillGameInstance::Skis();
-  Skis[g_skill.id] = g_skill;
+  auto& skills = SkillGameInstance::Skis();
+  skills[g_skill.id] = g_skill;
 }
 
 [[maybe_unused]] static const bool r = [] {

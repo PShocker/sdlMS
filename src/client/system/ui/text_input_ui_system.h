@@ -42,7 +42,7 @@ class TextInputUiSystem {
   static void Close(TextInput& input);
   static void Render(TextInput& input, int x, int y);
   static void Active(TextInput& input);
-  static bool Event(SDL_Event* Event, TextInput& input);
+  static bool Event(SDL_Event* event, TextInput& input);
 };
 
 }  // namespace sdlms

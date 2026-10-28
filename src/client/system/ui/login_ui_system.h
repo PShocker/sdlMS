@@ -32,7 +32,7 @@ class LoginUiSystem {
   static void EventButtonQuit();
   static void EventButtonBack();
 
-  static bool EventButton(SDL_Event* Event);
+  static bool EventButton(SDL_Event* event);
 
  public:
   static inline uv_pipe_t g_pipe_;
@@ -40,7 +40,7 @@ class LoginUiSystem {
   static bool CameraAnimate(float x, float y);
 
   static bool Render();
-  static bool Event(SDL_Event* Event);
+  static bool Event(SDL_Event* event);
 };
 
 }  // namespace sdlms

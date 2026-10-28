@@ -80,12 +80,12 @@ void SkillUiSystem::EventTop() {
   }
 }
 
-void SkillUiSystem::EventDragStart(SDL_Event* Event) {
+void SkillUiSystem::EventDragStart(SDL_Event* event) {
   auto wh = LoadWh();
   SDL_FRect pos_rect = {pos_.x, pos_.y, wh.x, 20};
-  SDL_FPoint mouse_pos = {Event->button.x, Event->button.y};
+  SDL_FPoint mouse_pos = {event->button.x, event->button.y};
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    drag_ = {pos_.x - Event->button.x, pos_.y - Event->button.y};
+    drag_ = {pos_.x - event->button.x, pos_.y - event->button.y};
   }
   return;
 }
@@ -95,9 +95,9 @@ void SkillUiSystem::EventDragEnd() {
   return;
 }
 
-void SkillUiSystem::EventDragMove(SDL_Event* Event) {
+void SkillUiSystem::EventDragMove(SDL_Event* event) {
   if (drag_.has_value()) {
-    pos_ = {Event->motion.x + drag_->x, Event->motion.y + drag_->y};
+    pos_ = {event->motion.x + drag_->x, event->motion.y + drag_->y};
     auto& camera = CameraGameInstance::camera_;
     auto [w, h] = LoadWh();
     pos_.x = std::clamp(pos_.x, (float)0, camera.w - w);
@@ -167,7 +167,7 @@ void SkillUiSystem::RenderSkillEntry() {
 
   auto& mouse_pos = Window::mouse_pos_;
   // 判断按钮是否被遮挡
-  auto CursorIn = CursorGameInstance::cursor_ui;
+  auto cursor_in = CursorGameInstance::cursor_ui;
   uint8_t i = 0;
   auto nodes = JobSkillGameInstance::LoadJobSkis(jt);
   for (auto it = nodes.begin() + page_; it != nodes.end(); ++it) {
@@ -191,7 +191,7 @@ void SkillUiSystem::RenderSkillEntry() {
       mouse_skill_id = k;
     }
     if (ski_level > 0) {
-      if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && CursorIn == Render &&
+      if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == Render &&
           !CursorGameInstance::modal_overlay) {
         ski_texture =
             WzResource::LoadTexture(v[0]->get_child(u"iconMouseOver"));
@@ -243,8 +243,8 @@ void SkillUiSystem::RenderScroll() {
   JobType jt = ski_tree.at(active_tab_);
   auto skill_node = JobSkillGameInstance::LoadJobSkis(jt);
   auto size = skill_node.size();
-  auto CursorIn = CursorGameInstance::cursor_ui;
-  bool top = (CursorIn == Render) && !CursorGameInstance::modal_overlay;
+  auto cursor_in = CursorGameInstance::cursor_ui;
+  bool top = (cursor_in == Render) && !CursorGameInstance::modal_overlay;
   ScrollUiSystem::RenderVscroll((int)pos_.x + lt.x, (int)pos_.y + lt.y, page_,
                                 size, length, top, 6);
   return;
@@ -418,7 +418,7 @@ void SkillUiSystem::EventClose() {
   Close();
 }
 
-bool SkillUiSystem::EventButton(SDL_Event* Event) {
+bool SkillUiSystem::EventButton(SDL_Event* event) {
   std::vector<SDL_FRect> r;
   std::vector<void (*)()> fns;
   auto wh = LoadWh();
@@ -442,12 +442,12 @@ bool SkillUiSystem::EventButton(SDL_Event* Event) {
   return false;
 }
 
-bool SkillUiSystem::EventClickSki(SDL_Event* Event) {
+bool SkillUiSystem::EventClickSki(SDL_Event* event) {
   if (CursorGameInstance::cursor_hand_net_.has_value()) {
     return false;
   }
   if (!mouse_skill_id.empty()) {
-    if (Event->button.clicks >= 1) {
+    if (event->button.clicks >= 1) {
       auto id = mouse_skill_id;
       if (!SkillGameInstance::LoadSkiActive(id)) {
         return false;
@@ -484,7 +484,7 @@ bool SkillUiSystem::EventClickSki(SDL_Event* Event) {
   return false;
 }
 
-bool SkillUiSystem::EventClickTab(SDL_Event* Event) {
+bool SkillUiSystem::EventClickTab(SDL_Event* event) {
   const static SDL_FPoint lt = {5, 24};
   const static SDL_FPoint rb = {186, 43};
   auto jobs =
@@ -508,7 +508,7 @@ bool SkillUiSystem::EventClickTab(SDL_Event* Event) {
   return false;
 }
 
-void SkillUiSystem::EventVscr(SDL_Event* Event) {
+void SkillUiSystem::EventVscr(SDL_Event* event) {
   const SDL_FPoint lt{174, 98};
   const uint32_t length = 236;
   auto self_job = CharacterGameInstance::self_.job;
@@ -517,15 +517,15 @@ void SkillUiSystem::EventVscr(SDL_Event* Event) {
   // 根据active_tab获取技能组
   auto skill_node = JobSkillGameInstance::LoadJobSkis(jt);
   int size = skill_node.size() - 6;
-  auto CursorIn = CursorGameInstance::cursor_ui;
-  bool top = CursorIn == Render;
+  auto cursor_in = CursorGameInstance::cursor_ui;
+  bool top = cursor_in == Render;
   size = std::max(0, size);
   auto val = ScrollUiSystem::ClickVscroll(
       (int)pos_.x + lt.x, (int)pos_.y + lt.y, page_, size, length, top);
   page_ = val;
 }
 
-void SkillUiSystem::EventMotion(SDL_Event* Event) {
+void SkillUiSystem::EventMotion(SDL_Event* event) {
   auto& sys = System::render_systems_;
   std::erase(sys, RenderInfo);
   auto it = std::ranges::find(sys, &CursorRenderSystem::Render);
@@ -534,7 +534,7 @@ void SkillUiSystem::EventMotion(SDL_Event* Event) {
   }
 }
 
-void SkillUiSystem::EventVscrStart(SDL_Event* Event) {
+void SkillUiSystem::EventVscrStart(SDL_Event* event) {
   const SDL_FPoint lt{174, 98};
   const uint32_t length = 236;
   if (vscr_motion_ == false) {
@@ -547,23 +547,23 @@ void SkillUiSystem::EventVscrEnd() {
   vscr_motion_ = {};
 }
 
-void SkillUiSystem::EventVscrMove(SDL_Event* Event) {
+void SkillUiSystem::EventVscrMove(SDL_Event* event) {
   auto mouse_state = Window::mouse_state_;
   const SDL_FPoint lt{174, 98};
   const uint32_t length = 236;
   if (vscr_motion_) {
-    Event->button.x = pos_.x + lt.x;
-    Event->button.y =
-        std::clamp(Event->button.y, pos_.y + lt.y, pos_.y + lt.y + length);
-    EventVscr(Event);
+    event->button.x = pos_.x + lt.x;
+    event->button.y =
+        std::clamp(event->button.y, pos_.y + lt.y, pos_.y + lt.y + length);
+    EventVscr(event);
   }
 }
 
-void SkillUiSystem::EventWheel(SDL_Event* Event) {
+void SkillUiSystem::EventWheel(SDL_Event* event) {
   if (CursorGameInstance::cursor_ui != Render) {
     return;
   }
-  auto dy = Event->wheel.integer_y;
+  auto dy = event->wheel.integer_y;
   if (dy > 0) {
     // up
     if (page_ > 0) {
@@ -584,7 +584,7 @@ void SkillUiSystem::EventWheel(SDL_Event* Event) {
   }
 }
 
-void SkillUiSystem::EventMotionBtAudio(SDL_Event* Event) {
+void SkillUiSystem::EventMotionBtAudio(SDL_Event* event) {
   if (CursorGameInstance::cursor_ui != Render) {
     return;
   }
@@ -618,11 +618,11 @@ void SkillUiSystem::EventMotionBtAudio(SDL_Event* Event) {
   bt_audio = bt_in;
 }
 
-bool SkillUiSystem::Event(SDL_Event* Event) {
+bool SkillUiSystem::Event(SDL_Event* event) {
   bool r = true;
-  switch (Event->type) {
+  switch (event->type) {
     case SDL_EVENT_KEY_DOWN: {
-      auto scan_code = Event->key.scancode;
+      auto scan_code = event->key.scancode;
       switch (scan_code) {
         case SDL_SCANCODE_ESCAPE: {
           EventClose();
@@ -636,36 +636,36 @@ bool SkillUiSystem::Event(SDL_Event* Event) {
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
           EventTop();
-          EventDragStart(Event);
+          EventDragStart(event);
           r = false;
         }
       }
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
           EventButtonSkiUp();
-          EventVscr(Event);
-          EventClickSki(Event);
-          EventClickTab(Event);
-          r = EventButton(Event);
+          EventVscr(event);
+          EventClickSki(event);
+          EventClickTab(event);
+          r = EventButton(event);
         }
         EventDragEnd();
       }
       break;
     }
     case SDL_EVENT_MOUSE_MOTION: {
-      EventMotionBtAudio(Event);
-      EventMotion(Event);
-      EventDragMove(Event);
+      EventMotionBtAudio(event);
+      EventMotion(event);
+      EventDragMove(event);
       break;
     }
     case SDL_EVENT_MOUSE_WHEEL: {
-      EventWheel(Event);
+      EventWheel(event);
       break;
     }
     default: {

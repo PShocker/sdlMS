@@ -11,14 +11,14 @@
 
 namespace sdlms {
 
-bool KeyboardInputSystem::Event(SDL_Event* Event) {
-  auto repeat = Event->key.repeat;
-  auto scan_code = Event->key.scancode;
+bool KeyboardInputSystem::Event(SDL_Event* event) {
+  auto repeat = event->key.repeat;
+  auto scan_code = event->key.scancode;
   if (!KeyboardGameInstance::data_.contains(scan_code)) {
     return true;
   }
   auto& g_input = KeyboardGameInstance::data_.at(scan_code);
-  if (Event->type == SDL_EVENT_KEY_DOWN) {
+  if (event->type == SDL_EVENT_KEY_DOWN) {
     if (repeat == false) {
       if (g_input.type == "item") {
         InputSystem::HandleItemInput(g_input, true);
@@ -32,7 +32,7 @@ bool KeyboardInputSystem::Event(SDL_Event* Event) {
         InputSystem::HandleFaceInput(g_input, true);
       }
     }
-  } else if (Event->type == SDL_EVENT_KEY_UP) {
+  } else if (event->type == SDL_EVENT_KEY_UP) {
     if (g_input.type == "item") {
       InputSystem::HandleItemInput(g_input, false);
     } else if (g_input.type == "action") {

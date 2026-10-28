@@ -73,7 +73,7 @@ bool ScreenNoticeUiSystem::Render() {
   return true;
 }
 
-bool ScreenNoticeUiSystem::Event(SDL_Event* Event) {
+bool ScreenNoticeUiSystem::Event(SDL_Event* event) {
   return true;
 }
 

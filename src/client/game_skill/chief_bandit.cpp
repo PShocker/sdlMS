@@ -58,8 +58,8 @@ static void Jinqianzhadan() {
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
     ClientRequest::send_to_host(ckt);
   };
-  auto& Skis = SkillGameInstance::Skis();
-  Skis[g_skill.id] = g_skill;
+  auto& skills = SkillGameInstance::Skis();
+  skills[g_skill.id] = g_skill;
 }
 
 static void Luoyezhan() {
@@ -118,8 +118,8 @@ static void Luoyezhan() {
     ClientRequest::send_to_host(ckt);
     // 地面位移，与瞬移不同
   };
-  auto& Skis = SkillGameInstance::Skis();
-  Skis[g_skill.id] = g_skill;
+  auto& skills = SkillGameInstance::Skis();
+  skills[g_skill.id] = g_skill;
 }
 
 [[maybe_unused]] static const bool r = [] {

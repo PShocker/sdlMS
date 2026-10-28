@@ -26,12 +26,12 @@ class QuestAlarmUiSystem {
 
   static void EventQuestClose();
 
-  static bool EventButton(SDL_Event* Event);
+  static bool EventButton(SDL_Event* event);
 
   static void EventTop();
-  static void EventDragStart(SDL_Event* Event);
+  static void EventDragStart(SDL_Event* event);
   static void EventDragEnd();
-  static void EventDragMove(SDL_Event* Event);
+  static void EventDragMove(SDL_Event* event);
 
   static inline std::optional<SDL_FPoint> drag_;
 
@@ -52,7 +52,7 @@ class QuestAlarmUiSystem {
   static bool CursorIn();
 
   static bool Render();
-  static bool Event(SDL_Event* Event);
+  static bool Event(SDL_Event* event);
 };
 
 }  // namespace sdlms

@@ -47,18 +47,18 @@ class EquipUiSystem {
 
   static void EventClose();
 
-  static bool EventClickEquip(SDL_Event* Event);
+  static bool EventClickEquip(SDL_Event* event);
 
-  static void EventMotion(SDL_Event* Event);
-  static void EventTab(SDL_Event* Event);
-  static bool EventButton(SDL_Event* Event);
+  static void EventMotion(SDL_Event* event);
+  static void EventTab(SDL_Event* event);
+  static bool EventButton(SDL_Event* event);
   static void EventTop();
 
-  static void EventMotionBtAudio(SDL_Event* Event);
+  static void EventMotionBtAudio(SDL_Event* event);
 
-  static void EventDragStart(SDL_Event* Event);
+  static void EventDragStart(SDL_Event* event);
   static void EventDragEnd();
-  static void EventDragMove(SDL_Event* Event);
+  static void EventDragMove(SDL_Event* event);
 
   static inline std::optional<SDL_FPoint> drag_;
   static inline uint8_t active_tab_;
@@ -72,7 +72,7 @@ class EquipUiSystem {
   static void Close();
 
   static bool Render();
-  static bool Event(SDL_Event* Event);
+  static bool Event(SDL_Event* event);
 
   static bool CursorIn();
   static void Toggle();

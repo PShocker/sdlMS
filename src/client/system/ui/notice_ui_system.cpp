@@ -136,8 +136,8 @@ void NoticeUiSystem::RenderButton() {
     pos_rect.y += (int)pos_.y;
     auto& mouse_pos = Window::mouse_pos_;
     // 判断按钮是否被遮挡
-    auto CursorIn = CursorGameInstance::cursor_ui;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && CursorIn == Render) {
+    auto cursor_in = CursorGameInstance::cursor_ui;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == Render) {
       if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
         auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
         SDL_RenderTexture(Window::renderer_, pressed, nullptr, &pos_rect);
@@ -670,7 +670,7 @@ void NoticeUiSystem::EventButtonEquipNoAp() {
   Close();
 }
 
-bool NoticeUiSystem::EventButton(SDL_Event* Event) {
+bool NoticeUiSystem::EventButton(SDL_Event* event) {
   std::vector<SDL_FRect> buttons_rect;
   std::vector<std::function<void()>> func = {};
   auto [w, h] = LoadWh();
@@ -723,13 +723,13 @@ bool NoticeUiSystem::EventButton(SDL_Event* Event) {
   return false;
 }
 
-void NoticeUiSystem::EventInput(SDL_Event* Event) {
+void NoticeUiSystem::EventInput(SDL_Event* event) {
   switch (type_) {
     case NoticeEnum::kApInc:
     case NoticeEnum::kShopbuySellMul:
     case NoticeEnum::kShopbuyMul:
     case NoticeEnum::kThrowMul: {
-      TextInputUiSystem::Event(Event, text_);
+      TextInputUiSystem::Event(event, text_);
     }
     default: {
       break;
@@ -737,7 +737,7 @@ void NoticeUiSystem::EventInput(SDL_Event* Event) {
   }
 }
 
-void NoticeUiSystem::EventMotionBtAudio(SDL_Event* Event) {
+void NoticeUiSystem::EventMotionBtAudio(SDL_Event* event) {
   if (CursorGameInstance::cursor_ui != Render) {
     return;
   }
@@ -765,11 +765,11 @@ void NoticeUiSystem::EventMotionBtAudio(SDL_Event* Event) {
   bt_audio = bt_in;
 }
 
-bool NoticeUiSystem::Event(SDL_Event* Event) {
-  EventInput(Event);
-  switch (Event->type) {
+bool NoticeUiSystem::Event(SDL_Event* event) {
+  EventInput(event);
+  switch (event->type) {
     case SDL_EVENT_KEY_DOWN: {
-      auto scan_code = Event->key.scancode;
+      auto scan_code = event->key.scancode;
       switch (scan_code) {
         case SDL_SCANCODE_ESCAPE: {
           EventClose();
@@ -815,22 +815,22 @@ bool NoticeUiSystem::Event(SDL_Event* Event) {
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
         }
       }
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
-          EventButton(Event);
+          EventButton(event);
         }
       }
       break;
     }
     case SDL_EVENT_MOUSE_MOTION: {
-      EventMotionBtAudio(Event);
+      EventMotionBtAudio(event);
       break;
     }
     default: {

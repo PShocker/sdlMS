@@ -48,8 +48,8 @@ namespace sdlms {
 
 void PackageUiSystem::CalMouseIndex() {
   mouse_index_ = std::nullopt;
-  auto CursorIn = CursorGameInstance::cursor_ui;
-  if (CursorIn != Render) {
+  auto cursor_in = CursorGameInstance::cursor_ui;
+  if (cursor_in != Render) {
     return;
   }
   SDL_FPoint slot_pos{8, 51};
@@ -330,8 +330,8 @@ void PackageUiSystem::RenderScroll() {
   const uint32_t length = 202;
   const auto& r = PackageGameInstance::data_[active_tab_];
   auto size = static_cast<size_t>(std::ceil(r.size() / 5.0));
-  auto CursorIn = CursorGameInstance::cursor_ui;
-  bool top = CursorIn == Render && !CursorGameInstance::modal_overlay;
+  auto cursor_in = CursorGameInstance::cursor_ui;
+  bool top = cursor_in == Render && !CursorGameInstance::modal_overlay;
   ScrollUiSystem::RenderVscroll((int)pos_.x + lt.x, (int)pos_.y + lt.y, page_,
                                 size, length, top, 6);
   return;
@@ -361,8 +361,8 @@ void PackageUiSystem::RenderButton() {
     pos_rect.y = (int)pos_rect.y;
     auto& mouse_pos = Window::mouse_pos_;
     // 判断按钮是否被遮挡
-    auto CursorIn = CursorGameInstance::cursor_ui;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && CursorIn == Render &&
+    auto cursor_in = CursorGameInstance::cursor_ui;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == Render &&
         !CursorGameInstance::modal_overlay) {
       if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
         auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
@@ -444,7 +444,7 @@ void PackageUiSystem::EventTop() {
   }
 }
 
-bool PackageUiSystem::EventClickItem(SDL_Event* Event) {
+bool PackageUiSystem::EventClickItem(SDL_Event* event) {
   // 网络手占用时拒绝操作
   if (CursorGameInstance::cursor_hand_net_.has_value()) {
     return false;
@@ -618,12 +618,12 @@ bool PackageUiSystem::EventClickItem(SDL_Event* Event) {
   return true;
 }
 
-void PackageUiSystem::EventDragStart(SDL_Event* Event) {
+void PackageUiSystem::EventDragStart(SDL_Event* event) {
   auto wh = LoadWh();
   SDL_FRect pos_rect = {pos_.x, pos_.y, wh.x, 20};
-  SDL_FPoint mouse_pos = {Event->button.x, Event->button.y};
+  SDL_FPoint mouse_pos = {event->button.x, event->button.y};
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    drag_ = {pos_.x - Event->button.x, pos_.y - Event->button.y};
+    drag_ = {pos_.x - event->button.x, pos_.y - event->button.y};
   }
   return;
 }
@@ -633,9 +633,9 @@ void PackageUiSystem::EventDragEnd() {
   return;
 }
 
-void PackageUiSystem::EventDragMove(SDL_Event* Event) {
+void PackageUiSystem::EventDragMove(SDL_Event* event) {
   if (drag_.has_value()) {
-    pos_ = {Event->motion.x + drag_->x, Event->motion.y + drag_->y};
+    pos_ = {event->motion.x + drag_->x, event->motion.y + drag_->y};
     auto& camera = CameraGameInstance::camera_;
     auto [w, h] = LoadWh();
     pos_.x = std::clamp(pos_.x, (float)0, camera.w - w);
@@ -661,7 +661,7 @@ bool PackageUiSystem::CursorIn() {
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
-void PackageUiSystem::EventTab(SDL_Event* Event) {
+void PackageUiSystem::EventTab(SDL_Event* event) {
   const static std::array tab_rect = {
       SDL_FRect{5, 24, 33, 19},    //
       SDL_FRect{38, 24, 33, 19},   //
@@ -716,7 +716,7 @@ void PackageUiSystem::EventButtonSort() {
   std::ranges::sort(PackageGameInstance::data_[active_tab_], cmp);
 }
 
-bool PackageUiSystem::EventButton(SDL_Event* Event) {
+bool PackageUiSystem::EventButton(SDL_Event* event) {
   std::vector<SDL_FRect> r;
   std::vector<void (*)()> fns;
   auto wh = LoadWh();
@@ -747,7 +747,7 @@ bool PackageUiSystem::EventButton(SDL_Event* Event) {
   return false;
 }
 
-void PackageUiSystem::EventMotion(SDL_Event* Event) {
+void PackageUiSystem::EventMotion(SDL_Event* event) {
   auto& sys = System::render_systems_;
   std::erase(sys, RenderItemsInfo);
   auto it = std::ranges::find(sys, &CursorRenderSystem::Render);
@@ -756,20 +756,20 @@ void PackageUiSystem::EventMotion(SDL_Event* Event) {
   }
 }
 
-void PackageUiSystem::EventVscrMove(SDL_Event* Event) {
+void PackageUiSystem::EventVscrMove(SDL_Event* event) {
   auto mouse_state = Window::mouse_state_;
   if (vscr_motion_) {
     const SDL_FPoint lt{188, 51};
     const uint32_t length = 202;
 
-    Event->button.x = pos_.x + lt.x;
-    Event->button.y =
-        std::clamp(Event->button.y, pos_.y + lt.y, pos_.y + lt.y + length);
-    EventVscr(Event);
+    event->button.x = pos_.x + lt.x;
+    event->button.y =
+        std::clamp(event->button.y, pos_.y + lt.y, pos_.y + lt.y + length);
+    EventVscr(event);
   }
 }
 
-bool PackageUiSystem::EventVscr(SDL_Event* Event) {
+bool PackageUiSystem::EventVscr(SDL_Event* event) {
   const SDL_FPoint lt{188, 51};
   const uint32_t length = 202;
 
@@ -777,14 +777,14 @@ bool PackageUiSystem::EventVscr(SDL_Event* Event) {
   auto size = static_cast<int>(std::ceil((items.size() - 30) / 5.0));
 
   size = std::max(0, size);
-  auto mouse_pos = SDL_FPoint{Event->button.x, Event->button.y};
+  auto mouse_pos = SDL_FPoint{event->button.x, event->button.y};
   auto val = ScrollUiSystem::ClickVscroll(pos_.x + lt.x, pos_.y + lt.y, page_,
                                           size, length, true, mouse_pos);
   page_ = val;
   return true;
 }
 
-void PackageUiSystem::EventVscrStart(SDL_Event* Event) {
+void PackageUiSystem::EventVscrStart(SDL_Event* event) {
   const SDL_FPoint lt{188, 51};
   const uint32_t length = 202;
   if (vscr_motion_ == false) {
@@ -797,11 +797,11 @@ void PackageUiSystem::EventVscrEnd() {
   vscr_motion_ = false;
 }
 
-void PackageUiSystem::EventWheel(SDL_Event* Event) {
+void PackageUiSystem::EventWheel(SDL_Event* event) {
   if (CursorGameInstance::cursor_ui != Render) {
     return;
   }
-  auto dy = Event->wheel.integer_y;
+  auto dy = event->wheel.integer_y;
   if (dy > 0) {
     // up
     if (page_ > 0) {
@@ -818,7 +818,7 @@ void PackageUiSystem::EventWheel(SDL_Event* Event) {
   }
 }
 
-void PackageUiSystem::EventMotionBtAudio(SDL_Event* Event) {
+void PackageUiSystem::EventMotionBtAudio(SDL_Event* event) {
   if (CursorGameInstance::cursor_ui != Render) {
     return;
   }
@@ -847,11 +847,11 @@ void PackageUiSystem::EventMotionBtAudio(SDL_Event* Event) {
   bt_audio = bt_in;
 }
 
-bool PackageUiSystem::Event(SDL_Event* Event) {
+bool PackageUiSystem::Event(SDL_Event* event) {
   bool r = true;
-  switch (Event->type) {
+  switch (event->type) {
     case SDL_EVENT_KEY_DOWN: {
-      auto scan_code = Event->key.scancode;
+      auto scan_code = event->key.scancode;
       switch (scan_code) {
         case SDL_SCANCODE_ESCAPE: {
           Toggle();
@@ -865,23 +865,23 @@ bool PackageUiSystem::Event(SDL_Event* Event) {
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
           EventTop();
-          EventDragStart(Event);
-          EventVscrStart(Event);
+          EventDragStart(event);
+          EventVscrStart(event);
           r = false;
         }
       }
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
-          EventTab(Event);
-          EventClickItem(Event);
-          r = !EventButton(Event);
-          EventVscr(Event);
+          EventTab(event);
+          EventClickItem(event);
+          r = !EventButton(event);
+          EventVscr(event);
         }
         EventDragEnd();
         EventVscrEnd();
@@ -889,14 +889,14 @@ bool PackageUiSystem::Event(SDL_Event* Event) {
       break;
     }
     case SDL_EVENT_MOUSE_MOTION: {
-      EventMotion(Event);
-      EventDragMove(Event);
-      EventVscrMove(Event);
-      EventMotionBtAudio(Event);
+      EventMotion(event);
+      EventDragMove(event);
+      EventVscrMove(event);
+      EventMotionBtAudio(event);
       break;
     }
     case SDL_EVENT_MOUSE_WHEEL: {
-      EventWheel(Event);
+      EventWheel(event);
       break;
     }
     default: {

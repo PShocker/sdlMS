@@ -25,7 +25,7 @@ class ContextMenuUiSystem {
   static void EventButtonFriend();
   static void EventButtonChat();
 
-  static bool EventButton(SDL_Event* Event);
+  static bool EventButton(SDL_Event* event);
 
  public:
   static inline uint64_t client_id_;
@@ -38,7 +38,7 @@ class ContextMenuUiSystem {
 
   static void Open();
   static void Close();
-  static bool Event(SDL_Event* Event);
+  static bool Event(SDL_Event* event);
 };
 
 }  // namespace sdlms

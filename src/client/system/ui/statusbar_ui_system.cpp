@@ -433,8 +433,8 @@ void StatusbarUiSystem::RenderButton() {
     pos_rect.y += base_y;
     auto& mouse_pos = Window::mouse_pos_;
     // 判断按钮是否被遮挡
-    auto CursorIn = CursorGameInstance::cursor_ui;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && CursorIn == Render &&
+    auto cursor_in = CursorGameInstance::cursor_ui;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == Render &&
         !CursorGameInstance::modal_overlay) {
       if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
         auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
@@ -463,8 +463,8 @@ void StatusbarUiSystem::RenderChat() {
     pos_rect.y += base_y;
     auto& mouse_pos = Window::mouse_pos_;
     // 判断按钮是否被遮挡
-    auto CursorIn = CursorGameInstance::cursor_ui;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && CursorIn == Render &&
+    auto cursor_in = CursorGameInstance::cursor_ui;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == Render &&
         !CursorGameInstance::modal_overlay) {
       if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
         auto pressed =
@@ -627,7 +627,7 @@ std::u16string StatusbarUiSystem::LoadChatType() {
   return u"";
 }
 
-bool StatusbarUiSystem::EventButton(SDL_Event* Event) {
+bool StatusbarUiSystem::EventButton(SDL_Event* event) {
   const static std::array buttons_rect = {
       SDL_FRect{578, 38, 73, 34},  // CashShop
       SDL_FRect{652, 38, 73, 34},  // Menu
@@ -665,7 +665,7 @@ bool StatusbarUiSystem::EventButton(SDL_Event* Event) {
   return false;
 }
 
-void StatusbarUiSystem::EventMotionBtAudio(SDL_Event* Event) {
+void StatusbarUiSystem::EventMotionBtAudio(SDL_Event* event) {
   if (CursorGameInstance::cursor_ui != Render) {
     return;
   }
@@ -705,21 +705,21 @@ void StatusbarUiSystem::EventMotionBtAudio(SDL_Event* Event) {
   bt_audio = bt_in;
 }
 
-bool StatusbarUiSystem::Event(SDL_Event* Event) {
-  auto cr = TextInputUiSystem::Event(Event, chat_);
+bool StatusbarUiSystem::Event(SDL_Event* event) {
+  auto cr = TextInputUiSystem::Event(event, chat_);
   bool r = true;
-  switch (Event->type) {
+  switch (event->type) {
     case SDL_EVENT_MOUSE_BUTTON_UP: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
-          EventButton(Event);
+          EventButton(event);
           r = false;
         }
       }
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         std::erase(System::event_systems_, KeyboardInputSystem::Event);
         if (cr) {
           // close input
@@ -730,7 +730,7 @@ bool StatusbarUiSystem::Event(SDL_Event* Event) {
       [[fallthrough]];
     }
     case SDL_EVENT_KEY_DOWN: {
-      auto scan_code = Event->key.scancode;
+      auto scan_code = event->key.scancode;
       switch (scan_code) {
         case SDL_SCANCODE_RETURN: {
           std::erase(System::event_systems_, KeyboardInputSystem::Event);
@@ -755,7 +755,7 @@ bool StatusbarUiSystem::Event(SDL_Event* Event) {
       break;
     }
     case SDL_EVENT_KEY_UP: {
-      auto scan_code = Event->key.scancode;
+      auto scan_code = event->key.scancode;
       switch (scan_code) {
         case SDL_SCANCODE_RETURN: {
           break;
@@ -767,7 +767,7 @@ bool StatusbarUiSystem::Event(SDL_Event* Event) {
       [[fallthrough]];
     }
     case SDL_EVENT_MOUSE_MOTION: {
-      EventMotionBtAudio(Event);
+      EventMotionBtAudio(event);
       break;
     }
     default: {

@@ -245,12 +245,12 @@ void MinimapUiSystem::RenderButton() {
     pos_rect.y += pos.y;
     auto& mouse_pos = Window::mouse_pos_;
     // 判断按钮是否被遮挡
-    auto CursorIn = CursorGameInstance::cursor_ui;
+    auto cursor_in = CursorGameInstance::cursor_ui;
     if (r[i] == false) {
       auto d = WzResource::LoadTexture(k->find(u"disabled/0"));
       SDL_RenderTexture(Window::renderer_, d, nullptr, &pos_rect);
     } else if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) &&
-               CursorIn == Render) {
+               cursor_in == Render) {
       if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
         auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
         SDL_RenderTexture(Window::renderer_, pressed, nullptr, &pos_rect);
@@ -640,7 +640,7 @@ void MinimapUiSystem::EventMax() {
   return;
 }
 
-bool MinimapUiSystem::EventButton(SDL_Event* Event) {
+bool MinimapUiSystem::EventButton(SDL_Event* event) {
   std::vector<SDL_FRect> r;
   std::vector<void (*)()> fns;
   if (disable_) {
@@ -691,12 +691,12 @@ void MinimapUiSystem::EventTop() {
   }
 }
 
-void MinimapUiSystem::EventDragStart(SDL_Event* Event) {
+void MinimapUiSystem::EventDragStart(SDL_Event* event) {
   auto w = LoadWh().x;
   SDL_FRect pos_rect = {pos.x, pos.y, w, 20};
-  SDL_FPoint mouse_pos = {Event->button.x, Event->button.y};
+  SDL_FPoint mouse_pos = {event->button.x, event->button.y};
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    drag_ = {pos.x - Event->button.x, pos.y - Event->button.y};
+    drag_ = {pos.x - event->button.x, pos.y - event->button.y};
   }
   return;
 }
@@ -723,9 +723,9 @@ SDL_FPoint MinimapUiSystem::LoadWh() {
   }
 }
 
-void MinimapUiSystem::EventDragMove(SDL_Event* Event) {
+void MinimapUiSystem::EventDragMove(SDL_Event* event) {
   if (drag_.has_value()) {
-    pos = {Event->motion.x + drag_->x, Event->motion.y + drag_->y};
+    pos = {event->motion.x + drag_->x, event->motion.y + drag_->y};
     auto& camera = CameraGameInstance::camera_;
     auto [w, h] = LoadWh();
     pos.x = std::clamp(pos.x, (float)0, camera.w - w);
@@ -734,7 +734,7 @@ void MinimapUiSystem::EventDragMove(SDL_Event* Event) {
   return;
 }
 
-void MinimapUiSystem::EventMotionBtAudio(SDL_Event* Event) {
+void MinimapUiSystem::EventMotionBtAudio(SDL_Event* event) {
   if (CursorGameInstance::cursor_ui != Render) {
     return;
   }
@@ -770,31 +770,31 @@ void MinimapUiSystem::EventMotionBtAudio(SDL_Event* Event) {
   bt_audio = bt_in;
 }
 
-bool MinimapUiSystem::Event(SDL_Event* Event) {
+bool MinimapUiSystem::Event(SDL_Event* event) {
   bool r = true;
-  switch (Event->type) {
+  switch (event->type) {
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
           EventTop();
-          EventDragStart(Event);
+          EventDragStart(event);
           r = false;
         }
       }
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
-          r = !EventButton(Event);
+          r = !EventButton(event);
         }
         EventDragEnd();
       }
       break;
     }
     case SDL_EVENT_MOUSE_MOTION: {
-      EventMotionBtAudio(Event);
-      EventDragMove(Event);
+      EventMotionBtAudio(event);
+      EventDragMove(event);
       break;
     }
     default: {

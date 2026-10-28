@@ -11,13 +11,13 @@
 
 namespace sdlms {
 
-bool Physic::WalkFh(SDL_FPoint& pos, bool Fall, int32_t next_fh,
+bool Physic::WalkFh(SDL_FPoint& pos, bool fall, int32_t next_fh,
                     int32_t& current_fh, float& hspeed, float& vspeed,
                     const std::flat_map<int32_t, GameFoothold>& fhs) {
   const GameFoothold* n_fh = nullptr;
   if (next_fh != 0) {
     n_fh = &fhs.at(next_fh);
-  } else if (Fall) {
+  } else if (fall) {
     vspeed = 0;
     current_fh = 0;
     return false;
@@ -39,7 +39,7 @@ bool Physic::WalkFh(SDL_FPoint& pos, bool Fall, int32_t next_fh,
       pos.y = c_fh.k.value() * pos.x + c_fh.intercept.value();
       hspeed = 0;
       return true;
-    } else if (Fall) {
+    } else if (fall) {
       // 楼梯上掉落
       vspeed = 0;
       pos.x = hspeed < 0 ? pos.x - 0.1 : pos.x + 0.1;
@@ -60,7 +60,7 @@ bool Physic::WalkFh(SDL_FPoint& pos, bool Fall, int32_t next_fh,
 
 bool Physic::Walk(SDL_FPoint& pos, float delta_time, float& hspeed,
                   float& vspeed, float& hforce, float hspeed_min,
-                  float hspeed_max, float friction, bool Fall,
+                  float hspeed_max, float friction, bool fall,
                   int32_t& current_fh, std::optional<SDL_FRect> border,
                   const std::flat_map<int32_t, GameFoothold>& fhs) {
   // 判断摩擦力方向
@@ -86,7 +86,7 @@ bool Physic::Walk(SDL_FPoint& pos, float delta_time, float& hspeed,
       break;
     }
     auto prev_fh = c_fh.prev;
-    if (WalkFh(pos, Fall, prev_fh, current_fh, hspeed, vspeed, fhs) == false) {
+    if (WalkFh(pos, fall, prev_fh, current_fh, hspeed, vspeed, fhs) == false) {
       return false;
     }
   }
@@ -97,7 +97,7 @@ bool Physic::Walk(SDL_FPoint& pos, float delta_time, float& hspeed,
       break;
     }
     auto prev_fh = c_fh.prev;
-    if (WalkFh(pos, Fall, prev_fh, current_fh, hspeed, vspeed, fhs) == false) {
+    if (WalkFh(pos, fall, prev_fh, current_fh, hspeed, vspeed, fhs) == false) {
       return false;
     }
   }
@@ -108,7 +108,7 @@ bool Physic::Walk(SDL_FPoint& pos, float delta_time, float& hspeed,
       break;
     }
     auto next_fh = c_fh.next;
-    if (WalkFh(pos, Fall, next_fh, current_fh, hspeed, vspeed, fhs) == false) {
+    if (WalkFh(pos, fall, next_fh, current_fh, hspeed, vspeed, fhs) == false) {
       return false;
     }
   }

@@ -178,7 +178,7 @@ void ShopUiSystem::RenderVscr() {
   const uint32_t length = 235;
   auto x = (int)pos_.x + 212;
   auto y = (int)pos_.y + 129;
-  auto CursorIn = CursorGameInstance::cursor_ui;
+  auto cursor_in = CursorGameInstance::cursor_ui;
   auto items_size = 0;
   if (active_tab_[0] == 0) {
     auto& items = shop_->items;
@@ -187,7 +187,7 @@ void ShopUiSystem::RenderVscr() {
     auto& items = ShopGameInstance::must_;
     items_size = items.size();
   }
-  bool top = CursorIn == Render && CursorGameInstance::modal_overlay == Render;
+  bool top = cursor_in == Render && CursorGameInstance::modal_overlay == Render;
   ScrollUiSystem::RenderVscroll(x, y, pages_[0], items_size, length, top, 6);
   x += 230;
   auto pkg_size = ShopGameInstance::LoadPkgItems(active_tab_[1]).size();
@@ -213,8 +213,8 @@ void ShopUiSystem::RenderButton() {
     pos_rect.y += (int)pos_.y;
     auto& mouse_pos = Window::mouse_pos_;
     // 判断按钮是否被遮挡
-    auto CursorIn = CursorGameInstance::cursor_ui;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && CursorIn == Render &&
+    auto cursor_in = CursorGameInstance::cursor_ui;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == Render &&
         CursorGameInstance::modal_overlay == Render) {
       if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
         auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
@@ -408,7 +408,7 @@ void ShopUiSystem::Open() {
   }
 }
 
-bool ShopUiSystem::EventButton(SDL_Event* Event) {
+bool ShopUiSystem::EventButton(SDL_Event* event) {
   std::vector<void (*)()> fns;
   auto wh = LoadWh();
   std::vector<SDL_FRect> buttons_rect = {
@@ -447,7 +447,7 @@ void ShopUiSystem::EventClose() {
   Close();
 }
 
-std::optional<int> ShopUiSystem::EventItemClick(SDL_Event* Event,
+std::optional<int> ShopUiSystem::EventItemClick(SDL_Event* event,
                                                 SDL_FPoint p) {
   auto x = (int)pos_.x + p.x;
   auto y = (int)pos_.y + p.y;
@@ -463,8 +463,8 @@ std::optional<int> ShopUiSystem::EventItemClick(SDL_Event* Event,
   return std::nullopt;
 }
 
-bool ShopUiSystem::EventItem(SDL_Event* Event) {
-  auto item0 = EventItemClick(Event, {8, 129});
+bool ShopUiSystem::EventItem(SDL_Event* event) {
+  auto item0 = EventItemClick(event, {8, 129});
   if (item0.has_value()) {
     const std::vector<GameShopItem>* items =
         (active_tab_[0] == 0) ? &shop_->items : &ShopGameInstance::must_;
@@ -496,7 +496,7 @@ bool ShopUiSystem::EventItem(SDL_Event* Event) {
     return true;
   }
 
-  auto item1 = EventItemClick(Event, {238, 129});
+  auto item1 = EventItemClick(event, {238, 129});
   if (item1.has_value()) {
     auto index = pages_[1] + item1.value();
     auto items = ShopGameInstance::LoadPkgItems(active_tab_[1]);
@@ -527,7 +527,7 @@ bool ShopUiSystem::EventItem(SDL_Event* Event) {
   return false;
 }
 
-bool ShopUiSystem::EventVscr(SDL_Event* Event) {
+bool ShopUiSystem::EventVscr(SDL_Event* event) {
   const uint32_t length = 235;
   auto x = (int)pos_.x + 212;
   auto y = (int)pos_.y + 129;
@@ -536,8 +536,8 @@ bool ShopUiSystem::EventVscr(SDL_Event* Event) {
   if (active_tab_[0] == 1) {
     size = ShopGameInstance::must_.size() - 6;
   }
-  auto CursorIn = CursorGameInstance::cursor_ui;
-  bool top = CursorIn == Render;
+  auto cursor_in = CursorGameInstance::cursor_ui;
+  bool top = cursor_in == Render;
   size = std::max(0, size);
   auto val = ScrollUiSystem::ClickVscroll(x, y, pages_[0], size, length, top);
   pages_[0] = val;
@@ -550,7 +550,7 @@ bool ShopUiSystem::EventVscr(SDL_Event* Event) {
   return true;
 }
 
-bool ShopUiSystem::EventTab(SDL_Event* Event) {
+bool ShopUiSystem::EventTab(SDL_Event* event) {
   const auto& mouse_pos = Window::mouse_pos_;
 
   // 第一组标签页（商店分类）
@@ -594,7 +594,7 @@ bool ShopUiSystem::EventTab(SDL_Event* Event) {
   return false;
 }
 
-void ShopUiSystem::EventVscrStart(SDL_Event* Event) {
+void ShopUiSystem::EventVscrStart(SDL_Event* event) {
   SDL_FPoint lt{212, 129};
   const uint32_t length = 235;
   if (vscr_motion_[0] == false) {
@@ -612,29 +612,29 @@ void ShopUiSystem::EventVscrEnd() {
   vscr_motion_ = {};
 }
 
-void ShopUiSystem::EventVscrMove(SDL_Event* Event) {
+void ShopUiSystem::EventVscrMove(SDL_Event* event) {
   auto mouse_state = Window::mouse_state_;
   SDL_FPoint lt{212, 129};
   const uint32_t length = 235;
   if (vscr_motion_[0]) {
-    Event->button.x = pos_.x + lt.x;
-    Event->button.y =
-        std::clamp(Event->button.y, pos_.y + lt.y, pos_.y + lt.y + length);
-    EventVscr(Event);
+    event->button.x = pos_.x + lt.x;
+    event->button.y =
+        std::clamp(event->button.y, pos_.y + lt.y, pos_.y + lt.y + length);
+    EventVscr(event);
   }
   if (vscr_motion_[1]) {
     lt.x += 230;
-    Event->button.x = pos_.x + lt.x;
-    Event->button.y =
-        std::clamp(Event->button.y, pos_.y + lt.y, pos_.y + lt.y + length);
-    EventVscr(Event);
+    event->button.x = pos_.x + lt.x;
+    event->button.y =
+        std::clamp(event->button.y, pos_.y + lt.y, pos_.y + lt.y + length);
+    EventVscr(event);
   }
 }
 
-bool ShopUiSystem::Event(SDL_Event* Event) {
-  switch (Event->type) {
+bool ShopUiSystem::Event(SDL_Event* event) {
+  switch (event->type) {
     case SDL_EVENT_KEY_DOWN: {
-      auto scan_code = Event->key.scancode;
+      auto scan_code = event->key.scancode;
       switch (scan_code) {
         case SDL_SCANCODE_ESCAPE: {
           EventClose();
@@ -647,23 +647,23 @@ bool ShopUiSystem::Event(SDL_Event* Event) {
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
         }
       }
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
-          if (EventItem(Event)) {
+          if (EventItem(event)) {
             return false;
           }
-          if (EventTab(Event)) {
+          if (EventTab(event)) {
             return false;
           }
-          EventButton(Event);
-          EventVscr(Event);
+          EventButton(event);
+          EventVscr(event);
         }
       }
       break;

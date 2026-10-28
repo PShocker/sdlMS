@@ -13,12 +13,12 @@ class CraftUiSystem {
   static void RenderBackgrnd();
   static void RenderTab();
 
-  static bool EventButton(SDL_Event* Event);
-  static void EventTab(SDL_Event* Event);
+  static bool EventButton(SDL_Event* event);
+  static void EventTab(SDL_Event* event);
   static void EventTop();
-  static void EventDragStart(SDL_Event* Event);
+  static void EventDragStart(SDL_Event* event);
   static void EventDragEnd();
-  static void EventDragMove(SDL_Event* Event);
+  static void EventDragMove(SDL_Event* event);
 
   static SDL_FPoint LoadWh();
 
@@ -35,7 +35,7 @@ class CraftUiSystem {
   static void Close();
 
   static bool Render();
-  static bool Event(SDL_Event* Event);
+  static bool Event(SDL_Event* event);
 
   static bool CursorIn();
 

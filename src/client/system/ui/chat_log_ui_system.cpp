@@ -20,12 +20,12 @@ namespace sdlms {
 void ChatLogUiSystem::RenderVscr() {
   const uint32_t length = 80;
   auto size = 6;
-  auto CursorIn = CursorGameInstance::cursor_ui;
+  auto cursor_in = CursorGameInstance::cursor_ui;
   auto screen_w = CameraGameInstance::camera_.w;
   auto screen_h = CameraGameInstance::camera_.h;
   auto base_x = (screen_w - 808) / 2;
   auto base_y = (screen_h - 73);
-  bool top = CursorIn == Render && !CursorGameInstance::modal_overlay;
+  bool top = cursor_in == Render && !CursorGameInstance::modal_overlay;
   ScrollUiSystem::RenderVscroll(base_x + 570, base_y - 75, 5, size, length, top,
                                 1);
   return;
@@ -97,8 +97,8 @@ void ChatLogUiSystem::Toggle() {
 
 void ChatLogUiSystem::EventClickChatVscr() {
   const uint32_t length = 76;
-  auto CursorIn = CursorGameInstance::cursor_ui;
-  bool top = CursorIn == Render;
+  auto cursor_in = CursorGameInstance::cursor_ui;
+  bool top = cursor_in == Render;
   auto screen_w = CameraGameInstance::camera_.w;
   auto screen_h = CameraGameInstance::camera_.h;
   auto base_x = (screen_w - 808) / 2;
@@ -118,18 +118,18 @@ void ChatLogUiSystem::EventClickChatVscr() {
   return;
 }
 
-bool ChatLogUiSystem::Event(SDL_Event* Event) {
+bool ChatLogUiSystem::Event(SDL_Event* event) {
   bool r = true;
-  switch (Event->type) {
+  switch (event->type) {
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
         }
       }
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
-      if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui == Render) {
           EventClickChatVscr();
         }

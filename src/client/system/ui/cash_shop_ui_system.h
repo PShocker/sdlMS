@@ -11,7 +11,7 @@ class CashShopUiSystem {
 
  public:
   static bool Render();
-  static bool Event(SDL_Event* Event);
+  static bool Event(SDL_Event* event);
 };
 
 }  // namespace sdlms

@@ -247,9 +247,9 @@ void EffectRenderSystem::RenderSkiHit(SDL_FPoint pos, GameEffect& g_effect,
 
 bool EffectRenderSystem::RenderCustom(SDL_FPoint pos, GameEffect& g_effect,
                                       bool flip) {
-  auto Skis = SkillGameInstance::Skis();
-  if (Skis.contains(g_effect.id)) {
-    return Skis.at(g_effect.id).effect(pos, &g_effect, flip);
+  auto skills = SkillGameInstance::Skis();
+  if (skills.contains(g_effect.id)) {
+    return skills.at(g_effect.id).effect(pos, &g_effect, flip);
   }
   return false;
 }
@@ -263,8 +263,8 @@ void EffectRenderSystem::RenderSkiRegion(GameEffect& g_effect) {
     auto special = ski_node->get_child(u"special");
     auto x = static_cast<wz::Property<int>*>(special->find(u"x"))->get();
     auto y = static_cast<wz::Property<int>*>(special->find(u"y"))->get();
-    auto Fall = static_cast<wz::Property<int>*>(special->find(u"fall"))->get();
-    auto Start =
+    auto fall = static_cast<wz::Property<int>*>(special->find(u"fall"))->get();
+    auto start =
         static_cast<wz::Property<int>*>(special->find(u"start"))->get();
     auto interval =
         static_cast<wz::Property<int>*>(special->find(u"interval"))->get();

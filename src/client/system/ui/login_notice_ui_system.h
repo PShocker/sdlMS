@@ -14,7 +14,7 @@ class LoginNoticeUiSystem {
   static void RenderBackgrnd();
   static void RenderButton();
 
-  static bool EventButton(SDL_Event* Event);
+  static bool EventButton(SDL_Event* event);
 
  public:
   static void EventClose();
@@ -24,7 +24,7 @@ class LoginNoticeUiSystem {
   static inline LoginNoticeSystemInstance::NoticeType type_;
   static bool Render();
   static bool Run();
-  static bool Event(SDL_Event* Event);
+  static bool Event(SDL_Event* event);
 };
 
 }  // namespace sdlms

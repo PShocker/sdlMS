@@ -254,9 +254,9 @@ Freetype::DrawData Freetype::DrawRstr(const std::u16string& str, float x,
   // 探测从索引 start 开始、到“下一次实际换行”之前，这一渲染行是否含图标。
   // 模拟实际渲染：累加普通字符宽度，遇到 \n 或超过右边界即停止。
   // startX 用于处理选项缩进（l 的起始位置）。
-  const auto lineHasIconFrom = [&](size_t Start, float startX) -> bool {
+  const auto lineHasIconFrom = [&](size_t start, float startX) -> bool {
     float used = startX - x;
-    for (size_t j = Start; j < str.size(); ++j) {
+    for (size_t j = start; j < str.size(); ++j) {
       const char16_t c = str[j];
 
       if (c == u'\n')
