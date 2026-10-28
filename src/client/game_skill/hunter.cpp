@@ -84,7 +84,7 @@ static void baozhajian() {
       auto &data = cm.data[i];
       MobDebuffT md;
       md.mob_index = data.mob.index;
-      md.payload->val = GameDebuff::dizz;
+      md.payload->val = static_cast<int64_t>(GameDebuff::DebuffType::kDizz);
       md.payload->delay = Window::dt_time;
       md.payload->time = Window::dt_time + 5000;
     }
@@ -132,7 +132,7 @@ static void wuyingjian() {
   g_skill.use = [g_skill](uint64_t client_id, int ski_lv) mutable {
     auto &sf = CharacterGameInstance::self;
     auto action_type = CharacterLogicSystem::load_action_type(sf);
-    if (action_type != CharacterLogicSystem::ActionEnum::climb) {
+    if (action_type != CharacterLogicSystem::ActionEnum::kClimb) {
       CharacterLogicSystem::run_action(sf, u"alert2");
     } else {
       CharacterLogicSystem::self_climb_animate_cooldown =

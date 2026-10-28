@@ -11,12 +11,12 @@ void DebuffRenderSystem::render(GameDebuff::DebuffType type,
                                   SDL_FPoint pos) {
   wz::Node *n;
   switch (type) {
-  case GameDebuff::dizz: {
+  case GameDebuff::DebuffType::kDizz: {
     static auto node = WzResource::skill->find(u"AttackType.img/1001/level/1");
     n = node;
     break;
   }
-  case GameDebuff::slow: {
+  case GameDebuff::DebuffType::kSlow: {
     static auto node = WzResource::skill->find(u"AttackType.img/1002/level/1");
     n = node;
     break;

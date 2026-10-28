@@ -11,7 +11,7 @@
 // roger apple
 
 static void q1002e(std::any data) {
-  NpcDlgUiSystem::type = NpcDlgUiSystem::NpcDlgEnum::quest_complete;
+  NpcDlgUiSystem::type = NpcDlgUiSystem::NpcDlgEnum::kQuestComplete;
   NpcDlgUiSystem::index = 0;
   NpcDlgUiSystem::max_index = 0;
   NpcDlgUiSystem::npc_id = u"0000003";

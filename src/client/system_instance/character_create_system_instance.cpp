@@ -51,7 +51,7 @@ void CharacterCreateSystemInstance::enter() {
       .font_color = {255, 255, 255, 255},
       .font_size = 13,
   };
-  CharacterCreateUiSystem::name.type.set(TextInput::ime);
+  CharacterCreateUiSystem::name.type.set(TextInput::kIme);
 
   auto fn = &LoginSystemInstance::render_game;
   if (!std::ranges::contains(System::render_systems, fn)) {

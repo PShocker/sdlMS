@@ -58,8 +58,8 @@ void LoginSystemInstance::enter_prepare() {
       .font_color = {255, 255, 255, 255},
       .font_size = 13,
   };
-  LoginUiSystem::username.type.set(TextInput::letter);
-  LoginUiSystem::username.type.set(TextInput::digit);
+  LoginUiSystem::username.type.set(TextInput::kLetter);
+  LoginUiSystem::username.type.set(TextInput::kDigit);
   if (LoginUiSystem::g_pipe.type == UV_NAMED_PIPE) {
     uv_close((uv_handle_t *)&LoginUiSystem::g_pipe, nullptr);
     LoginUiSystem::g_pipe = {};

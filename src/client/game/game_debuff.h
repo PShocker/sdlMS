@@ -5,9 +5,9 @@
 
 class GameDebuff {
 public:
-  enum DebuffType {
-    dizz,
-    slow,
+  enum class DebuffType {
+    kDizz,
+    kSlow,
   };
   DebuffType type;
   int64_t val;

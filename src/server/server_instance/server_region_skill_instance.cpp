@@ -29,7 +29,7 @@ void ServerRegionSkillInstance::handle_s_rskill(ServerRSkillT &r) {
     grs.pos = {v->x, v->y};
 
     GameEffect e = {
-        .type = GameEffect::EffectType::skill_region,
+        .type = GameEffect::EffectType::kSkillRegion,
         .data = grs,
     };
     EffectGameInstance::data[v->page].emplace_back(e);

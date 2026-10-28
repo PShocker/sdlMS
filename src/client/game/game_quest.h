@@ -21,9 +21,9 @@ struct QuestNpc {
 };
 
 enum class QuestEnum : uint8_t {
-  progress,
-  complete,
-  decline,
+  kProgress,
+  kComplete,
+  kDecline,
 };
 
 class GameQuest {

@@ -348,7 +348,7 @@ void CharacterStatUiSystem::event_button_hp_inc() {
 
 void CharacterStatUiSystem::event_button_hp_inc_max() {
   NoticeUiSystem::data = 0;
-  NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::ap_inc;
+  NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kApInc;
   NoticeUiSystem::open();
 }
 
@@ -361,7 +361,7 @@ void CharacterStatUiSystem::event_button_mp_inc() {
 
 void CharacterStatUiSystem::event_button_mp_inc_max() {
   NoticeUiSystem::data = 1;
-  NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::ap_inc;
+  NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kApInc;
   NoticeUiSystem::open();
 }
 
@@ -374,7 +374,7 @@ void CharacterStatUiSystem::event_button_str_inc() {
 
 void CharacterStatUiSystem::event_button_str_inc_max() {
   NoticeUiSystem::data = 2;
-  NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::ap_inc;
+  NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kApInc;
   NoticeUiSystem::open();
 }
 
@@ -387,7 +387,7 @@ void CharacterStatUiSystem::event_button_dex_inc() {
 
 void CharacterStatUiSystem::event_button_dex_inc_max() {
   NoticeUiSystem::data = 3;
-  NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::ap_inc;
+  NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kApInc;
   NoticeUiSystem::open();
 }
 
@@ -400,7 +400,7 @@ void CharacterStatUiSystem::event_button_int_inc() {
 
 void CharacterStatUiSystem::event_button_int_inc_max() {
   NoticeUiSystem::data = 4;
-  NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::ap_inc;
+  NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kApInc;
   NoticeUiSystem::open();
 }
 
@@ -413,7 +413,7 @@ void CharacterStatUiSystem::event_button_luk_inc() {
 
 void CharacterStatUiSystem::event_button_luk_inc_max() {
   NoticeUiSystem::data = 5;
-  NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::ap_inc;
+  NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kApInc;
   NoticeUiSystem::open();
 }
 

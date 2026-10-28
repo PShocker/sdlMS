@@ -30,13 +30,13 @@ public:
   uint8_t page;
 
   enum class DropEnum {
-    fly,
-    land,
-    pick,
-    fade,
+    kFly,
+    kLand,
+    kPick,
+    kFade,
   };
 
-  DropEnum type = DropEnum::fly;
+  DropEnum type = DropEnum::kFly;
 
   uint64_t pick_time;
   std::optional<GameDropPick> picker;

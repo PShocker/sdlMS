@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <string>
 
-enum class GainEnum { item, experience };
+enum class GainEnum { kItem, kExperience };
 
 class GameGainLog {
 public:

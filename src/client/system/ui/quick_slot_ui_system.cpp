@@ -176,10 +176,10 @@ void QuickSlotUiSystem::render_quickSlot() {
                                 u"QuickSlot.img/key/42"))},
   };
   switch (quickSlot) {
-  case QuickSlot::hide: {
+  case QuickSlot::kHide: {
     break;
   }
-  case QuickSlot::two: {
+  case QuickSlot::kTwo: {
     static auto q = WzResource::load_texture(
         WzResource::ui->find(u"QuickSlot.img/layer:backgrnd"));
     auto screen_w = CameraGameInstance::camera.w;
@@ -227,7 +227,7 @@ void QuickSlotUiSystem::render_quickSlot() {
 
     break;
   }
-  case QuickSlot::three: {
+  case QuickSlot::kThree: {
     break;
   }
   }
@@ -240,11 +240,11 @@ bool QuickSlotUiSystem::render() {
 
 SDL_FPoint QuickSlotUiSystem::load_wh() {
   switch (quickSlot) {
-  case QuickSlot::hide:
+  case QuickSlot::kHide:
     return {0, 0};
-  case QuickSlot::two:
+  case QuickSlot::kTwo:
     return {151, 78};
-  case QuickSlot::three:
+  case QuickSlot::kThree:
     return {151, 114};
   }
   return {0, 0};
@@ -288,7 +288,7 @@ bool QuickSlotUiSystem::cursor_in() {
       w,
       h,
   };
-  if (quickSlot == QuickSlot::two) {
+  if (quickSlot == QuickSlot::kTwo) {
     pos_rect.y += 36;
   }
   return SDL_PointInRectFloat(&mouse, &pos_rect);
@@ -303,10 +303,10 @@ bool QuickSlotUiSystem::event_click_quickslot(SDL_Event *event) {
   auto base_x = (screen_w - 808) / 2;
   auto base_y = (screen_h - 73);
   switch (quickSlot) {
-  case QuickSlot::hide: {
+  case QuickSlot::kHide: {
     break;
   }
-  case QuickSlot::two: {
+  case QuickSlot::kTwo: {
     SDL_FPoint p{
         base_x + 654,
         base_y - 107,
@@ -343,7 +343,7 @@ bool QuickSlotUiSystem::event_click_quickslot(SDL_Event *event) {
         } else {
           if (KeyboardGameInstance::data.contains(t[i])) {
             CursorGameInstance::cursor_hand = {
-                .type = CursorGameInstance::keybind,
+                .type = CursorGameInstance::CursorHandType::kKeybind,
                 .val = t[i],
             };
             AudioGameInstance::load_audio(u"UI.img/DragStart", 0);
@@ -355,7 +355,7 @@ bool QuickSlotUiSystem::event_click_quickslot(SDL_Event *event) {
 
     break;
   }
-  case QuickSlot::three: {
+  case QuickSlot::kThree: {
     break;
   }
   }

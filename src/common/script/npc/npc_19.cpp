@@ -3,7 +3,7 @@
 #include "src/client/window/window.h"
 
 static void npc_19(std::any data) {
-  NpcDlgUiSystem::type = NpcDlgUiSystem::NpcDlgEnum::talk;
+  NpcDlgUiSystem::type = NpcDlgUiSystem::NpcDlgEnum::kTalk;
   NpcDlgUiSystem::text = u"npc_19";
   NpcDlgUiSystem::index = 0;
   NpcDlgUiSystem::max_index = 0;

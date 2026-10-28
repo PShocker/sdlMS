@@ -36,7 +36,7 @@ void TrapLogicSystem::run_collision() {
             .num = hit_num,
             .x = self.pos.x,
             .y = self.pos.y - 30,
-            .type = DamageData::v,
+            .type = static_cast<uint8_t>(DamageData::T::kV),
         };
         ServerTrapInstance::handle_s_attack(0, at);
         ClientTrapAttackT cta;

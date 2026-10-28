@@ -15,12 +15,12 @@
 #include <string>
 #include <vector>
 
-enum OptionType {
-  graphic,
-  sound,
-  game,
-  social,
-  controller,
+enum class OptionType {
+  kGraphic,
+  kSound,
+  kGame,
+  kSocial,
+  kController,
 };
 
 void OptionUiSystem::render_backgrnd() {
@@ -40,8 +40,8 @@ void OptionUiSystem::render_option() {
   std::vector<SDL_FRect> buttons_rect;
   auto top = CursorGameInstance::cursor_ui == render;
 
-  switch (active_tab) {
-  case graphic: {
+  switch (static_cast<OptionType>(active_tab)) {
+  case OptionType::kGraphic: {
     static auto backgrnd = WzResource::load_texture(
         WzResource::ui->find(u"Options.img/graphic/layer:backgrnd"));
     SDL_FRect pos_rect{
@@ -53,7 +53,7 @@ void OptionUiSystem::render_option() {
     SDL_RenderTexture(Window::renderer, backgrnd, nullptr, &pos_rect);
     break;
   }
-  case sound: {
+  case OptionType::kSound: {
     static auto backgrnd = WzResource::load_texture(
         WzResource::ui->find(u"Options.img/sound/layer:backgrnd"));
     SDL_FRect pos_rect{
@@ -197,7 +197,7 @@ void OptionUiSystem::render_option() {
     Freetype::draw_line(u"Mute", pos.x, pos.y);
     break;
   }
-  case game: {
+  case OptionType::kGame: {
     static auto backgrnd = WzResource::load_texture(
         WzResource::ui->find(u"Options.img/game/layer:backgrnd"));
     SDL_FRect pos_rect{
@@ -320,7 +320,7 @@ void OptionUiSystem::render_option() {
 
     break;
   }
-  case social: {
+  case OptionType::kSocial: {
     static auto backgrnd = WzResource::load_texture(
         WzResource::ui->find(u"Options.img/game/layer:backgrnd"));
     SDL_FRect pos_rect{
@@ -465,7 +465,7 @@ void OptionUiSystem::open() {
     pos.x = (camera.w - wh.x) / 2;
     pos.y = (camera.h - wh.y) / 2;
 
-    active_tab = game;
+    active_tab = static_cast<uint8_t>(OptionType::kGame);
 
     System::render_systems.insert(it, render);
     System::event_systems.insert(System::event_systems.begin(), event);

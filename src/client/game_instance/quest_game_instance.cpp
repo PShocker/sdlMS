@@ -235,15 +235,15 @@ void QuestGameInstance::load(CharacterSaveData &cs) {
   accept_quest(u"10317.img");
   for (auto &q : cs.quests) {
     switch (q.type) {
-    case QuestEnum::progress: {
+    case QuestEnum::kProgress: {
       accept_quest(q);
       break;
     }
-    case QuestEnum::complete: {
+    case QuestEnum::kComplete: {
       complete_quest(q);
       break;
     }
-    case QuestEnum::decline: {
+    case QuestEnum::kDecline: {
       decline_quest(q);
       break;
     }

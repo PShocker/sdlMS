@@ -12,8 +12,8 @@ private:
   static bool run_chatballoon(GameNpc &g_npc);
 
   enum class ActionEnum {
-    stand,
-    move,
+    kStand,
+    kMove,
   };
   static ActionEnum load_action_type(GameNpc &g_npc);
 

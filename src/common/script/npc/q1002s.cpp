@@ -39,7 +39,7 @@ static void state() {
 }
 
 static void q1002s(std::any data) {
-  NpcDlgUiSystem::type = NpcDlgUiSystem::NpcDlgEnum::quest_avaliable;
+  NpcDlgUiSystem::type = NpcDlgUiSystem::NpcDlgEnum::kQuestAvaliable;
   NpcDlgUiSystem::max_index = 0;
   NpcDlgUiSystem::npc_id = u"0000003";
   state();

@@ -8,19 +8,19 @@
 #include <string>
 
 enum class EquipMouseIndex {
-  cap,
-  earcc,
-  clothes,
-  pants,
-  shoes,
-  gloves,
-  cape,
-  shield,
-  weapon,
-  ring0,
-  ring1,
-  ring2,
-  ring3,
+  kCap,
+  kEarcc,
+  kClothes,
+  kPants,
+  kShoes,
+  kGloves,
+  kCape,
+  kShield,
+  kWeapon,
+  kRing0,
+  kRing1,
+  kRing2,
+  kRing3,
 };
 
 class EquipUiSystem {

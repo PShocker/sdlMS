@@ -10,10 +10,10 @@ private:
 
 public:
   enum class ClockEnum {
-    min,
-    hour,
+    kMin,
+    kHour,
   };
-  static inline ClockEnum type = ClockEnum::min;
+  static inline ClockEnum type = ClockEnum::kMin;
   static inline uint64_t destroy;
 
   static inline SDL_FPoint pos;

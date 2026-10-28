@@ -50,8 +50,8 @@ static void yinshenshu() {
     self.color = {255, 255, 255, 128};
     auto type = CharacterLogicSystem::load_action_type(self);
     switch (type) {
-    case CharacterLogicSystem::ActionEnum::attack:
-    case CharacterLogicSystem::ActionEnum::skill: {
+    case CharacterLogicSystem::ActionEnum::kAttack:
+    case CharacterLogicSystem::ActionEnum::kSkill: {
       g_skill.end();
       break;
     }
@@ -123,7 +123,7 @@ static void shuangfeizhan() {
     };
     auto &sf = CharacterGameInstance::self;
     auto WeaponType = EquipGameInstance::load_weapon_type(sf);
-    if (WeaponType != EquipGameInstance::WeaponType::CLAW) {
+    if (WeaponType != EquipGameInstance::WeaponType::kClaw) {
       return;
     }
     auto ball = PackageGameInstance::load_active_ball();

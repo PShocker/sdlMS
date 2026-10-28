@@ -219,7 +219,7 @@ bool CharacterRenderSystem::render_character(GameCharacter &g_character) {
 bool CharacterRenderSystem::render_afterimage(GameCharacter &g_character) {
   // 如果是法杖，而且是技能状态，不显示
   auto WeaponType = EquipGameInstance::load_weapon_type(g_character);
-  if (WeaponType == EquipGameInstance::WeaponType::WAND &&
+  if (WeaponType == EquipGameInstance::WeaponType::kWand &&
       g_character.skill.has_value()) {
     return false;
   }

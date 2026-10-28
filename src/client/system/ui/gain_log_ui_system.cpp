@@ -18,7 +18,7 @@ void GainLogUiSystem::render_text() {
     const auto &g_log = data[i];
     std::u16string text;
     switch (g_log.type) {
-    case GainEnum::item: {
+    case GainEnum::kItem: {
       auto itm_id = g_log.id;
       std::u16string item_name;
       auto num = g_log.num;
@@ -36,7 +36,7 @@ void GainLogUiSystem::render_text() {
       }
       break;
     }
-    case GainEnum::experience: {
+    case GainEnum::kExperience: {
       auto exp_str = std::to_string(g_log.num);
       auto exp_str2 = std::u16string{exp_str.begin(), exp_str.end()};
       text = u"You received EXP (+" + exp_str2 + u")";

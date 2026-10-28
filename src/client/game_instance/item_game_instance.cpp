@@ -117,12 +117,12 @@ int ItemGameInstance::load_slot_max(const std::u16string &id) {
 int ItemGameInstance::load_item_num(std::polymorphic<GameItem> &itm) {
   int num = 0;
   switch (itm->type) {
-  case ItemEnum::consume: {
+  case ItemEnum::kConsume: {
     auto &consume = static_cast<GameConsumeItem &>(*itm);
     num = consume.num;
     break;
   }
-  case ItemEnum::etc: {
+  case ItemEnum::kEtc: {
     auto &etc = static_cast<GameEtcItem &>(*itm);
     num = etc.num;
     break;
@@ -137,12 +137,12 @@ int ItemGameInstance::load_item_num(std::polymorphic<GameItem> &itm) {
 void ItemGameInstance::set_item_num(std::polymorphic<GameItem> &itm,
                                       int num) {
   switch (itm->type) {
-  case ItemEnum::consume: {
+  case ItemEnum::kConsume: {
     auto &consume = static_cast<GameConsumeItem &>(*itm);
     consume.num = num;
     break;
   }
-  case ItemEnum::etc: {
+  case ItemEnum::kEtc: {
     auto &etc = static_cast<GameEtcItem &>(*itm);
     etc.num = num;
     break;
@@ -158,12 +158,12 @@ void ItemGameInstance::set_item_num(std::polymorphic<GameItem> &itm,
 void ItemGameInstance::add_item_num(std::polymorphic<GameItem> &item,
                                       int num) {
   switch (item->type) {
-  case ItemEnum::consume: {
+  case ItemEnum::kConsume: {
     auto &consume = static_cast<GameConsumeItem &>(*item);
     consume.num += num;
     break;
   }
-  case ItemEnum::etc: {
+  case ItemEnum::kEtc: {
     auto &etc = static_cast<GameEtcItem &>(*item);
     etc.num += num;
     break;
@@ -179,11 +179,11 @@ void ItemGameInstance::add_item_num(std::polymorphic<GameItem> &item,
 void ItemGameInstance::dec_item_num(std::polymorphic<GameItem> &item,
                                       int num) {
   switch (item->type) {
-  case ItemEnum::equip: {
+  case ItemEnum::kEquip: {
     item = std::polymorphic<GameItem>(GameEquipItem{});
     break;
   }
-  case ItemEnum::consume: {
+  case ItemEnum::kConsume: {
     auto &consume = static_cast<GameConsumeItem &>(*item);
     if (consume.num >= num) {
       consume.num = consume.num - num;
@@ -197,7 +197,7 @@ void ItemGameInstance::dec_item_num(std::polymorphic<GameItem> &item,
     }
     break;
   }
-  case ItemEnum::etc: {
+  case ItemEnum::kEtc: {
     auto &etc = static_cast<GameEtcItem &>(*item);
     etc.num = etc.num - num;
     if (etc.num == 0) {
@@ -205,11 +205,11 @@ void ItemGameInstance::dec_item_num(std::polymorphic<GameItem> &item,
     }
     break;
   }
-  case ItemEnum::install: {
+  case ItemEnum::kInstall: {
     item = std::polymorphic<GameItem>(GameInstallItem{});
     break;
   }
-  case ItemEnum::cash: {
+  case ItemEnum::kCash: {
     item = std::polymorphic<GameItem>(GameCashItem{});
     break;
   }
@@ -503,11 +503,11 @@ void ItemGameInstance::use_item(std::polymorphic<GameItem> &itm) {
       }
       auto action_type = CharacterLogicSystem::load_action_type(g_character);
       switch (action_type) {
-      case CharacterLogicSystem::ActionEnum::stand: {
+      case CharacterLogicSystem::ActionEnum::kStand: {
         CharacterLogicSystem::run_sit_chair(g_character, itm->id);
         break;
       }
-      case CharacterLogicSystem::ActionEnum::sit: {
+      case CharacterLogicSystem::ActionEnum::kSit: {
         CharacterLogicSystem::run_unsit_chair(g_character);
         break;
       }

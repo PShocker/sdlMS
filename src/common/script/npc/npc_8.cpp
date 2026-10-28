@@ -27,7 +27,7 @@ static void state() {
 static void npc_8(std::any data) {
   NpcDlgUiSystem::close();
   NpcDlgUiSystem::open();
-  NpcDlgUiSystem::type = NpcDlgUiSystem::NpcDlgEnum::talk;
+  NpcDlgUiSystem::type = NpcDlgUiSystem::NpcDlgEnum::kTalk;
   NpcDlgUiSystem::index = 0;
   NpcDlgUiSystem::max_index = 1;
   NpcDlgUiSystem::cb = state;

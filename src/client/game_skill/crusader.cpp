@@ -94,7 +94,7 @@ static void douqijizhong() {
             .time = 0,
             .delay = Window::dt_now,
             .lv = 1,
-            .type = GameEffect::EffectType::skill_custom,
+            .type = GameEffect::EffectType::kSkillCustom,
             .pos = std::nullopt,
             .z = false,
             .data = c,
@@ -112,7 +112,7 @@ static void douqijizhong() {
           .time = 0,
           .delay = Window::dt_now,
           .lv = 1,
-          .type = GameEffect::EffectType::skill_custom,
+          .type = GameEffect::EffectType::kSkillCustom,
           .pos = std::nullopt,
           .z = false,
           .data = c,
@@ -168,7 +168,7 @@ static void douqijizhong() {
       g_character = dp->c;
     }
     if (e->lv == 0) {
-      e->type = GameEffect::EffectType::skill_use;
+      e->type = GameEffect::EffectType::kSkillUse;
       auto origin_data = e->data;
       e->data = g_character;
       if (EffectLogicSystem::run_skill_use(*e)) {
@@ -177,7 +177,7 @@ static void douqijizhong() {
         EffectRenderSystem::render_ski_use(g_character->pos, *e,
                                              g_character->flip);
       }
-      e->type = GameEffect::EffectType::skill_custom;
+      e->type = GameEffect::EffectType::kSkillCustom;
       e->data = origin_data;
     }
     static auto t = WzResource::load_texture(

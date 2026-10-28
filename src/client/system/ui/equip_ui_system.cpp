@@ -73,15 +73,15 @@ void EquipUiSystem::render_equip_texture(
 void EquipUiSystem::render_equip() {
   mouse_index = std::nullopt;
   auto &self = CharacterGameInstance::self;
-  render_equip_texture(self.cap, cap_slot, EquipMouseIndex::cap);
-  render_equip_texture(self.accessory, earacc_slot, EquipMouseIndex::earcc);
-  render_equip_texture(self.coat, clothes_slot, EquipMouseIndex::clothes);
-  render_equip_texture(self.pant, pants_slot, EquipMouseIndex::pants);
-  render_equip_texture(self.shoes, shoes_slot, EquipMouseIndex::shoes);
-  render_equip_texture(self.glove, gloves_slot, EquipMouseIndex::gloves);
-  render_equip_texture(self.cape, cape_slot, EquipMouseIndex::cape);
-  render_equip_texture(self.shield, shield_slot, EquipMouseIndex::shield);
-  render_equip_texture(self.weapon, weapon_slot, EquipMouseIndex::weapon);
+  render_equip_texture(self.cap, cap_slot, EquipMouseIndex::kCap);
+  render_equip_texture(self.accessory, earacc_slot, EquipMouseIndex::kEarcc);
+  render_equip_texture(self.coat, clothes_slot, EquipMouseIndex::kClothes);
+  render_equip_texture(self.pant, pants_slot, EquipMouseIndex::kPants);
+  render_equip_texture(self.shoes, shoes_slot, EquipMouseIndex::kShoes);
+  render_equip_texture(self.glove, gloves_slot, EquipMouseIndex::kGloves);
+  render_equip_texture(self.cape, cape_slot, EquipMouseIndex::kCape);
+  render_equip_texture(self.shield, shield_slot, EquipMouseIndex::kShield);
+  render_equip_texture(self.weapon, weapon_slot, EquipMouseIndex::kWeapon);
 }
 
 void EquipUiSystem::render_disable_texture(SDL_FPoint slot) {
@@ -138,16 +138,16 @@ void EquipUiSystem::render_deco_texture(std::optional<GameDecoItem> &deco,
 void EquipUiSystem::render_deco() {
   mouse_index = std::nullopt;
   auto &self = CharacterGameInstance::self;
-  render_deco_texture(self.cap_deco, cap_slot, EquipMouseIndex::cap);
+  render_deco_texture(self.cap_deco, cap_slot, EquipMouseIndex::kCap);
   render_deco_texture(self.accessory_deco, earacc_slot,
-                      EquipMouseIndex::earcc);
-  render_deco_texture(self.coat_deco, clothes_slot, EquipMouseIndex::clothes);
-  render_deco_texture(self.pant_deco, pants_slot, EquipMouseIndex::pants);
-  render_deco_texture(self.shoes_deco, shoes_slot, EquipMouseIndex::shoes);
-  render_deco_texture(self.glove_deco, gloves_slot, EquipMouseIndex::gloves);
-  render_deco_texture(self.cape_deco, cape_slot, EquipMouseIndex::cape);
-  render_deco_texture(self.shield_deco, shield_slot, EquipMouseIndex::shield);
-  render_deco_texture(self.weapon_deco, weapon_slot, EquipMouseIndex::weapon);
+                      EquipMouseIndex::kEarcc);
+  render_deco_texture(self.coat_deco, clothes_slot, EquipMouseIndex::kClothes);
+  render_deco_texture(self.pant_deco, pants_slot, EquipMouseIndex::kPants);
+  render_deco_texture(self.shoes_deco, shoes_slot, EquipMouseIndex::kShoes);
+  render_deco_texture(self.glove_deco, gloves_slot, EquipMouseIndex::kGloves);
+  render_deco_texture(self.cape_deco, cape_slot, EquipMouseIndex::kCape);
+  render_deco_texture(self.shield_deco, shield_slot, EquipMouseIndex::kShield);
+  render_deco_texture(self.weapon_deco, weapon_slot, EquipMouseIndex::kWeapon);
   bool weapon_deco = false;
   if (self.weapon_deco.has_value()) {
     if (self.weapon_deco.has_value()) {
@@ -295,26 +295,26 @@ bool EquipUiSystem::event_click_equip(SDL_Event *event) {
   if (cursor_hand.has_value()) {
     AudioGameInstance::load_audio(u"UI.img/DragEnd", 0);
     switch (cursor_hand->type) {
-    case CursorGameInstance::equipment: {
+    case CursorGameInstance::CursorHandType::kEquipment: {
       if (index == cursor_hand->sub_val && active_tab == 0) {
         EquipGameInstance::unuse_equip(index);
       }
       CursorGameInstance::cursor_hand = std::nullopt;
       break;
     }
-    case CursorGameInstance::package: {
+    case CursorGameInstance::CursorHandType::kPackage: {
       switch ((ItemEnum)cursor_hand->val) {
-      case ItemEnum::equip: {
+      case ItemEnum::kEquip: {
         EquipGameInstance::use_equip(cursor_hand->sub_val);
         break;
       }
-      case ItemEnum::deco: {
+      case ItemEnum::kDeco: {
         EquipGameInstance::use_deco(cursor_hand->sub_val);
         CharacterLogicSystem::cct.map_id = SceneSystemInstance::map_id;
         break;
       }
-      case ItemEnum::consume: {
-        auto &itm = PackageGameInstance::data[(int)ItemEnum::consume]
+      case ItemEnum::kConsume: {
+        auto &itm = PackageGameInstance::data[(int)ItemEnum::kConsume]
                                                [cursor_hand->sub_val];
         if (itm->id.starts_with(u"0204")) {
           if (active_tab == 0) {
@@ -336,7 +336,7 @@ bool EquipUiSystem::event_click_equip(SDL_Event *event) {
       cursor_hand = std::nullopt;
       break;
     }
-    case CursorGameInstance::deco: {
+    case CursorGameInstance::CursorHandType::kDeco: {
       if (index == cursor_hand->sub_val && active_tab == 1) {
         EquipGameInstance::unuse_deco(index);
       }
@@ -360,13 +360,13 @@ bool EquipUiSystem::event_click_equip(SDL_Event *event) {
         AudioGameInstance::load_audio(u"UI.img/DragStart", 0);
         if (active_tab == 0) {
           CursorGameInstance::cursor_hand = {
-              .type = CursorGameInstance::equipment,
+              .type = CursorGameInstance::CursorHandType::kEquipment,
               .val = active_tab,
               .sub_val = static_cast<uint32_t>(index),
           };
         } else {
           CursorGameInstance::cursor_hand = {
-              .type = CursorGameInstance::deco,
+              .type = CursorGameInstance::CursorHandType::kDeco,
               .val = active_tab,
               .sub_val = static_cast<uint32_t>(index),
           };

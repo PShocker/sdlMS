@@ -45,22 +45,22 @@ uint32_t CharacterStatGameInstance::get_base_hp_max() {
   }
   auto job = jobs[1];
   switch (job) {
-  case JobType::WARRIOR: {
+  case JobType::kWarrior: {
     base_hp_per = 28;
     base_hp = 50 + 16 * 9 + (sf.level - 10) * base_hp_per;
     break;
   }
-  case JobType::MAGICIAN: {
+  case JobType::kMagician: {
     base_hp_per = 16;
     base_hp = 50 + 16 * 7 + (sf.level - 8) * base_hp_per;
     break;
   }
-  case JobType::BOWMAN: {
+  case JobType::kBowman: {
     base_hp_per = 22;
     base_hp = 50 + 16 * 9 + (sf.level - 10) * base_hp_per;
     break;
   }
-  case JobType::THIEF: {
+  case JobType::kThief: {
     base_hp_per = 22;
     base_hp = 50 + 16 * 9 + (sf.level - 10) * base_hp_per;
     break;
@@ -71,53 +71,53 @@ uint32_t CharacterStatGameInstance::get_base_hp_max() {
   }
   for (int i = 1; i < jobs.size(); i++) {
     switch (jobs[i]) {
-    case JobType::WARRIOR: {
+    case JobType::kWarrior: {
       base_hp += 300;
       break;
     }
-    case JobType::MAGICIAN: {
+    case JobType::kMagician: {
       base_hp += 150;
       break;
     }
-    case JobType::BOWMAN: {
+    case JobType::kBowman: {
       base_hp += 250;
       break;
     }
-    case JobType::THIEF: {
+    case JobType::kThief: {
       base_hp += 250;
       break;
     }
-    case JobType::FIGHTER: {
+    case JobType::kFighter: {
       break;
     }
-    case JobType::PAGE: {
+    case JobType::kPage: {
       break;
     }
-    case JobType::SPEARMAN: {
+    case JobType::kSpearman: {
       break;
     }
-    case JobType::FP_WIZARD: {
+    case JobType::kFpWizard: {
       break;
     }
-    case JobType::IL_WIZARD: {
+    case JobType::kIlWizard: {
       break;
     }
-    case JobType::CLERIC: {
+    case JobType::kCleric: {
       break;
     }
-    case JobType::HUNTER: {
+    case JobType::kHunter: {
       base_hp += 250;
       break;
     }
-    case JobType::CROSSBOWMAN: {
+    case JobType::kCrossbowman: {
       base_hp += 250;
       break;
     }
-    case JobType::ASSASSIN: {
+    case JobType::kAssassin: {
       base_hp += 250;
       break;
     }
-    case JobType::BANDIT: {
+    case JobType::kBandit: {
       base_hp += 250;
       break;
     }
@@ -143,22 +143,22 @@ uint32_t CharacterStatGameInstance::get_base_mp_max() {
   }
   auto job = jobs[1];
   switch (job) {
-  case JobType::WARRIOR: {
+  case JobType::kWarrior: {
     base_mp_per = 28;
     base_mp = 50 + 16 * 9 + (sf.level - 10) * base_mp_per;
     break;
   }
-  case JobType::MAGICIAN: {
+  case JobType::kMagician: {
     base_mp_per = 16;
     base_mp = 50 + 16 * 7 + (sf.level - 8) * base_mp_per;
     break;
   }
-  case JobType::BOWMAN: {
+  case JobType::kBowman: {
     base_mp_per = 22;
     base_mp = 50 + 16 * 9 + (sf.level - 10) * base_mp_per;
     break;
   }
-  case JobType::THIEF: {
+  case JobType::kThief: {
     base_mp_per = 22;
     base_mp = 50 + 16 * 9 + (sf.level - 10) * base_mp_per;
     break;
@@ -169,53 +169,53 @@ uint32_t CharacterStatGameInstance::get_base_mp_max() {
   }
   for (int i = 1; i < jobs.size(); i++) {
     switch (jobs[i]) {
-    case JobType::WARRIOR: {
+    case JobType::kWarrior: {
       base_mp += 150;
       break;
     }
-    case JobType::MAGICIAN: {
+    case JobType::kMagician: {
       base_mp += 350;
       break;
     }
-    case JobType::BOWMAN: {
+    case JobType::kBowman: {
       base_mp += 250;
       break;
     }
-    case JobType::THIEF: {
+    case JobType::kThief: {
       base_mp += 250;
       break;
     }
-    case JobType::FIGHTER: {
+    case JobType::kFighter: {
       break;
     }
-    case JobType::PAGE: {
+    case JobType::kPage: {
       break;
     }
-    case JobType::SPEARMAN: {
+    case JobType::kSpearman: {
       break;
     }
-    case JobType::FP_WIZARD: {
+    case JobType::kFpWizard: {
       break;
     }
-    case JobType::IL_WIZARD: {
+    case JobType::kIlWizard: {
       break;
     }
-    case JobType::CLERIC: {
+    case JobType::kCleric: {
       break;
     }
-    case JobType::HUNTER: {
+    case JobType::kHunter: {
       base_mp += 250;
       break;
     }
-    case JobType::CROSSBOWMAN: {
+    case JobType::kCrossbowman: {
       base_mp += 250;
       break;
     }
-    case JobType::ASSASSIN: {
+    case JobType::kAssassin: {
       base_mp += 250;
       break;
     }
-    case JobType::BANDIT: {
+    case JobType::kBandit: {
       base_mp += 250;
       break;
     }
@@ -235,14 +235,14 @@ int CharacterStatGameInstance::load_primary_stat() {
   auto jobs = JobSkillGameInstance::load_ski_tree(job);
   if (jobs.size() >= 2) {
     switch (jobs[1]) {
-    case JobType::BEGINNER:
-    case JobType::WARRIOR:
+    case JobType::kBeginner:
+    case JobType::kWarrior:
       return static_cast<int>(str_ap + eqp_str + itm_str + ski_str);
-    case JobType::MAGICIAN:
+    case JobType::kMagician:
       return static_cast<int>(int_ap + eqp_int + itm_int + ski_int);
-    case JobType::BOWMAN:
+    case JobType::kBowman:
       return static_cast<int>(dex_ap + eqp_dex + itm_dex + ski_dex);
-    case JobType::THIEF:
+    case JobType::kThief:
       return static_cast<int>(luk_ap + eqp_luk + itm_luk + ski_luk);
     default:
       break;
@@ -256,13 +256,13 @@ int CharacterStatGameInstance::load_secondary_stat() {
   auto jobs = JobSkillGameInstance::load_ski_tree(job);
   if (jobs.size() >= 2) {
     switch (jobs[1]) {
-    case JobType::WARRIOR:
+    case JobType::kWarrior:
       return static_cast<int>(dex_ap + eqp_dex + itm_dex + ski_dex);
-    case JobType::MAGICIAN:
+    case JobType::kMagician:
       return static_cast<int>(luk_ap + eqp_luk + itm_luk + ski_luk);
-    case JobType::BOWMAN:
+    case JobType::kBowman:
       return static_cast<int>(str_ap + eqp_str + itm_str + ski_str);
-    case JobType::THIEF: // 指南：匕首/拳套的 Secondary = STR + DEX
+    case JobType::kThief: // 指南：匕首/拳套的 Secondary = STR + DEX
       return static_cast<int>(dex_ap + eqp_dex + itm_dex + ski_dex);
     default:
       break;
@@ -335,28 +335,28 @@ void CharacterStatGameInstance::update_sf_equip_stat() {
       [&](const std::flat_map<EquipGameInstance::IncType, int> &inc) {
         for (auto [t, v] : inc) {
           switch (t) {
-          case EquipGameInstance::IncType::WEAPON_PAD:
+          case EquipGameInstance::IncType::kWeaponPad:
             eqp_attack += static_cast<uint32_t>(v);
             break;
-          case EquipGameInstance::IncType::WEAPON_MAD:
+          case EquipGameInstance::IncType::kWeaponMad:
             eqp_magic += static_cast<uint32_t>(v);
             break;
-          case EquipGameInstance::IncType::STR:
+          case EquipGameInstance::IncType::kStr:
             eqp_str += v;
             break;
-          case EquipGameInstance::IncType::DEX:
+          case EquipGameInstance::IncType::kDex:
             eqp_dex += v;
             break;
-          case EquipGameInstance::IncType::INT:
+          case EquipGameInstance::IncType::kInt:
             eqp_int += v;
             break;
-          case EquipGameInstance::IncType::LUK:
+          case EquipGameInstance::IncType::kLuk:
             eqp_luk += v;
             break;
-          case EquipGameInstance::IncType::PDD:
+          case EquipGameInstance::IncType::kPdd:
             eqp_attack_def += v;
             break;
-          case EquipGameInstance::IncType::ACC:
+          case EquipGameInstance::IncType::kAcc:
             eqp_accuracy += static_cast<uint32_t>(v);
             break;
           default: // 攻速/CRT 等暂不进入面板数值
@@ -423,27 +423,27 @@ void CharacterStatGameInstance::update() {
     }
     switch (EquipGameInstance::load_weapon_enum(
         CharacterGameInstance::self.weapon->id)) {
-    case EquipGameInstance::WeaponEnum::SWORD_1H: // 单手剑
+    case EquipGameInstance::WeaponEnum::kSword1H: // 单手剑
       return {1.8f, 1.8f};                           // swing/stab 1.8
-    case EquipGameInstance::WeaponEnum::AXE_1H:   // 单手斧
-    case EquipGameInstance::WeaponEnum::MACE_1H:  // 单手钝器
+    case EquipGameInstance::WeaponEnum::kAxe1H:   // 单手斧
+    case EquipGameInstance::WeaponEnum::kMace1H:  // 单手钝器
       return {1.2f, 2.4f}; // stab 1.2 ~ swing 2.4（mixed 1.8 在包络内）
-    case EquipGameInstance::WeaponEnum::DAGGER:   // 匕首
+    case EquipGameInstance::WeaponEnum::kDagger:   // 匕首
       return {1.0f, 2.0f};                           // swing 1.0 ~ stab 2.0
-    case EquipGameInstance::WeaponEnum::SWORD_2H: // 双手剑
+    case EquipGameInstance::WeaponEnum::kSword2H: // 双手剑
       return {2.5f, 2.5f};
-    case EquipGameInstance::WeaponEnum::AXE_2H:  // 双手斧
-    case EquipGameInstance::WeaponEnum::MACE_2H: // 双手钝器
+    case EquipGameInstance::WeaponEnum::kAxe2H:  // 双手斧
+    case EquipGameInstance::WeaponEnum::kMace2H: // 双手钝器
       return {2.0f, 3.0f};                          // stab 2.0 ~ swing 3.0
-    case EquipGameInstance::WeaponEnum::SPEAR: // 长枪：swing 1.5 / stab 3.5
-    case EquipGameInstance::WeaponEnum::POLEARM: // 矛：swing 3.5 / stab 1.5
+    case EquipGameInstance::WeaponEnum::kSpear: // 长枪：swing 1.5 / stab 3.5
+    case EquipGameInstance::WeaponEnum::kPolearm: // 矛：swing 3.5 / stab 1.5
       return {1.5f, 3.5f};
-    case EquipGameInstance::WeaponEnum::BOW:      // 弓
-    case EquipGameInstance::WeaponEnum::CROSSBOW: // 弩
-    case EquipGameInstance::WeaponEnum::CLAW:     // 拳套
+    case EquipGameInstance::WeaponEnum::kBow:      // 弓
+    case EquipGameInstance::WeaponEnum::kCrossbow: // 弩
+    case EquipGameInstance::WeaponEnum::kClaw:     // 拳套
       return {1.0f, 2.5f};                           // 近身 1.0 ~ 射击 2.5
-    case EquipGameInstance::WeaponEnum::WAND:     // 短杖物理敲击
-    case EquipGameInstance::WeaponEnum::STAFF:    // 长杖物理敲击
+    case EquipGameInstance::WeaponEnum::kWand:     // 短杖物理敲击
+    case EquipGameInstance::WeaponEnum::kStaff:    // 长杖物理敲击
       return {1.8f, 1.8f};
     default: // KNUCKLE/GUN 等指南未收录，占位
       return {1.0f, 1.0f};
@@ -496,7 +496,7 @@ void CharacterStatGameInstance::update() {
 
   const auto jobs =
       JobSkillGameInstance::load_ski_tree(CharacterGameInstance::self.job);
-  const bool is_magician = jobs.size() >= 2 && jobs[1] == JobType::MAGICIAN;
+  const bool is_magician = jobs.size() >= 2 && jobs[1] == JobType::kMagician;
 
   // 面板取整按指南口径 trunc（直接截断，而非四舍五入）
   if (is_magician) {

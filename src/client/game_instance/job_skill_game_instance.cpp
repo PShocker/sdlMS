@@ -22,7 +22,7 @@ uint8_t JobSkillGameInstance::load_ski_level(const std::u16string &id) {
 
 std::vector<JobType>
 JobSkillGameInstance::load_ski_tree(const std::u16string &id) {
-  std::vector<JobType> r = {JobType::BEGINNER};
+  std::vector<JobType> r = {JobType::kBeginner};
   if (id == u"0") {
     return r;
   }
@@ -34,64 +34,64 @@ JobSkillGameInstance::load_ski_tree(const std::u16string &id) {
   }
   switch (ch) {
   case u'1': {
-    r.push_back(JobType::WARRIOR);
+    r.push_back(JobType::kWarrior);
     switch (ch2) {
     case u'1': {
-      r.push_back(JobType::FIGHTER);
+      r.push_back(JobType::kFighter);
       break;
     }
     case u'2': {
-      r.push_back(JobType::PAGE);
+      r.push_back(JobType::kPage);
       break;
     }
     case u'3': {
-      r.push_back(JobType::SPEARMAN);
+      r.push_back(JobType::kSpearman);
       break;
     }
     }
     break;
   }
   case u'2': {
-    r.push_back(JobType::MAGICIAN);
+    r.push_back(JobType::kMagician);
     switch (ch2) {
     case u'1': {
-      r.push_back(JobType::FP_WIZARD);
+      r.push_back(JobType::kFpWizard);
       break;
     }
     case u'2': {
-      r.push_back(JobType::IL_WIZARD);
+      r.push_back(JobType::kIlWizard);
       break;
     }
     case u'3': {
-      r.push_back(JobType::CLERIC);
+      r.push_back(JobType::kCleric);
       break;
     }
     }
     break;
   }
   case u'3': {
-    r.push_back(JobType::BOWMAN);
+    r.push_back(JobType::kBowman);
     switch (ch2) {
     case u'1': {
-      r.push_back(JobType::HUNTER);
+      r.push_back(JobType::kHunter);
       break;
     }
     case u'2': {
-      r.push_back(JobType::CROSSBOWMAN);
+      r.push_back(JobType::kCrossbowman);
       break;
     }
     }
     break;
   }
   case u'4': {
-    r.push_back(JobType::THIEF);
+    r.push_back(JobType::kThief);
     switch (ch2) {
     case u'1': {
-      r.push_back(JobType::ASSASSIN);
+      r.push_back(JobType::kAssassin);
       break;
     }
     case u'2': {
-      r.push_back(JobType::BANDIT);
+      r.push_back(JobType::kBandit);
       break;
     }
     }
@@ -104,35 +104,35 @@ JobSkillGameInstance::load_ski_tree(const std::u16string &id) {
 
 std::u16string JobSkillGameInstance::load_job_id(JobType type) {
   switch (type) {
-  case JobType::BEGINNER:
+  case JobType::kBeginner:
     return u"000";
-  case JobType::WARRIOR:
+  case JobType::kWarrior:
     return u"100";
-  case JobType::MAGICIAN:
+  case JobType::kMagician:
     return u"200";
-  case JobType::BOWMAN:
+  case JobType::kBowman:
     return u"300";
-  case JobType::THIEF:
+  case JobType::kThief:
     return u"400";
-  case JobType::FIGHTER:
+  case JobType::kFighter:
     return u"110";
-  case JobType::PAGE:
+  case JobType::kPage:
     return u"120";
-  case JobType::SPEARMAN:
+  case JobType::kSpearman:
     return u"130";
-  case JobType::FP_WIZARD:
+  case JobType::kFpWizard:
     return u"210";
-  case JobType::IL_WIZARD:
+  case JobType::kIlWizard:
     return u"220";
-  case JobType::CLERIC:
+  case JobType::kCleric:
     return u"230";
-  case JobType::HUNTER:
+  case JobType::kHunter:
     return u"310";
-  case JobType::CROSSBOWMAN:
+  case JobType::kCrossbowman:
     return u"320";
-  case JobType::ASSASSIN:
+  case JobType::kAssassin:
     return u"410";
-  case JobType::BANDIT:
+  case JobType::kBandit:
     return u"420";
   }
   return u"";

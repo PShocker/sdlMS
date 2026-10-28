@@ -30,7 +30,7 @@ bool EquipGameInstance::check_equip(const std::u16string &id) {
 std::polymorphic<GameItem>
 EquipGameInstance::load_item(const std::u16string &id) {
   GameEquipItem eqp;
-  eqp.type = ItemEnum::equip;
+  eqp.type = ItemEnum::kEquip;
   eqp.id = id;
   auto r = std::polymorphic<GameItem>(eqp);
   return r;
@@ -115,7 +115,7 @@ wz::Node *EquipGameInstance::load_equip_info(const std::u16string &id) {
 EquipGameInstance::WeaponType
 EquipGameInstance::load_weapon_type(const GameCharacter &g_character) {
   if (!g_character.weapon.has_value()) {
-    return WeaponType::NONE;
+    return WeaponType::kNone;
   }
   auto g_weapon = g_character.weapon->id;
   auto g_weapon_info = EquipGameInstance::load_equip_info(g_weapon);
@@ -128,7 +128,7 @@ EquipGameInstance::load_weapon_type(const GameCharacter &g_character) {
 EquipGameInstance::WeaponEnum
 EquipGameInstance::load_weapon_enum(const std::u16string &id) {
   if (id.empty()) {
-    return WeaponEnum::NONE;
+    return WeaponEnum::kNone;
   }
   // 装备 id 形如 "013xxxxx"：大类码 = id / 10000，低两位即武器类别（130 → 30）
   std::string s{id.begin(), id.end()};
@@ -168,21 +168,21 @@ EquipGameInstance::load_equip_job(const std::u16string &id) {
       static_cast<wz::Property<int> *>(equip_info->get_child(u"reqJob"))->get();
   if (reqJob == 0) {
     r = {
-        JobType::BEGINNER, JobType::WARRIOR, JobType::MAGICIAN,
-        JobType::BOWMAN,   JobType::THIEF,
+        JobType::kBeginner, JobType::kWarrior, JobType::kMagician,
+        JobType::kBowman,   JobType::kThief,
     };
   } else {
     if (reqJob & 1) {
-      r.insert(JobType::WARRIOR);
+      r.insert(JobType::kWarrior);
     }
     if (reqJob & 2) {
-      r.insert(JobType::MAGICIAN);
+      r.insert(JobType::kMagician);
     }
     if (reqJob & 4) {
-      r.insert(JobType::MAGICIAN);
+      r.insert(JobType::kMagician);
     }
     if (reqJob & 8) {
-      r.insert(JobType::THIEF);
+      r.insert(JobType::kThief);
     }
   }
   return r;
@@ -193,15 +193,15 @@ EquipGameInstance::load_equip_inc(const std::u16string &id) {
   std::flat_map<EquipGameInstance::IncType, int> r;
   auto equip_info = load_equip_info(id);
   static const std::flat_map<std::u16string, IncType> incs = {
-      {u"attackSpeed", EquipGameInstance::IncType::WEAPON_SPEED},
-      {u"incWAT", EquipGameInstance::IncType::WEAPON_PAD},
-      {u"incMMP", EquipGameInstance::IncType::WEAPON_MAD},
-      {u"incPDD", EquipGameInstance::IncType::PDD},
-      {u"incACC", EquipGameInstance::IncType::ACC},
-      {u"incSTR", EquipGameInstance::IncType::STR},
-      {u"incDEX", EquipGameInstance::IncType::DEX},
-      {u"incINT", EquipGameInstance::IncType::INT},
-      {u"incLUK", EquipGameInstance::IncType::LUK},
+      {u"attackSpeed", EquipGameInstance::IncType::kWeaponSpeed},
+      {u"incWAT", EquipGameInstance::IncType::kWeaponPad},
+      {u"incMMP", EquipGameInstance::IncType::kWeaponMad},
+      {u"incPDD", EquipGameInstance::IncType::kPdd},
+      {u"incACC", EquipGameInstance::IncType::kAcc},
+      {u"incSTR", EquipGameInstance::IncType::kStr},
+      {u"incDEX", EquipGameInstance::IncType::kDex},
+      {u"incINT", EquipGameInstance::IncType::kInt},
+      {u"incLUK", EquipGameInstance::IncType::kLuk},
   };
   for (auto [k, v] : incs) {
     if (equip_info->get_children()->contains(k)) {
@@ -217,15 +217,15 @@ EquipGameInstance::load_scroll_inc(const std::u16string &id) {
   std::flat_map<EquipGameInstance::IncType, int> r;
   auto scroll_info = ItemGameInstance::load_item_info(id, 0);
   static const std::flat_map<std::u16string, IncType> incs = {
-      {u"incWAT", EquipGameInstance::IncType::WEAPON_PAD},
-      {u"incMMP", EquipGameInstance::IncType::WEAPON_MAD},
-      {u"incPDD", EquipGameInstance::IncType::PDD},
-      {u"incACC", EquipGameInstance::IncType::ACC},
-      {u"incSTR", EquipGameInstance::IncType::STR},
-      {u"incDEX", EquipGameInstance::IncType::DEX},
-      {u"incINT", EquipGameInstance::IncType::INT},
-      {u"incLUK", EquipGameInstance::IncType::LUK},
-      {u"incCRT", EquipGameInstance::IncType::CRTR},
+      {u"incWAT", EquipGameInstance::IncType::kWeaponPad},
+      {u"incMMP", EquipGameInstance::IncType::kWeaponMad},
+      {u"incPDD", EquipGameInstance::IncType::kPdd},
+      {u"incACC", EquipGameInstance::IncType::kAcc},
+      {u"incSTR", EquipGameInstance::IncType::kStr},
+      {u"incDEX", EquipGameInstance::IncType::kDex},
+      {u"incINT", EquipGameInstance::IncType::kInt},
+      {u"incLUK", EquipGameInstance::IncType::kLuk},
+      {u"incCRT", EquipGameInstance::IncType::kCrtr},
   };
   for (auto [k, v] : incs) {
     if (scroll_info->get_children()->contains(k)) {
@@ -631,22 +631,22 @@ int EquipGameInstance::use_equip_scroll(GameEquipItem &eqp,
 }
 
 int EquipGameInstance::use_equip(int i, int slot) {
-  auto &equips = PackageGameInstance::data[(int)ItemEnum::equip];
+  auto &equips = PackageGameInstance::data[(int)ItemEnum::kEquip];
   auto &itm = equips[i];
   auto &sf = CharacterGameInstance::self;
   auto &eq = static_cast<GameEquipItem &>(*itm);
   auto ev = EquipGameInstance::load_equip_slot(eq.id, sf);
   auto blank_slot =
-      PackageGameInstance::load_empty_index((int)ItemEnum::equip);
+      PackageGameInstance::load_empty_index((int)ItemEnum::kEquip);
   blank_slot.push_back(i);
   std::ranges::sort(blank_slot);
   if (blank_slot.size() < ev.size()) {
-    NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::equip_no_space;
+    NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kEquipNoSpace;
     NoticeUiSystem::open();
     return 0;
   }
   if (!EquipGameInstance::add_equip_limit(eq, sf, slot)) {
-    NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::equip_no_ability;
+    NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kEquipNoAbility;
     NoticeUiSystem::open();
     return 0;
   }
@@ -660,22 +660,22 @@ int EquipGameInstance::use_equip(int i, int slot) {
 }
 
 int EquipGameInstance::use_deco(int i, int slot) {
-  auto &equips = PackageGameInstance::data[(int)ItemEnum::deco];
+  auto &equips = PackageGameInstance::data[(int)ItemEnum::kDeco];
   auto &itm = equips[i];
   auto &sf = CharacterGameInstance::self;
   auto &de = static_cast<GameDecoItem &>(*itm);
   auto ev = EquipGameInstance::load_deco_slot(de.id, sf);
   auto blank_slot =
-      PackageGameInstance::load_empty_index((int)ItemEnum::equip);
+      PackageGameInstance::load_empty_index((int)ItemEnum::kEquip);
   blank_slot.push_back(i);
   std::ranges::sort(blank_slot);
   if (blank_slot.size() < ev.size()) {
-    NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::equip_no_space;
+    NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kEquipNoSpace;
     NoticeUiSystem::open();
     return 0;
   }
   if (!EquipGameInstance::add_equip_deco(de, sf, 0)) {
-    NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::equip_no_ability;
+    NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kEquipNoAbility;
     NoticeUiSystem::open();
     return 0;
   }
@@ -691,46 +691,46 @@ std::optional<GameEquipItem> *EquipGameInstance::load_equip(int index) {
   std::optional<GameEquipItem> *equip;
   auto &self = CharacterGameInstance::self;
   switch ((EquipMouseIndex)index) {
-  case EquipMouseIndex::cap: {
+  case EquipMouseIndex::kCap: {
     equip = &self.cap;
     break;
   }
-  case EquipMouseIndex::earcc: {
+  case EquipMouseIndex::kEarcc: {
     equip = &self.accessory;
     break;
   }
-  case EquipMouseIndex::clothes: {
+  case EquipMouseIndex::kClothes: {
     equip = &self.coat;
     break;
   }
-  case EquipMouseIndex::pants: {
+  case EquipMouseIndex::kPants: {
     equip = &self.pant;
     break;
   }
-  case EquipMouseIndex::shoes: {
+  case EquipMouseIndex::kShoes: {
     equip = &self.shoes;
     break;
   }
-  case EquipMouseIndex::gloves: {
+  case EquipMouseIndex::kGloves: {
     equip = &self.glove;
     break;
   }
-  case EquipMouseIndex::cape: {
+  case EquipMouseIndex::kCape: {
     equip = &self.cape;
     break;
   }
-  case EquipMouseIndex::shield: {
+  case EquipMouseIndex::kShield: {
     equip = &self.shield;
     break;
   }
-  case EquipMouseIndex::weapon: {
+  case EquipMouseIndex::kWeapon: {
     equip = &self.weapon;
     break;
   }
-  case EquipMouseIndex::ring0:
-  case EquipMouseIndex::ring1:
-  case EquipMouseIndex::ring2:
-  case EquipMouseIndex::ring3:
+  case EquipMouseIndex::kRing0:
+  case EquipMouseIndex::kRing1:
+  case EquipMouseIndex::kRing2:
+  case EquipMouseIndex::kRing3:
     break;
   }
   return equip;
@@ -740,46 +740,46 @@ std::optional<GameDecoItem> *EquipGameInstance::load_deco(int index) {
   std::optional<GameDecoItem> *deco;
   auto &self = CharacterGameInstance::self;
   switch ((EquipMouseIndex)index) {
-  case EquipMouseIndex::cap: {
+  case EquipMouseIndex::kCap: {
     deco = &self.cap_deco;
     break;
   }
-  case EquipMouseIndex::earcc: {
+  case EquipMouseIndex::kEarcc: {
     deco = &self.accessory_deco;
     break;
   }
-  case EquipMouseIndex::clothes: {
+  case EquipMouseIndex::kClothes: {
     deco = &self.coat_deco;
     break;
   }
-  case EquipMouseIndex::pants: {
+  case EquipMouseIndex::kPants: {
     deco = &self.pant_deco;
     break;
   }
-  case EquipMouseIndex::shoes: {
+  case EquipMouseIndex::kShoes: {
     deco = &self.shoes_deco;
     break;
   }
-  case EquipMouseIndex::gloves: {
+  case EquipMouseIndex::kGloves: {
     deco = &self.glove_deco;
     break;
   }
-  case EquipMouseIndex::cape: {
+  case EquipMouseIndex::kCape: {
     deco = &self.cape_deco;
     break;
   }
-  case EquipMouseIndex::shield: {
+  case EquipMouseIndex::kShield: {
     deco = &self.shield_deco;
     break;
   }
-  case EquipMouseIndex::weapon: {
+  case EquipMouseIndex::kWeapon: {
     deco = &self.weapon_deco;
     break;
   }
-  case EquipMouseIndex::ring0:
-  case EquipMouseIndex::ring1:
-  case EquipMouseIndex::ring2:
-  case EquipMouseIndex::ring3:
+  case EquipMouseIndex::kRing0:
+  case EquipMouseIndex::kRing1:
+  case EquipMouseIndex::kRing2:
+  case EquipMouseIndex::kRing3:
     break;
   }
   return deco;
@@ -788,7 +788,7 @@ std::optional<GameDecoItem> *EquipGameInstance::load_deco(int index) {
 int EquipGameInstance::unuse_equip(int i) {
   auto eqp = std::polymorphic<GameItem>(load_equip(i)->value());
   if (!PackageGameInstance::add_item(eqp)) {
-    NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::equip_no_space;
+    NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kEquipNoSpace;
     NoticeUiSystem::open();
     return 0;
   }
@@ -801,7 +801,7 @@ int EquipGameInstance::unuse_equip(int i) {
 int EquipGameInstance::unuse_deco(int i) {
   auto eqp = std::polymorphic<GameItem>(load_deco(i)->value());
   if (!PackageGameInstance::add_item(eqp)) {
-    NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::equip_no_space;
+    NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kEquipNoSpace;
     NoticeUiSystem::open();
     return 0;
   }

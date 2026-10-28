@@ -13,14 +13,14 @@ private:
 
 public:
   enum class ActionEnum {
-    stand,
-    jump,
-    move,
-    swim,
-    fly,
-    hit,
-    die,
-    revive,
+    kStand,
+    kJump,
+    kMove,
+    kSwim,
+    kFly,
+    kHit,
+    kDie,
+    kRevive,
   };
   static ActionEnum load_action_type(const std::u16string &action);
 

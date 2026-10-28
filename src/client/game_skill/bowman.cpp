@@ -82,8 +82,8 @@ static void shuangfeizhan() {
     };
     auto &sf = CharacterGameInstance::self;
     auto WeaponType = EquipGameInstance::load_weapon_type(sf);
-    if (!(WeaponType == EquipGameInstance::WeaponType::BOW ||
-          WeaponType == EquipGameInstance::WeaponType::CROSSBOW)) {
+    if (!(WeaponType == EquipGameInstance::WeaponType::kBow ||
+          WeaponType == EquipGameInstance::WeaponType::kCrossbow)) {
       return;
     }
     auto ball = PackageGameInstance::load_active_ball();

@@ -10,14 +10,14 @@
 
 void TextInputUiSystem::close(TextInput &input) {
   input.active = false;
-  if (input.type.test(TextInput::ime)) {
+  if (input.type.test(TextInput::kIme)) {
     SDL_StopTextInput(SDL_GetKeyboardFocus());
   }
 }
 
 void TextInputUiSystem::active(TextInput &input) {
   input.active = true;
-  if (input.type.test(TextInput::ime)) {
+  if (input.type.test(TextInput::kIme)) {
     SDL_Window *sdl_window = SDL_GetKeyboardFocus();
     SDL_StartTextInput(sdl_window);
     SDL_SetTextInputArea(sdl_window, &input.r, 0);
@@ -325,17 +325,17 @@ bool TextInputUiSystem::event(SDL_Event *event, TextInput &input) {
       bool digit = (key >= SDLK_0 && key <= SDLK_9);
       bool letter = (key >= SDLK_A && key <= SDLK_Z);
       bool symbol = !digit && !letter;
-      if (!input.type.test(TextInput::symbol)) {
+      if (!input.type.test(TextInput::kSymbol)) {
         if (symbol) {
           break;
         }
       }
-      if (!input.type.test(TextInput::digit)) {
+      if (!input.type.test(TextInput::kDigit)) {
         if (digit) {
           break;
         }
       }
-      if (!input.type.test(TextInput::letter)) {
+      if (!input.type.test(TextInput::kLetter)) {
         if (letter) {
           break;
         }

@@ -452,7 +452,7 @@ bool SkillUiSystem::event_click_ski(SDL_Event *event) {
 
       if (CursorGameInstance::cursor_hand.has_value()) {
         if (CursorGameInstance::cursor_hand->type ==
-            CursorGameInstance::skill) {
+            CursorGameInstance::CursorHandType::kSkill) {
           if (CursorGameInstance::cursor_hand->sub_val == sub_val) {
             // run_skill
             auto &c = CharacterGameInstance::self;
@@ -465,7 +465,7 @@ bool SkillUiSystem::event_click_ski(SDL_Event *event) {
       } else {
         AudioGameInstance::load_audio(u"UI.img/DragStart", 0);
         CursorGameInstance::cursor_hand = {
-            .type = CursorGameInstance::skill,
+            .type = CursorGameInstance::CursorHandType::kSkill,
             .val = active_tab,
             .sub_val = static_cast<uint32_t>(sub_val),
         };

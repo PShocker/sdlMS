@@ -35,32 +35,32 @@ private:
 
 public:
   enum class NoticeEnum {
-    shopbuy,
-    shopbuy_sell,
-    shopbuy_sell_mul,
-    shopbuy_sell_no_num,
-    shopbuy_mul,
-    shopbuy_no_meso,
+    kShopbuy,
+    kShopbuySell,
+    kShopbuySellMul,
+    kShopbuySellNoNum,
+    kShopbuyMul,
+    kShopbuyNoMeso,
 
-    no_equip_space,
-    no_consume_space,
-    no_install_space,
-    no_etc_space,
-    no_cash_space,
-    no_deco_space,
+    kNoEquipSpace,
+    kNoConsumeSpace,
+    kNoInstallSpace,
+    kNoEtcSpace,
+    kNoCashSpace,
+    kNoDecoSpace,
 
-    no_storage_space,
+    kNoStorageSpace,
 
-    equip_no_ability,
-    equip_no_space,
+    kEquipNoAbility,
+    kEquipNoSpace,
 
-    ap_inc,
-    worldmap_disable,
-    worldmap_teleport,
+    kApInc,
+    kWorldmapDisable,
+    kWorldmapTeleport,
 
-    throw_mul,
+    kThrowMul,
 
-    trade_block,
+    kTradeBlock,
   };
 
   static inline NoticeEnum type;

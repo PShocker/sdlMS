@@ -136,12 +136,12 @@ void TooltipUiSystem::render_equip_bottom(GameEquipItem &equip, float x,
   auto type_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
   render_equip_bottom_inc(type_str, equip_type, x, y);
   // weapon speed
-  if (equip_inc.contains(EquipGameInstance::IncType::WEAPON_SPEED)) {
+  if (equip_inc.contains(EquipGameInstance::IncType::kWeaponSpeed)) {
     auto str_node =
         WzResource::ms->get_root()->find(u"String.img/Equip/attackSpeed");
     auto spd_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
     std::u16string val_str;
-    auto val = equip_inc.at(EquipGameInstance::IncType::WEAPON_SPEED);
+    auto val = equip_inc.at(EquipGameInstance::IncType::kWeaponSpeed);
     if (val >= 6) {
       // slow
       str_node = WzResource::ms->get_root()->find(
@@ -166,15 +166,15 @@ void TooltipUiSystem::render_equip_bottom(GameEquipItem &equip, float x,
   }
 
   // weapon pad
-  if (equip_inc.contains(EquipGameInstance::IncType::WEAPON_PAD) ||
-      scroll_inc.contains(EquipGameInstance::IncType::WEAPON_PAD)) {
+  if (equip_inc.contains(EquipGameInstance::IncType::kWeaponPad) ||
+      scroll_inc.contains(EquipGameInstance::IncType::kWeaponPad)) {
     auto str_node =
         WzResource::ms->get_root()->find(u"String.img/Equip/weaponAttack");
     auto pad_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
-    auto val = equip_inc[EquipGameInstance::IncType::WEAPON_PAD];
+    auto val = equip_inc[EquipGameInstance::IncType::kWeaponPad];
     std::string val_str = "+";
-    if (scroll_inc.contains(EquipGameInstance::IncType::WEAPON_PAD)) {
-      auto val2 = scroll_inc.at(EquipGameInstance::IncType::WEAPON_PAD);
+    if (scroll_inc.contains(EquipGameInstance::IncType::kWeaponPad)) {
+      auto val2 = scroll_inc.at(EquipGameInstance::IncType::kWeaponPad);
       val_str = std::format("+{}({}+{})", val + val2, val, val2);
     } else {
       val_str = val_str + std::to_string(val);
@@ -184,14 +184,14 @@ void TooltipUiSystem::render_equip_bottom(GameEquipItem &equip, float x,
   }
 
   // weapon pdd
-  if (equip_inc.contains(EquipGameInstance::IncType::PDD) ||
-      scroll_inc.contains(EquipGameInstance::IncType::PDD)) {
+  if (equip_inc.contains(EquipGameInstance::IncType::kPdd) ||
+      scroll_inc.contains(EquipGameInstance::IncType::kPdd)) {
     str_node = WzResource::ms->get_root()->find(u"String.img/Character/pdd");
     auto pdd_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
-    auto val = equip_inc[EquipGameInstance::IncType::PDD];
+    auto val = equip_inc[EquipGameInstance::IncType::kPdd];
     std::string val_str = "+";
-    if (scroll_inc.contains(EquipGameInstance::IncType::PDD)) {
-      auto val2 = scroll_inc.at(EquipGameInstance::IncType::PDD);
+    if (scroll_inc.contains(EquipGameInstance::IncType::kPdd)) {
+      auto val2 = scroll_inc.at(EquipGameInstance::IncType::kPdd);
       val_str = std::format("+{}({}+{})", val + val2, val, val2);
     } else {
       val_str = val_str + std::to_string(val);
@@ -201,15 +201,15 @@ void TooltipUiSystem::render_equip_bottom(GameEquipItem &equip, float x,
   }
 
   // weapon mad
-  if (equip_inc.contains(EquipGameInstance::IncType::WEAPON_MAD) ||
-      scroll_inc.contains(EquipGameInstance::IncType::WEAPON_MAD)) {
+  if (equip_inc.contains(EquipGameInstance::IncType::kWeaponMad) ||
+      scroll_inc.contains(EquipGameInstance::IncType::kWeaponMad)) {
     str_node =
         WzResource::ms->get_root()->find(u"String.img/Equip/weaponMagic");
     auto mad_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
-    auto val = equip_inc[EquipGameInstance::IncType::WEAPON_MAD];
+    auto val = equip_inc[EquipGameInstance::IncType::kWeaponMad];
     std::string val_str = "+";
-    if (scroll_inc.contains(EquipGameInstance::IncType::WEAPON_MAD)) {
-      auto val2 = scroll_inc.at(EquipGameInstance::IncType::WEAPON_MAD);
+    if (scroll_inc.contains(EquipGameInstance::IncType::kWeaponMad)) {
+      auto val2 = scroll_inc.at(EquipGameInstance::IncType::kWeaponMad);
       val_str = std::format("+{}({}+{})", val + val2, val, val2);
     } else {
       val_str = val_str + std::to_string(val);
@@ -219,14 +219,14 @@ void TooltipUiSystem::render_equip_bottom(GameEquipItem &equip, float x,
   }
 
   // acc
-  if (equip_inc.contains(EquipGameInstance::IncType::ACC) ||
-      scroll_inc.contains(EquipGameInstance::IncType::ACC)) {
+  if (equip_inc.contains(EquipGameInstance::IncType::kAcc) ||
+      scroll_inc.contains(EquipGameInstance::IncType::kAcc)) {
     str_node = WzResource::ms->get_root()->find(u"String.img/Character/acc");
     auto acc_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
-    auto val = equip_inc[EquipGameInstance::IncType::ACC];
+    auto val = equip_inc[EquipGameInstance::IncType::kAcc];
     std::string val_str = "+";
-    if (scroll_inc.contains(EquipGameInstance::IncType::ACC)) {
-      auto val2 = scroll_inc.at(EquipGameInstance::IncType::ACC);
+    if (scroll_inc.contains(EquipGameInstance::IncType::kAcc)) {
+      auto val2 = scroll_inc.at(EquipGameInstance::IncType::kAcc);
       val_str = std::format("+{}({}+{})", val + val2, val, val2);
     } else {
       val_str = val_str + std::to_string(val);
@@ -235,15 +235,15 @@ void TooltipUiSystem::render_equip_bottom(GameEquipItem &equip, float x,
         acc_str, std::u16string{val_str.begin(), val_str.end()}, x, y);
   }
 
-  if (equip_inc.contains(EquipGameInstance::IncType::STR) ||
-      scroll_inc.contains(EquipGameInstance::IncType::STR)) {
+  if (equip_inc.contains(EquipGameInstance::IncType::kStr) ||
+      scroll_inc.contains(EquipGameInstance::IncType::kStr)) {
     auto str_node =
         WzResource::ms->get_root()->find(u"String.img/Character/str");
     auto str_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
-    auto val = equip_inc[EquipGameInstance::IncType::STR];
+    auto val = equip_inc[EquipGameInstance::IncType::kStr];
     std::string val_str = "+";
-    if (scroll_inc.contains(EquipGameInstance::IncType::STR)) {
-      auto val2 = scroll_inc.at(EquipGameInstance::IncType::STR);
+    if (scroll_inc.contains(EquipGameInstance::IncType::kStr)) {
+      auto val2 = scroll_inc.at(EquipGameInstance::IncType::kStr);
       val_str = std::format("+{}({}+{})", val + val2, val, val2);
     } else {
       val_str = val_str + std::to_string(val);
@@ -252,15 +252,15 @@ void TooltipUiSystem::render_equip_bottom(GameEquipItem &equip, float x,
         str_str, std::u16string{val_str.begin(), val_str.end()}, x, y);
   }
 
-  if (equip_inc.contains(EquipGameInstance::IncType::DEX) ||
-      scroll_inc.contains(EquipGameInstance::IncType::DEX)) {
+  if (equip_inc.contains(EquipGameInstance::IncType::kDex) ||
+      scroll_inc.contains(EquipGameInstance::IncType::kDex)) {
     auto str_node =
         WzResource::ms->get_root()->find(u"String.img/Character/dex");
     auto dex_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
-    auto val = equip_inc[EquipGameInstance::IncType::DEX];
+    auto val = equip_inc[EquipGameInstance::IncType::kDex];
     std::string val_str = "+";
-    if (scroll_inc.contains(EquipGameInstance::IncType::DEX)) {
-      auto val2 = scroll_inc.at(EquipGameInstance::IncType::DEX);
+    if (scroll_inc.contains(EquipGameInstance::IncType::kDex)) {
+      auto val2 = scroll_inc.at(EquipGameInstance::IncType::kDex);
       val_str = std::format("+{}({}+{})", val + val2, val, val2);
     } else {
       val_str = val_str + std::to_string(val);
@@ -269,15 +269,15 @@ void TooltipUiSystem::render_equip_bottom(GameEquipItem &equip, float x,
         dex_str, std::u16string{val_str.begin(), val_str.end()}, x, y);
   }
 
-  if (equip_inc.contains(EquipGameInstance::IncType::INT) ||
-      scroll_inc.contains(EquipGameInstance::IncType::INT)) {
+  if (equip_inc.contains(EquipGameInstance::IncType::kInt) ||
+      scroll_inc.contains(EquipGameInstance::IncType::kInt)) {
     auto str_node =
         WzResource::ms->get_root()->find(u"String.img/Character/int");
     auto int_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
-    auto val = equip_inc[EquipGameInstance::IncType::INT];
+    auto val = equip_inc[EquipGameInstance::IncType::kInt];
     std::string val_str = "+";
-    if (scroll_inc.contains(EquipGameInstance::IncType::INT)) {
-      auto val2 = scroll_inc.at(EquipGameInstance::IncType::INT);
+    if (scroll_inc.contains(EquipGameInstance::IncType::kInt)) {
+      auto val2 = scroll_inc.at(EquipGameInstance::IncType::kInt);
       val_str = std::format("+{}({}+{})", val + val2, val, val2);
     } else {
       val_str = val_str + std::to_string(val);
@@ -286,15 +286,15 @@ void TooltipUiSystem::render_equip_bottom(GameEquipItem &equip, float x,
         int_str, std::u16string{val_str.begin(), val_str.end()}, x, y);
   }
 
-  if (equip_inc.contains(EquipGameInstance::IncType::SPEED) ||
-      scroll_inc.contains(EquipGameInstance::IncType::SPEED)) {
+  if (equip_inc.contains(EquipGameInstance::IncType::kSpeed) ||
+      scroll_inc.contains(EquipGameInstance::IncType::kSpeed)) {
     auto str_node =
         WzResource::ms->get_root()->find(u"String.img/Character/speed");
     auto spd_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
-    auto val = equip_inc[EquipGameInstance::IncType::SPEED];
+    auto val = equip_inc[EquipGameInstance::IncType::kSpeed];
     std::string val_str = "+";
-    if (scroll_inc.contains(EquipGameInstance::IncType::SPEED)) {
-      auto val2 = scroll_inc.at(EquipGameInstance::IncType::SPEED);
+    if (scroll_inc.contains(EquipGameInstance::IncType::kSpeed)) {
+      auto val2 = scroll_inc.at(EquipGameInstance::IncType::kSpeed);
       val_str = std::format("+{}({}+{})", val + val2, val, val2);
     } else {
       val_str = val_str + std::to_string(val);
@@ -303,16 +303,16 @@ void TooltipUiSystem::render_equip_bottom(GameEquipItem &equip, float x,
         spd_str, std::u16string{val_str.begin(), val_str.end()}, x, y);
   }
 
-  if (equip_inc.contains(EquipGameInstance::IncType::JUMP) ||
-      scroll_inc.contains(EquipGameInstance::IncType::JUMP)) {
+  if (equip_inc.contains(EquipGameInstance::IncType::kJump) ||
+      scroll_inc.contains(EquipGameInstance::IncType::kJump)) {
     auto str_node =
         WzResource::ms->get_root()->find(u"String.img/Character/jump");
     auto jump_str =
         static_cast<wz::Property<std::u16string> *>(str_node)->get();
-    auto val = equip_inc[EquipGameInstance::IncType::JUMP];
+    auto val = equip_inc[EquipGameInstance::IncType::kJump];
     std::string val_str = "+";
-    if (scroll_inc.contains(EquipGameInstance::IncType::JUMP)) {
-      auto val2 = scroll_inc.at(EquipGameInstance::IncType::JUMP);
+    if (scroll_inc.contains(EquipGameInstance::IncType::kJump)) {
+      auto val2 = scroll_inc.at(EquipGameInstance::IncType::kJump);
       val_str = std::format("+{}({}+{})", val + val2, val, val2);
     } else {
       val_str = val_str + std::to_string(val);
@@ -379,11 +379,11 @@ void TooltipUiSystem::render_equip_job(const std::u16string &id, float x,
   wz::Node *node;
   SDL_FRect pos_rect;
   for (auto i : {
-           JobType::BEGINNER,
-           JobType::WARRIOR,
-           JobType::MAGICIAN,
-           JobType::BOWMAN,
-           JobType::THIEF,
+           JobType::kBeginner,
+           JobType::kWarrior,
+           JobType::kMagician,
+           JobType::kBowman,
+           JobType::kThief,
        }) {
     if (jobs.contains(i)) {
       node = job_node->get_child(u"enable");

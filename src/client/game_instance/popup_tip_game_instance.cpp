@@ -22,7 +22,7 @@ void PopupTipGameInstance::add_tip(PopupTipEnums type, PlayerT player_t) {
 
 void PopupTipGameInstance::add_quest_tip(const std::u16string &id) {
   GamePopupTip tp;
-  tp.type = PopupTipEnums::quest;
+  tp.type = PopupTipEnums::kQuest;
   tp.data = id;
   tp.destroy = Window::dt_now + 5 * 1000;
   data.emplace_back(tp);

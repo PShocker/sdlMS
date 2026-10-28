@@ -229,7 +229,7 @@ void WorldmapUiSystem::open() {
       std::ranges::find(System::render_systems, &CursorRenderSystem::render);
   if (it != System::render_systems.end()) {
     if (MinimapUiSystem::disable) {
-      NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::worldmap_disable;
+      NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kWorldmapDisable;
       NoticeUiSystem::close();
       NoticeUiSystem::open();
       return;
@@ -260,7 +260,7 @@ void WorldmapUiSystem::event_close() { close(); }
 
 void WorldmapUiSystem::event_click_spot() {
   if (spot_info_id != 0) {
-    NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::worldmap_teleport;
+    NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kWorldmapTeleport;
     NoticeUiSystem::data = spot_info_id;
     NoticeUiSystem::close();
     NoticeUiSystem::open();

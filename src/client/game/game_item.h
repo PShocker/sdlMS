@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-enum class ItemEnum { equip, consume, install, etc, cash, deco };
+enum class ItemEnum { kEquip, kConsume, kInstall, kEtc, kCash, kDeco };
 
 class GameItem {
 public:
@@ -17,33 +17,33 @@ public:
 
 class GameEquipItem : public GameItem {
 public:
-  GameEquipItem() { type = ItemEnum::equip; }
+  GameEquipItem() { type = ItemEnum::kEquip; }
   std::vector<GameScroll> scroll;
 };
 
 class GameConsumeItem : public GameItem {
 public:
-  GameConsumeItem() { type = ItemEnum::consume; }
+  GameConsumeItem() { type = ItemEnum::kConsume; }
   uint32_t num = 0;
 };
 
 class GameEtcItem : public GameItem {
 public:
-  GameEtcItem() { type = ItemEnum::etc; }
+  GameEtcItem() { type = ItemEnum::kEtc; }
   uint32_t num = 0;
 };
 
 class GameInstallItem : public GameItem {
 public:
-  GameInstallItem() { type = ItemEnum::install; }
+  GameInstallItem() { type = ItemEnum::kInstall; }
 };
 
 class GameCashItem : public GameItem {
 public:
-  GameCashItem() { type = ItemEnum::cash; }
+  GameCashItem() { type = ItemEnum::kCash; }
 };
 
 class GameDecoItem : public GameItem {
 public:
-  GameDecoItem() { type = ItemEnum::deco; }
+  GameDecoItem() { type = ItemEnum::kDeco; }
 };

@@ -28,7 +28,7 @@ static void jinqianzhadan() {
     ClientDropFadeT ccdf;
     uint64_t meso = 0;
     for (const auto &[k, v] : DropGameInstance::data) {
-      if (v.type != GameDrop::DropEnum::land) {
+      if (v.type != GameDrop::DropEnum::kLand) {
         continue;
       }
       if (SDL_PointInRectFloat(&v.pos, &g_r)) {
@@ -79,7 +79,7 @@ static void luoyezhan() {
           .index = 0,
           .time = 0,
           .delay = 0,
-          .type = GameEffect::EffectType::skill_use,
+          .type = GameEffect::EffectType::kSkillUse,
           .pos = std::nullopt,
           .data = g_character,
       };

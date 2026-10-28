@@ -53,9 +53,9 @@ public:
   bool create = false; // 是否是道具召唤的
 
   enum class MobType {
-    stand,
-    swim,
-    fly,
+    kStand,
+    kSwim,
+    kFly,
   };
   MobType type;
 };

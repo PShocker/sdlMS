@@ -273,7 +273,7 @@ void CharacterChooseUiSystem::event_button_select() {
 
   SceneSystemInstance::enter_prepare(map_id, u"sp", portal_id);
   // notice login
-  auto NoticeType = LoginNoticeSystemInstance::logining;
+  auto NoticeType = LoginNoticeSystemInstance::NoticeType::kLogining;
   LoginNoticeSystemInstance::enter(NoticeType, NULL);
   return;
 }
@@ -281,7 +281,7 @@ void CharacterChooseUiSystem::event_button_select() {
 void CharacterChooseUiSystem::event_button_new() {
   if (characters.size() >= 3) {
     LoginNoticeSystemInstance::enter(
-        LoginNoticeSystemInstance::character_full, nullptr);
+        LoginNoticeSystemInstance::NoticeType::kCharacterFull, nullptr);
     AudioGameInstance::load_audio(u"UI.img/DlgNotice", 0);
     return;
   }
@@ -319,7 +319,7 @@ void CharacterChooseUiSystem::event_button_delete_cb() {
 void CharacterChooseUiSystem::event_button_delete() {
   AudioGameInstance::load_audio(u"UI.img/DlgNotice", 0);
   LoginNoticeSystemInstance::enter(
-      LoginNoticeSystemInstance::character_delete, event_button_delete_cb);
+      LoginNoticeSystemInstance::NoticeType::kCharacterDelete, event_button_delete_cb);
   return;
 }
 

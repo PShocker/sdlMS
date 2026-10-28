@@ -8,8 +8,8 @@
 
 struct DamageData {
   uint64_t num;
-  enum t { r, b, v };
-  t type;
+  enum class T { kR, kB, kV };
+  T type;
 };
 
 class GameEffect {
@@ -24,20 +24,20 @@ public:
   uint8_t lv = 0;
 
   enum class EffectType {
-    effect,
-    damage,
-    skill_use,
-    skill_affected,
-    skill_hit,
-    skill_custom,
-    skill_region,
+    kEffect,
+    kDamage,
+    kSkillUse,
+    kSkillAffected,
+    kSkillHit,
+    kSkillCustom,
+    kSkillRegion,
   };
 
-  enum EffectSubType : uint8_t {
-    character,
-    effect,
-    item,
-    skill,
+  enum class EffectSubType : uint8_t {
+    kCharacter,
+    kEffect,
+    kItem,
+    kSkill,
   };
 
   EffectType type;

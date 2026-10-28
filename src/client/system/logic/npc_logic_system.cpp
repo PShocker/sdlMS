@@ -63,7 +63,7 @@ bool NpcLogicSystem::run_duration(GameNpc &g_npc) {
 
   g_npc.action = random_key;
   auto action_type = load_action_type(g_npc);
-  if (action_type == ActionEnum::move) {
+  if (action_type == ActionEnum::kMove) {
     std::bernoulli_distribution dist(0.5); // 50% 概率为 true
     bool random_bool = dist(gen);
     g_npc.hforce = random_bool ? 1400 : -1400;
@@ -156,9 +156,9 @@ bool NpcLogicSystem::run_move(GameNpc &g_npc) {
 NpcLogicSystem::ActionEnum
 NpcLogicSystem::load_action_type(GameNpc &g_npc) {
   if (g_npc.action == u"move") {
-    return ActionEnum::move;
+    return ActionEnum::kMove;
   }
-  return ActionEnum::stand;
+  return ActionEnum::kStand;
 }
 
 bool NpcLogicSystem::run() {
@@ -167,7 +167,7 @@ bool NpcLogicSystem::run() {
       run_chatballoon(g_npc);
       auto action_type = load_action_type(g_npc);
       switch (action_type) {
-      case ActionEnum::move: {
+      case ActionEnum::kMove: {
         run_move(g_npc);
         break;
       }

@@ -25,14 +25,14 @@ SDL_FRect StatusbarMenuUiSystem::load_r() {
   int x = 0;
   int y = 0;
   switch (menu_type.value()) {
-  case MenuEnums::menu: {
+  case MenuEnums::kMenu: {
     x = 642;
     y = -80;
     w = 93;
     h = 116;
     break;
   }
-  case MenuEnums::shortcut: {
+  case MenuEnums::kShortcut: {
     x = 716;
     y = -184;
     w = 93;
@@ -91,7 +91,7 @@ void StatusbarMenuUiSystem::render_button() {
   std::vector<bool> disable;
 
   switch (menu_type.value()) {
-  case MenuEnums::menu: {
+  case MenuEnums::kMenu: {
     buttons_nodes = {
         WzResource::ui->find(u"StatusBar.img/submenu/menu/button:Channel"),
         WzResource::ui->find(u"StatusBar.img/submenu/menu/button:GameOpt"),
@@ -105,7 +105,7 @@ void StatusbarMenuUiSystem::render_button() {
     disable = {true, false, false};
     break;
   }
-  case MenuEnums::shortcut: {
+  case MenuEnums::kShortcut: {
     buttons_nodes = {
         WzResource::ui->find(u"StatusBar.img/submenu/shortcut/button:Item"),
         WzResource::ui->find(u"StatusBar.img/submenu/shortcut/button:Equip"),
@@ -167,12 +167,12 @@ void StatusbarMenuUiSystem::render_title() {
   auto [x, y, w, h] = load_r();
   SDL_Texture *t;
   switch (menu_type.value()) {
-  case MenuEnums::menu: {
+  case MenuEnums::kMenu: {
     t = WzResource::load_texture(
         WzResource::ui->find(u"StatusBar.img/submenu/canvas:menu"));
     break;
   }
-  case MenuEnums::shortcut: {
+  case MenuEnums::kShortcut: {
     t = WzResource::load_texture(
         WzResource::ui->find(u"StatusBar.img/submenu/canvas:shortcut"));
     break;
@@ -200,7 +200,7 @@ void StatusbarMenuUiSystem::open() {
     alpha = 0;
 
     if (!menu_type.has_value()) {
-      menu_type = MenuEnums::menu;
+      menu_type = MenuEnums::kMenu;
     }
 
     System::render_systems.insert(it, render);
@@ -275,7 +275,7 @@ bool StatusbarMenuUiSystem::event_button(SDL_Event *event) {
   std::vector<void (*)()> fns;
 
   switch (menu_type.value()) {
-  case MenuEnums::menu: {
+  case MenuEnums::kMenu: {
     buttons_rect = {
         SDL_FRect{6, 24, 81, 25}, //
         SDL_FRect{6, 50, 81, 25}, //
@@ -288,7 +288,7 @@ bool StatusbarMenuUiSystem::event_button(SDL_Event *event) {
     };
     break;
   }
-  case MenuEnums::shortcut: {
+  case MenuEnums::kShortcut: {
     fns = {
         event_button_item,  event_button_equip, event_button_stat,
         event_button_skill, event_button_party, event_button_quest,

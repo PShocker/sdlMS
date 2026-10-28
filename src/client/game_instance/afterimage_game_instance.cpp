@@ -18,14 +18,14 @@ AfterimageGameInstance::load_hit_type(GameCharacter &g_character) {
   auto WeaponType = EquipGameInstance::load_weapon_type(g_character);
   const static std::flat_map<EquipGameInstance::WeaponType, std::u16string>
       h = {
-          {EquipGameInstance::WeaponType::S1A1M1D, u"sword1"},
-          {EquipGameInstance::WeaponType::SPEAR, u"sword1"},
-          {EquipGameInstance::WeaponType::BOW, u"sword1"},
-          {EquipGameInstance::WeaponType::CROSSBOW, u"sword1"},
-          {EquipGameInstance::WeaponType::S2A2M2, u"sword1"},
-          {EquipGameInstance::WeaponType::WAND, u"sword1"},
-          {EquipGameInstance::WeaponType::CLAW, u"sword1"},
-          {EquipGameInstance::WeaponType::GUN, u"sword1"},
+          {EquipGameInstance::WeaponType::kS1A1M1D, u"sword1"},
+          {EquipGameInstance::WeaponType::kSpear, u"sword1"},
+          {EquipGameInstance::WeaponType::kBow, u"sword1"},
+          {EquipGameInstance::WeaponType::kCrossbow, u"sword1"},
+          {EquipGameInstance::WeaponType::kS2A2M2, u"sword1"},
+          {EquipGameInstance::WeaponType::kWand, u"sword1"},
+          {EquipGameInstance::WeaponType::kClaw, u"sword1"},
+          {EquipGameInstance::WeaponType::kGun, u"sword1"},
       };
   return h.at(WeaponType);
 }

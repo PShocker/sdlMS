@@ -233,7 +233,7 @@ void StorageUiSystem::event_button_put() {
     auto &itm =
         PackageGameInstance::data[active_tab].at(active_item[1].value());
     if (!add_item(itm)) {
-      NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::no_storage_space;
+      NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kNoStorageSpace;
       NoticeUiSystem::open();
     }
   }

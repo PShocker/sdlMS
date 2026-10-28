@@ -33,29 +33,29 @@
 void NoticeUiSystem::render_backgrnd() {
   wz::Node *node;
   switch (type) {
-  case NoticeEnum::worldmap_disable:
-  case NoticeEnum::worldmap_teleport:
-  case NoticeEnum::equip_no_ability:
-  case NoticeEnum::equip_no_space:
-  case NoticeEnum::shopbuy_no_meso:
-  case NoticeEnum::no_equip_space:
-  case NoticeEnum::no_consume_space:
-  case NoticeEnum::no_install_space:
-  case NoticeEnum::no_etc_space:
-  case NoticeEnum::no_cash_space:
-  case NoticeEnum::no_deco_space:
-  case NoticeEnum::no_storage_space:
-  case NoticeEnum::shopbuy_sell:
-  case NoticeEnum::shopbuy_sell_no_num:
-  case NoticeEnum::shopbuy:
-  case NoticeEnum::trade_block: {
+  case NoticeEnum::kWorldmapDisable:
+  case NoticeEnum::kWorldmapTeleport:
+  case NoticeEnum::kEquipNoAbility:
+  case NoticeEnum::kEquipNoSpace:
+  case NoticeEnum::kShopbuyNoMeso:
+  case NoticeEnum::kNoEquipSpace:
+  case NoticeEnum::kNoConsumeSpace:
+  case NoticeEnum::kNoInstallSpace:
+  case NoticeEnum::kNoEtcSpace:
+  case NoticeEnum::kNoCashSpace:
+  case NoticeEnum::kNoDecoSpace:
+  case NoticeEnum::kNoStorageSpace:
+  case NoticeEnum::kShopbuySell:
+  case NoticeEnum::kShopbuySellNoNum:
+  case NoticeEnum::kShopbuy:
+  case NoticeEnum::kTradeBlock: {
     node = WzResource::ui->find(u"PopupWindow.img/Notice1");
     break;
   }
-  case NoticeEnum::ap_inc:
-  case NoticeEnum::shopbuy_sell_mul:
-  case NoticeEnum::shopbuy_mul:
-  case NoticeEnum::throw_mul: {
+  case NoticeEnum::kApInc:
+  case NoticeEnum::kShopbuySellMul:
+  case NoticeEnum::kShopbuyMul:
+  case NoticeEnum::kThrowMul: {
     node = WzResource::ui->find(u"PopupWindow.img/Notice2");
     break;
   }
@@ -93,26 +93,26 @@ void NoticeUiSystem::render_button() {
   std::vector<SDL_FRect> buttons_rect = {};
   auto [w, h] = load_wh();
   switch (type) {
-  case NoticeEnum::worldmap_disable:
-  case NoticeEnum::worldmap_teleport:
-  case NoticeEnum::ap_inc:
-  case NoticeEnum::shopbuy_sell:
-  case NoticeEnum::shopbuy_sell_mul:
-  case NoticeEnum::shopbuy_sell_no_num:
-  case NoticeEnum::shopbuy:
-  case NoticeEnum::shopbuy_mul:
-  case NoticeEnum::shopbuy_no_meso:
-  case NoticeEnum::no_equip_space:
-  case NoticeEnum::no_consume_space:
-  case NoticeEnum::no_install_space:
-  case NoticeEnum::no_etc_space:
-  case NoticeEnum::no_cash_space:
-  case NoticeEnum::no_deco_space:
-  case NoticeEnum::no_storage_space:
-  case NoticeEnum::equip_no_ability:
-  case NoticeEnum::throw_mul:
-  case NoticeEnum::equip_no_space:
-  case NoticeEnum::trade_block: {
+  case NoticeEnum::kWorldmapDisable:
+  case NoticeEnum::kWorldmapTeleport:
+  case NoticeEnum::kApInc:
+  case NoticeEnum::kShopbuySell:
+  case NoticeEnum::kShopbuySellMul:
+  case NoticeEnum::kShopbuySellNoNum:
+  case NoticeEnum::kShopbuy:
+  case NoticeEnum::kShopbuyMul:
+  case NoticeEnum::kShopbuyNoMeso:
+  case NoticeEnum::kNoEquipSpace:
+  case NoticeEnum::kNoConsumeSpace:
+  case NoticeEnum::kNoInstallSpace:
+  case NoticeEnum::kNoEtcSpace:
+  case NoticeEnum::kNoCashSpace:
+  case NoticeEnum::kNoDecoSpace:
+  case NoticeEnum::kNoStorageSpace:
+  case NoticeEnum::kEquipNoAbility:
+  case NoticeEnum::kThrowMul:
+  case NoticeEnum::kEquipNoSpace:
+  case NoticeEnum::kTradeBlock: {
     buttons_node = {
         WzResource::ui->find(u"Basic.img/BtOK2"),
         WzResource::ui->find(u"Basic.img/BtCancel2"),
@@ -151,124 +151,124 @@ void NoticeUiSystem::render_text() {
   std::u16string text = u"";
   SDL_FPoint p;
   switch (type) {
-  case NoticeEnum::shopbuy: {
+  case NoticeEnum::kShopbuy: {
     auto n = WzResource::ms->get_root()->find(u"String.img/Notice/buyItem");
     text = static_cast<wz::Property<std::u16string> *>(n)->get();
     p = {20, 20};
     break;
   }
-  case NoticeEnum::shopbuy_mul: {
+  case NoticeEnum::kShopbuyMul: {
     auto n = WzResource::ms->get_root()->find(u"String.img/Notice/buyItemMul");
     text = static_cast<wz::Property<std::u16string> *>(n)->get();
     p = {20, 20};
     break;
   }
-  case NoticeEnum::shopbuy_no_meso: {
+  case NoticeEnum::kShopbuyNoMeso: {
     auto n = WzResource::ms->get_root()->find(u"String.img/Notice/noMeso");
     text = static_cast<wz::Property<std::u16string> *>(n)->get();
     p = {20, 20};
     break;
   }
-  case NoticeEnum::no_equip_space: {
+  case NoticeEnum::kNoEquipSpace: {
     auto n = WzResource::ms->get_root()->find(u"String.img/Notice/noEqpSpace");
     text = static_cast<wz::Property<std::u16string> *>(n)->get();
     p = {20, 20};
     break;
   }
-  case NoticeEnum::no_consume_space: {
+  case NoticeEnum::kNoConsumeSpace: {
     auto n = WzResource::ms->get_root()->find(u"String.img/Notice/noConSpace");
     text = static_cast<wz::Property<std::u16string> *>(n)->get();
     p = {20, 20};
     break;
   }
-  case NoticeEnum::no_install_space: {
+  case NoticeEnum::kNoInstallSpace: {
     auto n = WzResource::ms->get_root()->find(u"String.img/Notice/noInsSpace");
     text = static_cast<wz::Property<std::u16string> *>(n)->get();
     p = {20, 20};
     break;
   }
-  case NoticeEnum::no_etc_space: {
+  case NoticeEnum::kNoEtcSpace: {
     auto n = WzResource::ms->get_root()->find(u"String.img/Notice/noEtcSpace");
     text = static_cast<wz::Property<std::u16string> *>(n)->get();
     p = {20, 20};
     break;
   }
-  case NoticeEnum::no_cash_space: {
+  case NoticeEnum::kNoCashSpace: {
     auto n =
         WzResource::ms->get_root()->find(u"String.img/Notice/noCashSpace");
     text = static_cast<wz::Property<std::u16string> *>(n)->get();
     p = {20, 20};
     break;
   }
-  case NoticeEnum::no_deco_space: {
+  case NoticeEnum::kNoDecoSpace: {
     auto n =
         WzResource::ms->get_root()->find(u"String.img/Notice/noDecoSpace");
     text = static_cast<wz::Property<std::u16string> *>(n)->get();
     p = {20, 20};
     break;
   }
-  case NoticeEnum::no_storage_space: {
+  case NoticeEnum::kNoStorageSpace: {
     auto n =
         WzResource::ms->get_root()->find(u"String.img/Notice/noStorageSpace");
     text = static_cast<wz::Property<std::u16string> *>(n)->get();
     p = {20, 20};
     break;
   }
-  case NoticeEnum::equip_no_ability: {
+  case NoticeEnum::kEquipNoAbility: {
     auto n = WzResource::ms->get_root()->find(u"String.img/Notice/noAbility");
     text = static_cast<wz::Property<std::u16string> *>(n)->get();
     p = {20, 20};
     break;
   }
-  case NoticeEnum::equip_no_space: {
+  case NoticeEnum::kEquipNoSpace: {
     auto n = WzResource::ms->get_root()->find(u"String.img/Notice/noEqpSpace");
     text = static_cast<wz::Property<std::u16string> *>(n)->get();
     p = {20, 20};
     break;
   }
-  case NoticeEnum::shopbuy_sell: {
+  case NoticeEnum::kShopbuySell: {
     auto n = WzResource::ms->get_root()->find(u"String.img/Notice/sellItem");
     text = static_cast<wz::Property<std::u16string> *>(n)->get();
     p = {20, 20};
     break;
   }
-  case NoticeEnum::shopbuy_sell_mul: {
+  case NoticeEnum::kShopbuySellMul: {
     auto n =
         WzResource::ms->get_root()->find(u"String.img/Notice/sellItemMul");
     text = static_cast<wz::Property<std::u16string> *>(n)->get();
     p = {20, 20};
     break;
   }
-  case NoticeEnum::shopbuy_sell_no_num: {
+  case NoticeEnum::kShopbuySellNoNum: {
     auto n = WzResource::ms->get_root()->find(u"String.img/Notice/sellNoNum");
     text = static_cast<wz::Property<std::u16string> *>(n)->get();
     p = {20, 20};
     break;
   }
-  case NoticeEnum::ap_inc: {
+  case NoticeEnum::kApInc: {
     break;
   }
-  case NoticeEnum::worldmap_disable: {
+  case NoticeEnum::kWorldmapDisable: {
     auto n =
         WzResource::ms->get_root()->find(u"String.img/Notice/worldMapDis");
     text = static_cast<wz::Property<std::u16string> *>(n)->get();
     p = {20, 20};
     break;
   }
-  case NoticeEnum::worldmap_teleport: {
+  case NoticeEnum::kWorldmapTeleport: {
     auto n =
         WzResource::ms->get_root()->find(u"String.img/Notice/worldMapTel");
     text = static_cast<wz::Property<std::u16string> *>(n)->get();
     p = {20, 20};
     break;
   }
-  case NoticeEnum::throw_mul: {
+  case NoticeEnum::kThrowMul: {
     auto n = WzResource::ms->get_root()->find(u"String.img/Notice/throwMul");
     text = static_cast<wz::Property<std::u16string> *>(n)->get();
     p = {20, 20};
     break;
   }
-  case NoticeEnum::trade_block: {
+  case NoticeEnum::kTradeBlock: {
     auto n = WzResource::ms->get_root()->find(u"String.img/Notice/tradeBlock");
     text = static_cast<wz::Property<std::u16string> *>(n)->get();
     p = {20, 20};
@@ -288,10 +288,10 @@ void NoticeUiSystem::render_text() {
 
 void NoticeUiSystem::render_input() {
   switch (type) {
-  case NoticeEnum::ap_inc:
-  case NoticeEnum::shopbuy_sell_mul:
-  case NoticeEnum::shopbuy_mul:
-  case NoticeEnum::throw_mul: {
+  case NoticeEnum::kApInc:
+  case NoticeEnum::kShopbuySellMul:
+  case NoticeEnum::kShopbuyMul:
+  case NoticeEnum::kThrowMul: {
     TextInputUiSystem::render(text, 5, 5);
     break;
   }
@@ -321,11 +321,11 @@ void NoticeUiSystem::open() {
     pos.y = (camera.h - wh.y) / 2;
 
     switch (type) {
-    case NoticeEnum::ap_inc:
-    case NoticeEnum::shopbuy_sell:
-    case NoticeEnum::shopbuy_sell_mul:
-    case NoticeEnum::shopbuy_mul:
-    case NoticeEnum::throw_mul: {
+    case NoticeEnum::kApInc:
+    case NoticeEnum::kShopbuySell:
+    case NoticeEnum::kShopbuySellMul:
+    case NoticeEnum::kShopbuyMul:
+    case NoticeEnum::kThrowMul: {
       text = {
           .max_size = 12,
           .text = u"1",
@@ -344,7 +344,7 @@ void NoticeUiSystem::open() {
           .font_size = 12,
       };
       text.type.reset();
-      text.type.set(TextInput::digit);
+      text.type.set(TextInput::kDigit);
       text.cur = 1;
       TextInputUiSystem::active(text);
       break;
@@ -355,8 +355,8 @@ void NoticeUiSystem::open() {
     }
 
     switch (type) {
-    case NoticeEnum::throw_mul:
-    case NoticeEnum::shopbuy_sell_mul: {
+    case NoticeEnum::kThrowMul:
+    case NoticeEnum::kShopbuySellMul: {
       auto p =
           std::any_cast<std::polymorphic<GameItem> *>(NoticeUiSystem::data);
       auto num = ItemGameInstance::load_item_num(*p);
@@ -376,28 +376,28 @@ void NoticeUiSystem::open() {
 
 void NoticeUiSystem::open_no_space(ItemEnum type) {
   switch (type) {
-  case ItemEnum::equip: {
-    NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::no_equip_space;
+  case ItemEnum::kEquip: {
+    NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kNoEquipSpace;
     break;
   }
-  case ItemEnum::consume: {
-    NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::no_consume_space;
+  case ItemEnum::kConsume: {
+    NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kNoConsumeSpace;
     break;
   }
-  case ItemEnum::install: {
-    NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::no_install_space;
+  case ItemEnum::kInstall: {
+    NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kNoInstallSpace;
     break;
   }
-  case ItemEnum::etc: {
-    NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::no_etc_space;
+  case ItemEnum::kEtc: {
+    NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kNoEtcSpace;
     break;
   }
-  case ItemEnum::cash: {
-    NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::no_cash_space;
+  case ItemEnum::kCash: {
+    NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kNoCashSpace;
     break;
   }
-  case ItemEnum::deco: {
-    NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::no_deco_space;
+  case ItemEnum::kDeco: {
+    NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kNoDecoSpace;
     break;
   }
   }
@@ -413,28 +413,28 @@ void NoticeUiSystem::close() {
 
 SDL_FPoint NoticeUiSystem::load_wh() {
   switch (type) {
-  case NoticeEnum::worldmap_disable:
-  case NoticeEnum::worldmap_teleport:
-  case NoticeEnum::shopbuy_sell:
-  case NoticeEnum::shopbuy_sell_no_num:
-  case NoticeEnum::shopbuy:
-  case NoticeEnum::shopbuy_no_meso:
-  case NoticeEnum::no_equip_space:
-  case NoticeEnum::no_consume_space:
-  case NoticeEnum::no_install_space:
-  case NoticeEnum::no_etc_space:
-  case NoticeEnum::no_cash_space:
-  case NoticeEnum::no_deco_space:
-  case NoticeEnum::no_storage_space:
-  case NoticeEnum::equip_no_ability:
-  case NoticeEnum::equip_no_space:
-  case NoticeEnum::trade_block: {
+  case NoticeEnum::kWorldmapDisable:
+  case NoticeEnum::kWorldmapTeleport:
+  case NoticeEnum::kShopbuySell:
+  case NoticeEnum::kShopbuySellNoNum:
+  case NoticeEnum::kShopbuy:
+  case NoticeEnum::kShopbuyNoMeso:
+  case NoticeEnum::kNoEquipSpace:
+  case NoticeEnum::kNoConsumeSpace:
+  case NoticeEnum::kNoInstallSpace:
+  case NoticeEnum::kNoEtcSpace:
+  case NoticeEnum::kNoCashSpace:
+  case NoticeEnum::kNoDecoSpace:
+  case NoticeEnum::kNoStorageSpace:
+  case NoticeEnum::kEquipNoAbility:
+  case NoticeEnum::kEquipNoSpace:
+  case NoticeEnum::kTradeBlock: {
     return {266, 116};
   }
-  case NoticeEnum::ap_inc:
-  case NoticeEnum::shopbuy_sell_mul:
-  case NoticeEnum::shopbuy_mul:
-  case NoticeEnum::throw_mul:
+  case NoticeEnum::kApInc:
+  case NoticeEnum::kShopbuySellMul:
+  case NoticeEnum::kShopbuyMul:
+  case NoticeEnum::kThrowMul:
     return {266, 119};
   }
   return {0, 0};
@@ -446,17 +446,17 @@ void NoticeUiSystem::event_button_shopbuy() {
   auto p = std::any_cast<const GameShopItem *>(NoticeUiSystem::data);
   auto itm = p->item;
   switch (type) {
-  case NoticeEnum::shopbuy: {
+  case NoticeEnum::kShopbuy: {
     PackageGameInstance::add_item(itm);
     PackageGameInstance::meso -= p->price;
     break;
   }
-  case NoticeEnum::shopbuy_mul: {
+  case NoticeEnum::kShopbuyMul: {
     auto num = std::stoi(std::string{text.text.begin(), text.text.end()});
     ItemGameInstance::set_item_num(itm, num);
     auto price = p->price * num;
     if (PackageGameInstance::meso < price) {
-      type = NoticeEnum::shopbuy_no_meso;
+      type = NoticeEnum::kShopbuyNoMeso;
       return;
       break;
     }
@@ -466,7 +466,7 @@ void NoticeUiSystem::event_button_shopbuy() {
       auto &must_itm = must[ShopUiSystem::active_item[0].value()];
       auto itm_num = ItemGameInstance::load_item_num(must_itm.item);
       if (buy_num > itm_num) {
-        type = NoticeEnum::shopbuy_sell_no_num;
+        type = NoticeEnum::kShopbuySellNoNum;
         return;
       }
     }
@@ -506,7 +506,7 @@ void NoticeUiSystem::event_button_shopbuy_sell() {
   GameShopItem gst = ShopGameInstance::load_shop_item((*p)->id);
   gst.item = *p;
   switch (type) {
-  case NoticeEnum::shopbuy_sell: {
+  case NoticeEnum::kShopbuySell: {
     auto itm_info = ItemGameInstance::load_item_info(gst.item->id, 0);
     auto unitPrice = itm_info->get_child(u"unitPrice");
     auto num = ItemGameInstance::load_item_num(gst.item);
@@ -523,11 +523,11 @@ void NoticeUiSystem::event_button_shopbuy_sell() {
     }
     break;
   }
-  case NoticeEnum::shopbuy_sell_mul: {
+  case NoticeEnum::kShopbuySellMul: {
     auto num = ItemGameInstance::load_item_num(gst.item);
     auto sell_num = std::stoi(std::string{text.text.begin(), text.text.end()});
     if (sell_num > num) {
-      type = NoticeEnum::shopbuy_sell_no_num;
+      type = NoticeEnum::kShopbuySellNoNum;
       return;
     }
     PackageGameInstance::add_meso(gst.price * num);
@@ -550,7 +550,7 @@ void NoticeUiSystem::event_button_ap_inc() {
   auto num = std::stoi(std::string{text.text.begin(), text.text.end()});
   auto r_ap = CharacterStatGameInstance::get_remain_ap();
   if (num > r_ap) {
-    type = NoticeEnum::shopbuy_sell_no_num;
+    type = NoticeEnum::kShopbuySellNoNum;
     return;
   }
   auto p = std::any_cast<int>(NoticeUiSystem::data);
@@ -616,7 +616,7 @@ void NoticeUiSystem::event_button_throw_mul() {
   }
   auto throw_num = std::stoi(std::string{text.text.begin(), text.text.end()});
   if (throw_num > itm_num) {
-    type = NoticeEnum::shopbuy_sell_no_num;
+    type = NoticeEnum::kShopbuySellNoNum;
     CursorGameInstance::cursor_hand = std::nullopt;
     return;
   } else {
@@ -637,7 +637,7 @@ void NoticeUiSystem::event_button_throw_mul() {
     ClientRequest::send_to_host(cct);
 
     CursorGameInstance::cursor_hand_net = {
-        .type = CursorGameInstance::drop,
+        .type = CursorGameInstance::CursorHandNetType::kDrop,
     };
     close();
   }
@@ -662,29 +662,29 @@ bool NoticeUiSystem::event_button(SDL_Event *event) {
       {w - 55, h - 30, 47, 18},
   };
   switch (type) {
-  case NoticeEnum::shopbuy:
-  case NoticeEnum::shopbuy_mul: {
+  case NoticeEnum::kShopbuy:
+  case NoticeEnum::kShopbuyMul: {
     func = {event_button_shopbuy, close};
     break;
   }
-  case NoticeEnum::ap_inc: {
+  case NoticeEnum::kApInc: {
     func = {event_button_shopbuy_sell, close};
     break;
   }
-  case NoticeEnum::worldmap_teleport: {
+  case NoticeEnum::kWorldmapTeleport: {
     func = {event_button_worldmap_teleport, close};
     break;
   }
-  case NoticeEnum::shopbuy_sell:
-  case NoticeEnum::shopbuy_sell_mul: {
+  case NoticeEnum::kShopbuySell:
+  case NoticeEnum::kShopbuySellMul: {
     func = {event_button_shopbuy_sell, close};
     break;
   }
-  case NoticeEnum::throw_mul: {
+  case NoticeEnum::kThrowMul: {
     func = {event_button_throw_mul, event_button_throw_close};
     break;
   }
-  case NoticeEnum::equip_no_ability: {
+  case NoticeEnum::kEquipNoAbility: {
     func = {event_button_equip_no_ap, event_button_equip_no_ap};
     break;
   }
@@ -708,10 +708,10 @@ bool NoticeUiSystem::event_button(SDL_Event *event) {
 
 void NoticeUiSystem::event_input(SDL_Event *event) {
   switch (type) {
-  case NoticeEnum::ap_inc:
-  case NoticeEnum::shopbuy_sell_mul:
-  case NoticeEnum::shopbuy_mul:
-  case NoticeEnum::throw_mul: {
+  case NoticeEnum::kApInc:
+  case NoticeEnum::kShopbuySellMul:
+  case NoticeEnum::kShopbuyMul:
+  case NoticeEnum::kThrowMul: {
     TextInputUiSystem::event(event, text);
   }
   default: {
@@ -756,31 +756,31 @@ bool NoticeUiSystem::event(SDL_Event *event) {
     switch (scan_code) {
     case SDL_SCANCODE_ESCAPE: {
       event_close();
-      if (type == NoticeEnum::throw_mul) {
+      if (type == NoticeEnum::kThrowMul) {
         CursorGameInstance::cursor_hand = std::nullopt;
       }
       break;
     }
     case SDL_SCANCODE_RETURN: {
       switch (type) {
-      case NoticeEnum::shopbuy:
-      case NoticeEnum::shopbuy_mul: {
+      case NoticeEnum::kShopbuy:
+      case NoticeEnum::kShopbuyMul: {
         event_button_shopbuy();
         break;
       }
-      case NoticeEnum::shopbuy_sell:
-      case NoticeEnum::shopbuy_sell_mul: {
+      case NoticeEnum::kShopbuySell:
+      case NoticeEnum::kShopbuySellMul: {
         event_button_shopbuy_sell();
         break;
       }
-      case NoticeEnum::ap_inc: {
+      case NoticeEnum::kApInc: {
         break;
       }
-      case NoticeEnum::worldmap_teleport: {
+      case NoticeEnum::kWorldmapTeleport: {
         event_button_worldmap_teleport();
         break;
       }
-      case NoticeEnum::throw_mul: {
+      case NoticeEnum::kThrowMul: {
         event_button_throw_mul();
         break;
       }

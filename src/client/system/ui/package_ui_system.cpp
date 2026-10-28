@@ -185,10 +185,10 @@ bool PackageUiSystem::render_items_info() {
   };
 
   // 统一使用指针，通过重载或模板区分类型
-  if (active_tab == (int)ItemEnum::equip) {
+  if (active_tab == (int)ItemEnum::kEquip) {
     auto &equip = static_cast<GameEquipItem &>(*items[index]);
     TooltipUiSystem::render_equip(equip, show_pos.x, show_pos.y);
-  } else if (active_tab == (int)ItemEnum::deco) {
+  } else if (active_tab == (int)ItemEnum::kDeco) {
     auto &deco = static_cast<GameDecoItem &>(*items[index]);
     TooltipUiSystem::render_deco(deco, show_pos.x, show_pos.y);
   } else {
@@ -238,8 +238,8 @@ void PackageUiSystem::render_items() {
 
     wz::Node *info;
     // 加载信息
-    if (active_tab == (int)ItemEnum::equip ||
-        active_tab == (int)ItemEnum::deco) {
+    if (active_tab == (int)ItemEnum::kEquip ||
+        active_tab == (int)ItemEnum::kDeco) {
       info = EquipGameInstance::load_equip_info(item->id);
     } else {
       info = ItemGameInstance::load_item_info(item->id, 0);
@@ -264,7 +264,7 @@ void PackageUiSystem::render_items() {
 
     SDL_RenderTexture(Window::renderer, icon, nullptr, &pos_rect);
 
-    if (active_tab == (int)ItemEnum::deco) {
+    if (active_tab == (int)ItemEnum::kDeco) {
       icon = WzResource::load_texture(
           WzResource::ms->get_root()->find(u"UI.img/CashItem"));
       pos_rect.x =
@@ -296,7 +296,7 @@ void PackageUiSystem::render_items() {
       }
     }
     // render active ball
-    if (active_tab == (int)ItemEnum::consume) {
+    if (active_tab == (int)ItemEnum::kConsume) {
       auto active_ball = PackageGameInstance::load_active_ball();
       if (active_ball == &item) {
         auto node = WzResource::ui->find(u"Item.img/canvas:activeIcon");
@@ -313,7 +313,7 @@ void PackageUiSystem::render_items() {
 
     // render num
     auto item_num = ItemGameInstance::load_item_num(item);
-    if (item->type == ItemEnum::consume || item->type == ItemEnum::etc) {
+    if (item->type == ItemEnum::kConsume || item->type == ItemEnum::kEtc) {
       PackageUiSystem::render_number(
           item_num, pos.x + slot_pos.x + col * (slot_size + slot_space_x) + 1,
           pos.y + slot_pos.y + row * (slot_size + slot_space_y) + 20);
@@ -464,7 +464,7 @@ bool PackageUiSystem::event_click_item(SDL_Event *event) {
       return false;
     }
     CursorGameInstance::cursor_hand = {
-        .type = CursorGameInstance::package,
+        .type = CursorGameInstance::CursorHandType::kPackage,
         .val = active_tab,
         .sub_val = index.value(),
     };
@@ -482,11 +482,11 @@ bool PackageUiSystem::event_click_item(SDL_Event *event) {
     return false;
   }
   switch ((CursorGameInstance::CursorHandType)hand.type) {
-  case CursorGameInstance::equipment: {
-    if (active_tab != (int)ItemEnum::equip) {
+  case CursorGameInstance::CursorHandType::kEquipment: {
+    if (active_tab != (int)ItemEnum::kEquip) {
       break;
     }
-    auto &r = PackageGameInstance::data[(int)ItemEnum::equip];
+    auto &r = PackageGameInstance::data[(int)ItemEnum::kEquip];
     if (r[index.value()]->id.empty()) {
       auto eqp = EquipGameInstance::load_equip(hand.sub_val);
       auto eqp2 = std::polymorphic<GameItem>(eqp->value());
@@ -498,11 +498,11 @@ bool PackageUiSystem::event_click_item(SDL_Event *event) {
     }
     break;
   }
-  case CursorGameInstance::deco: {
-    if (active_tab != (int)ItemEnum::deco) {
+  case CursorGameInstance::CursorHandType::kDeco: {
+    if (active_tab != (int)ItemEnum::kDeco) {
       break;
     }
-    auto &r = PackageGameInstance::data[(int)ItemEnum::deco];
+    auto &r = PackageGameInstance::data[(int)ItemEnum::kDeco];
     if (r[index.value()]->id.empty()) {
       auto eqp = EquipGameInstance::load_deco(hand.sub_val);
       auto eqp2 = std::polymorphic<GameItem>(eqp->value());
@@ -514,19 +514,19 @@ bool PackageUiSystem::event_click_item(SDL_Event *event) {
     }
     break;
   }
-  case CursorGameInstance::package: {
+  case CursorGameInstance::CursorHandType::kPackage: {
     if (hand.val != active_tab) {
       // 只有卷轴类道具可以跨tab使用
       auto &itm = r.at(hand.sub_val);
-      if (!((ItemEnum)active_tab == ItemEnum::equip &&
-            hand.val == (int)ItemEnum::consume &&
+      if (!((ItemEnum)active_tab == ItemEnum::kEquip &&
+            hand.val == (int)ItemEnum::kConsume &&
             itm->id.starts_with(u"0204"))) {
         CursorGameInstance::cursor_hand = std::nullopt;
         return true;
       }
     }
     switch ((ItemEnum)hand.val) {
-    case ItemEnum::equip: {
+    case ItemEnum::kEquip: {
       // 点击的是同一个格子：尝试穿戴
       if (hand.val == active_tab) {
         AudioGameInstance::load_audio(u"UI.img/DragEnd", 0);
@@ -545,7 +545,7 @@ bool PackageUiSystem::event_click_item(SDL_Event *event) {
       }
       break;
     }
-    case ItemEnum::deco: {
+    case ItemEnum::kDeco: {
       AudioGameInstance::load_audio(u"UI.img/DragEnd", 0);
       if (hand.sub_val == index.value()) {
         EquipGameInstance::use_deco(index.value());
@@ -560,13 +560,13 @@ bool PackageUiSystem::event_click_item(SDL_Event *event) {
       }
       break;
     }
-    case ItemEnum::etc:
-    case ItemEnum::install:
-    case ItemEnum::consume: {
+    case ItemEnum::kEtc:
+    case ItemEnum::kInstall:
+    case ItemEnum::kConsume: {
       AudioGameInstance::load_audio(u"UI.img/DragEnd", 0);
       // 处理普通背包栏
       auto &r = PackageGameInstance::data[hand.val];
-      if ((int)ItemEnum::equip == active_tab) {
+      if ((int)ItemEnum::kEquip == active_tab) {
         // 卷轴
         auto &equips = PackageGameInstance::data[active_tab];
         auto &equip = equips[index.value()];
@@ -688,7 +688,7 @@ void PackageUiSystem::event_tab(SDL_Event *event) {
 void PackageUiSystem::event_close() { close(); }
 
 void PackageUiSystem::event_button_coin() {
-  NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::throw_mul;
+  NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kThrowMul;
   NoticeUiSystem::data = nullptr;
   // notice_ui_system::close();
   NoticeUiSystem::open();

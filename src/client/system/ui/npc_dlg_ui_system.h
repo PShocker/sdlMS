@@ -70,21 +70,21 @@ public:
   static inline uint32_t act_exp;
 
   enum class NpcDlgEnum {
-    quest,
-    talk,
-    select,
+    kQuest,
+    kTalk,
+    kSelect,
 
-    quest_avaliable,
+    kQuestAvaliable,
 
-    quest_stop_item,
-    quest_stop_mob,
-    quest_stop_lost,
-    quest_stop_npc,
+    kQuestStopItem,
+    kQuestStopMob,
+    kQuestStopLost,
+    kQuestStopNpc,
 
-    quest_yes,
-    quest_no,
+    kQuestYes,
+    kQuestNo,
 
-    quest_complete,
+    kQuestComplete,
   };
   static inline NpcDlgEnum type;
 

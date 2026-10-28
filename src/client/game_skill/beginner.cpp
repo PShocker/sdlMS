@@ -91,7 +91,7 @@ static void Recover() {
       AttackT at;
       at.x = pos.x - 10;
       at.y = pos.y - 30;
-      at.type = DamageData::b;
+      at.type = static_cast<uint8_t>(DamageData::T::kB);
       at.num = 20;
       ServerMobInstance::handle_s_attack(0, at);
       auto sf_hp = CharacterStatGameInstance::get_hp();

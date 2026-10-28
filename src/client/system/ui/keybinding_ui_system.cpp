@@ -346,49 +346,50 @@ static SDL_FPoint remain_lt{12, 300};
 void KeybindingUiSystem::render_remain_key() {
   remain_key = std::nullopt;
 
-  const static std::flat_map<int, SDL_FPoint> m = {
-      {CursorGameInstance::keybind_ui_menu, SDL_FPoint{0, 0}},
-      {CursorGameInstance::keybind_face_hit, SDL_FPoint{34, 0}},
-      {CursorGameInstance::keybind_face_smile, SDL_FPoint{68, 0}},
-      {CursorGameInstance::keybind_face_troubled, SDL_FPoint{102, 0}},
-      {CursorGameInstance::keybind_face_cry, SDL_FPoint{136, 0}},
-      {CursorGameInstance::keybind_face_angry, SDL_FPoint{170, 0}},
-      {CursorGameInstance::keybind_face_bewildered, SDL_FPoint{204, 0}},
-      {CursorGameInstance::keybind_face_stunned, SDL_FPoint{238, 0}},
-      {CursorGameInstance::keybind_ui_toAll, SDL_FPoint{272, 0}},
-      {CursorGameInstance::keybind_ui_toParty, SDL_FPoint{306, 0}},
-      {CursorGameInstance::keybind_ui_quest, SDL_FPoint{340, 0}},
-      {CursorGameInstance::keybind_ui_worldMap, SDL_FPoint{374, 0}},
-      {CursorGameInstance::keybind_ui_equip, SDL_FPoint{408, 0}},
-      {CursorGameInstance::keybind_ui_package, SDL_FPoint{442, 0}},
-      {CursorGameInstance::keybind_ui_buddy, SDL_FPoint{476, 0}},
-      {CursorGameInstance::keybind_ui_party, SDL_FPoint{510, 0}},
-      {CursorGameInstance::keybind_ui_mapleChat, SDL_FPoint{544, 0}},
-      {CursorGameInstance::keybind_ui_quickSlot, SDL_FPoint{578, 0}},
-      {CursorGameInstance::keybind_ui_keyBind, SDL_FPoint{0, 34}},
-      {CursorGameInstance::keybind_ui_characterStat, SDL_FPoint{34, 34}},
-      {CursorGameInstance::keybind_ui_whisper, SDL_FPoint{68, 34}},
-      {CursorGameInstance::keybind_ui_skill, SDL_FPoint{102, 34}},
-      {CursorGameInstance::keybind_ui_craft, SDL_FPoint{136, 34}},
-      {CursorGameInstance::keybind_ui_mailBox, SDL_FPoint{170, 34}},
-      {CursorGameInstance::keybind_ui_chatPlus, SDL_FPoint{204, 34}},
-      {CursorGameInstance::keybind_ui_miniMap, SDL_FPoint{238, 34}},
-      {CursorGameInstance::keybind_ui_changeChannel, SDL_FPoint{272, 34}},
-      {CursorGameInstance::keybind_ui_ok, SDL_FPoint{306, 34}},
-      {CursorGameInstance::keybind_action_pick, SDL_FPoint{340, 34}},
-      {CursorGameInstance::keybind_action_sit, SDL_FPoint{374, 34}},
-      {CursorGameInstance::keybind_action_attack, SDL_FPoint{408, 34}},
-      {CursorGameInstance::keybind_action_jump, SDL_FPoint{442, 34}},
-      {CursorGameInstance::keybind_action_harvest, SDL_FPoint{476, 34}},
-      {CursorGameInstance::keybind_action_up, SDL_FPoint{510, 34}},
-      {CursorGameInstance::keybind_action_down, SDL_FPoint{544, 34}},
-      {CursorGameInstance::keybind_action_left, SDL_FPoint{578, 34}},
-      {CursorGameInstance::keybind_action_right, SDL_FPoint{0, 68}},
+  const static std::flat_map<CursorGameInstance::CursorKeybindType, SDL_FPoint> m = {
+      {CursorGameInstance::CursorKeybindType::kKeybindUiMenu, SDL_FPoint{0, 0}},
+      {CursorGameInstance::CursorKeybindType::kKeybindFaceHit, SDL_FPoint{34, 0}},
+      {CursorGameInstance::CursorKeybindType::kKeybindFaceSmile, SDL_FPoint{68, 0}},
+      {CursorGameInstance::CursorKeybindType::kKeybindFaceTroubled, SDL_FPoint{102, 0}},
+      {CursorGameInstance::CursorKeybindType::kKeybindFaceCry, SDL_FPoint{136, 0}},
+      {CursorGameInstance::CursorKeybindType::kKeybindFaceAngry, SDL_FPoint{170, 0}},
+      {CursorGameInstance::CursorKeybindType::kKeybindFaceBewildered, SDL_FPoint{204, 0}},
+      {CursorGameInstance::CursorKeybindType::kKeybindFaceStunned, SDL_FPoint{238, 0}},
+      {CursorGameInstance::CursorKeybindType::kKeybindUiToAll, SDL_FPoint{272, 0}},
+      {CursorGameInstance::CursorKeybindType::kKeybindUiToParty, SDL_FPoint{306, 0}},
+      {CursorGameInstance::CursorKeybindType::kKeybindUiQuest, SDL_FPoint{340, 0}},
+      {CursorGameInstance::CursorKeybindType::kKeybindUiWorldMap, SDL_FPoint{374, 0}},
+      {CursorGameInstance::CursorKeybindType::kKeybindUiEquip, SDL_FPoint{408, 0}},
+      {CursorGameInstance::CursorKeybindType::kKeybindUiPackage, SDL_FPoint{442, 0}},
+      {CursorGameInstance::CursorKeybindType::kKeybindUiBuddy, SDL_FPoint{476, 0}},
+      {CursorGameInstance::CursorKeybindType::kKeybindUiParty, SDL_FPoint{510, 0}},
+      {CursorGameInstance::CursorKeybindType::kKeybindUiMapleChat, SDL_FPoint{544, 0}},
+      {CursorGameInstance::CursorKeybindType::kKeybindUiQuickSlot, SDL_FPoint{578, 0}},
+      {CursorGameInstance::CursorKeybindType::kKeybindUiKeyBind, SDL_FPoint{0, 34}},
+      {CursorGameInstance::CursorKeybindType::kKeybindUiCharacterStat, SDL_FPoint{34, 34}},
+      {CursorGameInstance::CursorKeybindType::kKeybindUiWhisper, SDL_FPoint{68, 34}},
+      {CursorGameInstance::CursorKeybindType::kKeybindUiSkill, SDL_FPoint{102, 34}},
+      {CursorGameInstance::CursorKeybindType::kKeybindUiCraft, SDL_FPoint{136, 34}},
+      {CursorGameInstance::CursorKeybindType::kKeybindUiMailBox, SDL_FPoint{170, 34}},
+      {CursorGameInstance::CursorKeybindType::kKeybindUiChatPlus, SDL_FPoint{204, 34}},
+      {CursorGameInstance::CursorKeybindType::kKeybindUiMiniMap, SDL_FPoint{238, 34}},
+      {CursorGameInstance::CursorKeybindType::kKeybindUiChangeChannel, SDL_FPoint{272, 34}},
+      {CursorGameInstance::CursorKeybindType::kKeybindUiOk, SDL_FPoint{306, 34}},
+      {CursorGameInstance::CursorKeybindType::kKeybindActionPick, SDL_FPoint{340, 34}},
+      {CursorGameInstance::CursorKeybindType::kKeybindActionSit, SDL_FPoint{374, 34}},
+      {CursorGameInstance::CursorKeybindType::kKeybindActionAttack, SDL_FPoint{408, 34}},
+      {CursorGameInstance::CursorKeybindType::kKeybindActionJump, SDL_FPoint{442, 34}},
+      {CursorGameInstance::CursorKeybindType::kKeybindActionHarvest, SDL_FPoint{476, 34}},
+      {CursorGameInstance::CursorKeybindType::kKeybindActionUp, SDL_FPoint{510, 34}},
+      {CursorGameInstance::CursorKeybindType::kKeybindActionDown, SDL_FPoint{544, 34}},
+      {CursorGameInstance::CursorKeybindType::kKeybindActionLeft, SDL_FPoint{578, 34}},
+      {CursorGameInstance::CursorKeybindType::kKeybindActionRight, SDL_FPoint{0, 68}},
   };
   const auto &key_data = KeyboardGameInstance::data;
   auto &mouse_pos = Window::mouse_pos;
   for (auto [k, v] : m) {
-    auto input = KeyboardGameInstance::find_input_by_cursor(k);
+    auto input =
+        KeyboardGameInstance::find_input_by_cursor(static_cast<int>(k));
     if (KeyboardGameInstance::find_key_by_val(input.val)) {
       continue;
     }
@@ -398,9 +399,9 @@ void KeybindingUiSystem::render_remain_key() {
     pos_rect.w = 32;
     pos_rect.h = 32;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-      remain_key = k;
+      remain_key = static_cast<uint32_t>(k);
     }
-    render_remain_icon(k, pos_rect.x, pos_rect.y);
+    render_remain_icon(static_cast<int>(k), pos_rect.x, pos_rect.y);
   }
 }
 
@@ -526,7 +527,7 @@ void KeybindingUiSystem::event_backgrnd_key() {
   } else {
     if (KeyboardGameInstance::data.contains(scan_code)) {
       CursorGameInstance::cursor_hand = {
-          .type = CursorGameInstance::keybind,
+          .type = CursorGameInstance::CursorHandType::kKeybind,
           .val = scan_code,
       };
       AudioGameInstance::load_audio(u"UI.img/DragStart", 0);
@@ -556,7 +557,7 @@ void KeybindingUiSystem::event_remain_key() {
 
   if (remain_key.has_value()) {
     CursorGameInstance::cursor_hand = {
-        .type = CursorGameInstance::keybind,
+        .type = CursorGameInstance::CursorHandType::kKeybind,
         .val = SDL_SCANCODE_UNKNOWN,
         .sub_val = remain_key.value(),
     };
@@ -724,155 +725,155 @@ bool KeybindingUiSystem::render_info() {
   if (remain_key.has_value()) {
     std::u16string text;
     switch ((CursorGameInstance::CursorKeybindType)remain_key.value()) {
-    case CursorGameInstance::keybind_ui_menu: {
+    case CursorGameInstance::CursorKeybindType::kKeybindUiMenu: {
       text = u"menu";
       break;
     }
-    case CursorGameInstance::keybind_face_hit: {
+    case CursorGameInstance::CursorKeybindType::kKeybindFaceHit: {
       text = u"hit";
       break;
     }
-    case CursorGameInstance::keybind_face_smile: {
+    case CursorGameInstance::CursorKeybindType::kKeybindFaceSmile: {
       text = u"smile";
       break;
     }
-    case CursorGameInstance::keybind_face_troubled: {
+    case CursorGameInstance::CursorKeybindType::kKeybindFaceTroubled: {
       text = u"troubled";
       break;
     }
-    case CursorGameInstance::keybind_face_cry: {
+    case CursorGameInstance::CursorKeybindType::kKeybindFaceCry: {
       text = u"menu";
       break;
     }
-    case CursorGameInstance::keybind_face_angry: {
+    case CursorGameInstance::CursorKeybindType::kKeybindFaceAngry: {
       text = u"angry";
       break;
     }
-    case CursorGameInstance::keybind_face_bewildered: {
+    case CursorGameInstance::CursorKeybindType::kKeybindFaceBewildered: {
       text = u"bewildered";
       break;
     }
-    case CursorGameInstance::keybind_face_stunned: {
+    case CursorGameInstance::CursorKeybindType::kKeybindFaceStunned: {
       text = u"bewildered";
       break;
     }
-    case CursorGameInstance::keybind_ui_toAll: {
+    case CursorGameInstance::CursorKeybindType::kKeybindUiToAll: {
       text = u"to all";
       break;
     }
-    case CursorGameInstance::keybind_ui_toParty: {
+    case CursorGameInstance::CursorKeybindType::kKeybindUiToParty: {
       text = u"to party";
       break;
     }
-    case CursorGameInstance::keybind_ui_quest: {
+    case CursorGameInstance::CursorKeybindType::kKeybindUiQuest: {
       text = u"quest";
       break;
     }
-    case CursorGameInstance::keybind_ui_worldMap: {
+    case CursorGameInstance::CursorKeybindType::kKeybindUiWorldMap: {
       text = u"worldMap";
       break;
     }
-    case CursorGameInstance::keybind_ui_equip: {
+    case CursorGameInstance::CursorKeybindType::kKeybindUiEquip: {
       text = u"equip";
       break;
     }
-    case CursorGameInstance::keybind_ui_package: {
+    case CursorGameInstance::CursorKeybindType::kKeybindUiPackage: {
       text = u"item";
       break;
     }
-    case CursorGameInstance::keybind_ui_buddy: {
+    case CursorGameInstance::CursorKeybindType::kKeybindUiBuddy: {
       text = u"buddy";
       break;
     }
-    case CursorGameInstance::keybind_ui_party: {
+    case CursorGameInstance::CursorKeybindType::kKeybindUiParty: {
       text = u"party";
       break;
     }
-    case CursorGameInstance::keybind_ui_mapleChat: {
+    case CursorGameInstance::CursorKeybindType::kKeybindUiMapleChat: {
       text = u"mapleChat";
       break;
     }
-    case CursorGameInstance::keybind_ui_quickSlot: {
+    case CursorGameInstance::CursorKeybindType::kKeybindUiQuickSlot: {
       text = u"quickSlot";
       break;
     }
-    case CursorGameInstance::keybind_ui_keyBind: {
+    case CursorGameInstance::CursorKeybindType::kKeybindUiKeyBind: {
       text = u"keyBind";
       break;
     }
-    case CursorGameInstance::keybind_ui_characterStat: {
+    case CursorGameInstance::CursorKeybindType::kKeybindUiCharacterStat: {
       text = u"characterStat";
       break;
     }
-    case CursorGameInstance::keybind_ui_whisper: {
+    case CursorGameInstance::CursorKeybindType::kKeybindUiWhisper: {
       text = u"whisper";
       break;
     }
-    case CursorGameInstance::keybind_ui_skill: {
+    case CursorGameInstance::CursorKeybindType::kKeybindUiSkill: {
       text = u"skill";
       break;
     }
-    case CursorGameInstance::keybind_ui_craft: {
+    case CursorGameInstance::CursorKeybindType::kKeybindUiCraft: {
       text = u"craft";
       break;
     }
-    case CursorGameInstance::keybind_ui_mailBox: {
+    case CursorGameInstance::CursorKeybindType::kKeybindUiMailBox: {
       text = u"mailBox";
       break;
     }
-    case CursorGameInstance::keybind_ui_chatPlus: {
+    case CursorGameInstance::CursorKeybindType::kKeybindUiChatPlus: {
       text = u"chat+";
       break;
     }
-    case CursorGameInstance::keybind_ui_miniMap: {
+    case CursorGameInstance::CursorKeybindType::kKeybindUiMiniMap: {
       text = u"miniMap";
       break;
     }
-    case CursorGameInstance::keybind_ui_changeChannel: {
+    case CursorGameInstance::CursorKeybindType::kKeybindUiChangeChannel: {
       text = u"changeChannel";
       break;
     }
-    case CursorGameInstance::keybind_ui_ok: {
+    case CursorGameInstance::CursorKeybindType::kKeybindUiOk: {
       text = u"ok";
       break;
     }
-    case CursorGameInstance::keybind_action_pick: {
+    case CursorGameInstance::CursorKeybindType::kKeybindActionPick: {
       text = u"pick";
       break;
     }
-    case CursorGameInstance::keybind_action_sit: {
+    case CursorGameInstance::CursorKeybindType::kKeybindActionSit: {
       text = u"sit";
       break;
     }
-    case CursorGameInstance::keybind_action_attack: {
+    case CursorGameInstance::CursorKeybindType::kKeybindActionAttack: {
       text = u"ok";
       break;
     }
-    case CursorGameInstance::keybind_action_jump: {
+    case CursorGameInstance::CursorKeybindType::kKeybindActionJump: {
       text = u"jump";
       break;
     }
-    case CursorGameInstance::keybind_action_harvest: {
+    case CursorGameInstance::CursorKeybindType::kKeybindActionHarvest: {
       text = u"harvest";
       break;
     }
-    case CursorGameInstance::keybind_action_up: {
+    case CursorGameInstance::CursorKeybindType::kKeybindActionUp: {
       text = u"up";
       break;
     }
-    case CursorGameInstance::keybind_action_down: {
+    case CursorGameInstance::CursorKeybindType::kKeybindActionDown: {
       text = u"down";
       break;
     }
-    case CursorGameInstance::keybind_action_left: {
+    case CursorGameInstance::CursorKeybindType::kKeybindActionLeft: {
       text = u"left";
       break;
     }
-    case CursorGameInstance::keybind_action_right: {
+    case CursorGameInstance::CursorKeybindType::kKeybindActionRight: {
       text = u"right";
       break;
     }
-    case CursorGameInstance::keybind_face_vomit: {
+    case CursorGameInstance::CursorKeybindType::kKeybindFaceVomit: {
       text = u"vomit";
       break;
     }

@@ -28,15 +28,15 @@ private:
   static void render_name();
 
   enum class ChooseType {
-    gender,
-    face,
-    hairstyle,
-    haircolor,
-    skin,
-    top,
-    bottom,
-    shoes,
-    weapon,
+    kGender,
+    kFace,
+    kHairstyle,
+    kHaircolor,
+    kSkin,
+    kTop,
+    kBottom,
+    kShoes,
+    kWeapon,
   };
 
   static void render_custom_item(float cx, float cy, ChooseType type);

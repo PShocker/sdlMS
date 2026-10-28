@@ -21,19 +21,19 @@ void EffectRenderSystem::render_effect(SDL_FPoint pos,
   }
   wz::Node *node;
   switch ((GameEffect::EffectSubType)g_effect.lv) {
-  case GameEffect::character: {
+  case GameEffect::EffectSubType::kCharacter: {
     node = WzResource::character->find(g_effect.id);
     break;
   }
-  case GameEffect::effect: {
+  case GameEffect::EffectSubType::kEffect: {
     node = WzResource::effect->find(g_effect.id);
     break;
   }
-  case GameEffect::item: {
+  case GameEffect::EffectSubType::kItem: {
     node = WzResource::item->find(g_effect.id);
     break;
   }
-  case GameEffect::skill: {
+  case GameEffect::EffectSubType::kSkill: {
     node = WzResource::skill->find(g_effect.id);
     break;
   }
@@ -59,19 +59,19 @@ void EffectRenderSystem::render_effect(SDL_FPoint pos,
 
 void EffectRenderSystem::render_damage(SDL_FPoint pos,
                                          GameEffect &g_effect) {
-  enum DamageType {
-    n_0,
-    n_1,
-    n_2,
-    n_3,
-    n_4,
-    n_5,
-    n_6,
-    n_7,
-    n_8,
-    n_9,
-    miss,
-    guard,
+  enum class DamageType {
+    kN0,
+    kN1,
+    kN2,
+    kN3,
+    kN4,
+    kN5,
+    kN6,
+    kN7,
+    kN8,
+    kN9,
+    kMiss,
+    kGuard,
   };
   auto current_time = Window::dt_time;
   if (current_time <= g_effect.delay) {
@@ -94,15 +94,15 @@ void EffectRenderSystem::render_damage(SDL_FPoint pos,
   uint32_t w = 0;
   wz::Node *node;
   switch (d_data.type) {
-  case DamageData::r: {
+  case DamageData::T::kR: {
     node = red;
     break;
   }
-  case DamageData::b: {
+  case DamageData::T::kB: {
     node = blue;
     break;
   }
-  case DamageData::v: {
+  case DamageData::T::kV: {
     node = viole;
     break;
   }
@@ -280,27 +280,27 @@ bool EffectRenderSystem::render(SDL_FPoint pos, GameEffect &g_effect,
                                   bool flip) {
   bool r = true;
   switch (g_effect.type) {
-  case GameEffect::EffectType::effect: {
+  case GameEffect::EffectType::kEffect: {
     render_effect(pos, g_effect);
     break;
   }
-  case GameEffect::EffectType::damage: {
+  case GameEffect::EffectType::kDamage: {
     render_damage(pos, g_effect);
     break;
   }
-  case GameEffect::EffectType::skill_use: {
+  case GameEffect::EffectType::kSkillUse: {
     render_ski_use(pos, g_effect, flip);
     break;
   }
-  case GameEffect::EffectType::skill_affected: {
+  case GameEffect::EffectType::kSkillAffected: {
     render_ski_affected(pos, g_effect, flip);
     break;
   }
-  case GameEffect::EffectType::skill_hit: {
+  case GameEffect::EffectType::kSkillHit: {
     render_ski_hit(pos, g_effect, flip);
     break;
   }
-  case GameEffect::EffectType::skill_custom: {
+  case GameEffect::EffectType::kSkillCustom: {
     r = render_custom(pos, g_effect, flip);
     break;
   }

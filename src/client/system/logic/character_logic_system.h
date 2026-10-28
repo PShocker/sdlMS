@@ -64,9 +64,9 @@ private:
   static void run_state_machine();
   static void run_color();
   enum class PosType {
-    land,
-    swim,
-    fly,
+    kLand,
+    kSwim,
+    kFly,
   };
   static PosType load_pos_type(GameCharacter &g_character);
 
@@ -128,16 +128,16 @@ public:
   static std::u16string load_morph_type(GameCharacter &g_character);
   static SDL_FRect load_rect(GameCharacter &g_character);
   enum class ActionEnum {
-    stand,
-    alert,
-    walk,
-    prone,
-    jump,
-    climb,
-    sit,
-    attack,
-    skill,
-    dead,
+    kStand,
+    kAlert,
+    kWalk,
+    kProne,
+    kJump,
+    kClimb,
+    kSit,
+    kAttack,
+    kSkill,
+    kDead,
   };
   static ActionEnum load_action_type(GameCharacter &g_character);
   static bool run();

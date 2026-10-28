@@ -556,14 +556,14 @@ void StatusbarUiSystem::event_button_cashshop() { return; }
 
 void StatusbarUiSystem::event_button_menu() {
   StatusbarMenuUiSystem::menu_type =
-      StatusbarMenuUiSystem::MenuEnums::menu;
+      StatusbarMenuUiSystem::MenuEnums::kMenu;
   StatusbarMenuUiSystem::toggle();
   return;
 }
 
 void StatusbarUiSystem::event_button_shortcut() {
   StatusbarMenuUiSystem::menu_type =
-      StatusbarMenuUiSystem::MenuEnums::shortcut;
+      StatusbarMenuUiSystem::MenuEnums::kShortcut;
   StatusbarMenuUiSystem::toggle();
   return;
 }
@@ -602,14 +602,14 @@ void StatusbarUiSystem::event_button_chatlog() {
   if (chat_type.has_value()) {
     chat_type = std::nullopt;
   } else {
-    chat_type = GameChatEnum::map;
+    chat_type = GameChatEnum::kMap;
   }
   return;
 }
 
 std::u16string StatusbarUiSystem::load_chat_type() {
   switch (chat_type.value()) {
-  case GameChatEnum::map: {
+  case GameChatEnum::kMap: {
     return u"All";
     break;
   }
@@ -730,7 +730,7 @@ bool StatusbarUiSystem::event(SDL_Event *event) {
         TextInputUiSystem::close(chat);
         System::event_systems.push_back(KeyboardInputSystem::event);
       } else {
-        chat_type = GameChatEnum::map;
+        chat_type = GameChatEnum::kMap;
         TextInputUiSystem::active(chat);
         KeyboardInputSystem::reset();
       }
@@ -801,6 +801,6 @@ void StatusbarUiSystem::reset() {
       .cur_color = {0, 0, 0, 255},
       .font_size = 12,
   };
-  chat.type.set(TextInput::ime);
+  chat.type.set(TextInput::kIme);
   chat_type = std::nullopt;
 }

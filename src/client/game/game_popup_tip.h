@@ -8,9 +8,9 @@
 using namespace fbs;
 
 enum class PopupTipEnums {
-  trade,
-  party,
-  quest,
+  kTrade,
+  kParty,
+  kQuest,
 };
 
 class GamePopupTip {

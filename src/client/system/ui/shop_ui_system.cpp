@@ -340,7 +340,7 @@ void ShopUiSystem::render_item_info(std::polymorphic<GameItem> &item) {
   auto &mouse_pos = Window::mouse_pos;
   SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
   switch (item->type) {
-  case ItemEnum::equip: {
+  case ItemEnum::kEquip: {
     auto eqp = static_cast<GameEquipItem &>(*item);
     TooltipUiSystem::render_equip(eqp, show_pos.x, show_pos.y);
     auto self = CharacterGameInstance::self;
@@ -475,14 +475,14 @@ bool ShopUiSystem::event_item(SDL_Event *event) {
     auto itm2 = items->at(index);
     bool space = PackageGameInstance::load_empty_index(itm2.item).empty();
     if (meso < itm.price) {
-      NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::shopbuy_no_meso;
+      NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kShopbuyNoMeso;
     } else if (space) {
       NoticeUiSystem::open_no_space(itm2.item->type);
       return true;
     } else {
-      NoticeUiSystem::type = (itm.item->type == ItemEnum::equip)
-                                   ? NoticeUiSystem::NoticeEnum::shopbuy
-                                   : NoticeUiSystem::NoticeEnum::shopbuy_mul;
+      NoticeUiSystem::type = (itm.item->type == ItemEnum::kEquip)
+                                   ? NoticeUiSystem::NoticeEnum::kShopbuy
+                                   : NoticeUiSystem::NoticeEnum::kShopbuyMul;
       NoticeUiSystem::data = &itm;
     }
     NoticeUiSystem::open();
@@ -502,17 +502,17 @@ bool ShopUiSystem::event_item(SDL_Event *event) {
       return true;
     }
     auto itm = items[index];
-    if ((*itm)->type == ItemEnum::equip) {
-      NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::shopbuy_sell;
+    if ((*itm)->type == ItemEnum::kEquip) {
+      NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kShopbuySell;
     } else {
       auto num = ItemGameInstance::load_item_num(*itm);
       auto itm_info = ItemGameInstance::load_item_info((*itm)->id, 0);
       bool unitPrice = itm_info->get_child(u"unitPrice");
       if (num == 1 || unitPrice) {
-        NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::shopbuy_sell;
+        NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kShopbuySell;
       } else {
         NoticeUiSystem::type =
-            NoticeUiSystem::NoticeEnum::shopbuy_sell_mul;
+            NoticeUiSystem::NoticeEnum::kShopbuySellMul;
       }
     }
     NoticeUiSystem::data = itm;

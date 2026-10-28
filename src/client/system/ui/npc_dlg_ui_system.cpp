@@ -128,7 +128,7 @@ void NpcDlgUiSystem::render_button() {
         WzResource::ui->find(u"UtilDlgEx.img/UtilDlgEx/BtPrev"));
     buttons_rect.push_back(SDL_FRect{w0, h - 76, 46, 18});
   }
-  if (type == NpcDlgEnum::quest_avaliable && index == max_index) {
+  if (type == NpcDlgEnum::kQuestAvaliable && index == max_index) {
     buttons_node.push_back(WzResource::ui->find(u"UIWindow.img/Quest/BtOK"));
     buttons_rect.push_back(SDL_FRect{w - 128, h - 25, 57, 17});
 
@@ -167,17 +167,17 @@ void NpcDlgUiSystem::render_text() {
   auto dt = Window::dt_now - time;
   int visibleCount = int(dt * 0.05);
   switch (type) {
-  case NpcDlgEnum::quest:
-  case NpcDlgEnum::quest_avaliable:
-  case NpcDlgEnum::quest_complete:
-  case NpcDlgEnum::quest_yes:
-  case NpcDlgEnum::quest_no:
-  case NpcDlgEnum::quest_stop_item:
-  case NpcDlgEnum::quest_stop_lost:
-  case NpcDlgEnum::quest_stop_mob:
-  case NpcDlgEnum::quest_stop_npc:
-  case NpcDlgEnum::talk:
-  case NpcDlgEnum::select: {
+  case NpcDlgEnum::kQuest:
+  case NpcDlgEnum::kQuestAvaliable:
+  case NpcDlgEnum::kQuestComplete:
+  case NpcDlgEnum::kQuestYes:
+  case NpcDlgEnum::kQuestNo:
+  case NpcDlgEnum::kQuestStopItem:
+  case NpcDlgEnum::kQuestStopLost:
+  case NpcDlgEnum::kQuestStopMob:
+  case NpcDlgEnum::kQuestStopNpc:
+  case NpcDlgEnum::kTalk:
+  case NpcDlgEnum::kSelect: {
     Freetype::load_size(12);
     Freetype::load_aligned(true);
     Freetype::load_color(0, 0, 0, 255);
@@ -194,7 +194,7 @@ void NpcDlgUiSystem::render_text() {
 }
 
 void NpcDlgUiSystem::render_list() {
-  if (type != NpcDlgEnum::quest) {
+  if (type != NpcDlgEnum::kQuest) {
     return;
   }
   if (index != 0) {
@@ -316,7 +316,7 @@ void NpcDlgUiSystem::render_list() {
 }
 
 void NpcDlgUiSystem::render_obtain() {
-  if (type != NpcDlgEnum::quest_complete) {
+  if (type != NpcDlgEnum::kQuestComplete) {
     return;
   }
   if (index != max_index) {
@@ -414,7 +414,7 @@ SDL_FPoint NpcDlgUiSystem::load_wh() {
   Freetype::load_size(12);
   auto h = Freetype::load_rh(text, 330, 1.3, std::nullopt);
   h = h + 130;
-  if (type == NpcDlgEnum::quest && index == 0) {
+  if (type == NpcDlgEnum::kQuest && index == 0) {
     auto avaliable_quest = NpcGameInstance::load_avaliable_quest(npc_id);
     auto progress_quest = NpcGameInstance::load_progress_quest(npc_id);
     auto progress_complete_quest =
@@ -440,7 +440,7 @@ SDL_FPoint NpcDlgUiSystem::load_wh() {
     if (!scp_id.empty()) {
       h += 36;
     }
-  } else if (type == NpcDlgEnum::quest_complete && index == max_index) {
+  } else if (type == NpcDlgEnum::kQuestComplete && index == max_index) {
     if (act_exp != 0) {
       h += 22;
     }
@@ -491,7 +491,7 @@ void NpcDlgUiSystem::toggle() {
 void NpcDlgUiSystem::event_button_close() { close(); }
 
 void NpcDlgUiSystem::event_button_ok() {
-  if (type == NpcDlgEnum::quest_complete && index == max_index) {
+  if (type == NpcDlgEnum::kQuestComplete && index == max_index) {
     auto back_meso = PackageGameInstance::meso;
     auto back_data = PackageGameInstance::data;
     if (!act_random_item.empty()) {
@@ -558,20 +558,20 @@ void NpcDlgUiSystem::event_button_update() {
   // 根据 type 决定后缀，统一拼接路径
   std::u16string suffix;
   switch (type) {
-  case NpcDlgEnum::quest_complete:
-  case NpcDlgEnum::quest:
+  case NpcDlgEnum::kQuestComplete:
+  case NpcDlgEnum::kQuest:
     suffix = u"";
     break;
-  case NpcDlgEnum::quest_yes:
+  case NpcDlgEnum::kQuestYes:
     suffix = u"/yes";
     break;
-  case NpcDlgEnum::quest_stop_item:
+  case NpcDlgEnum::kQuestStopItem:
     suffix = u"/item";
     break;
-  case NpcDlgEnum::quest_stop_lost:
+  case NpcDlgEnum::kQuestStopLost:
     suffix = u"/lost";
     break;
-  case NpcDlgEnum::quest_stop_npc:
+  case NpcDlgEnum::kQuestStopNpc:
     suffix = u"/npc";
     break;
   default:
@@ -597,7 +597,7 @@ void NpcDlgUiSystem::event_button_prev() {
 
 void NpcDlgUiSystem::event_button_next() {
   switch (type) {
-  case NpcDlgEnum::select: {
+  case NpcDlgEnum::kSelect: {
     if (cb) {
       cb();
       return;
@@ -610,7 +610,7 @@ void NpcDlgUiSystem::event_button_next() {
       st = select_mouse;
     }
     if (ans == st) {
-      type = NpcDlgEnum::quest_complete;
+      type = NpcDlgEnum::kQuestComplete;
       node = QuestGameInstance::load_quest_node(quest_id);
       node = node->find(u"Say/" + quest_index);
       node = node->get_child(std::to_string(index + 1));
@@ -623,7 +623,7 @@ void NpcDlgUiSystem::event_button_next() {
       act_item = QuestGameInstance::load_quest_act_item(quest_id);
       act_exp = QuestGameInstance::load_quest_act_exp(quest_id);
     } else {
-      type = NpcDlgEnum::talk;
+      type = NpcDlgEnum::kTalk;
       node = QuestGameInstance::load_quest_node(quest_id);
       node = node->find(u"Say/" + quest_index + u"/stop");
       node = node->get_child(std::to_string(index));
@@ -645,13 +645,13 @@ void NpcDlgUiSystem::event_button_next() {
 }
 
 void NpcDlgUiSystem::event_list() {
-  if (type != NpcDlgEnum::quest) {
+  if (type != NpcDlgEnum::kQuest) {
     return;
   }
   if (index != 0) {
     return;
   }
-  if (type == NpcDlgEnum::quest && !script_id.empty()) {
+  if (type == NpcDlgEnum::kQuest && !script_id.empty()) {
     Script::fns().at(script_id)(nullptr);
     return;
   }
@@ -681,7 +681,7 @@ void NpcDlgUiSystem::event_list() {
     if (node->find(u"Say/" + quest_index + u"/ask")) {
       text = TextGameInstance::load_rstr(
           node->find(u"Say/" + quest_index + u"/0"));
-      type = NpcDlgEnum::select;
+      type = NpcDlgEnum::kSelect;
       select = 0;
       max_select = -1;
       for (size_t i = 0; i + 1 < text.size(); ++i) {
@@ -701,7 +701,7 @@ void NpcDlgUiSystem::event_list() {
       return;
     }
 
-    type = NpcDlgEnum::quest_complete;
+    type = NpcDlgEnum::kQuestComplete;
     node = node->find(u"Say/" + quest_index);
     auto child = node->children;
     child.erase(u"yes");
@@ -725,15 +725,15 @@ void NpcDlgUiSystem::event_list() {
     // 判断是否是进行中的任务
     auto &q = QuestGameInstance::progress_quests.at(quest_id);
     if (!q.item_bool) {
-      type = NpcDlgEnum::quest_stop_item;
+      type = NpcDlgEnum::kQuestStopItem;
       node = QuestGameInstance::load_quest_node(selected);
       node = node->find(u"Say/" + quest_index + u"/stop/npc");
     } else if (!q.mob_bool) {
-      type = NpcDlgEnum::quest_stop_item;
+      type = NpcDlgEnum::kQuestStopItem;
       node = QuestGameInstance::load_quest_node(selected);
       node = node->find(u"Say/" + quest_index + u"/stop/mob");
     } else {
-      type = NpcDlgEnum::quest_stop_npc;
+      type = NpcDlgEnum::kQuestStopNpc;
       node = QuestGameInstance::load_quest_node(selected);
       node = node->find(u"Say/" + quest_index + u"/stop/item");
     }
@@ -741,7 +741,7 @@ void NpcDlgUiSystem::event_list() {
       max_index = node->children_count();
     }
   } else {
-    type = NpcDlgEnum::quest_avaliable;
+    type = NpcDlgEnum::kQuestAvaliable;
     node = QuestGameInstance::load_quest_node(selected);
     if (auto n = node->find(u"Check/0/startscript"); n != nullptr) {
       auto spt = static_cast<wz::Property<std::u16string> *>(n)->get();
@@ -802,7 +802,7 @@ void NpcDlgUiSystem::event_button_quest_yes() {
     close();
     return;
   } else {
-    type = NpcDlgEnum::quest_yes;
+    type = NpcDlgEnum::kQuestYes;
     index = 0;
     max_index = yes_node->children_count() - 1;
     auto node = yes_node->get_child(u"0");
@@ -819,7 +819,7 @@ void NpcDlgUiSystem::event_button_quest_no() {
     close();
     return;
   } else {
-    type = NpcDlgEnum::quest_no;
+    type = NpcDlgEnum::kQuestNo;
     index = 0;
     max_index = no_node->children_count() - 1;
     auto node = no_node->get_child(u"0");
@@ -848,7 +848,7 @@ bool NpcDlgUiSystem::event_button(SDL_Event *event) {
     func.push_back(event_button_prev);
   }
   if (index == max_index && cb == nullptr &&
-      type == NpcDlgEnum::quest_avaliable) {
+      type == NpcDlgEnum::kQuestAvaliable) {
     buttons_rect.push_back(SDL_FRect{w - 128, h - 25, 57, 17});
     func.push_back(event_button_quest_yes);
 
@@ -896,7 +896,7 @@ void NpcDlgUiSystem::event_motion_bt_audio(SDL_Event *event) {
     buttons_rect.push_back(SDL_FRect{w0, h - 76, 46, 18});
   }
   if (index == max_index && cb == nullptr &&
-      type == NpcDlgEnum::quest_avaliable) {
+      type == NpcDlgEnum::kQuestAvaliable) {
     buttons_rect.push_back(SDL_FRect{w - 128, h - 25, 57, 17});
     buttons_rect.push_back(SDL_FRect{w - 66, h - 25, 57, 17});
   } else {
@@ -927,14 +927,14 @@ bool NpcDlgUiSystem::event(SDL_Event *event) {
     auto scan_code = event->key.scancode;
     switch (scan_code) {
     case SDL_SCANCODE_UP: {
-      if (type == NpcDlgEnum::select) {
+      if (type == NpcDlgEnum::kSelect) {
         select--;
         select = std::max((int8_t)0, select);
       }
       break;
     }
     case SDL_SCANCODE_DOWN: {
-      if (type == NpcDlgEnum::select) {
+      if (type == NpcDlgEnum::kSelect) {
         select++;
         select = std::min(select, max_select);
       }
@@ -947,15 +947,15 @@ bool NpcDlgUiSystem::event(SDL_Event *event) {
     }
     case SDL_SCANCODE_RETURN: {
       if (index == max_index && cb == nullptr &&
-          type == NpcDlgEnum::quest_avaliable) {
+          type == NpcDlgEnum::kQuestAvaliable) {
         event_button_quest_yes();
         return false;
       }
-      if (type == NpcDlgEnum::quest_avaliable && index < max_index) {
+      if (type == NpcDlgEnum::kQuestAvaliable && index < max_index) {
         event_button_next();
         return false;
       }
-      if (type == NpcDlgEnum::quest_complete) {
+      if (type == NpcDlgEnum::kQuestComplete) {
         event_button_ok();
         return false;
       }
@@ -983,7 +983,7 @@ bool NpcDlgUiSystem::event(SDL_Event *event) {
         time = UINT64_MAX;
         event_list();
         event_button(event);
-        if (type == NpcDlgEnum::select && select_mouse >= 0) {
+        if (type == NpcDlgEnum::kSelect && select_mouse >= 0) {
           event_button_next();
         }
       }
@@ -1012,7 +1012,7 @@ bool NpcDlgUiSystem::start_next_quest() {
     auto nq = static_cast<wz::Property<int> *>(n)->get();
     auto tmp = std::to_string(nq);
     selected = std::u16string{tmp.begin(), tmp.end()} + u".img";
-    type = NpcDlgEnum::quest;
+    type = NpcDlgEnum::kQuest;
     event_list();
     return true;
   }

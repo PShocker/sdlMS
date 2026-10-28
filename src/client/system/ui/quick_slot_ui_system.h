@@ -17,11 +17,11 @@ private:
 
 public:
   enum class QuickSlot {
-    hide,
-    two,
-    three,
+    kHide,
+    kTwo,
+    kThree,
   };
-  static inline QuickSlot quickSlot = QuickSlot::two;
+  static inline QuickSlot quickSlot = QuickSlot::kTwo;
 
   static void open();
   static void close();

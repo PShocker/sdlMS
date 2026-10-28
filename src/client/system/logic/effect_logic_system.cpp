@@ -47,19 +47,19 @@ bool EffectLogicSystem::run_effect(GameEffect &g_effect) {
   g_effect.time += Window::delta_time;
   wz::Node *node;
   switch ((GameEffect::EffectSubType)g_effect.lv) {
-  case GameEffect::character: {
+  case GameEffect::EffectSubType::kCharacter: {
     node = WzResource::character->find(g_effect.id);
     break;
   }
-  case GameEffect::effect: {
+  case GameEffect::EffectSubType::kEffect: {
     node = WzResource::effect->find(g_effect.id);
     break;
   }
-  case GameEffect::item: {
+  case GameEffect::EffectSubType::kItem: {
     node = WzResource::item->find(g_effect.id);
     break;
   }
-  case GameEffect::skill: {
+  case GameEffect::EffectSubType::kSkill: {
     node = WzResource::skill->find(g_effect.id);
     break;
   }
@@ -102,8 +102,8 @@ bool EffectLogicSystem::run_skill_use(GameEffect &g_effect) {
   auto action_type = CharacterLogicSystem::load_action_type(*g_character);
   float speed = 1;
   switch (action_type) {
-  case CharacterLogicSystem::ActionEnum::attack:
-  case CharacterLogicSystem::ActionEnum::skill: {
+  case CharacterLogicSystem::ActionEnum::kAttack:
+  case CharacterLogicSystem::ActionEnum::kSkill: {
     speed = CharacterLogicSystem::load_attack_speed(*g_character);
     break;
   }
@@ -194,27 +194,27 @@ void EffectLogicSystem::run_animate(std::vector<GameEffect> &v) {
     bool remove = false;
     auto &g_effect = *it;
     switch (g_effect.type) {
-    case GameEffect::EffectType::effect: {
+    case GameEffect::EffectType::kEffect: {
       remove = run_effect(g_effect);
       break;
     }
-    case GameEffect::EffectType::skill_use: {
+    case GameEffect::EffectType::kSkillUse: {
       remove = run_skill_use(g_effect);
       break;
     }
-    case GameEffect::EffectType::skill_affected: {
+    case GameEffect::EffectType::kSkillAffected: {
       remove = run_skill_affected(g_effect);
       break;
     }
-    case GameEffect::EffectType::skill_hit: {
+    case GameEffect::EffectType::kSkillHit: {
       remove = run_skill_hit(g_effect);
       break;
     }
-    case GameEffect::EffectType::damage: {
+    case GameEffect::EffectType::kDamage: {
       remove = run_damage(g_effect);
       break;
     }
-    case GameEffect::EffectType::skill_region: {
+    case GameEffect::EffectType::kSkillRegion: {
       remove = run_skill_region(g_effect);
       break;
     }

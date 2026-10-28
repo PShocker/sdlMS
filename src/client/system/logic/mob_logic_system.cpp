@@ -26,9 +26,9 @@
 MobLogicSystem::ActionEnum
 MobLogicSystem::load_action_type(const std::u16string &action) {
   const static std::flat_map<std::u16string, ActionEnum> MapName = {
-      {u"stand", ActionEnum::stand}, {u"move", ActionEnum::move},
-      {u"hit1", ActionEnum::hit},    {u"die1", ActionEnum::die},
-      {u"jump", ActionEnum::jump},   {u"", ActionEnum::revive},
+      {u"stand", ActionEnum::kStand}, {u"move", ActionEnum::kMove},
+      {u"hit1", ActionEnum::kHit},    {u"die1", ActionEnum::kDie},
+      {u"jump", ActionEnum::kJump},   {u"", ActionEnum::kRevive},
   };
   return MapName.at(action);
 }
@@ -116,7 +116,7 @@ void MobLogicSystem::run_collision() {
   std::flat_map<float, GameMob> Mobs;
   for (auto &m : MobGameInstance::data | std::views::values) {
     auto action_type = load_action_type(m.mob.action);
-    if (action_type == ActionEnum::revive || action_type == ActionEnum::die) {
+    if (action_type == ActionEnum::kRevive || action_type == ActionEnum::kDie) {
       continue;
     }
     if (m.mob.hp <= 0) {
@@ -146,7 +146,7 @@ void MobLogicSystem::run_collision() {
         .num = hit_num,
         .x = self.pos.x,
         .y = self.pos.y - 30,
-        .type = DamageData::v,
+        .type = static_cast<uint8_t>(DamageData::T::kV),
     };
     ServerMobInstance::handle_s_attack(0, at);
     ClientMobAttackT cma;
@@ -289,11 +289,11 @@ void MobLogicSystem::run_debuff(GameMob &g_mob) {
 
 void MobLogicSystem::run_state_machine(GameMob &g_mob) {
   auto action_type = load_action_type(g_mob.action);
-  if (action_type == ActionEnum::revive) {
+  if (action_type == ActionEnum::kRevive) {
     return;
   }
   if (run_animate(g_mob)) {
-    if (action_type == ActionEnum::die) {
+    if (action_type == ActionEnum::kDie) {
       g_mob.action = u"";
       return;
     }

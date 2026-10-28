@@ -174,36 +174,36 @@ void ServerMobSystem::run_duration(ServerMob &mob) {
   }
 
   auto action_type = MobLogicSystem::load_action_type(mob.action);
-  if (action_type == MobLogicSystem::ActionEnum::jump ||
-      action_type == MobLogicSystem::ActionEnum::hit ||
-      action_type == MobLogicSystem::ActionEnum::die) {
+  if (action_type == MobLogicSystem::ActionEnum::kJump ||
+      action_type == MobLogicSystem::ActionEnum::kHit ||
+      action_type == MobLogicSystem::ActionEnum::kDie) {
     return;
   }
 
   static const std::flat_map<MobLogicSystem::ActionEnum, std::u16string>
       actions = {
-          {MobLogicSystem::ActionEnum::stand, u"stand"},
-          {MobLogicSystem::ActionEnum::move, u"move"},
-          {MobLogicSystem::ActionEnum::fly, u"fly"},
+          {MobLogicSystem::ActionEnum::kStand, u"stand"},
+          {MobLogicSystem::ActionEnum::kMove, u"move"},
+          {MobLogicSystem::ActionEnum::kFly, u"fly"},
       };
 
   std::flat_set<MobLogicSystem::ActionEnum> actions2;
   switch (mob.type) {
-  case ServerMob::MobType::stand: {
+  case ServerMob::MobType::kStand: {
     if (mob.hate_id != 0) {
       actions2 = {
-          MobLogicSystem::ActionEnum::move,
+          MobLogicSystem::ActionEnum::kMove,
       };
     } else {
       actions2 = {
-          MobLogicSystem::ActionEnum::stand,
-          MobLogicSystem::ActionEnum::move,
+          MobLogicSystem::ActionEnum::kStand,
+          MobLogicSystem::ActionEnum::kMove,
       };
     }
     break;
   }
-  case ServerMob::MobType::swim:
-  case ServerMob::MobType::fly: {
+  case ServerMob::MobType::kSwim:
+  case ServerMob::MobType::kFly: {
     break;
   }
   }
@@ -220,15 +220,15 @@ void ServerMobSystem::run_duration(ServerMob &mob) {
   mob.action = actions.at(selected);
 
   switch (selected) {
-  case MobLogicSystem::ActionEnum::stand: {
+  case MobLogicSystem::ActionEnum::kStand: {
     mob.duration = Window::dt_now + 500;
     mob.hspeed = 0;
     break;
   }
-  case MobLogicSystem::ActionEnum::jump: {
+  case MobLogicSystem::ActionEnum::kJump: {
     break;
   }
-  case MobLogicSystem::ActionEnum::move: {
+  case MobLogicSystem::ActionEnum::kMove: {
     bool left = false;
     const auto &clients = ServerClientInstance::clients;
     if (mob.hate_id != 0 && clients.contains(mob.hate_id)) {
@@ -253,17 +253,17 @@ void ServerMobSystem::run_duration(ServerMob &mob) {
 
 void ServerMobSystem::run_default_action(ServerMob &mob) {
   switch (mob.type) {
-  case ServerMob::MobType::stand: {
+  case ServerMob::MobType::kStand: {
     if (mob.fh != 0) {
       run_stand_action(mob);
     }
     break;
   }
-  case ServerMob::MobType::swim: {
+  case ServerMob::MobType::kSwim: {
     run_swim_action(mob);
     break;
   }
-  case ServerMob::MobType::fly: {
+  case ServerMob::MobType::kFly: {
     run_fly_action(mob);
     break;
   }
@@ -413,7 +413,7 @@ bool ServerMobSystem::run_fall(ServerMob &mob) {
 }
 
 bool ServerMobSystem::run_debuff_action(ServerMob &mob) {
-  if (mob.debuffs.contains(GameDebuff::dizz)) {
+  if (mob.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
     run_default_action(mob);
     return true;
   }
@@ -424,19 +424,19 @@ void ServerMobSystem::run_state_machine(ServerMob &mob) {
   auto o_mob = mob; // 拷贝用于对比
   auto m_action = MobLogicSystem::load_action_type(mob.action);
   switch (m_action) {
-  case MobLogicSystem::ActionEnum::revive: {
+  case MobLogicSystem::ActionEnum::kRevive: {
     break;
   }
-  case MobLogicSystem::ActionEnum::die: {
+  case MobLogicSystem::ActionEnum::kDie: {
     break;
   }
-  case MobLogicSystem::ActionEnum::stand: {
+  case MobLogicSystem::ActionEnum::kStand: {
     if (!run_hitting(mob)) {
       run_duration(mob);
     }
     break;
   }
-  case MobLogicSystem::ActionEnum::move: {
+  case MobLogicSystem::ActionEnum::kMove: {
     if (run_debuff_action(mob)) {
       break;
     }
@@ -448,9 +448,9 @@ void ServerMobSystem::run_state_machine(ServerMob &mob) {
     }
     break;
   }
-  case MobLogicSystem::ActionEnum::hit: {
+  case MobLogicSystem::ActionEnum::kHit: {
     switch (mob.type) {
-    case ServerMob::MobType::stand: {
+    case ServerMob::MobType::kStand: {
       if (mob.fh == 0) {
         if (!run_fall(mob)) {
           run_stand_action(mob);
@@ -460,8 +460,8 @@ void ServerMobSystem::run_state_machine(ServerMob &mob) {
       }
       break;
     }
-    case ServerMob::MobType::swim:
-    case ServerMob::MobType::fly: {
+    case ServerMob::MobType::kSwim:
+    case ServerMob::MobType::kFly: {
       break;
     }
     }
@@ -469,7 +469,7 @@ void ServerMobSystem::run_state_machine(ServerMob &mob) {
     run_hitting(mob);
     break;
   }
-  case MobLogicSystem::ActionEnum::jump: {
+  case MobLogicSystem::ActionEnum::kJump: {
     bool hit = run_hitting(mob);
     if (!run_fall(mob)) {
       if (!hit) {
@@ -478,8 +478,8 @@ void ServerMobSystem::run_state_machine(ServerMob &mob) {
     }
     break;
   }
-  case MobLogicSystem::ActionEnum::swim:
-  case MobLogicSystem::ActionEnum::fly: {
+  case MobLogicSystem::ActionEnum::kSwim:
+  case MobLogicSystem::ActionEnum::kFly: {
     break;
   }
   }

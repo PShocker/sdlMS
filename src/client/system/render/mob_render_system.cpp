@@ -15,7 +15,7 @@
 
 bool MobRenderSystem::render_mob(GameMob &g_mob) {
   auto action_type = MobLogicSystem::load_action_type(g_mob.action);
-  if (action_type == MobLogicSystem::ActionEnum::revive) {
+  if (action_type == MobLogicSystem::ActionEnum::kRevive) {
     return false;
   }
   auto mob_node = MobGameInstance::load_link_mob_node(g_mob.id);

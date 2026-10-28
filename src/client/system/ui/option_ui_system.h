@@ -56,38 +56,38 @@ public:
   static inline uint8_t hp_warn;
   static inline uint8_t mp_warn;
   enum class EnemyInfoEnum {
-    name_hp,
-    name,
-    hp,
+    kNameHp,
+    kName,
+    kHp,
   };
   static inline ComboBox enemy_info_cm = {
       .open = false,
       .w = 226,
       .selected = u"Name and HP",
       .selects = {u"Name and HP", u"Name", u"HP"},
-      .val = (uint8_t)OptionUiSystem::EnemyInfoEnum::name_hp,
+      .val = (uint8_t)OptionUiSystem::EnemyInfoEnum::kNameHp,
   };
 
   enum class ScreenshotFormatEnum {
-    jpeg,
-    png,
+    kJpeg,
+    kPng,
   };
   static inline ComboBox screenshot_format = {
       .open = false,
       .w = 226,
       .selected = u"JPEG",
       .selects = {u"JPEG", u"PNG"},
-      .val = (uint8_t)OptionUiSystem::ScreenshotFormatEnum::jpeg,
+      .val = (uint8_t)OptionUiSystem::ScreenshotFormatEnum::kJpeg,
   };
   enum class ScreenshotLocationEnum {
-    folder,
+    kFolder,
   };
   static inline ComboBox screenshot_location = {
       .open = false,
       .w = 226,
       .selected = u"MapleStory Folder",
       .selects = {u"MapleStory Folder"},
-      .val = (uint8_t)OptionUiSystem::ScreenshotLocationEnum::folder,
+      .val = (uint8_t)OptionUiSystem::ScreenshotLocationEnum::kFolder,
   };
 
   static inline bool continue_capture;
@@ -100,14 +100,14 @@ public:
   static inline int32_t memory_limit;
 
   enum class LanguageEnum {
-    english,
+    kEnglish,
   };
   static inline ComboBox language = {
       .open = false,
       .w = 226,
       .selected = u"English",
       .selects = {u"English"},
-      .val = (uint8_t)OptionUiSystem::LanguageEnum::english,
+      .val = (uint8_t)OptionUiSystem::LanguageEnum::kEnglish,
   };
 
   static inline uint8_t active_tab;

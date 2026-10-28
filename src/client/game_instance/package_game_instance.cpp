@@ -20,30 +20,30 @@ void PackageGameInstance::load(const CharacterSaveData &cs) {
   // gci.id = u"02060000";
   gci.num = 3;
 
-  data[(int)ItemEnum::equip].assign(
+  data[(int)ItemEnum::kEquip].assign(
       96, std::polymorphic<GameItem>(GameEquipItem{}));
-  data[(int)ItemEnum::consume].assign(96, std::polymorphic<GameItem>(gci));
-  data[(int)ItemEnum::install].assign(
+  data[(int)ItemEnum::kConsume].assign(96, std::polymorphic<GameItem>(gci));
+  data[(int)ItemEnum::kInstall].assign(
       96, std::polymorphic<GameItem>(GameInstallItem{}));
-  data[(int)ItemEnum::etc].assign(
+  data[(int)ItemEnum::kEtc].assign(
       96, std::polymorphic<GameItem>(GameEtcItem{}));
-  data[(int)ItemEnum::cash].assign(
+  data[(int)ItemEnum::kCash].assign(
       96, std::polymorphic<GameItem>(GameCashItem{}));
-  data[(int)ItemEnum::deco].assign(
+  data[(int)ItemEnum::kDeco].assign(
       96, std::polymorphic<GameItem>(GameDecoItem{}));
 
   gci.id = u"02000000";
   gci.num = 1000;
-  data[(int)ItemEnum::consume][0] = std::polymorphic<GameItem>(gci);
+  data[(int)ItemEnum::kConsume][0] = std::polymorphic<GameItem>(gci);
 
   GameEtcItem gei;
   gei.id = u"04031002";
   gei.num = 1;
-  data[(int)ItemEnum::etc][0] = std::polymorphic<GameItem>(gei);
+  data[(int)ItemEnum::kEtc][0] = std::polymorphic<GameItem>(gei);
 
   GameInstallItem gii;
   gei.id = u"03010000";
-  data[(int)ItemEnum::install][0] = std::polymorphic<GameItem>(gei);
+  data[(int)ItemEnum::kInstall][0] = std::polymorphic<GameItem>(gei);
 
   meso = 1000000000;
   data[0][0]->id = u"01472012";
@@ -80,7 +80,7 @@ PackageGameInstance::load_empty_index(std::polymorphic<GameItem> &item) {
   }
 
   // 非消耗品/其他类型：直接按 type 索引
-  if (item->type != ItemEnum::consume && item->type != ItemEnum::etc) {
+  if (item->type != ItemEnum::kConsume && item->type != ItemEnum::kEtc) {
     return load_empty_index(static_cast<int>(item->type));
   }
 
@@ -119,13 +119,13 @@ PackageGameInstance::load_item(const std::u16string &id) {
   auto type = ItemGameInstance::load_item_type(id);
   std::vector<std::polymorphic<GameItem>> *r;
   if (type == u"Cash" || type == u"Pet") {
-    r = &PackageGameInstance::data[(int)ItemEnum::cash];
+    r = &PackageGameInstance::data[(int)ItemEnum::kCash];
   } else if (type == u"Consume") {
-    r = &PackageGameInstance::data[(int)ItemEnum::consume];
+    r = &PackageGameInstance::data[(int)ItemEnum::kConsume];
   } else if (type == u"Ins") {
-    r = &PackageGameInstance::data[(int)ItemEnum::install];
+    r = &PackageGameInstance::data[(int)ItemEnum::kInstall];
   } else if (type == u"Etc") {
-    r = &PackageGameInstance::data[(int)ItemEnum::etc];
+    r = &PackageGameInstance::data[(int)ItemEnum::kEtc];
   }
   for (auto &itm : *r) {
     if (itm->id == id) {
@@ -140,15 +140,15 @@ std::polymorphic<GameItem> *PackageGameInstance::load_active_ball() {
   std::u16string pre;
   auto WeaponType = EquipGameInstance::load_weapon_type(sf);
   switch (WeaponType) {
-  case EquipGameInstance::WeaponType::BOW: {
+  case EquipGameInstance::WeaponType::kBow: {
     pre = u"02060";
     break;
   }
-  case EquipGameInstance::WeaponType::CROSSBOW: {
+  case EquipGameInstance::WeaponType::kCrossbow: {
     pre = u"02061";
     break;
   }
-  case EquipGameInstance::WeaponType::CLAW: {
+  case EquipGameInstance::WeaponType::kClaw: {
     pre = u"0207";
     break;
   }
@@ -157,7 +157,7 @@ std::polymorphic<GameItem> *PackageGameInstance::load_active_ball() {
     break;
   }
   }
-  auto &r = PackageGameInstance::data[(int)ItemEnum::consume];
+  auto &r = PackageGameInstance::data[(int)ItemEnum::kConsume];
   for (auto &itm : r) {
     if (itm->id.starts_with(pre)) {
       auto num = ItemGameInstance::load_item_num(itm);
@@ -174,13 +174,13 @@ std::u16string PackageGameInstance::load_active_cash_ball() {
   std::u16string pre;
   auto WeaponType = EquipGameInstance::load_weapon_type(sf);
   switch (WeaponType) {
-  case EquipGameInstance::WeaponType::BOW: {
+  case EquipGameInstance::WeaponType::kBow: {
     break;
   }
-  case EquipGameInstance::WeaponType::CROSSBOW: {
+  case EquipGameInstance::WeaponType::kCrossbow: {
     break;
   }
-  case EquipGameInstance::WeaponType::CLAW: {
+  case EquipGameInstance::WeaponType::kClaw: {
     pre = u"0502";
     break;
   }
@@ -189,7 +189,7 @@ std::u16string PackageGameInstance::load_active_cash_ball() {
     break;
   }
   }
-  auto &r = PackageGameInstance::data[(int)ItemEnum::cash];
+  auto &r = PackageGameInstance::data[(int)ItemEnum::kCash];
   for (auto &itm : r) {
     if (itm->id.starts_with(pre)) {
       return itm->id;
@@ -246,8 +246,8 @@ PackageGameInstance::add_item(std::polymorphic<GameItem> &item) {
   auto &slots = PackageGameInstance::data[static_cast<int>(type)];
 
   switch (type) {
-  case ItemEnum::consume:
-  case ItemEnum::etc: {
+  case ItemEnum::kConsume:
+  case ItemEnum::kEtc: {
     // 逐个尝试放入空槽，直到成功一个即可
     for (const int idx : empty_slots) {
       if (add_item_slot(item, idx)) {

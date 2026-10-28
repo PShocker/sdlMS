@@ -4,8 +4,8 @@
 #include <flat_map>
 #include <vector>
 enum class ShaderEnum {
-  grayscale,
-  outline,
+  kGrayscale,
+  kOutline,
 };
 
 class ShaderGameInstance {

@@ -51,32 +51,32 @@
 #include <vector>
 
 static const std::flat_set<EquipGameInstance::WeaponType> shoot_weapons = {
-    EquipGameInstance::WeaponType::BOW,
-    EquipGameInstance::WeaponType::CROSSBOW,
-    EquipGameInstance::WeaponType::CLAW,
-    EquipGameInstance::WeaponType::GUN,
+    EquipGameInstance::WeaponType::kBow,
+    EquipGameInstance::WeaponType::kCrossbow,
+    EquipGameInstance::WeaponType::kClaw,
+    EquipGameInstance::WeaponType::kGun,
 };
 static const std::flat_map<EquipGameInstance::WeaponType,
                            std::flat_set<std::u16string>>
     weapon_attack_action = {
-        {EquipGameInstance::WeaponType::S1A1M1D,
+        {EquipGameInstance::WeaponType::kS1A1M1D,
          {u"stabO1", u"stabO2", u"swingO1", u"swingO2", u"swingO3"}},
-        {EquipGameInstance::WeaponType::SPEAR, {u"stabT1", u"swingP1"}},
-        {EquipGameInstance::WeaponType::BOW, {u"shoot1"}},
-        {EquipGameInstance::WeaponType::CROSSBOW, {u"shoot1"}},
-        {EquipGameInstance::WeaponType::S2A2M2,
+        {EquipGameInstance::WeaponType::kSpear, {u"stabT1", u"swingP1"}},
+        {EquipGameInstance::WeaponType::kBow, {u"shoot1"}},
+        {EquipGameInstance::WeaponType::kCrossbow, {u"shoot1"}},
+        {EquipGameInstance::WeaponType::kS2A2M2,
          {u"stabO1", u"stabO2", u"swingT1", u"swingT2", u"swingT3"}},
-        {EquipGameInstance::WeaponType::WAND, {u"swingO1", u"swingO2"}},
-        {EquipGameInstance::WeaponType::CLAW, {u"swingO1", u"swingO2"}},
-        {EquipGameInstance::WeaponType::GUN, {u"shot"}},
+        {EquipGameInstance::WeaponType::kWand, {u"swingO1", u"swingO2"}},
+        {EquipGameInstance::WeaponType::kClaw, {u"swingO1", u"swingO2"}},
+        {EquipGameInstance::WeaponType::kGun, {u"shot"}},
 };
 static const std::flat_map<EquipGameInstance::WeaponType,
                            std::flat_set<std::u16string>>
     weapon_attack_action2 = {
-        {EquipGameInstance::WeaponType::BOW, {u"swingT1", u"swingT3"}},
-        {EquipGameInstance::WeaponType::CROSSBOW, {u"swingT1", u"stabT1"}},
-        {EquipGameInstance::WeaponType::CLAW, {u"stabO1", u"stabO2"}},
-        {EquipGameInstance::WeaponType::GUN, {u"swingP1", u"stabT2"}},
+        {EquipGameInstance::WeaponType::kBow, {u"swingT1", u"swingT3"}},
+        {EquipGameInstance::WeaponType::kCrossbow, {u"swingT1", u"stabT1"}},
+        {EquipGameInstance::WeaponType::kClaw, {u"stabO1", u"stabO2"}},
+        {EquipGameInstance::WeaponType::kGun, {u"swingP1", u"stabT2"}},
 };
 
 SDL_FRect CharacterLogicSystem::load_rect(GameCharacter &g_character) {
@@ -158,8 +158,8 @@ CheckMobs CharacterLogicSystem::run_attack_check(GameCharacter &g_character,
       continue;
     }
     auto mob_action = MobLogicSystem::load_action_type(mob.action);
-    if (mob_action == MobLogicSystem::ActionEnum::revive ||
-        mob_action == MobLogicSystem::ActionEnum::die) {
+    if (mob_action == MobLogicSystem::ActionEnum::kRevive ||
+        mob_action == MobLogicSystem::ActionEnum::kDie) {
       continue;
     }
     auto m_r = MobLogicSystem::load_rect(mob).value();
@@ -196,8 +196,8 @@ CheckMobs CharacterLogicSystem::run_attack_check(SDL_FPoint pos,
   for (const auto &[k, v] : MobGameInstance::data) {
     auto &mob = v.mob;
     auto mob_action = MobLogicSystem::load_action_type(mob.action);
-    if (mob_action == MobLogicSystem::ActionEnum::revive ||
-        mob_action == MobLogicSystem::ActionEnum::die) {
+    if (mob_action == MobLogicSystem::ActionEnum::kRevive ||
+        mob_action == MobLogicSystem::ActionEnum::kDie) {
       continue;
     }
     if (mob.hp <= 0) {
@@ -309,8 +309,8 @@ bool CharacterLogicSystem::run_animate(GameCharacter &g_character) {
   auto action_type = load_action_type(g_character);
   float speed = 1;
   switch (action_type) {
-  case ActionEnum::attack:
-  case ActionEnum::skill: {
+  case ActionEnum::kAttack:
+  case ActionEnum::kSkill: {
     speed = load_attack_speed(g_character);
     break;
   }
@@ -354,7 +354,7 @@ bool CharacterLogicSystem::run_animate(GameCharacter &g_character) {
 }
 
 bool CharacterLogicSystem::run_flip(GameCharacter &g_character) {
-  if (g_character.debuffs.contains(GameDebuff::dizz)) {
+  if (g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
     return false;
   }
   if (self_flip_cooldown > Window::dt_now) {
@@ -377,12 +377,12 @@ void CharacterLogicSystem::run_pick(GameCharacter &g_character) {
   if (ccp.random_id != 0) {
     return;
   }
-  if (g_character.debuffs.contains(GameDebuff::dizz)) {
+  if (g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
     return;
   }
   if (character_action_input.contains("pick")) {
     for (auto &v : DropGameInstance::data | std::views::values) {
-      if (v.type == GameDrop::DropEnum::land) {
+      if (v.type == GameDrop::DropEnum::kLand) {
         if (PackageGameInstance::load_empty_index(v.data).empty()) {
           continue;
         }
@@ -402,7 +402,7 @@ void CharacterLogicSystem::run_pick(GameCharacter &g_character) {
 
 bool CharacterLogicSystem::run_harvest(GameCharacter &g_character) {
   bool r = false;
-  if (g_character.debuffs.contains(GameDebuff::dizz)) {
+  if (g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
     return r;
   }
   if (character_action_input.contains("harvest")) {
@@ -427,7 +427,7 @@ bool CharacterLogicSystem::run_harvest(GameCharacter &g_character) {
 
 bool CharacterLogicSystem::run_walk(GameCharacter &g_character) {
   bool r = true;
-  if (g_character.debuffs.contains(GameDebuff::dizz)) {
+  if (g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
     return r;
   }
   if (character_action_input.contains("left")) {
@@ -464,7 +464,7 @@ bool CharacterLogicSystem::run_fall(GameCharacter &g_character) {
   if (self_fh != 0) {
     return false;
   }
-  if (!g_character.debuffs.contains(GameDebuff::dizz)) {
+  if (!g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
     if (character_action_input.contains("left")) {
       self_hspeed -= 0.1 * Window::delta_time;
     } else if (character_action_input.contains("right")) {
@@ -494,7 +494,7 @@ bool CharacterLogicSystem::run_fall(GameCharacter &g_character) {
 }
 
 bool CharacterLogicSystem::run_prone(GameCharacter &g_character) {
-  if (g_character.debuffs.contains(GameDebuff::dizz)) {
+  if (g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
     return false;
   }
   if (self_fh == 0 || self_lr != 0) {
@@ -510,19 +510,19 @@ bool CharacterLogicSystem::run_prone(GameCharacter &g_character) {
 }
 
 bool CharacterLogicSystem::run_jump(GameCharacter &g_character) {
-  if (g_character.debuffs.contains(GameDebuff::dizz)) {
+  if (g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
     return false;
   }
   if (character_action_input.contains("jump")) {
     auto g_action = load_action_type(g_character);
     switch (g_action) {
-    case ActionEnum::stand:
-    case ActionEnum::alert:
-    case ActionEnum::walk: {
+    case ActionEnum::kStand:
+    case ActionEnum::kAlert:
+    case ActionEnum::kWalk: {
       self_vspeed = self_vspeed_min * 0.1;
       break;
     }
-    case ActionEnum::prone: {
+    case ActionEnum::kProne: {
       // 下跳
       const auto &c_fh = FootholdGameInstance::data.at(self_fh);
       if (!c_fh.forbidFallDown) {
@@ -552,7 +552,7 @@ bool CharacterLogicSystem::run_jump(GameCharacter &g_character) {
       return false;
       break;
     }
-    case ActionEnum::jump: {
+    case ActionEnum::kJump: {
       // two jump
       if (self_two_jump_cooldown <= Window::dt_now) {
         auto ski_id = JobSkillGameInstance::load_two_jump();
@@ -563,7 +563,7 @@ bool CharacterLogicSystem::run_jump(GameCharacter &g_character) {
       return true;
       break;
     }
-    case ActionEnum::climb: {
+    case ActionEnum::kClimb: {
       if (character_action_input.contains("up") ||
           character_action_input.contains("down")) {
         return false;
@@ -596,7 +596,7 @@ bool CharacterLogicSystem::run_jump(GameCharacter &g_character) {
 }
 
 bool CharacterLogicSystem::run_climb(GameCharacter &g_character) {
-  if (g_character.debuffs.contains(GameDebuff::dizz)) {
+  if (g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
     return false;
   }
   if (self_ladderrope_cooldown > Window::dt_now) {
@@ -642,7 +642,7 @@ bool CharacterLogicSystem::run_climb(GameCharacter &g_character) {
 }
 
 bool CharacterLogicSystem::run_climbing(GameCharacter &g_character) {
-  if (g_character.debuffs.contains(GameDebuff::dizz)) {
+  if (g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
     run_action(g_character, u"jump");
     return false;
   }
@@ -723,7 +723,7 @@ bool CharacterLogicSystem::run_sitting(GameCharacter &g_character) {
 
 bool CharacterLogicSystem::run_skill(GameCharacter &g_character,
                                        const std::u16string &id) {
-  if (g_character.debuffs.contains(GameDebuff::dizz)) {
+  if (g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
     return false;
   }
   if (!g_character.morph.empty()) {
@@ -740,13 +740,13 @@ bool CharacterLogicSystem::run_skill(GameCharacter &g_character,
     if (ski.cd < Window::dt_now) {
       auto action_type = load_action_type(g_character);
       switch (action_type) {
-      case ActionEnum::jump: {
+      case ActionEnum::kJump: {
         if (ski.fall) {
           use = true;
         }
         break;
       }
-      case ActionEnum::climb: {
+      case ActionEnum::kClimb: {
         if (ski.climb) {
           use = true;
         }
@@ -789,10 +789,10 @@ bool CharacterLogicSystem::run_attack_action(GameCharacter &g_character,
   auto g_weapon_info = EquipGameInstance::load_equip_info(g_weapon);
   auto WeaponType = EquipGameInstance::load_weapon_type(g_character);
   switch (g_action) {
-  case ActionEnum::stand:
-  case ActionEnum::alert:
-  case ActionEnum::walk:
-  case ActionEnum::jump: {
+  case ActionEnum::kStand:
+  case ActionEnum::kAlert:
+  case ActionEnum::kWalk:
+  case ActionEnum::kJump: {
     auto &gen = RandomGameInstance::gen;
     auto actions = &weapon_attack_action.at(WeaponType);
     if (!shoot) {
@@ -805,7 +805,7 @@ bool CharacterLogicSystem::run_attack_action(GameCharacter &g_character,
     run_action(g_character, selected);
     break;
   }
-  case ActionEnum::prone: {
+  case ActionEnum::kProne: {
     run_action(g_character, u"proneStab");
     break;
   }
@@ -817,7 +817,7 @@ bool CharacterLogicSystem::run_attack_action(GameCharacter &g_character,
 }
 
 bool CharacterLogicSystem::run_attack(GameCharacter &g_character) {
-  if (g_character.debuffs.contains(GameDebuff::dizz)) {
+  if (g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
     return false;
   }
   if (!g_character.morph.empty()) {
@@ -830,7 +830,7 @@ bool CharacterLogicSystem::run_attack(GameCharacter &g_character) {
     return false;
   }
   auto g_action = load_action_type(g_character);
-  if (g_action == ActionEnum::attack || g_action == ActionEnum::skill) {
+  if (g_action == ActionEnum::kAttack || g_action == ActionEnum::kSkill) {
     return false;
   }
   if (!character_action_input.contains("attack")) {
@@ -855,15 +855,15 @@ bool CharacterLogicSystem::run_attack(GameCharacter &g_character) {
   auto rt = run_reactor_check(g_character, g_r);
   auto ball = PackageGameInstance::load_active_ball();
   switch (g_action) {
-  case ActionEnum::stand:
-  case ActionEnum::alert:
-  case ActionEnum::walk: {
+  case ActionEnum::kStand:
+  case ActionEnum::kAlert:
+  case ActionEnum::kWalk: {
     self_hspeed = 0;
   }
-  case ActionEnum::jump: {
-    if (g_action == ActionEnum::jump &&
-        (WeaponType == EquipGameInstance::WeaponType::BOW ||
-         WeaponType == EquipGameInstance::WeaponType::CROSSBOW)) {
+  case ActionEnum::kJump: {
+    if (g_action == ActionEnum::kJump &&
+        (WeaponType == EquipGameInstance::WeaponType::kBow ||
+         WeaponType == EquipGameInstance::WeaponType::kCrossbow)) {
       shoot_weapon = false;
     }
     if (!rt.data.empty()) {
@@ -883,7 +883,7 @@ bool CharacterLogicSystem::run_attack(GameCharacter &g_character) {
     run_action(g_character, selected);
     break;
   }
-  case ActionEnum::prone: {
+  case ActionEnum::kProne: {
     shoot_weapon = false;
     run_action(g_character, u"proneStab");
     break;
@@ -986,7 +986,7 @@ bool CharacterLogicSystem::run_portal(GameCharacter &g_character) {
     self_portal_cooldown = Window::dt_now + 1200;
     return true;
   }
-  if (g_character.debuffs.contains(GameDebuff::dizz)) {
+  if (g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
     return false;
   }
   if (self_portal_cooldown <= Window::dt_now) {
@@ -1074,12 +1074,12 @@ CharacterLogicSystem::load_pos_type(GameCharacter &g_character) {
       MapInfoGameInstance::load_swim_rect(SceneSystemInstance::map_id);
   if (swim_r.has_value()) {
     if (SDL_PointInRectFloat(&g_character.pos, &swim_r.value())) {
-      return PosType::swim;
+      return PosType::kSwim;
     }
   } else {
-    return PosType::land;
+    return PosType::kLand;
   }
-  return PosType::land;
+  return PosType::kLand;
 }
 
 void CharacterLogicSystem::run_network_sync_state() {
@@ -1234,39 +1234,39 @@ void CharacterLogicSystem::run_network_die_sync(GameCharacter &g_character) {
 CharacterLogicSystem::ActionEnum
 CharacterLogicSystem::load_action_type(GameCharacter &g_character) {
   const static std::flat_map<std::u16string, ActionEnum> MapName = {
-      {u"stand1", ActionEnum::stand},    {u"stand2", ActionEnum::stand},
-      {u"alert", ActionEnum::alert},     {u"walk1", ActionEnum::walk},
-      {u"walk2", ActionEnum::walk},      {u"prone", ActionEnum::prone},
-      {u"jump", ActionEnum::jump},       {u"ladder", ActionEnum::climb},
-      {u"rope", ActionEnum::climb},      {u"proneStab", ActionEnum::attack},
-      {u"stabO1", ActionEnum::attack},   {u"stabO2", ActionEnum::attack},
-      {u"swingO1", ActionEnum::attack},  {u"swingO2", ActionEnum::attack},
-      {u"swingO3", ActionEnum::attack},  {u"stabT1", ActionEnum::attack},
-      {u"swingP1", ActionEnum::attack},  {u"shoot1", ActionEnum::attack},
-      {u"swingT1", ActionEnum::attack},  {u"swingT2", ActionEnum::attack},
-      {u"swingT3", ActionEnum::attack},  {u"shot", ActionEnum::attack},
-      {u"stabT2", ActionEnum::attack},   {u"dead", ActionEnum::dead},
-      {u"alert2", ActionEnum::skill},    {u"alert3", ActionEnum::skill},
-      {u"alert4", ActionEnum::skill},    {u"alert5", ActionEnum::skill},
-      {u"assaulter", ActionEnum::skill}, {u"avenger", ActionEnum::skill},
-      {u"burster1", ActionEnum::skill},  {u"burster2", ActionEnum::skill},
-      {u"craft", ActionEnum::skill},     {u"crawl", ActionEnum::skill},
-      {u"ladder2", ActionEnum::skill},   {u"magic1", ActionEnum::skill},
-      {u"magic2", ActionEnum::skill},    {u"magic3", ActionEnum::skill},
-      {u"prone2", ActionEnum::skill},    {u"rope2", ActionEnum::skill},
-      {u"savage", ActionEnum::skill},    {u"shoot6", ActionEnum::skill},
-      {u"shootDb1", ActionEnum::skill},  {u"shotC1", ActionEnum::skill},
-      {u"sit", ActionEnum::sit},
+      {u"stand1", ActionEnum::kStand},    {u"stand2", ActionEnum::kStand},
+      {u"alert", ActionEnum::kAlert},     {u"walk1", ActionEnum::kWalk},
+      {u"walk2", ActionEnum::kWalk},      {u"prone", ActionEnum::kProne},
+      {u"jump", ActionEnum::kJump},       {u"ladder", ActionEnum::kClimb},
+      {u"rope", ActionEnum::kClimb},      {u"proneStab", ActionEnum::kAttack},
+      {u"stabO1", ActionEnum::kAttack},   {u"stabO2", ActionEnum::kAttack},
+      {u"swingO1", ActionEnum::kAttack},  {u"swingO2", ActionEnum::kAttack},
+      {u"swingO3", ActionEnum::kAttack},  {u"stabT1", ActionEnum::kAttack},
+      {u"swingP1", ActionEnum::kAttack},  {u"shoot1", ActionEnum::kAttack},
+      {u"swingT1", ActionEnum::kAttack},  {u"swingT2", ActionEnum::kAttack},
+      {u"swingT3", ActionEnum::kAttack},  {u"shot", ActionEnum::kAttack},
+      {u"stabT2", ActionEnum::kAttack},   {u"dead", ActionEnum::kDead},
+      {u"alert2", ActionEnum::kSkill},    {u"alert3", ActionEnum::kSkill},
+      {u"alert4", ActionEnum::kSkill},    {u"alert5", ActionEnum::kSkill},
+      {u"assaulter", ActionEnum::kSkill}, {u"avenger", ActionEnum::kSkill},
+      {u"burster1", ActionEnum::kSkill},  {u"burster2", ActionEnum::kSkill},
+      {u"craft", ActionEnum::kSkill},     {u"crawl", ActionEnum::kSkill},
+      {u"ladder2", ActionEnum::kSkill},   {u"magic1", ActionEnum::kSkill},
+      {u"magic2", ActionEnum::kSkill},    {u"magic3", ActionEnum::kSkill},
+      {u"prone2", ActionEnum::kSkill},    {u"rope2", ActionEnum::kSkill},
+      {u"savage", ActionEnum::kSkill},    {u"shoot6", ActionEnum::kSkill},
+      {u"shootDb1", ActionEnum::kSkill},  {u"shotC1", ActionEnum::kSkill},
+      {u"sit", ActionEnum::kSit},
   };
   auto action = MapName.at(g_character.action);
-  if (action == ActionEnum::dead) {
+  if (action == ActionEnum::kDead) {
     return action;
   }
   if (g_character.skill.has_value()) {
-    if (action != ActionEnum::skill) {
+    if (action != ActionEnum::kSkill) {
       return action;
     }
-    return ActionEnum::skill;
+    return ActionEnum::kSkill;
   }
   return action;
 };
@@ -1325,9 +1325,9 @@ void CharacterLogicSystem::run_state_machine() {
   run_face(g_character);
   run_face_animate(g_character);
   switch (g_action) {
-  case ActionEnum::stand:
-  case ActionEnum::alert:
-  case ActionEnum::walk: {
+  case ActionEnum::kStand:
+  case ActionEnum::kAlert:
+  case ActionEnum::kWalk: {
     run_animate(g_character);
     run_flip(g_character);
     run_pick(g_character);
@@ -1356,7 +1356,7 @@ void CharacterLogicSystem::run_state_machine() {
     run_jump(g_character);
     break;
   }
-  case ActionEnum::prone: {
+  case ActionEnum::kProne: {
     run_flip(g_character);
     run_pick(g_character);
     if (!run_prone(g_character)) {
@@ -1379,7 +1379,7 @@ void CharacterLogicSystem::run_state_machine() {
     }
     break;
   }
-  case ActionEnum::jump: {
+  case ActionEnum::kJump: {
     run_flip(g_character);
     if (!run_fall(g_character)) {
       // 刚落地后，瞬间动作不一定是stand，需要再进行一次状态机
@@ -1404,7 +1404,7 @@ void CharacterLogicSystem::run_state_machine() {
     }
     break;
   }
-  case ActionEnum::climb: {
+  case ActionEnum::kClimb: {
     run_animate(g_character);
     run_flip(g_character);
     if (run_jump(g_character)) {
@@ -1421,14 +1421,14 @@ void CharacterLogicSystem::run_state_machine() {
     }
     break;
   }
-  case ActionEnum::sit: {
+  case ActionEnum::kSit: {
     if (!run_sitting(g_character)) {
       run_state_machine();
     }
     break;
   }
-  case ActionEnum::skill:
-  case ActionEnum::attack: {
+  case ActionEnum::kSkill:
+  case ActionEnum::kAttack: {
     bool fall = run_fall(g_character);
     if (run_animate(g_character)) {
       // 冷却
@@ -1448,7 +1448,7 @@ void CharacterLogicSystem::run_state_machine() {
     }
     break;
   }
-  case ActionEnum::dead: {
+  case ActionEnum::kDead: {
     run_tomb(g_character);
     break;
   }
@@ -1499,15 +1499,15 @@ void CharacterLogicSystem::run_others_state_machine() {
     run_face_animate(g_character);
     auto g_action = load_action_type(g_character);
     switch (g_action) {
-    case ActionEnum::stand:
-    case ActionEnum::alert:
-    case ActionEnum::walk:
-    case ActionEnum::climb: {
+    case ActionEnum::kStand:
+    case ActionEnum::kAlert:
+    case ActionEnum::kWalk:
+    case ActionEnum::kClimb: {
       run_animate(g_character);
       break;
     }
-    case ActionEnum::attack:
-    case ActionEnum::skill: {
+    case ActionEnum::kAttack:
+    case ActionEnum::kSkill: {
       auto action_index = g_character.action_index;
       auto action_time = g_character.action_time;
       if (run_animate(g_character)) {
@@ -1521,11 +1521,11 @@ void CharacterLogicSystem::run_others_state_machine() {
       }
       break;
     }
-    case ActionEnum::dead: {
+    case ActionEnum::kDead: {
       run_tomb(g_character);
       break;
     }
-    case ActionEnum::sit: {
+    case ActionEnum::kSit: {
       run_animate_chair(g_character);
       break;
     }
@@ -1612,12 +1612,12 @@ void CharacterLogicSystem::load_sfx(GameCharacter &g_character) {
                  ->get();
   auto WeaponType = EquipGameInstance::load_weapon_type(g_character);
   auto action_type = load_action_type(g_character);
-  if (!(action_type == CharacterLogicSystem::ActionEnum::skill ||
-        action_type == CharacterLogicSystem::ActionEnum::attack)) {
+  if (!(action_type == CharacterLogicSystem::ActionEnum::kSkill ||
+        action_type == CharacterLogicSystem::ActionEnum::kAttack)) {
     return;
   }
   if (g_character.skill.has_value() &&
-      WeaponType == EquipGameInstance::WeaponType::WAND) {
+      WeaponType == EquipGameInstance::WeaponType::kWand) {
     return;
   }
   if (weapon_attack_action2.contains(WeaponType)) {
@@ -1656,7 +1656,7 @@ float CharacterLogicSystem::load_attack_speed(GameCharacter &g_character) {
     return 1.0;
   }
   auto w_speed = EquipGameInstance::load_equip_inc(g_character.weapon->id)
-                     .at(EquipGameInstance::IncType::WEAPON_SPEED);
+                     .at(EquipGameInstance::IncType::kWeaponSpeed);
   float speed = w_speed + g_character.attack_speed;
   return 1.6 - speed / 10;
 }
@@ -1715,22 +1715,22 @@ std::u16string
 CharacterLogicSystem::load_morph_type(GameCharacter &g_character) {
   auto action_type = load_action_type(g_character);
   switch (action_type) {
-  case ActionEnum::stand: {
+  case ActionEnum::kStand: {
     return u"stand";
   }
-  case ActionEnum::alert: {
+  case ActionEnum::kAlert: {
     return u"stand";
   }
-  case ActionEnum::walk: {
+  case ActionEnum::kWalk: {
     return u"walk";
   }
-  case ActionEnum::prone: {
+  case ActionEnum::kProne: {
     return u"prone";
   }
-  case ActionEnum::jump: {
+  case ActionEnum::kJump: {
     return u"jump";
   }
-  case ActionEnum::climb: {
+  case ActionEnum::kClimb: {
     return g_character.action;
   }
   default: {
@@ -1746,16 +1746,16 @@ void CharacterLogicSystem::run_being_hit(float x, uint64_t num) {
   sf.action_animate = true;
   auto action_type = CharacterLogicSystem::load_action_type(sf);
   switch (action_type) {
-  case CharacterLogicSystem::ActionEnum::stand:
-  case CharacterLogicSystem::ActionEnum::alert:
-  case CharacterLogicSystem::ActionEnum::walk:
-  case CharacterLogicSystem::ActionEnum::climb:
-  case CharacterLogicSystem::ActionEnum::prone: {
+  case CharacterLogicSystem::ActionEnum::kStand:
+  case CharacterLogicSystem::ActionEnum::kAlert:
+  case CharacterLogicSystem::ActionEnum::kWalk:
+  case CharacterLogicSystem::ActionEnum::kClimb:
+  case CharacterLogicSystem::ActionEnum::kProne: {
     CharacterLogicSystem::run_action(sf, u"jump");
     self_fall_fh = self_fh;
     break;
   }
-  case CharacterLogicSystem::ActionEnum::sit: {
+  case CharacterLogicSystem::ActionEnum::kSit: {
     CharacterLogicSystem::run_unsit_chair(sf);
     CharacterLogicSystem::run_action(sf, u"jump");
     self_fall_fh = self_fh;

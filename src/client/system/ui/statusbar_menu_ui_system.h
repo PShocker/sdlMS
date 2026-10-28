@@ -29,8 +29,8 @@ private:
 
 public:
   enum class MenuEnums {
-    menu,
-    shortcut,
+    kMenu,
+    kShortcut,
   };
   static inline std::optional<MenuEnums> menu_type;
 

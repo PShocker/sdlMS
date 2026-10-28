@@ -123,7 +123,7 @@ void ServerDropInstance::handle_server_pick(uint64_t client_id,
     }
     dt.picker = gdp;
     dt.pick_time = Window::dt_now;
-    dt.type = GameDrop::DropEnum::pick;
+    dt.type = GameDrop::DropEnum::kPick;
 
     if (r.client_id == ServerMain::local_addr) {
       auto itm = dt.data;
@@ -134,7 +134,7 @@ void ServerDropInstance::handle_server_pick(uint64_t client_id,
 
       auto itm_num = ItemGameInstance::load_item_num(dt.data);
       itm_num = std::max(1, itm_num);
-      GainLogGameInstance::add(dt.data->id, itm_num, GainEnum::item);
+      GainLogGameInstance::add(dt.data->id, itm_num, GainEnum::kItem);
     }
   }
 }
@@ -178,7 +178,7 @@ void ServerDropInstance::handle_server_scene_dt(const DropT &dt) {
   drop.hspeed = 0;
   drop.pos.x = dt.x2;
   drop.pos.y = dt.y2;
-  drop.type = GameDrop::DropEnum::land;
+  drop.type = GameDrop::DropEnum::kLand;
   return;
 }
 
@@ -190,10 +190,10 @@ void ServerDropInstance::handle_server_drop(uint64_t client_id,
       if (CursorGameInstance::cursor_hand.has_value()) {
         auto &hand = CursorGameInstance::cursor_hand.value();
         switch (hand.type) {
-        case CursorGameInstance::equipment: {
+        case CursorGameInstance::CursorHandType::kEquipment: {
           break;
         }
-        case CursorGameInstance::package: {
+        case CursorGameInstance::CursorHandType::kPackage: {
           int num = 1;
           switch (r.payload->drop.type) {
           case fbs::ItemUnion_Item: {
@@ -207,11 +207,11 @@ void ServerDropInstance::handle_server_drop(uint64_t client_id,
           }
           auto &itm = PackageGameInstance::data[hand.val][hand.sub_val];
           switch (static_cast<ItemEnum>(hand.val)) {
-          case ItemEnum::equip: {
+          case ItemEnum::kEquip: {
             itm = std::polymorphic<GameItem>(GameEquipItem{});
             break;
           }
-          case ItemEnum::deco: {
+          case ItemEnum::kDeco: {
             itm = std::polymorphic<GameItem>(GameDecoItem{});
             break;
           }
@@ -325,7 +325,7 @@ void ServerDropInstance::handle_server_drop_fade(ServerDropFadeT &r) {
   auto &data = DropGameInstance::data;
   for (const auto id : r.drop_ids) {
     if (data.contains(id)) {
-      data.at(id).type = GameDrop::DropEnum::fade;
+      data.at(id).type = GameDrop::DropEnum::kFade;
     }
   }
   return;

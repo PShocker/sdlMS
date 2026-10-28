@@ -74,266 +74,266 @@ KeyboardGameInstance::find_key_by_val(const std::string &target_val) {
 GameInput KeyboardGameInstance::find_input_by_cursor(int i) {
   GameInput input;
   switch ((CursorGameInstance::CursorKeybindType)i) {
-  case CursorGameInstance::keybind_action_attack: {
+  case CursorGameInstance::CursorKeybindType::kKeybindActionAttack: {
     input = {
         .type = "action",
         .val = "attack",
     };
     break;
   }
-  case CursorGameInstance::keybind_action_sit: {
+  case CursorGameInstance::CursorKeybindType::kKeybindActionSit: {
     input = {
         .type = "action",
         .val = "sit",
     };
     break;
   }
-  case CursorGameInstance::keybind_action_jump: {
+  case CursorGameInstance::CursorKeybindType::kKeybindActionJump: {
     input = {
         .type = "action",
         .val = "jump",
     };
     break;
   }
-  case CursorGameInstance::keybind_action_pick: {
+  case CursorGameInstance::CursorKeybindType::kKeybindActionPick: {
     input = {
         .type = "action",
         .val = "pick",
     };
     break;
   }
-  case CursorGameInstance::keybind_action_up: {
+  case CursorGameInstance::CursorKeybindType::kKeybindActionUp: {
     input = {
         .type = "action",
         .val = "up",
     };
     break;
   }
-  case CursorGameInstance::keybind_action_down: {
+  case CursorGameInstance::CursorKeybindType::kKeybindActionDown: {
     input = {
         .type = "action",
         .val = "down",
     };
     break;
   }
-  case CursorGameInstance::keybind_action_left: {
+  case CursorGameInstance::CursorKeybindType::kKeybindActionLeft: {
     input = {
         .type = "action",
         .val = "left",
     };
     break;
   }
-  case CursorGameInstance::keybind_action_right: {
+  case CursorGameInstance::CursorKeybindType::kKeybindActionRight: {
     input = {
         .type = "action",
         .val = "right",
     };
     break;
   }
-  case CursorGameInstance::keybind_ui_worldMap: {
+  case CursorGameInstance::CursorKeybindType::kKeybindUiWorldMap: {
     input = {
         .type = "ui",
         .val = "worldMap",
     };
     break;
   }
-  case CursorGameInstance::keybind_ui_package: {
+  case CursorGameInstance::CursorKeybindType::kKeybindUiPackage: {
     input = {
         .type = "ui",
         .val = "package",
     };
     break;
   }
-  case CursorGameInstance::keybind_ui_characterStat: {
+  case CursorGameInstance::CursorKeybindType::kKeybindUiCharacterStat: {
     input = {
         .type = "ui",
         .val = "characterStat",
     };
     break;
   }
-  case CursorGameInstance::keybind_ui_keyBind: {
+  case CursorGameInstance::CursorKeybindType::kKeybindUiKeyBind: {
     input = {
         .type = "ui",
         .val = "keyBind",
     };
     break;
   }
-  case CursorGameInstance::keybind_ui_skill: {
+  case CursorGameInstance::CursorKeybindType::kKeybindUiSkill: {
     input = {
         .type = "ui",
         .val = "skill",
     };
     break;
   }
-  case CursorGameInstance::keybind_ui_equip: {
+  case CursorGameInstance::CursorKeybindType::kKeybindUiEquip: {
     input = {
         .type = "ui",
         .val = "equip",
     };
     break;
   }
-  case CursorGameInstance::keybind_ui_craft: {
+  case CursorGameInstance::CursorKeybindType::kKeybindUiCraft: {
     input = {
         .type = "ui",
         .val = "craft",
     };
     break;
   }
-  case CursorGameInstance::keybind_ui_quest: {
+  case CursorGameInstance::CursorKeybindType::kKeybindUiQuest: {
     input = {
         .type = "ui",
         .val = "quest",
     };
     break;
   }
-  case CursorGameInstance::keybind_ui_ok: {
+  case CursorGameInstance::CursorKeybindType::kKeybindUiOk: {
     input = {
         .type = "ui",
         .val = "ok",
     };
     break;
   }
-  case CursorGameInstance::keybind_ui_buddy: {
+  case CursorGameInstance::CursorKeybindType::kKeybindUiBuddy: {
     input = {
         .type = "ui",
         .val = "buddy",
     };
     break;
   }
-  case CursorGameInstance::keybind_face_vomit: {
+  case CursorGameInstance::CursorKeybindType::kKeybindFaceVomit: {
     input = {
         .type = "face",
         .val = "vomit",
     };
     break;
   }
-  case CursorGameInstance::keybind_ui_menu: {
+  case CursorGameInstance::CursorKeybindType::kKeybindUiMenu: {
     input = {
         .type = "ui",
         .val = "menu",
     };
     break;
   }
-  case CursorGameInstance::keybind_face_hit: {
+  case CursorGameInstance::CursorKeybindType::kKeybindFaceHit: {
     input = {
         .type = "face",
         .val = "hit",
     };
     break;
   }
-  case CursorGameInstance::keybind_face_smile: {
+  case CursorGameInstance::CursorKeybindType::kKeybindFaceSmile: {
     input = {
         .type = "face",
         .val = "smile",
     };
     break;
   }
-  case CursorGameInstance::keybind_face_troubled: {
+  case CursorGameInstance::CursorKeybindType::kKeybindFaceTroubled: {
     input = {
         .type = "face",
         .val = "troubled",
     };
     break;
   }
-  case CursorGameInstance::keybind_face_cry: {
+  case CursorGameInstance::CursorKeybindType::kKeybindFaceCry: {
     input = {
         .type = "face",
         .val = "cry",
     };
     break;
   }
-  case CursorGameInstance::keybind_face_angry: {
+  case CursorGameInstance::CursorKeybindType::kKeybindFaceAngry: {
     input = {
         .type = "face",
         .val = "angry",
     };
     break;
   }
-  case CursorGameInstance::keybind_face_bewildered: {
+  case CursorGameInstance::CursorKeybindType::kKeybindFaceBewildered: {
     input = {
         .type = "face",
         .val = "bewildered",
     };
     break;
   }
-  case CursorGameInstance::keybind_face_stunned: {
+  case CursorGameInstance::CursorKeybindType::kKeybindFaceStunned: {
     input = {
         .type = "face",
         .val = "stunned",
     };
     break;
   }
-  case CursorGameInstance::keybind_ui_toAll: {
+  case CursorGameInstance::CursorKeybindType::kKeybindUiToAll: {
     input = {
         .type = "ui",
         .val = "toAll",
     };
     break;
   }
-  case CursorGameInstance::keybind_ui_toParty: {
+  case CursorGameInstance::CursorKeybindType::kKeybindUiToParty: {
     input = {
         .type = "ui",
         .val = "toParty",
     };
     break;
   }
-  case CursorGameInstance::keybind_ui_party: {
+  case CursorGameInstance::CursorKeybindType::kKeybindUiParty: {
     input = {
         .type = "ui",
         .val = "party",
     };
     break;
   }
-  case CursorGameInstance::keybind_ui_mapleChat: {
+  case CursorGameInstance::CursorKeybindType::kKeybindUiMapleChat: {
     input = {
         .type = "ui",
         .val = "mapleChat",
     };
     break;
   }
-  case CursorGameInstance::keybind_ui_quickSlot: {
+  case CursorGameInstance::CursorKeybindType::kKeybindUiQuickSlot: {
     input = {
         .type = "ui",
         .val = "quickSlot",
     };
     break;
   }
-  case CursorGameInstance::keybind_ui_whisper: {
+  case CursorGameInstance::CursorKeybindType::kKeybindUiWhisper: {
     input = {
         .type = "ui",
         .val = "whisper",
     };
     break;
   }
-  case CursorGameInstance::keybind_ui_mailBox: {
+  case CursorGameInstance::CursorKeybindType::kKeybindUiMailBox: {
     input = {
         .type = "ui",
         .val = "mailBox",
     };
     break;
   }
-  case CursorGameInstance::keybind_ui_chatPlus: {
+  case CursorGameInstance::CursorKeybindType::kKeybindUiChatPlus: {
     input = {
         .type = "ui",
         .val = "chat+",
     };
     break;
   }
-  case CursorGameInstance::keybind_ui_miniMap: {
+  case CursorGameInstance::CursorKeybindType::kKeybindUiMiniMap: {
     input = {
         .type = "ui",
         .val = "miniMap",
     };
     break;
   }
-  case CursorGameInstance::keybind_ui_changeChannel: {
+  case CursorGameInstance::CursorKeybindType::kKeybindUiChangeChannel: {
     input = {
         .type = "ui",
         .val = "changeChannel",
     };
     break;
   }
-  case CursorGameInstance::keybind_action_harvest: {
+  case CursorGameInstance::CursorKeybindType::kKeybindActionHarvest: {
     input = {
         .type = "action",
         .val = "harvest",
@@ -405,7 +405,7 @@ std::optional<GameInput> KeyboardGameInstance::load_cursor_input() {
   auto &cursor_hand = CursorGameInstance::cursor_hand.value();
   std::string id;
   switch (cursor_hand.type) {
-  case CursorGameInstance::keybind: {
+  case CursorGameInstance::CursorHandType::kKeybind: {
     if (KeyboardGameInstance::data.contains((SDL_Scancode)cursor_hand.val)) {
       return KeyboardGameInstance::data.at((SDL_Scancode)cursor_hand.val);
     } else {
@@ -413,7 +413,7 @@ std::optional<GameInput> KeyboardGameInstance::load_cursor_input() {
     }
     break;
   }
-  case CursorGameInstance::package: {
+  case CursorGameInstance::CursorHandType::kPackage: {
     auto &item =
         PackageGameInstance::data[cursor_hand.val][cursor_hand.sub_val];
     id = std::string{item->id.begin(), item->id.end()};
@@ -430,7 +430,7 @@ std::optional<GameInput> KeyboardGameInstance::load_cursor_input() {
     }
     break;
   }
-  case CursorGameInstance::skill: {
+  case CursorGameInstance::CursorHandType::kSkill: {
     id = std::format("{:07d}", cursor_hand.sub_val);
     GameInput input{
         .type = "skill",

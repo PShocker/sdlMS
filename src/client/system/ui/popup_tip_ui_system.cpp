@@ -19,17 +19,17 @@ void PopupTipUiSystem::render_backgrnd(GamePopupTip &t) {
   SDL_Texture *i = nullptr;
   SDL_FPoint icon_pos;
   switch (t.type) {
-  case PopupTipEnums::trade: {
+  case PopupTipEnums::kTrade: {
     static auto texture = WzResource::load_texture(
         WzResource::ui->find(u"StatusBar.img/submenu/backgrnd/1"));
     break;
   }
-  case PopupTipEnums::party: {
+  case PopupTipEnums::kParty: {
     static auto texture = WzResource::load_texture(
         WzResource::ui->find(u"StatusBar.img/submenu/backgrnd/1"));
     break;
   }
-  case PopupTipEnums::quest: {
+  case PopupTipEnums::kQuest: {
     static auto texture = WzResource::load_texture(
         WzResource::ui->find(u"FadeYesNo.img/FadeYesNo/backgrnd3"));
     static auto icon = WzResource::load_texture(
@@ -69,7 +69,7 @@ void PopupTipUiSystem::render_text(GamePopupTip &t) {
   auto y = pos.y + (screen_h - 73);
 
   switch (t.type) {
-  case PopupTipEnums::quest: {
+  case PopupTipEnums::kQuest: {
     auto quest_id = std::any_cast<std::u16string>(t.data);
     auto node = QuestGameInstance::load_quest_node(quest_id);
     node = node->find(u"QuestInfo/name");
@@ -94,12 +94,12 @@ void PopupTipUiSystem::render_button(GamePopupTip &t) {
   std::vector<wz::Node *> nodes = {};
   std::vector<SDL_FRect> rects = {};
   switch (t.type) {
-  case PopupTipEnums::trade: {
+  case PopupTipEnums::kTrade: {
     nodes = {};
     rects = {};
     break;
   }
-  case PopupTipEnums::party: {
+  case PopupTipEnums::kParty: {
     nodes = {};
     rects = {};
     break;
@@ -165,11 +165,11 @@ void PopupTipUiSystem::event_button_trade(GamePopupTip &t) {}
 
 void PopupTipUiSystem::event_button_ok(GamePopupTip &t) {
   switch (t.type) {
-  case PopupTipEnums::trade: {
+  case PopupTipEnums::kTrade: {
     event_button_trade(t);
     break;
   }
-  case PopupTipEnums::party: {
+  case PopupTipEnums::kParty: {
     event_button_party(t);
     break;
   }
@@ -196,10 +196,10 @@ bool PopupTipUiSystem::event_button(SDL_Event *event) {
   for (int i = 0; i < PopupTipGameInstance::data.size(); i++) {
     auto &t = PopupTipGameInstance::data[i];
     switch (t.type) {
-    case PopupTipEnums::trade: {
+    case PopupTipEnums::kTrade: {
       break;
     }
-    case PopupTipEnums::party: {
+    case PopupTipEnums::kParty: {
       break;
     }
     }

@@ -3,7 +3,7 @@
 #include <string>
 
 enum class GameChatEnum {
-  map,
+  kMap,
 };
 struct GameChat {
   uint64_t client_id;

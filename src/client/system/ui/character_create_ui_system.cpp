@@ -239,7 +239,7 @@ void CharacterCreateUiSystem::render_custom_item(float cx, float cy,
   SDL_Texture *t;
   bool choose = false;
   switch (type) {
-  case ChooseType::gender: {
+  case ChooseType::kGender: {
     if (!gender) {
       auto str_node =
           WzResource::ms->get_root()->find(u"String.img/Character/gender/0");
@@ -260,7 +260,7 @@ void CharacterCreateUiSystem::render_custom_item(float cx, float cy,
     pos = {35, 30};
     break;
   }
-  case ChooseType::face: {
+  case ChooseType::kFace: {
     item_name = EquipGameInstance::load_equip_name(g_character.face.id);
     if (choose_index == 1) {
       choose = true;
@@ -273,7 +273,7 @@ void CharacterCreateUiSystem::render_custom_item(float cx, float cy,
     pos = {35, 48};
     break;
   }
-  case ChooseType::hairstyle: {
+  case ChooseType::kHairstyle: {
     item_name = EquipGameInstance::load_equip_name(g_character.hair);
     if (choose_index == 2) {
       choose = true;
@@ -286,7 +286,7 @@ void CharacterCreateUiSystem::render_custom_item(float cx, float cy,
     pos = {35, 66};
     break;
   }
-  case ChooseType::haircolor: {
+  case ChooseType::kHaircolor: {
     static auto haircolor_node =
         WzResource::ui->find(u"Login.img/HairColorName");
     auto back = g_character.hair.back();
@@ -303,7 +303,7 @@ void CharacterCreateUiSystem::render_custom_item(float cx, float cy,
     pos = {35, 84};
     break;
   }
-  case ChooseType::skin: {
+  case ChooseType::kSkin: {
     item_name = EquipGameInstance::load_equip_name(g_character.head);
     if (choose_index == 4) {
       choose = true;
@@ -316,7 +316,7 @@ void CharacterCreateUiSystem::render_custom_item(float cx, float cy,
     pos = {35, 102};
     break;
   }
-  case ChooseType::top: {
+  case ChooseType::kTop: {
     item_name = EquipGameInstance::load_equip_name(g_character.coat->id);
     if (choose_index == 5) {
       choose = true;
@@ -329,7 +329,7 @@ void CharacterCreateUiSystem::render_custom_item(float cx, float cy,
     pos = {35, 120};
     break;
   }
-  case ChooseType::bottom: {
+  case ChooseType::kBottom: {
     item_name = EquipGameInstance::load_equip_name(g_character.pant->id);
     if (choose_index == 6) {
       choose = true;
@@ -342,7 +342,7 @@ void CharacterCreateUiSystem::render_custom_item(float cx, float cy,
     pos = {35, 138};
     break;
   }
-  case ChooseType::shoes: {
+  case ChooseType::kShoes: {
     item_name = EquipGameInstance::load_equip_name(g_character.shoes->id);
     if (choose_index == 7) {
       choose = true;
@@ -355,7 +355,7 @@ void CharacterCreateUiSystem::render_custom_item(float cx, float cy,
     pos = {35, 156};
     break;
   }
-  case ChooseType::weapon: {
+  case ChooseType::kWeapon: {
     item_name = EquipGameInstance::load_equip_name(g_character.weapon->id);
     if (choose_index == 8) {
       choose = true;
@@ -434,15 +434,15 @@ void CharacterCreateUiSystem::render_custom() {
   };
   SDL_RenderTexture(Window::renderer, backgrnd, nullptr, &pos_rect);
 
-  render_custom_item(cx, cy, ChooseType::gender);
-  render_custom_item(cx, cy, ChooseType::face);
-  render_custom_item(cx, cy, ChooseType::hairstyle);
-  render_custom_item(cx, cy, ChooseType::haircolor);
-  render_custom_item(cx, cy, ChooseType::skin);
-  render_custom_item(cx, cy, ChooseType::top);
-  render_custom_item(cx, cy, ChooseType::bottom);
-  render_custom_item(cx, cy, ChooseType::shoes);
-  render_custom_item(cx, cy, ChooseType::weapon);
+  render_custom_item(cx, cy, ChooseType::kGender);
+  render_custom_item(cx, cy, ChooseType::kFace);
+  render_custom_item(cx, cy, ChooseType::kHairstyle);
+  render_custom_item(cx, cy, ChooseType::kHaircolor);
+  render_custom_item(cx, cy, ChooseType::kSkin);
+  render_custom_item(cx, cy, ChooseType::kTop);
+  render_custom_item(cx, cy, ChooseType::kBottom);
+  render_custom_item(cx, cy, ChooseType::kShoes);
+  render_custom_item(cx, cy, ChooseType::kWeapon);
 }
 
 void CharacterCreateUiSystem::render_name() {
@@ -945,7 +945,7 @@ void CharacterCreateUiSystem::event_button_ok() {
   auto &characters = CharacterChooseUiSystem::characters;
   if (characters.size() >= 3) {
     LoginNoticeSystemInstance::enter(
-        LoginNoticeSystemInstance::character_full, nullptr);
+        LoginNoticeSystemInstance::NoticeType::kCharacterFull, nullptr);
     AudioGameInstance::load_audio(u"UI.img/DlgNotice", 0);
     return;
   }
@@ -953,14 +953,14 @@ void CharacterCreateUiSystem::event_button_ok() {
   auto &name_text = name.text;
   if (name_text.empty()) {
     LoginNoticeSystemInstance::enter(
-        LoginNoticeSystemInstance::charactername_error, nullptr);
+        LoginNoticeSystemInstance::NoticeType::kCharacternameError, nullptr);
     AudioGameInstance::load_audio(u"UI.img/DlgNotice", 0);
     return;
   }
   // check ap
   if (remain_point != 0) {
     LoginNoticeSystemInstance::enter(
-        LoginNoticeSystemInstance::character_use_ap, nullptr);
+        LoginNoticeSystemInstance::NoticeType::kCharacterUseAp, nullptr);
     AudioGameInstance::load_audio(u"UI.img/DlgNotice", 0);
     return;
   }
@@ -969,7 +969,7 @@ void CharacterCreateUiSystem::event_button_ok() {
         SDL_isspace(static_cast<int>(ch))) {
       // 发现标点符号
       LoginNoticeSystemInstance::enter(
-          LoginNoticeSystemInstance::charactername_error, nullptr);
+          LoginNoticeSystemInstance::NoticeType::kCharacternameError, nullptr);
       AudioGameInstance::load_audio(u"UI.img/DlgNotice", 0);
       return;
     }
@@ -978,7 +978,7 @@ void CharacterCreateUiSystem::event_button_ok() {
     if (g.name == name_text) {
       // 名称重复
       LoginNoticeSystemInstance::enter(
-          LoginNoticeSystemInstance::charactername_used, nullptr);
+          LoginNoticeSystemInstance::NoticeType::kCharacternameUsed, nullptr);
       AudioGameInstance::load_audio(u"UI.img/DlgNotice", 0);
       return;
     }

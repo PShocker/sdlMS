@@ -277,7 +277,7 @@ void LoginUiSystem::event_button_login() {
   if (bind_result != 0) {
     // 绑定失败
     LoginNoticeSystemInstance::enter(
-        LoginNoticeSystemInstance::logining_used, nullptr);
+        LoginNoticeSystemInstance::NoticeType::kLoginingUsed, nullptr);
     AudioGameInstance::load_audio(u"UI.img/DlgNotice", 0);
     return;
   }

@@ -24,13 +24,13 @@ struct TextInput {
   std::optional<int> cur_next = std::nullopt;
 
   enum TextInputType : size_t {
-    digit = 0,  // 第0位：允许数字
-    letter = 1, // 第1位：允许字母
-    symbol = 2, // 第2位：允许符号
-    ime = 3,    // 第3位：允许中文
-    count,
+    kDigit = 0,  // 第0位：允许数字
+    kLetter = 1, // 第1位：允许字母
+    kSymbol = 2, // 第2位：允许符号
+    kIme = 3,    // 第3位：允许中文
+    kCount,
   };
-  std::bitset<count> type;
+  std::bitset<kCount> type;
 };
 
 class TextInputUiSystem {

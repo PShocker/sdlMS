@@ -189,17 +189,17 @@ void ServerCharacterInstance::handle_server_action(
   c.action_time = 0;
   auto action = CharacterLogicSystem::load_action_type(c);
   switch (action) {
-  case CharacterLogicSystem::ActionEnum::jump:
-  case CharacterLogicSystem::ActionEnum::stand: {
+  case CharacterLogicSystem::ActionEnum::kJump:
+  case CharacterLogicSystem::ActionEnum::kStand: {
     c.skill = std::nullopt;
     break;
   }
-  case CharacterLogicSystem::ActionEnum::skill:
-  case CharacterLogicSystem::ActionEnum::attack: {
+  case CharacterLogicSystem::ActionEnum::kSkill:
+  case CharacterLogicSystem::ActionEnum::kAttack: {
     CharacterLogicSystem::load_sfx(c);
     break;
   }
-  case CharacterLogicSystem::ActionEnum::dead: {
+  case CharacterLogicSystem::ActionEnum::kDead: {
     AudioGameInstance::load_audio(u"Game.img/Tombstone", 0);
     break;
   }
@@ -371,14 +371,14 @@ void ServerCharacterInstance::handle_server_atk(uint64_t client_id,
           .index = 0,
           .time = 0,
           .delay = ct->attack->delay,
-          .type = GameEffect::EffectType::effect,
+          .type = GameEffect::EffectType::kEffect,
           .pos = SDL_FPoint{ct->attack->x, ct->attack->y},
           .z = false,
       };
       if (WzResource::item->find(e.id)) {
-        e.lv = GameEffect::EffectSubType::item;
+        e.lv = static_cast<uint8_t>(GameEffect::EffectSubType::kItem);
       } else if (WzResource::skill->find(e.id)) {
-        e.lv = GameEffect::EffectSubType::skill;
+        e.lv = static_cast<uint8_t>(GameEffect::EffectSubType::kSkill);
       }
       mob.effect.push_back(e);
     }
@@ -390,14 +390,14 @@ void ServerCharacterInstance::handle_server_atk(uint64_t client_id,
     // 伤害数字
     DamageData data = {
         .num = ct->attack->num,
-        .type = DamageData::r,
+        .type = DamageData::T::kR,
     };
     GameEffect d = {
         .id = u"",
         .index = (uint32_t)MobHit.count(mob.index),
         .time = mob.index,
         .delay = ct->attack->delay,
-        .type = GameEffect::EffectType::damage,
+        .type = GameEffect::EffectType::kDamage,
         .pos = SDL_FPoint{ct->attack->x, ct->attack->y - 10},
         .z = false,
         .flip = false,
@@ -457,7 +457,7 @@ void ServerCharacterInstance::handle_ski(
         .index = 0,
         .time = 0,
         .delay = Window::dt_now,
-        .type = GameEffect::EffectType::skill_custom,
+        .type = GameEffect::EffectType::kSkillCustom,
         .pos = SDL_FPoint{(float)x, (float)y},
         .z = false,
         .flip = flip,
@@ -478,7 +478,7 @@ void ServerCharacterInstance::handle_ski(
           .index = 0,
           .time = 0,
           .delay = 0,
-          .type = GameEffect::EffectType::skill_use,
+          .type = GameEffect::EffectType::kSkillUse,
           .pos = std::nullopt,
           .z = has_z,
           .order = std::nullopt,
@@ -496,7 +496,7 @@ void ServerCharacterInstance::handle_ski(
           .index = 0,
           .time = 0,
           .delay = 0,
-          .type = GameEffect::EffectType::skill_use,
+          .type = GameEffect::EffectType::kSkillUse,
           .pos = std::nullopt,
           .z = has_z,
           .order = i,
@@ -525,7 +525,7 @@ void ServerCharacterInstance::handle_ski(
           .time = 0,
           .delay = s->delay,
           .lv = ski_lv,
-          .type = GameEffect::EffectType::skill_hit,
+          .type = GameEffect::EffectType::kSkillHit,
           .pos = SDL_FPoint{s->x, s->y},
           .z = false,
       };
@@ -552,7 +552,7 @@ void ServerCharacterInstance::handle_ski(
             .index = 0,
             .time = 0,
             .delay = 0,
-            .type = GameEffect::EffectType::skill_affected,
+            .type = GameEffect::EffectType::kSkillAffected,
             .pos = std::nullopt,
             .z = false,
             .data = g_character,
@@ -802,8 +802,8 @@ void ServerCharacterInstance::handle_scroll_use(GameCharacter &g_character,
       .index = 0,
       .time = 0,
       .delay = 0,
-      .lv = GameEffect::EffectSubType::effect,
-      .type = GameEffect::EffectType::effect,
+      .lv = static_cast<uint8_t>(GameEffect::EffectSubType::kEffect),
+      .type = GameEffect::EffectType::kEffect,
       .pos = SDL_FPoint{0, 0},
       .z = false,
   };
@@ -817,7 +817,7 @@ void ServerCharacterInstance::handle_morph_use(GameCharacter &g_character,
                                                  bool success) {
   std::u16string path = u"BasicEff.img/Transform";
   auto type = CharacterLogicSystem::load_action_type(g_character);
-  if (type == CharacterLogicSystem::ActionEnum::climb) {
+  if (type == CharacterLogicSystem::ActionEnum::kClimb) {
     path = u"BasicEff.img/TransformOnLadder";
   }
   GameEffect e = {
@@ -825,8 +825,8 @@ void ServerCharacterInstance::handle_morph_use(GameCharacter &g_character,
       .index = 0,
       .time = 0,
       .delay = 0,
-      .lv = GameEffect::EffectSubType::effect,
-      .type = GameEffect::EffectType::effect,
+      .lv = static_cast<uint8_t>(GameEffect::EffectSubType::kEffect),
+      .type = GameEffect::EffectType::kEffect,
       .pos = SDL_FPoint{0, 0},
       .z = false,
   };
@@ -940,8 +940,8 @@ void ServerCharacterInstance::handle_lv_up(GameCharacter &g_character) {
       .index = 0,
       .time = 0,
       .delay = 0,
-      .lv = GameEffect::EffectSubType::effect,
-      .type = GameEffect::EffectType::effect,
+      .lv = static_cast<uint8_t>(GameEffect::EffectSubType::kEffect),
+      .type = GameEffect::EffectType::kEffect,
       .pos = SDL_FPoint{0, 0},
       .z = false,
   };

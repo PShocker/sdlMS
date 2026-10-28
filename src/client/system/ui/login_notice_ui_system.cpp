@@ -29,45 +29,45 @@ void LoginNoticeUiSystem::render_backgrnd() {
   static auto notice_node = WzResource::ui->find(u"Login.img/Notice");
   auto [bx, by] = load_pos();
   switch (type) {
-  case LoginNoticeSystemInstance::charactername_error: {
+  case LoginNoticeSystemInstance::NoticeType::kCharacternameError: {
     backgrnd = WzResource::load_texture(notice_node->find(u"backgrnd/0"));
     text =
         WzResource::load_texture(notice_node->find(u"text/cannotUseThisName"));
     text_pos = {17, 13};
     break;
   }
-  case LoginNoticeSystemInstance::charactername_used: {
+  case LoginNoticeSystemInstance::NoticeType::kCharacternameUsed: {
     backgrnd = WzResource::load_texture(notice_node->find(u"backgrnd/0"));
     text = WzResource::load_texture(notice_node->find(u"text/8"));
     text_pos = {17, 13};
     break;
   }
-  case LoginNoticeSystemInstance::character_delete: {
+  case LoginNoticeSystemInstance::NoticeType::kCharacterDelete: {
     backgrnd = WzResource::load_texture(notice_node->find(u"backgrnd/0"));
     text = WzResource::load_texture(notice_node->find(u"text/58"));
     text_pos = {17, 13};
     break;
   }
-  case LoginNoticeSystemInstance::character_full: {
+  case LoginNoticeSystemInstance::NoticeType::kCharacterFull: {
     backgrnd = WzResource::load_texture(notice_node->find(u"backgrnd/0"));
     text = WzResource::load_texture(
         notice_node->find(u"text/cannotCreateAccountMore"));
     text_pos = {17, 13};
     break;
   }
-  case LoginNoticeSystemInstance::character_use_ap: {
+  case LoginNoticeSystemInstance::NoticeType::kCharacterUseAp: {
     backgrnd = WzResource::load_texture(notice_node->find(u"backgrnd/0"));
     text = WzResource::load_texture(notice_node->find(u"text/useAllAP"));
     text_pos = {17, 13};
     break;
   }
-  case LoginNoticeSystemInstance::logining: {
+  case LoginNoticeSystemInstance::NoticeType::kLogining: {
     backgrnd =
         WzResource::load_texture(notice_node->find(u"Loading/backgrnd"));
     text = nullptr;
     break;
   }
-  case LoginNoticeSystemInstance::logining_used: {
+  case LoginNoticeSystemInstance::NoticeType::kLoginingUsed: {
     backgrnd =
         WzResource::load_texture(notice_node->find(u"Loading/backgrnd"));
     text = WzResource::load_texture(notice_node->find(u"text/8"));
@@ -91,7 +91,7 @@ void LoginNoticeUiSystem::render_backgrnd() {
     SDL_RenderTexture(Window::renderer, text, nullptr, &pos_rect);
   }
   switch (type) {
-  case LoginNoticeSystemInstance::logining: {
+  case LoginNoticeSystemInstance::NoticeType::kLogining: {
     static auto circle_node =
         WzResource::ui->find(u"Login.img/Notice/Loading/circle");
     const auto circle_delay = 90;
@@ -119,11 +119,11 @@ void LoginNoticeUiSystem::render_button() {
   std::vector<SDL_FRect> buttons_rect;
   auto [bx, by] = load_pos();
   switch (type) {
-  case LoginNoticeSystemInstance::charactername_error:
-  case LoginNoticeSystemInstance::character_full:
-  case LoginNoticeSystemInstance::character_use_ap:
-  case LoginNoticeSystemInstance::logining_used:
-  case LoginNoticeSystemInstance::charactername_used: {
+  case LoginNoticeSystemInstance::NoticeType::kCharacternameError:
+  case LoginNoticeSystemInstance::NoticeType::kCharacterFull:
+  case LoginNoticeSystemInstance::NoticeType::kCharacterUseAp:
+  case LoginNoticeSystemInstance::NoticeType::kLoginingUsed:
+  case LoginNoticeSystemInstance::NoticeType::kCharacternameUsed: {
     buttons_nodes = {
         WzResource::ui->find(u"Login.img/Notice/BtYes"),
     };
@@ -132,7 +132,7 @@ void LoginNoticeUiSystem::render_button() {
     };
     break;
   }
-  case LoginNoticeSystemInstance::character_delete: {
+  case LoginNoticeSystemInstance::NoticeType::kCharacterDelete: {
     buttons_nodes = {
         WzResource::ui->find(u"Login.img/Notice/BtYes"),
         WzResource::ui->find(u"Login.img/Notice/BtNo1"),
@@ -143,7 +143,7 @@ void LoginNoticeUiSystem::render_button() {
     };
     break;
   }
-  case LoginNoticeSystemInstance::logining: {
+  case LoginNoticeSystemInstance::NoticeType::kLogining: {
     break;
   }
   }
@@ -186,17 +186,17 @@ bool LoginNoticeUiSystem::event_button(SDL_Event *event) {
   std::vector<void (*)()> fns = {event_close};
   auto [bx, by] = load_pos();
   switch (type) {
-  case LoginNoticeSystemInstance::charactername_error:
-  case LoginNoticeSystemInstance::character_full:
-  case LoginNoticeSystemInstance::character_use_ap:
-  case LoginNoticeSystemInstance::logining_used:
-  case LoginNoticeSystemInstance::charactername_used: {
+  case LoginNoticeSystemInstance::NoticeType::kCharacternameError:
+  case LoginNoticeSystemInstance::NoticeType::kCharacterFull:
+  case LoginNoticeSystemInstance::NoticeType::kCharacterUseAp:
+  case LoginNoticeSystemInstance::NoticeType::kLoginingUsed:
+  case LoginNoticeSystemInstance::NoticeType::kCharacternameUsed: {
     buttons_rect = {
         SDL_FRect{bx + (w - 50) / 2, by + 35 + (h) / 2, 50, 23},
     };
     break;
   }
-  case LoginNoticeSystemInstance::character_delete: {
+  case LoginNoticeSystemInstance::NoticeType::kCharacterDelete: {
     buttons_rect = {
         SDL_FRect{bx - 35 + (w - 50) / 2, by + 35 + (h) / 2, 50, 23},
         SDL_FRect{bx + 35 + (w - 50) / 2, by + 35 + (h) / 2, 50, 23},

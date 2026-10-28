@@ -28,14 +28,14 @@ void ServerTrapInstance::handle_s_attack(uint64_t client_id, AttackT &at) {
   // 伤害数字
   DamageData data = {
       .num = attack.num,
-      .type = (DamageData::t)attack.type,
+      .type = (DamageData::T)attack.type,
   };
   GameEffect d = {
       .id = u"",
       .index = 0,
       .time = 0,
       .delay = attack.delay,
-      .type = GameEffect::EffectType::damage,
+      .type = GameEffect::EffectType::kDamage,
       .pos = SDL_FPoint{attack.x, attack.y - 10},
       .z = true,
       .flip = false,

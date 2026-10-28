@@ -30,10 +30,10 @@ public:
   static std::u16string load_npc_script(const std::u16string &id);
 
   enum class NpcType {
-    none,
-    quest,
-    shop,
-    Script,
+    kNone,
+    kQuest,
+    kShop,
+    kScript,
   };
   static NpcType load_npc_type(const std::u16string &id);
 

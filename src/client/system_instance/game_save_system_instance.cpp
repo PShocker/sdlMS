@@ -275,7 +275,7 @@ bool GameSaveSystemInstance::save_game() {
       uint32_t item_id =
           std::stoi(std::string{pkg.val->id.begin(), pkg.val->id.end()});
       switch (pkg.val->type) {
-      case ItemEnum::equip: {
+      case ItemEnum::kEquip: {
         GameEquipItem &equip = static_cast<GameEquipItem &>(*pkg.val);
         EquipT et;
         et.equip_id = item_id;
@@ -289,24 +289,24 @@ bool GameSaveSystemInstance::save_game() {
         pst.data.Set(et);
         break;
       }
-      case ItemEnum::consume: {
+      case ItemEnum::kConsume: {
         GameConsumeItem &consume = static_cast<GameConsumeItem &>(*pkg.val);
         item_num = consume.num;
       }
-      case ItemEnum::etc: {
+      case ItemEnum::kEtc: {
         GameEtcItem &etc = static_cast<GameEtcItem &>(*pkg.val);
         item_num = etc.num;
       }
-      case ItemEnum::install: {
+      case ItemEnum::kInstall: {
       }
-      case ItemEnum::cash: {
+      case ItemEnum::kCash: {
         ItemT it;
         it.item_id = item_id;
         it.item_num = item_num;
         pst.data.Set(it);
         break;
       }
-      case ItemEnum::deco: {
+      case ItemEnum::kDeco: {
         EquipT et;
         et.equip_id = item_id;
         pst.data.Set(et);

@@ -7,21 +7,21 @@
 #include <vector>
 
 enum class JobType : uint8_t {
-  BEGINNER,    // 000
-  WARRIOR,     // 100
-  MAGICIAN,    // 200
-  BOWMAN,      // 300
-  THIEF,       // 400
-  FIGHTER,     // 110
-  PAGE,        // 120
-  SPEARMAN,    // 130
-  FP_WIZARD,   // 210
-  IL_WIZARD,   // 220
-  CLERIC,      // 230
-  HUNTER,      // 310
-  CROSSBOWMAN, // 320
-  ASSASSIN,    // 410
-  BANDIT,      // 420
+  kBeginner,    // 000
+  kWarrior,     // 100
+  kMagician,    // 200
+  kBowman,      // 300
+  kThief,       // 400
+  kFighter,     // 110
+  kPage,        // 120
+  kSpearman,    // 130
+  kFpWizard,   // 210
+  kIlWizard,   // 220
+  kCleric,      // 230
+  kHunter,      // 310
+  kCrossbowman, // 320
+  kAssassin,    // 410
+  kBandit,      // 420
 };
 
 class JobSkillGameInstance {

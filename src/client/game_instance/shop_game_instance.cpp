@@ -24,7 +24,7 @@ ShopGameInstance::load_item(const std::u16string &id) {
 GameShopItem ShopGameInstance::load_shop_item(const std::u16string &id) {
   auto item = ShopGameInstance::load_item(id);
   GameShopItem gst;
-  if (item->type == ItemEnum::equip) {
+  if (item->type == ItemEnum::kEquip) {
     auto info = EquipGameInstance::load_equip_info(item->id);
     gst.price =
         static_cast<wz::Property<int> *>(info->get_child(u"price"))->get();
@@ -87,8 +87,8 @@ bool ShopGameInstance::add_must_item(std::polymorphic<GameItem> &item) {
     slot_max = ItemGameInstance::load_slot_max(item->id);
   }
   switch (item->type) {
-  case ItemEnum::consume:
-  case ItemEnum::etc: {
+  case ItemEnum::kConsume:
+  case ItemEnum::kEtc: {
     for (auto &shop : must) {
       auto itm_id = shop.item->id;
       if (item->id == itm_id) {

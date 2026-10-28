@@ -41,7 +41,7 @@ void CursorRenderSystem::render_hand() {
       SDL_SetTextureAlphaMod(icon, 255);
     };
     switch (hand.type) {
-    case CursorGameInstance::equipment: {
+    case CursorGameInstance::CursorHandType::kEquipment: {
       auto index = hand.sub_val;
       auto eqp = EquipGameInstance::load_equip(index);
       auto info = EquipGameInstance::load_equip_info(eqp->value().id);
@@ -49,7 +49,7 @@ void CursorRenderSystem::render_hand() {
       render_icon(t);
       break;
     }
-    case CursorGameInstance::deco: {
+    case CursorGameInstance::CursorHandType::kDeco: {
       auto index = hand.sub_val;
       auto deco = EquipGameInstance::load_deco(index);
       auto info = EquipGameInstance::load_equip_info(deco->value().id);
@@ -57,10 +57,10 @@ void CursorRenderSystem::render_hand() {
       render_icon(t);
       break;
     }
-    case CursorGameInstance::package: {
+    case CursorGameInstance::CursorHandType::kPackage: {
       SDL_Texture *icon = nullptr;
-      if (hand.val == (int)ItemEnum::equip ||
-          hand.val == (int)ItemEnum::deco) {
+      if (hand.val == (int)ItemEnum::kEquip ||
+          hand.val == (int)ItemEnum::kDeco) {
         auto &equip = PackageGameInstance::data[hand.val][hand.sub_val];
         auto info = EquipGameInstance::load_equip_info(equip->id);
         icon = WzResource::load_texture(info->get_child(u"iconRaw"));
@@ -74,7 +74,7 @@ void CursorRenderSystem::render_hand() {
       }
       break;
     }
-    case CursorGameInstance::skill: {
+    case CursorGameInstance::CursorHandType::kSkill: {
       auto tmp = std::format("{:07d}", hand.sub_val);
       std::u16string ski_id{tmp.begin(), tmp.end()};
       auto ski_node = SkillGameInstance::load_ski_node(ski_id);
@@ -82,7 +82,7 @@ void CursorRenderSystem::render_hand() {
       render_icon(icon, 172); // 技能透明度不同
       break;
     }
-    case CursorGameInstance::keybind: {
+    case CursorGameInstance::CursorHandType::kKeybind: {
       if (KeyboardGameInstance::data.contains((SDL_Scancode)hand.val)) {
         auto &input = KeyboardGameInstance::data.at((SDL_Scancode)hand.val);
         if (input.type == "skill") {

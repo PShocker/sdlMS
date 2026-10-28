@@ -12,12 +12,12 @@
 void ClockUiSystem::render_backgrnd() {
   SDL_Texture *t;
   switch (type) {
-  case ClockEnum::min: {
+  case ClockEnum::kMin: {
     t = WzResource::load_texture(
         WzResource::map->find(u"Obj/etc.img/timer/backgrnd"));
     break;
   }
-  case ClockEnum::hour: {
+  case ClockEnum::kHour: {
     t = WzResource::load_texture(
         WzResource::ui->find(u"Obj/etc.img/timer/backgrndhour"));
     break;
@@ -78,7 +78,7 @@ void ClockUiSystem::render_number(uint32_t num, float x, float y) {
 void ClockUiSystem::render_time() {
   auto dt = destroy - Window::dt_now;
   switch (type) {
-  case ClockEnum::min: {
+  case ClockEnum::kMin: {
     // render min
     auto totalSeconds = dt / 1000;    // 总秒数
     auto minutes = totalSeconds / 60; // 分钟
@@ -87,7 +87,7 @@ void ClockUiSystem::render_time() {
 
     break;
   }
-  case ClockEnum::hour: {
+  case ClockEnum::kHour: {
     auto totalSeconds = dt / 1000;             // 总秒数
     auto hours = totalSeconds / 3600;          // 小时（1小时 = 3600秒）
     auto minutes = (totalSeconds % 3600) / 60; // 分钟（除去小时后，剩余的分钟）

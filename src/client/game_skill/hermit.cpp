@@ -32,7 +32,7 @@ static void erduantiao() {
     auto &ski = SkillGameInstance::ski;
     auto &sf = CharacterGameInstance::self;
     auto action_type = CharacterLogicSystem::load_action_type(sf);
-    if (action_type != CharacterLogicSystem::ActionEnum::jump) {
+    if (action_type != CharacterLogicSystem::ActionEnum::kJump) {
       return;
     }
     CharacterLogicSystem::self_vspeed -= 420;

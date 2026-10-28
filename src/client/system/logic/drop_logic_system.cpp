@@ -11,7 +11,7 @@
 
 void DropLogicSystem::run_state_machine(GameDrop &drop) {
   switch (drop.type) {
-  case GameDrop::DropEnum::fly: {
+  case GameDrop::DropEnum::kFly: {
     auto delta_time = Window::delta_time / 1000.0;
     drop.vspeed = drop.vspeed + delta_time * 800;
     drop.vspeed = std::min(drop.vspeed, 400.0f);
@@ -24,7 +24,7 @@ void DropLogicSystem::run_state_machine(GameDrop &drop) {
     if (drop.pos.y >= drop.goal.y && drop.vspeed > 0) {
       drop.pos.x = drop.goal.x;
       drop.pos.y = drop.goal.y;
-      drop.type = GameDrop::DropEnum::land;
+      drop.type = GameDrop::DropEnum::kLand;
       drop.vspeed = 0;
       drop.hspeed = 0;
       drop.rotate = 0;
@@ -35,14 +35,14 @@ void DropLogicSystem::run_state_machine(GameDrop &drop) {
     }
     break;
   }
-  case GameDrop::DropEnum::land: {
+  case GameDrop::DropEnum::kLand: {
     drop.hspeed += Window::delta_time;
     double t = fmod((double)drop.hspeed / 3500, 1.0);
     auto dy = (1.0 - fabs(2.0 * t - 1.0)) * 8.0 - 4.0;
     drop.pos.y = drop.goal.y + dy;
     break;
   }
-  case GameDrop::DropEnum::pick: {
+  case GameDrop::DropEnum::kPick: {
     constexpr auto PICK_UP_DURATION = 700;
     constexpr auto ALPHA_FADE_START = 420;
     constexpr auto ALPHA_FADE_DURATION =
@@ -105,7 +105,7 @@ void DropLogicSystem::run_state_machine(GameDrop &drop) {
     drop.pos = {x, y};
     break;
   }
-  case GameDrop::DropEnum::fade: {
+  case GameDrop::DropEnum::kFade: {
     break;
   }
   }

@@ -161,17 +161,17 @@ std::u16string NpcGameInstance::load_npc_script(const std::u16string &id) {
 NpcGameInstance::NpcType
 NpcGameInstance::load_npc_type(const std::u16string &id) {
   if (ShopGameInstance::load_npc_shop(id)) {
-    return NpcType::shop;
+    return NpcType::kShop;
   }
   auto npc_node = WzResource::npc->find(id + u".img");
   if (!QuestGameInstance::load_npc_quest(id).empty() ||
       !NpcGameInstance::load_progress_complete_quest(id).empty()) {
-    return NpcType::quest;
+    return NpcType::kQuest;
   }
   if (npc_node->find(u"info/script")) {
-    return NpcType::Script;
+    return NpcType::kScript;
   }
-  return NpcType::none;
+  return NpcType::kNone;
 }
 
 std::vector<std::u16string>

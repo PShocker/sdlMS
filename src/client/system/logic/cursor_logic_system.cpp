@@ -324,29 +324,29 @@ bool CursorLogicSystem::event_cursor_hand(SDL_Event *event) {
 
   // 3. 根据光标类型处理
   switch (cursor_hand->type) {
-  case CursorGameInstance::keybind: {
+  case CursorGameInstance::CursorHandType::kKeybind: {
     auto c = (SDL_Scancode)cursor_hand->val;
     KeyboardGameInstance::erase_input(c);
     cursor_hand = std::nullopt;
     AudioGameInstance::load_audio(u"UI.img/DragEnd", 0);
     break;
   }
-  case CursorGameInstance::equipment: {
+  case CursorGameInstance::CursorHandType::kEquipment: {
     cursor_hand = std::nullopt;
     AudioGameInstance::load_audio(u"UI.img/DragEnd", 0);
 
     break;
   }
-  case CursorGameInstance::skill: {
+  case CursorGameInstance::CursorHandType::kSkill: {
     cursor_hand = std::nullopt;
     AudioGameInstance::load_audio(u"UI.img/DragEnd", 0);
     break;
   }
-  case CursorGameInstance::package: {
+  case CursorGameInstance::CursorHandType::kPackage: {
     int active_tab = cursor_hand->val;
     int sub_index = cursor_hand->sub_val;
     // 处理装备丢弃
-    if (active_tab == static_cast<int>(ItemEnum::equip)) {
+    if (active_tab == static_cast<int>(ItemEnum::kEquip)) {
       auto &equip = PackageGameInstance::data[0][sub_index];
       DropT dt;
 
@@ -363,7 +363,7 @@ bool CursorLogicSystem::event_cursor_hand(SDL_Event *event) {
       cct.payload = std::make_unique<DropT>(dt);
       ClientRequest::send_to_host(cct);
 
-      cursor_hand_net = {.type = CursorGameInstance::drop};
+      cursor_hand_net = {.type = CursorGameInstance::CursorHandNetType::kDrop};
     }
     // 处理物品丢弃
     else {
@@ -374,14 +374,14 @@ bool CursorLogicSystem::event_cursor_hand(SDL_Event *event) {
 
       // 数量>1且非单价物品，弹出多选对话框
       if (num > 1 && !unitPrice) {
-        NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::throw_mul;
+        NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kThrowMul;
         NoticeUiSystem::data = &itm;
         NoticeUiSystem::open();
         break; // 不执行丢弃，等待用户选择数量
       }
       bool tradeBlock = itm_info->get_child(u"tradeBlock");
       if (tradeBlock) {
-        NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::trade_block;
+        NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kTradeBlock;
         NoticeUiSystem::open();
         cursor_hand = std::nullopt;
         break; // 不执行丢弃，等待用户选择数量
@@ -403,7 +403,7 @@ bool CursorLogicSystem::event_cursor_hand(SDL_Event *event) {
       cct.payload = std::make_unique<DropT>(dt);
       ClientRequest::send_to_host(cct);
 
-      cursor_hand_net = {.type = CursorGameInstance::drop};
+      cursor_hand_net = {.type = CursorGameInstance::CursorHandNetType::kDrop};
     }
     break;
   }
@@ -476,7 +476,7 @@ bool CursorLogicSystem::event_click_npc(GameNpc npc) {
   auto npc_id = npc.id;
   auto NpcType = NpcGameInstance::load_npc_type(npc_id);
   switch (NpcType) {
-  case NpcGameInstance::NpcType::shop: {
+  case NpcGameInstance::NpcType::kShop: {
     auto shop = ShopGameInstance::load_npc_shop(npc_id);
     ShopUiSystem::shop = shop;
     ShopUiSystem::npc = npc;
@@ -485,7 +485,7 @@ bool CursorLogicSystem::event_click_npc(GameNpc npc) {
     r = true;
     break;
   }
-  case NpcGameInstance::NpcType::Script: {
+  case NpcGameInstance::NpcType::kScript: {
     auto node = WzResource::npc->find(npc_id + u".img");
     auto script_node = node->find(u"info/script/0/script");
     auto script_str =
@@ -494,8 +494,8 @@ bool CursorLogicSystem::event_click_npc(GameNpc npc) {
     r = true;
     break;
   }
-  case NpcGameInstance::NpcType::quest: {
-    NpcDlgUiSystem::type = NpcDlgUiSystem::NpcDlgEnum::quest;
+  case NpcGameInstance::NpcType::kQuest: {
+    NpcDlgUiSystem::type = NpcDlgUiSystem::NpcDlgEnum::kQuest;
     NpcDlgUiSystem::index = 0;
     NpcDlgUiSystem::max_index = 0;
     NpcDlgUiSystem::npc_id = npc_id;

@@ -38,10 +38,10 @@ void ServerMobInstance::load_default_mob(const std::u16string id,
   auto mob_node = WzResource::mob->find(mob.id + u".img");
   if (mob_node->get_child(u"info")->get_child("flySpeed")) {
     mob.action = u"fly";
-    mob.type = ServerMob::MobType::fly;
+    mob.type = ServerMob::MobType::kFly;
   } else {
     mob.action = u"stand";
-    mob.type = ServerMob::MobType::stand;
+    mob.type = ServerMob::MobType::kStand;
   }
   mob.duration = Window::dt_now;
 
@@ -132,7 +132,7 @@ void ServerMobInstance::handle_server_action(const ServerMobActionT &m) {
   mob.ani_time = 0;
   auto MobType = MobLogicSystem::load_action_type(mob.action);
   switch (MobType) {
-  case MobLogicSystem::ActionEnum::die: {
+  case MobLogicSystem::ActionEnum::kDie: {
     mob.debuffs = {};
     AudioGameInstance::load_audio(u"Mob.img/" + mob.id + u"/Die", 0);
     break;
@@ -167,7 +167,7 @@ void ServerMobInstance::handle_server_die(const ServerMobDieT &m) {
     auto max_exp =
         static_cast<wz::Property<int> *>(info_node->get_child(u"exp"))->get();
     auto exp = percent * max_exp;
-    GainLogGameInstance::add(u"", exp, GainEnum::experience);
+    GainLogGameInstance::add(u"", exp, GainEnum::kExperience);
     CharacterStatGameInstance::add_exp(exp);
   }
   if (m.client_id == ServerMain::local_addr) {
@@ -234,14 +234,14 @@ void ServerMobInstance::handle_s_attack(uint64_t client_id, AttackT &at) {
   // 伤害数字
   DamageData data = {
       .num = attack.num,
-      .type = (DamageData::t)attack.type,
+      .type = (DamageData::T)attack.type,
   };
   GameEffect d = {
       .id = u"",
       .index = 0,
       .time = 0,
       .delay = attack.delay,
-      .type = GameEffect::EffectType::damage,
+      .type = GameEffect::EffectType::kDamage,
       .pos = SDL_FPoint{attack.x, attack.y - 10},
       .z = true,
       .flip = false,
@@ -280,7 +280,7 @@ void ServerMobInstance::hanle_server_mob(
   g_mob.ani_animate = true;
 
   auto action_type = MobLogicSystem::load_action_type(g_mob.action);
-  if (action_type == MobLogicSystem::ActionEnum::die) {
+  if (action_type == MobLogicSystem::ActionEnum::kDie) {
     g_mob.action = u"";
   }
 
