@@ -281,9 +281,9 @@ void SkillUiSystem::RenderButton() {
   std::vector<SDL_FRect> rects = {{wh.x - 20, 8, 12, 12}};
 
   const auto disable_ski = [](std::u16string id) {
-    auto Active = active_tab_;
+    auto active = active_tab_;
     const auto sps = JobSkillGameInstance::remain_point;
-    if (sps.at(Active) == 0) {
+    if (sps.at(active) == 0) {
       return true;
     }
     // 判断前置技能

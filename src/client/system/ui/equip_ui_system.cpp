@@ -354,13 +354,13 @@ bool EquipUiSystem::EventClickEquip(SDL_Event* event) {
     }
   } else {
     if (event->button.button == SDL_BUTTON_LEFT) {
-      bool Click = false;
+      bool click = false;
       if (active_tab_ == 0) {
-        Click = EquipGameInstance::LoadEquip(index)->has_value();
+        click = EquipGameInstance::LoadEquip(index)->has_value();
       } else {
-        Click = EquipGameInstance::LoadDeco(index)->has_value();
+        click = EquipGameInstance::LoadDeco(index)->has_value();
       }
-      if (Click) {
+      if (click) {
         AudioGameInstance::LoadAudio(u"UI.img/DragStart", 0);
         if (active_tab_ == 0) {
           CursorGameInstance::cursor_hand_ = {

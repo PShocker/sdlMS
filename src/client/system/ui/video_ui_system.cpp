@@ -448,7 +448,7 @@ static bool GetTextureForMemoryFrame(AVFrame* frame, SDL_Texture** texture) {
         if (!sws_container) {
           return false;
         }
-        auto FreeSwsContextContainer = [](void* userdata, void* value) {
+        auto sws_context_container = [](void* userdata, void* value) {
           struct SwsContextContainer* sws_container =
               (struct SwsContextContainer*)value;
           if (sws_container->context) {
@@ -457,8 +457,8 @@ static bool GetTextureForMemoryFrame(AVFrame* frame, SDL_Texture** texture) {
           SDL_free(sws_container);
         };
         SDL_SetPointerPropertyWithCleanup(props, SWS_CONTEXT_CONTAINER_PROPERTY,
-                                          sws_container,
-                                          FreeSwsContextContainer, NULL);
+                                          sws_container, sws_context_container,
+                                          NULL);
       }
       sws_container->context = sws_getCachedContext(
           sws_container->context, frame->width, frame->height,

@@ -496,12 +496,12 @@ Freetype::DrawData Freetype::DrawRstr(const std::u16string& str, float x,
   }
 
   // === 选择按钮 ===
-  const auto loadDot = [](bool Active) -> SDL_Texture* {
+  const auto loadDot = [](bool active) -> SDL_Texture* {
     static const auto dot0 = WzResource::LoadTexture(
         WzResource::ui_->find(u"UtilDlgEx.img/UtilDlgEx/dot0"));
     static const auto dot1 = WzResource::LoadTexture(
         WzResource::ui_->find(u"UtilDlgEx.img/UtilDlgEx/dot1"));
-    return Active ? dot1 : dot0;
+    return active ? dot1 : dot0;
   };
 
   for (size_t i = 0; i < select_dot.size(); ++i) {

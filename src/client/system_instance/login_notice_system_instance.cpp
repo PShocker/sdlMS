@@ -9,8 +9,8 @@ void LoginNoticeSystemInstance::Enter(NoticeType type, void (*fn)()) {
   LoginNoticeUiSystem::type_ = type;
   LoginNoticeUiSystem::fn = fn;
 
-  auto Render = LoginNoticeUiSystem::Render;
-  System::render_systems_.insert(System::render_systems_.end() - 1, Render);
+  auto render = LoginNoticeUiSystem::Render;
+  System::render_systems_.insert(System::render_systems_.end() - 1, render);
 
   System::logic_systems_.push_back(LoginNoticeUiSystem::Run);
 
