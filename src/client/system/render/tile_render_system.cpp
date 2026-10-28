@@ -3,6 +3,8 @@
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
+namespace sdlms {
+
 
 bool TileRenderSystem::Render(GameTile &g_tile) {
   auto tile_node = WzResource::map_->find(g_tile.path);
@@ -26,3 +28,5 @@ bool TileRenderSystem::Render(GameTile &g_tile) {
   }
   return true;
 }
+
+}  // namespace sdlms

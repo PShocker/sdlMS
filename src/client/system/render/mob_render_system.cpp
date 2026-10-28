@@ -12,6 +12,8 @@
 #include "wz/Property.h"
 #include <algorithm>
 #include <string>
+namespace sdlms {
+
 
 bool MobRenderSystem::RenderMob(GameMob &g_mob) {
   auto action_type = MobLogicSystem::LoadActionType(g_mob.action);
@@ -156,3 +158,5 @@ bool MobRenderSystem::RenderNametag(GameMob &g_mob) {
   RenderNametag(mob_name, {g_mob.pos.x, g_mob.pos.y + 5});
   return true;
 }
+
+}  // namespace sdlms

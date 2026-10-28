@@ -7,6 +7,8 @@
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include <string>
+namespace sdlms {
+
 
 bool DropRenderSystem::Render(GameDrop &g_drop) {
   SDL_Texture *icon;
@@ -62,3 +64,5 @@ bool DropRenderSystem::Render(GameDrop &g_drop) {
   }
   return true;
 }
+
+}  // namespace sdlms

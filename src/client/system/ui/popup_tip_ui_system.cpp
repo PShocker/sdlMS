@@ -13,6 +13,8 @@
 #include "wz/Node.h"
 #include "wz/Property.h"
 #include <string>
+namespace sdlms {
+
 
 void PopupTipUiSystem::RenderBackgrnd(GamePopupTip &t) {
   SDL_Texture *te;
@@ -233,3 +235,5 @@ bool PopupTipUiSystem::Event(SDL_Event *Event) {
   }
   return r;
 }
+
+}  // namespace sdlms

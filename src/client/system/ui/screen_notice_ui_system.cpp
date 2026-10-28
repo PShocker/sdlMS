@@ -7,6 +7,8 @@
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
 #include <ranges>
+namespace sdlms {
+
 
 SDL_FPoint ScreenNoticeUiSystem::LoadWh() { return {209, 289}; }
 
@@ -72,3 +74,5 @@ void ScreenNoticeUiSystem::Close() {
   std::erase(System::render_systems_, Render);
   std::erase(System::event_systems_, Event);
 }
+
+}  // namespace sdlms

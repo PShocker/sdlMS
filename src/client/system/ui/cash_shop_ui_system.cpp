@@ -2,6 +2,8 @@
 #include "SDL3/SDL_rect.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
+namespace sdlms {
+
 
 void CashShopUiSystem::RenderBackgrnd() {
   static auto backgrnd = WzResource::LoadTexture(
@@ -44,3 +46,5 @@ bool CashShopUiSystem::Event(SDL_Event *Event) {
 
   return r;
 }
+
+}  // namespace sdlms

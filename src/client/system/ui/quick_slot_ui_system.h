@@ -5,6 +5,8 @@
 #include "SDL3/SDL_scancode.h"
 #include "src/client/game/game_input.h"
 #include <cstdint>
+namespace sdlms {
+
 class QuickSlotUiSystem {
 private:
   static void RenderQuickSlot();
@@ -36,3 +38,5 @@ public:
   static void RenderInputIcon(const GameInput &i, int x, int y,
                                 uint8_t alpha = 255);
 };
+
+}  // namespace sdlms

@@ -7,6 +7,8 @@
 #include <flat_set>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 class NpcGameInstance {
 public:
   static void Load(uint32_t map_id);
@@ -44,3 +46,5 @@ public:
       u"eye",
   };
 };
+
+}  // namespace sdlms

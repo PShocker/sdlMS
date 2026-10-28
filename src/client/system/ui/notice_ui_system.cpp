@@ -29,6 +29,8 @@
 #include <optional>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 void NoticeUiSystem::RenderBackgrnd() {
   wz::Node *node;
@@ -830,3 +832,5 @@ bool NoticeUiSystem::CursorIn() {
   SDL_FRect pos_rect{pos_.x, pos_.y, w, h};
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
+
+}  // namespace sdlms

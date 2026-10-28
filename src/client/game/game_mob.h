@@ -9,6 +9,8 @@
 #include <optional>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 struct GameMob{
   uint32_t index;
@@ -41,3 +43,5 @@ struct GameMob{
   // 人物总共打出的伤害，分配经验，伤害统计
   uint64_t attack_val = 0;
 };
+
+}  // namespace sdlms

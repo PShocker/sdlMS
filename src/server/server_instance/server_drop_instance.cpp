@@ -23,6 +23,8 @@
 #include <format>
 #include <optional>
 #include <utility>
+namespace sdlms {
+
 
 float ServerDropInstance::CalAvailableTime(float y1, float y2) {
   const float VY = 400.0f;                     // 初速度（向上）
@@ -363,3 +365,5 @@ void ServerDropInstance::HandleServerCreateDrop(uint64_t client_id,
   }
   AudioGameInstance::LoadAudio(u"Game.img/DropItem", 0);
 }
+
+}  // namespace sdlms

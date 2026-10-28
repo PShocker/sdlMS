@@ -3,6 +3,8 @@
 #include "SDL3/SDL_rect.h"
 #include "src/client/game/game_npc.h"
 #include <string>
+namespace sdlms {
+
 class NpcRenderSystem {
 private:
   static void RenderNametag(GameNpc &g_npc);
@@ -14,3 +16,5 @@ public:
   static bool Render(GameNpc &g_npc);
   static void RenderChatballoon(GameNpc &g_npc);
 };
+
+}  // namespace sdlms

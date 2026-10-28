@@ -1,6 +1,8 @@
 #pragma once
 
 #include "src/server/server/server_reactor.h"
+namespace sdlms {
+
 class ServerReactorSystem {
 private:
   static uint64_t LoadHitCd(ServerReactorState &r);
@@ -15,3 +17,5 @@ public:
 
   static bool Run();
 };
+
+}  // namespace sdlms

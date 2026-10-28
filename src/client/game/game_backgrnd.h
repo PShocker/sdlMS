@@ -3,6 +3,8 @@
 #include "SDL3/SDL_rect.h"
 #include <cstdint>
 #include <string>
+namespace sdlms {
+
 struct GameBackgrnd{
   std::u16string path;
   SDL_FPoint pos;
@@ -27,3 +29,5 @@ struct GameBackgrnd{
   bool hspeed = false;
   bool vspeed = false;
 };
+
+}  // namespace sdlms

@@ -5,6 +5,8 @@
 #include <array>
 #include <cstdint>
 #include <optional>
+namespace sdlms {
+
 class PackageGameInstance {
 public:
   // enum class package_enum { equip, consume, etc, install, cash ,deco};
@@ -27,3 +29,5 @@ public:
   static std::optional<int> AddNewItem(std::polymorphic<GameItem> &item);
   static bool AddMeso(uint32_t num);
 };
+
+}  // namespace sdlms

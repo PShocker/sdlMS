@@ -5,6 +5,8 @@
 #include "src/common/flatbuffers/common.h"
 #include "src/common/flatbuffers/server.h"
 #include <cstdint>
+namespace sdlms {
+
 using namespace fbs;
 
 class ServerCharacterInstance {
@@ -66,3 +68,5 @@ public:
   static void HandleScrollUse(GameCharacter &g_character, bool success);
   static void HandleItemUse(GameCharacter &g_character, const StateT &st);
 };
+
+}  // namespace sdlms

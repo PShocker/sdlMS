@@ -14,6 +14,8 @@
 #include "src/common/wz/wz_resource.h"
 #include <algorithm>
 #include <optional>
+namespace sdlms {
+
 
 void ReviveUiSystem::RenderBackgrnd() {
   static auto texture =
@@ -198,3 +200,5 @@ bool ReviveUiSystem::EventButton(SDL_Event *Event) {
   }
   return false;
 }
+
+}  // namespace sdlms

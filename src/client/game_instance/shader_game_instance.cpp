@@ -1,3 +1,5 @@
+
+namespace sdlms {
 // #include "shader_game_instance.h"
 // #include "src/client/window/window.h"
 // #include <iterator>
@@ -103,3 +105,5 @@
 // void shader_game_instance::end() {
 //   SDL_SetGPURenderState(window::renderer, NULL);
 // }
+
+}  // namespace sdlms

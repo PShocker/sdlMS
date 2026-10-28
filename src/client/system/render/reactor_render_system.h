@@ -1,7 +1,11 @@
 #pragma once
 
 #include "src/client/game/game_reactor.h"
+namespace sdlms {
+
 class ReactorRenderSystem {
 public:
   static bool Render(GameReactor &g_reactor);
 };
+
+}  // namespace sdlms

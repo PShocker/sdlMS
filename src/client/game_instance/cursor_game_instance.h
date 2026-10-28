@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+namespace sdlms {
+
 
 using namespace fbs;
 
@@ -81,3 +83,5 @@ public:
   static inline std::optional<CursorHandNetData> cursor_hand_net_;
   static inline std::optional<CursorHandData> cursor_hand_;
 };
+
+}  // namespace sdlms

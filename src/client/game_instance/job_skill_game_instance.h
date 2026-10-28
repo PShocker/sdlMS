@@ -5,6 +5,8 @@
 #include <flat_map>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 enum class JobType : uint8_t {
   kBeginner,    // 000
@@ -39,3 +41,5 @@ public:
   static inline std::flat_map<uint32_t, uint8_t> skill_point_;
   static inline std::vector<uint32_t> remain_point = {100, 100, 100, 100};
 };
+
+}  // namespace sdlms

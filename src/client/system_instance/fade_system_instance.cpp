@@ -9,6 +9,8 @@
 #include <algorithm>
 #include <cstdint>
 #include <ranges>
+namespace sdlms {
+
 
 bool FadeSystemInstance::Render() {
   SDL_FRect pos_rect{
@@ -91,3 +93,5 @@ bool FadeSystemInstance::Run() {
   mask_alpha_ = std::clamp(mask_alpha_, 0, 255);
   return true;
 }
+
+}  // namespace sdlms

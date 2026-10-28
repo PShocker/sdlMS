@@ -7,6 +7,8 @@
 #include <flat_map>
 #include <optional>
 #include <string>
+namespace sdlms {
+
 class ChatballoonRenderSystem {
 private:
   struct BackgrndPad {
@@ -22,3 +24,5 @@ private:
 public:
   static bool Render(GameChatballoon &g_chatballoon, SDL_FPoint base);
 };
+
+}  // namespace sdlms

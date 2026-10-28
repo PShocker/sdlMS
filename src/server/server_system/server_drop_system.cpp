@@ -4,6 +4,8 @@
 #include "src/common/response/server_response.h"
 #include "src/server/server_instance/server_scene_instance.h"
 #include <memory>
+namespace sdlms {
+
 
 using namespace fbs;
 
@@ -69,3 +71,5 @@ bool ServerDropSystem::Run() {
   RunDestroy();
   return true;
 }
+
+}  // namespace sdlms

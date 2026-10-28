@@ -1,4 +1,6 @@
 #include "../script.h"
+namespace sdlms {
+
 
 static void Jane103(std::any data) {
 
@@ -9,3 +11,5 @@ static void Jane103(std::any data) {
   fns[u"jane_103"] = Jane103;
   return true;
 }();
+
+}  // namespace sdlms

@@ -2,6 +2,8 @@
 
 #include <cstdint>
 #include <string>
+namespace sdlms {
+
 struct GameFace{
   std::u16string id;
   std::u16string action = u"default";
@@ -10,3 +12,5 @@ struct GameFace{
 
   uint64_t destroy = 0;
 };
+
+}  // namespace sdlms

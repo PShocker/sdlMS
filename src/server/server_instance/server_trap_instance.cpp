@@ -5,6 +5,8 @@
 #include "src/client/game_instance/effect_game_instance.h"
 #include "src/common/flatbuffers/server.h"
 #include "src/common/response/server_response.h"
+namespace sdlms {
+
 
 void ServerTrapInstance::HandleAttack(uint64_t client_id,
                                          ClientTrapAttackT &r) {
@@ -48,3 +50,5 @@ void ServerTrapInstance::HandleServerAttack(uint64_t client_id,
                                                 ServerTrapAttackT &r) {
   HandleSAttack(client_id, *r.payload);
 }
+
+}  // namespace sdlms

@@ -9,6 +9,8 @@
 #include "src/common/wz/wz_resource.h"
 #include <algorithm>
 #include <ranges>
+namespace sdlms {
+
 
 SDL_FPoint TradeUiSystem::LoadWh() { return SDL_FPoint{567, 442}; }
 
@@ -150,3 +152,5 @@ bool TradeUiSystem::Event(SDL_Event *Event) {
 
   return r;
 }
+
+}  // namespace sdlms

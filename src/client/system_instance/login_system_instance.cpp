@@ -17,6 +17,8 @@
 #include "src/common/wz/wz_resource.h"
 #include <algorithm>
 #include <ranges>
+namespace sdlms {
+
 
 bool LoginSystemInstance::RenderGame() {
   //   后景
@@ -96,3 +98,5 @@ void LoginSystemInstance::Enter() {
   camera.x = -80 - camera.w / 2;
   camera.y = 1023 - camera.h / 2;
 }
+
+}  // namespace sdlms

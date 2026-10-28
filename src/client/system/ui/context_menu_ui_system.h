@@ -5,6 +5,8 @@
 #include "SDL3/SDL_rect.h"
 #include <cstdint>
 #include <string>
+namespace sdlms {
+
 class ContextMenuUiSystem {
 private:
   static SDL_FPoint LoadWh();
@@ -35,3 +37,5 @@ public:
   static void Close();
   static bool Event(SDL_Event *Event);
 };
+
+}  // namespace sdlms

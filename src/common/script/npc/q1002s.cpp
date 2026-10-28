@@ -8,6 +8,8 @@
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
+namespace sdlms {
+
 // roger apple
 
 static void State() {
@@ -51,3 +53,5 @@ static void Q1002s(std::any data) {
   fns[u"q1002s"] = Q1002s;
   return true;
 }();
+
+}  // namespace sdlms

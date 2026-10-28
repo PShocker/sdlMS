@@ -12,6 +12,8 @@
 #include <cstring>
 #include <flat_map>
 #include <string>
+namespace sdlms {
+
 
 std::u16string TextGameInstance::ReplaceN(std::u16string str) {
   std::u16string_view pattern = u"\\n";
@@ -186,3 +188,5 @@ std::string TextGameInstance::FormatWithCommas(uint64_t value) {
     s.insert(i, ",");
   return s;
 }
+
+}  // namespace sdlms

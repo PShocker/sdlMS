@@ -6,6 +6,8 @@
 #include <cstdint>
 #include <flat_map>
 #include <optional>
+namespace sdlms {
+
 
 using namespace fbs;
 
@@ -21,3 +23,5 @@ public:
   static void HandleParty(uint64_t client_id, ClientCharacterPartyT &r);
   static void HandleServerParty(uint64_t client_id, ServerCharacterPartyT &r);
 };
+
+}  // namespace sdlms

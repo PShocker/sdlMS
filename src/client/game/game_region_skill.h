@@ -3,6 +3,8 @@
 #include "SDL3/SDL_rect.h"
 #include <cstdint>
 #include <string>
+namespace sdlms {
+
 
 struct GameRegionSkill{
   std::u16string id;
@@ -13,3 +15,5 @@ struct GameRegionSkill{
   uint64_t start;
   uint64_t end;
 };
+
+}  // namespace sdlms

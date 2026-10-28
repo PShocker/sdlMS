@@ -8,6 +8,8 @@
 #include <algorithm>
 #include <cmath>
 #include <ranges>
+namespace sdlms {
+
 
 void DropLogicSystem::RunStateMachine(GameDrop &drop) {
   switch (drop.type) {
@@ -126,3 +128,5 @@ bool DropLogicSystem::Run() {
   RunDestroy();
   return true;
 }
+
+}  // namespace sdlms

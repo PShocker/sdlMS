@@ -1,6 +1,8 @@
 #pragma once
 
 #include <cstdint>
+namespace sdlms {
+
 class ServerHeartbeatSystem {
 public:
   static bool RunClientHeartbeat();
@@ -9,3 +11,5 @@ public:
   static void ReceiveClientHeartbeat(uint64_t client_id);
   static void ReceiveServerHeartbeat();
 };
+
+}  // namespace sdlms

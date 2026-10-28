@@ -7,6 +7,8 @@
 #include <flat_map>
 #include <optional>
 #include <string>
+namespace sdlms {
+
 class KeyboardGameInstance {
 public:
   static void Reset();
@@ -22,3 +24,5 @@ public:
   static void EraseInput(SDL_Scancode c);
   static void EraseInput(GameInput i);
 };
+
+}  // namespace sdlms

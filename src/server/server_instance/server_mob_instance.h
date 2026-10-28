@@ -7,6 +7,8 @@
 #include "src/server/server/server_scene.h"
 #include <cstdint>
 #include <string>
+namespace sdlms {
+
 
 using namespace fbs;
 
@@ -47,3 +49,5 @@ public:
   static void HandleDebuff(uint64_t client_id, ClientMobDebuffT &r);
   static void HandleSDebuff(ServerMobDebuffT &r);
 };
+
+}  // namespace sdlms

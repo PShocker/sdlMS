@@ -13,6 +13,8 @@
 #include <ranges>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 void CharacterGameInstance::InitCharacterBone() {
   auto character_node = WzResource::character_;
@@ -564,3 +566,5 @@ void CharacterGameInstance::AddAvatarCache(const std::u16string &val,
     }
   }
 }
+
+}  // namespace sdlms

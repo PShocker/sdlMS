@@ -1,6 +1,8 @@
 #pragma once
 
 #include "src/client/game/game_input.h"
+namespace sdlms {
+
 class InputSystem {
 public:
   static void HandleUiInput(GameInput &g_input);
@@ -10,3 +12,5 @@ public:
   static void HandleFaceInput(GameInput &g_input, bool press);
   static void Reset();
 };
+
+}  // namespace sdlms

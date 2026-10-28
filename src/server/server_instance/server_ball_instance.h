@@ -2,6 +2,8 @@
 
 #include "src/common/flatbuffers/client.h"
 #include "src/common/flatbuffers/server.h"
+namespace sdlms {
+
 using namespace fbs;
 
 class ServerBallInstance {
@@ -10,3 +12,5 @@ public:
   static void HandleServerB(const std::unique_ptr<fbs::CharacterBallT> &r);
   static void HandleServerBall(uint64_t client_id, ServerCharacterBallT &r);
 };
+
+}  // namespace sdlms

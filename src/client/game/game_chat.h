@@ -1,6 +1,8 @@
 #pragma once
 #include <cstdint>
 #include <string>
+namespace sdlms {
+
 
 enum class GameChatEnum {
   kMap,
@@ -13,3 +15,5 @@ struct GameChat {
 
   uint64_t time;
 };
+
+}  // namespace sdlms

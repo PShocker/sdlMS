@@ -1,6 +1,8 @@
 #pragma once
 
 #include "src/client/game/game_obj.h"
+namespace sdlms {
+
 class TrapLogicSystem {
 private:
   static void RunMove(GameObj &g_trap);
@@ -10,3 +12,5 @@ private:
 public:
   static bool Run();
 };
+
+}  // namespace sdlms

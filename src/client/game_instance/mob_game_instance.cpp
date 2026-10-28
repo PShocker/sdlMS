@@ -17,6 +17,8 @@
 #include <ranges>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 std::u16string MobGameInstance::LoadMobName(const std::u16string &id) {
   std::u16string r = u"";
@@ -48,3 +50,5 @@ wz::Node *MobGameInstance::LoadLinkMobNode(const std::u16string &id) {
 }
 
 void MobGameInstance::Load(uint32_t map_id) { data_ = {}; }
+
+}  // namespace sdlms

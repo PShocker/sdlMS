@@ -15,6 +15,8 @@
 #include "src/server/server_instance/server_character_instance.h"
 #include <cstdint>
 #include <vector>
+namespace sdlms {
+
 
 static void Jinqianzhadan() {
   GameSkill g_skill;
@@ -123,3 +125,5 @@ static void Luoyezhan() {
   Luoyezhan();
   return true;
 }();
+
+}  // namespace sdlms

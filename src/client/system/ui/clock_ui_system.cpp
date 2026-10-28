@@ -8,6 +8,8 @@
 #include "src/common/wz/wz_resource.h"
 #include <array>
 #include <cmath>
+namespace sdlms {
+
 
 void ClockUiSystem::RenderBackgrnd() {
   SDL_Texture *t;
@@ -116,3 +118,5 @@ void ClockUiSystem::Open() {
 }
 
 void ClockUiSystem::Close() { std::erase(System::render_systems_, Render); }
+
+}  // namespace sdlms

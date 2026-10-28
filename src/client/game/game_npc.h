@@ -5,6 +5,8 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+namespace sdlms {
+
 struct GameNpc{
   std::u16string id;
   int32_t rx0;
@@ -27,3 +29,5 @@ struct GameNpc{
   std::optional<float> hspeed = 100.0f;
   std::optional<float> hforce;
 };
+
+}  // namespace sdlms

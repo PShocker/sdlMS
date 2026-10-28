@@ -29,6 +29,8 @@
 #include <optional>
 #include <string>
 #include <utility>
+namespace sdlms {
+
 
 using namespace fbs;
 
@@ -962,3 +964,5 @@ void ServerCharacterInstance::HandleLvUp(uint64_t client_id,
     }
   }
 }
+
+}  // namespace sdlms

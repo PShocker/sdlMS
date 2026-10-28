@@ -6,6 +6,8 @@
 #include "src/server/server/server_drop.h"
 #include <cstdint>
 #include <flat_map>
+namespace sdlms {
+
 
 using namespace fbs;
 
@@ -35,3 +37,5 @@ public:
   static void HandleServerCreateDrop(uint64_t client_id,
                                         ServerCreateDropT &r);
 };
+
+}  // namespace sdlms

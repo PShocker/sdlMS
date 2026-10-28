@@ -8,6 +8,8 @@
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
 #include <algorithm>
+namespace sdlms {
+
 
 void PartyUiSystem::RenderBackgrnd(float x, float y, float w, float h) {
   // backgrnd
@@ -240,3 +242,5 @@ bool PartyUiSystem::Event(SDL_Event *Event) {
 
   return r;
 }
+
+}  // namespace sdlms

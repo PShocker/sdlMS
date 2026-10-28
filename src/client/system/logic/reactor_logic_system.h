@@ -1,6 +1,8 @@
 #pragma once
 
 #include "src/client/game/game_reactor.h"
+namespace sdlms {
+
 class ReactorLogicSystem {
 private:
   static bool RunAnimate(GameReactor &g_reactor);
@@ -9,3 +11,5 @@ private:
 public:
   static bool Run();
 };
+
+}  // namespace sdlms

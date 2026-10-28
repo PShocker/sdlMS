@@ -6,6 +6,8 @@
 #include "uv.h"
 #include <cstdint>
 #include <string>
+namespace sdlms {
+
 class LoginUiSystem {
 private:
   static bool LoginAnimate();
@@ -36,3 +38,5 @@ public:
   static bool Render();
   static bool Event(SDL_Event *Event);
 };
+
+}  // namespace sdlms

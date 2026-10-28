@@ -7,6 +7,8 @@
 #include <cstdint>
 #include <memory>
 #include <string>
+namespace sdlms {
+
 class ItemGameInstance {
 public:
   static inline std::vector<GameItemBuff> buff_;
@@ -34,3 +36,5 @@ public:
   static bool UseConsumeItem(std::polymorphic<GameItem> &itm);
   static void UseItem(std::polymorphic<GameItem> &itm);
 };
+
+}  // namespace sdlms

@@ -9,6 +9,8 @@
 #include <string>
 #include <variant>
 #include <vector>
+namespace sdlms {
+
 class CharacterInfoUiSystem {
 private:
   static void RenderBackgrnd();
@@ -75,3 +77,5 @@ public:
   static bool Render();
   static bool Event(SDL_Event *Event);
 };
+
+}  // namespace sdlms

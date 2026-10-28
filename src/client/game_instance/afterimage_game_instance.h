@@ -7,6 +7,8 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+namespace sdlms {
+
 
 struct AfterimageData {
   SDL_Texture *texture;
@@ -25,3 +27,5 @@ public:
   static std::optional<SDL_FRect> LoadRect(GameCharacter &g_character);
   static uint64_t LoadBeatTime(GameCharacter &g_character);
 };
+
+}  // namespace sdlms

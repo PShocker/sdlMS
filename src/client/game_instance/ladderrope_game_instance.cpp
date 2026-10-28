@@ -2,6 +2,8 @@
 #include "src/client/game/game_ladderrope.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
+namespace sdlms {
+
 
 void LadderropeGameInstance::Load(uint32_t map_id) {
   data_.clear();
@@ -33,3 +35,5 @@ void LadderropeGameInstance::Load(uint32_t map_id) {
     data_.emplace(id, g_ladderrope);
   }
 }
+
+}  // namespace sdlms

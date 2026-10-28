@@ -2,6 +2,8 @@
 
 #include "SDL3/SDL_events.h"
 #include <optional>
+namespace sdlms {
+
 class PartyUiSystem {
 private:
   static void RenderBackgrnd(float x, float y, float w, float h);
@@ -29,3 +31,5 @@ public:
 
   static void Toggle();
 };
+
+}  // namespace sdlms

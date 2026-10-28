@@ -5,6 +5,8 @@
 #include <flat_set>
 #include <optional>
 #include <string>
+namespace sdlms {
+
 class QuestAlarmUiSystem {
 private:
   static void RenderBackgrnd();
@@ -49,3 +51,5 @@ public:
   static bool Render();
   static bool Event(SDL_Event *Event);
 };
+
+}  // namespace sdlms

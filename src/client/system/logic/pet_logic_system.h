@@ -1,5 +1,7 @@
 #pragma once
 #include "src/client/game/game_pet.h"
+namespace sdlms {
+
 
 class PetLogicSystem {
 private:
@@ -9,3 +11,5 @@ private:
 public:
   static bool Run();
 };
+
+}  // namespace sdlms

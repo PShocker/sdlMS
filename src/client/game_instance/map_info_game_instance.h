@@ -6,6 +6,8 @@
 #include <optional>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 class MapInfoGameInstance {
 public:
   static wz::Node *Load(uint32_t map_id);
@@ -16,3 +18,5 @@ public:
   static uint32_t LoadReturnMap(uint32_t map_id);
   static std::u16string LoadBgm(uint32_t map_id);
 };
+
+}  // namespace sdlms

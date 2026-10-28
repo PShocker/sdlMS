@@ -1,4 +1,6 @@
 #include "../script.h"
+namespace sdlms {
+
 
 static void Consume2430001(std::any data) {
 
@@ -9,3 +11,5 @@ static void Consume2430001(std::any data) {
   fns[u"consume_2430001"] = Consume2430001;
   return true;
 }();
+
+}  // namespace sdlms

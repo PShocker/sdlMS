@@ -5,6 +5,8 @@
 #include <flat_map>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 struct QuestMob {
   std::u16string id;
@@ -41,3 +43,5 @@ struct GameQuest{
   bool mob_bool;
   bool item_bool;
 };
+
+}  // namespace sdlms

@@ -2,6 +2,8 @@
 
 #include "src/client/game/game_popup_tip.h"
 #include <string>
+namespace sdlms {
+
 
 using namespace fbs;
 
@@ -15,3 +17,5 @@ public:
   
   static inline std::vector<GamePopupTip> data_;
 };
+
+}  // namespace sdlms

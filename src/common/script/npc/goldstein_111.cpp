@@ -1,4 +1,6 @@
 #include "../script.h"
+namespace sdlms {
+
 
 static void Goldstein111(std::any data) {
 
@@ -9,3 +11,5 @@ static void Goldstein111(std::any data) {
   fns[u"goldstein_111"] = Goldstein111;
   return true;
 }();
+
+}  // namespace sdlms

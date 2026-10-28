@@ -2,6 +2,8 @@
 
 #include "src/client/game/game_save.h"
 #include <cstdint>
+namespace sdlms {
+
 
 class CharacterStatGameInstance {
 private:
@@ -287,3 +289,5 @@ public:
   static int32_t GetItmDef();
   static int32_t GetItmMdef();
 };
+
+}  // namespace sdlms

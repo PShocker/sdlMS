@@ -9,6 +9,8 @@
 #include "src/common/request/client_request.h"
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server_instance/server_trap_instance.h"
+namespace sdlms {
+
 
 void TrapLogicSystem::RunMove(GameObj &g_trap) {
   auto node = WzResource::map_->find(g_trap.path);
@@ -60,3 +62,5 @@ bool TrapLogicSystem::Run() {
   RunCollision();
   return true;
 }
+
+}  // namespace sdlms

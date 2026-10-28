@@ -16,6 +16,8 @@
 #include <string>
 #include <utility>
 #include <vector>
+namespace sdlms {
+
 
 void ServerReactorInstance::LoadReactor(ServerSceneState &scene) {
   std::vector<ServerReactorState> data;
@@ -149,3 +151,5 @@ void ServerReactorInstance::HandleServerReactorDrop(
     ServerDropInstance::HandleServerDt(*dt);
   }
 }
+
+}  // namespace sdlms

@@ -6,6 +6,8 @@
 #include "wz/Wz.h"
 #include <cstdlib>
 #include <string>
+namespace sdlms {
+
 
 void BackgrndGameInstance::Load(wz::Node *image) {
   front_ = {};
@@ -152,3 +154,5 @@ void BackgrndGameInstance::Load(uint32_t map_id) {
   auto map_node = WzResource::LoadMapNode(map_id);
   Load(map_node);
 }
+
+}  // namespace sdlms

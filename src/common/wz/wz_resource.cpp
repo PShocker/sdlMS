@@ -13,6 +13,8 @@
 #include <cstdlib>
 #include <flat_map>
 #include <string>
+namespace sdlms {
+
 
 void WzResource::InitKey() {
   std::array<uint8_t, 4> iv{
@@ -182,3 +184,5 @@ SDL_FPoint WzResource::LoadFpoint(wz::Node *node) {
   auto v = static_cast<wz::Property<wz::WzVec2D> *>(node)->get();
   return SDL_FPoint{static_cast<float>(v.x), static_cast<float>(v.y)};
 }
+
+}  // namespace sdlms

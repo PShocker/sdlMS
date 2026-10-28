@@ -5,6 +5,8 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 using namespace fbs;
 
@@ -12,3 +14,5 @@ struct GameParty{
   uint64_t captain_id;
   std::vector<PlayerT> clients;
 };
+
+}  // namespace sdlms

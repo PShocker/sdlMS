@@ -6,6 +6,8 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 using namespace fbs;
 
@@ -50,3 +52,5 @@ private:
 public:
   static bool Run();
 };
+
+}  // namespace sdlms

@@ -7,6 +7,8 @@
 #include "src/server/server_instance/server_reactor_instance.h"
 #include "src/server/server_instance/server_scene_instance.h"
 #include "wz/Property.h"
+namespace sdlms {
+
 
 void ServerReactorSystem::RunScript(ServerReactorState &r) {
   if (r.revive != 0) {
@@ -92,3 +94,5 @@ bool ServerReactorSystem::Run() {
 
   return true;
 }
+
+}  // namespace sdlms

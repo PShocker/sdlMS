@@ -6,6 +6,8 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+namespace sdlms {
+
 
 class MinimapUiSystem {
 private:
@@ -63,3 +65,5 @@ public:
 
   static bool CursorIn();
 };
+
+}  // namespace sdlms

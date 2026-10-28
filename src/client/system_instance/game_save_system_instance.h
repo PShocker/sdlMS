@@ -2,6 +2,8 @@
 #include "src/client/game/game_save.h"
 #include <optional>
 #include <string>
+namespace sdlms {
+
 
 class GameSaveSystemInstance {
 public:
@@ -10,3 +12,5 @@ public:
 
   static bool SaveGame();
 };
+
+}  // namespace sdlms

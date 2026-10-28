@@ -30,6 +30,8 @@
 #include <flat_map>
 #include <memory>
 #include <optional>
+namespace sdlms {
+
 
 void ServerMobInstance::LoadDefaultMob(const std::u16string id,
                                            ServerMob &mob) {
@@ -460,3 +462,5 @@ void ServerMobInstance::HandleSDebuff(ServerMobDebuffT &r) {
     }
   }
 }
+
+}  // namespace sdlms

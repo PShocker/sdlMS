@@ -1,6 +1,8 @@
 #pragma once
 
 #include "src/client/game/game_backgrnd.h"
+namespace sdlms {
+
 class BackgrndLogicSystem {
 private:
   static void RunOffset(GameBackgrnd &g_backgrnd);
@@ -9,3 +11,5 @@ private:
 public:
   static bool Run();
 };
+
+}  // namespace sdlms

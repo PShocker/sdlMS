@@ -5,6 +5,8 @@
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
 #include <cstddef>
+namespace sdlms {
+
 
 void AudioGameInstance::Init() {
   device_id_ = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, NULL);
@@ -66,3 +68,5 @@ void AudioGameInstance::CloseAudio(const GameAudio &audio) {
   SDL_UnbindAudioStream(audio.stream);
   SDL_DestroyAudioStream(audio.stream);
 }
+
+}  // namespace sdlms

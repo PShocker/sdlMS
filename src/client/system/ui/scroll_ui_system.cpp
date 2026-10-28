@@ -5,6 +5,8 @@
 #include "src/common/wz/wz_resource.h"
 #include <algorithm>
 #include <cmath>
+namespace sdlms {
+
 
 void ScrollUiSystem::RenderVscroll(float x, float y, uint32_t val,
                                       uint32_t count, int32_t length, bool top,
@@ -168,3 +170,5 @@ bool ScrollUiSystem::ClickThumb(float x, float y, int32_t length,
   };
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
+
+}  // namespace sdlms

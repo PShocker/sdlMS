@@ -8,6 +8,8 @@
 #include <array>
 #include <optional>
 #include <string>
+namespace sdlms {
+
 class ShopUiSystem {
 private:
   static void RenderBackgrnd();
@@ -67,3 +69,5 @@ public:
 
   static void Toggle();
 };
+
+}  // namespace sdlms

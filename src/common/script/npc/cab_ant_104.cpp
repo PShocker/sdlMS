@@ -1,4 +1,6 @@
 #include "../script.h"
+namespace sdlms {
+
 
 static void CabAnt104(std::any data) {
 
@@ -9,3 +11,5 @@ static void CabAnt104(std::any data) {
   fns[u"cab_ant_104"] = CabAnt104;
   return true;
 }();
+
+}  // namespace sdlms

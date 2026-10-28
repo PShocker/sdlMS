@@ -3,6 +3,8 @@
 #include "SDL3/SDL_rect.h"
 #include "src/client/game/game_character.h"
 #include <string>
+namespace sdlms {
+
 
 struct GamePet{
   GameCharacter *g_character;
@@ -18,3 +20,5 @@ struct GamePet{
   uint32_t ani_index = 0;
   uint32_t ani_time;
 };
+
+}  // namespace sdlms

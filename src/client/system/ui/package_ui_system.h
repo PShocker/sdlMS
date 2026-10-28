@@ -8,6 +8,8 @@
 #include <optional>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 class PackageUiSystem {
 private:
@@ -77,3 +79,5 @@ public:
   };
   static inline std::optional<NewItem> new_itm_;
 };
+
+}  // namespace sdlms

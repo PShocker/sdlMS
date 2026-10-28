@@ -3,6 +3,8 @@
 #include "src/common/flatbuffers/client.h"
 #include "src/common/flatbuffers/server.h"
 #include <cstdint>
+namespace sdlms {
+
 
 using namespace fbs;
 
@@ -12,3 +14,5 @@ public:
   static void HandleAttack(uint64_t client_id, ClientTrapAttackT &r);
   static void HandleServerAttack(uint64_t client_id, ServerTrapAttackT &r);
 };
+
+}  // namespace sdlms

@@ -16,6 +16,8 @@
 #include <optional>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 struct GameCharacter{
   uint8_t page;
@@ -95,3 +97,5 @@ struct GameCharacter{
 
   std::u16string morph;
 };
+
+}  // namespace sdlms

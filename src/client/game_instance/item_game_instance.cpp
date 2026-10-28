@@ -17,6 +17,8 @@
 #include <flat_map>
 #include <ranges>
 #include <string>
+namespace sdlms {
+
 
 bool ItemGameInstance::CheckItem(const std::u16string &id) {
   auto r = id.substr(0, 2);
@@ -524,3 +526,5 @@ void ItemGameInstance::UseItem(std::polymorphic<GameItem> &itm) {
   }
   return;
 }
+
+}  // namespace sdlms

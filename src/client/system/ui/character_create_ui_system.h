@@ -5,6 +5,8 @@
 #include "text_input_ui_system.h"
 #include <string>
 #include <vector>
+namespace sdlms {
+
 class CharacterCreateUiSystem {
 private:
   static std::vector<std::u16string> LoadDefaultFace();
@@ -103,3 +105,5 @@ public:
 
   static inline GameCharacter g_character_;
 };
+
+}  // namespace sdlms

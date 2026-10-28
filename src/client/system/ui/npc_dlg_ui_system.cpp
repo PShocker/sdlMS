@@ -34,6 +34,8 @@
 #include <optional>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 static std::u16string selected;
 
@@ -1018,3 +1020,5 @@ bool NpcDlgUiSystem::StartNextQuest() {
   }
   return false;
 }
+
+}  // namespace sdlms

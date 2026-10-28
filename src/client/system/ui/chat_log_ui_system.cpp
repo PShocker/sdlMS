@@ -11,6 +11,8 @@
 #include "src/common/wz/wz_resource.h"
 #include <flat_map>
 #include <format>
+namespace sdlms {
+
 
 void ChatLogUiSystem::RenderVscr() {
   const uint32_t length = 80;
@@ -141,3 +143,5 @@ bool ChatLogUiSystem::Event(SDL_Event *Event) {
 
   return r;
 }
+
+}  // namespace sdlms

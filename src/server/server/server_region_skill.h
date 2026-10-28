@@ -4,6 +4,8 @@
 #include <any>
 #include <cstdint>
 #include <string>
+namespace sdlms {
+
 
 struct ServerRegionSkill{
   uint64_t client_id;
@@ -21,3 +23,5 @@ struct ServerRegionSkill{
 
   std::any data;
 };
+
+}  // namespace sdlms

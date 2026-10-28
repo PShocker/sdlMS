@@ -5,6 +5,8 @@
 #include <cstdio>
 #include <flat_map>
 #include <string>
+namespace sdlms {
+
 
 bool KeyboardInputSystem::Event(SDL_Event *Event) {
   auto repeat = Event->key.repeat;
@@ -44,3 +46,5 @@ bool KeyboardInputSystem::Event(SDL_Event *Event) {
 void KeyboardInputSystem::Reset() {
   InputSystem::Reset();
 }
+
+}  // namespace sdlms

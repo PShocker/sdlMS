@@ -1,6 +1,8 @@
 #pragma once
 
 #include "src/client/game/game_mob.h"
+namespace sdlms {
+
 class MobRenderSystem {
 private:
   static void RenderNametag(const std::u16string &text, SDL_FPoint p);
@@ -13,3 +15,5 @@ private:
 public:
   static bool Render(GameMob &g_mob);
 };
+
+}  // namespace sdlms

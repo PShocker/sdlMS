@@ -40,6 +40,8 @@
 #include <string>
 #include <utility>
 #include <vector>
+namespace sdlms {
+
 
 void PackageUiSystem::CalMouseIndex() {
   mouse_index_ = std::nullopt;
@@ -896,3 +898,5 @@ bool PackageUiSystem::Event(SDL_Event *Event) {
 
   return r;
 }
+
+}  // namespace sdlms

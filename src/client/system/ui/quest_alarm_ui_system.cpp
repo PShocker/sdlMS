@@ -17,6 +17,8 @@
 #include <cstdint>
 #include <format>
 #include <string>
+namespace sdlms {
+
 
 SDL_FPoint QuestAlarmUiSystem::LoadWh() {
   float h = 0;
@@ -364,3 +366,5 @@ void QuestAlarmUiSystem::AcceptQuest(const std::u16string &id) {
 void QuestAlarmUiSystem::CompleteQuest(const std::u16string &id) {
   quests_.erase(id);
 }
+
+}  // namespace sdlms

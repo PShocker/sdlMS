@@ -11,6 +11,8 @@
 #include <ranges>
 #include <string>
 #include <utility>
+namespace sdlms {
+
 
 using namespace fbs;
 
@@ -147,3 +149,5 @@ void ServerSceneInstance::HandleScene(uint64_t client_id,
     SendInScene(client_id, client_scene);
   }
 }
+
+}  // namespace sdlms

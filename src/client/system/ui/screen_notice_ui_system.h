@@ -3,6 +3,8 @@
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_rect.h"
 #include <string>
+namespace sdlms {
+
 class ScreenNoticeUiSystem {
 private:
   static void RenderBackgrnd();
@@ -25,3 +27,5 @@ public:
 
   static SDL_FPoint LoadWh();
 };
+
+}  // namespace sdlms

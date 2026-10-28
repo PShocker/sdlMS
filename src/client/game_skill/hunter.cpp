@@ -18,6 +18,8 @@
 #include "src/server/server_instance/server_character_instance.h"
 #include <cstdint>
 #include <vector>
+namespace sdlms {
+
 
 // 310
 static void Baozhajian() {
@@ -161,3 +163,5 @@ static void Wuyingjian() {
   Wuyingjian();
   return true;
 }();
+
+}  // namespace sdlms

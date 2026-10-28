@@ -5,6 +5,8 @@
 #include "src/common/wz/wz_resource.h"
 #include <cmath>
 #include <optional>
+namespace sdlms {
+
 
 void SliderUiSystem::RenderHslider(int x, int y, uint32_t val,
                                       uint32_t count, int32_t length, bool top,
@@ -64,3 +66,5 @@ std::optional<int> SliderUiSystem::ClickThumb(int x, int y, uint32_t val,
   }
   return std::nullopt;
 }
+
+}  // namespace sdlms

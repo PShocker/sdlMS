@@ -2,8 +2,12 @@
 #include "src/client/game/game_seat.h"
 #include "SDL3/SDL_rect.h"
 #include <vector>
+namespace sdlms {
+
 class SeatGameInstance {
 public:
   static void Load(uint32_t map_id);
   static inline std::vector<GameSeat> data_;
 };
+
+}  // namespace sdlms

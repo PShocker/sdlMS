@@ -1,6 +1,8 @@
 #include "../script.h"
 #include "src/client/system/ui/npc_dlg_ui_system.h"
 #include "src/client/window/window.h"
+namespace sdlms {
+
 
 static void Npc18(std::any data) {
   NpcDlgUiSystem::type_ = NpcDlgUiSystem::NpcDlgEnum::kTalk;
@@ -16,3 +18,5 @@ static void Npc18(std::any data) {
   fns[u"npc_18"] = Npc18;
   return true;
 }();
+
+}  // namespace sdlms

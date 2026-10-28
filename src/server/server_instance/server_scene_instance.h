@@ -5,6 +5,8 @@
 #include <cstdint>
 #include <flat_map>
 #include <vector>
+namespace sdlms {
+
 
 using namespace fbs;
 
@@ -23,3 +25,5 @@ public:
   //   注意，地图可能存在组队地图，如果是组队图，高32位是原始地图id，低32是组队地图的组队号
   static inline std::flat_map<uint64_t, ServerSceneState> scenes_;
 };
+
+}  // namespace sdlms

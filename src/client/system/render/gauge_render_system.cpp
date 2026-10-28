@@ -4,6 +4,8 @@
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
+namespace sdlms {
+
 
 bool GaugeRenderSystem::RenderMob(SDL_FPoint pos, GameGauge &g) {
   static auto back = WzResource::LoadTexture(
@@ -71,3 +73,5 @@ bool GaugeRenderSystem::RenderCharacter(SDL_FPoint pos, float hp_percent) {
   }
   return true;
 }
+
+}  // namespace sdlms

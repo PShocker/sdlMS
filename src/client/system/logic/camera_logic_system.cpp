@@ -4,6 +4,8 @@
 #include "src/client/game_instance/map_info_game_instance.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include <cmath>
+namespace sdlms {
+
 
 bool CameraLogicSystem::Run() {
   auto self = CharacterGameInstance::self_;
@@ -48,3 +50,5 @@ bool CameraLogicSystem::Run() {
 
   return true;
 }
+
+}  // namespace sdlms

@@ -2,6 +2,8 @@
 
 #include "SDL3/SDL_rect.h"
 #include <cstdint>
+namespace sdlms {
+
 struct GameLadderrope{
   uint8_t l;
   uint8_t uf;
@@ -15,3 +17,5 @@ struct GameLadderrope{
   uint8_t page;
   uint8_t piece;
 };
+
+}  // namespace sdlms

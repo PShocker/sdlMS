@@ -7,9 +7,13 @@
 #include <cstdint>
 #include <flat_map>
 #include <vector>
+namespace sdlms {
+
 class ObjGameInstance {
 public:
   static void Load(wz::Node *image);
   static void Load(uint32_t map_id);
   static inline std::array<std::flat_multimap<int64_t, GameObj>, 8> data_;
 };
+
+}  // namespace sdlms

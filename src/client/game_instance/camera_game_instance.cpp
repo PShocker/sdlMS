@@ -1,5 +1,7 @@
 #include "camera_game_instance.h"
 #include "character_game_instance.h"
+namespace sdlms {
+
 
 void CameraGameInstance::Reset() {
   const auto &self = CharacterGameInstance::self_;
@@ -13,3 +15,5 @@ void CameraGameInstance::Load(float x, float y, float w, float h) {
   camera_.w = w;
   camera_.h = h;
 }
+
+}  // namespace sdlms

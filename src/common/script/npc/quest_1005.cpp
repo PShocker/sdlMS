@@ -1,4 +1,6 @@
 #include "../script.h"
+namespace sdlms {
+
 
 static void Quest1005(std::any data) {
 
@@ -9,3 +11,5 @@ static void Quest1005(std::any data) {
   fns[u"quest_1005"] = Quest1005;
   return true;
 }();
+
+}  // namespace sdlms

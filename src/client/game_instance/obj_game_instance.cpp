@@ -6,6 +6,8 @@
 #include "wz/Wz.h"
 #include <cstdint>
 #include <string>
+namespace sdlms {
+
 
 void ObjGameInstance::Load(wz::Node *image) {
   data_ = {};
@@ -73,3 +75,5 @@ void ObjGameInstance::Load(uint32_t map_id) {
   auto map_node = WzResource::LoadMapNode(map_id);
   Load(map_node);
 }
+
+}  // namespace sdlms

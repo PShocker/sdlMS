@@ -3,6 +3,8 @@
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_rect.h"
 #include <optional>
+namespace sdlms {
+
 class StatusbarMenuUiSystem {
 private:
   static SDL_FRect LoadR();
@@ -43,3 +45,5 @@ public:
   static bool Render();
   static bool Event(SDL_Event *Event);
 };
+
+}  // namespace sdlms

@@ -7,6 +7,8 @@
 #include <optional>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 class BeautyUiSystem {
 private:
   static void RenderBackgrnd();
@@ -38,3 +40,5 @@ public:
 
   static inline SDL_FPoint pos_;
 };
+
+}  // namespace sdlms

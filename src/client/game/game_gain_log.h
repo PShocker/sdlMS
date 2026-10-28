@@ -2,6 +2,8 @@
 
 #include <cstdint>
 #include <string>
+namespace sdlms {
+
 
 enum class GainEnum { kItem, kExperience };
 
@@ -12,3 +14,5 @@ struct GameGainLog{
 
   GainEnum type;
 };
+
+}  // namespace sdlms

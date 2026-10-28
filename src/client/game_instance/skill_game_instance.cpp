@@ -13,6 +13,8 @@
 #include <cstdint>
 #include <flat_map>
 #include <string>
+namespace sdlms {
+
 
 using namespace fbs;
 
@@ -278,3 +280,5 @@ SkillGameInstance::CreateSkillPayload(int ski_id, uint8_t ski_lv) {
 
   return skill_payload;
 }
+
+}  // namespace sdlms

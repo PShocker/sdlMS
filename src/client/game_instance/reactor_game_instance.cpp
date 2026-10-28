@@ -5,6 +5,8 @@
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
 #include <cstdint>
+namespace sdlms {
+
 
 uint8_t ReactorGameInstance::LoadReactorLayer(SDL_FPoint pos) {
   for (const auto &[key, val] : FootholdGameInstance::data_) {
@@ -47,3 +49,5 @@ void ReactorGameInstance::Load(uint32_t map_id) {
     }
   }
 }
+
+}  // namespace sdlms

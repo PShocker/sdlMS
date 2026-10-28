@@ -4,5 +4,9 @@
 #include "src/client/game_instance/cursor_game_instance.h"
 #include <format>
 #include <optional>
+namespace sdlms {
+
 
 void DropGameInstance::Reset() { data_ = {}; }
+
+}  // namespace sdlms

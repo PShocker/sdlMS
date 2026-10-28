@@ -27,6 +27,8 @@
 #include <numbers>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 static void Douqijizhong() {
   GameSkill g_skill;
@@ -300,3 +302,5 @@ static void Hupaoxiao() {
   Hupaoxiao();
   return true;
 }();
+
+}  // namespace sdlms

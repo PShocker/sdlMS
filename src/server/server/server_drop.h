@@ -5,6 +5,8 @@
 #include "src/common/flatbuffers/common.h"
 #include <cstdint>
 #include <optional>
+namespace sdlms {
+
 
 using namespace fbs;
 
@@ -13,3 +15,5 @@ struct ServerDrop{
   uint64_t available;
   uint64_t destroy;
 };
+
+}  // namespace sdlms

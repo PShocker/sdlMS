@@ -5,6 +5,8 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+namespace sdlms {
+
 
 struct DamageData {
   uint64_t num;
@@ -47,3 +49,5 @@ struct GameEffect{
   std::optional<uint8_t> order;
   std::any data;
 };
+
+}  // namespace sdlms

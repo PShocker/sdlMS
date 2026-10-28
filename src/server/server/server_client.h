@@ -3,6 +3,8 @@
 #include "src/common/flatbuffers/common.h"
 #include "uv.h"
 #include <cstdint>
+namespace sdlms {
+
 
 using namespace fbs;
 
@@ -13,3 +15,5 @@ struct ServerClient{
   PlayerT player_t;
   uint64_t heartbeat;
 };
+
+}  // namespace sdlms

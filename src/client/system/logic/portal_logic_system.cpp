@@ -2,6 +2,8 @@
 #include "src/client/game_instance/portal_game_instance.h"
 #include "src/client/window/window.h"
 #include <ranges>
+namespace sdlms {
+
 
 bool PortalLogicSystem::Run() {
   for (auto &portal : PortalGameInstance::data_ | std::views::values) {
@@ -13,3 +15,5 @@ bool PortalLogicSystem::Run() {
   }
   return true;
 }
+
+}  // namespace sdlms

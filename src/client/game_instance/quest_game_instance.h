@@ -8,6 +8,8 @@
 #include <optional>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 class QuestGameInstance {
 private:
@@ -65,3 +67,5 @@ public:
 
   static void Load(CharacterSaveData &cs);
 };
+
+}  // namespace sdlms

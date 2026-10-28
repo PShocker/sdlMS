@@ -2,6 +2,8 @@
 
 #include "SDL3/SDL_rect.h"
 #include <cstdint>
+namespace sdlms {
+
 class ClockUiSystem {
 private:
   static void RenderBackgrnd();
@@ -22,3 +24,5 @@ public:
   static void Open();
   static void Close();
 };
+
+}  // namespace sdlms

@@ -19,6 +19,8 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
+namespace sdlms {
+
 
 static void Erduantiao() {
   GameSkill g_skill;
@@ -118,3 +120,5 @@ static void Dafeibiao() {
   Dafeibiao();
   return true;
 }();
+
+}  // namespace sdlms

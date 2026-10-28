@@ -1,6 +1,8 @@
 #include "server_client_instance.h"
 #include "server_scene_instance.h"
 #include <ranges>
+namespace sdlms {
+
 
 void ServerClientInstance::ClientExit(uint64_t client_id) {
   if (clients_.contains(client_id)) {
@@ -11,3 +13,5 @@ void ServerClientInstance::ClientExit(uint64_t client_id) {
   }
   return;
 }
+
+}  // namespace sdlms

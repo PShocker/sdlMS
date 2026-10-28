@@ -7,6 +7,8 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 struct ApSave {
   uint32_t hp_ap;
@@ -58,3 +60,5 @@ struct GameSaveData{
   std::vector<CharacterSaveData> characters;
   GameStorage storage;
 };
+
+}  // namespace sdlms

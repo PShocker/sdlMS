@@ -17,6 +17,8 @@
 #include "src/server/server_instance/server_character_instance.h"
 #include "src/server/server_instance/server_mob_instance.h"
 #include <memory>
+namespace sdlms {
+
 
 static void Qinggong() {
   GameSkill g_skill;
@@ -138,3 +140,5 @@ static void Shentoushu() {
   Huixuanzhan();
   return true;
 }();
+
+}  // namespace sdlms

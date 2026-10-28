@@ -22,6 +22,8 @@
 #include <ranges>
 #include <string>
 #include <utility>
+namespace sdlms {
+
 
 MobLogicSystem::ActionEnum
 MobLogicSystem::LoadActionType(const std::u16string &action) {
@@ -310,3 +312,5 @@ bool MobLogicSystem::Run() {
   RunMv();
   return true;
 }
+
+}  // namespace sdlms

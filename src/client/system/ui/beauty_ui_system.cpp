@@ -7,6 +7,8 @@
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include <algorithm>
+namespace sdlms {
+
 
 void BeautyUiSystem::RenderBackgrnd() {
   static auto backgrnd = WzResource::LoadTexture(
@@ -90,3 +92,5 @@ bool BeautyUiSystem::Event(SDL_Event *Event) {
 
   return r;
 }
+
+}  // namespace sdlms

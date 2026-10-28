@@ -7,6 +7,8 @@
 #include <cstdint>
 #include <ranges>
 #include <string>
+namespace sdlms {
+
 
 void BackgrndLogicSystem::RunAnimate(GameBackgrnd &g_backgrnd) {
   if (g_backgrnd.ani == 1) {
@@ -60,3 +62,5 @@ bool BackgrndLogicSystem::Run() {
   }
   return true;
 }
+
+}  // namespace sdlms

@@ -25,6 +25,8 @@
 #include "src/server/server_main.h"
 #include <cstdio>
 #include <memory>
+namespace sdlms {
+
 
 using namespace fbs;
 
@@ -472,3 +474,5 @@ void RequestHandler::HandleRequest(uint64_t client_id, void *buf,
     break;
   }
 }
+
+}  // namespace sdlms

@@ -31,6 +31,8 @@
 #include <string>
 #include <utility>
 #include <vector>
+namespace sdlms {
+
 
 SDL_FPoint ShopUiSystem::LoadWh() { return SDL_FPoint{465, 381}; }
 
@@ -670,3 +672,5 @@ bool ShopUiSystem::Event(SDL_Event *Event) {
 
   return false;
 }
+
+}  // namespace sdlms

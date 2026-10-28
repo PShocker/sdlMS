@@ -4,6 +4,8 @@
 #include <chrono>
 #include <cstdint>
 #include <cstdlib>
+namespace sdlms {
+
 
 void Window::Create(const char *title, uint32_t logic_w, uint32_t logic_h,
                     uint32_t window_w, uint32_t window_h) {
@@ -47,3 +49,5 @@ void Window::Update() {
   mouse_state_ = SDL_GetMouseState(&mouse_pos_.x, &mouse_pos_.y);
   SDL_RenderPresent(renderer_);
 }
+
+}  // namespace sdlms

@@ -6,6 +6,8 @@
 #include <optional>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 struct ComboBox {
   bool open;
@@ -20,3 +22,5 @@ public:
   static void Render(int x, int y, ComboBox cm, bool top, bool disable);
   static bool Click(int x, int y, ComboBox cm, bool top, bool disable);
 };
+
+}  // namespace sdlms

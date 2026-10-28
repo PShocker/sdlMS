@@ -9,6 +9,8 @@
 #include "wz/Node.h"
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 SDL_FPoint LoginNoticeUiSystem::LoadPos() {
   SDL_FPoint pos;
@@ -245,3 +247,5 @@ bool LoginNoticeUiSystem::Event(SDL_Event *Event) {
 }
 
 bool LoginNoticeUiSystem::Run() { return true; }
+
+}  // namespace sdlms

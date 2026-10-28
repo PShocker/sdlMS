@@ -18,6 +18,8 @@
 #include <ranges>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 bool EquipGameInstance::CheckEquip(const std::u16string &id) {
   auto r = id.substr(0, 2);
@@ -809,3 +811,5 @@ int EquipGameInstance::UnuseDeco(int i) {
   CharacterLogicSystem::cct_.map_id = SceneSystemInstance::map_id_;
   return 1;
 }
+
+}  // namespace sdlms

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "SDL3/SDL_events.h"
+namespace sdlms {
+
 class MinigameOmokUiSystem {
 private:
   static void RenderBackgrnd();
@@ -19,3 +21,5 @@ public:
 
   static void Toggle();
 };
+
+}  // namespace sdlms

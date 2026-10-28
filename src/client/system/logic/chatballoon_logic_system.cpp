@@ -3,6 +3,8 @@
 #include "src/client/game_instance/npc_game_instance.h"
 #include "src/client/window/window.h"
 #include <optional>
+namespace sdlms {
+
 
 bool ChatballoonLogicSystem::Run() {
   // self
@@ -27,3 +29,5 @@ bool ChatballoonLogicSystem::Run() {
 
   return true;
 }
+
+}  // namespace sdlms

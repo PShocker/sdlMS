@@ -10,6 +10,8 @@ extern "C" {
 #include <libavformat/avformat.h>
 }
 
+namespace sdlms {
+
 GameAudioCache
 Ffmpeg::DecodeAudioPcm(const std::vector<uint8_t> &audio_data) {
   GameAudioCache gac;
@@ -178,3 +180,5 @@ Ffmpeg::DecodeAudioPcm(const std::vector<uint8_t> &audio_data) {
 
   return gac;
 }
+
+}  // namespace sdlms

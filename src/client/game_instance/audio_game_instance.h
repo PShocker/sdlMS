@@ -8,6 +8,8 @@
 #include <optional>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 class AudioGameInstance {
 public:
@@ -27,3 +29,5 @@ public:
   static inline SDL_AudioDeviceID device_id_;
   static inline std::flat_map<std::u16string, GameAudioCache> cache_;
 };
+
+}  // namespace sdlms

@@ -12,6 +12,8 @@
 #include <flat_map>
 #include <optional>
 #include <string>
+namespace sdlms {
+
 
 std::u16string
 AfterimageGameInstance::LoadHitType(GameCharacter &g_character) {
@@ -151,3 +153,5 @@ uint64_t AfterimageGameInstance::LoadBeatTime(GameCharacter &g_character) {
   }
   return time;
 }
+
+}  // namespace sdlms

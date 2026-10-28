@@ -6,6 +6,8 @@
 #include "src/common/wz/wz_resource.h"
 #include "wz/Node.h"
 #include <string>
+namespace sdlms {
+
 
 void DebuffRenderSystem::Render(GameDebuff::DebuffType type,
                                   SDL_FPoint pos) {
@@ -56,3 +58,5 @@ void DebuffRenderSystem::RenderMob(GameMob &mob) {
     Render(k, mob.pos);
   }
 }
+
+}  // namespace sdlms

@@ -10,6 +10,8 @@
 #include "wz/Property.h"
 #include "wz/Wz.h"
 #include <ranges>
+namespace sdlms {
+
 
 void NpcRenderSystem::RenderNametag(const std::u16string &text,
                                        SDL_FPoint p) {
@@ -128,3 +130,5 @@ bool NpcRenderSystem::Render(GameNpc &g_npc) {
   RenderQuest(g_npc);
   return true;
 }
+
+}  // namespace sdlms

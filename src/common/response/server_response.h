@@ -4,6 +4,8 @@
 #include "src/common/flatbuffers/server.h"
 #include "src/server/server_main.h"
 #include <cstdint>
+namespace sdlms {
+
 
 using namespace fbs;
 
@@ -27,3 +29,5 @@ public:
     ServerMain::ServerSend(point, size, client_id);
   }
 };
+
+}  // namespace sdlms

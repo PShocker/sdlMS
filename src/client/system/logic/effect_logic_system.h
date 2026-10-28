@@ -2,6 +2,8 @@
 
 #include "src/client/game/game_effect.h"
 #include <vector>
+namespace sdlms {
+
 class EffectLogicSystem {
 private:
   static bool RunDamage(GameEffect &g_effect);
@@ -17,3 +19,5 @@ public:
 
   static bool Run();
 };
+
+}  // namespace sdlms

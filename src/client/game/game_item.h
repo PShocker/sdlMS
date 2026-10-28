@@ -5,6 +5,8 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 enum class ItemEnum { kEquip, kConsume, kInstall, kEtc, kCash, kDeco };
 
@@ -46,3 +48,5 @@ class GameDecoItem : public GameItem {
 public:
   GameDecoItem() { type = ItemEnum::kDeco; }
 };
+
+}  // namespace sdlms

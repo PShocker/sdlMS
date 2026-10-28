@@ -10,6 +10,8 @@
 #include <optional>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 class EquipGameInstance {
 public:
   enum class WeaponType : uint8_t {
@@ -108,3 +110,5 @@ public:
   static std::optional<GameEquipItem> *LoadEquip(int index);
   static std::optional<GameDecoItem> *LoadDeco(int index);
 };
+
+}  // namespace sdlms

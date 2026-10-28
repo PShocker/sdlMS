@@ -3,6 +3,8 @@
 #include "SDL3/SDL_rect.h"
 #include <SDL3/SDL.h>
 #include <cstdint>
+namespace sdlms {
+
 
 class Window {
 public:
@@ -32,3 +34,5 @@ public:
   static void Clear();
   static void Update();
 };
+
+}  // namespace sdlms

@@ -11,6 +11,8 @@
 #include <numeric>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 void TrapGameInstance::Load(wz::Node *image) {
   data_ = {};
@@ -129,3 +131,5 @@ void TrapGameInstance::Load(uint32_t map_id) {
   auto map_node = WzResource::LoadMapNode(map_id);
   Load(map_node);
 }
+
+}  // namespace sdlms

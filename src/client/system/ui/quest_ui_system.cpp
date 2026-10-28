@@ -30,6 +30,8 @@
 #include <optional>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 int QuestUiSystem::LoadVscrNum0() {
   std::flat_map<int8_t, std::vector<GameQuest>> quests;
@@ -1057,3 +1059,5 @@ void QuestUiSystem::AcceptQuest(const std::u16string &id) {
 void QuestUiSystem::CompleteQuest(const std::u16string &id) {
   AcceptQuest(id);
 }
+
+}  // namespace sdlms

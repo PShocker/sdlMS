@@ -4,6 +4,8 @@
 #include "SDL3/SDL_rect.h"
 #include <optional>
 #include <vector>
+namespace sdlms {
+
 class CharacterStatUiSystem {
 private:
   static void RenderBackgrnd();
@@ -51,3 +53,5 @@ public:
 
   static void Toggle();
 };
+
+}  // namespace sdlms

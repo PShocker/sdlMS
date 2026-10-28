@@ -1,5 +1,7 @@
 #include "triangle_game_instance.h"
 #include "src/client/game/game_triangle.h"
+namespace sdlms {
+
 
 bool TriangleGameInstance::RectInsTri(SDL_FRect &r, GameTriangle &t) {
   // 1. 获取矩形4个顶点
@@ -76,3 +78,5 @@ GameTriangle TriangleGameInstance::LoadTri(GameTriangle t, bool flip,
   }
   return t;
 }
+
+}  // namespace sdlms

@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+namespace sdlms {
+
 struct GameObj{
   std::u16string path;
   int64_t z;
@@ -17,3 +19,5 @@ struct GameObj{
   uint32_t ani_time;
   uint8_t ani_count;
 };
+
+}  // namespace sdlms

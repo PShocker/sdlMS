@@ -19,6 +19,8 @@
 #include <cstddef>
 #include <cstdint>
 #include <optional>
+namespace sdlms {
+
 
 static std::optional<GameSkill> mouse_ski;
 static std::optional<GameItemBuff> mouse_item;
@@ -167,3 +169,5 @@ bool BuffUiSystem::Event(SDL_Event *Event) {
 
   return true;
 }
+
+}  // namespace sdlms

@@ -12,6 +12,8 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 void EffectRenderSystem::RenderEffect(SDL_FPoint pos,
                                          GameEffect &g_effect) {
@@ -345,3 +347,5 @@ bool EffectRenderSystem::Render(GameEffect &g_effect) {
   EffectRenderSystem::Render(pos, g_effect, flip);
   return true;
 }
+
+}  // namespace sdlms

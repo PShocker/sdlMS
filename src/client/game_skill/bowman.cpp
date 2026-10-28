@@ -17,6 +17,8 @@
 #include <cstdint>
 #include <memory>
 #include <string>
+namespace sdlms {
+
 
 static void Duanhunjian() {
   GameSkill g_skill;
@@ -147,3 +149,5 @@ static void Shuangfeizhan() {
   Shuangfeizhan();
   return true;
 }();
+
+}  // namespace sdlms

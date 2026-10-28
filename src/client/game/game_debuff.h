@@ -2,6 +2,8 @@
 
 #include <cstdint>
 #include <string>
+namespace sdlms {
+
 
 struct GameDebuff{
   enum class DebuffType {
@@ -13,3 +15,5 @@ struct GameDebuff{
   uint64_t delay = 0;
   uint64_t destroy = 0;
 };
+
+}  // namespace sdlms

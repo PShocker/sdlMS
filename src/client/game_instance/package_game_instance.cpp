@@ -9,6 +9,8 @@
 #include <cstdint>
 #include <memory>
 #include <optional>
+namespace sdlms {
+
 
 void PackageGameInstance::Load(const CharacterSaveData &cs) {
   for (auto &d : data_) {
@@ -289,3 +291,5 @@ bool PackageGameInstance::AddMeso(uint32_t num) {
   PackageGameInstance::meso_ += num;
   return true;
 }
+
+}  // namespace sdlms

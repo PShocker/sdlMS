@@ -3,6 +3,8 @@
 #include "SDL3/SDL_events.h"
 #include <cstdint>
 #include <optional>
+namespace sdlms {
+
 
 class SkillUiSystem {
 private:
@@ -57,3 +59,5 @@ public:
   static bool Render();
   static bool Event(SDL_Event *Event);
 };
+
+}  // namespace sdlms

@@ -13,6 +13,8 @@
 #include <cstdint>
 #include <flat_map>
 #include <string>
+namespace sdlms {
+
 
 bool PortalRenderSystem::RenderPortal(GamePortal &g_portal) {
   if (!(g_portal.pt == 1 || g_portal.pt == 2)) {
@@ -79,3 +81,5 @@ bool PortalRenderSystem::Render(GamePortal &g_portal) {
   RenderNametag(g_portal);
   return true;
 }
+
+}  // namespace sdlms

@@ -1,5 +1,7 @@
 #include "popup_tip_game_instance.h"
 #include "src/client/game/game_popup_tip.h"
+namespace sdlms {
+
 
 bool PopupTipGameInstance::CheckType(PopupTipEnums type) {
   for (int i = 0; i < data_.size(); i++) {
@@ -27,3 +29,5 @@ void PopupTipGameInstance::AddQuestTip(const std::u16string &id) {
   tp.destroy = Window::dt_now_ + 5 * 1000;
   data_.emplace_back(tp);
 }
+
+}  // namespace sdlms

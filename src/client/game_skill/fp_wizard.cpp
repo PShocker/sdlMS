@@ -10,6 +10,8 @@
 #include "src/server/server_instance/server_ball_instance.h"
 #include "src/server/server_instance/server_character_instance.h"
 #include <cstdint>
+namespace sdlms {
+
 
 static void Huojianshu() {
   GameSkill g_skill;
@@ -63,3 +65,5 @@ static void Huojianshu() {
   Huojianshu();
   return true;
 }();
+
+}  // namespace sdlms

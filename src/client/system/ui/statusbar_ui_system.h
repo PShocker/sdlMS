@@ -11,6 +11,8 @@
 #include <optional>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 class StatusbarUiSystem {
 private:
@@ -53,3 +55,5 @@ public:
 
   static bool CursorIn();
 };
+
+}  // namespace sdlms

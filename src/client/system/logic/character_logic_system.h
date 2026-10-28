@@ -12,6 +12,8 @@
 #include <flat_set>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 using namespace fbs;
 
@@ -177,3 +179,5 @@ public:
   static inline float self_fall_min_;
   static inline int32_t self_fall_fh_;
 };
+
+}  // namespace sdlms

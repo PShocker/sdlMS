@@ -1,5 +1,7 @@
 #include "gain_log_game_instance.h"
 #include "src/client/window/window.h"
+namespace sdlms {
+
 
 void GainLogGameInstance::Add(const std::u16string &id, int num,
                                  GainEnum type) {
@@ -11,3 +13,5 @@ void GainLogGameInstance::Add(const std::u16string &id, int num,
   };
   GainLogGameInstance::data_.emplace_back(g_log);
 }
+
+}  // namespace sdlms

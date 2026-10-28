@@ -24,6 +24,8 @@
 #include <stdio.h>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 #ifdef _WIN32
 #define PIPENAME "\\\\.\\pipe\\"
@@ -372,3 +374,5 @@ bool LoginUiSystem::Event(SDL_Event *Event) {
   }
   return true;
 }
+
+}  // namespace sdlms

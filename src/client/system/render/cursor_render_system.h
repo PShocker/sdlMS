@@ -1,5 +1,5 @@
 #pragma once
-
+namespace sdlms {
 class CursorRenderSystem {
 private:
   static void RenderCursor();
@@ -8,3 +8,5 @@ private:
 public:
   static bool Render();
 };
+
+}  // namespace sdlms

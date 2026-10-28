@@ -2,6 +2,8 @@
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
 #include <vector>
+namespace sdlms {
+
 
 std::flat_map<int32_t, GameFoothold>
 FootholdGameInstance::Load(wz::Node *node) {
@@ -62,3 +64,5 @@ FootholdGameInstance::Load(uint32_t map_id) {
   auto map_node = WzResource::LoadMapNode(map_id);
   return Load(map_node);
 }
+
+}  // namespace sdlms

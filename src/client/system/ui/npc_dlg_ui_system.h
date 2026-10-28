@@ -6,6 +6,8 @@
 #include <flat_map>
 #include <functional>
 #include <string>
+namespace sdlms {
+
 class NpcDlgUiSystem {
 private:
   static inline int8_t select_mouse_ = -1;
@@ -91,3 +93,5 @@ public:
   static inline uint64_t time_;
   static inline std::function<void()> cb_;
 };
+
+}  // namespace sdlms

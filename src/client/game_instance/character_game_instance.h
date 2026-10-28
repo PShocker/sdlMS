@@ -8,6 +8,8 @@
 #include <flat_set>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 using namespace fbs;
 
@@ -380,3 +382,5 @@ public:
           {u"accessoryEyeBelowFace", {u"Ay"}},
   };
 };
+
+}  // namespace sdlms

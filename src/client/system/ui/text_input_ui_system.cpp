@@ -7,6 +7,8 @@
 #include "src/common/freetype/freetype.h"
 #include <algorithm>
 #include <optional>
+namespace sdlms {
+
 
 void TextInputUiSystem::Close(TextInput &input) {
   input.active = false;
@@ -423,3 +425,5 @@ bool TextInputUiSystem::Event(SDL_Event *Event, TextInput &input) {
   }
   return r;
 }
+
+}  // namespace sdlms

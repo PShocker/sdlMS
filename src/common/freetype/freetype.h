@@ -9,6 +9,8 @@
 #include <string>
 
 #include FT_FREETYPE_H
+namespace sdlms {
+
 
 class Freetype {
   struct FreetypeCacheKey {
@@ -74,3 +76,5 @@ public:
   static DrawData DrawCstr(const std::u16string &str, float x, float y,
                              float w, float h, bool dryRun = false);
 };
+
+}  // namespace sdlms

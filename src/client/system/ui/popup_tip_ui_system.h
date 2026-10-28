@@ -2,6 +2,8 @@
 
 #include "SDL3/SDL_events.h"
 #include "src/client/game/game_popup_tip.h"
+namespace sdlms {
+
 class PopupTipUiSystem {
 private:
   static void RenderBackgrnd(GamePopupTip &t);
@@ -23,3 +25,5 @@ public:
   static bool Render();
   static bool Event(SDL_Event *Event);
 };
+
+}  // namespace sdlms

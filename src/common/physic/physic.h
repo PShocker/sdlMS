@@ -5,6 +5,8 @@
 #include <cstdint>
 #include <flat_map>
 #include <optional>
+namespace sdlms {
+
 class Physic {
 private:
   static bool WalkFh(SDL_FPoint &pos, bool Fall, int32_t next_fh,
@@ -42,3 +44,5 @@ public:
                    const std::flat_map<int32_t, GameFoothold> &fhs,
                    int32_t fall_fh = INT32_MAX);
 };
+
+}  // namespace sdlms

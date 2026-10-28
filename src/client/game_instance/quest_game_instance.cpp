@@ -12,6 +12,8 @@
 #include <format>
 #include <optional>
 #include <string>
+namespace sdlms {
+
 
 std::vector<GameQuest>
 QuestGameInstance::LoadNpc(const std::u16string &id) {
@@ -479,3 +481,5 @@ int32_t QuestGameInstance::LoadQuestActMeso(const std::u16string &id) {
   }
   return 0;
 }
+
+}  // namespace sdlms

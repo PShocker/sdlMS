@@ -12,6 +12,8 @@
 #include "src/common/response/server_response.h"
 #include <memory>
 #include <optional>
+namespace sdlms {
+
 
 ServerParty &ServerPartyInstance::LoadParty(uint64_t captain_id) {
   if (data_.contains(captain_id)) {
@@ -93,3 +95,5 @@ ServerPartyInstance::LoadClientParty(uint64_t client_id) {
   }
   return std::nullopt;
 }
+
+}  // namespace sdlms

@@ -9,6 +9,8 @@
 #include <flat_map>
 #include <optional>
 #include <string>
+namespace sdlms {
+
 
 std::polymorphic<GameItem>
 ShopGameInstance::LoadItem(const std::u16string &id) {
@@ -126,3 +128,5 @@ ShopGameInstance::LoadPkgItems(int tab) {
   }
   return items;
 }
+
+}  // namespace sdlms

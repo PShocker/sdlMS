@@ -8,6 +8,8 @@
 #include <memory>
 #include <optional>
 #include <string>
+namespace sdlms {
+
 
 class StorageUiSystem {
 private:
@@ -49,3 +51,5 @@ public:
   static bool Render();
   static bool Event(SDL_Event *Event);
 };
+
+}  // namespace sdlms

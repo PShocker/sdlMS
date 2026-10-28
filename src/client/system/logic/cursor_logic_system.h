@@ -5,6 +5,8 @@
 #include "src/client/game/game_npc.h"
 #include <optional>
 #include <string>
+namespace sdlms {
+
 class CursorLogicSystem {
 private:
   static std::optional<GameNpc> CursorNpc();
@@ -28,3 +30,5 @@ public:
   static bool EventClickNpc(GameNpc npc);
   static bool Event(SDL_Event *Event);
 };
+
+}  // namespace sdlms

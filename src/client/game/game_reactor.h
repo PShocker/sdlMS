@@ -3,6 +3,8 @@
 #include "SDL3/SDL_rect.h"
 #include <cstdint>
 #include <string>
+namespace sdlms {
+
 struct GameReactor{
   std::u16string id;
   uint8_t index;
@@ -17,3 +19,5 @@ struct GameReactor{
   uint32_t ani_time;
   bool hit = false;
 };
+
+}  // namespace sdlms

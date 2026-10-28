@@ -18,6 +18,8 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+namespace sdlms {
+
 
 int TooltipUiSystem::LoadEquipWidth(const std::u16string &id) {
   Freetype::LoadSize(15);
@@ -975,3 +977,5 @@ void TooltipUiSystem::RenderStr(const std::u16string &str, float x,
   Freetype::LoadColor(255, 255, 255, 255);
   Freetype::DrawLine(str, x + 5, y + 5);
 }
+
+}  // namespace sdlms

@@ -4,6 +4,8 @@
 #include "src/client/game/game_npc.h"
 #include <optional>
 #include <string>
+namespace sdlms {
+
 class NpcLogicSystem {
 private:
   static bool RunAnimate(GameNpc &g_npc);
@@ -20,3 +22,5 @@ private:
 public:
   static bool Run();
 };
+
+}  // namespace sdlms

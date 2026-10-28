@@ -19,6 +19,8 @@
 #include <flat_map>
 #include <optional>
 #include <string>
+namespace sdlms {
+
 
 static std::flat_map<SDL_Scancode, GameInput> data_bak;
 
@@ -911,3 +913,5 @@ void KeybindingUiSystem::EventMotion(SDL_Event *Event) {
     sys.insert(it, RenderInfo);
   }
 }
+
+}  // namespace sdlms

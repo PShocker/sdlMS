@@ -3,6 +3,8 @@
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_rect.h"
 #include "src/client/game/game_character.h"
+namespace sdlms {
+
 class TradeUiSystem {
 private:
   static void RenderBackgrnd();
@@ -25,3 +27,5 @@ public:
   static bool Render();
   static bool Event(SDL_Event *Event);
 };
+
+}  // namespace sdlms

@@ -1,5 +1,7 @@
 #include "tooltip_game_instance.h"
 #include "src/common/wz/wz_resource.h"
+namespace sdlms {
+
 
 void TooltipGameInstance::Load(uint32_t map_id) {
   data_ = {};
@@ -7,3 +9,5 @@ void TooltipGameInstance::Load(uint32_t map_id) {
   if (map_node->get_child(u"ToolTip")) {
   }
 }
+
+}  // namespace sdlms

@@ -9,6 +9,8 @@
 #include "src/server/server_instance/server_character_instance.h"
 #include <cstdint>
 #include <vector>
+namespace sdlms {
+
 
 static void Jianyu() {
   GameSkill g_skill;
@@ -42,3 +44,5 @@ static void Jianyu() {
   Jianyu();
   return true;
 }();
+
+}  // namespace sdlms

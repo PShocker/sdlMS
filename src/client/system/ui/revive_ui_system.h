@@ -2,6 +2,8 @@
 
 #include "SDL3/SDL_events.h"
 #include <optional>
+namespace sdlms {
+
 class ReviveUiSystem {
 private:
   static void RenderBackgrnd();
@@ -27,3 +29,5 @@ public:
 
   static void Toggle();
 };
+
+}  // namespace sdlms

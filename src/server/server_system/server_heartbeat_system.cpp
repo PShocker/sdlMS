@@ -11,6 +11,8 @@
 #include <cstdint>
 #include <ranges>
 #include <vector>
+namespace sdlms {
+
 
 bool ServerHeartbeatSystem::RunClientHeartbeat() {
   if (SceneSystemInstance::map_id_ == 0 ||
@@ -76,3 +78,5 @@ void ServerHeartbeatSystem::ReceiveClientHeartbeat(uint64_t client_id) {
 void ServerHeartbeatSystem::ReceiveServerHeartbeat() {
   ServerHeartbeatInstance::host_heartbeat = Window::dt_now_;
 }
+
+}  // namespace sdlms

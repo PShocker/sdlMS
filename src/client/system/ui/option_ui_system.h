@@ -5,6 +5,8 @@
 #include "src/client/system/ui/text_input_ui_system.h"
 #include <cstdint>
 #include <optional>
+namespace sdlms {
+
 class OptionUiSystem {
 private:
   static void RenderBackgrnd();
@@ -122,3 +124,5 @@ public:
   static bool CursorIn();
   static void Toggle();
 };
+
+}  // namespace sdlms

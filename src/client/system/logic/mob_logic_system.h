@@ -2,6 +2,8 @@
 
 #include "src/client/game/game_mob.h"
 #include <string>
+namespace sdlms {
+
 class MobLogicSystem {
 private:
   static bool RunAnimate(GameMob &g_mob);
@@ -28,3 +30,5 @@ public:
   static std::optional<SDL_FRect> LoadRect(const GameMob &g_mob);
   static std::optional<SDL_FPoint> LoadHead(const GameMob &g_mob);
 };
+
+}  // namespace sdlms

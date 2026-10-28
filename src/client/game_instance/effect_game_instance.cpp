@@ -5,5 +5,9 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+namespace sdlms {
+
 
 void EffectGameInstance::Reset() { data_ = {}; }
+
+}  // namespace sdlms

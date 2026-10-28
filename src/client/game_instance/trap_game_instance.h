@@ -6,6 +6,8 @@
 #include <array>
 #include <cstdint>
 #include <flat_map>
+namespace sdlms {
+
 class TrapGameInstance {
 public:
   static void Load(wz::Node *image);
@@ -19,3 +21,5 @@ public:
   static AnimateData LoadAnimateIndex(std::vector<int> delays);
   static std::vector<int> LoadAnimateDelays(wz::Node *node);
 };
+
+}  // namespace sdlms

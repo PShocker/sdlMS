@@ -20,6 +20,8 @@
 #include <optional>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 void WorldmapUiSystem::RenderBackgrnd() {
   auto wh = LoadWh();
@@ -400,3 +402,5 @@ void WorldmapUiSystem::EventDragMove(SDL_Event *Event) {
   }
   return;
 }
+
+}  // namespace sdlms

@@ -7,6 +7,8 @@
 #include <string>
 #include <wz/Files.h>
 #include <wz/Node.h>
+namespace sdlms {
+
 
 class WzResource {
 public:
@@ -44,3 +46,5 @@ private:
   static inline std::flat_map<wz::Node *, SDL_Texture *> texture_cache_;
   static inline std::flat_map<uint32_t, wz::Node *> map_node_cache_;
 };
+
+}  // namespace sdlms

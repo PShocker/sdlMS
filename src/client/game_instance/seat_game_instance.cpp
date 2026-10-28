@@ -1,6 +1,8 @@
 #include "seat_game_instance.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
+namespace sdlms {
+
 
 void SeatGameInstance::Load(uint32_t map_id) {
   data_ = {};
@@ -13,3 +15,5 @@ void SeatGameInstance::Load(uint32_t map_id) {
     }
   }
 }
+
+}  // namespace sdlms

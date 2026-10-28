@@ -7,6 +7,8 @@
 #include "src/common/response/server_response.h"
 #include "src/server/server_instance/server_character_instance.h"
 #include <memory>
+namespace sdlms {
+
 
 void ServerTradeInstance::HandleClient(uint64_t client_id,
                                           ClientCharacterTradeT &r) {
@@ -53,3 +55,5 @@ void ServerTradeInstance::HandleServer(uint64_t client_id,
   }
   }
 }
+
+}  // namespace sdlms

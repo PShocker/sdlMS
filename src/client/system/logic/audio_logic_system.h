@@ -1,5 +1,5 @@
 #pragma once
-
+namespace sdlms {
 class AudioLogicSystem {
 private:
   static void RunBackgrnd();
@@ -8,3 +8,5 @@ private:
 public:
   static bool Run();
 };
+
+}  // namespace sdlms

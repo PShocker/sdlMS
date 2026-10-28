@@ -1,6 +1,8 @@
 #include "audio_logic_system.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/window/window.h"
+namespace sdlms {
+
 
 void AudioLogicSystem::RunBackgrnd() {
   auto &backgrnds = AudioGameInstance::backgrnds_;
@@ -47,3 +49,5 @@ bool AudioLogicSystem::Run() {
   RunAudios();
   return true;
 }
+
+}  // namespace sdlms

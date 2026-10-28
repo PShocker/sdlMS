@@ -10,6 +10,8 @@
 #include <flat_map>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 using namespace fbs;
 
@@ -32,3 +34,5 @@ public:
                       uint64_t delay, int page, int speed,
                       const std::u16string &path);
 };
+
+}  // namespace sdlms

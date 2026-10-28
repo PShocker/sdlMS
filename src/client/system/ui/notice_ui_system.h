@@ -4,6 +4,8 @@
 #include "src/client/game/game_item.h"
 #include "text_input_ui_system.h"
 #include <any>
+namespace sdlms {
+
 class NoticeUiSystem {
 private:
   static void RenderBackgrnd();
@@ -80,3 +82,5 @@ public:
 
   static void Toggle();
 };
+
+}  // namespace sdlms

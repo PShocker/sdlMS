@@ -49,6 +49,8 @@
 #include <ranges>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 static const std::flat_set<EquipGameInstance::WeaponType> shoot_weapons = {
     EquipGameInstance::WeaponType::kBow,
@@ -1818,3 +1820,5 @@ CharacterLogicSystem::RunBuffCheck(GameCharacter &g_character,
   }
   return r;
 }
+
+}  // namespace sdlms

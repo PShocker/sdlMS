@@ -3,6 +3,8 @@
 #include <array>
 #include <cstdint>
 #include <vector>
+namespace sdlms {
+
 
 class ReactorGameInstance {
 public:
@@ -12,3 +14,5 @@ public:
 private:
   static uint8_t LoadReactorLayer(SDL_FPoint pos);
 };
+
+}  // namespace sdlms

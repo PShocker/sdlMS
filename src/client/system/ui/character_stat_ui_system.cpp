@@ -14,6 +14,8 @@
 #include "src/common/wz/wz_resource.h"
 #include <algorithm>
 #include <string>
+namespace sdlms {
+
 
 SDL_FPoint CharacterStatUiSystem::LoadWh() { return {185, 281}; }
 
@@ -573,3 +575,5 @@ bool CharacterStatUiSystem::CursorIn() {
   }
   return false;
 }
+
+}  // namespace sdlms

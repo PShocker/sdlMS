@@ -4,6 +4,8 @@
 #include "src/client/system/system.h"
 #include "src/client/system/ui/cash_shop_ui_system.h"
 #include "src/common/wz/wz_resource.h"
+namespace sdlms {
+
 
 void CashShopSystemInstance::Enter() {
   auto node = WzResource::ui_->find(u"CashShopPreview.img");
@@ -18,3 +20,5 @@ void CashShopSystemInstance::Enter() {
       CashShopUiSystem::Event,
   };
 }
+
+}  // namespace sdlms

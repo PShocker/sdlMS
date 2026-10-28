@@ -6,6 +6,8 @@
 #include "src/common/wz/wz_resource.h"
 #include "wz/Node.h"
 #include "wz/Property.h"
+namespace sdlms {
+
 
 void BallLogicSystem::RunAnimate(GameBall &b) {
   wz::Node *n = WzResource::skill_->find(b.path);
@@ -117,3 +119,5 @@ bool BallLogicSystem::Run() {
 
   return true;
 }
+
+}  // namespace sdlms

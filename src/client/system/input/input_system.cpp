@@ -13,6 +13,8 @@
 #include "src/client/system/ui/worldmap_ui_system.h"
 #include <flat_map>
 #include <string>
+namespace sdlms {
+
 
 void InputSystem::HandleUiInput(GameInput &g_input) {
   static const std::flat_map<std::string, void (*)()> fns = {
@@ -71,3 +73,5 @@ void InputSystem::Reset() {
   CharacterLogicSystem::character_skill_input_.clear();
   CharacterLogicSystem::character_face_input_.clear();
 }
+
+}  // namespace sdlms

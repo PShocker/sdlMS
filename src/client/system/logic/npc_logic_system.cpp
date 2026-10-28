@@ -18,6 +18,8 @@
 #include <random>
 #include <ranges>
 #include <string>
+namespace sdlms {
+
 
 bool NpcLogicSystem::RunAnimate(GameNpc &g_npc) {
   bool r = false;
@@ -182,3 +184,5 @@ bool NpcLogicSystem::Run() {
   }
   return true;
 }
+
+}  // namespace sdlms

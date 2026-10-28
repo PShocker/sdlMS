@@ -7,6 +7,8 @@
 #include <flat_set>
 #include <optional>
 #include <string>
+namespace sdlms {
+
 class QuestUiSystem {
 private:
   static int LoadVscrNum0();
@@ -79,3 +81,5 @@ public:
 
   static void Toggle();
 };
+
+}  // namespace sdlms

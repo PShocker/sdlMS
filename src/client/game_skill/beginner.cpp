@@ -17,6 +17,8 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 static void ThreeSnail() {
   GameSkill g_skill;
@@ -165,3 +167,5 @@ static void NimbleFeet() {
   NimbleFeet();
   return true;
 }();
+
+}  // namespace sdlms

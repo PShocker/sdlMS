@@ -5,6 +5,8 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+namespace sdlms {
+
 class SceneSystemInstance {
 public:
   static inline uint32_t map_id_;
@@ -23,3 +25,5 @@ private:
   static void EnterPrepare();
   static bool RenderGame();
 };
+
+}  // namespace sdlms

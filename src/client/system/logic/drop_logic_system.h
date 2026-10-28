@@ -4,6 +4,8 @@
 #include "src/client/game/game_drop.h"
 #include <cstdint>
 #include <vector>
+namespace sdlms {
+
 class DropLogicSystem {
 private:
   static void RunDestroy();
@@ -12,3 +14,5 @@ private:
 public:
   static bool Run();
 };
+
+}  // namespace sdlms

@@ -15,6 +15,8 @@
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
 #include <string>
+namespace sdlms {
+
 
 void CursorRenderSystem::RenderHand() {
   if (CursorGameInstance::cursor_hand_net_.has_value()) {
@@ -140,3 +142,5 @@ bool CursorRenderSystem::Render() {
   RenderCursor();
   return true;
 }
+
+}  // namespace sdlms

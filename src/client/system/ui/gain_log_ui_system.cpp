@@ -7,6 +7,8 @@
 #include "src/common/freetype/freetype.h"
 #include <format>
 #include <string>
+namespace sdlms {
+
 
 void GainLogUiSystem::RenderText() {
   auto &data = GainLogGameInstance::data_;
@@ -69,3 +71,5 @@ bool GainLogUiSystem::Render() {
 
   return true;
 }
+
+}  // namespace sdlms

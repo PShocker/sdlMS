@@ -54,6 +54,8 @@
 #include <memory>
 #include <optional>
 #include <string>
+namespace sdlms {
+
 
 using namespace fbs;
 
@@ -552,3 +554,5 @@ bool CursorLogicSystem::Event(SDL_Event *Event) {
 
   return true;
 }
+
+}  // namespace sdlms

@@ -1,4 +1,6 @@
 #include "../script.h"
+namespace sdlms {
+
 
 static void Npc14(std::any data) {
 
@@ -9,3 +11,5 @@ static void Npc14(std::any data) {
   fns[u"npc_14"] = Npc14;
   return true;
 }();
+
+}  // namespace sdlms

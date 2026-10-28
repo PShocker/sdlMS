@@ -14,6 +14,8 @@
 #include "wz/Node.h"
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 enum class OptionType {
   kGraphic,
@@ -627,3 +629,5 @@ bool OptionUiSystem::CursorIn() {
   SDL_FRect pos_rect{pos_.x, pos_.y, w, h};
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
+
+}  // namespace sdlms

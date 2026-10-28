@@ -3,6 +3,8 @@
 #include "SDL3/SDL_events.h"
 #include <cstdint>
 #include <flat_map>
+namespace sdlms {
+
 
 class CraftUiSystem {
 private:
@@ -37,3 +39,5 @@ public:
 
   static void Toggle();
 };
+
+}  // namespace sdlms

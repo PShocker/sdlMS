@@ -4,6 +4,8 @@
 #include "src/client/game/game_item_buff.h"
 #include "src/client/game/game_skill.h"
 #include <cstdint>
+namespace sdlms {
+
 
 class BuffUiSystem {
 private:
@@ -17,3 +19,5 @@ public:
   static bool Render();
   static bool Event(SDL_Event *Event);
 };
+
+}  // namespace sdlms

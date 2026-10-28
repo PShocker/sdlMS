@@ -73,6 +73,8 @@
 #include <ranges>
 #include <utility>
 #include <vector>
+namespace sdlms {
+
 
 bool SceneSystemInstance::RenderGame() {
   std::array<std::vector<GameCharacter *>, 8> character_array;
@@ -309,3 +311,5 @@ void SceneSystemInstance::CashShopPrepare() {
   ClientRequest::send_to_host(client_scene);
   FadeSystemInstance::EnterIn(SceneSystemInstance::EnterQuit);
 }
+
+}  // namespace sdlms

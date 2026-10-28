@@ -7,6 +7,8 @@
 #include <cstdint>
 #include <optional>
 #include <vector>
+namespace sdlms {
+
 
 class CharacterChooseUiSystem {
 private:
@@ -42,3 +44,5 @@ public:
   static bool Event(SDL_Event *Event);
   static bool Run();
 };
+
+}  // namespace sdlms

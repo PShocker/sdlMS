@@ -3,6 +3,8 @@
 #include "src/client/window/window.h"
 #include <functional>
 #include <vector>
+namespace sdlms {
+
 
 bool SkillLogicSystem::Run() {
   auto &v = SkillGameInstance::ski_;
@@ -22,3 +24,5 @@ bool SkillLogicSystem::Run() {
   }
   return true;
 }
+
+}  // namespace sdlms

@@ -16,6 +16,8 @@ extern "C" {
 #include <libswscale/swscale.h>
 }
 #include <string>
+namespace sdlms {
+
 
 static uint64_t video_start;
 static SDL_Texture *video_texture;
@@ -596,3 +598,5 @@ bool VideoUiSystem::Render() {
   }
   return true;
 }
+
+}  // namespace sdlms

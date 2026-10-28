@@ -1,6 +1,8 @@
 #include "clock_game_instance.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
+namespace sdlms {
+
 
 void ClockGameInstance::Load(wz::Node *image) {
   data_ = {};
@@ -18,3 +20,5 @@ void ClockGameInstance::Load(uint32_t map_id) {
   auto map_node = WzResource::LoadMapNode(map_id);
   Load(map_node);
 }
+
+}  // namespace sdlms

@@ -40,6 +40,8 @@
 #include <optional>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 void StatusbarUiSystem::RenderHmAlert() {
   static auto backgrnd = WzResource::LoadTexture(
@@ -804,3 +806,5 @@ void StatusbarUiSystem::Reset() {
   chat_.type.set(TextInput::kIme);
   chat_type_ = std::nullopt;
 }
+
+}  // namespace sdlms

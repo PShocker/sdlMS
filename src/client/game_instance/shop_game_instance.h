@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+namespace sdlms {
+
 
 class ShopGameInstance {
 public:
@@ -15,3 +17,5 @@ public:
   static bool AddMustItem(std::polymorphic<GameItem> &item);
   static std::vector<std::polymorphic<GameItem> *> LoadPkgItems(int tab);
 };
+
+}  // namespace sdlms

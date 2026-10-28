@@ -4,6 +4,8 @@
 #include "src/common/flatbuffers/common.h"
 #include <any>
 #include <cstdint>
+namespace sdlms {
+
 
 using namespace fbs;
 
@@ -19,3 +21,5 @@ struct GamePopupTip{
   uint64_t destroy = Window::dt_now_ + 120 * 1000;
   std::any data;
 };
+
+}  // namespace sdlms

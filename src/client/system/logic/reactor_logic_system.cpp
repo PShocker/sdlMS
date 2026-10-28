@@ -8,6 +8,8 @@
 #include "wz/Wz.h"
 #include <ranges>
 #include <string>
+namespace sdlms {
+
 
 bool ReactorLogicSystem::RunAnimate(GameReactor &g_reactor) {
   bool finish = false;
@@ -66,3 +68,5 @@ bool ReactorLogicSystem::Run() {
   }
   return true;
 }
+
+}  // namespace sdlms

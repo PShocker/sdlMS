@@ -30,6 +30,8 @@
 #include <optional>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 void CharacterCreateUiSystem::RenderButton() {
   const static std::array buttons_nodes = {
@@ -1095,3 +1097,5 @@ bool CharacterCreateUiSystem::Run() {
   CharacterLogicSystem::RunAnimate(g_character_);
   return true;
 }
+
+}  // namespace sdlms

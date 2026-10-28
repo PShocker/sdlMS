@@ -3,6 +3,8 @@
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_rect.h"
 #include "src/client/system_instance/login_notice_system_instance.h"
+namespace sdlms {
+
 class LoginNoticeUiSystem {
 private:
   static SDL_FPoint LoadPos();
@@ -21,3 +23,5 @@ public:
   static bool Run();
   static bool Event(SDL_Event *Event);
 };
+
+}  // namespace sdlms

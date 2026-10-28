@@ -7,6 +7,8 @@
 #include "wz/Property.h"
 #include "wz/Wz.h"
 #include <string>
+namespace sdlms {
+
 
 bool ReactorRenderSystem::Render(GameReactor &g_reactor) {
   auto node = WzResource::reactor_->find(g_reactor.id + u".img");
@@ -41,3 +43,5 @@ bool ReactorRenderSystem::Render(GameReactor &g_reactor) {
   }
   return true;
 }
+
+}  // namespace sdlms

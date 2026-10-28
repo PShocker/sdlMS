@@ -5,6 +5,8 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+namespace sdlms {
+
 struct GameChatballoon{
   std::u16string text;
   std::u16string path = u"0";
@@ -17,3 +19,5 @@ struct GameChatballoon{
 
   std::optional<SDL_Color> color;
 };
+
+}  // namespace sdlms

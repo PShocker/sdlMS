@@ -5,6 +5,8 @@
 #include <cstdint>
 #include <memory>
 #include <optional>
+namespace sdlms {
+
 
 
 struct GameDropPick {
@@ -40,3 +42,5 @@ struct GameDrop{
   uint64_t pick_time;
   std::optional<GameDropPick> picker;
 };
+
+}  // namespace sdlms

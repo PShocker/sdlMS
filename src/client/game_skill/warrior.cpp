@@ -15,6 +15,8 @@
 #include "src/server/server_instance/server_character_instance.h"
 #include <cstdint>
 #include <memory>
+namespace sdlms {
+
 
 static void PowerStrke() {
   GameSkill g_skill;
@@ -67,3 +69,5 @@ static void SlashBlast() {
   SlashBlast();
   return true;
 }();
+
+}  // namespace sdlms

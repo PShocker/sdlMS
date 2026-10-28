@@ -8,6 +8,8 @@
 #include "src/common/request/client_request.h"
 #include "src/server/server_instance/server_character_instance.h"
 #include <cstdint>
+namespace sdlms {
+
 
 static void Leidianshu() {
   GameSkill g_skill;
@@ -40,3 +42,5 @@ static void Leidianshu() {
   Leidianshu();
   return true;
 }();
+
+}  // namespace sdlms

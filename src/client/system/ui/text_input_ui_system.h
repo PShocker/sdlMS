@@ -6,6 +6,8 @@
 #include <bitset>
 #include <optional>
 #include <string>
+namespace sdlms {
+
 
 // 定义标志位索引
 
@@ -40,3 +42,5 @@ public:
   static void Active(TextInput &input);
   static bool Event(SDL_Event *Event, TextInput &input);
 };
+
+}  // namespace sdlms

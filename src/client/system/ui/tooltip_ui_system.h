@@ -4,6 +4,8 @@
 #include "src/client/game/game_item.h"
 #include <cstdint>
 #include <string>
+namespace sdlms {
+
 class TooltipUiSystem {
 private:
   static int LoadEquipWidth(const std::u16string &id);
@@ -36,3 +38,5 @@ public:
   static void RenderStr(const std::u16string &str, float x, float y);
   static bool Event(SDL_Event *Event);
 };
+
+}  // namespace sdlms

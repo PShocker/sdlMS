@@ -3,6 +3,8 @@
 #include <any>
 #include <flat_map>
 #include <string>
+namespace sdlms {
+
 class Script {
 public:
   static auto &fns() {
@@ -10,3 +12,5 @@ public:
     return instance;
   }
 };
+
+}  // namespace sdlms

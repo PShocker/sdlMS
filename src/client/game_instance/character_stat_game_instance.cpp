@@ -16,6 +16,8 @@
 #include <optional>
 #include <string>
 #include <utility>
+namespace sdlms {
+
 
 // ============================================================
 // load
@@ -904,3 +906,5 @@ uint32_t CharacterStatGameInstance::GetItmMagic() { return itm_magic_; }
 uint32_t CharacterStatGameInstance::GetItmExp() { return itm_exp_; }
 int32_t CharacterStatGameInstance::GetItmDef() { return itm_attack_def_; }
 int32_t CharacterStatGameInstance::GetItmMdef() { return itm_magic_def_; }
+
+}  // namespace sdlms

@@ -6,6 +6,8 @@
 #include <cstdint>
 #include <flat_map>
 #include <vector>
+namespace sdlms {
+
 
 using namespace fbs;
 
@@ -15,3 +17,5 @@ public:
 
   static inline std::flat_map<uint64_t, GameDrop> data_;
 };
+
+}  // namespace sdlms

@@ -9,6 +9,8 @@
 #include <flat_map>
 #include <flat_set>
 #include <string>
+namespace sdlms {
+
 
 using namespace fbs;
 
@@ -17,3 +19,5 @@ public:
   static inline std::array<std::vector<GameEffect>, 8> data_;
   static void Reset();
 };
+
+}  // namespace sdlms

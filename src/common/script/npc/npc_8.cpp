@@ -3,6 +3,8 @@
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
+namespace sdlms {
+
 
 static void State() {
   switch (NpcDlgUiSystem::index_) {
@@ -41,3 +43,5 @@ static void Npc8(std::any data) {
   fns[u"npc_8"] = Npc8;
   return true;
 }();
+
+}  // namespace sdlms

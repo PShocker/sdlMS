@@ -8,6 +8,8 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+namespace sdlms {
+
 class ServerReactorInstance {
 public:
   static void LoadReactor(ServerSceneState &scene);
@@ -21,3 +23,5 @@ public:
   static void HandleServerReactor(uint64_t client_id, fbs::ServerReactorT &r);
   static void HandleServerReactorDrop(ServerReactorDropT &r);
 };
+
+}  // namespace sdlms

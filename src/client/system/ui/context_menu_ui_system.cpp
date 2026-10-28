@@ -13,6 +13,8 @@
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server_main.h"
 #include <cstddef>
+namespace sdlms {
+
 
 SDL_FPoint ContextMenuUiSystem::LoadWh() { return {100, 122}; }
 
@@ -240,3 +242,5 @@ void ContextMenuUiSystem::Close() {
   std::erase(System::render_systems_, Render);
   std::erase(System::event_systems_, Event);
 }
+
+}  // namespace sdlms

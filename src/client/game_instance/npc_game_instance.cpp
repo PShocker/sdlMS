@@ -16,6 +16,8 @@
 #include <ranges>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 std::u16string NpcGameInstance::LoadNpcText(const std::u16string &id,
                                                 const std::u16string &val) {
@@ -232,3 +234,5 @@ NpcGameInstance::LoadProgressCompleteQuest(const std::u16string &id) {
   }
   return result;
 }
+
+}  // namespace sdlms

@@ -7,6 +7,8 @@
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/common/flatbuffers/server.h"
 #include "src/common/response/server_response.h"
+namespace sdlms {
+
 
 void ServerBallInstance::HandleBall(uint64_t client_id,
                                        ClientCharacterBallT &r) {
@@ -51,3 +53,5 @@ void ServerBallInstance::HandleServerBall(uint64_t client_id,
                                               ServerCharacterBallT &r) {
   HandleServerB(r.payload);
 }
+
+}  // namespace sdlms

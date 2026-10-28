@@ -18,6 +18,8 @@
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include <algorithm>
+namespace sdlms {
+
 
 SDL_FRect StatusbarMenuUiSystem::LoadR() {
   int w;
@@ -366,3 +368,5 @@ bool StatusbarMenuUiSystem::CursorIn() {
   auto &mouse = Window::mouse_pos_;
   return SDL_PointInRectFloat(&mouse, &r);
 }
+
+}  // namespace sdlms

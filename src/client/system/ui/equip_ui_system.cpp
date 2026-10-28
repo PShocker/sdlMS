@@ -19,6 +19,8 @@
 #include <memory>
 #include <optional>
 #include <string>
+namespace sdlms {
+
 
 const static SDL_FPoint cap_slot{68, 23};
 const static SDL_FPoint earacc_slot{101, 56};
@@ -585,3 +587,5 @@ bool EquipUiSystem::Event(SDL_Event *Event) {
 
   return r;
 }
+
+}  // namespace sdlms

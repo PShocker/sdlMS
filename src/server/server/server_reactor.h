@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 struct ServerReactorState{
   std::u16string id;
@@ -17,3 +19,5 @@ struct ServerReactorState{
 
   uint64_t revive = 0; // 刷新时间
 };
+
+}  // namespace sdlms

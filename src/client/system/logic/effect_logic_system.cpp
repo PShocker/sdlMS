@@ -13,6 +13,8 @@
 #include <cstdint>
 #include <ranges>
 #include <string>
+namespace sdlms {
+
 
 bool EffectLogicSystem::RunDamage(GameEffect &g_effect) {
   bool r = false;
@@ -244,3 +246,5 @@ bool EffectLogicSystem::Run() {
   }
   return true;
 }
+
+}  // namespace sdlms

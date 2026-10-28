@@ -4,6 +4,8 @@
 #include "src/client/game/game_input.h"
 #include <cstdint>
 #include <optional>
+namespace sdlms {
+
 class KeybindingUiSystem {
 private:
   static void RenderButton();
@@ -57,3 +59,5 @@ public:
 
   static void Toggle();
 };
+
+}  // namespace sdlms

@@ -9,6 +9,8 @@
 #include <flat_map>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 using namespace fbs;
 
@@ -60,3 +62,5 @@ public:
                        uint8_t ski_lv);
   static ClientCharacterSkillT CreateSkillPayload(int ski_id, uint8_t ski_lv);
 };
+
+}  // namespace sdlms

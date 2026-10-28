@@ -5,6 +5,8 @@
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
 #include "wz/Wz.h"
+namespace sdlms {
+
 
 bool ObjRenderSystem::Render(GameObj &g_obj) {
   auto obj_node = WzResource::map_->find(g_obj.path);
@@ -38,3 +40,5 @@ bool ObjRenderSystem::Render(GameObj &g_obj) {
 }
 
 void ObjRenderSystem::RenderClock(SDL_FRect &r) {}
+
+}  // namespace sdlms

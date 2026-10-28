@@ -3,6 +3,8 @@
 #include "uv.h"
 #include <cstdint>
 #include <string>
+namespace sdlms {
+
 class ServerMain {
 public:
   static inline uint64_t local_addr_;
@@ -30,3 +32,5 @@ private:
   static void OnRecv(uv_udp_t *handle, ssize_t nread, const uv_buf_t *buf,
                       const struct sockaddr *addr, unsigned flags);
 };
+
+}  // namespace sdlms

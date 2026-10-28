@@ -5,6 +5,8 @@
 #include "src/common/request/client_request.h"
 #include <cstdint>
 #include <ctime>
+namespace sdlms {
+
 
 // 分配缓冲区回调
 void ServerMain::AllocCb(uv_handle_t *handle, size_t suggested_size,
@@ -150,3 +152,5 @@ bool ServerMain::Run() {
   uv_run(loop_, UV_RUN_NOWAIT);
   return true;
 }
+
+}  // namespace sdlms

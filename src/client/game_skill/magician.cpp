@@ -26,6 +26,8 @@
 #include <memory>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 static void Mfdan() {
   GameSkill g_skill;
@@ -210,3 +212,5 @@ static void Molitisheng() {
   Molitisheng();
   return true;
 }();
+
+}  // namespace sdlms

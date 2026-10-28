@@ -3,6 +3,8 @@
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
 #include <string>
+namespace sdlms {
+
 
 void TileGameInstance::Load(wz::Node *image) {
   data_ = {};
@@ -57,3 +59,5 @@ void TileGameInstance::Load(uint32_t map_id) {
   auto map_node = WzResource::LoadMapNode(map_id);
   Load(map_node);
 }
+
+}  // namespace sdlms

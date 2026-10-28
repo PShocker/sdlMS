@@ -9,6 +9,8 @@
 #include <cstdint>
 #include <functional>
 #include <string>
+namespace sdlms {
+
 struct GameSkill{
   std::u16string id;
   std::function<void(uint64_t, int)> use;
@@ -33,3 +35,5 @@ struct GameSkill{
   uint64_t start;
   uint8_t lv;
 };
+
+}  // namespace sdlms

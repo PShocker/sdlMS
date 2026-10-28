@@ -22,6 +22,8 @@
 #include <ranges>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 SDL_FPoint CharacterInfoUiSystem::LoadWh() { return SDL_FPoint{320, 183}; }
 
@@ -631,3 +633,5 @@ void CharacterInfoUiSystem::EventMotion(SDL_Event *Event) {
     sys.insert(it, RenderItemsInfo);
   }
 }
+
+}  // namespace sdlms

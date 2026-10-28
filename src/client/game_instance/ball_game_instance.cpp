@@ -13,6 +13,8 @@
 #include <flat_map>
 #include <memory>
 #include <string>
+namespace sdlms {
+
 
 void BallGameInstance::Reset() { data_ = {}; }
 
@@ -201,3 +203,5 @@ BallGameInstance::LoadCashBallEffect(const std::u16string &id) {
   }
   return effect;
 }
+
+}  // namespace sdlms

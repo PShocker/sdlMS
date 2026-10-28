@@ -5,6 +5,8 @@
 #include "src/client/game_instance/effect_game_instance.h"
 #include "src/server/server/server_region_skill.h"
 #include <format>
+namespace sdlms {
+
 
 void ServerRegionSkillInstance::HandleRskill(uint64_t client_id,
                                                  ClientRSkillT &r) {
@@ -35,3 +37,5 @@ void ServerRegionSkillInstance::HandleSRskill(ServerRSkillT &r) {
     EffectGameInstance::data_[v->page].emplace_back(e);
   }
 }
+
+}  // namespace sdlms

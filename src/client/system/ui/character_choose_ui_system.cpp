@@ -31,6 +31,8 @@
 #include <optional>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 SDL_FPoint CharacterChooseUiSystem::LoadPos() {
   SDL_FPoint pos;
@@ -482,3 +484,5 @@ bool CharacterChooseUiSystem::Run() {
   }
   return true;
 }
+
+}  // namespace sdlms

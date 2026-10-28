@@ -6,6 +6,8 @@
 #include <cstdint>
 #include <flat_map>
 #include <string>
+namespace sdlms {
+
 
 class WorldmapUiSystem {
 private:
@@ -45,3 +47,5 @@ public:
   static bool Render();
   static bool Event(SDL_Event *Event);
 };
+
+}  // namespace sdlms

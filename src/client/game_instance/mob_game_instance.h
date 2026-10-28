@@ -11,6 +11,8 @@
 #include <optional>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 using namespace fbs;
 
@@ -29,3 +31,5 @@ public:
 
   static inline std::flat_map<int32_t, MobServerData> data_;
 };
+
+}  // namespace sdlms

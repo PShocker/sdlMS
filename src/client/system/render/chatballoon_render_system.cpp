@@ -9,6 +9,8 @@
 #include "wz/Property.h"
 #include <numeric>
 #include <optional>
+namespace sdlms {
+
 
 std::optional<ChatballoonRenderSystem::BackgrndPad>
 ChatballoonRenderSystem::RenderBackgrnd(GameChatballoon &g_chatballoon,
@@ -207,3 +209,5 @@ bool ChatballoonRenderSystem::Render(GameChatballoon &g_chatballoon,
   }
   return true;
 }
+
+}  // namespace sdlms

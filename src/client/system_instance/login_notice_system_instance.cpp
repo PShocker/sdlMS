@@ -1,6 +1,8 @@
 #include "login_notice_system_instance.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/login_notice_ui_system.h"
+namespace sdlms {
+
 
 void LoginNoticeSystemInstance::Enter(NoticeType type, void (*fn)()) {
   LoginNoticeUiSystem::type_ = type;
@@ -14,3 +16,5 @@ void LoginNoticeSystemInstance::Enter(NoticeType type, void (*fn)()) {
   auto Event = LoginNoticeUiSystem::Event;
   System::event_systems_.insert(System::event_systems_.begin(), Event);
 }
+
+}  // namespace sdlms

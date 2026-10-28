@@ -19,6 +19,8 @@
 #include <cstdint>
 #include <optional>
 #include <ranges>
+namespace sdlms {
+
 
 void CharacterChooseSystemInstance::EnterPrepare(const std::string &login) {
   GameSaveSystemInstance::LoadSave(login);
@@ -69,3 +71,5 @@ void CharacterChooseSystemInstance::Enter() {
   CharacterChooseUiSystem::effect_.ani_delay = {150, 100, 100, 100, 0};
   auto character_size = CharacterChooseUiSystem::characters_.size();
 }
+
+}  // namespace sdlms

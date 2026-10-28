@@ -4,6 +4,8 @@
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
+namespace sdlms {
+
 
 void ComboBoxUiSystem::Render(int x, int y, ComboBox cm, bool top,
                                  bool disable) {
@@ -85,3 +87,5 @@ bool ComboBoxUiSystem::Click(int x, int y, ComboBox cm, bool top,
                                 bool disable) {
   return false;
 }
+
+}  // namespace sdlms

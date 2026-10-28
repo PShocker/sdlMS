@@ -4,6 +4,8 @@
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_effect.h"
 #include "src/client/game/game_mob.h"
+namespace sdlms {
+
 class EffectRenderSystem {
 private:
   static void RenderDamage(SDL_FPoint pos, GameEffect &g_effect);
@@ -22,3 +24,5 @@ public:
   static bool RenderMobEffects(GameMob &g_mob, bool front);
   static bool RenderCharacterEffects(GameCharacter *g_character, bool front);
 };
+
+}  // namespace sdlms

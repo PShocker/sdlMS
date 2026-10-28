@@ -19,6 +19,8 @@
 #include "src/common/wz/wz_resource.h"
 #include <algorithm>
 #include <ranges>
+namespace sdlms {
+
 
 void CharacterCreateSystemInstance::EnterPrepare() {
   CharacterCreateUiSystem::ResetCharacter(false);
@@ -75,3 +77,5 @@ void CharacterCreateSystemInstance::Enter() {
       CharacterCreateUiSystem::Event,
   };
 }
+
+}  // namespace sdlms

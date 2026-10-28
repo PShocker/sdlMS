@@ -26,6 +26,8 @@
 #include <string>
 #include <utility>
 #include <vector>
+namespace sdlms {
+
 
 // 常量定义
 namespace {
@@ -526,3 +528,5 @@ bool ServerMobSystem::Run() {
   }
   return true;
 }
+
+}  // namespace sdlms

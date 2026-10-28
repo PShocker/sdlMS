@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 struct GameInput{
   std::string type;
@@ -12,3 +14,5 @@ struct GameInput{
 
   auto operator<=>(const GameInput &) const = default;
 };
+
+}  // namespace sdlms

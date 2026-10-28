@@ -4,6 +4,8 @@
 #include "src/client/window/window.h"
 #include <cstdint>
 #include <optional>
+namespace sdlms {
+
 class SliderUiSystem {
 public:
   static void RenderHslider(int x, int y, uint32_t val, uint32_t count,
@@ -13,3 +15,5 @@ public:
                                         bool top,
                                         SDL_FPoint mouse = Window::mouse_pos_);
 };
+
+}  // namespace sdlms

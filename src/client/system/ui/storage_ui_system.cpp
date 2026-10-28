@@ -12,6 +12,8 @@
 #include <algorithm>
 #include <cstdint>
 #include <optional>
+namespace sdlms {
+
 
 SDL_FPoint StorageUiSystem::LoadWh() { return {421, 366}; }
 
@@ -284,3 +286,5 @@ bool StorageUiSystem::Event(SDL_Event *Event) {
 
   return r;
 }
+
+}  // namespace sdlms

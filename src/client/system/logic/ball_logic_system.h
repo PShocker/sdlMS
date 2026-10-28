@@ -2,6 +2,8 @@
 
 #include "SDL3/SDL_rect.h"
 #include "src/client/game/game_ball.h"
+namespace sdlms {
+
 class BallLogicSystem {
 private:
   static SDL_FPoint Move(SDL_FPoint p1,SDL_FPoint p2,int speed);
@@ -11,3 +13,5 @@ private:
 public:
   static bool Run();
 };
+
+}  // namespace sdlms

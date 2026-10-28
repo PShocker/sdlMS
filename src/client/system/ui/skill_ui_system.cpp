@@ -25,6 +25,8 @@
 #include <optional>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 SDL_FPoint SkillUiSystem::LoadWh() { return {197, 371}; }
 
@@ -665,3 +667,5 @@ bool SkillUiSystem::Event(SDL_Event *Event) {
 
   return r;
 }
+
+}  // namespace sdlms

@@ -6,6 +6,8 @@
 #include <format>
 #include <optional>
 #include <string>
+namespace sdlms {
+
 
 void KeyboardGameInstance::Reset() {
   data_.clear();
@@ -445,3 +447,5 @@ std::optional<GameInput> KeyboardGameInstance::LoadCursorInput() {
   }
   return std::nullopt;
 }
+
+}  // namespace sdlms

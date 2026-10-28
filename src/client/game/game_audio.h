@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+namespace sdlms {
+
 
 struct GameAudioCache {
   SDL_AudioSpec spec;
@@ -17,3 +19,5 @@ struct GameAudio{
   SDL_AudioStream *stream;
   float volume;
 };
+
+}  // namespace sdlms

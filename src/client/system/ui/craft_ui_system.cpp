@@ -12,6 +12,8 @@
 #include <cstdint>
 #include <cstdlib>
 #include <string>
+namespace sdlms {
+
 
 void CraftUiSystem::RenderBackgrnd() {
   static auto texture = WzResource::LoadTexture(
@@ -181,3 +183,5 @@ bool CraftUiSystem::Event(SDL_Event *Event) {
 }
 
 bool CraftUiSystem::Run() { return true; }
+
+}  // namespace sdlms

@@ -7,6 +7,8 @@
 #include "wz/Node.h"
 #include "wz/Property.h"
 #include <string>
+namespace sdlms {
+
 
 bool BallRenderSystem::Render(GameBall &g_ball) {
   auto now = Window::dt_time_;
@@ -41,3 +43,5 @@ bool BallRenderSystem::Render(GameBall &g_ball) {
   }
   return true;
 }
+
+}  // namespace sdlms

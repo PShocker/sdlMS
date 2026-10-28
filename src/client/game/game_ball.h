@@ -3,6 +3,8 @@
 #include <SDL3/SDL.h>
 #include <cstdint>
 #include <string>
+namespace sdlms {
+
 
 struct GameBall{
   std::u16string path;
@@ -20,3 +22,5 @@ struct GameBall{
   uint32_t ani_index = 0;
   uint32_t ani_time = 0;
 };
+
+}  // namespace sdlms

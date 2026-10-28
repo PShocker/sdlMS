@@ -6,6 +6,8 @@
 #include "src/server/server_system/server_reactor_system.h"
 #include "src/server/server_system/server_system.h"
 #include <algorithm>
+namespace sdlms {
+
 
 void ServerSystemInstance::Enter(bool host) {
   if (host) {
@@ -24,3 +26,5 @@ void ServerSystemInstance::Enter(bool host) {
     };
   }
 }
+
+}  // namespace sdlms

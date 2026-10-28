@@ -7,6 +7,8 @@
 #include <cstdint>
 #include <ranges>
 #include <string>
+namespace sdlms {
+
 
 void ObjLogicSystem::RunAnimate(GameObj &g_obj) {
   if (g_obj.ani_count > 1) {
@@ -62,3 +64,5 @@ bool ObjLogicSystem::Run() {
   }
   return true;
 }
+
+}  // namespace sdlms

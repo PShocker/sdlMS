@@ -2,6 +2,8 @@
 
 #include "SDL3/SDL_render.h"
 #include <functional>
+namespace sdlms {
+
 class FadeSystemInstance {
 private:
   static inline int fade_in_;
@@ -16,3 +18,5 @@ public:
   static void EnterIn(std::function<void()> cb);
   static void EnterOut();
 };
+
+}  // namespace sdlms

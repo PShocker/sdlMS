@@ -5,6 +5,8 @@
 #include <cstdint>
 #include <flat_set>
 #include <string>
+namespace sdlms {
+
 
 void JobSkillGameInstance::Load(const CharacterSaveData &cs) {
   skill_point_ = cs.sp.ski_sp;
@@ -175,3 +177,5 @@ std::u16string JobSkillGameInstance::LoadTwoJump() {
   }
   return u"";
 }
+
+}  // namespace sdlms
