@@ -14,7 +14,7 @@ void Button::Move(float dx, float dy) {
 
 bool Button::Hover() {
   mouse_over = false;
-  if (node != nullptr && enable && focused) {
+  if (enable && focused) {
     SDL_FRect hit = rect;
     mouse_over = SDL_PointInRectFloat(&Window::mouse_pos_, &hit);
   }

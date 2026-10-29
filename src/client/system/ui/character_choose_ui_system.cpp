@@ -56,11 +56,12 @@ void CharacterChooseUiSystem::RenderUI() {
 
 UIComponents& CharacterChooseUiSystem::GetComponent() {
   components_.clear();
-  const static std::array buttons_nodes = {
+  const static std::array<wz::Node*, 4> buttons_nodes = {
       WzResource::ui_->find(u"Login.img/CharSelect/button:select"),
       WzResource::ui_->find(u"Login.img/CharSelect/button:new"),
       WzResource::ui_->find(u"Login.img/CharSelect/button:delete"),
-      WzResource::ui_->find(u"Login.img/LoginStart/BtClassicPrev"),
+      // 返回按钮画在背景图上，没有独立的 WZ 节点，仅提供点击区域
+      nullptr,
   };
   auto pos = LoadPos();
   auto& camera = CameraGameInstance::camera_;

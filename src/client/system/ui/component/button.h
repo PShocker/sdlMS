@@ -40,10 +40,4 @@ struct Button {
   void Render();
 };
 
-// Fires the callback of the first enabled component under the cursor.
-//
-// Returns true when a click was consumed. `play_sound` plays the standard
-// button click sound, mirroring the behaviour of each UI before the
-// components were introduced.
-
 }  // namespace sdlms
