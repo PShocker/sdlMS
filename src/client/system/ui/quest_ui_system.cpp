@@ -15,8 +15,10 @@
 #include "src/client/system/render/npc_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/check_box.h"
 #include "src/client/system/ui/quest_alarm_ui_system.h"
 #include "src/client/system/ui/component/scroll.h"
+#include "src/client/system/ui/component/tab.h"
 #include "src/client/system/ui/tooltip_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
@@ -243,21 +245,11 @@ void QuestUiSystem::RenderQuest(GameQuest& q, int y) {
     case 1: {
       str_left = 30;
       str_len = 26;
-      auto t = WzResource::LoadTexture(
-          WzResource::ui_->find(u"Basic.img/CheckBox/0/0"));
-      if (QuestAlarmUiSystem::quests_.contains(q.quest_id)) {
-        t = WzResource::LoadTexture(
-            WzResource::ui_->find(u"Basic.img/CheckBox/0/1"));
-      }
-      SDL_FRect pos_rect{
-          static_cast<float>(px),
-          static_cast<float>(py),
-          static_cast<float>(t->w),
-          static_cast<float>(t->h),
-      };
-      SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
-      const auto& mouse_pos = Window::mouse_pos_;
-      if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+      CheckBox check{
+          .rect = SDL_FRect{static_cast<float>(px), static_cast<float>(py)},
+          .checked = QuestAlarmUiSystem::quests_.contains(q.quest_id)};
+      check.Render();
+      if (check.Hover()) {
         checkbox_quest_name = q.quest_id;
       }
       std::vector<int> delays = {
@@ -268,10 +260,10 @@ void QuestUiSystem::RenderQuest(GameQuest& q, int y) {
       auto icon = WzResource::LoadTexture(
           WzResource::ui_->find(u"Quest.img/Quest/icon/icon2")
               ->get_child(render_index));
-      pos_rect.x += t->w;
-      pos_rect.w = icon->w;
-      pos_rect.h = icon->h;
-      SDL_RenderTexture(Window::renderer_, icon, nullptr, &pos_rect);
+      SDL_FRect icon_rect{check.rect.x + check.rect.w, check.rect.y,
+                          static_cast<float>(icon->w),
+                          static_cast<float>(icon->h)};
+      SDL_RenderTexture(Window::renderer_, icon, nullptr, &icon_rect);
       break;
     }
     case 2: {
@@ -588,33 +580,16 @@ void QuestUiSystem::RenderQuestDetail() {
 }
 
 void QuestUiSystem::RenderTab() {
-  const static std::array tab_pos = {
-      SDL_FPoint{6, 24},    //
-      SDL_FPoint{78, 24},   //
-      SDL_FPoint{150, 24},  //
-  };
   const static auto tab_node =
       WzResource::ui_->find(u"Quest.img/Quest/list/Tab");
-  const static std::array active_texture = {
-      WzResource::LoadTexture(tab_node->find(u"enabled/0")),
-      WzResource::LoadTexture(tab_node->find(u"enabled/1")),
-      WzResource::LoadTexture(tab_node->find(u"enabled/2")),
-  };
-  const static std::array disabled_texture = {
-      WzResource::LoadTexture(tab_node->find(u"disabled/0")),
-      WzResource::LoadTexture(tab_node->find(u"disabled/1")),
-      WzResource::LoadTexture(tab_node->find(u"disabled/2")),
-  };
-  for (uint8_t i = 0; i < tab_pos.size(); i++) {
-    SDL_Texture* t = active_tab_ == i ? active_texture[i] : disabled_texture[i];
-    SDL_FRect pos_rect{
-        static_cast<float>(int(pos_.x + tab_pos[i].x)),
-        static_cast<float>(int(pos_.y + tab_pos[i].y)),
-        static_cast<float>(t->w),
-        static_cast<float>(t->h),
-    };
-    SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
+  std::vector<SDL_FRect> rects;
+  for (uint8_t i = 0; i < 3; i++) {
+    rects.push_back(
+        SDL_FRect{static_cast<float>(int(pos_.x + 6 + i * 72)),
+                  static_cast<float>(int(pos_.y + 24)), 72, 19});
   }
+  Tab tab{tab_node, u"enabled", u"disabled", rects, active_tab_};
+  tab.Render();
 }
 
 void QuestUiSystem::RenderVscr() {
@@ -693,26 +668,26 @@ void QuestUiSystem::Close() {
 }
 
 void QuestUiSystem::EventTab(SDL_Event* event) {
-  const static std::array tab_rect = {
-      SDL_FRect{6, 24, 72, 19},    //
-      SDL_FRect{78, 24, 72, 19},   //
-      SDL_FRect{150, 24, 72, 19},  //
-  };
-  for (uint8_t i = 0; i < tab_rect.size(); i++) {
-    auto pos_rect = tab_rect[i];
-    pos_rect.x += pos_.x;
-    pos_rect.y += pos_.y;
-    if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect)) {
-      AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
-      if (active_tab_ == i) {
-        return;
-      }
-      disable_fold_ = {};
-      pages_[0] = 0;
-      active_tab_ = i;
-      return;
-    }
+  const static auto tab_node =
+      WzResource::ui_->find(u"Quest.img/Quest/list/Tab");
+  std::vector<SDL_FRect> rects;
+  for (uint8_t i = 0; i < 3; i++) {
+    rects.push_back(
+        SDL_FRect{static_cast<float>(int(pos_.x + 6 + i * 72)),
+                  static_cast<float>(int(pos_.y + 24)), 72, 19});
   }
+  Tab tab{tab_node, u"enabled", u"disabled", rects, active_tab_};
+  auto i = tab.Click();
+  if (!i) {
+    return;
+  }
+  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+  if (active_tab_ == *i) {
+    return;
+  }
+  disable_fold_ = {};
+  pages_[0] = 0;
+  active_tab_ = *i;
 }
 
 void QuestUiSystem::EventTop() {

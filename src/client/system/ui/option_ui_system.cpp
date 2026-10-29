@@ -6,8 +6,10 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/check_box.h"
 #include "src/client/system/ui/component/combo_box.h"
 #include "src/client/system/ui/component/slider.h"
+#include "src/client/system/ui/component/tab.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
@@ -82,19 +84,9 @@ void OptionUiSystem::RenderOption() {
       Freetype::DrawLine(u"0%", pos_.x + 136, pos_.y + 91);
       Slider(hp_warn_, 100, 167).Render(pos_.x + 163, pos_.y + 95);
       Freetype::DrawLine(u"100%", pos_.x + 335, pos_.y + 91);
-      SDL_Texture* t;
-      if (master_volume_mute_) {
-        t = WzResource::LoadTexture(
-            WzResource::ui_->find(u"Basic.img/CheckBox/0/1"));
-      } else {
-        t = WzResource::LoadTexture(
-            WzResource::ui_->find(u"Basic.img/CheckBox/0/0"));
-      }
-      pos_rect.x = pos_.x + 1;
-      pos_rect.y = pos_.y + 1;
-      pos_rect.w = t->w;
-      pos_rect.h = t->h;
-      SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
+      CheckBox{.rect = SDL_FRect{pos_.x + 1, pos_.y + 1},
+               .checked = master_volume_mute_}
+          .Render();
       Freetype::LoadAligned(true);
       Freetype::LoadSize(12);
       Freetype::LoadColor(0, 0, 0, 255);
@@ -108,18 +100,9 @@ void OptionUiSystem::RenderOption() {
       Freetype::DrawLine(u"0%", pos_.x + 136, pos_.y + 91);
       Slider(hp_warn_, 100, 167).Render(pos_.x + 163, pos_.y + 95);
       Freetype::DrawLine(u"100%", pos_.x + 335, pos_.y + 91);
-      if (bgm_volume_mute_) {
-        t = WzResource::LoadTexture(
-            WzResource::ui_->find(u"Basic.img/CheckBox/0/1"));
-      } else {
-        t = WzResource::LoadTexture(
-            WzResource::ui_->find(u"Basic.img/CheckBox/0/0"));
-      }
-      pos_rect.x = pos_.x + 1;
-      pos_rect.y = pos_.y + 1;
-      pos_rect.w = t->w;
-      pos_rect.h = t->h;
-      SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
+      CheckBox{.rect = SDL_FRect{pos_.x + 1, pos_.y + 1},
+               .checked = bgm_volume_mute_}
+          .Render();
       Freetype::LoadAligned(true);
       Freetype::LoadSize(12);
       Freetype::LoadColor(0, 0, 0, 255);
@@ -133,18 +116,9 @@ void OptionUiSystem::RenderOption() {
       Freetype::DrawLine(u"0%", pos_.x + 136, pos_.y + 91);
       Slider(hp_warn_, 100, 167).Render(pos_.x + 163, pos_.y + 95);
       Freetype::DrawLine(u"100%", pos_.x + 335, pos_.y + 91);
-      if (normal_volume_mute_) {
-        t = WzResource::LoadTexture(
-            WzResource::ui_->find(u"Basic.img/CheckBox/0/1"));
-      } else {
-        t = WzResource::LoadTexture(
-            WzResource::ui_->find(u"Basic.img/CheckBox/0/0"));
-      }
-      pos_rect.x = pos_.x + 1;
-      pos_rect.y = pos_.y + 1;
-      pos_rect.w = t->w;
-      pos_rect.h = t->h;
-      SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
+      CheckBox{.rect = SDL_FRect{pos_.x + 1, pos_.y + 1},
+               .checked = normal_volume_mute_}
+          .Render();
       Freetype::LoadAligned(true);
       Freetype::LoadSize(12);
       Freetype::LoadColor(0, 0, 0, 255);
@@ -158,18 +132,9 @@ void OptionUiSystem::RenderOption() {
       Freetype::DrawLine(u"0%", pos_.x + 136, pos_.y + 91);
       Slider(hp_warn_, 100, 167).Render(pos_.x + 163, pos_.y + 95);
       Freetype::DrawLine(u"100%", pos_.x + 335, pos_.y + 91);
-      if (monster_volume_mute_) {
-        t = WzResource::LoadTexture(
-            WzResource::ui_->find(u"Basic.img/CheckBox/0/1"));
-      } else {
-        t = WzResource::LoadTexture(
-            WzResource::ui_->find(u"Basic.img/CheckBox/0/0"));
-      }
-      pos_rect.x = pos_.x + 1;
-      pos_rect.y = pos_.y + 1;
-      pos_rect.w = t->w;
-      pos_rect.h = t->h;
-      SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
+      CheckBox{.rect = SDL_FRect{pos_.x + 1, pos_.y + 1},
+               .checked = monster_volume_mute_}
+          .Render();
       Freetype::LoadAligned(true);
       Freetype::LoadSize(12);
       Freetype::LoadColor(0, 0, 0, 255);
@@ -183,18 +148,9 @@ void OptionUiSystem::RenderOption() {
       Freetype::DrawLine(u"0%", pos_.x + 136, pos_.y + 91);
       Slider(hp_warn_, 100, 167).Render(pos_.x + 163, pos_.y + 95);
       Freetype::DrawLine(u"100%", pos_.x + 335, pos_.y + 91);
-      if (skill_volume_mute_) {
-        t = WzResource::LoadTexture(
-            WzResource::ui_->find(u"Basic.img/CheckBox/0/1"));
-      } else {
-        t = WzResource::LoadTexture(
-            WzResource::ui_->find(u"Basic.img/CheckBox/0/0"));
-      }
-      pos_rect.x = pos_.x + 1;
-      pos_rect.y = pos_.y + 1;
-      pos_rect.w = t->w;
-      pos_rect.h = t->h;
-      SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
+      CheckBox{.rect = SDL_FRect{pos_.x + 1, pos_.y + 1},
+               .checked = skill_volume_mute_}
+          .Render();
       Freetype::LoadAligned(true);
       Freetype::LoadSize(12);
       Freetype::LoadColor(0, 0, 0, 255);
@@ -249,27 +205,19 @@ void OptionUiSystem::RenderOption() {
 
       screenshot_location_.Render(pos_.x + 131, pos_.y + 197, top, false);
       // burst screen shot
-      SDL_Texture* t;
-      if (continue_capture_) {
-        t = WzResource::LoadTexture(
-            WzResource::ui_->find(u"Basic.img/CheckBox/0/1"));
-      } else {
-        t = WzResource::LoadTexture(
-            WzResource::ui_->find(u"Basic.img/CheckBox/0/0"));
-      }
-      pos_rect.x = pos_.x + 1;
-      pos_rect.y = pos_.y + 1;
-      pos_rect.w = t->w;
-      pos_rect.h = t->h;
-      SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
+      CheckBox capture_check{.rect = SDL_FRect{pos_.x + 1, pos_.y + 1},
+                             .checked = continue_capture_};
+      capture_check.Render();
       std::u16string text = u"Continuous Capture";
       Freetype::LoadSize(12);
-      Freetype::DrawLine(text, pos_rect.x + 100, pos_rect.y);
+      Freetype::DrawLine(text, capture_check.rect.x + 100,
+                         capture_check.rect.y);
 
       auto tmp = std::to_string(continue_capture_num_);
       text = std::u16string{tmp.begin(), tmp.end()} + u"   Shots";
       Freetype::LoadColor(0, 0, 0, 255);
-      Freetype::DrawLine(text, pos_rect.x + 100, pos_rect.y);
+      Freetype::DrawLine(text, capture_check.rect.x + 100,
+                         capture_check.rect.y);
 
       // buttons_nodes = {
       //     wz_resource::ui->find(u"Basic.img/BtMax"),
@@ -284,38 +232,21 @@ void OptionUiSystem::RenderOption() {
       text = u"2 to 10 Shots Avaliable";
       Freetype::DrawLine(text, pos_.x, pos_.y);
 
-      if (auto_capture_) {
-        t = WzResource::LoadTexture(
-            WzResource::ui_->find(u"Basic.img/CheckBox/0/1"));
-      } else {
-        t = WzResource::LoadTexture(
-            WzResource::ui_->find(u"Basic.img/CheckBox/0/0"));
-      }
-      pos_rect.x = pos_.x + 1;
-      pos_rect.y = pos_.y + 1;
-      pos_rect.w = t->w;
-      pos_rect.h = t->h;
-      SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
+      CheckBox{.rect = SDL_FRect{pos_.x + 1, pos_.y + 1},
+               .checked = auto_capture_}
+          .Render();
       text = u"Auto-Capture Memorable Moments";
 
-      if (memory_map_) {
-        t = WzResource::LoadTexture(
-            WzResource::ui_->find(u"Basic.img/CheckBox/0/1"));
-      } else {
-        t = WzResource::LoadTexture(
-            WzResource::ui_->find(u"Basic.img/CheckBox/0/0"));
-      }
-      pos_rect.x = pos_.x + 1;
-      pos_rect.y = pos_.y + 1;
-      pos_rect.w = t->w;
-      pos_rect.h = t->h;
-      SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
+      CheckBox memory_check{.rect = SDL_FRect{pos_.x + 1, pos_.y + 1},
+                            .checked = memory_map_};
+      memory_check.Render();
       text = u"Use";
 
       tmp = std::to_string(memory_limit_);
       text = std::u16string{tmp.begin(), tmp.end()} + u"   Shots";
       Freetype::LoadColor(0, 0, 0, 255);
-      Freetype::DrawLine(text, pos_rect.x + 100, pos_rect.y);
+      Freetype::DrawLine(text, memory_check.rect.x + 100,
+                         memory_check.rect.y);
 
       break;
     }
@@ -330,23 +261,14 @@ void OptionUiSystem::RenderOption() {
       };
       SDL_RenderTexture(Window::renderer_, backgrnd, nullptr, &pos_rect);
 
-      SDL_Texture* t;
       // whisper
-      if (whisper_) {
-        t = WzResource::LoadTexture(
-            WzResource::ui_->find(u"Basic.img/CheckBox/0/1"));
-      } else {
-        t = WzResource::LoadTexture(
-            WzResource::ui_->find(u"Basic.img/CheckBox/0/0"));
-      }
-      pos_rect.x = pos_.x + 1;
-      pos_rect.y = pos_.y + 1;
-      pos_rect.w = t->w;
-      pos_rect.h = t->h;
-      SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
+      CheckBox whisper_check{.rect = SDL_FRect{pos_.x + 1, pos_.y + 1},
+                             .checked = whisper_};
+      whisper_check.Render();
       std::u16string text = u"Continuous Capture";
       Freetype::LoadSize(12);
-      Freetype::DrawLine(text, pos_rect.x + 100, pos_rect.y);
+      Freetype::DrawLine(text, whisper_check.rect.x + 100,
+                         whisper_check.rect.y);
     }
   }
   for (size_t i = 0; i < buttons_nodes.size(); ++i) {
@@ -417,38 +339,15 @@ std::vector<Button>& OptionUiSystem::GetComponent() {
 
 
 void OptionUiSystem::RenderTab() {
-  const static std::array tab_pos = {
-      SDL_FPoint{10, 24},   //
-      SDL_FPoint{81, 24},   //
-      SDL_FPoint{152, 24},  //
-      SDL_FPoint{223, 24},  //
-      SDL_FPoint{294, 24},  //
-  };
   const static auto tab_node = WzResource::ui_->find(u"Options.img/tab");
-  const static std::array active_texture = {
-      WzResource::LoadTexture(tab_node->find(u"enabled/0")),
-      WzResource::LoadTexture(tab_node->find(u"enabled/1")),
-      WzResource::LoadTexture(tab_node->find(u"enabled/2")),
-      WzResource::LoadTexture(tab_node->find(u"enabled/3")),
-      WzResource::LoadTexture(tab_node->find(u"enabled/4")),
-  };
-  const static std::array disabled_texture = {
-      WzResource::LoadTexture(tab_node->find(u"disabled/0")),
-      WzResource::LoadTexture(tab_node->find(u"disabled/1")),
-      WzResource::LoadTexture(tab_node->find(u"disabled/2")),
-      WzResource::LoadTexture(tab_node->find(u"disabled/3")),
-      WzResource::LoadTexture(tab_node->find(u"disabled/4")),
-  };
-  for (uint8_t i = 0; i < tab_pos.size(); i++) {
-    SDL_Texture* t = active_tab_ == i ? active_texture[i] : disabled_texture[i];
-    SDL_FRect pos_rect{
-        static_cast<float>(int(pos_.x + tab_pos[i].x)),
-        static_cast<float>(int(pos_.y + tab_pos[i].y)),
-        static_cast<float>(t->w),
-        static_cast<float>(t->h),
-    };
-    SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
+  std::vector<SDL_FRect> rects;
+  for (uint8_t i = 0; i < 5; i++) {
+    rects.push_back(
+        SDL_FRect{static_cast<float>(int(pos_.x + 10 + i * 71)),
+                  static_cast<float>(int(pos_.y + 24)), 71, 21});
   }
+  Tab tab{tab_node, u"enabled", u"disabled", rects, active_tab_};
+  tab.Render();
 }
 
 bool OptionUiSystem::Render() {
@@ -526,17 +425,16 @@ void OptionUiSystem::EventButtonOk() {
 }
 
 void OptionUiSystem::EventTab(SDL_Event* event) {
-  const static std::array tab_rect = {
-      SDL_FRect{5, 26, 33, 19},   //
-      SDL_FRect{38, 26, 33, 19},  //
-  };
-  for (uint8_t i = 0; i < tab_rect.size(); i++) {
-    auto pos_rect = tab_rect[i];
-    pos_rect.x += pos_.x;
-    pos_rect.y += pos_.y;
-    if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect)) {
-      active_tab_ = i;
-    }
+  const static auto tab_node = WzResource::ui_->find(u"Options.img/tab");
+  std::vector<SDL_FRect> rects;
+  for (uint8_t i = 0; i < 5; i++) {
+    rects.push_back(
+        SDL_FRect{static_cast<float>(int(pos_.x + 10 + i * 71)),
+                  static_cast<float>(int(pos_.y + 24)), 71, 21});
+  }
+  Tab tab{tab_node, u"enabled", u"disabled", rects, active_tab_};
+  if (auto i = tab.Click()) {
+    active_tab_ = *i;
   }
 }
 

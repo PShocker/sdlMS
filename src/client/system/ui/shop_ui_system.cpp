@@ -21,6 +21,7 @@
 #include "src/client/system/ui/notice_ui_system.h"
 #include "src/client/system/ui/package_ui_system.h"
 #include "src/client/system/ui/component/scroll.h"
+#include "src/client/system/ui/component/tab.h"
 #include "src/client/system/ui/tooltip_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
@@ -233,58 +234,27 @@ std::vector<Button>& ShopUiSystem::GetComponent() {
 
 
 void ShopUiSystem::RenderTab() {
-  const static std::array tab_pos0 = {
-      SDL_FPoint{7, 96},   //
-      SDL_FPoint{64, 96},  //
-  };
   const static auto tab_node0 =
       WzResource::ui_->find(u"UIShop.img/Shop/TabBuy");
-  const static std::array active_texture0 = {
-      WzResource::LoadTexture(tab_node0->find(u"enabled/0")),
-      WzResource::LoadTexture(tab_node0->find(u"enabled/1")),
-  };
-  const static std::array disabled_texture0 = {
-      WzResource::LoadTexture(tab_node0->find(u"disabled/0")),
-      WzResource::LoadTexture(tab_node0->find(u"disabled/1")),
-  };
-  for (uint8_t i = 0; i < tab_pos0.size(); i++) {
-    SDL_Texture* t =
-        active_tab_[0] == i ? active_texture0[i] : disabled_texture0[i];
-    SDL_FRect pos_rect{static_cast<float>(int(pos_.x + tab_pos0[i].x)),
-                       static_cast<float>(int(pos_.y + tab_pos0[i].y)),
-                       static_cast<float>(t->w), static_cast<float>(t->h)};
-    SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
+  std::vector<SDL_FRect> rects0;
+  for (uint8_t i = 0; i < 2; i++) {
+    rects0.push_back(SDL_FRect{static_cast<float>(int(pos_.x + 7 + i * 57)),
+                               static_cast<float>(int(pos_.y + 96)), 57, 21});
   }
+  Tab tab0{tab_node0, u"enabled", u"disabled", rects0,
+           static_cast<uint8_t>(active_tab_[0])};
+  tab0.Render();
 
-  //
-  const static std::array tab_pos1 = {
-      SDL_FPoint{237, 96},  //
-      SDL_FPoint{281, 96},  //
-      SDL_FPoint{325, 96},  //
-      SDL_FPoint{369, 96},  //
-  };
   const static auto tab_node1 =
       WzResource::ui_->find(u"UIShop.img/Shop/TabSell");
-  const static std::array active_texture1 = {
-      WzResource::LoadTexture(tab_node1->find(u"enabled/0")),
-      WzResource::LoadTexture(tab_node1->find(u"enabled/1")),
-      WzResource::LoadTexture(tab_node1->find(u"enabled/2")),
-      WzResource::LoadTexture(tab_node1->find(u"enabled/3")),
-  };
-  const static std::array disabled_texture1 = {
-      WzResource::LoadTexture(tab_node1->find(u"disabled/0")),
-      WzResource::LoadTexture(tab_node1->find(u"disabled/1")),
-      WzResource::LoadTexture(tab_node1->find(u"disabled/2")),
-      WzResource::LoadTexture(tab_node1->find(u"disabled/3")),
-  };
-  for (uint8_t i = 0; i < tab_pos1.size(); i++) {
-    SDL_Texture* t =
-        active_tab_[1] == i ? active_texture1[i] : disabled_texture1[i];
-    SDL_FRect pos_rect{static_cast<float>(int(pos_.x + tab_pos1[i].x)),
-                       static_cast<float>(int(pos_.y + tab_pos1[i].y)),
-                       static_cast<float>(t->w), static_cast<float>(t->h)};
-    SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
+  std::vector<SDL_FRect> rects1;
+  for (uint8_t i = 0; i < 4; i++) {
+    rects1.push_back(SDL_FRect{static_cast<float>(int(pos_.x + 237 + i * 44)),
+                               static_cast<float>(int(pos_.y + 96)), 44, 21});
   }
+  Tab tab1{tab_node1, u"enabled", u"disabled", rects1,
+           static_cast<uint8_t>(active_tab_[1])};
+  tab1.Render();
 }
 
 void ShopUiSystem::RenderActiveItem() {
@@ -536,44 +506,38 @@ bool ShopUiSystem::EventVscr(SDL_Event* event) {
 }
 
 bool ShopUiSystem::EventTab(SDL_Event* event) {
-  const auto& mouse_pos = Window::mouse_pos_;
-
   // 第一组标签页（商店分类）
-  const static std::array tab_pos0 = {
-      SDL_FPoint{7, 96},
-      SDL_FPoint{64, 96},
-  };
-  for (uint8_t i = 0; i < tab_pos0.size(); ++i) {
-    SDL_FRect pos_rect{
-        static_cast<float>(int(pos_.x + tab_pos0[i].x)),
-        static_cast<float>(int(pos_.y + tab_pos0[i].y)),
-        57,
-        21,
-    };
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-      active_tab_[0] = i;
-      active_item_[0] = std::nullopt;
-      pages_[0] = 0;
-      return true;
-    }
+  const static auto tab_node0 =
+      WzResource::ui_->find(u"UIShop.img/Shop/TabBuy");
+  std::vector<SDL_FRect> rects0;
+  for (uint8_t i = 0; i < 2; i++) {
+    rects0.push_back(SDL_FRect{static_cast<float>(int(pos_.x + 7 + i * 57)),
+                               static_cast<float>(int(pos_.y + 96)), 57, 21});
+  }
+  Tab tab0{tab_node0, u"enabled", u"disabled", rects0,
+           static_cast<uint8_t>(active_tab_[0])};
+  if (auto i = tab0.Click()) {
+    active_tab_[0] = *i;
+    active_item_[0] = std::nullopt;
+    pages_[0] = 0;
+    return true;
   }
 
   // 第二组标签页（背包分类）
-  const static std::array tab_pos1 = {
-      SDL_FPoint{237, 96},
-      SDL_FPoint{281, 96},
-      SDL_FPoint{325, 96},
-      SDL_FPoint{369, 96},
-  };
-  for (uint8_t i = 0; i < tab_pos1.size(); ++i) {
-    SDL_FRect pos_rect{static_cast<float>(int(pos_.x + tab_pos1[i].x)),
-                       static_cast<float>(int(pos_.y + tab_pos1[i].y)), 44, 21};
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-      active_tab_[1] = i;
-      active_item_[1] = std::nullopt;
-      pages_[1] = 0;
-      return true;
-    }
+  const static auto tab_node1 =
+      WzResource::ui_->find(u"UIShop.img/Shop/TabSell");
+  std::vector<SDL_FRect> rects1;
+  for (uint8_t i = 0; i < 4; i++) {
+    rects1.push_back(SDL_FRect{static_cast<float>(int(pos_.x + 237 + i * 44)),
+                               static_cast<float>(int(pos_.y + 96)), 44, 21});
+  }
+  Tab tab1{tab_node1, u"enabled", u"disabled", rects1,
+           static_cast<uint8_t>(active_tab_[1])};
+  if (auto i = tab1.Click()) {
+    active_tab_[1] = *i;
+    active_item_[1] = std::nullopt;
+    pages_[1] = 0;
+    return true;
   }
 
   return false;

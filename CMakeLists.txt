@@ -55,9 +55,11 @@ set(SDLMS_COMMON_SOURCES
 set(SDLMS_CLIENT_SOURCES
   src/client/game_instance/afterimage_game_instance.cpp
   src/client/system/ui/component/button.cpp
+  src/client/system/ui/component/check_box.cpp
   src/client/system/ui/component/combo_box.cpp
   src/client/system/ui/component/scroll.cpp
   src/client/system/ui/component/slider.cpp
+  src/client/system/ui/component/tab.cpp
   src/client/system/ui/component/text_input.cpp
   src/client/game_instance/audio_game_instance.cpp
   src/client/game_instance/backgrnd_game_instance.cpp

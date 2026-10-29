@@ -5,6 +5,7 @@
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/component/tab.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 
@@ -27,35 +28,16 @@ void CraftUiSystem::RenderBackgrnd() {
 }
 
 void CraftUiSystem::RenderTab() {
-  const static SDL_FPoint lt = {9, 23};
-  const static SDL_FPoint rb = {537, 44};
   const static auto tab_node =
       WzResource::ui_->find(u"Crafting.img/tab:category");
-  const static std::array selected_texture = {
-      WzResource::LoadTexture(tab_node->find(u"selected/0")),
-      WzResource::LoadTexture(tab_node->find(u"selected/1")),
-      WzResource::LoadTexture(tab_node->find(u"selected/2")),
-      WzResource::LoadTexture(tab_node->find(u"selected/3")),
-      WzResource::LoadTexture(tab_node->find(u"selected/4")),
-      WzResource::LoadTexture(tab_node->find(u"selected/5")),
-  };
-  const static std::array normal_texture = {
-      WzResource::LoadTexture(tab_node->find(u"normal/0")),
-      WzResource::LoadTexture(tab_node->find(u"normal/1")),
-      WzResource::LoadTexture(tab_node->find(u"normal/2")),
-      WzResource::LoadTexture(tab_node->find(u"normal/3")),
-      WzResource::LoadTexture(tab_node->find(u"normal/4")),
-      WzResource::LoadTexture(tab_node->find(u"normal/5")),
-  };
-  for (uint8_t i = 0; i < selected_texture.size(); i++) {
-    SDL_Texture* t =
-        selected_tab_ == i ? selected_texture[i] : normal_texture[i];
-    SDL_FPoint tab_pos = {static_cast<float>(lt.x + i * 88), lt.y};
-    SDL_FRect pos_rect{static_cast<float>(int(pos_.x + tab_pos.x)),
-                       static_cast<float>(int(pos_.y + tab_pos.y)),
-                       static_cast<float>(t->w), static_cast<float>(t->h)};
-    SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
+  std::vector<SDL_FRect> rects;
+  for (uint8_t i = 0; i <= 5; i++) {
+    rects.push_back(
+        SDL_FRect{static_cast<float>(int(pos_.x + 9 + i * 88)),
+                  static_cast<float>(int(pos_.y + 23)), 88, 21});
   }
+  Tab tab{tab_node, u"selected", u"normal", rects, selected_tab_};
+  tab.Render();
 }
 
 bool CraftUiSystem::Render() {
@@ -142,14 +124,17 @@ bool CraftUiSystem::CursorIn() {
 }
 
 void CraftUiSystem::EventTab(SDL_Event* event) {
-  const static SDL_FPoint lt = {9, 23};
-  const static SDL_FPoint rb = {537, 44};
+  const static auto tab_node =
+      WzResource::ui_->find(u"Crafting.img/tab:category");
+  std::vector<SDL_FRect> rects;
   for (uint8_t i = 0; i <= 5; i++) {
-    SDL_FPoint tab_pos = {static_cast<float>(9 + i * 88), 23};
-    SDL_FRect pos_rect{pos_.x + tab_pos.x, pos_.y + tab_pos.y, 88, 21};
-    if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect)) {
-      selected_tab_ = i;
-    }
+    rects.push_back(
+        SDL_FRect{static_cast<float>(int(pos_.x + 9 + i * 88)),
+                  static_cast<float>(int(pos_.y + 23)), 88, 21});
+  }
+  Tab tab{tab_node, u"selected", u"normal", rects, selected_tab_};
+  if (auto i = tab.Click()) {
+    selected_tab_ = *i;
   }
 }
 

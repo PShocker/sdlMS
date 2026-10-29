@@ -7,6 +7,7 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/tab.h"
 #include "src/client/system/ui/notice_ui_system.h"
 #include "src/client/system/ui/package_ui_system.h"
 #include "src/client/window/window.h"
@@ -175,23 +176,17 @@ bool StorageUiSystem::EventButton(SDL_Event* event) {
 
 
 void StorageUiSystem::EventTab() {
-  const static std::array tab_rect = {
-      SDL_FRect{5, 24, 33, 19},    //
-      SDL_FRect{38, 24, 33, 19},   //
-      SDL_FRect{71, 24, 33, 19},   //
-      SDL_FRect{104, 24, 33, 19},  //
-      SDL_FRect{137, 24, 33, 19},  //
-      SDL_FRect{170, 24, 33, 19},  //
-  };
-  for (uint8_t i = 0; i < tab_rect.size(); i++) {
-    auto pos_rect = tab_rect[i];
-    pos_rect.x += pos_.x;
-    pos_rect.y += pos_.y;
-    if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect)) {
-      active_tab_ = i;
-    }
+  const static auto tab_node = WzResource::ui_->find(u"Storage.img/Trunk/tab:get");
+  std::vector<SDL_FRect> rects;
+  for (uint8_t i = 0; i < 6; i++) {
+    rects.push_back(SDL_FRect{static_cast<float>(int(pos_.x) + 5 + 33 * i),
+                              static_cast<float>(int(pos_.y) + 24), 33, 19});
   }
-  return;
+  Tab tab{tab_node, u"selected", u"normal", rects,
+          static_cast<uint8_t>(active_tab_)};
+  if (auto i = tab.Click()) {
+    active_tab_ = *i;
+  }
 }
 
 void StorageUiSystem::EventClose() {

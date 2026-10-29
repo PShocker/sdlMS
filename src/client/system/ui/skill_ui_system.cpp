@@ -12,6 +12,7 @@
 #include "src/client/system/system.h"
 #include "src/client/system/ui/component/button.h"
 #include "src/client/system/ui/component/scroll.h"
+#include "src/client/system/ui/component/tab.h"
 #include "src/client/system/ui/tooltip_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
@@ -120,33 +121,17 @@ void SkillUiSystem::RenderBackgrnd() {
 }
 
 void SkillUiSystem::RenderTab() {
-  const static SDL_FPoint lt = {5, 24};
-  const static SDL_FPoint rb = {186, 43};
   const static auto tab_node = WzResource::ui_->find(u"Skill.img/tab:grade");
   auto jobs =
       JobSkillGameInstance::LoadSkiTree(CharacterGameInstance::self_.job);
-  const static std::array selected_texture = {
-      WzResource::LoadTexture(tab_node->find(u"selected/0")),
-      WzResource::LoadTexture(tab_node->find(u"selected/1")),
-      WzResource::LoadTexture(tab_node->find(u"selected/2")),
-      WzResource::LoadTexture(tab_node->find(u"selected/3")),
-      WzResource::LoadTexture(tab_node->find(u"selected/4")),
-  };
-  const static std::array normal_texture = {
-      WzResource::LoadTexture(tab_node->find(u"normal/0")),
-      WzResource::LoadTexture(tab_node->find(u"normal/1")),
-      WzResource::LoadTexture(tab_node->find(u"normal/2")),
-      WzResource::LoadTexture(tab_node->find(u"normal/3")),
-      WzResource::LoadTexture(tab_node->find(u"normal/4")),
-  };
-  for (uint8_t i = 0; i < jobs.size(); i++) {
-    SDL_Texture* t = active_tab_ == i ? selected_texture[i] : normal_texture[i];
-    SDL_FPoint tab_pos = {static_cast<float>(lt.x + i * 33), lt.y};
-    SDL_FRect pos_rect{static_cast<float>(int(pos_.x + tab_pos.x)),
-                       static_cast<float>(int(pos_.y + tab_pos.y)),
-                       static_cast<float>(t->w), static_cast<float>(t->h)};
-    SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
+  std::vector<SDL_FRect> rects;
+  for (size_t i = 0; i < jobs.size(); i++) {
+    rects.push_back(
+        SDL_FRect{static_cast<float>(int(pos_.x) + 5 + 33 * (int)i),
+                  static_cast<float>(int(pos_.y) + 24), 33, 19});
   }
+  Tab tab{tab_node, u"selected", u"normal", rects, active_tab_};
+  tab.Render();
 }
 
 static std::u16string mouse_skill_id;
@@ -473,27 +458,24 @@ bool SkillUiSystem::EventClickSki(SDL_Event* event) {
 }
 
 bool SkillUiSystem::EventClickTab(SDL_Event* event) {
-  const static SDL_FPoint lt = {5, 24};
-  const static SDL_FPoint rb = {186, 43};
+  const static auto tab_node = WzResource::ui_->find(u"Skill.img/tab:grade");
   auto jobs =
       JobSkillGameInstance::LoadSkiTree(CharacterGameInstance::self_.job);
-  auto& mouse_pos = Window::mouse_pos_;
-  for (uint8_t i = 0; i < jobs.size(); i++) {
-    SDL_FPoint tab_pos = {static_cast<float>(lt.x + i * 33), lt.y};
-    SDL_FRect pos_rect{
-        static_cast<float>(int(pos_.x + tab_pos.x)),
-        static_cast<float>(int(pos_.y + tab_pos.y)),
-        33,
-        19,
-    };
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-      AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
-      active_tab_ = i;
-      page_ = 0;
-      return true;
-    }
+  std::vector<SDL_FRect> rects;
+  for (size_t i = 0; i < jobs.size(); i++) {
+    rects.push_back(
+        SDL_FRect{static_cast<float>(int(pos_.x) + 5 + 33 * (int)i),
+                  static_cast<float>(int(pos_.y) + 24), 33, 19});
   }
-  return false;
+  Tab tab{tab_node, u"selected", u"normal", rects, active_tab_};
+  auto i = tab.Click();
+  if (!i) {
+    return false;
+  }
+  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+  active_tab_ = *i;
+  page_ = 0;
+  return true;
 }
 
 void SkillUiSystem::EventVscr(SDL_Event* event) {

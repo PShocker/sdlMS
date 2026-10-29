@@ -14,6 +14,7 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/tab.h"
 #include "src/client/system/ui/equip_ui_system.h"
 #include "src/client/system/ui/notice_ui_system.h"
 #include "src/client/system/ui/component/scroll.h"
@@ -108,41 +109,15 @@ void PackageUiSystem::RenderNumber(uint32_t num, int x, int y) {
 }
 
 void PackageUiSystem::RenderTab() {
-  const static std::array tab_pos = {
-      SDL_FPoint{5, 24},    //
-      SDL_FPoint{38, 24},   //
-      SDL_FPoint{71, 24},   //
-      SDL_FPoint{104, 24},  //
-      SDL_FPoint{137, 24},  //
-      SDL_FPoint{170, 24},  //
-  };
   const static auto tab_node = WzResource::ui_->find(u"Item.img/Tab");
-  const static std::array active_texture = {
-      WzResource::LoadTexture(tab_node->find(u"enabled/0")),
-      WzResource::LoadTexture(tab_node->find(u"enabled/1")),
-      WzResource::LoadTexture(tab_node->find(u"enabled/2")),
-      WzResource::LoadTexture(tab_node->find(u"enabled/3")),
-      WzResource::LoadTexture(tab_node->find(u"enabled/4")),
-      WzResource::LoadTexture(tab_node->find(u"enabled/5")),
-  };
-  const static std::array disabled_texture = {
-      WzResource::LoadTexture(tab_node->find(u"disabled/0")),
-      WzResource::LoadTexture(tab_node->find(u"disabled/1")),
-      WzResource::LoadTexture(tab_node->find(u"disabled/2")),
-      WzResource::LoadTexture(tab_node->find(u"disabled/3")),
-      WzResource::LoadTexture(tab_node->find(u"disabled/4")),
-      WzResource::LoadTexture(tab_node->find(u"disabled/5")),
-  };
-  for (uint8_t i = 0; i < tab_pos.size(); i++) {
-    SDL_Texture* t = active_tab_ == i ? active_texture[i] : disabled_texture[i];
-    SDL_FRect pos_rect{
-        static_cast<float>(int(pos_.x + tab_pos[i].x)),
-        static_cast<float>(int(pos_.y + tab_pos[i].y)),
-        static_cast<float>(t->w),
-        static_cast<float>(t->h),
-    };
-    SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
+  std::vector<SDL_FRect> rects;
+  for (uint8_t i = 0; i < 6; i++) {
+    rects.push_back(
+        SDL_FRect{static_cast<float>(int(pos_.x + 5 + i * 33)),
+                  static_cast<float>(int(pos_.y + 24)), 33, 19});
   }
+  Tab tab{tab_node, u"enabled", u"disabled", rects, active_tab_};
+  tab.Render();
   if (new_itm_.has_value()) {
     // render new tab
     if (active_tab_ != (int)new_itm_->type) {
@@ -154,10 +129,10 @@ void PackageUiSystem::RenderTab() {
       new_item_node = new_item_node->get_child(std::to_string(i));
       auto icon = WzResource::LoadTexture(new_item_node);
       auto origin = WzResource::LoadFpoint(new_item_node->get_child(u"origin"));
-      auto pos_point = tab_pos[(int)new_itm_->type];
+      auto tab_x = static_cast<float>(5 + (int)new_itm_->type * 33);
       SDL_FRect pos_rect{
-          pos_point.x + pos_.x - origin.x,
-          pos_point.y + pos_.y - origin.y,
+          tab_x + pos_.x - origin.x,
+          24 + pos_.y - origin.y,
           static_cast<float>(icon->w),
           static_cast<float>(icon->h),
       };
@@ -672,33 +647,29 @@ bool PackageUiSystem::CursorIn() {
 }
 
 void PackageUiSystem::EventTab(SDL_Event* event) {
-  const static std::array tab_rect = {
-      SDL_FRect{5, 24, 33, 19},    //
-      SDL_FRect{38, 24, 33, 19},   //
-      SDL_FRect{71, 24, 33, 19},   //
-      SDL_FRect{104, 24, 33, 19},  //
-      SDL_FRect{137, 24, 33, 19},  //
-      SDL_FRect{170, 24, 33, 19},  //
-  };
-  for (uint8_t i = 0; i < tab_rect.size(); i++) {
-    auto pos_rect = tab_rect[i];
-    pos_rect.x += pos_.x;
-    pos_rect.y += pos_.y;
-    if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect)) {
-      AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
-      if (active_tab_ == i) {
-        return;
-      }
-      if (new_itm_.has_value()) {
-        if ((int)new_itm_->type == active_tab_) {
-          new_itm_ = std::nullopt;
-        }
-      }
-      page_ = 0;
-      active_tab_ = i;
-      return;
+  const static auto tab_node = WzResource::ui_->find(u"Item.img/Tab");
+  std::vector<SDL_FRect> rects;
+  for (uint8_t i = 0; i < 6; i++) {
+    rects.push_back(
+        SDL_FRect{static_cast<float>(int(pos_.x + 5 + i * 33)),
+                  static_cast<float>(int(pos_.y + 24)), 33, 19});
+  }
+  Tab tab{tab_node, u"enabled", u"disabled", rects, active_tab_};
+  auto i = tab.Click();
+  if (!i) {
+    return;
+  }
+  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+  if (active_tab_ == *i) {
+    return;
+  }
+  if (new_itm_.has_value()) {
+    if ((int)new_itm_->type == active_tab_) {
+      new_itm_ = std::nullopt;
     }
   }
+  page_ = 0;
+  active_tab_ = *i;
 }
 
 void PackageUiSystem::EventClose() {

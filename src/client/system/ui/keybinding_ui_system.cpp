@@ -10,6 +10,7 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/tab.h"
 #include "src/client/system/ui/quick_slot_ui_system.h"
 #include "src/client/system/ui/tooltip_ui_system.h"
 #include "src/client/window/window.h"
@@ -252,24 +253,14 @@ void KeybindingUiSystem::RenderBackgrnd() {
 
 void KeybindingUiSystem::RenderTab() {
   static auto node = WzResource::ui_->find(u"KeyBindings.img/tab:kind");
-  const SDL_FPoint lt{9, 24};
-  for (auto i : {0, 1}) {
-    SDL_Texture* texture;
-    if (active_tab_ == i) {
-      texture = WzResource::LoadTexture(
-          node->get_child(u"selected")->get_child(std::to_string(i)));
-    } else {
-      texture = WzResource::LoadTexture(
-          node->get_child(u"normal")->get_child(std::to_string(i)));
-    }
-    SDL_FRect pos_rect = {
-        int(pos_.x) + lt.x + texture->w * i,
-        int(pos_.y) + lt.y,
-        static_cast<float>(texture->w),
-        static_cast<float>(texture->h),
-    };
-    SDL_RenderTexture(Window::renderer_, texture, nullptr, &pos_rect);
+  std::vector<SDL_FRect> rects;
+  for (uint8_t i = 0; i < 2; i++) {
+    rects.push_back(
+        SDL_FRect{static_cast<float>(int(pos_.x) + 9 + 33 * i),
+                  static_cast<float>(int(pos_.y) + 24), 33, 19});
   }
+  Tab tab{node, u"selected", u"normal", rects, active_tab_};
+  tab.Render();
 }
 
 void KeybindingUiSystem::RenderBackgrnd2() {
