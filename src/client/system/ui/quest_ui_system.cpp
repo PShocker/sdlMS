@@ -755,6 +755,8 @@ void QuestUiSystem::EventButtonDetail() {
 }
 
 bool QuestUiSystem::EventUI(SDL_Event* event) {
+  EventFold();
+  EventQuest();
   if (EventCheckbox()) {
     return true;
   }
@@ -882,8 +884,6 @@ bool QuestUiSystem::Event(SDL_Event* event) {
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui_ == Render) {
-          EventFold();
-          EventQuest();
           r = !EventUI(event);
         }
         EventDragEnd();

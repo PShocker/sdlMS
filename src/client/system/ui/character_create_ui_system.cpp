@@ -919,7 +919,10 @@ void CharacterCreateUiSystem::EventButtonCancel() {
 }
 
 bool CharacterCreateUiSystem::EventUI(SDL_Event* event) {
-  return !DispatchButtonClick(GetComponent(), false);
+  if (EventButtonCustom(event)) {
+    return true;
+  }
+  return DispatchButtonClick(GetComponent(), false);
 }
 
 bool CharacterCreateUiSystem::Event(SDL_Event* event) {
@@ -948,7 +951,6 @@ bool CharacterCreateUiSystem::Event(SDL_Event* event) {
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
         r = !EventUI(event);
-        EventButtonCustom(event);
       }
       break;
     }

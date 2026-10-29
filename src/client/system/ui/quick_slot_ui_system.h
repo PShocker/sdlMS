@@ -13,9 +13,7 @@ namespace sdlms {
 class QuickSlotUiSystem {
  private:
   static void RenderQuickSlot();
-  static void RenderUI();
 
-  static bool EventUI(SDL_Event* event);
   static bool EventClickQuickslot(SDL_Event* event);
 
   static SDL_FPoint LoadWh();

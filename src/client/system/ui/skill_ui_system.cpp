@@ -395,6 +395,8 @@ void SkillUiSystem::EventClose() {
 }
 
 bool SkillUiSystem::EventUI(SDL_Event* event) {
+  EventButtonSkiUp();
+  EventClickSki(event);
   auto& components = GetComponent();
   for (auto& component : components) {
     if (auto* tab = std::get_if<Tab>(&component)) {
@@ -542,8 +544,6 @@ bool SkillUiSystem::Event(SDL_Event* event) {
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui_ == Render) {
-          EventButtonSkiUp();
-          EventClickSki(event);
           r = !EventUI(event);
         }
         EventDragEnd();

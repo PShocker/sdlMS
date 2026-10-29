@@ -374,6 +374,9 @@ void ShopUiSystem::Open() {
 }
 
 bool ShopUiSystem::EventUI(SDL_Event* event) {
+  if (EventItem(event)) {
+    return true;
+  }
   auto& components = GetComponent();
   int tab_group = 0;
   for (auto& component : components) {
@@ -533,9 +536,6 @@ bool ShopUiSystem::Event(SDL_Event* event) {
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui_ == Render) {
-          if (EventItem(event)) {
-            return false;
-          }
           EventUI(event);
         }
       }

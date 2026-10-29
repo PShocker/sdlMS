@@ -669,6 +669,7 @@ void PackageUiSystem::EventButtonSort() {
 }
 
 bool PackageUiSystem::EventUI(SDL_Event* event) {
+  EventClickItem(event);
   auto& components = GetComponent();
   for (auto& component : components) {
     if (auto* tab = std::get_if<Tab>(&component)) {
@@ -764,7 +765,6 @@ bool PackageUiSystem::Event(SDL_Event* event) {
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui_ == Render) {
-          EventClickItem(event);
           r = !EventUI(event);
         }
         EventDragEnd();
