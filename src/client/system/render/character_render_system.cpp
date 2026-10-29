@@ -482,7 +482,8 @@ bool CharacterRenderSystem::Render(GameCharacter& g_character) {
     RenderEffectBack(g_character);
   }
   RenderNametag(g_character);
-  RenderChatballoon(g_character);
+  // 气泡由 SceneSystemInstance 在场景全部绘制完后再统一画一遍，
+  // 保证它盖在前景 / 其他角色之上，这里不能再画第二次。
   // auto r = character_logic_system::load_rect(g_character);
   // auto &camera = camera_game_instance::camera;
   // r.x -= camera.x;

@@ -143,9 +143,31 @@ void NpcGameInstance::Load(uint32_t map_id) {
     auto y = fh.k.value() * x + fh.intercept.value();
     g_npc.pos = {static_cast<float>(x), static_cast<float>(y)};
 
-    // default action
+    // default action: stand，没有 stand 的 NPC 选第一个有帧的动作
     g_npc.action = u"stand";
+    auto* npc_template = NpcGameInstance::LoadLinkNpcNode(g_npc.id);
+    if (npc_template == nullptr ||
+        npc_template->get_child(u"stand") == nullptr ||
+        npc_template->get_child(u"stand")->get_child(u"0") == nullptr) {
+      if (npc_template != nullptr &&
+          npc_template->get_children() != nullptr) {
+        for (const auto& [key, value] : *npc_template->get_children()) {
+          if (key == u"info" || value.empty() || value[0] == nullptr) {
+            continue;
+          }
+          if (value[0]->get_child(u"0") != nullptr) {
+            g_npc.action = key;
+            break;
+          }
+        }
+      }
+    }
+    g_npc.state = NpcState::kStand;
+    g_npc.ani_index = 0;
+    g_npc.ani_time = 0;
     g_npc.duration = Window::dt_now_ + 1000;
+    g_npc.hforce = std::nullopt;
+    g_npc.hspeed = 0.0f;
 
     auto page = FootholdGameInstance::data_.at(g_npc.fh).page;
     data_[page].push_back(g_npc);

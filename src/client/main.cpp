@@ -17,6 +17,7 @@
 #include "src/server/server_system/server_system.h"
 
 #include <cstdint>
+#include <cstdlib>
 
 #define SDL_MAIN_USE_CALLBACKS
 #include <SDL3/SDL.h>
@@ -91,7 +92,15 @@ SDL_AppResult AppInit(void** appstate, int argc, char* argv[]) {
   CharacterStatGameInstance::Load(cs);
   QuestGameInstance::Load(cs);
 
-  SceneSystemInstance::EnterPrepare(1010, u"sp", 0);
+  uint32_t start_map = 1010;
+  if (const char* env_map = std::getenv("SDLMS_START_MAP");
+      env_map != nullptr) {
+    const int value = std::atoi(env_map);
+    if (value > 0) {
+      start_map = static_cast<uint32_t>(value);
+    }
+  }
+  SceneSystemInstance::EnterPrepare(start_map, u"sp", 0);
   // SceneSystemInstance::prepare_pos = {600, -470};
   // CharacterCreateSystemInstance::Enter();
   // LoginSystemInstance::Enter();

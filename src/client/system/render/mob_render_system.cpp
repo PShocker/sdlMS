@@ -92,9 +92,9 @@ bool MobRenderSystem::RenderMob(GameMob& g_mob) {
 }
 
 bool MobRenderSystem::RenderGauge(GameMob& g_mob) {
-  // Enemy Info: 0 = Name and HP, 1 = Name, 2 = HP
+  // Enemy Info: 0 = No Labels, 1 = Name Only, 2 = HP Only, 3 = Name and HP
   auto enemy_info = OptionUiSystem::EnemyInfo();
-  if (enemy_info == 1) {
+  if (enemy_info == 0 || enemy_info == 1) {
     return false;
   }
   if (g_mob.gauge.has_value()) {
@@ -169,8 +169,9 @@ void MobRenderSystem::RenderNametag(const std::u16string& text, SDL_FPoint p) {
 }
 
 bool MobRenderSystem::RenderNametag(GameMob& g_mob) {
-  // Enemy Info: 0 = Name and HP, 1 = Name, 2 = HP
-  if (OptionUiSystem::EnemyInfo() == 2) {
+  // Enemy Info: 0 = No Labels, 1 = Name Only, 2 = HP Only, 3 = Name and HP
+  const auto enemy_info = OptionUiSystem::EnemyInfo();
+  if (enemy_info == 0 || enemy_info == 2) {
     return false;
   }
   if (!g_mob.gauge.has_value()) {

@@ -25,6 +25,7 @@
 #include <array>
 #include <cmath>
 #include <flat_map>
+#include <iterator>
 #include <string>
 #include <utility>
 #include <vector>
@@ -39,12 +40,14 @@ constexpr float kPanelH = 495.0f;
 // tab 个数
 constexpr uint8_t kTabCount = 5;
 // 字号：标签 fType 280、说明/数值 fType 283
-constexpr uint8_t kLabelSize = 12;
+constexpr uint8_t kLabelSize = 11;
 constexpr uint8_t kSmallSize = 11;
-// 行距
-constexpr float kLineSpacing = 1.2f;
+// 行距（按字体行高倍数）
+constexpr float kLineSpacing = 1.0f;
 // 下拉列表每项高度，也用作滑块轨道的点击高度
-constexpr float kComboItemH = 14.0f;
+constexpr float kComboItemH = 16.0f;
+// 下拉列表最下面的留白
+constexpr float kComboListBottomPad = 4.0f;
 // 滑块的取值范围
 constexpr int32_t kSliderMax = 100;
 
@@ -83,17 +86,123 @@ SDL_FRect LoadOriginRect(SDL_Texture* texture, SDL_FPoint origin,
   };
 }
 
-void DrawText(const std::u16string& text, const SDL_FRect& rect, uint8_t size,
-              SDL_Color color, bool centered) {
+int32_t LoadInt(wz::Node* node, const char16_t* name, int32_t fallback) {
+  auto* child = node->get_child(name);
+  if (child == nullptr) {
+    return fallback;
+  }
+  return static_cast<wz::Property<int32_t>*>(child)->get();
+}
+
+// 单段文字的按词换行；放不下时优先在最后一个空格处断开。
+std::vector<std::u16string> WrapParagraph(const std::u16string& paragraph,
+                                          float width, bool wrap) {
+  std::vector<std::u16string> lines;
+  if (!wrap) {
+    lines.emplace_back(paragraph);
+    return lines;
+  }
+  std::u16string line;
+  size_t last_space = std::u16string::npos;
+  for (char16_t c : paragraph) {
+    if (c == u' ') {
+      last_space = line.size();
+    }
+    line.push_back(c);
+    if (width <= 0.0f || line.size() <= 1 || Freetype::LoadW(line) <= width) {
+      continue;
+    }
+    if (last_space != std::u16string::npos && last_space > 0) {
+      std::u16string rest = line.substr(last_space + 1);
+      line.resize(last_space);
+      lines.emplace_back(std::move(line));
+      line = std::move(rest);
+    } else {
+      std::u16string rest(1, c);
+      line.pop_back();
+      lines.emplace_back(std::move(line));
+      line = std::move(rest);
+    }
+    last_space = line.find_last_of(u' ');
+  }
+  if (!line.empty() || lines.empty()) {
+    lines.emplace_back(std::move(line));
+  }
+  return lines;
+}
+
+// 按 WZ 里的 alignHorizontal / alignVertical 排版：
+// 0 = 左/上，1 = 右/下，2 = 中。多行文本逐行对齐。
+std::vector<std::u16string> WrapText(const std::u16string& text, float width,
+                                     bool wrap) {
+  std::vector<std::u16string> lines;
+  std::u16string paragraph;
+  for (char16_t c : text) {
+    if (c == u'\r') {
+      continue;
+    }
+    if (c == u'\n') {
+      auto part = WrapParagraph(paragraph, width, wrap);
+      lines.insert(lines.end(), std::make_move_iterator(part.begin()),
+                   std::make_move_iterator(part.end()));
+      paragraph.clear();
+      continue;
+    }
+    paragraph.push_back(c);
+  }
+  auto part = WrapParagraph(paragraph, width, wrap);
+  lines.insert(lines.end(), std::make_move_iterator(part.begin()),
+               std::make_move_iterator(part.end()));
+  return lines;
+}
+
+// 单行超宽时水平压缩绘制，保持字号不变且不超出 WZ 文本框。
+void DrawCompressedLine(const std::u16string& line, float x, float y,
+                        float max_w) {
+  const float total = Freetype::LoadW(line);
+  if (total <= max_w || total <= 0.0f) {
+    Freetype::DrawLine(line, x, y);
+    return;
+  }
+  const float scale = max_w / total;
+  float cursor = x;
+  for (char16_t c : line) {
+    const std::u16string glyph(1, c);
+    Freetype::DrawLine(glyph, cursor, y);
+    cursor += Freetype::LoadW(glyph) * scale;
+  }
+}
+
+void DrawAlignedText(const std::u16string& text, const SDL_FRect& rect,
+                     uint8_t size, SDL_Color color, int32_t align_h,
+                     int32_t align_v, bool wrap) {
   if (text.empty()) {
     return;
   }
   Freetype::LoadSize(size);
   Freetype::LoadColor(color.r, color.g, color.b, color.a);
-  if (centered) {
-    Freetype::DrawCstr(text, rect.x, rect.y, rect.w, kLineSpacing);
-  } else {
-    Freetype::DrawStr(text, rect.x, rect.y, rect.w, kLineSpacing);
+
+  const auto lines = WrapText(text, rect.w, wrap);
+  const float line_h = Freetype::LoadLh() * kLineSpacing;
+  const float block_h = line_h * static_cast<float>(lines.size());
+  float y = rect.y;
+  if (align_v == 1) {
+    y += (rect.h - block_h) / 2.0f;
+  } else if (align_v == 2) {
+    y += rect.h - block_h;
+  }
+
+  for (const auto& line : lines) {
+    const float w = Freetype::LoadW(line);
+    const float draw_w = std::min(w, rect.w);
+    float x = rect.x;
+    if (align_h == 1) {
+      x += rect.w - draw_w;
+    } else if (align_h == 2) {
+      x += (rect.w - draw_w) / 2.0f;
+    }
+    DrawCompressedLine(line, x, y, rect.w);
+    y += line_h;
   }
   Freetype::LoadColor(255, 255, 255, 255);
 }
@@ -168,11 +277,32 @@ std::vector<OptionUiSystem::Element> OptionUiSystem::LoadElements(uint8_t tab) {
         element.text =
             static_cast<wz::Property<std::u16string>*>(text)->get();
       }
+      // 参考客户端里这些标签是固定两行；本 WZ 的 StringTable 用空格代替了
+      // 换行，这里补回来，保证行数和参考图一致。
+      static const std::flat_map<std::u16string, std::u16string> kLabelLines = {
+          {u"BackgroundQualityLabel", u"Background\nQuality"},
+          {u"DamageSkinEffects", u"Damage Skin\nEffects"},
+          {u"DamageSkinDisplayLabel", u"Damage Skin\nDisplay"},
+          {u"ScreenshotFileFormatLabel", u"Screenshot File\nFormat"},
+          {u"MemoryMappedIOLabel", u"Memory-mapped\nI/O"},
+      };
+      if (auto it = kLabelLines.find(element.name); it != kLabelLines.end()) {
+        element.text = it->second;
+      }
       element.f_type = static_cast<wz::Property<int32_t>*>(
                            element.node->get_child(u"fType"))
                            ->get();
+      element.align_h = LoadInt(element.node, u"alignHorizontal", 0);
+      element.align_v = LoadInt(element.node, u"alignVertical", 1);
       element.rect = LoadRect(element.node);
-    } else if (element.kind == u"check" || element.kind == u"edit") {
+    } else if (element.kind == u"check") {
+      element.rect = LoadRect(element.node);
+    } else if (element.kind == u"edit") {
+      // WZ 里连续截图 checkbox 和 burst 数字都叫 inarow，存档键会冲突；
+      // burst 数字单独用 burstCount。
+      if (element.name == u"inarow") {
+        element.name = u"burstCount";
+      }
       element.rect = LoadRect(element.node);
     } else if (element.kind == u"slider") {
       auto lt =
@@ -205,6 +335,25 @@ std::vector<OptionUiSystem::Element> OptionUiSystem::LoadElements(uint8_t tab) {
           }
         }
       }
+    } else if (element.kind == u"button") {
+      // Game tab 的 Burst / Memory 加减按钮：按钮位置由 normal/0 的 origin 给出
+      auto* normal = element.node->get_child(u"normal");
+      auto* canvas =
+          normal == nullptr ? nullptr : normal->get_child(u"0");
+      if (canvas == nullptr) {
+        continue;
+      }
+      auto* origin = canvas->get_child(u"origin");
+      if (origin == nullptr) {
+        continue;
+      }
+      auto o =
+          static_cast<wz::Property<wz::WzVec2D>*>(origin)->get();
+      auto* texture = WzResource::LoadTexture(canvas);
+      element.rect = SDL_FRect{-static_cast<float>(o.x),
+                               -static_cast<float>(o.y),
+                               static_cast<float>(texture->w),
+                               static_cast<float>(texture->h)};
     } else {
       continue;  // button 等没有 lt/rb 的元素
     }
@@ -234,11 +383,23 @@ int32_t OptionUiSystem::DefaultValue(const Element& element) {
     return 50;
   }
   if (element.kind == u"edit") {
-    if (element.name == u"inarow") {
+    if (element.name == u"burstCount") {
       return 5;
     }
     if (element.name == u"memorySize") {
-      return 2;
+      return 16;
+    }
+  }
+  if (element.kind == u"combo") {
+    // 参考图默认 Show Name and HP（第 3 项）
+    if (element.name == u"monster") {
+      return 3;
+    }
+  }
+  if (element.kind == u"check") {
+    // 自动截图默认开启
+    if (element.name == u"auto") {
+      return 1;
     }
   }
   return 0;
@@ -296,7 +457,7 @@ uint8_t OptionUiSystem::MpWarnPercent() {
 
 uint8_t OptionUiSystem::EnemyInfo() {
   return static_cast<uint8_t>(std::clamp(
-      Value(static_cast<uint8_t>(TabEnum::kGame), u"monster"), 0, 2));
+      Value(static_cast<uint8_t>(TabEnum::kGame), u"monster"), 0, 3));
 }
 
 uint8_t OptionUiSystem::ChatFontSize() {
@@ -371,12 +532,27 @@ void OptionUiSystem::RenderContent() {
     rect.y += std::round(pos_.y);
     if (element.kind == u"staticText") {
       bool is_label = element.f_type != 283;
-      DrawText(element.text, rect, is_label ? kLabelSize : kSmallSize,
-               is_label ? label_color : small_color, !is_label);
+      // 标签左右各留 3px，避免字号加大后被压缩到紧贴/切掉粉色条边缘
+      if (is_label) {
+        rect.x += 3.0f;
+        rect.w = std::max(0.0f, rect.w - 6.0f);
+      }
+      // 说明文字和复选框同一行：把文字基线略上移，和参考图中
+      // checkbox 与文字的中心对齐一致。
+      if (!is_label && element.align_h == 0) {
+        rect.y -= 2.0f;
+      }
+      DrawAlignedText(element.text, rect, is_label ? kLabelSize : kSmallSize,
+                      is_label ? label_color : small_color, element.align_h,
+                      element.align_v, !is_label && element.align_h != 1);
     } else if (element.kind == u"edit") {
       auto text = std::to_string(Value(active_tab_, element.name));
-      DrawText(std::u16string{text.begin(), text.end()}, rect, kLabelSize,
-               small_color, true);
+      // 编辑框里的数字靠左，和外层白色输入框的左边距一致
+      SDL_FRect text_rect = rect;
+      text_rect.x += 5.0f;
+      text_rect.w = std::max(0.0f, text_rect.w - 5.0f);
+      DrawAlignedText(std::u16string{text.begin(), text.end()}, text_rect,
+                      kLabelSize, small_color, 0, 1, false);
     }
   }
 }
@@ -392,26 +568,21 @@ void OptionUiSystem::RenderComboList() {
     SDL_FRect rect = element.rect;
     rect.x = std::round(pos_.x + rect.x);
     rect.y = std::round(pos_.y + rect.y);
-    SDL_FRect list{rect.x, rect.y + rect.h, rect.w,
-                   static_cast<float>(element.selects.size()) * kComboItemH};
-    SDL_SetRenderDrawColor(Window::renderer_, 245, 240, 230, 255);
-    SDL_RenderFillRect(Window::renderer_, &list);
-    SDL_SetRenderDrawColor(Window::renderer_, 60, 50, 40, 255);
-    SDL_RenderRect(Window::renderer_, &list);
 
-    auto val = Value(active_tab_, element.name);
-    for (size_t i = 0; i < element.selects.size(); ++i) {
-      SDL_FRect item{list.x + 1, list.y + static_cast<float>(i) * kComboItemH,
-                     list.w - 2, kComboItemH};
-      bool hover = SDL_PointInRectFloat(&Window::mouse_pos_, &item);
-      if (hover || static_cast<int32_t>(i) == val) {
-        SDL_SetRenderDrawColor(Window::renderer_, hover ? 120 : 190, 170, 140,
-                               255);
-        SDL_RenderFillRect(Window::renderer_, &item);
-      }
-      DrawText(element.selects[i], item, kSmallSize,
-               SDL_Color{40, 30, 20, 255}, false);
+    // 下拉框和展开列表都交给 ComboBox 组件绘制（在 RenderUI 之后调用，
+    // 因此列表始终盖在其它控件上面）。
+    ComboBox combo;
+    combo.open = true;
+    combo.w = static_cast<uint32_t>(rect.w);
+    combo.selects = element.selects;
+    combo.rect = rect;
+    if (!combo.selects.empty()) {
+      auto val = std::clamp(Value(active_tab_, element.name), 0,
+                            static_cast<int32_t>(combo.selects.size()) - 1);
+      combo.val = static_cast<uint8_t>(val);
+      combo.selected = combo.selects[static_cast<size_t>(val)];
     }
+    combo.Render();
     break;
   }
 }
@@ -499,11 +670,17 @@ UIComponents& OptionUiSystem::GetComponent() {
       Slider slider(static_cast<uint32_t>(std::clamp(
                         Value(active_tab_, element.name), 0, kSliderMax)),
                     kSliderMax, element.width);
-      slider.pos = {rect.x, rect.y};
+      slider.pos = {static_cast<int>(std::lround(rect.x)),
+                    static_cast<int>(std::lround(rect.y))};
       components_.push_back(slider);
     } else if (element.kind == u"combo") {
+      // 展开中的 combo 由 RenderComboList 用 ComboBox::Render 画，
+      // 并且要盖在其它控件上面；这里先跳过，避免同一个框画两遍。
+      if (open_combo_.has_value() && *open_combo_ == element.name) {
+        continue;
+      }
       ComboBox combo;
-      combo.open = false;  // 展开列表由 RenderComboList 画
+      combo.open = false;
       combo.w = static_cast<uint32_t>(rect.w);
       combo.selects = element.selects;
       if (!combo.selects.empty()) {
@@ -514,6 +691,29 @@ UIComponents& OptionUiSystem::GetComponent() {
       }
       combo.rect = rect;
       components_.push_back(combo);
+    } else if (element.kind == u"button") {
+      // Game tab 的 Burst / Memory 加减按钮
+      const bool up = element.name.ends_with(u"Up");
+      const bool memory = element.name.starts_with(u"memory");
+      const std::u16string field =
+          memory ? u"memorySize" : u"burstCount";
+      const int32_t low = 2;
+      const int32_t high = memory ? 64 : 10;
+      const int32_t step = memory ? 2 : 1;
+      const int32_t value = Value(active_tab_, field);
+      Button button;
+      button.node = element.node;
+      button.rect = rect;
+      button.enable = up ? value < high : value > low;
+      button.focused = top;
+      button.callback = [field, up, low, high, step]() {
+        int32_t v = Value(active_tab_, field);
+        v = up ? std::min(high, v + step) : std::max(low, v - step);
+        SetValue(active_tab_, field, v);
+        AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+        Apply();
+      };
+      components_.push_back(button);
     }
   }
 
@@ -522,6 +722,8 @@ UIComponents& OptionUiSystem::GetComponent() {
 
 bool OptionUiSystem::EventUI(SDL_Event* event) {
   auto mouse = SDL_FPoint{event->button.x, event->button.y};
+  // 合成点击/鼠标移动丢失时，按钮命中应以本次点击坐标为准
+  Window::mouse_pos_ = mouse;
   auto& components = GetComponent();
 
   // tab 优先
@@ -563,6 +765,25 @@ bool OptionUiSystem::EventUI(SDL_Event* event) {
     if (!SDL_PointInRectFloat(&mouse, &rect)) {
       continue;
     }
+    if (element.kind == u"button") {
+      // Game tab 的 Burst / Memory 加减按钮，直接按点击坐标处理
+      const bool up = element.name.ends_with(u"Up");
+      const bool memory = element.name.starts_with(u"memory");
+      const std::u16string field =
+          memory ? u"memorySize" : u"burstCount";
+      const int32_t low = 2;
+      const int32_t high = memory ? 64 : 10;
+      const int32_t step = memory ? 2 : 1;
+      int32_t value = Value(active_tab_, field);
+      if ((up && value < high) || (!up && value > low)) {
+        value = up ? std::min(high, value + step)
+                   : std::max(low, value - step);
+        SetValue(active_tab_, field, value);
+        AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+        Apply();
+      }
+      return true;
+    }
     if (element.kind == u"check") {
       auto val = Value(active_tab_, element.name);
       SetValue(active_tab_, element.name, val == 0 ? 1 : 0);
@@ -591,7 +812,8 @@ std::optional<uint8_t> OptionUiSystem::ClickCombo(const Element& element,
   rect.x += std::round(pos_.x);
   rect.y += std::round(pos_.y);
   SDL_FRect list{rect.x, rect.y + rect.h, rect.w,
-                 static_cast<float>(element.selects.size()) * kComboItemH};
+                 static_cast<float>(element.selects.size()) * kComboItemH +
+                     kComboListBottomPad};
   if (!SDL_PointInRectFloat(&mouse, &list)) {
     return std::nullopt;
   }
@@ -618,7 +840,11 @@ void OptionUiSystem::EventSlider(SDL_Event* event) {
     if (!SDL_PointInRectFloat(&mouse, &rect)) {
       continue;
     }
-    auto percent = std::clamp((mouse.x - rect.x) / rect.w, 0.0f, 1.0f);
+    // 与 Slider 的 thumb 纹理行程一致：左侧内缩 2px，右侧留 5px
+    const float track_x = rect.x + 2.0f;
+    const float track_w = std::max(1.0f, rect.w - 7.0f);
+    auto percent =
+        std::clamp((mouse.x - track_x) / track_w, 0.0f, 1.0f);
     SetValue(active_tab_, element.name,
              static_cast<int32_t>(std::round(percent * kSliderMax)));
     dragging_slider_ = true;

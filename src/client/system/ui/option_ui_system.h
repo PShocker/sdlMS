@@ -56,7 +56,7 @@ class OptionUiSystem : public UiComponentHost<OptionUiSystem> {
   // ---- 其它系统查询的选项 ----
   static uint8_t HpWarnPercent();
   static uint8_t MpWarnPercent();
-  // 0 = Name and HP, 1 = Name, 2 = HP
+  // 0 = No Labels, 1 = Name Only, 2 = HP Only, 3 = Name and HP
   static uint8_t EnemyInfo();
   static uint8_t ChatFontSize();
 
@@ -69,6 +69,8 @@ class OptionUiSystem : public UiComponentHost<OptionUiSystem> {
     SDL_FRect rect = {};  // 相对面板左上角
     int32_t width = 0;    // slider 轨道长度
     int32_t f_type = 0;   // staticText 字体类型
+    int32_t align_h = 0;  // 0 左 / 1 中 / 2 右
+    int32_t align_v = 1;  // 0 上 / 1 中 / 2 下
     std::u16string text;  // staticText 的文案（SID 查表或 text 直接给）
     std::vector<std::u16string> selects;  // combo 选项
   };

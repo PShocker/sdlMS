@@ -14,6 +14,10 @@ namespace sdlms {
 void Scroll::Render() const {
   const float x = pos.x;
   const float y = pos.y;
+  // 可滚动的最大首行：count - size。val 超出这个范围时（例如列表刚变短）
+  // 只按最大值画，避免 thumb 跑到滚动条下界外面。
+  const uint32_t max_val = count > size ? count - size : 0;
+  const uint32_t cur = std::min(val, max_val);
   static auto prev0 = WzResource::LoadTexture(
       WzResource::ui_->find(u"Basic.img/VScr4/enabled/prev0"));
   static auto prev1 = WzResource::LoadTexture(
@@ -45,7 +49,7 @@ void Scroll::Render() const {
   // 判断上按钮是否禁用
   SDL_FRect pos_rect{static_cast<float>((int)x), static_cast<float>((int)y),
                      static_cast<float>(prev->w), static_cast<float>(prev->h)};
-  if (val <= 0) {
+  if (cur == 0) {
     // 禁用
     SDL_RenderTexture(Window::renderer_, prev, nullptr, &pos_rect);
     pre = false;
@@ -67,7 +71,7 @@ void Scroll::Render() const {
   pos_rect = {static_cast<float>((int)x),
               static_cast<float>((int)y + length - next->h),
               static_cast<float>(next->w), static_cast<float>(next->h)};
-  if (val >= count || val + size >= count) {
+  if (cur >= max_val) {
     SDL_RenderTexture(Window::renderer_, next, nullptr, &pos_rect);
     nex = false;
   } else {
@@ -98,9 +102,11 @@ void Scroll::Render() const {
   }
 
   // thumb
-  float percent = (float)val / (count - size);
-  // percent = 1;
-  auto h = percent * (length - prev->h * 2 - thumb0->h);
+  const float travel = std::max(
+      0.0f, static_cast<float>(length - prev->h * 2 - thumb0->h));
+  const float percent =
+      max_val == 0 ? 0.0f : static_cast<float>(cur) / static_cast<float>(max_val);
+  auto h = percent * travel;
   pos_rect = {static_cast<float>((int)x),
               static_cast<float>(int(y + prev->h + h)),
               static_cast<float>(thumb0->w), static_cast<float>(thumb0->h)};
@@ -116,8 +122,12 @@ void Scroll::Render() const {
 uint32_t Scroll::Click(SDL_FPoint mouse) const {
   const float x = pos.x;
   const float y = pos.y;
+  // 最大首行：count - size。所有返回值都必须落在 [0, max_val] 内，
+  // 否则列表会滚到下界之外（空白行 / thumb 跑出轨道）。
+  const uint32_t max_val = count > size ? count - size : 0;
+  const uint32_t cur = std::min(val, max_val);
   if (!top) {
-    return val;
+    return cur;
   }
   SDL_FRect pos_rect{
       static_cast<float>((int)x),
@@ -126,10 +136,10 @@ uint32_t Scroll::Click(SDL_FPoint mouse) const {
       static_cast<float>(13),
   };
   if (SDL_PointInRectFloat(&mouse, &pos_rect)) {
-    if (val > 0) {
-      uint32_t v = val - 1;
-      return v;
+    if (cur > 0) {
+      return cur - 1;
     }
+    return cur;
   }
   pos_rect = {
       static_cast<float>((int)x),
@@ -138,10 +148,10 @@ uint32_t Scroll::Click(SDL_FPoint mouse) const {
       static_cast<float>(13),
   };
   if (SDL_PointInRectFloat(&mouse, &pos_rect)) {
-    if (val < count) {
-      uint32_t v = val + 1;
-      return v;
+    if (cur < max_val) {
+      return cur + 1;
     }
+    return cur;
   }
   pos_rect = {
       x,
@@ -157,9 +167,11 @@ uint32_t Scroll::Click(SDL_FPoint mouse) const {
     } else if (percent >= 0.98) {
       percent = 1;
     }
-    return std::round(percent * count);
+    auto page = static_cast<uint32_t>(
+        std::lround(percent * static_cast<float>(max_val)));
+    return std::min(page, max_val);
   }
-  return val;
+  return cur;
 }
 
 }  // namespace sdlms

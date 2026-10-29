@@ -13,14 +13,13 @@ class NpcLogicSystem {
  private:
   static bool RunAnimate(GameNpc& g_npc);
   static bool RunMove(GameNpc& g_npc);
-  static bool RunDuration(GameNpc& g_npc);
-  static bool RunChatballoon(GameNpc& g_npc);
+  static void UpdateChat(GameNpc& g_npc);
 
-  enum class ActionEnum {
-    kStand,
-    kMove,
-  };
-  static ActionEnum LoadActionType(GameNpc& g_npc);
+  static void EnterStand(GameNpc& g_npc);
+  static void EnterAction(GameNpc& g_npc, const std::u16string& action);
+  static void EnterMove(GameNpc& g_npc);
+  static void ChooseNext(GameNpc& g_npc);
+  static void ResetAnimate(GameNpc& g_npc);
 
  public:
   static bool Run();

@@ -130,7 +130,8 @@ bool NpcRenderSystem::Render(GameNpc& g_npc) {
   RenderNpc(g_npc);
   RenderNametag(g_npc);
   RenderQuest(g_npc);
-  RenderChatballoon(g_npc);
+  // 气泡由 SceneSystemInstance 在场景全部绘制完后再统一画一遍，
+  // 保证它盖在前景 / 其他对象之上，这里不能再画第二次。
   return true;
 }
 

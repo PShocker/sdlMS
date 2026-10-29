@@ -1,8 +1,6 @@
 #include "src/client/system/logic/npc_logic_system.h"
 
 #include "src/client/game/game_chatballoon.h"
-#include "src/client/game_instance/camera_game_instance.h"
-#include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
 #include "src/client/game_instance/map_info_game_instance.h"
 #include "src/client/game_instance/npc_game_instance.h"
@@ -13,173 +11,426 @@
 #include "src/common/wz/wz_resource.h"
 
 #include <SDL3/SDL_rect.h>
+#include <wz/Node.h>
 #include <wz/Property.h>
 
+#include <algorithm>
 #include <cstdint>
-#include <flat_set>
+#include <cstdlib>
 #include <optional>
 #include <random>
 #include <ranges>
 #include <string>
+#include <vector>
 
 namespace sdlms {
+namespace {
 
-bool NpcLogicSystem::RunAnimate(GameNpc& g_npc) {
-  bool r = false;
-  g_npc.ani_time += Window::delta_time_;
-  auto npc_node = NpcGameInstance::LoadLinkNpcNode(g_npc.id);
-  auto action_node = npc_node->get_child(g_npc.action);
+constexpr uint64_t kNpcWaitMin = 3000;
+constexpr uint64_t kNpcWaitMax = 8000;
+constexpr float kMoveForce = 1400.0f;
 
-  auto texture_node = action_node->get_child(std::to_string(g_npc.ani_index));
-
-  int32_t delay = 100;
-  auto delay_node = texture_node->get_child(u"delay");
-  if (delay_node != nullptr) {
-    delay = static_cast<wz::Property<int>*>(delay_node)->get();
-  }
-  auto child = *action_node->get_children();
-  int32_t canvas_count = 0;
-  for (auto [k, v] : child) {
-    if (u'0' <= k[0] && k[0] <= u'9') {
-      canvas_count++;
-    }
-  }
-  if (g_npc.ani_time >= delay) {
-    g_npc.ani_time = 0;
-    g_npc.ani_index++;
-    r = g_npc.ani_index >= canvas_count;
-    g_npc.ani_index = g_npc.ani_index % canvas_count;
-  }
-  return r;
+bool IsFrameKey(const std::u16string& key) {
+  return !key.empty() &&
+         std::ranges::all_of(key, [](char16_t c) {
+           return c >= u'0' && c <= u'9';
+         });
 }
 
-bool NpcLogicSystem::RunDuration(GameNpc& g_npc) {
-  if (g_npc.duration > Window::dt_now_) {
+std::vector<std::u16string> LoadFrameKeys(wz::Node* action) {
+  std::vector<std::u16string> keys;
+  if (action == nullptr || action->get_children() == nullptr) {
+    return keys;
+  }
+  for (const auto& [key, value] : *action->get_children()) {
+    if (!value.empty() && value[0] != nullptr && IsFrameKey(key)) {
+      keys.push_back(key);
+    }
+  }
+  std::ranges::sort(keys, [](const std::u16string& a,
+                             const std::u16string& b) {
+    return std::stoul(std::string{a.begin(), a.end()}) <
+           std::stoul(std::string{b.begin(), b.end()});
+  });
+  return keys;
+}
+
+uint32_t FrameNumber(const std::u16string& key) {
+  return static_cast<uint32_t>(std::stoul(std::string{key.begin(), key.end()}));
+}
+
+uint32_t FirstFrameIndex(wz::Node* action) {
+  auto keys = LoadFrameKeys(action);
+  return keys.empty() ? 0 : FrameNumber(keys.front());
+}
+
+uint32_t FrameDelay(wz::Node* action, const std::u16string& key) {
+  auto* frame = action == nullptr ? nullptr : action->get_child(key);
+  if (frame == nullptr) {
+    return 100;
+  }
+  auto* delay = frame->get_child(u"delay");
+  if (delay == nullptr && frame->type == wz::Type::UOL) {
+    if (auto* real = static_cast<wz::Property<wz::WzUOL>*>(frame)->get_uol();
+        real != nullptr) {
+      delay = real->get_child(u"delay");
+    }
+  }
+  if (delay == nullptr) {
+    return 100;
+  }
+  return static_cast<uint32_t>(
+      static_cast<wz::Property<int32_t>*>(delay)->get());
+}
+
+uint32_t FrameCycleMs(wz::Node* action) {
+  uint32_t total = 0;
+  for (const auto& key : LoadFrameKeys(action)) {
+    total += FrameDelay(action, key);
+  }
+  return total;
+}
+
+std::vector<std::u16string> LoadSpeakKeys(wz::Node* parent) {
+  std::vector<std::u16string> keys;
+  if (parent == nullptr) {
+    return keys;
+  }
+  auto* speak = parent->get_child(u"speak");
+  if (speak == nullptr || speak->get_children() == nullptr) {
+    return keys;
+  }
+  for (const auto& [key, value] : *speak->get_children()) {
+    if (!value.empty() && value[0] != nullptr) {
+      keys.push_back(key);
+    }
+  }
+  return keys;
+}
+
+std::vector<std::u16string> LoadGestureActions(wz::Node* npc_node) {
+  std::vector<std::u16string> actions;
+  if (npc_node == nullptr || npc_node->get_children() == nullptr) {
+    return actions;
+  }
+  for (const auto& [key, value] : *npc_node->get_children()) {
+    if (key == u"info" || key == u"stand" || key == u"move" ||
+        key == u"hide" || key == u"hideName" || value.empty() ||
+        value[0] == nullptr) {
+      continue;
+    }
+    if (!LoadFrameKeys(value[0]).empty()) {
+      actions.push_back(key);
+    }
+  }
+  return actions;
+}
+
+std::u16string LoadIdleAction(wz::Node* npc_node) {
+  if (npc_node == nullptr) {
+    return u"";
+  }
+  if (auto* stand = npc_node->get_child(u"stand");
+      stand != nullptr && !LoadFrameKeys(stand).empty()) {
+    return u"stand";
+  }
+  if (npc_node->get_children() == nullptr) {
+    return u"";
+  }
+  for (const auto& [key, value] : *npc_node->get_children()) {
+    if (key == u"info" || key == u"move" || value.empty() ||
+        value[0] == nullptr) {
+      continue;
+    }
+    if (!LoadFrameKeys(value[0]).empty()) {
+      return key;
+    }
+  }
+  return u"";
+}
+
+bool HasMoveAction(wz::Node* npc_node) {
+  if (npc_node == nullptr) {
     return false;
   }
-  auto npc_node = NpcGameInstance::LoadLinkNpcNode(g_npc.id);
-  auto child = *npc_node->get_children();
-  child.erase(u"info");
-  std::uniform_int_distribution<> dis(0, child.size() - 1);
+  auto* move = npc_node->get_child(u"move");
+  return move != nullptr && !LoadFrameKeys(move).empty();
+}
 
-  auto& gen_ = RandomGameInstance::gen_;
-  auto it = std::next(child.begin(), dis(gen_));
-  auto random_key = it->first;
-
-  g_npc.action = random_key;
-  auto action_type = LoadActionType(g_npc);
-  if (action_type == ActionEnum::kMove) {
-    std::bernoulli_distribution dist(0.5);  // 50% 概率为 true
-    bool random_bool = dist(gen_);
-    g_npc.hforce = random_bool ? 1400 : -1400;
-    g_npc.hspeed = 0.0f;
-    g_npc.duration = Window::dt_now_ + 5000;
-    g_npc.flip = random_bool;
-  } else {
-    g_npc.hforce = std::nullopt;
-    g_npc.hspeed = std::nullopt;
-    g_npc.duration = Window::dt_now_ + 2000;
+int RandomInt(int min, int max) {
+  if (max <= min) {
+    return min;
   }
+  std::uniform_int_distribution<int> dist(min, max);
+  return dist(RandomGameInstance::gen_);
+}
+
+uint64_t RandomWait() {
+  return Window::dt_now_ +
+         static_cast<uint64_t>(RandomInt(static_cast<int>(kNpcWaitMin),
+                                         static_cast<int>(kNpcWaitMax)));
+}
+
+bool SetChat(GameNpc& g_npc, const std::vector<std::u16string>& keys) {
+  if (keys.empty()) {
+    return false;
+  }
+  const auto& key = keys[static_cast<size_t>(RandomInt(
+      0, static_cast<int>(keys.size()) - 1))];
+  auto text = NpcGameInstance::LoadNpcText(g_npc.id, key);
+  if (text.empty()) {
+    return false;
+  }
+
+  GameChatballoon chatballoon;
+  chatballoon.text = std::move(text);
+  chatballoon.path = u"0";
+  chatballoon.pos = {0, 0};
+  chatballoon.size = 14;
+  chatballoon.color = SDL_Color{156, 91, 97, 255};
+  chatballoon.destroy =
+      Window::dt_now_ + static_cast<uint64_t>(RandomInt(4000, 6000));
+  g_npc.chatballoon = std::move(chatballoon);
   return true;
 }
 
-bool NpcLogicSystem::RunChatballoon(GameNpc& g_npc) {
-  auto node = NpcGameInstance::LoadQuestNode(g_npc);
-  if (node != nullptr) {
-    g_npc.chatballoon = std::nullopt;
+void SetActionChat(GameNpc& g_npc, wz::Node* action) {
+  auto keys = LoadSpeakKeys(action);
+  if (!keys.empty()) {
+    SetChat(g_npc, keys);
+  }
+}
+
+}  // namespace
+
+bool NpcLogicSystem::RunAnimate(GameNpc& g_npc) {
+  auto* npc_node = NpcGameInstance::LoadLinkNpcNode(g_npc.id);
+  auto* action_node =
+      npc_node == nullptr ? nullptr : npc_node->get_child(g_npc.action);
+  auto keys = LoadFrameKeys(action_node);
+  if (keys.empty()) {
     return true;
   }
-  if (g_npc.chatballoon.has_value()) {
-    auto& chatballoon = g_npc.chatballoon.value();
-    if (chatballoon.destroy < Window::dt_now_) {
-      g_npc.chatballoon = std::nullopt;
-    }
-  } else {
-    std::uniform_int_distribution<int> dist(5000, 10000);
-    auto& gen_ = RandomGameInstance::gen_;
-    // 生成随机数
-    int random_number = dist(gen_);
 
-    auto npc_node = NpcGameInstance::LoadLinkNpcNode(g_npc.id);
-    auto npc_info = npc_node->get_child(u"info");
-    std::flat_set<std::u16string> speaks;
-    if (npc_info) {
-      if (auto speak_node = npc_info->get_child(u"speak")) {
-        for (auto [k, v] : *speak_node->get_children()) {
-          auto str = static_cast<wz::Property<std::u16string>*>(v[0])->get();
-          speaks.insert(str);
-        }
-      }
-    }
-
-    GameChatballoon c;
-    c.destroy = Window::dt_now_ + random_number;
-    c.path = u"0";
-    c.pos = {0, 0};
-    c.size = 14;
-    c.color = {156, 91, 97, 255};
-
-    auto view =
-        g_npc.id | std::views::drop_while([](char16_t c) { return c == u'0'; });
-
-    std::u16string result(view.begin(), view.end());
-    auto str_node = WzResource::string_->find(u"Npc.img/" + result);
-    auto child = *str_node->get_children();
-    std::vector<std::u16string> intersection;
-
-    for (const auto& key : speaks) {
-      if (child.contains(key)) {
-        intersection.push_back(key);
-      }
-    }
-    if (!intersection.empty()) {
-      std::uniform_int_distribution<int> dist2(0, intersection.size() - 1);
-      int random_number2 = dist2(gen_);
-      str_node = child.at(intersection[random_number2])[0];
-      c.text = static_cast<wz::Property<std::u16string>*>(str_node)->get();
-      g_npc.chatballoon = c;
-    }
+  auto current_key = std::to_string(g_npc.ani_index);
+  auto it = std::ranges::find(
+      keys, std::u16string{current_key.begin(), current_key.end()});
+  if (it == keys.end()) {
+    g_npc.ani_index = FirstFrameIndex(action_node);
+    it = keys.begin();
   }
-  return true;
+
+  g_npc.ani_time += Window::delta_time_;
+  const uint32_t delay = FrameDelay(action_node, *it);
+  if (g_npc.ani_time < delay) {
+    return false;
+  }
+
+  g_npc.ani_time = 0;
+  ++it;
+  if (it == keys.end()) {
+    g_npc.ani_index = FirstFrameIndex(action_node);
+    return true;
+  }
+  g_npc.ani_index = FrameNumber(*it);
+  return false;
+}
+
+void NpcLogicSystem::ResetAnimate(GameNpc& g_npc) {
+  g_npc.ani_time = 0;
+  auto* npc_node = NpcGameInstance::LoadLinkNpcNode(g_npc.id);
+  auto* action_node =
+      npc_node == nullptr ? nullptr : npc_node->get_child(g_npc.action);
+  g_npc.ani_index = FirstFrameIndex(action_node);
+}
+
+void NpcLogicSystem::EnterStand(GameNpc& g_npc) {
+  auto* npc_node = NpcGameInstance::LoadLinkNpcNode(g_npc.id);
+  auto idle = LoadIdleAction(npc_node);
+  if (!idle.empty() && idle != g_npc.action) {
+    g_npc.action = std::move(idle);
+    ResetAnimate(g_npc);
+  }
+  g_npc.state = NpcState::kStand;
+  g_npc.duration = RandomWait();
+  g_npc.hforce = std::nullopt;
+  g_npc.hspeed = 0.0f;
+}
+
+void NpcLogicSystem::EnterAction(GameNpc& g_npc,
+                                 const std::u16string& action) {
+  auto* npc_node = NpcGameInstance::LoadLinkNpcNode(g_npc.id);
+  auto* action_node =
+      npc_node == nullptr ? nullptr : npc_node->get_child(action);
+  if (action_node == nullptr || LoadFrameKeys(action_node).empty()) {
+    EnterStand(g_npc);
+    return;
+  }
+
+  g_npc.action = action;
+  g_npc.state = NpcState::kAction;
+  ResetAnimate(g_npc);
+  g_npc.hforce = std::nullopt;
+  g_npc.hspeed = 0.0f;
+  g_npc.duration =
+      Window::dt_now_ +
+      std::max<uint64_t>(1000, FrameCycleMs(action_node));
+  SetActionChat(g_npc, action_node);
+}
+
+void NpcLogicSystem::EnterMove(GameNpc& g_npc) {
+  auto* npc_node = NpcGameInstance::LoadLinkNpcNode(g_npc.id);
+  auto* move_node = npc_node == nullptr ? nullptr : npc_node->get_child(u"move");
+  if (move_node == nullptr || LoadFrameKeys(move_node).empty()) {
+    EnterStand(g_npc);
+    return;
+  }
+
+  const float low = static_cast<float>(std::min(g_npc.rx0, g_npc.rx1));
+  const float high = static_cast<float>(std::max(g_npc.rx0, g_npc.rx1));
+  if (high - low < 2.0f) {
+    EnterStand(g_npc);
+    return;
+  }
+
+  bool move_right = false;
+  if (g_npc.pos.x <= low + 2.0f) {
+    move_right = true;
+  } else if (g_npc.pos.x >= high - 2.0f) {
+    move_right = false;
+  } else {
+    move_right = RandomInt(0, 1) != 0;
+  }
+
+  g_npc.action = u"move";
+  g_npc.state = NpcState::kMove;
+  ResetAnimate(g_npc);
+  g_npc.hforce = move_right ? kMoveForce : -kMoveForce;
+  g_npc.hspeed = 0.0f;
+  // 与 Mob/Character 一致：flip=true 表示朝右
+  g_npc.flip = move_right;
+  g_npc.duration = Window::dt_now_ + static_cast<uint64_t>(RandomInt(3000, 5000));
 }
 
 bool NpcLogicSystem::RunMove(GameNpc& g_npc) {
-  // 移动
-  auto delta_time = Window::delta_time_ / 1000.0f;
-  float vspeed = 0;
+  if (!g_npc.hforce.has_value() || !g_npc.hspeed.has_value()) {
+    return false;
+  }
+
+  const float low = static_cast<float>(std::min(g_npc.rx0, g_npc.rx1));
+  const float high = static_cast<float>(std::max(g_npc.rx0, g_npc.rx1));
   auto border = MapInfoGameInstance::LoadMrBorder(SceneSystemInstance::map_id_);
-  border.x = g_npc.rx0;
-  border.w = g_npc.rx1;
-  auto force = g_npc.hforce.value();
-  auto r = Physic::Walk(g_npc.pos, delta_time, g_npc.hspeed.value(), vspeed,
-                        force, -100, 100, 800, false, g_npc.fh, border,
-                        FootholdGameInstance::data_);
-  return r;
+  border.x = low;
+  border.w = high;
+
+  float vspeed = 0.0f;
+  const float force = *g_npc.hforce;
+  const bool walked =
+      Physic::Walk(g_npc.pos, Window::delta_time_ / 1000.0f, *g_npc.hspeed,
+                   vspeed, *g_npc.hforce, -100.0f, 100.0f, 800.0f, false,
+                   g_npc.fh, border, FootholdGameInstance::data_);
+  if (!walked) {
+    return false;
+  }
+
+  // 撞到 rx0/rx1 时掉头，避免贴着边界持续播放 move
+  if (force < 0.0f && g_npc.pos.x <= low + 0.01f) {
+    g_npc.hforce = kMoveForce;
+    g_npc.hspeed = 0.0f;
+    g_npc.flip = true;
+  } else if (force > 0.0f && g_npc.pos.x >= high - 0.01f) {
+    g_npc.hforce = -kMoveForce;
+    g_npc.hspeed = 0.0f;
+    g_npc.flip = false;
+  }
+  return true;
 }
 
-NpcLogicSystem::ActionEnum NpcLogicSystem::LoadActionType(GameNpc& g_npc) {
-  if (g_npc.action == u"move") {
-    return ActionEnum::kMove;
+void NpcLogicSystem::UpdateChat(GameNpc& g_npc) {
+  if (NpcGameInstance::LoadQuestNode(g_npc) != nullptr) {
+    g_npc.chatballoon = std::nullopt;
+    return;
   }
-  return ActionEnum::kStand;
+  if (g_npc.chatballoon.has_value() &&
+      g_npc.chatballoon->destroy < Window::dt_now_) {
+    g_npc.chatballoon = std::nullopt;
+  }
+}
+
+void NpcLogicSystem::ChooseNext(GameNpc& g_npc) {
+  if (g_npc.chatballoon.has_value() &&
+      g_npc.chatballoon->destroy >= Window::dt_now_) {
+    g_npc.duration = Window::dt_now_ + 500;
+    return;
+  }
+
+  auto* npc_node = NpcGameInstance::LoadLinkNpcNode(g_npc.id);
+  auto gestures = LoadGestureActions(npc_node);
+  auto* info = npc_node == nullptr ? nullptr : npc_node->get_child(u"info");
+  auto root_speak = LoadSpeakKeys(info);
+  const bool can_move =
+      HasMoveAction(npc_node) && std::abs(g_npc.rx1 - g_npc.rx0) >= 2;
+
+  const int roll = RandomInt(0, 99);
+  if (can_move && (gestures.empty() || roll < 45)) {
+    EnterMove(g_npc);
+    return;
+  }
+
+  if (!gestures.empty()) {
+    // 多数时候做动作；偶尔只说话
+    if (!root_speak.empty() && RandomInt(0, 99) < 15 &&
+        SetChat(g_npc, root_speak)) {
+      g_npc.state = NpcState::kStand;
+      g_npc.duration = RandomWait();
+      return;
+    }
+    const auto& action = gestures[static_cast<size_t>(
+        RandomInt(0, static_cast<int>(gestures.size()) - 1))];
+    EnterAction(g_npc, action);
+    return;
+  }
+
+  if (!root_speak.empty() && SetChat(g_npc, root_speak)) {
+    g_npc.state = NpcState::kStand;
+    g_npc.duration = RandomWait();
+    return;
+  }
+
+  EnterStand(g_npc);
 }
 
 bool NpcLogicSystem::Run() {
-  for (auto& m : NpcGameInstance::data_) {
-    for (auto& g_npc : m) {
-      RunChatballoon(g_npc);
-      auto action_type = LoadActionType(g_npc);
-      switch (action_type) {
-        case ActionEnum::kMove: {
-          RunMove(g_npc);
+  for (auto& page : NpcGameInstance::data_) {
+    for (auto& g_npc : page) {
+      UpdateChat(g_npc);
+
+      switch (g_npc.state) {
+        case NpcState::kMove: {
+          if (!RunMove(g_npc)) {
+            EnterStand(g_npc);
+            break;
+          }
+          RunAnimate(g_npc);
+          if (Window::dt_now_ >= g_npc.duration) {
+            EnterStand(g_npc);
+          }
           break;
         }
+        case NpcState::kAction: {
+          if (RunAnimate(g_npc) || Window::dt_now_ >= g_npc.duration) {
+            EnterStand(g_npc);
+          }
+          break;
+        }
+        case NpcState::kStand:
         default: {
+          RunAnimate(g_npc);
+          if (Window::dt_now_ >= g_npc.duration) {
+            ChooseNext(g_npc);
+          }
           break;
         }
-      }
-      if (RunAnimate(g_npc)) {
-        RunDuration(g_npc);
       }
     }
   }
