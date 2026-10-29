@@ -31,12 +31,11 @@ class StorageUiSystem {
   static void RenderItemInfo();
   static void RenderVscr();
 
-  static void EventTab();
   static void EventButtonGet();
   static void EventButtonPut();
   static void EventButtonSort();
   static void EventButtonExit();
-  static bool EventButton(SDL_Event* event);
+  static bool EventUI(SDL_Event* event);
   static void EventClose();
 
   static inline std::array<std::optional<uint16_t>, 2> active_item_;

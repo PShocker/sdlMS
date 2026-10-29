@@ -10,7 +10,7 @@ class PlayerShopUiSystem {
   static void RenderBackgrnd();
   static void RenderUI();
 
-  static bool EventButton(SDL_Event* event);
+  static bool EventUI(SDL_Event* event);
 
  public:
   static inline SDL_FPoint pos_;

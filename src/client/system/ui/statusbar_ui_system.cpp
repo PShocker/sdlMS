@@ -613,7 +613,7 @@ std::u16string StatusbarUiSystem::LoadChatType() {
   return u"";
 }
 
-bool StatusbarUiSystem::EventButton(SDL_Event* event) {
+bool StatusbarUiSystem::EventUI(SDL_Event* event) {
   return DispatchButtonClick(GetComponent(), false);
 }
 
@@ -634,7 +634,7 @@ bool StatusbarUiSystem::Event(SDL_Event* event) {
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui_ == Render) {
-          EventButton(event);
+          EventUI(event);
           r = false;
         }
       }

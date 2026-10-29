@@ -196,7 +196,7 @@ void PopupTipUiSystem::EventButtonCancel(GamePopupTip& t) {
   std::erase_if(data, [t](const auto& tip) { return &t == &tip; });
 }
 
-bool PopupTipUiSystem::EventButton(SDL_Event* event) {
+bool PopupTipUiSystem::EventUI(SDL_Event* event) {
   auto screen_w = CameraGameInstance::camera_.w;
   auto screen_h = CameraGameInstance::camera_.h;
   auto base_x = (screen_w - 808) / 2;
@@ -240,7 +240,7 @@ bool PopupTipUiSystem::Event(SDL_Event* event) {
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui_ == Render) {
-          r = EventButton(event);
+          r = EventUI(event);
         }
       }
       break;

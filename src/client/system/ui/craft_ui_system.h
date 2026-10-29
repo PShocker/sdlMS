@@ -12,8 +12,7 @@ class CraftUiSystem {
   static void RenderBackgrnd();
   static void RenderTab();
 
-  static bool EventButton(SDL_Event* event);
-  static void EventTab(SDL_Event* event);
+  static bool EventUI(SDL_Event* event);
   static void EventTop();
   static void EventDragStart(SDL_Event* event);
   static void EventDragEnd();

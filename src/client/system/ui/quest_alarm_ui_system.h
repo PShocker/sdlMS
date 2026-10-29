@@ -29,7 +29,7 @@ class QuestAlarmUiSystem {
 
   static void EventQuestClose();
 
-  static bool EventButton(SDL_Event* event);
+  static bool EventUI(SDL_Event* event);
 
   static void EventTop();
   static void EventDragStart(SDL_Event* event);

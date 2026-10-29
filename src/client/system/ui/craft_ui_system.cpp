@@ -123,7 +123,7 @@ bool CraftUiSystem::CursorIn() {
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
-void CraftUiSystem::EventTab(SDL_Event* event) {
+bool CraftUiSystem::EventUI(SDL_Event* event) {
   const static auto tab_node =
       WzResource::ui_->find(u"Crafting.img/tab:category");
   std::vector<SDL_FRect> rects;
@@ -135,7 +135,9 @@ void CraftUiSystem::EventTab(SDL_Event* event) {
   Tab tab{tab_node, u"selected", u"normal", rects, selected_tab_};
   if (auto i = tab.Click()) {
     selected_tab_ = *i;
+    return true;
   }
+  return false;
 }
 
 bool CraftUiSystem::Event(SDL_Event* event) {
@@ -154,7 +156,7 @@ bool CraftUiSystem::Event(SDL_Event* event) {
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui_ == Render) {
-          EventTab(event);
+          EventUI(event);
         }
         EventDragEnd();
       }

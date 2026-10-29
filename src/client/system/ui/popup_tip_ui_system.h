@@ -17,7 +17,7 @@ class PopupTipUiSystem {
   static void EventButtonOk(GamePopupTip& t);
   static void EventButtonCancel(GamePopupTip& t);
 
-  static bool EventButton(SDL_Event* event);
+  static bool EventUI(SDL_Event* event);
 
   static void Destroy();
 

@@ -88,7 +88,7 @@ class CharacterCreateUiSystem {
   static void EventButtonCancel();
   static void EventButtonBack();
 
-  static bool EventButton(SDL_Event* event);
+  static bool EventUI(SDL_Event* event);
   static bool EventButtonCustom(SDL_Event* event);
 
   static inline UIComponents components_;

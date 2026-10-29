@@ -97,7 +97,7 @@ void ChatLogUiSystem::Toggle() {
   }
 }
 
-void ChatLogUiSystem::EventClickChatVscr() {
+bool ChatLogUiSystem::EventUI(SDL_Event* event) {
   const uint32_t length = 76;
   auto cursor_in = CursorGameInstance::cursor_ui_;
   bool top = cursor_in == Render;
@@ -105,7 +105,6 @@ void ChatLogUiSystem::EventClickChatVscr() {
   auto screen_h = CameraGameInstance::camera_.h;
   auto base_x = (screen_w - 808) / 2;
   auto base_y = (screen_h - 73);
-
   int size = 0;
   for (const auto& chats : ChatGameInstance::chats_) {
     auto str = chats.owner + u":" + chats.text;
@@ -115,9 +114,8 @@ void ChatLogUiSystem::EventClickChatVscr() {
   size = size / (Freetype::LoadLh() * 1.1);
   size = std::max(0, size);
   Scroll scroll(page_, size, length);
-  auto val = scroll.Click(base_x + 564, base_y - 71, top);
-  page_ = val;
-  return;
+  page_ = scroll.Click(base_x + 564, base_y - 71, top);
+  return false;
 }
 
 bool ChatLogUiSystem::Event(SDL_Event* event) {
@@ -133,7 +131,7 @@ bool ChatLogUiSystem::Event(SDL_Event* event) {
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui_ == Render) {
-          EventClickChatVscr();
+          EventUI(event);
         }
       }
       break;

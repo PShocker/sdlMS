@@ -841,7 +841,7 @@ void NpcDlgUiSystem::EventButtonQuestNo() {
   }
 }
 
-bool NpcDlgUiSystem::EventButton(SDL_Event* event) {
+bool NpcDlgUiSystem::EventUI(SDL_Event* event) {
   return DispatchButtonClick(GetComponent(), true);
 }
 
@@ -923,7 +923,7 @@ bool NpcDlgUiSystem::Event(SDL_Event* event) {
         if (CursorGameInstance::cursor_ui_ == Render) {
           time_ = UINT64_MAX;
           EventList();
-          EventButton(event);
+          EventUI(event);
           if (type_ == NpcDlgEnum::kSelect && select_mouse_ >= 0) {
             EventButtonNext();
           }

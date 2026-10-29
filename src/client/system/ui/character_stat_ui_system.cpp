@@ -442,7 +442,7 @@ void CharacterStatUiSystem::EventButtonLukIncMax() {
   NoticeUiSystem::Open();
 }
 
-bool CharacterStatUiSystem::EventButton(SDL_Event* event) {
+bool CharacterStatUiSystem::EventUI(SDL_Event* event) {
   return DispatchButtonClick(GetComponent(), false);
 }
 
@@ -476,7 +476,7 @@ bool CharacterStatUiSystem::Event(SDL_Event* event) {
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui_ == Render) {
-          r = !EventButton(event);
+          r = !EventUI(event);
         }
         EventDragEnd();
       }

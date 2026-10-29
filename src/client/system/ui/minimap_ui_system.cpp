@@ -634,7 +634,7 @@ void MinimapUiSystem::EventMax() {
   return;
 }
 
-bool MinimapUiSystem::EventButton(SDL_Event* event) {
+bool MinimapUiSystem::EventUI(SDL_Event* event) {
   return DispatchButtonClick(GetComponent(), true);
 }
 
@@ -717,7 +717,7 @@ bool MinimapUiSystem::Event(SDL_Event* event) {
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui_ == Render) {
-          r = !EventButton(event);
+          r = !EventUI(event);
         }
         EventDragEnd();
       }

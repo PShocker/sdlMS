@@ -17,7 +17,7 @@ class LoginNoticeUiSystem {
   static void RenderUI();
   static UIComponents& GetComponent();
 
-  static bool EventButton(SDL_Event* event);
+  static bool EventUI(SDL_Event* event);
 
   static inline UIComponents components_;
 

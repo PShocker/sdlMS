@@ -34,7 +34,7 @@ class LoginUiSystem {
   static void EventButtonQuit();
   static void EventButtonBack();
 
-  static bool EventButton(SDL_Event* event);
+  static bool EventUI(SDL_Event* event);
 
   static inline UIComponents components_;
 

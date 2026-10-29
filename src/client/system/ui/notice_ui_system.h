@@ -34,7 +34,7 @@ class NoticeUiSystem {
 
   static void EventButtonEquipNoAp();
 
-  static bool EventButton(SDL_Event* event);
+  static bool EventUI(SDL_Event* event);
   static void EventInput(SDL_Event* event);
 
   static SDL_FPoint LoadWh();

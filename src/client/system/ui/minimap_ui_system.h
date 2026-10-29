@@ -32,7 +32,7 @@ class MinimapUiSystem {
   static void EventMin();
   static void EventMax();
 
-  static bool EventButton(SDL_Event* event);
+  static bool EventUI(SDL_Event* event);
   static void EventTop();
 
   static void EventMotionBtAudio(SDL_Event* event);

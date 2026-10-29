@@ -23,12 +23,10 @@ class SkillUiSystem {
   static SDL_FPoint LoadWh();
 
   static bool EventClickSki(SDL_Event* event);
-  static bool EventClickTab(SDL_Event* event);
-  static void EventVscr(SDL_Event* event);
 
   static void EventMotion(SDL_Event* event);
   static void EventButtonSkiUp();
-  static bool EventButton(SDL_Event* event);
+  static bool EventUI(SDL_Event* event);
   static void EventClose();
   static void EventTop();
   static void EventDragStart(SDL_Event* event);
@@ -39,11 +37,7 @@ class SkillUiSystem {
 
   static void EventMotionBtAudio(SDL_Event* event);
 
-  static void EventVscrStart(SDL_Event* event);
-  static void EventVscrEnd();
-  static void EventVscrMove(SDL_Event* event);
 
-  static inline bool vscr_motion_;
 
   static inline std::optional<SDL_FPoint> drag_;
 

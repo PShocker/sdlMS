@@ -710,7 +710,7 @@ void NoticeUiSystem::EventButtonEquipNoAp() {
   Close();
 }
 
-bool NoticeUiSystem::EventButton(SDL_Event* event) {
+bool NoticeUiSystem::EventUI(SDL_Event* event) {
   return DispatchButtonClick(GetComponent(), false);
 }
 
@@ -797,7 +797,7 @@ bool NoticeUiSystem::Event(SDL_Event* event) {
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui_ == Render) {
-          EventButton(event);
+          EventUI(event);
         }
       }
       break;

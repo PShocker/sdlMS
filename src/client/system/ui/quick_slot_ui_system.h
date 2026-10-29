@@ -15,7 +15,7 @@ class QuickSlotUiSystem {
   static void RenderQuickSlot();
   static void RenderUI();
 
-  static bool EventButton(SDL_Event* event);
+  static bool EventUI(SDL_Event* event);
   static bool EventClickQuickslot(SDL_Event* event);
 
   static SDL_FPoint LoadWh();

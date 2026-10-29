@@ -373,8 +373,56 @@ void ShopUiSystem::Open() {
   }
 }
 
-bool ShopUiSystem::EventButton(SDL_Event* event) {
-  return DispatchButtonClick(GetComponent(), false);
+bool ShopUiSystem::EventUI(SDL_Event* event) {
+  const static auto tab_node0 =
+      WzResource::ui_->find(u"UIShop.img/Shop/TabBuy");
+  std::vector<SDL_FRect> rects0;
+  for (uint8_t i = 0; i < 2; i++) {
+    rects0.push_back(SDL_FRect{static_cast<float>(int(pos_.x + 7 + i * 57)),
+                               static_cast<float>(int(pos_.y + 96)), 57, 21});
+  }
+  Tab tab0{tab_node0, u"enabled", u"disabled", rects0,
+           static_cast<uint8_t>(active_tab_[0])};
+  if (auto i = tab0.Click()) {
+    active_tab_[0] = *i;
+    active_item_[0] = std::nullopt;
+    pages_[0] = 0;
+    return true;
+  }
+  const static auto tab_node1 =
+      WzResource::ui_->find(u"UIShop.img/Shop/TabSell");
+  std::vector<SDL_FRect> rects1;
+  for (uint8_t i = 0; i < 4; i++) {
+    rects1.push_back(SDL_FRect{static_cast<float>(int(pos_.x + 237 + i * 44)),
+                               static_cast<float>(int(pos_.y + 96)), 44, 21});
+  }
+  Tab tab1{tab_node1, u"enabled", u"disabled", rects1,
+           static_cast<uint8_t>(active_tab_[1])};
+  if (auto i = tab1.Click()) {
+    active_tab_[1] = *i;
+    active_item_[1] = std::nullopt;
+    pages_[1] = 0;
+    return true;
+  }
+  DispatchButtonClick(GetComponent(), false);
+  const uint32_t length = 235;
+  auto x = (int)pos_.x + 212;
+  auto y = (int)pos_.y + 129;
+  auto cursor_in = CursorGameInstance::cursor_ui_;
+  int size = shop_->items.size() - 6;
+  if (active_tab_[0] == 1) {
+    size = ShopGameInstance::must_.size() - 6;
+  }
+  bool top = cursor_in == Render;
+  size = std::max(0, size);
+  Scroll scroll(pages_[0], size, length);
+  pages_[0] = scroll.Click(x, y, top);
+  size = ShopGameInstance::LoadPkgItems(active_tab_[1]).size() - 6;
+  x += 230;
+  size = std::max(0, size);
+  Scroll scroll1(pages_[1], size, length);
+  pages_[1] = scroll1.Click(x, y, top);
+  return false;
 }
 
 void ShopUiSystem::Close() {
@@ -473,106 +521,6 @@ bool ShopUiSystem::EventItem(SDL_Event* event) {
   return false;
 }
 
-bool ShopUiSystem::EventVscr(SDL_Event* event) {
-  const uint32_t length = 235;
-  auto x = (int)pos_.x + 212;
-  auto y = (int)pos_.y + 129;
-
-  int size = shop_->items.size() - 6;
-  if (active_tab_[0] == 1) {
-    size = ShopGameInstance::must_.size() - 6;
-  }
-  auto cursor_in = CursorGameInstance::cursor_ui_;
-  bool top = cursor_in == Render;
-  size = std::max(0, size);
-  Scroll scroll(pages_[0], size, length);
-  auto val = scroll.Click(x, y, top);
-  pages_[0] = val;
-
-  size = ShopGameInstance::LoadPkgItems(active_tab_[1]).size() - 6;
-  x += 230;
-  size = std::max(0, size);
-  Scroll scroll1(pages_[1], size, length);
-  val = scroll1.Click(x, y, top);
-  pages_[1] = val;
-  return true;
-}
-
-bool ShopUiSystem::EventTab(SDL_Event* event) {
-  // 第一组标签页（商店分类）
-  const static auto tab_node0 =
-      WzResource::ui_->find(u"UIShop.img/Shop/TabBuy");
-  std::vector<SDL_FRect> rects0;
-  for (uint8_t i = 0; i < 2; i++) {
-    rects0.push_back(SDL_FRect{static_cast<float>(int(pos_.x + 7 + i * 57)),
-                               static_cast<float>(int(pos_.y + 96)), 57, 21});
-  }
-  Tab tab0{tab_node0, u"enabled", u"disabled", rects0,
-           static_cast<uint8_t>(active_tab_[0])};
-  if (auto i = tab0.Click()) {
-    active_tab_[0] = *i;
-    active_item_[0] = std::nullopt;
-    pages_[0] = 0;
-    return true;
-  }
-
-  // 第二组标签页（背包分类）
-  const static auto tab_node1 =
-      WzResource::ui_->find(u"UIShop.img/Shop/TabSell");
-  std::vector<SDL_FRect> rects1;
-  for (uint8_t i = 0; i < 4; i++) {
-    rects1.push_back(SDL_FRect{static_cast<float>(int(pos_.x + 237 + i * 44)),
-                               static_cast<float>(int(pos_.y + 96)), 44, 21});
-  }
-  Tab tab1{tab_node1, u"enabled", u"disabled", rects1,
-           static_cast<uint8_t>(active_tab_[1])};
-  if (auto i = tab1.Click()) {
-    active_tab_[1] = *i;
-    active_item_[1] = std::nullopt;
-    pages_[1] = 0;
-    return true;
-  }
-
-  return false;
-}
-
-void ShopUiSystem::EventVscrStart(SDL_Event* event) {
-  SDL_FPoint lt{212, 129};
-  const uint32_t length = 235;
-  if (vscr_motion_[0] == false) {
-    vscr_motion_[0] =
-        Scroll(0, 0, length).ClickThumb(pos_.x + lt.x, pos_.y + lt.y);
-  }
-  lt.x += 230;
-  if (vscr_motion_[1] == false) {
-    vscr_motion_[1] =
-        Scroll(0, 0, length).ClickThumb(pos_.x + lt.x, pos_.y + lt.y);
-  }
-}
-
-void ShopUiSystem::EventVscrEnd() {
-  vscr_motion_ = {};
-}
-
-void ShopUiSystem::EventVscrMove(SDL_Event* event) {
-  auto mouse_state = Window::mouse_state_;
-  SDL_FPoint lt{212, 129};
-  const uint32_t length = 235;
-  if (vscr_motion_[0]) {
-    event->button.x = pos_.x + lt.x;
-    event->button.y =
-        std::clamp(event->button.y, pos_.y + lt.y, pos_.y + lt.y + length);
-    EventVscr(event);
-  }
-  if (vscr_motion_[1]) {
-    lt.x += 230;
-    event->button.x = pos_.x + lt.x;
-    event->button.y =
-        std::clamp(event->button.y, pos_.y + lt.y, pos_.y + lt.y + length);
-    EventVscr(event);
-  }
-}
-
 bool ShopUiSystem::Event(SDL_Event* event) {
   switch (event->type) {
     case SDL_EVENT_KEY_DOWN: {
@@ -601,11 +549,7 @@ bool ShopUiSystem::Event(SDL_Event* event) {
           if (EventItem(event)) {
             return false;
           }
-          if (EventTab(event)) {
-            return false;
-          }
-          EventButton(event);
-          EventVscr(event);
+          EventUI(event);
         }
       }
       break;

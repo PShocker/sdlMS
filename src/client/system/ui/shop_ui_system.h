@@ -38,17 +38,11 @@ class ShopUiSystem {
   static std::optional<int> EventItemClick(SDL_Event* event, SDL_FPoint p);
   static bool EventItem(SDL_Event* event);
 
-  static bool EventVscr(SDL_Event* event);
   static void EventClose();
-  static bool EventButton(SDL_Event* event);
+  static bool EventUI(SDL_Event* event);
 
-  static void EventVscrStart(SDL_Event* event);
-  static void EventVscrEnd();
-  static void EventVscrMove(SDL_Event* event);
 
-  static inline std::array<bool, 2> vscr_motion_;
 
-  static bool EventTab(SDL_Event* event);
 
   static SDL_FPoint LoadWh();
 

@@ -34,7 +34,7 @@ class StatusbarUiSystem {
 
   static void EventMotionBtAudio(SDL_Event* event);
 
-  static bool EventButton(SDL_Event* event);
+  static bool EventUI(SDL_Event* event);
   // button_func
   static void EventButtonCashshop();
   static void EventButtonMenu();

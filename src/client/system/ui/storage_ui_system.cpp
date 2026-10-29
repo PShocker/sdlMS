@@ -168,25 +168,6 @@ void StorageUiSystem::Close() {
   std::erase(System::event_systems_, Event);
 }
 
-bool StorageUiSystem::EventButton(SDL_Event* event) {
-  return DispatchButtonClick(GetComponent(), false);
-}
-
-
-void StorageUiSystem::EventTab() {
-  const static auto tab_node = WzResource::ui_->find(u"Storage.img/Trunk/tab:get");
-  std::vector<SDL_FRect> rects;
-  for (uint8_t i = 0; i < 6; i++) {
-    rects.push_back(SDL_FRect{static_cast<float>(int(pos_.x) + 5 + 33 * i),
-                              static_cast<float>(int(pos_.y) + 24), 33, 19});
-  }
-  Tab tab{tab_node, u"selected", u"normal", rects,
-          static_cast<uint8_t>(active_tab_)};
-  if (auto i = tab.Click()) {
-    active_tab_ = *i;
-  }
-}
-
 void StorageUiSystem::EventClose() {
   Close();
 }
@@ -247,6 +228,22 @@ void StorageUiSystem::EventButtonExit() {
   EventClose();
 }
 
+bool StorageUiSystem::EventUI(SDL_Event* event) {
+  const static auto tab_node =
+      WzResource::ui_->find(u"Storage.img/Trunk/tab:get");
+  std::vector<SDL_FRect> rects;
+  for (uint8_t i = 0; i < 6; i++) {
+    rects.push_back(SDL_FRect{static_cast<float>(int(pos_.x) + 5 + 33 * i),
+                              static_cast<float>(int(pos_.y) + 24), 33, 19});
+  }
+  Tab tab{tab_node, u"selected", u"normal", rects,
+          static_cast<uint8_t>(active_tab_)};
+  if (auto i = tab.Click()) {
+    active_tab_ = *i;
+  }
+  return DispatchButtonClick(GetComponent(), false);
+}
+
 bool StorageUiSystem::Event(SDL_Event* event) {
   bool r = true;
   switch (event->type) {
@@ -261,8 +258,7 @@ bool StorageUiSystem::Event(SDL_Event* event) {
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui_ == Render) {
-          EventTab();
-          r = !EventButton(event);
+          r = !EventUI(event);
         }
       }
       break;

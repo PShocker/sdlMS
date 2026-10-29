@@ -203,7 +203,7 @@ void LoginNoticeUiSystem::EventClose() {
   std::erase(System::event_systems_, Event);
 }
 
-bool LoginNoticeUiSystem::EventButton(SDL_Event* event) {
+bool LoginNoticeUiSystem::EventUI(SDL_Event* event) {
   return DispatchButtonClick(GetComponent(), false);
 }
 
@@ -216,7 +216,7 @@ bool LoginNoticeUiSystem::Event(SDL_Event* event) {
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
-        r = EventButton(event);
+        r = EventUI(event);
       }
       break;
     }

@@ -1012,7 +1012,7 @@ void CharacterCreateUiSystem::EventButtonCancel() {
   EventButtonBack();
 }
 
-bool CharacterCreateUiSystem::EventButton(SDL_Event* event) {
+bool CharacterCreateUiSystem::EventUI(SDL_Event* event) {
   std::vector<SDL_FRect> r;
   std::vector<void (*)()> fns;
   auto& camera = CameraGameInstance::camera_;
@@ -1079,7 +1079,7 @@ bool CharacterCreateUiSystem::Event(SDL_Event* event) {
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
-        EventButton(event);
+        EventUI(event);
         EventButtonCustom(event);
       }
       break;

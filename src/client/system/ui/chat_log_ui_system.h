@@ -10,8 +10,7 @@ class ChatLogUiSystem {
   static void RenderChats();
   static void RenderVscr();
 
-  static void EventClickChatVscr();
-  static bool EventButton(SDL_Event* event);
+  static bool EventUI(SDL_Event* event);
 
  public:
   static inline int page_;

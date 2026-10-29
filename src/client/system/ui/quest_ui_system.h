@@ -41,9 +41,7 @@ class QuestUiSystem {
   static void EventButtonDetail();
 
   static bool EventCheckbox();
-  static bool EventVscr(SDL_Event* event);
-  static bool EventButton(SDL_Event* event);
-  static void EventTab(SDL_Event* event);
+  static bool EventUI(SDL_Event* event);
   static void EventTop();
   static void EventDragStart(SDL_Event* event);
   static void EventDragEnd();
@@ -51,9 +49,6 @@ class QuestUiSystem {
 
   static void EventWheel(SDL_Event* event);
 
-  static void EventVscrStart(SDL_Event* event);
-  static void EventVscrEnd();
-  static void EventVscrMove(SDL_Event* event);
 
   static void EventMotionBtAudio(SDL_Event* event);
   static void EventMotion(SDL_Event* event);
@@ -62,7 +57,6 @@ class QuestUiSystem {
 
   static inline std::optional<SDL_FPoint> drag_;
 
-  static inline std::array<bool, 2> vscr_motion_;
 
   static inline UIComponents components_;
 

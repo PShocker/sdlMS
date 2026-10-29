@@ -51,8 +51,7 @@ class EquipUiSystem {
   static bool EventClickEquip(SDL_Event* event);
 
   static void EventMotion(SDL_Event* event);
-  static void EventTab(SDL_Event* event);
-  static bool EventButton(SDL_Event* event);
+  static bool EventUI(SDL_Event* event);
   static void EventTop();
 
   static void EventMotionBtAudio(SDL_Event* event);

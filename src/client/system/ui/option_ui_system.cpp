@@ -386,7 +386,7 @@ void OptionUiSystem::EventButtonOk() {
   Close();
 }
 
-void OptionUiSystem::EventTab(SDL_Event* event) {
+bool OptionUiSystem::EventUI(SDL_Event* event) {
   const static auto tab_node = WzResource::ui_->find(u"Options.img/tab");
   std::vector<SDL_FRect> rects;
   for (uint8_t i = 0; i < 5; i++) {
@@ -398,12 +398,8 @@ void OptionUiSystem::EventTab(SDL_Event* event) {
   if (auto i = tab.Click()) {
     active_tab_ = *i;
   }
-}
-
-bool OptionUiSystem::EventButton(SDL_Event* event) {
   return DispatchButtonClick(GetComponent(), false);
 }
-
 
 void OptionUiSystem::EventMotionBtAudio(SDL_Event* event) {
   static int8_t bt_audio = -1;
@@ -430,7 +426,7 @@ bool OptionUiSystem::Event(SDL_Event* event) {
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui_ == Render) {
-          r = !EventButton(event);
+          r = !EventUI(event);
         }
         EventDragEnd();
       }

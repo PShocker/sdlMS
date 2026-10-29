@@ -41,7 +41,7 @@ class NpcDlgUiSystem {
   static void EventButtonQuestYes();
   static void EventButtonQuestNo();
 
-  static bool EventButton(SDL_Event* event);
+  static bool EventUI(SDL_Event* event);
   static void EventButtonUpdate();
 
   static bool StartNextQuest();

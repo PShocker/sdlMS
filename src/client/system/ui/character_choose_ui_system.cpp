@@ -399,7 +399,7 @@ bool CharacterChooseUiSystem::EventChooseCharacter(SDL_Event* event) {
   return true;
 }
 
-bool CharacterChooseUiSystem::EventButton(SDL_Event* event) {
+bool CharacterChooseUiSystem::EventUI(SDL_Event* event) {
   std::vector<SDL_FRect> r;
   std::vector<void (*)()> fns;
   auto& camera = CameraGameInstance::camera_;
@@ -447,7 +447,7 @@ bool CharacterChooseUiSystem::Event(SDL_Event* event) {
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
         EventChooseCharacter(event);
-        r = EventButton(event);
+        r = EventUI(event);
       }
       break;
     }

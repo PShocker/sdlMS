@@ -30,7 +30,7 @@ class StatusbarMenuUiSystem {
   static void EventButtonQuest();
   static void EventButtonCraft();
 
-  static bool EventButton(SDL_Event* event);
+  static bool EventUI(SDL_Event* event);
 
   static inline int alpha_;
 

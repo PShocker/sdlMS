@@ -35,7 +35,7 @@ class CharacterChooseUiSystem {
   static void EventButtonDelete();
   static void EventButtonBack();
 
-  static bool EventButton(SDL_Event* event);
+  static bool EventUI(SDL_Event* event);
   static bool EventChooseCharacter(SDL_Event* event);
 
   static inline UIComponents components_;

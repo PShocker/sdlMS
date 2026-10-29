@@ -31,7 +31,6 @@ class CharacterInfoUiSystem {
   static void EventDragEnd();
   static void EventDragMove(SDL_Event* event);
 
-  static bool EventVscr(SDL_Event* event);
 
   static void EventButtonParty();
   static void EventButtonTrade();
@@ -46,15 +45,11 @@ class CharacterInfoUiSystem {
   static void EventMotionBtAudio(SDL_Event* event);
   static void EventMotion(SDL_Event* event);
 
-  static bool EventButton(SDL_Event* event);
+  static bool EventUI(SDL_Event* event);
 
   static void EventWheel(SDL_Event* event);
 
-  static void EventVscrStart(SDL_Event* event);
-  static void EventVscrEnd();
-  static void EventVscrMove(SDL_Event* event);
 
-  static inline bool vscr_motion_;
 
   static bool Run();
 

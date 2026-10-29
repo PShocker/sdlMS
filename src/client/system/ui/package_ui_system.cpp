@@ -410,7 +410,6 @@ void PackageUiSystem::Close() {
   std::erase(System::event_systems_, Event);
 
   EventDragEnd();
-  EventVscrEnd();
   new_itm_ = std::nullopt;
 }
 
@@ -644,32 +643,6 @@ bool PackageUiSystem::CursorIn() {
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
-void PackageUiSystem::EventTab(SDL_Event* event) {
-  const static auto tab_node = WzResource::ui_->find(u"Item.img/Tab");
-  std::vector<SDL_FRect> rects;
-  for (uint8_t i = 0; i < 6; i++) {
-    rects.push_back(
-        SDL_FRect{static_cast<float>(int(pos_.x + 5 + i * 33)),
-                  static_cast<float>(int(pos_.y + 24)), 33, 19});
-  }
-  Tab tab{tab_node, u"enabled", u"disabled", rects, active_tab_};
-  auto i = tab.Click();
-  if (!i) {
-    return;
-  }
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
-  if (active_tab_ == *i) {
-    return;
-  }
-  if (new_itm_.has_value()) {
-    if ((int)new_itm_->type == active_tab_) {
-      new_itm_ = std::nullopt;
-    }
-  }
-  page_ = 0;
-  active_tab_ = *i;
-}
-
 void PackageUiSystem::EventClose() {
   Close();
 }
@@ -695,10 +668,38 @@ void PackageUiSystem::EventButtonSort() {
   std::ranges::sort(PackageGameInstance::data_[active_tab_], cmp);
 }
 
-bool PackageUiSystem::EventButton(SDL_Event* event) {
-  return DispatchButtonClick(GetComponent(), false);
+bool PackageUiSystem::EventUI(SDL_Event* event) {
+  const static auto tab_node = WzResource::ui_->find(u"Item.img/Tab");
+  std::vector<SDL_FRect> tab_rects;
+  for (uint8_t i = 0; i < 6; i++) {
+    tab_rects.push_back(
+        SDL_FRect{static_cast<float>(int(pos_.x + 5 + i * 33)),
+                  static_cast<float>(int(pos_.y + 24)), 33, 19});
+  }
+  Tab tab{tab_node, u"enabled", u"disabled", tab_rects, active_tab_};
+  if (auto i = tab.Click()) {
+    AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+    if (active_tab_ != *i) {
+      if (new_itm_.has_value() && (int)new_itm_->type == active_tab_) {
+        new_itm_ = std::nullopt;
+      }
+      page_ = 0;
+      active_tab_ = *i;
+    }
+  }
+  if (DispatchButtonClick(GetComponent(), false)) {
+    return true;
+  }
+  const SDL_FPoint lt{188, 51};
+  const uint32_t length = 202;
+  auto& items = PackageGameInstance::data_[active_tab_];
+  auto size = static_cast<int>(std::ceil((items.size() - 30) / 5.0));
+  size = std::max(0, size);
+  auto mouse_pos = SDL_FPoint{event->button.x, event->button.y};
+  Scroll scroll(page_, size, length);
+  page_ = scroll.Click(pos_.x + lt.x, pos_.y + lt.y, true, mouse_pos);
+  return false;
 }
-
 
 void PackageUiSystem::EventMotion(SDL_Event* event) {
   auto& sys = System::render_systems_;
@@ -707,47 +708,6 @@ void PackageUiSystem::EventMotion(SDL_Event* event) {
   if (it != sys.end()) {
     sys.insert(it, RenderItemsInfo);
   }
-}
-
-void PackageUiSystem::EventVscrMove(SDL_Event* event) {
-  auto mouse_state = Window::mouse_state_;
-  if (vscr_motion_) {
-    const SDL_FPoint lt{188, 51};
-    const uint32_t length = 202;
-
-    event->button.x = pos_.x + lt.x;
-    event->button.y =
-        std::clamp(event->button.y, pos_.y + lt.y, pos_.y + lt.y + length);
-    EventVscr(event);
-  }
-}
-
-bool PackageUiSystem::EventVscr(SDL_Event* event) {
-  const SDL_FPoint lt{188, 51};
-  const uint32_t length = 202;
-
-  auto& items = PackageGameInstance::data_[active_tab_];
-  auto size = static_cast<int>(std::ceil((items.size() - 30) / 5.0));
-
-  size = std::max(0, size);
-  auto mouse_pos = SDL_FPoint{event->button.x, event->button.y};
-  Scroll scroll(page_, size, length);
-  auto val = scroll.Click(pos_.x + lt.x, pos_.y + lt.y, true, mouse_pos);
-  page_ = val;
-  return true;
-}
-
-void PackageUiSystem::EventVscrStart(SDL_Event* event) {
-  const SDL_FPoint lt{188, 51};
-  const uint32_t length = 202;
-  if (vscr_motion_ == false) {
-    vscr_motion_ =
-        Scroll(0, 0, length).ClickThumb(pos_.x + lt.x, pos_.y + lt.y);
-  }
-}
-
-void PackageUiSystem::EventVscrEnd() {
-  vscr_motion_ = false;
 }
 
 void PackageUiSystem::EventWheel(SDL_Event* event) {
@@ -802,7 +762,6 @@ bool PackageUiSystem::Event(SDL_Event* event) {
         if (CursorGameInstance::cursor_ui_ == Render) {
           EventTop();
           EventDragStart(event);
-          EventVscrStart(event);
           r = false;
         }
       }
@@ -811,20 +770,16 @@ bool PackageUiSystem::Event(SDL_Event* event) {
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui_ == Render) {
-          EventTab(event);
           EventClickItem(event);
-          r = !EventButton(event);
-          EventVscr(event);
+          r = !EventUI(event);
         }
         EventDragEnd();
-        EventVscrEnd();
       }
       break;
     }
     case SDL_EVENT_MOUSE_MOTION: {
       EventMotion(event);
       EventDragMove(event);
-      EventVscrMove(event);
       EventMotionBtAudio(event);
       break;
     }

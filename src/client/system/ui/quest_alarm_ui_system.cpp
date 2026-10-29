@@ -218,7 +218,7 @@ void QuestAlarmUiSystem::EventButtonClose() {
   Close();
 }
 
-bool QuestAlarmUiSystem::EventButton(SDL_Event* event) {
+bool QuestAlarmUiSystem::EventUI(SDL_Event* event) {
   return DispatchButtonClick(GetComponent(), true);
 }
 
@@ -302,7 +302,7 @@ bool QuestAlarmUiSystem::Event(SDL_Event* event) {
       if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui_ == Render) {
           EventQuestClose();
-          r = !EventButton(event);
+          r = !EventUI(event);
         }
         EventDragEnd();
       }

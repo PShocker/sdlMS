@@ -292,7 +292,7 @@ void StatusbarMenuUiSystem::EventButtonCraft() {
   return;
 }
 
-bool StatusbarMenuUiSystem::EventButton(SDL_Event* event) {
+bool StatusbarMenuUiSystem::EventUI(SDL_Event* event) {
   return DispatchButtonClick(GetComponent(), false);
 }
 
@@ -324,7 +324,7 @@ bool StatusbarMenuUiSystem::Event(SDL_Event* event) {
       r = false;
       if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui_ == Render) {
-          r = !EventButton(event);
+          r = !EventUI(event);
         }
         Close();
       }

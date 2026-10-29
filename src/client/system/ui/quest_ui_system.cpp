@@ -650,30 +650,6 @@ void QuestUiSystem::Close() {
   std::erase(System::event_systems_, Event);
 
   EventDragEnd();
-  EventVscrEnd();
-}
-
-void QuestUiSystem::EventTab(SDL_Event* event) {
-  const static auto tab_node =
-      WzResource::ui_->find(u"Quest.img/Quest/list/Tab");
-  std::vector<SDL_FRect> rects;
-  for (uint8_t i = 0; i < 3; i++) {
-    rects.push_back(
-        SDL_FRect{static_cast<float>(int(pos_.x + 6 + i * 72)),
-                  static_cast<float>(int(pos_.y + 24)), 72, 19});
-  }
-  Tab tab{tab_node, u"enabled", u"disabled", rects, active_tab_};
-  auto i = tab.Click();
-  if (!i) {
-    return;
-  }
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
-  if (active_tab_ == *i) {
-    return;
-  }
-  disable_fold_ = {};
-  pages_[0] = 0;
-  active_tab_ = *i;
 }
 
 void QuestUiSystem::EventTop() {
@@ -765,80 +741,9 @@ void QuestUiSystem::EventQuest() {
   if (d_quest.has_value()) {
     detail_quest_ = d_quest.value();
     pages_[1] = 0;
-    vscr_motion_ = {};
     AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
   }
   return;
-}
-
-bool QuestUiSystem::EventVscr(SDL_Event* event) {
-  SDL_FPoint lt{225, 48};
-  int px = pos_.x + lt.x;
-  int py = pos_.y + lt.y;
-  uint32_t length = 318;
-
-  auto size = LoadVscrNum0() - 16;
-  size = std::max(0, size);
-
-  auto mouse_pos = SDL_FPoint{event->button.x, event->button.y};
-  bool top = true;
-  Scroll scroll(pages_[0], size, length);
-  auto val = scroll.Click(px, py, top, mouse_pos);
-  pages_[0] = val;
-
-  if (detail_ && !detail_quest_.empty()) {
-    lt = {532, 122};
-    px = pos_.x + lt.x;
-    py = pos_.y + lt.y;
-    length = 244;
-    size = LoadVscrNum1() - 16;
-    Scroll scroll(pages_[1], size, length);
-    val = scroll.Click(px, py, top, mouse_pos);
-    pages_[1] = val;
-  }
-
-  return true;
-}
-
-void QuestUiSystem::EventVscrMove(SDL_Event* event) {
-  auto mouse_state = Window::mouse_state_;
-  if (vscr_motion_[0]) {
-    const SDL_FPoint lt{225, 48};
-    const uint32_t length = 318;
-
-    event->button.x = pos_.x + lt.x;
-    event->button.y =
-        std::clamp(event->button.y, pos_.y + lt.y, pos_.y + lt.y + length);
-    EventVscr(event);
-  }
-  if (vscr_motion_[1]) {
-    const SDL_FPoint lt{532, 122};
-    const uint32_t length = 244;
-
-    event->button.x = pos_.x + lt.x;
-    event->button.y =
-        std::clamp(event->button.y, pos_.y + lt.y, pos_.y + lt.y + length);
-    EventVscr(event);
-  }
-}
-
-void QuestUiSystem::EventVscrStart(SDL_Event* event) {
-  SDL_FPoint lt{225, 48};
-  uint32_t length = 318;
-  if (vscr_motion_[0] == false) {
-    vscr_motion_[0] =
-        Scroll(0, 0, length).ClickThumb(pos_.x + lt.x, pos_.y + lt.y);
-  }
-  lt = {532, 122};
-  length = 244;
-  if (vscr_motion_[1] == false) {
-    vscr_motion_[1] =
-        Scroll(0, 0, length).ClickThumb(pos_.x + lt.x, pos_.y + lt.y);
-  }
-}
-
-void QuestUiSystem::EventVscrEnd() {
-  vscr_motion_ = {};
 }
 
 void QuestUiSystem::EventButtonClose() {
@@ -849,8 +754,50 @@ void QuestUiSystem::EventButtonDetail() {
   detail_ = !detail_;
 }
 
-bool QuestUiSystem::EventButton(SDL_Event* event) {
-  return DispatchButtonClick(GetComponent(), true);
+bool QuestUiSystem::EventUI(SDL_Event* event) {
+  if (EventCheckbox()) {
+    return true;
+  }
+  const static auto tab_node =
+      WzResource::ui_->find(u"Quest.img/Quest/list/Tab");
+  std::vector<SDL_FRect> tab_rects;
+  for (uint8_t i = 0; i < 3; i++) {
+    tab_rects.push_back(
+        SDL_FRect{static_cast<float>(int(pos_.x + 6 + i * 72)),
+                  static_cast<float>(int(pos_.y + 24)), 72, 19});
+  }
+  Tab tab{tab_node, u"enabled", u"disabled", tab_rects, active_tab_};
+  if (auto i = tab.Click()) {
+    AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+    if (active_tab_ != *i) {
+      disable_fold_ = {};
+      pages_[0] = 0;
+      active_tab_ = *i;
+    }
+  }
+  if (DispatchButtonClick(GetComponent(), true)) {
+    return true;
+  }
+  SDL_FPoint vscr_lt{225, 48};
+  int px = pos_.x + vscr_lt.x;
+  int py = pos_.y + vscr_lt.y;
+  uint32_t vscr_length = 318;
+  auto vscr_size = LoadVscrNum0() - 16;
+  vscr_size = std::max(0, vscr_size);
+  auto mouse_pos = SDL_FPoint{event->button.x, event->button.y};
+  bool top = true;
+  Scroll scroll(pages_[0], vscr_size, vscr_length);
+  pages_[0] = scroll.Click(px, py, top, mouse_pos);
+  if (detail_ && !detail_quest_.empty()) {
+    vscr_lt = {532, 122};
+    px = pos_.x + vscr_lt.x;
+    py = pos_.y + vscr_lt.y;
+    vscr_length = 244;
+    vscr_size = LoadVscrNum1() - 16;
+    Scroll detail_scroll(pages_[1], vscr_size, vscr_length);
+    pages_[1] = detail_scroll.Click(px, py, top, mouse_pos);
+  }
+  return false;
 }
 
 void QuestUiSystem::EventMotionBtAudio(SDL_Event* event) {
@@ -938,7 +885,6 @@ bool QuestUiSystem::Event(SDL_Event* event) {
         if (CursorGameInstance::cursor_ui_ == Render) {
           EventTop();
           EventDragStart(event);
-          EventVscrStart(event);
           r = false;
         }
       }
@@ -949,21 +895,14 @@ bool QuestUiSystem::Event(SDL_Event* event) {
         if (CursorGameInstance::cursor_ui_ == Render) {
           EventFold();
           EventQuest();
-          if (EventCheckbox()) {
-            return false;
-          }
-          EventTab(event);
-          EventVscr(event);
-          r = !EventButton(event);
+          r = !EventUI(event);
         }
         EventDragEnd();
-        EventVscrEnd();
       }
       break;
     }
     case SDL_EVENT_MOUSE_MOTION: {
       EventDragMove(event);
-      EventVscrMove(event);
       EventMotionBtAudio(event);
       EventMotion(event);
       break;

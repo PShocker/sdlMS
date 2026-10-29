@@ -282,7 +282,7 @@ void WorldmapUiSystem::EventClickSpot() {
   }
 }
 
-bool WorldmapUiSystem::EventButton(SDL_Event* event) {
+bool WorldmapUiSystem::EventUI(SDL_Event* event) {
   return DispatchButtonClick(GetComponent(), false);
 }
 
@@ -325,7 +325,7 @@ bool WorldmapUiSystem::Event(SDL_Event* event) {
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
-        r = !EventButton(event);
+        r = !EventUI(event);
         EventDragEnd();
         EventClickSpot();
       }

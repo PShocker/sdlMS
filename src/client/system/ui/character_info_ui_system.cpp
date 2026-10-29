@@ -322,26 +322,6 @@ bool CharacterInfoUiSystem::Render() {
   return true;
 }
 
-bool CharacterInfoUiSystem::EventVscr(SDL_Event* event) {
-  if (!item_) {
-    return false;
-  }
-  const SDL_FPoint lt{219 + item_lt.x, 32 + item_lt.y};
-  const uint32_t length = 115;
-  auto v = EquipGameInstance::LoadEquips(character_).size();
-  auto v2 = EquipGameInstance::LoadDecos(character_).size();
-  int size = v + v2 - 3;
-  auto cursor_in = CursorGameInstance::cursor_ui_;
-  bool top = cursor_in == Render;
-  size = std::max(0, size);
-  auto mouse_pos = SDL_FPoint{event->button.x, event->button.y};
-  Scroll scroll(item_page_, size, length);
-  auto val = scroll.Click((int)pos_.x + lt.x, (int)pos_.y + lt.y, top,
-                          mouse_pos);
-  item_page_ = val;
-  return true;
-}
-
 void CharacterInfoUiSystem::Open() {
   auto it =
       std::ranges::find(System::render_systems_, &CursorRenderSystem::Render);
@@ -464,34 +444,24 @@ void CharacterInfoUiSystem::EventClose() {
   Close();
 }
 
-bool CharacterInfoUiSystem::EventButton(SDL_Event* event) {
-  return DispatchButtonClick(GetComponent(), true);
-}
-
-void CharacterInfoUiSystem::EventVscrStart(SDL_Event* event) {
+bool CharacterInfoUiSystem::EventUI(SDL_Event* event) {
+  bool consumed = DispatchButtonClick(GetComponent(), true);
+  if (!item_) {
+    return consumed;
+  }
   const SDL_FPoint lt{219 + item_lt.x, 32 + item_lt.y};
   const uint32_t length = 115;
-  if (vscr_motion_ == false) {
-    vscr_motion_ =
-        Scroll(0, 0, length).ClickThumb(pos_.x + lt.x, pos_.y + lt.y);
-  }
-}
-
-void CharacterInfoUiSystem::EventVscrEnd() {
-  vscr_motion_ = false;
-}
-
-void CharacterInfoUiSystem::EventVscrMove(SDL_Event* event) {
-  auto mouse_state = Window::mouse_state_;
-  if (vscr_motion_) {
-    const SDL_FPoint lt{219 + item_lt.x, 32 + item_lt.y};
-    const uint32_t length = 115;
-
-    event->button.x = pos_.x + lt.x;
-    event->button.y =
-        std::clamp(event->button.y, pos_.y + lt.y, pos_.y + lt.y + length);
-    EventVscr(event);
-  }
+  auto v = EquipGameInstance::LoadEquips(character_).size();
+  auto v2 = EquipGameInstance::LoadDecos(character_).size();
+  int size = v + v2 - 3;
+  auto cursor_in = CursorGameInstance::cursor_ui_;
+  bool top = cursor_in == Render;
+  size = std::max(0, size);
+  auto mouse_pos = SDL_FPoint{event->button.x, event->button.y};
+  Scroll scroll(item_page_, size, length);
+  item_page_ = scroll.Click((int)pos_.x + lt.x, (int)pos_.y + lt.y, top,
+                            mouse_pos);
+  return consumed;
 }
 
 void CharacterInfoUiSystem::EventMotionBtAudio(SDL_Event* event) {
@@ -554,8 +524,7 @@ bool CharacterInfoUiSystem::Event(SDL_Event* event) {
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui_ == Render) {
-          EventVscr(event);
-          r = !EventButton(event);
+          r = !EventUI(event);
         }
         EventDragEnd();
       }
@@ -565,7 +534,6 @@ bool CharacterInfoUiSystem::Event(SDL_Event* event) {
       EventMotion(event);
       EventMotionBtAudio(event);
       EventDragMove(event);
-      EventVscrMove(event);
       break;
     }
     case SDL_EVENT_MOUSE_WHEEL: {

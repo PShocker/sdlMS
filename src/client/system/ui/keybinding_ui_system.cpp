@@ -582,7 +582,7 @@ void KeybindingUiSystem::EventRemainKey() {
   }
 }
 
-bool KeybindingUiSystem::EventButton(SDL_Event* event) {
+bool KeybindingUiSystem::EventUI(SDL_Event* event) {
   return DispatchButtonClick(GetComponent(), false);
 }
 
@@ -621,7 +621,7 @@ bool KeybindingUiSystem::Event(SDL_Event* event) {
           // event_tab(event);
           EventBackgrndKey();
           EventRemainKey();
-          r = !EventButton(event);
+          r = !EventUI(event);
         }
         EventDragEnd();
       }

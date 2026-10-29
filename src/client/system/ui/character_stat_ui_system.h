@@ -40,7 +40,7 @@ class CharacterStatUiSystem {
   static void EventDragEnd();
   static void EventDragMove(SDL_Event* event);
 
-  static bool EventButton(SDL_Event* event);
+  static bool EventUI(SDL_Event* event);
 
   static inline std::optional<SDL_FPoint> drag_;
 

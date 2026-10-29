@@ -44,7 +44,7 @@ class KeybindingUiSystem {
   static void EventBackgrndKey();
   static void EventRemainKey();
 
-  static bool EventButton(SDL_Event* event);
+  static bool EventUI(SDL_Event* event);
 
   static inline std::optional<SDL_FPoint> drag_;
   static inline uint8_t active_tab_;

@@ -458,12 +458,7 @@ void EquipUiSystem::EventClose() {
   Close();
 }
 
-bool EquipUiSystem::EventButton(SDL_Event* event) {
-  return DispatchButtonClick(GetComponent(), false);
-}
-
-
-void EquipUiSystem::EventTab(SDL_Event* event) {
+bool EquipUiSystem::EventUI(SDL_Event* event) {
   static auto node = WzResource::ui_->find(u"Equipment.img/tab:mainTab");
   std::vector<SDL_FRect> rects;
   for (uint8_t i = 0; i < 2; i++) {
@@ -475,6 +470,7 @@ void EquipUiSystem::EventTab(SDL_Event* event) {
   if (auto i = tab.Click()) {
     active_tab_ = *i;
   }
+  return DispatchButtonClick(GetComponent(), false);
 }
 
 void EquipUiSystem::EventMotion(SDL_Event* event) {
@@ -525,9 +521,8 @@ bool EquipUiSystem::Event(SDL_Event* event) {
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui_ == Render) {
-          EventTab(event);
           EventClickEquip(event);
-          r = !EventButton(event);
+          r = !EventUI(event);
         }
         EventDragEnd();
       }

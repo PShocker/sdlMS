@@ -15,7 +15,7 @@ class ReviveUiSystem {
   static void RenderUI();
   static UIComponents& GetComponent();
 
-  static bool EventButton(SDL_Event* event);
+  static bool EventUI(SDL_Event* event);
   static void EventButtonOk();
 
   static void EventMotionBtAudio(SDL_Event* event);
