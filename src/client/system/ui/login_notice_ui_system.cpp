@@ -1,9 +1,9 @@
 #include "src/client/system/ui/login_notice_ui_system.h"
 
+#include "src/client/component/button.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/system/system.h"
-#include "src/client/system/ui/button.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 
@@ -119,6 +119,7 @@ void LoginNoticeUiSystem::RenderBackgrnd() {
 }
 
 void LoginNoticeUiSystem::RenderButton() {
+  components_.clear();
   const auto w = 1366;
   const auto h = 768;
   std::vector<wz::Node*> buttons_nodes;
@@ -157,11 +158,19 @@ void LoginNoticeUiSystem::RenderButton() {
     SDL_FRect rect = buttons_rect[i];
     rect.x = (int)rect.x;
     rect.y = (int)rect.y;
-    Button{
-        .node = buttons_nodes[i], .rect = rect, .enable = true, .focused = true}
-        .Render();
+    Button button{.node = buttons_nodes[i],
+                  .rect = rect,
+                  .enable = true,
+                  .focused = true};
+    components_.push_back(button);
+    button.Render();
   }
 }
+
+std::vector<Button>& LoginNoticeUiSystem::GetComponent() {
+  return components_;
+}
+
 
 bool LoginNoticeUiSystem::Render() {
   RenderBackgrnd();
@@ -203,15 +212,11 @@ bool LoginNoticeUiSystem::EventButton(SDL_Event* event) {
       break;
     }
   }
-  for (size_t i = 0; i < buttons_rect.size(); ++i) {
-    auto pos_rect = buttons_rect[i];
-    pos_rect.x = (int)pos_rect.x;
-    pos_rect.y = (int)pos_rect.y;
-    if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect)) {
-      AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
-      fns[i]();
-      return false;
-    }
+  for (size_t i = 0; i < components_.size() && i < fns.size(); ++i) {
+    components_[i].callback = fns[i];
+  }
+  if (DispatchButtonClick(components_, true)) {
+    return false;
   }
   return true;
 }

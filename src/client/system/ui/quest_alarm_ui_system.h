@@ -1,11 +1,14 @@
 #pragma once
 
+#include "src/client/component/button.h"
+
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_rect.h>
 
 #include <flat_set>
 #include <optional>
 #include <string>
+#include <vector>
 
 namespace sdlms {
 
@@ -14,6 +17,7 @@ class QuestAlarmUiSystem {
   static void RenderBackgrnd();
   static void RenderQuests();
   static void RenderButton();
+  static std::vector<Button>& GetComponent();
   static void RenderTitle();
 
   static SDL_FPoint LoadWh();
@@ -33,6 +37,8 @@ class QuestAlarmUiSystem {
   static void EventDragMove(SDL_Event* event);
 
   static inline std::optional<SDL_FPoint> drag_;
+
+  static inline std::vector<Button> components_;
 
  public:
   static void AcceptQuest(const std::u16string& id);

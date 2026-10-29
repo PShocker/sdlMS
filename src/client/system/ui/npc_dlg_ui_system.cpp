@@ -1,5 +1,6 @@
 #include "src/client/system/ui/npc_dlg_ui_system.h"
 
+#include "src/client/component/button.h"
 #include "src/client/game/game_npc.h"
 #include "src/client/game/game_quest.h"
 #include "src/client/game_instance/audio_game_instance.h"
@@ -17,7 +18,6 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/render/npc_render_system.h"
 #include "src/client/system/system.h"
-#include "src/client/system/ui/button.h"
 #include "src/client/system/ui/notice_ui_system.h"
 #include "src/client/system/ui/quest_alarm_ui_system.h"
 #include "src/client/system/ui/quest_ui_system.h"
@@ -114,6 +114,7 @@ void NpcDlgUiSystem::RenderNpc() {
 }
 
 void NpcDlgUiSystem::RenderButton() {
+  components_.clear();
   auto [w, h] = LoadWh();
   std::vector<wz::Node*> buttons_node = {
       WzResource::ui_->find(u"UtilDlgEx.img/UtilDlgEx/BtClose"),
@@ -150,14 +151,20 @@ void NpcDlgUiSystem::RenderButton() {
     SDL_FRect rect = buttons_rect[i];
     rect.x += (int)pos_.x;
     rect.y += (int)pos_.y;
-    Button{.node = buttons_node[i],
-           .rect = rect,
-           .enable = true,
-           .focused = CursorGameInstance::cursor_ui_ == Render &&
-                      !CursorGameInstance::modal_overlay_}
-        .Render();
+    Button button{.node = buttons_node[i],
+                  .rect = rect,
+                  .enable = true,
+                  .focused = CursorGameInstance::cursor_ui_ == Render &&
+                             !CursorGameInstance::modal_overlay_};
+    components_.push_back(button);
+    button.Render();
   }
 }
+
+std::vector<Button>& NpcDlgUiSystem::GetComponent() {
+  return components_;
+}
+
 
 void NpcDlgUiSystem::RenderText() {
   auto dt = Window::dt_now_ - time_;
@@ -855,15 +862,11 @@ bool NpcDlgUiSystem::EventButton(SDL_Event* event) {
     func.push_back(EventButtonOk);
   }
 
-  for (size_t i = 0; i < buttons_rect.size(); ++i) {
-    auto pos_rect = buttons_rect[i];
-    pos_rect.x += pos_.x;
-    pos_rect.y += pos_.y;
-    if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect)) {
-      func[i]();
-      AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
-      return true;
-    }
+  for (size_t i = 0; i < components_.size() && i < func.size(); ++i) {
+    components_[i].callback = func[i];
+  }
+  if (DispatchButtonClick(components_, true)) {
+    return true;
   }
   return false;
 }

@@ -1,5 +1,6 @@
 #include "src/client/system/ui/shop_ui_system.h"
 
+#include "src/client/component/button.h"
 #include "src/client/game/game_item.h"
 #include "src/client/game/game_npc.h"
 #include "src/client/game/game_shop.h"
@@ -17,7 +18,6 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/render/npc_render_system.h"
 #include "src/client/system/system.h"
-#include "src/client/system/ui/button.h"
 #include "src/client/system/ui/notice_ui_system.h"
 #include "src/client/system/ui/package_ui_system.h"
 #include "src/client/system/ui/scroll_ui_system.h"
@@ -198,6 +198,7 @@ void ShopUiSystem::RenderVscr() {
 }
 
 void ShopUiSystem::RenderButton() {
+  components_.clear();
   const static std::array buttons_node = {
       WzResource::ui_->find(u"UIShop.img/Shop/BtBuy"),
       WzResource::ui_->find(u"UIShop.img/Shop/BtSell"),
@@ -212,14 +213,20 @@ void ShopUiSystem::RenderButton() {
     SDL_FRect rect = buttons_rect[i];
     rect.x += (int)pos_.x;
     rect.y += (int)pos_.y;
-    Button{.node = buttons_node[i],
-           .rect = rect,
-           .enable = true,
-           .focused = CursorGameInstance::cursor_ui_ == Render &&
-                      !CursorGameInstance::modal_overlay_}
-        .Render();
+    Button button{.node = buttons_node[i],
+                  .rect = rect,
+                  .enable = true,
+                  .focused = CursorGameInstance::cursor_ui_ == Render &&
+                             !CursorGameInstance::modal_overlay_};
+    components_.push_back(button);
+    button.Render();
   }
 }
+
+std::vector<Button>& ShopUiSystem::GetComponent() {
+  return components_;
+}
+
 
 void ShopUiSystem::RenderTab() {
   const static std::array tab_pos0 = {
@@ -409,16 +416,12 @@ bool ShopUiSystem::EventButton(SDL_Event* event) {
 
   };
 
-  for (size_t i = 0; i < buttons_rect.size(); ++i) {
-    auto pos_rect = buttons_rect[i];
-    pos_rect.x += (int)pos_.x;
-    pos_rect.y += (int)pos_.y;
-    if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect)) {
-      fns[i]();
-      return true;
-    }
+  for (size_t i = 0; i < components_.size() && i < fns.size(); ++i) {
+    components_[i].callback = fns[i];
   }
-
+  if (DispatchButtonClick(components_, false)) {
+    return true;
+  }
   return false;
 }
 

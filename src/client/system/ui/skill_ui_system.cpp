@@ -1,5 +1,6 @@
 #include "src/client/system/ui/skill_ui_system.h"
 
+#include "src/client/component/button.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
@@ -10,7 +11,6 @@
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
-#include "src/client/system/ui/button.h"
 #include "src/client/system/ui/scroll_ui_system.h"
 #include "src/client/system/ui/tooltip_ui_system.h"
 #include "src/client/window/window.h"
@@ -263,7 +263,12 @@ bool SkillUiSystem::RenderInfo() {
 
 static std::u16string ski_button_id = u"";
 
+std::vector<Button>& SkillUiSystem::GetComponent() {
+  return components_;
+}
+
 void SkillUiSystem::RenderButton() {
+  components_.clear();
   ski_button_id = u"";
 
   auto wh = LoadWh();
@@ -331,6 +336,7 @@ void SkillUiSystem::RenderButton() {
     if (i >= 1 && button.CursorIn()) {
       ski_button_id = (skill_node.begin() + page_ + (i - 1))->first;
     }
+    components_.push_back(button);
     button.Render();
   }
 }
@@ -419,16 +425,12 @@ bool SkillUiSystem::EventButton(SDL_Event* event) {
       EventClose,
   };
 
-  for (size_t i = 0; i < r.size(); ++i) {
-    auto pos_rect = r[i];
-    pos_rect.x += pos_.x;
-    pos_rect.y += pos_.y;
-    if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect)) {
-      fns[i]();
-      return true;
-    }
+  for (size_t i = 0; i < components_.size() && i < fns.size(); ++i) {
+    components_[i].callback = fns[i];
   }
-
+  if (DispatchButtonClick(components_, false)) {
+    return true;
+  }
   return false;
 }
 

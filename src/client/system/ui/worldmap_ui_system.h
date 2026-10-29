@@ -1,5 +1,7 @@
 #pragma once
 
+#include "src/client/component/button.h"
+
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_rect.h>
 
@@ -7,6 +9,7 @@
 #include <cstdint>
 #include <flat_map>
 #include <string>
+#include <vector>
 
 namespace sdlms {
 
@@ -16,6 +19,7 @@ class WorldmapUiSystem {
   static void RenderMap();
   static void RenderSpot();
   static void RenderButton();
+  static std::vector<Button>& GetComponent();
   static bool RenderSpotInfo();
   static void RenderCurPos(SDL_FPoint point);
 
@@ -32,6 +36,8 @@ class WorldmapUiSystem {
   static bool EventButton(SDL_Event* event);
 
   static inline std::optional<SDL_FPoint> drag_;
+
+  static inline std::vector<Button> components_;
 
  public:
   static inline SDL_FPoint pos_;

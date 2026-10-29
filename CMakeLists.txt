@@ -54,6 +54,7 @@ set(SDLMS_COMMON_SOURCES
 
 set(SDLMS_CLIENT_SOURCES
   src/client/game_instance/afterimage_game_instance.cpp
+  src/client/component/button.cpp
   src/client/game_instance/audio_game_instance.cpp
   src/client/game_instance/backgrnd_game_instance.cpp
   src/client/game_instance/ball_game_instance.cpp
@@ -145,7 +146,6 @@ set(SDLMS_CLIENT_SOURCES
   src/client/system/render/tile_render_system.cpp
   src/client/system/ui/beauty_ui_system.cpp
   src/client/system/ui/buff_ui_system.cpp
-  src/client/system/ui/button.cpp
   src/client/system/ui/cash_shop_ui_system.cpp
   src/client/system/ui/character_choose_ui_system.cpp
   src/client/system/ui/character_create_ui_system.cpp

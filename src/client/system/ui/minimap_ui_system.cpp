@@ -1,5 +1,6 @@
 #include "src/client/system/ui/minimap_ui_system.h"
 
+#include "src/client/component/button.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
@@ -10,7 +11,6 @@
 #include "src/client/game_instance/text_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
-#include "src/client/system/ui/button.h"
 #include "src/client/system/ui/worldmap_ui_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
@@ -205,7 +205,12 @@ void MinimapUiSystem::RenderMaxBackgrnd() {
   SDL_RenderTexture(Window::renderer_, title, nullptr, &pos_rect);
 }
 
+std::vector<Button>& MinimapUiSystem::GetComponent() {
+  return components_;
+}
+
 void MinimapUiSystem::RenderButton() {
+  components_.clear();
   const static std::array buttons_nodes = {
       WzResource::ui_->find(u"MiniMap.img/BtMap"),
       WzResource::ui_->find(u"MiniMap.img/BtMin"),
@@ -245,6 +250,7 @@ void MinimapUiSystem::RenderButton() {
     rect.y += pos_.y;
     Button button{
         .node = buttons_node[i], .rect = rect, .enable = r[i], .focused = true};
+    components_.push_back(button);
     button.Render();
   }
 };
@@ -651,17 +657,12 @@ bool MinimapUiSystem::EventButton(SDL_Event* event) {
     };
   }
 
-  for (size_t i = 0; i < r.size(); ++i) {
-    auto pos_rect = r[i];
-    pos_rect.x += pos_.x;
-    pos_rect.y += pos_.y;
-    if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect)) {
-      fns[i]();
-      AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
-      return true;
-    }
+  for (size_t i = 0; i < components_.size() && i < fns.size(); ++i) {
+    components_[i].callback = fns[i];
   }
-
+  if (DispatchButtonClick(components_, true)) {
+    return true;
+  }
   return false;
 }
 

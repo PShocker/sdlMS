@@ -1,9 +1,12 @@
 #pragma once
 
+#include "src/client/component/button.h"
 #include "src/client/game/game_character.h"
 
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_rect.h>
+
+#include <vector>
 
 namespace sdlms {
 
@@ -11,9 +14,12 @@ class TradeUiSystem {
  private:
   static void RenderBackgrnd();
   static void RenderButton();
+  static std::vector<Button>& GetComponent();
 
   static void EventButtonClose();
   static bool EventButton(SDL_Event* event);
+
+  static inline std::vector<Button> components_;
 
  public:
   static inline SDL_FPoint pos_;

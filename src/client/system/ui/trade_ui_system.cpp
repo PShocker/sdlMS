@@ -1,11 +1,11 @@
 #include "src/client/system/ui/trade_ui_system.h"
 
+#include "src/client/component/button.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
-#include "src/client/system/ui/button.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 
@@ -68,6 +68,7 @@ void TradeUiSystem::RenderBackgrnd() {
 }
 
 void TradeUiSystem::RenderButton() {
+  components_.clear();
   const static std::array buttons_node = {
       WzResource::ui_->find(u"MapleChat.img/MapleChat/button:claim"),
       WzResource::ui_->find(u"Trade.img/TradingRoom/button:trade"),
@@ -86,14 +87,20 @@ void TradeUiSystem::RenderButton() {
     SDL_FRect rect = buttons_rect[i];
     rect.x += pos_.x;
     rect.y += pos_.y;
-    Button{.node = buttons_node[i],
-           .rect = rect,
-           .enable = true,
-           .focused = CursorGameInstance::cursor_ui_ == Render &&
-                      !CursorGameInstance::modal_overlay_}
-        .Render();
+    Button button{.node = buttons_node[i],
+                  .rect = rect,
+                  .enable = true,
+                  .focused = CursorGameInstance::cursor_ui_ == Render &&
+                             !CursorGameInstance::modal_overlay_};
+    components_.push_back(button);
+    button.Render();
   }
 }
+
+std::vector<Button>& TradeUiSystem::GetComponent() {
+  return components_;
+}
+
 
 bool TradeUiSystem::Render() {
   return true;
@@ -111,14 +118,11 @@ bool TradeUiSystem::EventButton(SDL_Event* event) {
       EventButtonClose,
   };
 
-  for (size_t i = 0; i < buttons_rect.size(); ++i) {
-    auto pos_rect = buttons_rect[i];
-    pos_rect.x += pos_.x;
-    pos_rect.y += pos_.y;
-    if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect)) {
-      buttons_func[i]();
-      return true;
-    }
+  for (size_t i = 0; i < components_.size() && i < buttons_func.size(); ++i) {
+    components_[i].callback = buttons_func[i];
+  }
+  if (DispatchButtonClick(components_, false)) {
+    return true;
   }
   return false;
 }

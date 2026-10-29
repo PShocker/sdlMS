@@ -1,9 +1,12 @@
 #pragma once
 
+#include "src/client/component/button.h"
+
 #include <SDL3/SDL_events.h>
 
 #include <cstdint>
 #include <optional>
+#include <vector>
 
 namespace sdlms {
 
@@ -15,6 +18,7 @@ class SkillUiSystem {
   static void RenderScroll();
   static bool RenderInfo();
   static void RenderButton();
+  static std::vector<Button>& GetComponent();
   static void RenderBook();
   static void RenderPoint();
 
@@ -47,6 +51,8 @@ class SkillUiSystem {
 
   static inline uint8_t active_tab_;
   static inline uint8_t page_;
+
+  static inline std::vector<Button> components_;
 
  public:
   static inline SDL_FPoint pos_;

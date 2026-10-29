@@ -1,5 +1,6 @@
 #include "src/client/system/ui/character_stat_ui_system.h"
 
+#include "src/client/component/button.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
@@ -8,7 +9,6 @@
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
-#include "src/client/system/ui/button.h"
 #include "src/client/system/ui/notice_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
@@ -147,7 +147,12 @@ void CharacterStatUiSystem::RenderRemainAp() {
   Freetype::DrawLine(s2, pos_.x + 90, pos_.y + 258);
 }
 
+std::vector<Button>& CharacterStatUiSystem::GetComponent() {
+  return components_;
+}
+
 void CharacterStatUiSystem::RenderButton() {
+  components_.clear();
   // 构建按钮列表
   std::vector<wz::Node*> nodes = {
       WzResource::ui_->find(u"Basic.img/BtClose"),
@@ -211,6 +216,7 @@ void CharacterStatUiSystem::RenderButton() {
                   .enable = !disable[i],
                   .focused = CursorGameInstance::cursor_ui_ == Render &&
                              !CursorGameInstance::modal_overlay_};
+    components_.push_back(button);
     button.Render();
   }
 }
@@ -459,16 +465,12 @@ bool CharacterStatUiSystem::EventButton(SDL_Event* event) {
     fns.push_back(EventButtonDetailHide);
   }
 
-  for (size_t i = 0; i < buttons_rect.size(); ++i) {
-    auto pos_rect = buttons_rect[i];
-    pos_rect.x += (int)pos_.x;
-    pos_rect.y += (int)pos_.y;
-    if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect)) {
-      fns[i]();
-      return true;
-    }
+  for (size_t i = 0; i < components_.size() && i < fns.size(); ++i) {
+    components_[i].callback = fns[i];
   }
-
+  if (DispatchButtonClick(components_, false)) {
+    return true;
+  }
   return false;
 }
 

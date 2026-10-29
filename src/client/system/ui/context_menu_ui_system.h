@@ -1,10 +1,13 @@
 #pragma once
 
+#include "src/client/component/button.h"
+
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_rect.h>
 
 #include <cstdint>
 #include <string>
+#include <vector>
 
 namespace sdlms {
 
@@ -13,6 +16,7 @@ class ContextMenuUiSystem {
   static SDL_FPoint LoadWh();
   static void RenderBackgrnd();
   static void RenderButton();
+  static std::vector<Button>& GetComponent();
 
   static void EventClose();
   static void EventButtonInfo();
@@ -24,6 +28,8 @@ class ContextMenuUiSystem {
   static void EventButtonChat();
 
   static bool EventButton(SDL_Event* event);
+
+  static inline std::vector<Button> components_;
 
  public:
   static inline uint64_t client_id_;

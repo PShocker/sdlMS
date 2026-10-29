@@ -1,5 +1,7 @@
 #pragma once
 
+#include "src/client/component/button.h"
+
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_rect.h>
 
@@ -7,6 +9,7 @@
 #include <flat_map>
 #include <functional>
 #include <string>
+#include <vector>
 
 namespace sdlms {
 
@@ -18,6 +21,7 @@ class NpcDlgUiSystem {
   static void RenderBackgrnd();
   static void RenderNpc();
   static void RenderButton();
+  static std::vector<Button>& GetComponent();
   static void RenderText();
   static void RenderList();
   static void RenderObtain();
@@ -41,6 +45,8 @@ class NpcDlgUiSystem {
   static void EventButtonUpdate();
 
   static bool StartNextQuest();
+
+  static inline std::vector<Button> components_;
 
  public:
   static bool Render();

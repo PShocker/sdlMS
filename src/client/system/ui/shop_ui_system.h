@@ -1,5 +1,6 @@
 #pragma once
 
+#include "src/client/component/button.h"
 #include "src/client/game/game_item.h"
 #include "src/client/game/game_npc.h"
 #include "src/client/game/game_shop.h"
@@ -10,6 +11,7 @@
 #include <array>
 #include <optional>
 #include <string>
+#include <vector>
 
 namespace sdlms {
 
@@ -17,6 +19,7 @@ class ShopUiSystem {
  private:
   static void RenderBackgrnd();
   static void RenderButton();
+  static std::vector<Button>& GetComponent();
 
   static void RenderItem(std::vector<GameShopItem>& items, int page,
                          SDL_FPoint p);
@@ -50,6 +53,8 @@ class ShopUiSystem {
   static bool EventTab(SDL_Event* event);
 
   static SDL_FPoint LoadWh();
+
+  static inline std::vector<Button> components_;
 
  public:
   static inline std::array<int, 2> pages_;

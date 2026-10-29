@@ -1,5 +1,6 @@
 #include "src/client/system/ui/character_create_ui_system.h"
 
+#include "src/client/component/button.h"
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_save.h"
 #include "src/client/game_instance/audio_game_instance.h"
@@ -11,7 +12,6 @@
 #include "src/client/system/render/character_render_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
-#include "src/client/system/ui/button.h"
 #include "src/client/system/ui/character_choose_ui_system.h"
 #include "src/client/system/ui/login_ui_system.h"
 #include "src/client/system/ui/text_input_ui_system.h"
@@ -37,6 +37,7 @@
 namespace sdlms {
 
 void CharacterCreateUiSystem::RenderButton() {
+  components_.clear();
   const static std::array buttons_nodes = {
       WzResource::ui_->find(u"Login.img/NewChar/button:ok"),
       WzResource::ui_->find(u"Login.img/NewChar/button:cancel"),
@@ -51,13 +52,19 @@ void CharacterCreateUiSystem::RenderButton() {
     SDL_FRect rect = buttons_rect[i];
     rect.x = (int)rect.x;
     rect.y = (int)rect.y;
-    Button{.node = buttons_nodes[i],
-           .rect = rect,
-           .enable = true,
-           .focused = !CursorGameInstance::modal_overlay_}
-        .Render();
+    Button button{.node = buttons_nodes[i],
+                  .rect = rect,
+                  .enable = true,
+                  .focused = !CursorGameInstance::modal_overlay_};
+    components_.push_back(button);
+    button.Render();
   }
 }
+
+std::vector<Button>& CharacterCreateUiSystem::GetComponent() {
+  return components_;
+}
+
 
 SDL_FPoint CharacterCreateUiSystem::LoadPos() {
   SDL_FPoint pos;
@@ -1034,16 +1041,12 @@ bool CharacterCreateUiSystem::EventButton(SDL_Event* event) {
       EventButtonLukDec, EventButtonLukInc, EventButtonBack,
       EventButtonOk,     EventButtonCancel,
   };
-  for (size_t i = 0; i < r.size(); ++i) {
-    auto pos_rect = r[i];
-    pos_rect.x = (int)pos_rect.x;
-    pos_rect.y = (int)pos_rect.y;
-    if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect)) {
-      fns[i]();
-      return false;
-    }
+  for (size_t i = 0; i < components_.size() && i < fns.size(); ++i) {
+    components_[i].callback = fns[i];
   }
-
+  if (DispatchButtonClick(components_, false)) {
+    return false;
+  }
   return false;
 }
 

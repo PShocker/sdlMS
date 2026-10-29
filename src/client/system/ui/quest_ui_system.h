@@ -1,5 +1,6 @@
 #pragma once
 
+#include "src/client/component/button.h"
 #include "src/client/game/game_quest.h"
 
 #include <SDL3/SDL_events.h>
@@ -9,6 +10,7 @@
 #include <flat_set>
 #include <optional>
 #include <string>
+#include <vector>
 
 namespace sdlms {
 
@@ -21,6 +23,7 @@ class QuestUiSystem {
 
   static void RenderBackgrnd();
   static void RenderButton();
+  static std::vector<Button>& GetComponent();
   static void RenderQuests();
   static void RenderQuestDetail();
   static void RenderTab();
@@ -63,6 +66,8 @@ class QuestUiSystem {
   static inline std::optional<SDL_FPoint> drag_;
 
   static inline std::array<bool, 2> vscr_motion_;
+
+  static inline std::vector<Button> components_;
 
  public:
   static void AcceptQuest(const std::u16string& id);

@@ -1,9 +1,12 @@
 #pragma once
 
+#include "src/client/component/button.h"
+
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_rect.h>
 
 #include <optional>
+#include <vector>
 
 namespace sdlms {
 
@@ -12,6 +15,7 @@ class StatusbarMenuUiSystem {
   static SDL_FRect LoadR();
   static void RenderBackgrnd();
   static void RenderButton();
+  static std::vector<Button>& GetComponent();
   static void RenderTitle();
 
   static void EventButtonCc();
@@ -29,6 +33,8 @@ class StatusbarMenuUiSystem {
   static bool EventButton(SDL_Event* event);
 
   static inline int alpha_;
+
+  static inline std::vector<Button> components_;
 
  public:
   enum class MenuEnums {

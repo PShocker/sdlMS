@@ -1,11 +1,11 @@
 #include "src/client/system/ui/statusbar_menu_ui_system.h"
 
+#include "src/client/component/button.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
-#include "src/client/system/ui/button.h"
 #include "src/client/system/ui/character_stat_ui_system.h"
 #include "src/client/system/ui/craft_ui_system.h"
 #include "src/client/system/ui/equip_ui_system.h"
@@ -89,7 +89,12 @@ void StatusbarMenuUiSystem::RenderBackgrnd() {
   SDL_RenderTexture(Window::renderer_, s, nullptr, &pos_rect);
 }
 
+std::vector<Button>& StatusbarMenuUiSystem::GetComponent() {
+  return components_;
+}
+
 void StatusbarMenuUiSystem::RenderButton() {
+  components_.clear();
   auto [x, y, w, h] = LoadR();
 
   std::vector<wz::Node*> buttons_nodes;
@@ -148,6 +153,7 @@ void StatusbarMenuUiSystem::RenderButton() {
                   .focused = CursorGameInstance::cursor_ui_ == Render &&
                              !CursorGameInstance::modal_overlay_,
                   .alpha = static_cast<uint8_t>(alpha_)};
+    components_.push_back(button);
     button.Render();
   }
 }
@@ -301,14 +307,11 @@ bool StatusbarMenuUiSystem::EventButton(SDL_Event* event) {
   }
   auto [x, y, w, h] = LoadR();
 
-  for (size_t i = 0; i < buttons_rect.size(); ++i) {
-    auto pos_rect = buttons_rect[i];
-    pos_rect.x += x;
-    pos_rect.y += y;
-    if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect)) {
-      fns[i]();
-      return true;
-    }
+  for (size_t i = 0; i < components_.size() && i < fns.size(); ++i) {
+    components_[i].callback = fns[i];
+  }
+  if (DispatchButtonClick(components_, false)) {
+    return true;
   }
   return false;
 }

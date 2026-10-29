@@ -1,5 +1,6 @@
 #pragma once
 
+#include "src/client/component/button.h"
 #include "src/client/game/game_item.h"
 
 #include <SDL3/SDL_events.h>
@@ -8,6 +9,7 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+#include <vector>
 
 namespace sdlms {
 
@@ -41,6 +43,7 @@ class EquipUiSystem {
                                 SDL_FPoint slot, EquipMouseIndex i);
   static bool RenderInfo();
   static void RenderButton();
+  static std::vector<Button>& GetComponent();
 
   static SDL_FPoint LoadWh();
 
@@ -61,6 +64,8 @@ class EquipUiSystem {
 
   static inline std::optional<SDL_FPoint> drag_;
   static inline uint8_t active_tab_;
+
+  static inline std::vector<Button> components_;
 
  public:
   static inline std::optional<EquipMouseIndex> mouse_index_;

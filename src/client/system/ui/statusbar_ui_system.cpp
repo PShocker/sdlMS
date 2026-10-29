@@ -1,5 +1,6 @@
 #include "src/client/system/ui/statusbar_ui_system.h"
 
+#include "src/client/component/button.h"
 #include "src/client/game/game_chat.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
@@ -9,7 +10,6 @@
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/system/input/keyboard_input_system.h"
 #include "src/client/system/system.h"
-#include "src/client/system/ui/button.h"
 #include "src/client/system/ui/character_stat_ui_system.h"
 #include "src/client/system/ui/chat_log_ui_system.h"
 #include "src/client/system/ui/equip_ui_system.h"
@@ -373,6 +373,7 @@ void StatusbarUiSystem::RenderCharacterStat() {
 }
 
 void StatusbarUiSystem::RenderButton() {
+  components_.clear();
   static auto cash_shop =
       WzResource::ui_->find(u"StatusBar.img/button:CashShop");
   static auto menu = WzResource::ui_->find(u"StatusBar.img/button:Menu");
@@ -425,14 +426,20 @@ void StatusbarUiSystem::RenderButton() {
     SDL_FRect rect = buttons_rect[i];
     rect.x += base_x;
     rect.y += base_y;
-    Button{.node = buttons_node[i],
-           .rect = rect,
-           .enable = true,
-           .focused = CursorGameInstance::cursor_ui_ == Render &&
-                      !CursorGameInstance::modal_overlay_}
-        .Render();
+    Button button{.node = buttons_node[i],
+                  .rect = rect,
+                  .enable = true,
+                  .focused = CursorGameInstance::cursor_ui_ == Render &&
+                             !CursorGameInstance::modal_overlay_};
+    components_.push_back(button);
+    button.Render();
   }
 }
+
+std::vector<Button>& StatusbarUiSystem::GetComponent() {
+  return components_;
+}
+
 
 void StatusbarUiSystem::RenderChat() {
   auto screen_w = CameraGameInstance::camera_.w;
@@ -622,14 +629,11 @@ bool StatusbarUiSystem::EventButton(SDL_Event* event) {
   auto base_x = (screen_w - w) / 2;
   auto base_y = (screen_h - h);
 
-  for (size_t i = 0; i < buttons_rect.size(); ++i) {
-    auto pos_rect = buttons_rect[i];
-    pos_rect.x += base_x;
-    pos_rect.y += base_y;
-    if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect)) {
-      buttons_func[i]();
-      return true;
-    }
+  for (size_t i = 0; i < components_.size() && i < buttons_func.size(); ++i) {
+    components_[i].callback = buttons_func[i];
+  }
+  if (DispatchButtonClick(components_, false)) {
+    return true;
   }
   return false;
 }

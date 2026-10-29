@@ -1,5 +1,7 @@
 #pragma once
 
+#include "src/client/component/button.h"
+
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_render.h>
@@ -7,6 +9,7 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+#include <vector>
 
 namespace sdlms {
 
@@ -15,6 +18,7 @@ class MinimapUiSystem {
   static void RenderMaxBackgrnd();
   static void RenderMinBackgrnd();
   static void RenderButton();
+  static std::vector<Button>& GetComponent();
   static void RenderNameText();
   static void RenderStreetText();
   static void RenderCanvasLife();
@@ -47,6 +51,8 @@ class MinimapUiSystem {
   static SDL_FPoint LoadWh();
 
   static inline std::optional<SDL_FPoint> drag_;
+
+  static inline std::vector<Button> components_;
 
  public:
   static inline SDL_FPoint pos_ = {0, 0};

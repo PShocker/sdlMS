@@ -1,11 +1,11 @@
 #include "src/client/system/ui/login_ui_system.h"
 
+#include "src/client/component/button.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/trap_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
-#include "src/client/system/ui/button.h"
 #include "src/client/system/ui/character_choose_ui_system.h"
 #include "src/client/system/ui/login_notice_ui_system.h"
 #include "src/client/system/ui/text_input_ui_system.h"
@@ -48,6 +48,7 @@ SDL_FPoint LoginUiSystem::LoadPos() {
 }
 
 void LoginUiSystem::RenderButton() {
+  components_.clear();
   const static std::array buttons_nodes = {
       WzResource::ui_->find(u"Login.img/ClassicIntro/button:login"),
       WzResource::ui_->find(u"Login.img/ClassicIntro/button:login_saved"),
@@ -72,11 +73,19 @@ void LoginUiSystem::RenderButton() {
     SDL_FRect rect = buttons_rect[i];
     rect.x = (int)rect.x;
     rect.y = (int)rect.y;
-    Button{
-        .node = buttons_nodes[i], .rect = rect, .enable = true, .focused = true}
-        .Render();
+    Button button{.node = buttons_nodes[i],
+                  .rect = rect,
+                  .enable = true,
+                  .focused = true};
+    components_.push_back(button);
+    button.Render();
   }
 }
+
+std::vector<Button>& LoginUiSystem::GetComponent() {
+  return components_;
+}
+
 
 void LoginUiSystem::RenderBanner() {
   static auto t = WzResource::LoadTexture(
@@ -334,16 +343,12 @@ bool LoginUiSystem::EventButton(SDL_Event* event) {
   fns = {EventButtonLogin,  EventButtonLoginSave, EventButtonFindId,
          EventButtonFindPw, EventButtonRegister,  EventButtonHomepage,
          EventButtonQuit,   EventButtonBack};
-  for (size_t i = 0; i < r.size(); ++i) {
-    auto pos_rect = r[i];
-    pos_rect.x = (int)pos_rect.x;
-    pos_rect.y = (int)pos_rect.y;
-    if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect)) {
-      fns[i]();
-      return false;
-    }
+  for (size_t i = 0; i < components_.size() && i < fns.size(); ++i) {
+    components_[i].callback = fns[i];
   }
-
+  if (DispatchButtonClick(components_, false)) {
+    return false;
+  }
   return false;
 }
 

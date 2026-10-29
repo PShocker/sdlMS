@@ -1,5 +1,7 @@
 #pragma once
 
+#include "src/client/component/button.h"
+
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_rect.h>
 
@@ -14,6 +16,7 @@ class CharacterStatUiSystem {
   static void RenderText();
   static void RenderRemainAp();
   static void RenderButton();
+  static std::vector<Button>& GetComponent();
   static void RenderDetail();
   static SDL_FPoint LoadWh();
 
@@ -42,6 +45,8 @@ class CharacterStatUiSystem {
   static inline std::optional<SDL_FPoint> drag_;
 
   static inline bool detail_;
+
+  static inline std::vector<Button> components_;
 
  public:
   static inline SDL_FPoint pos_;

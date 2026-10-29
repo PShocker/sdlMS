@@ -1,17 +1,20 @@
 #pragma once
 
+#include "src/client/component/button.h"
 #include "src/client/game/game_input.h"
 
 #include <SDL3/SDL_events.h>
 
 #include <cstdint>
 #include <optional>
+#include <vector>
 
 namespace sdlms {
 
 class KeybindingUiSystem {
  private:
   static void RenderButton();
+  static std::vector<Button>& GetComponent();
   static bool RenderInfo();
 
   static void RenderBackgrnd();
@@ -46,6 +49,8 @@ class KeybindingUiSystem {
 
   static inline std::optional<SDL_FPoint> drag_;
   static inline uint8_t active_tab_;
+
+  static inline std::vector<Button> components_;
 
  public:
   static inline SDL_FPoint pos_;

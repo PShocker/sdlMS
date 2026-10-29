@@ -1,5 +1,6 @@
 #include "src/client/system/ui/notice_ui_system.h"
 
+#include "src/client/component/button.h"
 #include "src/client/game/game_shop.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
@@ -12,7 +13,6 @@
 #include "src/client/system/input/keyboard_input_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
-#include "src/client/system/ui/button.h"
 #include "src/client/system/ui/shop_ui_system.h"
 #include "src/client/system/ui/text_input_ui_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
@@ -95,6 +95,7 @@ void NoticeUiSystem::RenderBackgrnd() {
 }
 
 void NoticeUiSystem::RenderButton() {
+  components_.clear();
   std::vector<wz::Node*> buttons_node = {};
   std::vector<SDL_FRect> buttons_rect = {};
   auto [w, h] = LoadWh();
@@ -134,14 +135,20 @@ void NoticeUiSystem::RenderButton() {
     SDL_FRect rect = buttons_rect[i];
     rect.x += (int)pos_.x;
     rect.y += (int)pos_.y;
-    Button{.node = buttons_node[i],
-           .rect = rect,
-           .enable = true,
-           .focused = CursorGameInstance::cursor_ui_ == Render &&
-                      !CursorGameInstance::modal_overlay_}
-        .Render();
+    Button button{.node = buttons_node[i],
+                  .rect = rect,
+                  .enable = true,
+                  .focused = CursorGameInstance::cursor_ui_ == Render &&
+                             !CursorGameInstance::modal_overlay_};
+    components_.push_back(button);
+    button.Render();
   }
 }
+
+std::vector<Button>& NoticeUiSystem::GetComponent() {
+  return components_;
+}
+
 
 void NoticeUiSystem::RenderText() {
   std::u16string text = u"";
@@ -701,15 +708,11 @@ bool NoticeUiSystem::EventButton(SDL_Event* event) {
       break;
     }
   }
-  for (size_t i = 0; i < buttons_rect.size(); ++i) {
-    auto pos_rect = buttons_rect[i];
-    pos_rect.x += pos_.x;
-    pos_rect.y += pos_.y;
-    if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect)) {
-      func[i]();
-      AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
-      return true;
-    }
+  for (size_t i = 0; i < components_.size() && i < func.size(); ++i) {
+    components_[i].callback = func[i];
+  }
+  if (DispatchButtonClick(components_, true)) {
+    return true;
   }
   return false;
 }

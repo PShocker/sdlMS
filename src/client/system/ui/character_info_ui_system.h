@@ -1,5 +1,6 @@
 #pragma once
 
+#include "src/client/component/button.h"
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_item.h"
 
@@ -18,6 +19,7 @@ class CharacterInfoUiSystem {
  private:
   static void RenderBackgrnd();
   static void RenderButton();
+  static std::vector<Button>& GetComponent();
   static void RenderCharacter();
   static void RenderText();
   static void RenderItems();
@@ -65,6 +67,8 @@ class CharacterInfoUiSystem {
       item_info_;
 
   static inline bool pet_;
+
+  static inline std::vector<Button> components_;
 
  public:
   static inline GameCharacter character_;
