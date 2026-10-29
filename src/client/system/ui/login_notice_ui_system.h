@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/system_instance/login_notice_system_instance.h"
 
 #include <SDL3/SDL_events.h>
@@ -14,12 +14,12 @@ class LoginNoticeUiSystem {
  private:
   static SDL_FPoint LoadPos();
   static void RenderBackgrnd();
-  static void RenderButton();
-  static std::vector<Button>& GetComponent();
+  static void RenderUI();
+  static UIComponents& GetComponent();
 
   static bool EventButton(SDL_Event* event);
 
-  static inline std::vector<Button> components_;
+  static inline UIComponents components_;
 
  public:
   static void EventClose();

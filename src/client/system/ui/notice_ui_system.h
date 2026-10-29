@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/game/game_item.h"
 #include "src/client/system/ui/component/text_input.h"
 
@@ -14,8 +14,8 @@ namespace sdlms {
 class NoticeUiSystem {
  private:
   static void RenderBackgrnd();
-  static void RenderButton();
-  static std::vector<Button>& GetComponent();
+  static void RenderUI();
+  static UIComponents& GetComponent();
   static void RenderText();
   static void RenderInput();
 
@@ -41,7 +41,7 @@ class NoticeUiSystem {
 
   static void EventMotionBtAudio(SDL_Event* event);
 
-  static inline std::vector<Button> components_;
+  static inline UIComponents components_;
 
  public:
   enum class NoticeEnum {

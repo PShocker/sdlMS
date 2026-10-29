@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/game/game_chat.h"
 #include "src/client/game/game_popup_tip.h"
 #include "src/client/system/ui/component/text_input.h"
@@ -22,7 +22,7 @@ class StatusbarUiSystem {
   static void RenderHmAlert();
   static void RenderGaugeText();
   static void RenderBackgrnd();
-  static void RenderButton();
+  static void RenderUI();
   static void RenderCharacterStat();
   static void RenderChat();
   static void RenderBackChat();
@@ -48,7 +48,7 @@ class StatusbarUiSystem {
   static void EventButtonQuickslot();
   static void EventButtonChatlog();
 
-  static inline std::vector<Button> components_;
+  static inline UIComponents components_;
 
  public:
   static inline std::optional<GameChatEnum> chat_type_;
@@ -59,7 +59,7 @@ class StatusbarUiSystem {
   static bool Event(SDL_Event* event);
 
   static bool CursorIn();
-  static std::vector<Button>& GetComponent();
+  static UIComponents& GetComponent();
 };
 
 }  // namespace sdlms

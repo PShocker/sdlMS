@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/game/game_quest.h"
 
 #include <SDL3/SDL_events.h>
@@ -22,15 +22,12 @@ class QuestUiSystem {
   static std::u16string LoadDetailStr();
 
   static void RenderBackgrnd();
-  static void RenderButton();
-  static std::vector<Button>& GetComponent();
+  static void RenderUI();
+  static UIComponents& GetComponent();
   static void RenderQuests();
   static void RenderQuestDetail();
-  static void RenderTab();
   static void RenderAreaName(int i, int y);
   static void RenderQuest(GameQuest& q, int y);
-  static void RenderVscr();
-  static void RenderDetailVscr();
   static void RenderDetailAvaliable();
   static void RenderDetailProgress();
   static void RenderDetailSummary();
@@ -67,7 +64,7 @@ class QuestUiSystem {
 
   static inline std::array<bool, 2> vscr_motion_;
 
-  static inline std::vector<Button> components_;
+  static inline UIComponents components_;
 
  public:
   static void AcceptQuest(const std::u16string& id);

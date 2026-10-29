@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/system/ui/component/combo_box.h"
 #include "src/client/system/ui/component/text_input.h"
 
@@ -15,9 +15,8 @@ namespace sdlms {
 class OptionUiSystem {
  private:
   static void RenderBackgrnd();
-  static void RenderButton();
-  static std::vector<Button>& GetComponent();
-  static void RenderTab();
+  static void RenderUI();
+  static UIComponents& GetComponent();
   static void RenderOption();
 
   static bool EventButton(SDL_Event* event);
@@ -35,7 +34,7 @@ class OptionUiSystem {
 
   static inline std::optional<SDL_FPoint> drag_;
 
-  static inline std::vector<Button> components_;
+  static inline UIComponents components_;
 
  public:
   // sound

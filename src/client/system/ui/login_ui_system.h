@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/system/ui/component/text_input.h"
 
 #include <SDL3/SDL_events.h>
@@ -19,8 +19,8 @@ class LoginUiSystem {
 
   static SDL_FPoint LoadPos();
   static void RenderBackgrnd();
-  static void RenderButton();
-  static std::vector<Button>& GetComponent();
+  static void RenderUI();
+  static UIComponents& GetComponent();
   static void RenderEffect();
   static void RenderBanner();
   static void RenderUsername();
@@ -36,7 +36,7 @@ class LoginUiSystem {
 
   static bool EventButton(SDL_Event* event);
 
-  static inline std::vector<Button> components_;
+  static inline UIComponents components_;
 
  public:
   static inline uv_pipe_t g_pipe_;

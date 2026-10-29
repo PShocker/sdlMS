@@ -1,6 +1,5 @@
 #include "src/client/system/ui/component/button.h"
 
-#include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 
@@ -41,21 +40,5 @@ void Button::Render() {
   SDL_RenderTexture(Window::renderer_, texture, nullptr, &dst);
 }
 
-bool DispatchButtonClick(std::vector<Button>& components, bool play_sound) {
-  for (Button& button : components) {
-    if (button.callback == nullptr || !button.enable || !button.focused) {
-      continue;
-    }
-    if (!button.Hover()) {
-      continue;
-    }
-    if (play_sound) {
-      AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
-    }
-    button.callback();
-    return true;
-  }
-  return false;
-}
 
 }  // namespace sdlms

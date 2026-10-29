@@ -12,7 +12,7 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/character_choose_ui_system.h"
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/system/ui/login_ui_system.h"
 #include "src/client/system/ui/component/text_input.h"
 #include "src/client/system_instance/character_choose_system_instance.h"
@@ -36,7 +36,7 @@
 
 namespace sdlms {
 
-void CharacterCreateUiSystem::RenderButton() {
+void CharacterCreateUiSystem::RenderUI() {
   components_.clear();
   const static std::array buttons_nodes = {
       WzResource::ui_->find(u"Login.img/NewChar/button:ok"),
@@ -61,7 +61,7 @@ void CharacterCreateUiSystem::RenderButton() {
   }
 }
 
-std::vector<Button>& CharacterCreateUiSystem::GetComponent() {
+UIComponents& CharacterCreateUiSystem::GetComponent() {
   return components_;
 }
 
@@ -448,12 +448,12 @@ void CharacterCreateUiSystem::RenderCustom() {
 }
 
 void CharacterCreateUiSystem::RenderName() {
-  name_.Render(5, 5);
+  name_.Render();
 }
 
 bool CharacterCreateUiSystem::Render() {
   RenderStat();
-  RenderButton();
+  RenderUI();
   RenderCharacter();
   RenderCustom();
   RenderBackgrnd();

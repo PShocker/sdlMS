@@ -61,6 +61,7 @@ set(SDLMS_CLIENT_SOURCES
   src/client/system/ui/component/slider.cpp
   src/client/system/ui/component/tab.cpp
   src/client/system/ui/component/text_input.cpp
+  src/client/system/ui/component/ui_component.cpp
   src/client/game_instance/audio_game_instance.cpp
   src/client/game_instance/backgrnd_game_instance.cpp
   src/client/game_instance/ball_game_instance.cpp

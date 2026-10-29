@@ -6,7 +6,7 @@
 #include "src/client/game_instance/storage_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/system/ui/component/tab.h"
 #include "src/client/system/ui/notice_ui_system.h"
 #include "src/client/system/ui/package_ui_system.h"
@@ -80,14 +80,12 @@ void StorageUiSystem::RenderItems() {
 
 void StorageUiSystem::RenderVscr() {}
 
-void StorageUiSystem::RenderButton() {
-  for (Button& button : GetComponent()) {
-    button.Render();
-  }
+void StorageUiSystem::RenderUI() {
+  RenderComponents(GetComponent());
 }
 
 
-std::vector<Button>& StorageUiSystem::GetComponent() {
+UIComponents& StorageUiSystem::GetComponent() {
   const static std::array<Button::Callback, 4> kCallbacks = {
       EventButtonGet,
       EventButtonPut,
@@ -119,7 +117,7 @@ std::vector<Button>& StorageUiSystem::GetComponent() {
                              !CursorGameInstance::modal_overlay_};
     components_.push_back(button);
     if (i < kCallbacks.size()) {
-      components_.back().callback = kCallbacks[i];
+      std::get<Button>(components_.back()).callback = kCallbacks[i];
     }
   }
   return components_;

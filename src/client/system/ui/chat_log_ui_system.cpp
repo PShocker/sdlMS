@@ -27,7 +27,9 @@ void ChatLogUiSystem::RenderVscr() {
   auto base_y = (screen_h - 73);
   bool top = cursor_in == Render && !CursorGameInstance::modal_overlay_;
   Scroll scroll(5, size, length, 1);
-  scroll.Render(base_x + 570, base_y - 75, top);
+  scroll.pos = {base_x + 570, base_y - 75};
+  scroll.top = top;
+  scroll.Render();
   return;
 }
 

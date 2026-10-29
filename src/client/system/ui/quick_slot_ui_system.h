@@ -13,7 +13,7 @@ namespace sdlms {
 class QuickSlotUiSystem {
  private:
   static void RenderQuickSlot();
-  static void RenderButton();
+  static void RenderUI();
 
   static bool EventButton(SDL_Event* event);
   static bool EventClickQuickslot(SDL_Event* event);

@@ -8,7 +8,7 @@
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/system/ui/notice_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
@@ -147,7 +147,7 @@ void CharacterStatUiSystem::RenderRemainAp() {
   Freetype::DrawLine(s2, pos_.x + 90, pos_.y + 258);
 }
 
-std::vector<Button>& CharacterStatUiSystem::GetComponent() {
+UIComponents& CharacterStatUiSystem::GetComponent() {
   components_.clear();
   // 构建按钮列表
   std::vector<wz::Node*> nodes = {
@@ -235,10 +235,8 @@ std::vector<Button>& CharacterStatUiSystem::GetComponent() {
   return components_;
 }
 
-void CharacterStatUiSystem::RenderButton() {
-  for (Button& button : GetComponent()) {
-    button.Render();
-  }
+void CharacterStatUiSystem::RenderUI() {
+  RenderComponents(GetComponent());
 }
 
 void CharacterStatUiSystem::RenderDetail() {
@@ -321,7 +319,7 @@ bool CharacterStatUiSystem::Render() {
   if (detail_) {
     RenderDetail();
   }
-  RenderButton();
+  RenderUI();
   return true;
 }
 

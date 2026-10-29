@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/game/game_item.h"
 
 #include <SDL3/SDL_events.h>
@@ -33,7 +33,6 @@ class EquipUiSystem {
  private:
   static void RenderBackgrnd();
   static void RenderBackgrnd2();
-  static void RenderTab();
   static void RenderEquip();
   static void RenderDeco();
   static void RenderDisableTexture(SDL_FPoint slot);
@@ -42,8 +41,8 @@ class EquipUiSystem {
   static void RenderDecoTexture(std::optional<GameDecoItem>& deco,
                                 SDL_FPoint slot, EquipMouseIndex i);
   static bool RenderInfo();
-  static void RenderButton();
-  static std::vector<Button>& GetComponent();
+  static void RenderUI();
+  static UIComponents& GetComponent();
 
   static SDL_FPoint LoadWh();
 
@@ -65,7 +64,7 @@ class EquipUiSystem {
   static inline std::optional<SDL_FPoint> drag_;
   static inline uint8_t active_tab_;
 
-  static inline std::vector<Button> components_;
+  static inline UIComponents components_;
 
  public:
   static inline std::optional<EquipMouseIndex> mouse_index_;

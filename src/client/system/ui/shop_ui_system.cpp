@@ -17,7 +17,7 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/render/npc_render_system.h"
 #include "src/client/system/system.h"
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/system/ui/notice_ui_system.h"
 #include "src/client/system/ui/package_ui_system.h"
 #include "src/client/system/ui/component/scroll.h"
@@ -176,37 +176,11 @@ void ShopUiSystem::RenderItems() {
   }
 }
 
-void ShopUiSystem::RenderVscr() {
-  const uint32_t length = 235;
-  auto x = (int)pos_.x + 212;
-  auto y = (int)pos_.y + 129;
-  auto cursor_in = CursorGameInstance::cursor_ui_;
-  auto items_size = 0;
-  if (active_tab_[0] == 0) {
-    auto& items = shop_->items;
-    items_size = items.size();
-  } else {
-    auto& items = ShopGameInstance::must_;
-    items_size = items.size();
-  }
-  bool top =
-      cursor_in == Render && CursorGameInstance::modal_overlay_ == Render;
-  Scroll scroll(pages_[0], items_size, length, 6);
-  scroll.Render(x, y, top);
-  x += 230;
-  auto pkg_size = ShopGameInstance::LoadPkgItems(active_tab_[1]).size();
-  Scroll scroll1(pages_[1], pkg_size, length, 6);
-  scroll1.Render(x, y, top);
-  return;
+void ShopUiSystem::RenderUI() {
+  RenderComponents(GetComponent());
 }
 
-void ShopUiSystem::RenderButton() {
-  for (Button& button : GetComponent()) {
-    button.Render();
-  }
-}
-
-std::vector<Button>& ShopUiSystem::GetComponent() {
+UIComponents& ShopUiSystem::GetComponent() {
   components_.clear();
   const static std::array buttons_node = {
       WzResource::ui_->find(u"UIShop.img/Shop/BtBuy"),
@@ -229,11 +203,7 @@ std::vector<Button>& ShopUiSystem::GetComponent() {
                .focused = CursorGameInstance::cursor_ui_ == Render &&
                           !CursorGameInstance::modal_overlay_});
   }
-  return components_;
-}
 
-
-void ShopUiSystem::RenderTab() {
   const static auto tab_node0 =
       WzResource::ui_->find(u"UIShop.img/Shop/TabBuy");
   std::vector<SDL_FRect> rects0;
@@ -241,9 +211,8 @@ void ShopUiSystem::RenderTab() {
     rects0.push_back(SDL_FRect{static_cast<float>(int(pos_.x + 7 + i * 57)),
                                static_cast<float>(int(pos_.y + 96)), 57, 21});
   }
-  Tab tab0{tab_node0, u"enabled", u"disabled", rects0,
-           static_cast<uint8_t>(active_tab_[0])};
-  tab0.Render();
+  components_.push_back(Tab{tab_node0, u"enabled", u"disabled", rects0,
+                            static_cast<uint8_t>(active_tab_[0])});
 
   const static auto tab_node1 =
       WzResource::ui_->find(u"UIShop.img/Shop/TabSell");
@@ -252,10 +221,36 @@ void ShopUiSystem::RenderTab() {
     rects1.push_back(SDL_FRect{static_cast<float>(int(pos_.x + 237 + i * 44)),
                                static_cast<float>(int(pos_.y + 96)), 44, 21});
   }
-  Tab tab1{tab_node1, u"enabled", u"disabled", rects1,
-           static_cast<uint8_t>(active_tab_[1])};
-  tab1.Render();
+  components_.push_back(Tab{tab_node1, u"enabled", u"disabled", rects1,
+                            static_cast<uint8_t>(active_tab_[1])});
+
+  const uint32_t vscr_length = 235;
+  auto vscr_x = (int)pos_.x + 212;
+  auto vscr_y = (int)pos_.y + 129;
+  auto cursor_in = CursorGameInstance::cursor_ui_;
+  auto items_size = 0;
+  if (active_tab_[0] == 0) {
+    auto& items = shop_->items;
+    items_size = items.size();
+  } else {
+    auto& items = ShopGameInstance::must_;
+    items_size = items.size();
+  }
+  bool top =
+      cursor_in == Render && CursorGameInstance::modal_overlay_ == Render;
+  Scroll scroll(pages_[0], items_size, vscr_length, 6);
+  scroll.pos = {static_cast<float>(vscr_x), static_cast<float>(vscr_y)};
+  scroll.top = top;
+  components_.push_back(scroll);
+  vscr_x += 230;
+  auto pkg_size = ShopGameInstance::LoadPkgItems(active_tab_[1]).size();
+  Scroll scroll1(pages_[1], pkg_size, vscr_length, 6);
+  scroll1.pos = {static_cast<float>(vscr_x), static_cast<float>(vscr_y)};
+  scroll1.top = top;
+  components_.push_back(scroll1);
+  return components_;
 }
+
 
 void ShopUiSystem::RenderActiveItem() {
   static auto texture = WzResource::LoadTexture(
@@ -349,13 +344,11 @@ void ShopUiSystem::RenderMeso() {
 
 bool ShopUiSystem::Render() {
   RenderBackgrnd();
-  RenderButton();
-  RenderTab();
+  RenderUI();
   RenderActiveItem();
   RenderNpc();
   RenderAvatar();
   RenderMeso();
-  RenderVscr();
   RenderPkgItems();
   RenderItems();
   return true;

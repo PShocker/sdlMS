@@ -9,7 +9,7 @@
 #include "src/client/system/input/keyboard_input_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/system/ui/component/tab.h"
 #include "src/client/system/ui/quick_slot_ui_system.h"
 #include "src/client/system/ui/tooltip_ui_system.h"
@@ -191,7 +191,7 @@ void KeybindingUiSystem::RenderBackgrndKey() {
       {SDL_SCANCODE_F11, WzResource::LoadTexture(keys->get_child(u"87"))},
       {SDL_SCANCODE_F12, WzResource::LoadTexture(keys->get_child(u"88"))},
 
-      // 以下特殊按键的映射可能需要根据实际 SDL3 定义调整
+      // 以下特殊按键的映射可能需要根据实�?SDL3 定义调整
       {SDL_SCANCODE_HOME,
        WzResource::LoadTexture(keys->get_child(u"71"))},  // Hm
       {SDL_SCANCODE_PAGEUP,
@@ -251,18 +251,6 @@ void KeybindingUiSystem::RenderBackgrnd() {
   return;
 }
 
-void KeybindingUiSystem::RenderTab() {
-  static auto node = WzResource::ui_->find(u"KeyBindings.img/tab:kind");
-  std::vector<SDL_FRect> rects;
-  for (uint8_t i = 0; i < 2; i++) {
-    rects.push_back(
-        SDL_FRect{static_cast<float>(int(pos_.x) + 9 + 33 * i),
-                  static_cast<float>(int(pos_.y) + 24), 33, 19});
-  }
-  Tab tab{node, u"selected", u"normal", rects, active_tab_};
-  tab.Render();
-}
-
 void KeybindingUiSystem::RenderBackgrnd2() {
   static auto backgrnd2 = WzResource::LoadTexture(
       WzResource::ui_->find(u"KeyBindings.img/backgrnd_keyboard"));
@@ -277,14 +265,12 @@ void KeybindingUiSystem::RenderBackgrnd2() {
   return;
 }
 
-void KeybindingUiSystem::RenderButton() {
-  for (Button& button : GetComponent()) {
-    button.Render();
-  }
+void KeybindingUiSystem::RenderUI() {
+  RenderComponents(GetComponent());
 }
 
 
-std::vector<Button>& KeybindingUiSystem::GetComponent() {
+UIComponents& KeybindingUiSystem::GetComponent() {
   const static std::array<Button::Callback, 9> kCallbacks = {
       EventButtonClose,     EventButtonDefault,  EventButtonDelete,
       EventButtonQuickSlot, EventButtonPrePage1, EventButtonPrePage2,
@@ -332,9 +318,19 @@ std::vector<Button>& KeybindingUiSystem::GetComponent() {
                              !CursorGameInstance::modal_overlay_};
     components_.push_back(button);
     if (i < kCallbacks.size()) {
-      components_.back().callback = kCallbacks[i];
+      std::get<Button>(components_.back()).callback = kCallbacks[i];
     }
   }
+
+  static auto tab_node = WzResource::ui_->find(u"KeyBindings.img/tab:kind");
+  std::vector<SDL_FRect> tab_rects;
+  for (uint8_t i = 0; i < 2; i++) {
+    tab_rects.push_back(
+        SDL_FRect{static_cast<float>(int(pos_.x) + 9 + 33 * i),
+                  static_cast<float>(int(pos_.y) + 24), 33, 19});
+  }
+  components_.push_back(
+      Tab{tab_node, u"selected", u"normal", tab_rects, active_tab_});
   return components_;
 }
 
@@ -449,8 +445,7 @@ void KeybindingUiSystem::RenderRemainKey() {
 bool KeybindingUiSystem::Render() {
   RenderBackgrnd();
   RenderBackgrnd2();
-  RenderButton();
-  RenderTab();
+  RenderUI();
   RenderBackgrndKey();
   RenderRemainKey();
 
@@ -525,14 +520,7 @@ void KeybindingUiSystem::EventButtonUndo() {
 
 void KeybindingUiSystem::EventMotionBtAudio(SDL_Event* event) {
   static int8_t bt_audio = -1;
-  int8_t bt_in = -1;
-  auto& components = GetComponent();
-  for (size_t i = 0; i < components.size(); ++i) {
-    if (components[i].Hover()) {
-      bt_in = static_cast<int8_t>(i);
-      break;
-    }
-  }
+  int8_t bt_in = static_cast<int8_t>(ButtonHoverIndex(GetComponent()));
   if (bt_in != -1 && bt_audio != bt_in) {
     AudioGameInstance::LoadAudio(u"UI.img/BtMouseOver", 0);
   }

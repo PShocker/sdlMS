@@ -17,7 +17,7 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/render/npc_render_system.h"
 #include "src/client/system/system.h"
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/system/ui/notice_ui_system.h"
 #include "src/client/system/ui/quest_alarm_ui_system.h"
 #include "src/client/system/ui/quest_ui_system.h"
@@ -113,13 +113,11 @@ void NpcDlgUiSystem::RenderNpc() {
   Freetype::LoadAligned(false);
 }
 
-void NpcDlgUiSystem::RenderButton() {
-  for (Button& button : GetComponent()) {
-    button.Render();
-  }
+void NpcDlgUiSystem::RenderUI() {
+  RenderComponents(GetComponent());
 }
 
-std::vector<Button>& NpcDlgUiSystem::GetComponent() {
+UIComponents& NpcDlgUiSystem::GetComponent() {
   components_.clear();
   auto [w, h] = LoadWh();
   std::vector<wz::Node*> buttons_node = {
@@ -418,7 +416,7 @@ void NpcDlgUiSystem::RenderObtain() {
 bool NpcDlgUiSystem::Render() {
   RenderBackgrnd();
   RenderNpc();
-  RenderButton();
+  RenderUI();
   RenderText();
   RenderList();
   RenderObtain();
@@ -856,14 +854,7 @@ bool NpcDlgUiSystem::CursorIn() {
 
 void NpcDlgUiSystem::EventMotionBtAudio(SDL_Event* event) {
   static int8_t bt_audio = -1;
-  int8_t bt_in = -1;
-  auto& components = GetComponent();
-  for (size_t i = 0; i < components.size(); ++i) {
-    if (components[i].Hover()) {
-      bt_in = static_cast<int8_t>(i);
-      break;
-    }
-  }
+  int8_t bt_in = static_cast<int8_t>(ButtonHoverIndex(GetComponent()));
   if (bt_in != -1 && bt_audio != bt_in) {
     AudioGameInstance::LoadAudio(u"UI.img/BtMouseOver", 0);
   }

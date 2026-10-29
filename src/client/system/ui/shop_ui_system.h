@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/game/game_item.h"
 #include "src/client/game/game_npc.h"
 #include "src/client/game/game_shop.h"
@@ -18,15 +18,13 @@ namespace sdlms {
 class ShopUiSystem {
  private:
   static void RenderBackgrnd();
-  static void RenderButton();
-  static std::vector<Button>& GetComponent();
+  static void RenderUI();
+  static UIComponents& GetComponent();
 
   static void RenderItem(std::vector<GameShopItem>& items, int page,
                          SDL_FPoint p);
 
   static void RenderItems();
-  static void RenderTab();
-  static void RenderVscr();
   static void RenderMeso();
 
   static void RenderNpc();
@@ -54,7 +52,7 @@ class ShopUiSystem {
 
   static SDL_FPoint LoadWh();
 
-  static inline std::vector<Button> components_;
+  static inline UIComponents components_;
 
  public:
   static inline std::array<int, 2> pages_;

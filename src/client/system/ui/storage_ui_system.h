@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/game/game_item.h"
 
 #include <SDL3/SDL_events.h>
@@ -23,8 +23,8 @@ class StorageUiSystem {
   static SDL_FPoint LoadWh();
 
   static void RenderBackgrnd();
-  static void RenderButton();
-  static std::vector<Button>& GetComponent();
+  static void RenderUI();
+  static UIComponents& GetComponent();
   static void RenderTab();
 
   static void RenderItems();
@@ -43,7 +43,7 @@ class StorageUiSystem {
   static inline int active_tab_;
   static inline std::array<uint16_t, 2> page_;
 
-  static inline std::vector<Button> components_;
+  static inline UIComponents components_;
 
  public:
   static inline std::u16string npc_id_;

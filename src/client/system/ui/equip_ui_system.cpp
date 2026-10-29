@@ -10,7 +10,7 @@
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/system/ui/component/tab.h"
 #include "src/client/system/ui/tooltip_ui_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
@@ -191,18 +191,6 @@ bool EquipUiSystem::RenderInfo() {
   return true;
 }
 
-void EquipUiSystem::RenderTab() {
-  static auto node = WzResource::ui_->find(u"Equipment.img/tab:mainTab");
-  std::vector<SDL_FRect> rects;
-  for (uint8_t i = 0; i < 2; i++) {
-    rects.push_back(
-        SDL_FRect{static_cast<float>(int(pos_.x) + 5 + 33 * i),
-                  static_cast<float>(int(pos_.y) + 26), 33, 19});
-  }
-  Tab tab{node, u"selected", u"normal", rects, active_tab_};
-  tab.Render();
-}
-
 void EquipUiSystem::RenderBackgrnd2() {
   const SDL_FPoint lt{4, 45};
   if (active_tab_ == 0) {
@@ -228,14 +216,12 @@ void EquipUiSystem::RenderBackgrnd2() {
   }
 }
 
-void EquipUiSystem::RenderButton() {
-  for (Button& button : GetComponent()) {
-    button.Render();
-  }
+void EquipUiSystem::RenderUI() {
+  RenderComponents(GetComponent());
 }
 
 
-std::vector<Button>& EquipUiSystem::GetComponent() {
+UIComponents& EquipUiSystem::GetComponent() {
   const static std::array<Button::Callback, 1> kCallbacks = {
       EventClose,
   };
@@ -262,9 +248,19 @@ std::vector<Button>& EquipUiSystem::GetComponent() {
                              !CursorGameInstance::modal_overlay_};
     components_.push_back(button);
     if (i < kCallbacks.size()) {
-      components_.back().callback = kCallbacks[i];
+      std::get<Button>(components_.back()).callback = kCallbacks[i];
     }
   }
+
+  static auto tab_node = WzResource::ui_->find(u"Equipment.img/tab:mainTab");
+  std::vector<SDL_FRect> tab_rects;
+  for (uint8_t i = 0; i < 2; i++) {
+    tab_rects.push_back(
+        SDL_FRect{static_cast<float>(int(pos_.x) + 5 + 33 * i),
+                  static_cast<float>(int(pos_.y) + 26), 33, 19});
+  }
+  components_.push_back(
+      Tab{tab_node, u"selected", u"normal", tab_rects, active_tab_});
   return components_;
 }
 
@@ -272,8 +268,7 @@ std::vector<Button>& EquipUiSystem::GetComponent() {
 bool EquipUiSystem::Render() {
   RenderBackgrnd();
   RenderBackgrnd2();
-  RenderTab();
-  RenderButton();
+  RenderUI();
 
   if (active_tab_ == 0) {
     RenderEquip();
@@ -493,14 +488,7 @@ void EquipUiSystem::EventMotion(SDL_Event* event) {
 
 void EquipUiSystem::EventMotionBtAudio(SDL_Event* event) {
   static int8_t bt_audio = -1;
-  int8_t bt_in = -1;
-  auto& components = GetComponent();
-  for (size_t i = 0; i < components.size(); ++i) {
-    if (components[i].Hover()) {
-      bt_in = static_cast<int8_t>(i);
-      break;
-    }
-  }
+  int8_t bt_in = static_cast<int8_t>(ButtonHoverIndex(GetComponent()));
   if (bt_in != -1 && bt_audio != bt_in) {
     AudioGameInstance::LoadAudio(u"UI.img/BtMouseOver", 0);
   }

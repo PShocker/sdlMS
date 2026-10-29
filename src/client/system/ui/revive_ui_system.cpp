@@ -10,7 +10,7 @@
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
@@ -28,14 +28,12 @@ void ReviveUiSystem::RenderBackgrnd() {
   SDL_RenderTexture(Window::renderer_, texture, nullptr, &pos_rect);
 }
 
-void ReviveUiSystem::RenderButton() {
-  for (Button& button : GetComponent()) {
-    button.Render();
-  }
+void ReviveUiSystem::RenderUI() {
+  RenderComponents(GetComponent());
 }
 
 
-std::vector<Button>& ReviveUiSystem::GetComponent() {
+UIComponents& ReviveUiSystem::GetComponent() {
   const static std::array<Button::Callback, 1> kCallbacks = {
       EventButtonOk,
   };
@@ -58,7 +56,7 @@ std::vector<Button>& ReviveUiSystem::GetComponent() {
                              !CursorGameInstance::modal_overlay_};
     components_.push_back(button);
     if (i < kCallbacks.size()) {
-      components_.back().callback = kCallbacks[i];
+      std::get<Button>(components_.back()).callback = kCallbacks[i];
     }
   }
   return components_;
@@ -67,7 +65,7 @@ std::vector<Button>& ReviveUiSystem::GetComponent() {
 
 bool ReviveUiSystem::Render() {
   RenderBackgrnd();
-  RenderButton();
+  RenderUI();
   return true;
 }
 
@@ -112,14 +110,7 @@ bool ReviveUiSystem::CursorIn() {
 
 void ReviveUiSystem::EventMotionBtAudio(SDL_Event* event) {
   static int8_t bt_audio = -1;
-  int8_t bt_in = -1;
-  auto& components = GetComponent();
-  for (size_t i = 0; i < components.size(); ++i) {
-    if (components[i].Hover()) {
-      bt_in = static_cast<int8_t>(i);
-      break;
-    }
-  }
+  int8_t bt_in = static_cast<int8_t>(ButtonHoverIndex(GetComponent()));
   if (bt_in != -1 && bt_audio != bt_in) {
     AudioGameInstance::LoadAudio(u"UI.img/BtMouseOver", 0);
   }

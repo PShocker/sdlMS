@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/game/game_input.h"
 
 #include <SDL3/SDL_events.h>
@@ -13,14 +13,13 @@ namespace sdlms {
 
 class KeybindingUiSystem {
  private:
-  static void RenderButton();
-  static std::vector<Button>& GetComponent();
+  static void RenderUI();
+  static UIComponents& GetComponent();
   static bool RenderInfo();
 
   static void RenderBackgrnd();
   static void RenderBackgrnd2();
   static void RenderBackgrndKey();
-  static void RenderTab();
   static void RenderRemainKey();
   static SDL_FPoint LoadWh();
   static void EventTop();
@@ -50,7 +49,7 @@ class KeybindingUiSystem {
   static inline std::optional<SDL_FPoint> drag_;
   static inline uint8_t active_tab_;
 
-  static inline std::vector<Button> components_;
+  static inline UIComponents components_;
 
  public:
   static inline SDL_FPoint pos_;

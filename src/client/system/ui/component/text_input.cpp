@@ -29,15 +29,15 @@ void TextInput::Active() {
   }
 }
 
-void TextInput::Render(int x, int y) const {
+void TextInput::Render() const {
   // ============================================================
   // 1. 基础设置和坐标计算
   // ============================================================
   Freetype::LoadSize(font_size);
 
   const float line_height = Freetype::LoadLh();
-  const float rect_x = static_cast<float>(r.x + x);
-  const float rect_y = static_cast<float>(r.y + y);
+  const float rect_x = static_cast<float>(r.x + static_cast<int>(pos.x));
+  const float rect_y = static_cast<float>(r.y + static_cast<int>(pos.y));
   const float max_width = static_cast<float>(r.w);
 
   // ============================================================

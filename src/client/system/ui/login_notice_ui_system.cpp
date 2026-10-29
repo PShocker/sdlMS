@@ -3,7 +3,7 @@
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/system/system.h"
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 
@@ -118,14 +118,12 @@ void LoginNoticeUiSystem::RenderBackgrnd() {
   }
 }
 
-void LoginNoticeUiSystem::RenderButton() {
-  for (Button& button : GetComponent()) {
-    button.Render();
-  }
+void LoginNoticeUiSystem::RenderUI() {
+  RenderComponents(GetComponent());
 }
 
 
-std::vector<Button>& LoginNoticeUiSystem::GetComponent() {
+UIComponents& LoginNoticeUiSystem::GetComponent() {
   components_.clear();
   const auto w = 1366;
   const auto h = 768;
@@ -181,8 +179,8 @@ std::vector<Button>& LoginNoticeUiSystem::GetComponent() {
       break;
     }
     case LoginNoticeSystemInstance::NoticeType::kCharacterDelete: {
-      components_[0].callback = fn_;
-      components_[1].callback = EventClose;
+      std::get<Button>(components_[0]).callback = fn_;
+      std::get<Button>(components_[1]).callback = EventClose;
       break;
     }
     default: {
@@ -196,7 +194,7 @@ std::vector<Button>& LoginNoticeUiSystem::GetComponent() {
 
 bool LoginNoticeUiSystem::Render() {
   RenderBackgrnd();
-  RenderButton();
+  RenderUI();
   return true;
 }
 

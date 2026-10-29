@@ -9,7 +9,7 @@
 #include "src/client/system/render/character_render_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/system/ui/component/scroll.h"
 #include "src/client/system/ui/tooltip_ui_system.h"
 #include "src/client/window/window.h"
@@ -34,22 +34,6 @@ SDL_FPoint CharacterInfoUiSystem::LoadWh() {
 }
 
 const static SDL_FPoint item_lt{316, 0};
-
-void CharacterInfoUiSystem::RenderScroll() {
-  if (!item_) {
-    return;
-  }
-  const SDL_FPoint lt{225 + item_lt.x, 31 + item_lt.y};
-  const uint32_t length = 115;
-  auto v = EquipGameInstance::LoadEquips(character_).size();
-  auto v2 = EquipGameInstance::LoadDecos(character_).size();
-  auto size = v + v2;
-  auto cursor_in = CursorGameInstance::cursor_ui_;
-  bool top = cursor_in == Render && !CursorGameInstance::modal_overlay_;
-  Scroll scroll(item_page_, size, length, 3);
-  scroll.Render((int)pos_.x + lt.x, (int)pos_.y + lt.y, top);
-  return;
-}
 
 void CharacterInfoUiSystem::RenderBackgrnd() {
   static auto backgrnd = WzResource::LoadTexture(
@@ -85,13 +69,11 @@ void CharacterInfoUiSystem::RenderBackgrnd() {
   }
 }
 
-void CharacterInfoUiSystem::RenderButton() {
-  for (Button& button : GetComponent()) {
-    button.Render();
-  }
+void CharacterInfoUiSystem::RenderUI() {
+  RenderComponents(GetComponent());
 }
 
-std::vector<Button>& CharacterInfoUiSystem::GetComponent() {
+UIComponents& CharacterInfoUiSystem::GetComponent() {
   components_.clear();
   std::vector<wz::Node*> buttons_nodes = {
       WzResource::ui_->find(u"CharacterInfo.img/RemoteInfo/button:party"),
@@ -141,6 +123,21 @@ std::vector<Button>& CharacterInfoUiSystem::GetComponent() {
                .enable = true,
                .focused = CursorGameInstance::cursor_ui_ == Render &&
                           !CursorGameInstance::modal_overlay_});
+  }
+
+  if (item_) {
+    const SDL_FPoint lt{225 + item_lt.x, 31 + item_lt.y};
+    const uint32_t length = 115;
+    auto v = EquipGameInstance::LoadEquips(character_).size();
+    auto v2 = EquipGameInstance::LoadDecos(character_).size();
+    auto size = v + v2;
+    auto cursor_in = CursorGameInstance::cursor_ui_;
+    bool top = cursor_in == Render && !CursorGameInstance::modal_overlay_;
+    Scroll scroll(item_page_, static_cast<uint32_t>(size), length, 3);
+    scroll.pos = {static_cast<float>((int)pos_.x + lt.x),
+                  static_cast<float>((int)pos_.y + lt.y)};
+    scroll.top = top;
+    components_.push_back(scroll);
   }
   return components_;
 }
@@ -318,8 +315,7 @@ bool CharacterInfoUiSystem::RenderItemsInfo() {
 
 bool CharacterInfoUiSystem::Render() {
   RenderBackgrnd();
-  RenderScroll();
-  RenderButton();
+  RenderUI();
   RenderCharacter();
   RenderText();
   RenderItems();
@@ -500,14 +496,7 @@ void CharacterInfoUiSystem::EventVscrMove(SDL_Event* event) {
 
 void CharacterInfoUiSystem::EventMotionBtAudio(SDL_Event* event) {
   static int8_t bt_audio = -1;
-  int8_t bt_in = -1;
-  auto& components = GetComponent();
-  for (size_t i = 0; i < components.size(); ++i) {
-    if (components[i].Hover()) {
-      bt_in = static_cast<int8_t>(i);
-      break;
-    }
-  }
+  int8_t bt_in = static_cast<int8_t>(ButtonHoverIndex(GetComponent()));
   if (bt_in != -1 && bt_audio != bt_in) {
     AudioGameInstance::LoadAudio(u"UI.img/BtMouseOver", 0);
   }

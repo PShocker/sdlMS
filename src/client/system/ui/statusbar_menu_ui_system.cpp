@@ -6,7 +6,7 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/character_stat_ui_system.h"
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/system/ui/craft_ui_system.h"
 #include "src/client/system/ui/equip_ui_system.h"
 #include "src/client/system/ui/option_ui_system.h"
@@ -89,7 +89,7 @@ void StatusbarMenuUiSystem::RenderBackgrnd() {
   SDL_RenderTexture(Window::renderer_, s, nullptr, &pos_rect);
 }
 
-std::vector<Button>& StatusbarMenuUiSystem::GetComponent() {
+UIComponents& StatusbarMenuUiSystem::GetComponent() {
   components_.clear();
   auto [x, y, w, h] = LoadR();
 
@@ -155,19 +155,19 @@ std::vector<Button>& StatusbarMenuUiSystem::GetComponent() {
 
   switch (menu_type_.value()) {
     case MenuEnums::kMenu: {
-      components_[0].callback = EventButtonCc;
-      components_[1].callback = EventButtonOption;
-      components_[2].callback = EventButtonQuit;
+      std::get<Button>(components_[0]).callback = EventButtonCc;
+      std::get<Button>(components_[1]).callback = EventButtonOption;
+      std::get<Button>(components_[2]).callback = EventButtonQuit;
       break;
     }
     case MenuEnums::kShortcut: {
-      components_[0].callback = EventButtonItem;
-      components_[1].callback = EventButtonEquip;
-      components_[2].callback = EventButtonStat;
-      components_[3].callback = EventButtonSkill;
-      components_[4].callback = EventButtonParty;
-      components_[5].callback = EventButtonQuest;
-      components_[6].callback = EventButtonCraft;
+      std::get<Button>(components_[0]).callback = EventButtonItem;
+      std::get<Button>(components_[1]).callback = EventButtonEquip;
+      std::get<Button>(components_[2]).callback = EventButtonStat;
+      std::get<Button>(components_[3]).callback = EventButtonSkill;
+      std::get<Button>(components_[4]).callback = EventButtonParty;
+      std::get<Button>(components_[5]).callback = EventButtonQuest;
+      std::get<Button>(components_[6]).callback = EventButtonCraft;
       break;
     }
   }
@@ -177,10 +177,8 @@ std::vector<Button>& StatusbarMenuUiSystem::GetComponent() {
 }
 
 
-void StatusbarMenuUiSystem::RenderButton() {
-  for (Button& button : GetComponent()) {
-    button.Render();
-  }
+void StatusbarMenuUiSystem::RenderUI() {
+  RenderComponents(GetComponent());
 }
 
 
@@ -209,7 +207,7 @@ bool StatusbarMenuUiSystem::Render() {
   alpha_ += Window::delta_time_;
   alpha_ = std::min(alpha_, 255);
   RenderBackgrnd();
-  RenderButton();
+  RenderUI();
   RenderTitle();
   return true;
 }

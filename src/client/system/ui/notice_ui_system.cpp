@@ -12,7 +12,7 @@
 #include "src/client/system/input/keyboard_input_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/system/ui/shop_ui_system.h"
 #include "src/client/system/ui/component/text_input.h"
 #include "src/client/system_instance/scene_system_instance.h"
@@ -94,14 +94,12 @@ void NoticeUiSystem::RenderBackgrnd() {
   SDL_RenderTexture(Window::renderer_, s, nullptr, &pos_rect);
 }
 
-void NoticeUiSystem::RenderButton() {
-  for (Button& button : GetComponent()) {
-    button.Render();
-  }
+void NoticeUiSystem::RenderUI() {
+  RenderComponents(GetComponent());
 }
 
 
-std::vector<Button>& NoticeUiSystem::GetComponent() {
+UIComponents& NoticeUiSystem::GetComponent() {
   components_.clear();
   std::vector<wz::Node*> buttons_node = {};
   std::vector<SDL_FRect> buttons_rect = {};
@@ -153,39 +151,39 @@ std::vector<Button>& NoticeUiSystem::GetComponent() {
   switch (type_) {
     case NoticeEnum::kShopbuy:
     case NoticeEnum::kShopbuyMul: {
-      components_[0].callback = EventButtonShopbuy;
-      components_[1].callback = Close;
+      std::get<Button>(components_[0]).callback = EventButtonShopbuy;
+      std::get<Button>(components_[1]).callback = Close;
       break;
     }
     case NoticeEnum::kApInc: {
-      components_[0].callback = EventButtonShopbuySell;
-      components_[1].callback = Close;
+      std::get<Button>(components_[0]).callback = EventButtonShopbuySell;
+      std::get<Button>(components_[1]).callback = Close;
       break;
     }
     case NoticeEnum::kWorldmapTeleport: {
-      components_[0].callback = EventButtonWorldmapTeleport;
-      components_[1].callback = Close;
+      std::get<Button>(components_[0]).callback = EventButtonWorldmapTeleport;
+      std::get<Button>(components_[1]).callback = Close;
       break;
     }
     case NoticeEnum::kShopbuySell:
     case NoticeEnum::kShopbuySellMul: {
-      components_[0].callback = EventButtonShopbuySell;
-      components_[1].callback = Close;
+      std::get<Button>(components_[0]).callback = EventButtonShopbuySell;
+      std::get<Button>(components_[1]).callback = Close;
       break;
     }
     case NoticeEnum::kThrowMul: {
-      components_[0].callback = EventButtonThrowMul;
-      components_[1].callback = EventButtonThrowClose;
+      std::get<Button>(components_[0]).callback = EventButtonThrowMul;
+      std::get<Button>(components_[1]).callback = EventButtonThrowClose;
       break;
     }
     case NoticeEnum::kEquipNoAbility: {
-      components_[0].callback = EventButtonEquipNoAp;
-      components_[1].callback = EventButtonEquipNoAp;
+      std::get<Button>(components_[0]).callback = EventButtonEquipNoAp;
+      std::get<Button>(components_[1]).callback = EventButtonEquipNoAp;
       break;
     }
     default: {
-      components_[0].callback = Close;
-      components_[1].callback = Close;
+      std::get<Button>(components_[0]).callback = Close;
+      std::get<Button>(components_[1]).callback = Close;
       break;
     }
   }
@@ -348,7 +346,7 @@ void NoticeUiSystem::RenderInput() {
     case NoticeEnum::kShopbuySellMul:
     case NoticeEnum::kShopbuyMul:
     case NoticeEnum::kThrowMul: {
-      text_.Render(5, 5);
+      text_.Render();
       break;
     }
     default: {
@@ -359,7 +357,7 @@ void NoticeUiSystem::RenderInput() {
 
 bool NoticeUiSystem::Render() {
   RenderBackgrnd();
-  RenderButton();
+  RenderUI();
   RenderText();
   RenderInput();
   return true;
@@ -733,14 +731,7 @@ void NoticeUiSystem::EventInput(SDL_Event* event) {
 
 void NoticeUiSystem::EventMotionBtAudio(SDL_Event* event) {
   static int8_t bt_audio = -1;
-  int8_t bt_in = -1;
-  auto& components = GetComponent();
-  for (size_t i = 0; i < components.size(); ++i) {
-    if (components[i].Hover()) {
-      bt_in = static_cast<int8_t>(i);
-      break;
-    }
-  }
+  int8_t bt_in = static_cast<int8_t>(ButtonHoverIndex(GetComponent()));
   if (bt_in != -1 && bt_audio != bt_in) {
     AudioGameInstance::LoadAudio(u"UI.img/BtMouseOver", 0);
   }

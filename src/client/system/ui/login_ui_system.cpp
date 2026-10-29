@@ -6,7 +6,7 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/character_choose_ui_system.h"
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/system/ui/login_notice_ui_system.h"
 #include "src/client/system/ui/component/text_input.h"
 #include "src/client/system_instance/character_choose_system_instance.h"
@@ -47,7 +47,7 @@ SDL_FPoint LoginUiSystem::LoadPos() {
   return pos;
 }
 
-void LoginUiSystem::RenderButton() {
+void LoginUiSystem::RenderUI() {
   components_.clear();
   const static std::array buttons_nodes = {
       WzResource::ui_->find(u"Login.img/ClassicIntro/button:login"),
@@ -82,7 +82,7 @@ void LoginUiSystem::RenderButton() {
   }
 }
 
-std::vector<Button>& LoginUiSystem::GetComponent() {
+UIComponents& LoginUiSystem::GetComponent() {
   return components_;
 }
 
@@ -194,11 +194,11 @@ void LoginUiSystem::RenderEffect() {
 }
 
 void LoginUiSystem::RenderUsername() {
-  username_.Render(5, 5);
+  username_.Render();
 }
 
 bool LoginUiSystem::Render() {
-  RenderButton();
+  RenderUI();
   RenderEffect();
   RenderBackgrnd();
   RenderBanner();

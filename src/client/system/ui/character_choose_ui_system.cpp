@@ -12,7 +12,7 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/character_create_ui_system.h"
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/system/ui/login_notice_ui_system.h"
 #include "src/client/system/ui/login_ui_system.h"
 #include "src/client/system_instance/character_create_system_instance.h"
@@ -48,7 +48,7 @@ SDL_FPoint CharacterChooseUiSystem::LoadPos() {
   return pos;
 }
 
-void CharacterChooseUiSystem::RenderButton() {
+void CharacterChooseUiSystem::RenderUI() {
   components_.clear();
   const static std::array buttons_nodes = {
       WzResource::ui_->find(u"Login.img/CharSelect/button:select"),
@@ -80,7 +80,7 @@ void CharacterChooseUiSystem::RenderButton() {
   }
 }
 
-std::vector<Button>& CharacterChooseUiSystem::GetComponent() {
+UIComponents& CharacterChooseUiSystem::GetComponent() {
   return components_;
 }
 
@@ -240,7 +240,7 @@ void CharacterChooseUiSystem::RenderCharacterEffect(uint8_t i) {
 }
 
 bool CharacterChooseUiSystem::Render() {
-  RenderButton();
+  RenderUI();
   RenderCharacter();
   RenderBackgrnd();
   RenderBanner();

@@ -21,6 +21,7 @@ struct TextInput {
   bool disable = false;
   bool active = false;
   SDL_Rect r;
+  SDL_FPoint pos = {5, 5};  // render offset added to `r`
 
   SDL_Color font_color;
   SDL_Color cur_color = {255, 255, 255, 255};
@@ -43,8 +44,8 @@ struct TextInput {
   // Focuses the field and starts IME input when the field allows it.
   void Active();
 
-  // Draws the field content at (x, y), relative to `r`.
-  void Render(int x, int y) const;
+  // Draws the field content at `r` offset by `pos`.
+  void Render() const;
 
   // Handles one event for this field; returns true when a click fell outside.
   bool Event(SDL_Event* event);

@@ -10,7 +10,7 @@
 #include "src/client/game_instance/text_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/system/ui/worldmap_ui_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
@@ -205,7 +205,7 @@ void MinimapUiSystem::RenderMaxBackgrnd() {
   SDL_RenderTexture(Window::renderer_, title, nullptr, &pos_rect);
 }
 
-std::vector<Button>& MinimapUiSystem::GetComponent() {
+UIComponents& MinimapUiSystem::GetComponent() {
   components_.clear();
   const static std::array buttons_nodes = {
       WzResource::ui_->find(u"MiniMap.img/BtMap"),
@@ -254,10 +254,8 @@ std::vector<Button>& MinimapUiSystem::GetComponent() {
   return components_;
 }
 
-void MinimapUiSystem::RenderButton() {
-  for (Button& button : GetComponent()) {
-    button.Render();
-  }
+void MinimapUiSystem::RenderUI() {
+  RenderComponents(GetComponent());
 };
 
 SDL_FPoint MinimapUiSystem::LoadCanvasPoint(SDL_FPoint point, int8_t ox,
@@ -587,7 +585,7 @@ bool MinimapUiSystem::Render() {
   } else {
     RenderMini();
   }
-  RenderButton();
+  RenderUI();
   return true;
 }
 
@@ -696,14 +694,7 @@ void MinimapUiSystem::EventDragMove(SDL_Event* event) {
 
 void MinimapUiSystem::EventMotionBtAudio(SDL_Event* event) {
   static int8_t bt_audio = -1;
-  int8_t bt_in = -1;
-  auto& components = GetComponent();
-  for (size_t i = 0; i < components.size(); ++i) {
-    if (components[i].Hover()) {
-      bt_in = static_cast<int8_t>(i);
-      break;
-    }
-  }
+  int8_t bt_in = static_cast<int8_t>(ButtonHoverIndex(GetComponent()));
   if (bt_in != -1 && bt_audio != bt_in) {
     AudioGameInstance::LoadAudio(u"UI.img/BtMouseOver", 0);
   }

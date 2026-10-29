@@ -21,12 +21,14 @@ struct ComboBox {
   std::u16string selected;
   std::vector<std::u16string> selects;
   uint8_t val;
+  SDL_FRect rect = {};   // top-left position, set by the owning UI
+  bool disable = false;  // draws the disabled box, never hovers
 
-  // Draws the box at (x, y) together with its drop-down list when `open`.
-  void Render(int x, int y, bool top, bool disable) const;
+  // Draws the box at `rect`, together with its drop-down list when `open`.
+  void Render() const;
 
-  // Returns true when the click at (x, y) was handled.
-  bool Click(int x, int y, bool top, bool disable) const;
+  // Returns true when the click at `mouse` was handled.
+  bool Click(SDL_FPoint mouse = Window::mouse_pos_) const;
 };
 
 }  // namespace sdlms

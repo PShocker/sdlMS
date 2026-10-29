@@ -11,7 +11,9 @@
 
 namespace sdlms {
 
-void Scroll::Render(float x, float y, bool top) const {
+void Scroll::Render() const {
+  const float x = pos.x;
+  const float y = pos.y;
   static auto prev0 = WzResource::LoadTexture(
       WzResource::ui_->find(u"Basic.img/VScr4/enabled/prev0"));
   static auto prev1 = WzResource::LoadTexture(

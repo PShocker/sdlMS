@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_rect.h>
@@ -14,8 +14,8 @@ class StatusbarMenuUiSystem {
  private:
   static SDL_FRect LoadR();
   static void RenderBackgrnd();
-  static void RenderButton();
-  static std::vector<Button>& GetComponent();
+  static void RenderUI();
+  static UIComponents& GetComponent();
   static void RenderTitle();
 
   static void EventButtonCc();
@@ -34,7 +34,7 @@ class StatusbarMenuUiSystem {
 
   static inline int alpha_;
 
-  static inline std::vector<Button> components_;
+  static inline UIComponents components_;
 
  public:
   enum class MenuEnums {

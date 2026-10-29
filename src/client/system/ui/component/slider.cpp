@@ -11,7 +11,7 @@
 
 namespace sdlms {
 
-void Slider::Render(float x, float y) const {
+void Slider::Render() const {
   static auto normal = WzResource::LoadTexture(
       WzResource::ui_->find(u"Slider.img/0/thumbNormal"));
   static auto pressed = WzResource::LoadTexture(
@@ -23,8 +23,8 @@ void Slider::Render(float x, float y) const {
   //   render
   SDL_FRect pos_rect;
   float persent = (float)val / count;
-  pos_rect.x = x + persent * length;
-  pos_rect.y = y;
+  pos_rect.x = pos.x + persent * length;
+  pos_rect.y = pos.y;
   pos_rect.w = normal->w;
   pos_rect.h = normal->h;
   SDL_Texture* t;
@@ -45,10 +45,10 @@ void Slider::Render(float x, float y) const {
   SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
 }
 
-std::optional<int> Slider::Click(float x, float y, SDL_FPoint mouse) const {
+std::optional<int> Slider::Click(SDL_FPoint mouse) const {
   SDL_FRect pos_rect = {
-      x,
-      y,
+      pos.x,
+      pos.y,
       static_cast<float>(length),
       14,
   };

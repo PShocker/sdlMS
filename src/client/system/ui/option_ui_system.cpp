@@ -5,7 +5,7 @@
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/system/ui/component/check_box.h"
 #include "src/client/system/ui/component/combo_box.h"
 #include "src/client/system/ui/component/slider.h"
@@ -41,52 +41,52 @@ void OptionUiSystem::RenderBackgrnd() {
       static_cast<float>(texture->h),
   };
   SDL_RenderTexture(Window::renderer_, texture, nullptr, &pos_rect);
-}
 
-void OptionUiSystem::RenderOption() {
-  std::vector<wz::Node*> buttons_nodes;
-  std::vector<SDL_FRect> buttons_rect;
-  auto top = CursorGameInstance::cursor_ui_ == Render;
-
+  // 当前标签页的内容区背景
+  SDL_Texture* layer = nullptr;
   switch (static_cast<OptionType>(active_tab_)) {
-    case OptionType::kController: {
-      break;
-    }
     case OptionType::kGraphic: {
-      static auto backgrnd = WzResource::LoadTexture(
+      static auto t = WzResource::LoadTexture(
           WzResource::ui_->find(u"Options.img/graphic/layer:backgrnd"));
-      SDL_FRect pos_rect{
-          pos_.x + 9,
-          pos_.y + 53,
-          static_cast<float>(backgrnd->w),
-          static_cast<float>(backgrnd->h),
-      };
-      SDL_RenderTexture(Window::renderer_, backgrnd, nullptr, &pos_rect);
+      layer = t;
       break;
     }
     case OptionType::kSound: {
-      static auto backgrnd = WzResource::LoadTexture(
+      static auto t = WzResource::LoadTexture(
           WzResource::ui_->find(u"Options.img/sound/layer:backgrnd"));
-      SDL_FRect pos_rect{
-          pos_.x + 9,
-          pos_.y + 53,
-          static_cast<float>(backgrnd->w),
-          static_cast<float>(backgrnd->h),
-      };
-      SDL_RenderTexture(Window::renderer_, backgrnd, nullptr, &pos_rect);
-      // master volume
-      // hp warn
+      layer = t;
+      break;
+    }
+    case OptionType::kGame:
+    case OptionType::kSocial: {
+      static auto t = WzResource::LoadTexture(
+          WzResource::ui_->find(u"Options.img/game/layer:backgrnd"));
+      layer = t;
+      break;
+    }
+    default: {
+      return;
+    }
+  }
+  SDL_FRect layer_rect{
+      pos_.x + 9,
+      pos_.y + 53,
+      static_cast<float>(layer->w),
+      static_cast<float>(layer->h),
+  };
+  SDL_RenderTexture(Window::renderer_, layer, nullptr, &layer_rect);
+}
+
+void OptionUiSystem::RenderOption() {
+  switch (static_cast<OptionType>(active_tab_)) {
+    case OptionType::kSound: {
       Freetype::LoadAligned(true);
       Freetype::LoadColor(255, 255, 255, 255);
       Freetype::DrawCstr(u"Master Volume", pos_.x + 12, pos_.y + 53, 105, 1);
       Freetype::LoadColor(0, 0, 0, 255);
 
       Freetype::DrawLine(u"0%", pos_.x + 136, pos_.y + 91);
-      Slider(hp_warn_, 100, 167).Render(pos_.x + 163, pos_.y + 95);
       Freetype::DrawLine(u"100%", pos_.x + 335, pos_.y + 91);
-      CheckBox{.rect = SDL_FRect{pos_.x + 1, pos_.y + 1},
-               .checked = master_volume_mute_}
-          .Render();
       Freetype::LoadAligned(true);
       Freetype::LoadSize(12);
       Freetype::LoadColor(0, 0, 0, 255);
@@ -98,11 +98,7 @@ void OptionUiSystem::RenderOption() {
       Freetype::LoadColor(0, 0, 0, 255);
 
       Freetype::DrawLine(u"0%", pos_.x + 136, pos_.y + 91);
-      Slider(hp_warn_, 100, 167).Render(pos_.x + 163, pos_.y + 95);
       Freetype::DrawLine(u"100%", pos_.x + 335, pos_.y + 91);
-      CheckBox{.rect = SDL_FRect{pos_.x + 1, pos_.y + 1},
-               .checked = bgm_volume_mute_}
-          .Render();
       Freetype::LoadAligned(true);
       Freetype::LoadSize(12);
       Freetype::LoadColor(0, 0, 0, 255);
@@ -114,11 +110,7 @@ void OptionUiSystem::RenderOption() {
       Freetype::LoadColor(0, 0, 0, 255);
 
       Freetype::DrawLine(u"0%", pos_.x + 136, pos_.y + 91);
-      Slider(hp_warn_, 100, 167).Render(pos_.x + 163, pos_.y + 95);
       Freetype::DrawLine(u"100%", pos_.x + 335, pos_.y + 91);
-      CheckBox{.rect = SDL_FRect{pos_.x + 1, pos_.y + 1},
-               .checked = normal_volume_mute_}
-          .Render();
       Freetype::LoadAligned(true);
       Freetype::LoadSize(12);
       Freetype::LoadColor(0, 0, 0, 255);
@@ -130,11 +122,7 @@ void OptionUiSystem::RenderOption() {
       Freetype::LoadColor(0, 0, 0, 255);
 
       Freetype::DrawLine(u"0%", pos_.x + 136, pos_.y + 91);
-      Slider(hp_warn_, 100, 167).Render(pos_.x + 163, pos_.y + 95);
       Freetype::DrawLine(u"100%", pos_.x + 335, pos_.y + 91);
-      CheckBox{.rect = SDL_FRect{pos_.x + 1, pos_.y + 1},
-               .checked = monster_volume_mute_}
-          .Render();
       Freetype::LoadAligned(true);
       Freetype::LoadSize(12);
       Freetype::LoadColor(0, 0, 0, 255);
@@ -146,11 +134,7 @@ void OptionUiSystem::RenderOption() {
       Freetype::LoadColor(0, 0, 0, 255);
 
       Freetype::DrawLine(u"0%", pos_.x + 136, pos_.y + 91);
-      Slider(hp_warn_, 100, 167).Render(pos_.x + 163, pos_.y + 95);
       Freetype::DrawLine(u"100%", pos_.x + 335, pos_.y + 91);
-      CheckBox{.rect = SDL_FRect{pos_.x + 1, pos_.y + 1},
-               .checked = skill_volume_mute_}
-          .Render();
       Freetype::LoadAligned(true);
       Freetype::LoadSize(12);
       Freetype::LoadColor(0, 0, 0, 255);
@@ -158,15 +142,6 @@ void OptionUiSystem::RenderOption() {
       break;
     }
     case OptionType::kGame: {
-      static auto backgrnd = WzResource::LoadTexture(
-          WzResource::ui_->find(u"Options.img/game/layer:backgrnd"));
-      SDL_FRect pos_rect{
-          pos_.x + 9,
-          pos_.y + 53,
-          static_cast<float>(backgrnd->w),
-          static_cast<float>(backgrnd->h),
-      };
-      SDL_RenderTexture(Window::renderer_, backgrnd, nullptr, &pos_rect);
       // hp warn
       Freetype::LoadAligned(true);
       Freetype::LoadColor(255, 255, 255, 255);
@@ -174,8 +149,6 @@ void OptionUiSystem::RenderOption() {
       Freetype::LoadColor(0, 0, 0, 255);
 
       Freetype::DrawLine(u"0%", pos_.x + 136, pos_.y + 58);
-      // hp slider
-      Slider(hp_warn_, 100, 167).Render(pos_.x + 163, pos_.y + 63);
       Freetype::DrawLine(u"100%", pos_.x + 335, pos_.y + 58);
 
       // mp warn
@@ -183,128 +156,61 @@ void OptionUiSystem::RenderOption() {
       Freetype::DrawCstr(u"MP Warning", pos_.x + 12, pos_.y + 86, 105, 1.3);
       Freetype::LoadColor(0, 0, 0, 255);
       Freetype::DrawLine(u"0%", pos_.x + 136, pos_.y + 91);
-      Slider(hp_warn_, 100, 167).Render(pos_.x + 163, pos_.y + 95);
       Freetype::DrawLine(u"100%", pos_.x + 335, pos_.y + 91);
 
-      // enemy info
+      // enemy info / screenshot
       Freetype::LoadColor(255, 255, 255, 255);
       Freetype::DrawCstr(u"Enemy Info", pos_.x + 12, pos_.y + 119, 105, 1.3);
       Freetype::LoadColor(0, 0, 0, 255);
-      enemy_info_cm_.Render(pos_.x + 131, pos_.y + 124, top, false);
-      // screen format
       Freetype::LoadColor(255, 255, 255, 255);
       Freetype::DrawCstr(u"ScreenShot File\n Format", pos_.x + 12, pos_.y + 158,
                          105, 1);
       Freetype::LoadColor(0, 0, 0, 255);
-      screenshot_format_.Render(pos_.x + 131, pos_.y + 164, top, false);
-      // screen folder
       Freetype::LoadColor(255, 255, 255, 255);
       Freetype::DrawCstr(u"ScreenShot File\n Format", pos_.x + 12, pos_.y + 158,
                          105, 1);
       Freetype::LoadColor(0, 0, 0, 255);
 
-      screenshot_location_.Render(pos_.x + 131, pos_.y + 197, top, false);
-      // burst screen shot
-      CheckBox capture_check{.rect = SDL_FRect{pos_.x + 1, pos_.y + 1},
-                             .checked = continue_capture_};
-      capture_check.Render();
       std::u16string text = u"Continuous Capture";
       Freetype::LoadSize(12);
-      Freetype::DrawLine(text, capture_check.rect.x + 100,
-                         capture_check.rect.y);
+      Freetype::DrawLine(text, pos_.x + 101, pos_.y + 1);
 
       auto tmp = std::to_string(continue_capture_num_);
       text = std::u16string{tmp.begin(), tmp.end()} + u"   Shots";
       Freetype::LoadColor(0, 0, 0, 255);
-      Freetype::DrawLine(text, capture_check.rect.x + 100,
-                         capture_check.rect.y);
-
-      // buttons_nodes = {
-      //     wz_resource::ui->find(u"Basic.img/BtMax"),
-      //     wz_resource::ui->find(u"Basic.img/BtMin"),
-      //     wz_resource::ui->find(u"Basic.img/BtMax"),
-      //     wz_resource::ui->find(u"Basic.img/BtMin"),
-      // };
-      buttons_rect = {
-
-      };
+      Freetype::DrawLine(text, pos_.x + 101, pos_.y + 1);
 
       text = u"2 to 10 Shots Avaliable";
       Freetype::DrawLine(text, pos_.x, pos_.y);
 
-      CheckBox{.rect = SDL_FRect{pos_.x + 1, pos_.y + 1},
-               .checked = auto_capture_}
-          .Render();
       text = u"Auto-Capture Memorable Moments";
 
-      CheckBox memory_check{.rect = SDL_FRect{pos_.x + 1, pos_.y + 1},
-                            .checked = memory_map_};
-      memory_check.Render();
       text = u"Use";
 
       tmp = std::to_string(memory_limit_);
       text = std::u16string{tmp.begin(), tmp.end()} + u"   Shots";
       Freetype::LoadColor(0, 0, 0, 255);
-      Freetype::DrawLine(text, memory_check.rect.x + 100,
-                         memory_check.rect.y);
-
+      Freetype::DrawLine(text, pos_.x + 101, pos_.y + 1);
       break;
     }
     case OptionType::kSocial: {
-      static auto backgrnd = WzResource::LoadTexture(
-          WzResource::ui_->find(u"Options.img/game/layer:backgrnd"));
-      SDL_FRect pos_rect{
-          pos_.x + 9,
-          pos_.y + 53,
-          static_cast<float>(backgrnd->w),
-          static_cast<float>(backgrnd->h),
-      };
-      SDL_RenderTexture(Window::renderer_, backgrnd, nullptr, &pos_rect);
-
-      // whisper
-      CheckBox whisper_check{.rect = SDL_FRect{pos_.x + 1, pos_.y + 1},
-                             .checked = whisper_};
-      whisper_check.Render();
       std::u16string text = u"Continuous Capture";
       Freetype::LoadSize(12);
-      Freetype::DrawLine(text, whisper_check.rect.x + 100,
-                         whisper_check.rect.y);
+      Freetype::DrawLine(text, pos_.x + 101, pos_.y + 1);
+      break;
     }
-  }
-  for (size_t i = 0; i < buttons_nodes.size(); ++i) {
-    auto k = buttons_nodes[i];
-    auto pos_rect = buttons_rect[i];
-    pos_rect.x += pos_.x;
-    pos_rect.y += pos_.y;
-    pos_rect.x = (int)pos_rect.x;
-    pos_rect.y = (int)pos_rect.y;
-    auto& mouse_pos = Window::mouse_pos_;
-    // 判断按钮是否被遮挡
-    auto cursor_in = CursorGameInstance::cursor_ui_;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == Render &&
-        !CursorGameInstance::modal_overlay_) {
-      if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
-        auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
-        SDL_RenderTexture(Window::renderer_, pressed, nullptr, &pos_rect);
-      } else {
-        auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
-        SDL_RenderTexture(Window::renderer_, mouse_over, nullptr, &pos_rect);
-      }
-    } else {
-      auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
-      SDL_RenderTexture(Window::renderer_, normal, nullptr, &pos_rect);
+    default: {
+      break;
     }
   }
 }
 
-void OptionUiSystem::RenderButton() {
-  for (Button& button : GetComponent()) {
-    button.Render();
-  }
+void OptionUiSystem::RenderUI() {
+  RenderComponents(GetComponent());
 }
 
 
-std::vector<Button>& OptionUiSystem::GetComponent() {
+UIComponents& OptionUiSystem::GetComponent() {
   const static std::array<Button::Callback, 1> kCallbacks = {
       EventButtonOk,
   };
@@ -331,29 +237,85 @@ std::vector<Button>& OptionUiSystem::GetComponent() {
                              !CursorGameInstance::modal_overlay_};
     components_.push_back(button);
     if (i < kCallbacks.size()) {
-      components_.back().callback = kCallbacks[i];
+      std::get<Button>(components_.back()).callback = kCallbacks[i];
+    }
+  }
+
+  const static auto tab_node = WzResource::ui_->find(u"Options.img/tab");
+  std::vector<SDL_FRect> tab_rects;
+  for (uint8_t i = 0; i < 5; i++) {
+    tab_rects.push_back(
+        SDL_FRect{static_cast<float>(int(pos_.x + 10 + i * 71)),
+                  static_cast<float>(int(pos_.y + 24)), 71, 21});
+  }
+  components_.push_back(
+      Tab{tab_node, u"enabled", u"disabled", tab_rects, active_tab_});
+
+  switch (static_cast<OptionType>(active_tab_)) {
+    case OptionType::kSound: {
+      for (int i = 0; i < 5; i++) {
+        Slider slider(hp_warn_, 100, 167);
+        slider.pos = {pos_.x + 163, pos_.y + 95};
+        components_.push_back(slider);
+      }
+      const bool mute_flags[] = {
+          master_volume_mute_,  bgm_volume_mute_,
+          normal_volume_mute_,  monster_volume_mute_,
+          skill_volume_mute_,
+      };
+      for (bool checked : mute_flags) {
+        CheckBox box{.rect = SDL_FRect{pos_.x + 1, pos_.y + 1},
+                     .checked = checked};
+        components_.push_back(box);
+      }
+      break;
+    }
+    case OptionType::kGame: {
+      Slider hp_slider(hp_warn_, 100, 167);
+      hp_slider.pos = {pos_.x + 163, pos_.y + 63};
+      components_.push_back(hp_slider);
+      Slider mp_slider(hp_warn_, 100, 167);
+      mp_slider.pos = {pos_.x + 163, pos_.y + 95};
+      components_.push_back(mp_slider);
+
+      ComboBox enemy = enemy_info_cm_;
+      enemy.rect = {pos_.x + 131, pos_.y + 124};
+      components_.push_back(enemy);
+      ComboBox format = screenshot_format_;
+      format.rect = {pos_.x + 131, pos_.y + 164};
+      components_.push_back(format);
+      ComboBox location = screenshot_location_;
+      location.rect = {pos_.x + 131, pos_.y + 197};
+      components_.push_back(location);
+
+      CheckBox capture{.rect = SDL_FRect{pos_.x + 1, pos_.y + 1},
+                       .checked = continue_capture_};
+      components_.push_back(capture);
+      CheckBox auto_capture{.rect = SDL_FRect{pos_.x + 1, pos_.y + 1},
+                            .checked = auto_capture_};
+      components_.push_back(auto_capture);
+      CheckBox memory{.rect = SDL_FRect{pos_.x + 1, pos_.y + 1},
+                      .checked = memory_map_};
+      components_.push_back(memory);
+      break;
+    }
+    case OptionType::kSocial: {
+      CheckBox whisper{.rect = SDL_FRect{pos_.x + 1, pos_.y + 1},
+                       .checked = whisper_};
+      components_.push_back(whisper);
+      break;
+    }
+    default: {
+      break;
     }
   }
   return components_;
 }
 
 
-void OptionUiSystem::RenderTab() {
-  const static auto tab_node = WzResource::ui_->find(u"Options.img/tab");
-  std::vector<SDL_FRect> rects;
-  for (uint8_t i = 0; i < 5; i++) {
-    rects.push_back(
-        SDL_FRect{static_cast<float>(int(pos_.x + 10 + i * 71)),
-                  static_cast<float>(int(pos_.y + 24)), 71, 21});
-  }
-  Tab tab{tab_node, u"enabled", u"disabled", rects, active_tab_};
-  tab.Render();
-}
-
 bool OptionUiSystem::Render() {
   RenderBackgrnd();
-  RenderButton();
-  RenderTab();
+  RenderUI();
   RenderOption();
   return true;
 }
@@ -445,14 +407,7 @@ bool OptionUiSystem::EventButton(SDL_Event* event) {
 
 void OptionUiSystem::EventMotionBtAudio(SDL_Event* event) {
   static int8_t bt_audio = -1;
-  int8_t bt_in = -1;
-  auto& components = GetComponent();
-  for (size_t i = 0; i < components.size(); ++i) {
-    if (components[i].Hover()) {
-      bt_in = static_cast<int8_t>(i);
-      break;
-    }
-  }
+  int8_t bt_in = static_cast<int8_t>(ButtonHoverIndex(GetComponent()));
   if (bt_in != -1 && bt_audio != bt_in) {
     AudioGameInstance::LoadAudio(u"UI.img/BtMouseOver", 0);
   }

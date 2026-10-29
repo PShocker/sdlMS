@@ -7,7 +7,7 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/character_info_ui_system.h"
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
 #include "src/common/request/client_request.h"
@@ -65,14 +65,12 @@ void ContextMenuUiSystem::RenderBackgrnd() {
   SDL_RenderTexture(Window::renderer_, s, nullptr, &pos_rect);
 }
 
-void ContextMenuUiSystem::RenderButton() {
-  for (Button& button : GetComponent()) {
-    button.Render();
-  }
+void ContextMenuUiSystem::RenderUI() {
+  RenderComponents(GetComponent());
 }
 
 
-std::vector<Button>& ContextMenuUiSystem::GetComponent() {
+UIComponents& ContextMenuUiSystem::GetComponent() {
   const static std::array<Button::Callback, 7> kCallbacks = {
       EventButtonInfo,  EventButtonSave,   EventButtonWhisper, EventButtonParty,
       EventButtonTrade, EventButtonFriend, EventButtonChat,
@@ -110,7 +108,7 @@ std::vector<Button>& ContextMenuUiSystem::GetComponent() {
                   .focused = true};
     components_.push_back(button);
     if (i < kCallbacks.size()) {
-      components_.back().callback = kCallbacks[i];
+      std::get<Button>(components_.back()).callback = kCallbacks[i];
     }
   }
   return components_;
@@ -119,7 +117,7 @@ std::vector<Button>& ContextMenuUiSystem::GetComponent() {
 
 bool ContextMenuUiSystem::Render() {
   RenderBackgrnd();
-  RenderButton();
+  RenderUI();
   return true;
 }
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/game/game_item.h"
 
 #include <SDL3/SDL_events.h>
@@ -16,13 +16,12 @@ namespace sdlms {
 
 class PackageUiSystem {
  private:
-  static void RenderScroll();
   static void RenderBackgrnd();
   static void RenderTab();
   static void RenderItems();
   static bool RenderItemsInfo();
-  static void RenderButton();
-  static std::vector<Button>& GetComponent();
+  static void RenderUI();
+  static UIComponents& GetComponent();
   static void RenderMeso();
 
   static void EventClose();
@@ -58,7 +57,7 @@ class PackageUiSystem {
 
   static inline std::optional<SDL_FPoint> drag_;
 
-  static inline std::vector<Button> components_;
+  static inline UIComponents components_;
 
  public:
   static void RenderNumber(uint32_t num, int x, int y);

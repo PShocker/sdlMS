@@ -11,7 +11,7 @@
 #include "src/client/system/system.h"
 #include "src/client/system/ui/character_stat_ui_system.h"
 #include "src/client/system/ui/chat_log_ui_system.h"
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/system/ui/equip_ui_system.h"
 #include "src/client/system/ui/keybinding_ui_system.h"
 #include "src/client/system/ui/package_ui_system.h"
@@ -371,14 +371,12 @@ void StatusbarUiSystem::RenderCharacterStat() {
   RenderGaugeText();
 }
 
-void StatusbarUiSystem::RenderButton() {
-  for (Button& button : GetComponent()) {
-    button.Render();
-  }
+void StatusbarUiSystem::RenderUI() {
+  RenderComponents(GetComponent());
 }
 
 
-std::vector<Button>& StatusbarUiSystem::GetComponent() {
+UIComponents& StatusbarUiSystem::GetComponent() {
   const static std::array<Button::Callback, 11> kCallbacks = {
       EventButtonCashshop,  EventButtonMenu,    EventButtonShortcut,
       EventButtonMailbox,   EventButtonEquip,   EventButtonInven,
@@ -446,7 +444,7 @@ std::vector<Button>& StatusbarUiSystem::GetComponent() {
                              !CursorGameInstance::modal_overlay_};
     components_.push_back(button);
     if (i < kCallbacks.size()) {
-      components_.back().callback = kCallbacks[i];
+      std::get<Button>(components_.back()).callback = kCallbacks[i];
     }
   }
   return components_;
@@ -475,7 +473,7 @@ void StatusbarUiSystem::RenderChat() {
     Freetype::DrawLine(s, pos_rect.x + 40 - w / 2, pos_rect.y);
     Freetype::LoadAligned(false);
 
-    chat_.Render(5, 5);
+    chat_.Render();
   } else {
     static auto chat_background = WzResource::LoadTexture(
         WzResource::ui_->find(u"StatusBar.img/chat/canvas:chatbackgrnd2"));
@@ -524,7 +522,7 @@ void StatusbarUiSystem::RenderBackChat() {
 bool StatusbarUiSystem::Render() {
   RenderBackgrnd();
   RenderChat();
-  RenderButton();
+  RenderUI();
   RenderCharacterStat();
   RenderHmAlert();
   RenderBackChat();
@@ -622,14 +620,7 @@ bool StatusbarUiSystem::EventButton(SDL_Event* event) {
 
 void StatusbarUiSystem::EventMotionBtAudio(SDL_Event* event) {
   static int8_t bt_audio = -1;
-  int8_t bt_in = -1;
-  auto& components = GetComponent();
-  for (size_t i = 0; i < components.size(); ++i) {
-    if (components[i].Hover()) {
-      bt_in = static_cast<int8_t>(i);
-      break;
-    }
-  }
+  int8_t bt_in = static_cast<int8_t>(ButtonHoverIndex(GetComponent()));
   if (bt_in != -1 && bt_audio != bt_in) {
     AudioGameInstance::LoadAudio(u"UI.img/BtMouseOver", 0);
   }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_rect.h>
@@ -18,8 +18,8 @@ class WorldmapUiSystem {
   static void RenderBackgrnd();
   static void RenderMap();
   static void RenderSpot();
-  static void RenderButton();
-  static std::vector<Button>& GetComponent();
+  static void RenderUI();
+  static UIComponents& GetComponent();
   static bool RenderSpotInfo();
   static void RenderCurPos(SDL_FPoint point);
 
@@ -37,7 +37,7 @@ class WorldmapUiSystem {
 
   static inline std::optional<SDL_FPoint> drag_;
 
-  static inline std::vector<Button> components_;
+  static inline UIComponents components_;
 
  public:
   static inline SDL_FPoint pos_;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/game/game_character.h"
 #include "src/client/system/ui/component/text_input.h"
 
@@ -25,8 +25,8 @@ class CharacterCreateUiSystem {
 
   static SDL_FPoint LoadPos();
   static void RenderBackgrnd();
-  static void RenderButton();
-  static std::vector<Button>& GetComponent();
+  static void RenderUI();
+  static UIComponents& GetComponent();
   static void RenderEffect();
   static void RenderBanner();
   static void RenderStat();
@@ -91,7 +91,7 @@ class CharacterCreateUiSystem {
   static bool EventButton(SDL_Event* event);
   static bool EventButtonCustom(SDL_Event* event);
 
-  static inline std::vector<Button> components_;
+  static inline UIComponents components_;
 
  public:
   static inline TextInput name_;

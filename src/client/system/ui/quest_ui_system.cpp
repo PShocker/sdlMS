@@ -14,7 +14,7 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/render/npc_render_system.h"
 #include "src/client/system/system.h"
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/system/ui/component/check_box.h"
 #include "src/client/system/ui/quest_alarm_ui_system.h"
 #include "src/client/system/ui/component/scroll.h"
@@ -120,15 +120,24 @@ void QuestUiSystem::RenderBackgrnd() {
       static_cast<float>(backgrnd->h),
   };
   SDL_RenderTexture(Window::renderer_, backgrnd, nullptr, &pos_rect);
-}
 
-void QuestUiSystem::RenderButton() {
-  for (Button& button : GetComponent()) {
-    button.Render();
+  if (detail_) {
+    const SDL_FPoint detail_lt{245, 0};
+    pos_rect = {
+        pos_.x + detail_lt.x,
+        pos_.y,
+        static_cast<float>(backgrnd2->w),
+        static_cast<float>(backgrnd2->h),
+    };
+    SDL_RenderTexture(Window::renderer_, backgrnd2, nullptr, &pos_rect);
   }
 }
 
-std::vector<Button>& QuestUiSystem::GetComponent() {
+void QuestUiSystem::RenderUI() {
+  RenderComponents(GetComponent());
+}
+
+UIComponents& QuestUiSystem::GetComponent() {
   components_.clear();
   std::vector<wz::Node*> buttons_nodes = {
       WzResource::ui_->find(u"Basic.img/BtClose"),
@@ -161,6 +170,38 @@ std::vector<Button>& QuestUiSystem::GetComponent() {
                .enable = true,
                .focused = CursorGameInstance::cursor_ui_ == Render &&
                           !CursorGameInstance::modal_overlay_});
+  }
+
+  const static auto tab_node =
+      WzResource::ui_->find(u"Quest.img/Quest/list/Tab");
+  std::vector<SDL_FRect> tab_rects;
+  for (uint8_t i = 0; i < 3; i++) {
+    tab_rects.push_back(
+        SDL_FRect{static_cast<float>(int(pos_.x + 6 + i * 72)),
+                  static_cast<float>(int(pos_.y + 24)), 72, 19});
+  }
+  components_.push_back(
+      Tab{tab_node, u"enabled", u"disabled", tab_rects, active_tab_});
+
+  auto cursor_in = CursorGameInstance::cursor_ui_;
+  bool top =
+      cursor_in == Render && CursorGameInstance::modal_overlay_ == nullptr;
+
+  const SDL_FPoint vscr_lt{225, 48};
+  Scroll vscr(pages_[0], static_cast<uint32_t>(LoadVscrNum0()), 318, 16);
+  vscr.pos = {static_cast<float>(pos_.x + vscr_lt.x),
+              static_cast<float>(pos_.y + vscr_lt.y)};
+  vscr.top = top;
+  components_.push_back(vscr);
+
+  const SDL_FPoint detail_lt{532, 122};
+  if (detail_ && !detail_quest_.empty()) {
+    Scroll detail_vscr(pages_[1], static_cast<uint32_t>(LoadVscrNum1()), 244,
+                       16);
+    detail_vscr.pos = {static_cast<float>(pos_.x + detail_lt.x),
+                       static_cast<float>(pos_.y + detail_lt.y)};
+    detail_vscr.top = top;
+    components_.push_back(detail_vscr);
   }
   return components_;
 }
@@ -518,15 +559,6 @@ void QuestUiSystem::RenderQuestDetail() {
   if (!detail_) {
     return;
   }
-  static auto backgrnd2 = WzResource::LoadTexture(
-      WzResource::ui_->find(u"UIWindow.img/Quest/backgrnd2"));
-  SDL_FRect pos_rect{
-      pos_.x + detail_lt.x,
-      pos_.y,
-      static_cast<float>(backgrnd2->w),
-      static_cast<float>(backgrnd2->h),
-  };
-  SDL_RenderTexture(Window::renderer_, backgrnd2, nullptr, &pos_rect);
   if (detail_quest_.empty()) {
     return;
   }
@@ -576,59 +608,13 @@ void QuestUiSystem::RenderQuestDetail() {
   Freetype::LoadBold(false);
   RenderDetailAvaliable();
   RenderDetailProgress();
-  RenderDetailVscr();
-}
-
-void QuestUiSystem::RenderTab() {
-  const static auto tab_node =
-      WzResource::ui_->find(u"Quest.img/Quest/list/Tab");
-  std::vector<SDL_FRect> rects;
-  for (uint8_t i = 0; i < 3; i++) {
-    rects.push_back(
-        SDL_FRect{static_cast<float>(int(pos_.x + 6 + i * 72)),
-                  static_cast<float>(int(pos_.y + 24)), 72, 19});
-  }
-  Tab tab{tab_node, u"enabled", u"disabled", rects, active_tab_};
-  tab.Render();
-}
-
-void QuestUiSystem::RenderVscr() {
-  const SDL_FPoint lt{225, 48};
-  int px = pos_.x + lt.x;
-  int py = pos_.y + lt.y;
-  const uint32_t length = 318;
-  auto cursor_in = CursorGameInstance::cursor_ui_;
-  bool top =
-      cursor_in == Render && CursorGameInstance::modal_overlay_ == nullptr;
-  auto count = LoadVscrNum0();
-  Scroll scroll(pages_[0], count, length, 16);
-  scroll.Render(px, py, top);
-
-  return;
-}
-
-void QuestUiSystem::RenderDetailVscr() {
-  const SDL_FPoint lt{532, 122};
-  int px = pos_.x + lt.x;
-  int py = pos_.y + lt.y;
-  const uint32_t length = 244;
-  auto cursor_in = CursorGameInstance::cursor_ui_;
-  bool top =
-      cursor_in == Render && CursorGameInstance::modal_overlay_ == nullptr;
-  auto count = LoadVscrNum1();
-  Scroll scroll(pages_[1], count, length, 16);
-  scroll.Render(px, py, top);
-
-  return;
 }
 
 bool QuestUiSystem::Render() {
   RenderBackgrnd();
-  RenderTab();
+  RenderUI();
   RenderQuests();
   RenderQuestDetail();
-  RenderVscr();
-  RenderButton();
   return true;
 }
 
@@ -869,14 +855,7 @@ bool QuestUiSystem::EventButton(SDL_Event* event) {
 
 void QuestUiSystem::EventMotionBtAudio(SDL_Event* event) {
   static int8_t bt_audio = -1;
-  int8_t bt_in = -1;
-  auto& components = GetComponent();
-  for (size_t i = 0; i < components.size(); ++i) {
-    if (components[i].Hover()) {
-      bt_in = static_cast<int8_t>(i);
-      break;
-    }
-  }
+  int8_t bt_in = static_cast<int8_t>(ButtonHoverIndex(GetComponent()));
   if (bt_in != -1 && bt_audio != bt_in) {
     AudioGameInstance::LoadAudio(u"UI.img/BtMouseOver", 0);
   }

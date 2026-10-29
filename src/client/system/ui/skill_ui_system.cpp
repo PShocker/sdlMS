@@ -10,7 +10,7 @@
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/system/ui/component/scroll.h"
 #include "src/client/system/ui/component/tab.h"
 #include "src/client/system/ui/tooltip_ui_system.h"
@@ -120,20 +120,6 @@ void SkillUiSystem::RenderBackgrnd() {
   SDL_RenderTexture(Window::renderer_, back_texture, nullptr, &pos_rect);
 }
 
-void SkillUiSystem::RenderTab() {
-  const static auto tab_node = WzResource::ui_->find(u"Skill.img/tab:grade");
-  auto jobs =
-      JobSkillGameInstance::LoadSkiTree(CharacterGameInstance::self_.job);
-  std::vector<SDL_FRect> rects;
-  for (size_t i = 0; i < jobs.size(); i++) {
-    rects.push_back(
-        SDL_FRect{static_cast<float>(int(pos_.x) + 5 + 33 * (int)i),
-                  static_cast<float>(int(pos_.y) + 24), 33, 19});
-  }
-  Tab tab{tab_node, u"selected", u"normal", rects, active_tab_};
-  tab.Render();
-}
-
 static std::u16string mouse_skill_id;
 
 void SkillUiSystem::RenderSkillEntry() {
@@ -221,21 +207,6 @@ void SkillUiSystem::RenderSkillEntry() {
   }
 }
 
-void SkillUiSystem::RenderScroll() {
-  const SDL_FPoint lt{174, 98};
-  const uint32_t length = 236;
-  auto self_job = CharacterGameInstance::self_.job;
-  auto ski_tree = JobSkillGameInstance::LoadSkiTree(self_job);
-  JobType jt = ski_tree.at(active_tab_);
-  auto skill_node = JobSkillGameInstance::LoadJobSkis(jt);
-  auto size = skill_node.size();
-  auto cursor_in = CursorGameInstance::cursor_ui_;
-  bool top = (cursor_in == Render) && !CursorGameInstance::modal_overlay_;
-  Scroll scroll(page_, size, length, 6);
-  scroll.Render((int)pos_.x + lt.x, (int)pos_.y + lt.y, top);
-  return;
-}
-
 bool SkillUiSystem::RenderInfo() {
   if (!mouse_skill_id.empty() && !CursorGameInstance::modal_overlay_ &&
       CursorGameInstance::cursor_ui_ == Render) {
@@ -248,7 +219,7 @@ bool SkillUiSystem::RenderInfo() {
 
 static std::u16string ski_button_id = u"";
 
-std::vector<Button>& SkillUiSystem::GetComponent() {
+UIComponents& SkillUiSystem::GetComponent() {
   const static std::array<Button::Callback, 1> kCallbacks = {
       EventClose,
   };
@@ -323,17 +294,33 @@ std::vector<Button>& SkillUiSystem::GetComponent() {
     }
     components_.push_back(button);
     if (i < kCallbacks.size()) {
-      components_.back().callback = kCallbacks[i];
+      std::get<Button>(components_.back()).callback = kCallbacks[i];
     }
   }
+
+  static auto tab_node = WzResource::ui_->find(u"Skill.img/tab:grade");
+  std::vector<SDL_FRect> tab_rects;
+  for (size_t i = 0; i < ski_tree.size(); i++) {
+    tab_rects.push_back(
+        SDL_FRect{static_cast<float>(int(pos_.x) + 5 + 33 * (int)i),
+                  static_cast<float>(int(pos_.y) + 24), 33, 19});
+  }
+  components_.push_back(
+      Tab{tab_node, u"selected", u"normal", tab_rects, active_tab_});
+
+  const SDL_FPoint vscr_lt{174, 98};
+  const uint32_t vscr_length = 236;
+  Scroll scroll(page_, static_cast<uint32_t>(skill_node.size()), vscr_length, 6);
+  scroll.pos = {static_cast<float>((int)pos_.x + vscr_lt.x),
+                static_cast<float>((int)pos_.y + vscr_lt.y)};
+  scroll.top = cursor_on_ui && !modal_blocked;
+  components_.push_back(scroll);
   return components_;
 }
 
 
-void SkillUiSystem::RenderButton() {
-  for (Button& button : GetComponent()) {
-    button.Render();
-  }
+void SkillUiSystem::RenderUI() {
+  RenderComponents(GetComponent());
 }
 
 
@@ -376,9 +363,7 @@ void SkillUiSystem::RenderPoint() {
 bool SkillUiSystem::Render() {
   RenderBackgrnd();
   RenderSkillEntry();
-  RenderButton();
-  RenderScroll();
-  RenderTab();
+  RenderUI();
   RenderBook();
   RenderPoint();
   return true;
@@ -566,7 +551,7 @@ void SkillUiSystem::EventMotionBtAudio(SDL_Event* event) {
 
   static int8_t bt_audio = -1;
   int8_t bt_in = -1;
-  if (!components_.empty() && components_[0].Hover()) {
+  if (!components_.empty() && std::get<Button>(components_[0]).Hover()) {
     bt_in = 0;
   }
   if (bt_in != -1 && bt_audio != bt_in) {

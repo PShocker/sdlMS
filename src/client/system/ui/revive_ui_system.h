@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 
 #include <SDL3/SDL_events.h>
 
@@ -12,8 +12,8 @@ namespace sdlms {
 class ReviveUiSystem {
  private:
   static void RenderBackgrnd();
-  static void RenderButton();
-  static std::vector<Button>& GetComponent();
+  static void RenderUI();
+  static UIComponents& GetComponent();
 
   static bool EventButton(SDL_Event* event);
   static void EventButtonOk();
@@ -22,7 +22,7 @@ class ReviveUiSystem {
 
   static SDL_FPoint LoadWh();
 
-  static inline std::vector<Button> components_;
+  static inline UIComponents components_;
 
  public:
   static inline SDL_FPoint pos_;

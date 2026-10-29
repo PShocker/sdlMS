@@ -45,6 +45,5 @@ struct Button {
 // Returns true when a click was consumed. `play_sound` plays the standard
 // button click sound, mirroring the behaviour of each UI before the
 // components were introduced.
-bool DispatchButtonClick(std::vector<Button>& components, bool play_sound);
 
 }  // namespace sdlms

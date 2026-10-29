@@ -8,7 +8,7 @@ namespace sdlms {
 class PlayerShopUiSystem {
  private:
   static void RenderBackgrnd();
-  static void RenderButton();
+  static void RenderUI();
 
   static bool EventButton(SDL_Event* event);
 

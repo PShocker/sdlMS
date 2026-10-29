@@ -9,7 +9,9 @@
 
 namespace sdlms {
 
-void ComboBox::Render(int x, int y, bool top, bool disable) const {
+void ComboBox::Render() const {
+  const int x = static_cast<int>(rect.x);
+  const int y = static_cast<int>(rect.y);
   SDL_Texture* l = WzResource::LoadTexture(
       WzResource::ui_->find(u"Basic.img/ComboBox/normal/0"));
   SDL_Texture* c = WzResource::LoadTexture(
@@ -84,7 +86,7 @@ void ComboBox::Render(int x, int y, bool top, bool disable) const {
   }
 }
 
-bool ComboBox::Click(int x, int y, bool top, bool disable) const {
+bool ComboBox::Click(SDL_FPoint mouse) const {
   return false;
 }
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/game/game_animate.h"
 #include "src/client/game/game_character.h"
 
@@ -20,8 +20,8 @@ class CharacterChooseUiSystem {
 
   static SDL_FPoint LoadPos();
   static void RenderBackgrnd();
-  static void RenderButton();
-  static std::vector<Button>& GetComponent();
+  static void RenderUI();
+  static UIComponents& GetComponent();
   static void RenderEffect();
   static void RenderBanner();
   static void RenderCharacter();
@@ -38,7 +38,7 @@ class CharacterChooseUiSystem {
   static bool EventButton(SDL_Event* event);
   static bool EventChooseCharacter(SDL_Event* event);
 
-  static inline std::vector<Button> components_;
+  static inline UIComponents components_;
 
  public:
   static inline std::optional<uint8_t> choose_;

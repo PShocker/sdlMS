@@ -5,7 +5,7 @@
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/system/ui/minimap_ui_system.h"
 #include "src/client/system/ui/notice_ui_system.h"
 #include "src/client/system/ui/tooltip_ui_system.h"
@@ -178,7 +178,7 @@ bool WorldmapUiSystem::RenderSpotInfo() {
   return true;
 }
 
-std::vector<Button>& WorldmapUiSystem::GetComponent() {
+UIComponents& WorldmapUiSystem::GetComponent() {
   const static std::array<Button::Callback, 1> kCallbacks = {
       EventClose,
   };
@@ -205,17 +205,15 @@ std::vector<Button>& WorldmapUiSystem::GetComponent() {
                              !CursorGameInstance::modal_overlay_};
     components_.push_back(button);
     if (i < kCallbacks.size()) {
-      components_.back().callback = kCallbacks[i];
+      std::get<Button>(components_.back()).callback = kCallbacks[i];
     }
   }
   return components_;
 }
 
 
-void WorldmapUiSystem::RenderButton() {
-  for (Button& button : GetComponent()) {
-    button.Render();
-  }
+void WorldmapUiSystem::RenderUI() {
+  RenderComponents(GetComponent());
 }
 
 
@@ -223,7 +221,7 @@ bool WorldmapUiSystem::Render() {
   RenderBackgrnd();
   RenderMap();
   RenderSpot();
-  RenderButton();
+  RenderUI();
   return true;
 }
 

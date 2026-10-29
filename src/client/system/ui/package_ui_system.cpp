@@ -13,7 +13,7 @@
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
-#include "src/client/system/ui/component/button.h"
+#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/system/ui/component/tab.h"
 #include "src/client/system/ui/equip_ui_system.h"
 #include "src/client/system/ui/notice_ui_system.h"
@@ -109,15 +109,6 @@ void PackageUiSystem::RenderNumber(uint32_t num, int x, int y) {
 }
 
 void PackageUiSystem::RenderTab() {
-  const static auto tab_node = WzResource::ui_->find(u"Item.img/Tab");
-  std::vector<SDL_FRect> rects;
-  for (uint8_t i = 0; i < 6; i++) {
-    rects.push_back(
-        SDL_FRect{static_cast<float>(int(pos_.x + 5 + i * 33)),
-                  static_cast<float>(int(pos_.y + 24)), 33, 19});
-  }
-  Tab tab{tab_node, u"enabled", u"disabled", rects, active_tab_};
-  tab.Render();
   if (new_itm_.has_value()) {
     // render new tab
     if (active_tab_ != (int)new_itm_->type) {
@@ -301,26 +292,12 @@ void PackageUiSystem::RenderItems() {
   }
 }
 
-void PackageUiSystem::RenderScroll() {
-  const SDL_FPoint lt{188, 51};
-  const uint32_t length = 202;
-  const auto& r = PackageGameInstance::data_[active_tab_];
-  auto size = static_cast<size_t>(std::ceil(r.size() / 5.0));
-  auto cursor_in = CursorGameInstance::cursor_ui_;
-  bool top = cursor_in == Render && !CursorGameInstance::modal_overlay_;
-  Scroll scroll(page_, size, length, 6);
-  scroll.Render((int)pos_.x + lt.x, (int)pos_.y + lt.y, top);
-  return;
-}
-
-void PackageUiSystem::RenderButton() {
-  for (Button& button : GetComponent()) {
-    button.Render();
-  }
+void PackageUiSystem::RenderUI() {
+  RenderComponents(GetComponent());
 }
 
 
-std::vector<Button>& PackageUiSystem::GetComponent() {
+UIComponents& PackageUiSystem::GetComponent() {
   const static std::array<Button::Callback, 4> kCallbacks = {
       EventClose,
       EventButtonCoin,
@@ -356,9 +333,31 @@ std::vector<Button>& PackageUiSystem::GetComponent() {
                              !CursorGameInstance::modal_overlay_};
     components_.push_back(button);
     if (i < kCallbacks.size()) {
-      components_.back().callback = kCallbacks[i];
+      std::get<Button>(components_.back()).callback = kCallbacks[i];
     }
   }
+
+  const static auto tab_node = WzResource::ui_->find(u"Item.img/Tab");
+  std::vector<SDL_FRect> tab_rects;
+  for (uint8_t i = 0; i < 6; i++) {
+    tab_rects.push_back(
+        SDL_FRect{static_cast<float>(int(pos_.x + 5 + i * 33)),
+                  static_cast<float>(int(pos_.y + 24)), 33, 19});
+  }
+  components_.push_back(
+      Tab{tab_node, u"enabled", u"disabled", tab_rects, active_tab_});
+
+  const SDL_FPoint vscr_lt{188, 51};
+  const uint32_t vscr_length = 202;
+  const auto& r = PackageGameInstance::data_[active_tab_];
+  auto size = static_cast<size_t>(std::ceil(r.size() / 5.0));
+  auto cursor_in = CursorGameInstance::cursor_ui_;
+  bool top = cursor_in == Render && !CursorGameInstance::modal_overlay_;
+  Scroll scroll(page_, static_cast<uint32_t>(size), vscr_length, 6);
+  scroll.pos = {static_cast<float>((int)pos_.x + vscr_lt.x),
+                static_cast<float>((int)pos_.y + vscr_lt.y)};
+  scroll.top = top;
+  components_.push_back(scroll);
   return components_;
 }
 
@@ -376,10 +375,9 @@ void PackageUiSystem::RenderMeso() {
 bool PackageUiSystem::Render() {
   CalMouseIndex();
   RenderBackgrnd();
+  RenderUI();
   RenderTab();
   RenderItems();
-  RenderScroll();
-  RenderButton();
   RenderMeso();
   return true;
 }
@@ -775,14 +773,7 @@ void PackageUiSystem::EventWheel(SDL_Event* event) {
 
 void PackageUiSystem::EventMotionBtAudio(SDL_Event* event) {
   static int8_t bt_audio = -1;
-  int8_t bt_in = -1;
-  auto& components = GetComponent();
-  for (size_t i = 0; i < components.size(); ++i) {
-    if (components[i].Hover()) {
-      bt_in = static_cast<int8_t>(i);
-      break;
-    }
-  }
+  int8_t bt_in = static_cast<int8_t>(ButtonHoverIndex(GetComponent()));
   if (bt_in != -1 && bt_audio != bt_in) {
     AudioGameInstance::LoadAudio(u"UI.img/BtMouseOver", 0);
   }
