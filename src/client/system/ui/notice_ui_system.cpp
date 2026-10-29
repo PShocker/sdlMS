@@ -12,9 +12,9 @@
 #include "src/client/system/input/keyboard_input_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/component/text_input.h"
 #include "src/client/system/ui/component/ui_component.h"
 #include "src/client/system/ui/shop_ui_system.h"
-#include "src/client/system/ui/component/text_input.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
@@ -33,6 +33,7 @@
 #include <optional>
 #include <string>
 #include <vector>
+
 
 namespace sdlms {
 
@@ -139,8 +140,7 @@ UIComponents& NoticeUiSystem::GetComponent() {
     Button button{.node = buttons_node[i],
                   .rect = rect,
                   .enable = true,
-                  .focused = CursorGameInstance::cursor_ui_ == Render &&
-                             !CursorGameInstance::modal_overlay_};
+                  .focused = CursorGameInstance::cursor_ui_ == Render};
     components_.push_back(button);
   }
 

@@ -165,8 +165,7 @@ UIComponents& NpcDlgUiSystem::GetComponent() {
                .rect = rect,
                .callback = callbacks[i],
                .enable = true,
-               .focused = CursorGameInstance::cursor_ui_ == Render &&
-                          !CursorGameInstance::modal_overlay_});
+               .focused = CursorGameInstance::cursor_ui_ == Render});
   }
   return components_;
 }

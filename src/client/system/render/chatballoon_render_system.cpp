@@ -112,9 +112,8 @@ ChatballoonRenderSystem::RenderBackgrnd(GameChatballoon& g_chatballoon,
   const float arrow_h = static_cast<float>(arrow->h);
 
   // 换行宽度：请求宽度向上取整到中心块宽度，右边不留残块
-  const int inner_w =
-      CeilToMultiple(static_cast<int>(std::max(g_chatballoon.w, kMinInnerWidth)),
-                     c->w);
+  const int inner_w = CeilToMultiple(
+      static_cast<int>(std::max(g_chatballoon.w, kMinInnerWidth)), c->w);
 
   Freetype::LoadSize(g_chatballoon.size);
   const float block_h = Freetype::LoadCh(
@@ -149,12 +148,12 @@ ChatballoonRenderSystem::RenderBackgrnd(GameChatballoon& g_chatballoon,
   // 四个角
   DrawPiece(nw, SDL_FRect{x, y, corner_w, corner_h});
   DrawPiece(ne, SDL_FRect{right - ne->w, y, static_cast<float>(ne->w),
-                           static_cast<float>(ne->h)});
+                          static_cast<float>(ne->h)});
   DrawPiece(sw, SDL_FRect{x, bottom - sw->h, static_cast<float>(sw->w),
-                           static_cast<float>(sw->h)});
-  DrawPiece(se, SDL_FRect{right - se->w, bottom - se->h,
-                           static_cast<float>(se->w),
-                           static_cast<float>(se->h)});
+                          static_cast<float>(sw->h)});
+  DrawPiece(se,
+            SDL_FRect{right - se->w, bottom - se->h, static_cast<float>(se->w),
+                      static_cast<float>(se->h)});
 
   // 中心
   DrawTiled(c, SDL_FRect{x + nw->w, y + n->h, right - se->w - (x + nw->w),
@@ -168,14 +167,13 @@ ChatballoonRenderSystem::RenderBackgrnd(GameChatballoon& g_chatballoon,
   DrawTiled(e, SDL_FRect{right - e->w, y + ne->h, static_cast<float>(e->w),
                          bottom - se->h - (y + ne->h)});
 
-  // 尾巴先画（下端露出），再画一整条底边盖住接缝
+  DrawTiled(s, SDL_FRect{x + sw->w, bottom - s->h, right - se->w - (x + sw->w),
+                         static_cast<float>(s->h)});
+
+  // 尾巴
   const float arrow_x = x + box_w / 2.0f - arrow_w / 2.0f;
   const float arrow_y = bottom - corner_h;
   DrawPiece(arrow, SDL_FRect{arrow_x, arrow_y, arrow_w, arrow_h});
-
-  DrawTiled(s, SDL_FRect{x + sw->w, bottom - s->h,
-                         right - se->w - (x + sw->w),
-                         static_cast<float>(s->h)});
 
   std::optional<int32_t> clr;
   if (auto* clr_node = node->get_child(u"clr")) {
@@ -185,8 +183,7 @@ ChatballoonRenderSystem::RenderBackgrnd(GameChatballoon& g_chatballoon,
   // 文字区：内边距去掉四条边框，垂直居中
   const float text_x = x + nw->w;
   const float text_y =
-      y + n->h +
-      std::max(0.0f, (static_cast<float>(inner_h) - block_h) / 2.0f);
+      y + n->h + std::max(0.0f, (static_cast<float>(inner_h) - block_h) / 2.0f);
   const float text_w = right - se->w - text_x;
 
   return BackgrndPad{
