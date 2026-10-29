@@ -90,10 +90,6 @@ void StatusbarMenuUiSystem::RenderBackgrnd() {
 }
 
 std::vector<Button>& StatusbarMenuUiSystem::GetComponent() {
-  return components_;
-}
-
-void StatusbarMenuUiSystem::RenderButton() {
   components_.clear();
   auto [x, y, w, h] = LoadR();
 
@@ -154,9 +150,39 @@ void StatusbarMenuUiSystem::RenderButton() {
                              !CursorGameInstance::modal_overlay_,
                   .alpha = static_cast<uint8_t>(alpha_)};
     components_.push_back(button);
+  }
+
+
+  switch (menu_type_.value()) {
+    case MenuEnums::kMenu: {
+      components_[0].callback = EventButtonCc;
+      components_[1].callback = EventButtonOption;
+      components_[2].callback = EventButtonQuit;
+      break;
+    }
+    case MenuEnums::kShortcut: {
+      components_[0].callback = EventButtonItem;
+      components_[1].callback = EventButtonEquip;
+      components_[2].callback = EventButtonStat;
+      components_[3].callback = EventButtonSkill;
+      components_[4].callback = EventButtonParty;
+      components_[5].callback = EventButtonQuest;
+      components_[6].callback = EventButtonCraft;
+      break;
+    }
+  }
+
+
+  return components_;
+}
+
+
+void StatusbarMenuUiSystem::RenderButton() {
+  for (Button& button : GetComponent()) {
     button.Render();
   }
 }
+
 
 void StatusbarMenuUiSystem::RenderTitle() {
   auto [x, y, w, h] = LoadR();
@@ -269,52 +295,9 @@ void StatusbarMenuUiSystem::EventButtonCraft() {
 }
 
 bool StatusbarMenuUiSystem::EventButton(SDL_Event* event) {
-  std::vector<wz::Node*> buttons_nodes;
-  std::vector<SDL_FRect> buttons_rect;
-  std::vector<void (*)()> fns;
-
-  switch (menu_type_.value()) {
-    case MenuEnums::kMenu: {
-      buttons_rect = {
-          SDL_FRect{6, 24, 81, 25},  //
-          SDL_FRect{6, 50, 81, 25},  //
-          SDL_FRect{6, 76, 81, 25},  //
-      };
-      fns = {
-          EventButtonCc,
-          EventButtonOption,
-          EventButtonQuit,
-      };
-      break;
-    }
-    case MenuEnums::kShortcut: {
-      fns = {
-          EventButtonItem,  EventButtonEquip, EventButtonStat,
-          EventButtonSkill, EventButtonParty, EventButtonQuest,
-          EventButtonCraft,
-      };
-      buttons_rect = {
-          SDL_FRect{6, 24, 81, 25},   //
-          SDL_FRect{6, 50, 81, 25},   //
-          SDL_FRect{6, 76, 81, 25},   //
-          SDL_FRect{6, 102, 81, 25},  //
-          SDL_FRect{6, 128, 81, 25},  //
-          SDL_FRect{6, 154, 81, 25},  //
-          SDL_FRect{6, 180, 81, 25},  //
-      };
-      break;
-    }
-  }
-  auto [x, y, w, h] = LoadR();
-
-  for (size_t i = 0; i < components_.size() && i < fns.size(); ++i) {
-    components_[i].callback = fns[i];
-  }
-  if (DispatchButtonClick(components_, false)) {
-    return true;
-  }
-  return false;
+  return DispatchButtonClick(GetComponent(), false);
 }
+
 
 bool StatusbarMenuUiSystem::Event(SDL_Event* event) {
   bool r = true;

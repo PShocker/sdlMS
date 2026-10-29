@@ -119,6 +119,13 @@ void LoginNoticeUiSystem::RenderBackgrnd() {
 }
 
 void LoginNoticeUiSystem::RenderButton() {
+  for (Button& button : GetComponent()) {
+    button.Render();
+  }
+}
+
+
+std::vector<Button>& LoginNoticeUiSystem::GetComponent() {
   components_.clear();
   const auto w = 1366;
   const auto h = 768;
@@ -163,11 +170,26 @@ void LoginNoticeUiSystem::RenderButton() {
                   .enable = true,
                   .focused = true};
     components_.push_back(button);
-    button.Render();
   }
-}
 
-std::vector<Button>& LoginNoticeUiSystem::GetComponent() {
+  switch (type_) {
+    case LoginNoticeSystemInstance::NoticeType::kCharacternameError:
+    case LoginNoticeSystemInstance::NoticeType::kCharacterFull:
+    case LoginNoticeSystemInstance::NoticeType::kCharacterUseAp:
+    case LoginNoticeSystemInstance::NoticeType::kLoginingUsed:
+    case LoginNoticeSystemInstance::NoticeType::kCharacternameUsed: {
+      break;
+    }
+    case LoginNoticeSystemInstance::NoticeType::kCharacterDelete: {
+      components_[0].callback = fn_;
+      components_[1].callback = EventClose;
+      break;
+    }
+    default: {
+      break;
+    }
+  }
+
   return components_;
 }
 
@@ -184,42 +206,9 @@ void LoginNoticeUiSystem::EventClose() {
 }
 
 bool LoginNoticeUiSystem::EventButton(SDL_Event* event) {
-  const auto w = 1366;
-  const auto h = 768;
-  std::vector<SDL_FRect> buttons_rect;
-  std::vector<void (*)()> fns = {EventClose};
-  auto [bx, by] = LoadPos();
-  switch (type_) {
-    case LoginNoticeSystemInstance::NoticeType::kCharacternameError:
-    case LoginNoticeSystemInstance::NoticeType::kCharacterFull:
-    case LoginNoticeSystemInstance::NoticeType::kCharacterUseAp:
-    case LoginNoticeSystemInstance::NoticeType::kLoginingUsed:
-    case LoginNoticeSystemInstance::NoticeType::kCharacternameUsed: {
-      buttons_rect = {
-          SDL_FRect{bx + (w - 50) / 2, by + 35 + (h) / 2, 50, 23},
-      };
-      break;
-    }
-    case LoginNoticeSystemInstance::NoticeType::kCharacterDelete: {
-      buttons_rect = {
-          SDL_FRect{bx - 35 + (w - 50) / 2, by + 35 + (h) / 2, 50, 23},
-          SDL_FRect{bx + 35 + (w - 50) / 2, by + 35 + (h) / 2, 50, 23},
-      };
-      fns = {fn_, EventClose};
-      break;
-    }
-    default: {
-      break;
-    }
-  }
-  for (size_t i = 0; i < components_.size() && i < fns.size(); ++i) {
-    components_[i].callback = fns[i];
-  }
-  if (DispatchButtonClick(components_, true)) {
-    return false;
-  }
-  return true;
+  return DispatchButtonClick(GetComponent(), false);
 }
+
 
 bool LoginNoticeUiSystem::Event(SDL_Event* event) {
   bool r = true;

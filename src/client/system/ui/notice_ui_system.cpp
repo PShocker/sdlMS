@@ -95,6 +95,13 @@ void NoticeUiSystem::RenderBackgrnd() {
 }
 
 void NoticeUiSystem::RenderButton() {
+  for (Button& button : GetComponent()) {
+    button.Render();
+  }
+}
+
+
+std::vector<Button>& NoticeUiSystem::GetComponent() {
   components_.clear();
   std::vector<wz::Node*> buttons_node = {};
   std::vector<SDL_FRect> buttons_rect = {};
@@ -141,11 +148,48 @@ void NoticeUiSystem::RenderButton() {
                   .focused = CursorGameInstance::cursor_ui_ == Render &&
                              !CursorGameInstance::modal_overlay_};
     components_.push_back(button);
-    button.Render();
   }
-}
 
-std::vector<Button>& NoticeUiSystem::GetComponent() {
+  switch (type_) {
+    case NoticeEnum::kShopbuy:
+    case NoticeEnum::kShopbuyMul: {
+      components_[0].callback = EventButtonShopbuy;
+      components_[1].callback = Close;
+      break;
+    }
+    case NoticeEnum::kApInc: {
+      components_[0].callback = EventButtonShopbuySell;
+      components_[1].callback = Close;
+      break;
+    }
+    case NoticeEnum::kWorldmapTeleport: {
+      components_[0].callback = EventButtonWorldmapTeleport;
+      components_[1].callback = Close;
+      break;
+    }
+    case NoticeEnum::kShopbuySell:
+    case NoticeEnum::kShopbuySellMul: {
+      components_[0].callback = EventButtonShopbuySell;
+      components_[1].callback = Close;
+      break;
+    }
+    case NoticeEnum::kThrowMul: {
+      components_[0].callback = EventButtonThrowMul;
+      components_[1].callback = EventButtonThrowClose;
+      break;
+    }
+    case NoticeEnum::kEquipNoAbility: {
+      components_[0].callback = EventButtonEquipNoAp;
+      components_[1].callback = EventButtonEquipNoAp;
+      break;
+    }
+    default: {
+      components_[0].callback = Close;
+      components_[1].callback = Close;
+      break;
+    }
+  }
+
   return components_;
 }
 
@@ -669,53 +713,9 @@ void NoticeUiSystem::EventButtonEquipNoAp() {
 }
 
 bool NoticeUiSystem::EventButton(SDL_Event* event) {
-  std::vector<SDL_FRect> buttons_rect;
-  std::vector<std::function<void()>> func = {};
-  auto [w, h] = LoadWh();
-  buttons_rect = {
-      {w - 105, h - 30, 47, 18},
-      {w - 55, h - 30, 47, 18},
-  };
-  switch (type_) {
-    case NoticeEnum::kShopbuy:
-    case NoticeEnum::kShopbuyMul: {
-      func = {EventButtonShopbuy, Close};
-      break;
-    }
-    case NoticeEnum::kApInc: {
-      func = {EventButtonShopbuySell, Close};
-      break;
-    }
-    case NoticeEnum::kWorldmapTeleport: {
-      func = {EventButtonWorldmapTeleport, Close};
-      break;
-    }
-    case NoticeEnum::kShopbuySell:
-    case NoticeEnum::kShopbuySellMul: {
-      func = {EventButtonShopbuySell, Close};
-      break;
-    }
-    case NoticeEnum::kThrowMul: {
-      func = {EventButtonThrowMul, EventButtonThrowClose};
-      break;
-    }
-    case NoticeEnum::kEquipNoAbility: {
-      func = {EventButtonEquipNoAp, EventButtonEquipNoAp};
-      break;
-    }
-    default: {
-      func = {Close, Close};
-      break;
-    }
-  }
-  for (size_t i = 0; i < components_.size() && i < func.size(); ++i) {
-    components_[i].callback = func[i];
-  }
-  if (DispatchButtonClick(components_, true)) {
-    return true;
-  }
-  return false;
+  return DispatchButtonClick(GetComponent(), false);
 }
+
 
 void NoticeUiSystem::EventInput(SDL_Event* event) {
   switch (type_) {
