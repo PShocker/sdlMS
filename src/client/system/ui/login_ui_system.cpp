@@ -48,6 +48,10 @@ SDL_FPoint LoginUiSystem::LoadPos() {
 }
 
 void LoginUiSystem::RenderUI() {
+  RenderComponents(GetComponent());
+}
+
+UIComponents& LoginUiSystem::GetComponent() {
   components_.clear();
   const static std::array buttons_nodes = {
       WzResource::ui_->find(u"Login.img/ClassicIntro/button:login"),
@@ -69,20 +73,29 @@ void LoginUiSystem::RenderUI() {
       SDL_FRect{38 - camera.x, 1112 - camera.y, 119, 55},   // homepage
       SDL_FRect{165 - camera.x, 1112 - camera.y, 108, 55},  // quit
   };
+  std::vector<Button::Callback> callbacks = {
+      EventButtonLogin,  EventButtonLoginSave, EventButtonFindId,
+      EventButtonFindPw, EventButtonRegister,  EventButtonHomepage,
+      EventButtonQuit,
+  };
   for (size_t i = 0; i < buttons_nodes.size(); ++i) {
     SDL_FRect rect = buttons_rect[i];
     rect.x = (int)rect.x;
     rect.y = (int)rect.y;
-    Button button{.node = buttons_nodes[i],
-                  .rect = rect,
-                  .enable = true,
-                  .focused = true};
-    components_.push_back(button);
-    button.Render();
+    components_.push_back(Button{.node = buttons_nodes[i],
+                                 .rect = rect,
+                                 .callback = callbacks[i],
+                                 .enable = true,
+                                 .focused = true});
   }
-}
 
-UIComponents& LoginUiSystem::GetComponent() {
+  // 返回按钮画在横幅背景图上，没有独立的 WZ 节点，仅提供点击区域
+  components_.push_back(Button{
+      .node = nullptr,
+      .rect = SDL_FRect{163 + pos.x, 574 + pos.y, 161, 69},
+      .callback = EventButtonBack,
+      .enable = true,
+      .focused = true});
   return components_;
 }
 
@@ -98,32 +111,6 @@ void LoginUiSystem::RenderBanner() {
       static_cast<float>(t->h),
   };
   SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
-
-  const static std::array buttons_nodes = {
-      WzResource::ui_->find(u"Login.img/LoginStart/BtClassicPrev"),
-  };
-  std::array buttons_rect = {
-      SDL_FRect{163 + pos.x, 574 + pos.y, 161, 69},
-  };
-  for (size_t i = 0; i < buttons_nodes.size(); ++i) {
-    auto k = buttons_nodes[i];
-    auto pos_rect = buttons_rect[i];
-    pos_rect.x = (int)pos_rect.x;
-    pos_rect.y = (int)pos_rect.y;
-    auto& mouse_pos = Window::mouse_pos_;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-      if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
-        auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
-        SDL_RenderTexture(Window::renderer_, pressed, nullptr, &pos_rect);
-      } else {
-        auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
-        SDL_RenderTexture(Window::renderer_, mouse_over, nullptr, &pos_rect);
-      }
-    } else {
-      auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
-      SDL_RenderTexture(Window::renderer_, normal, nullptr, &pos_rect);
-    }
-  }
 }
 
 void LoginUiSystem::RenderBackgrnd() {
@@ -326,34 +313,7 @@ void LoginUiSystem::EventButtonBack() {
 }
 
 bool LoginUiSystem::EventUI(SDL_Event* event) {
-  std::vector<SDL_FRect> r;
-  std::vector<void (*)()> fns;
-  auto& camera = CameraGameInstance::camera_;
-  auto pos = LoadPos();
-  r = {
-      SDL_FRect{160 - camera.x, 960 - camera.y, 122, 61},   // login
-      SDL_FRect{-30 - camera.x, 1051 - camera.y, 101, 29},  // login_saved
-      SDL_FRect{104 - camera.x, 1047 - camera.y, 90, 29},   // find_id
-      SDL_FRect{197 - camera.x, 1047 - camera.y, 74, 29},   // find_pw
-      SDL_FRect{-89 - camera.x, 1112 - camera.y, 118, 56},  // register
-      SDL_FRect{38 - camera.x, 1112 - camera.y, 119, 55},   // homepage
-      SDL_FRect{165 - camera.x, 1112 - camera.y, 108, 55},  // quit
-      SDL_FRect{163 + pos.x, 574 + pos.y, 161, 69},         // BtClassicPrev
-  };
-  fns = {EventButtonLogin,  EventButtonLoginSave, EventButtonFindId,
-         EventButtonFindPw, EventButtonRegister,  EventButtonHomepage,
-         EventButtonQuit,   EventButtonBack};
-  for (size_t i = 0; i < r.size(); ++i) {
-    auto pos_rect = r[i];
-    pos_rect.x = (int)pos_rect.x;
-    pos_rect.y = (int)pos_rect.y;
-    if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect)) {
-      fns[i]();
-      return false;
-    }
-  }
-
-  return false;
+  return !DispatchButtonClick(GetComponent(), false);
 }
 
 bool LoginUiSystem::Event(SDL_Event* event) {
