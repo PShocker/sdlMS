@@ -40,4 +40,42 @@ int ButtonHoverIndex(UIComponents& components) {
   return -1;
 }
 
+bool DispatchScrollDragStart(UIComponents& components, int& index,
+                             SDL_FPoint mouse) {
+  int scroll_index = 0;
+  for (auto& component : components) {
+    auto* scroll = std::get_if<Scroll>(&component);
+    if (scroll == nullptr) {
+      continue;
+    }
+    if (scroll->InTrack(mouse)) {
+      index = scroll_index;
+      return true;
+    }
+    ++scroll_index;
+  }
+  index = -1;
+  return false;
+}
+
+bool DispatchScrollDragMove(UIComponents& components, int index,
+                            SDL_FPoint mouse, uint32_t& val) {
+  if (index < 0) {
+    return false;
+  }
+  int scroll_index = 0;
+  for (auto& component : components) {
+    auto* scroll = std::get_if<Scroll>(&component);
+    if (scroll == nullptr) {
+      continue;
+    }
+    if (scroll_index == index) {
+      val = scroll->Drag(mouse);
+      return true;
+    }
+    ++scroll_index;
+  }
+  return false;
+}
+
 }  // namespace sdlms

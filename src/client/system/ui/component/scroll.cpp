@@ -119,6 +119,30 @@ void Scroll::Render() const {
   }
 }
 
+uint32_t Scroll::Drag(SDL_FPoint mouse) const {
+  if (!top) {
+    return std::min(val, count > size ? count - size : 0);
+  }
+  // 拖动时只使用鼠标的 y，x 固定到滚动条上；y 限制在滚动条范围内。
+  SDL_FPoint p = mouse;
+  p.x = pos.x + 1.0f;
+  p.y = std::clamp(p.y, pos.y, pos.y + static_cast<float>(length));
+  return Click(p);
+}
+
+bool Scroll::InTrack(SDL_FPoint mouse) const {
+  if (!top) {
+    return false;
+  }
+  SDL_FRect track{
+      pos.x,
+      pos.y + 13.0f,
+      15.0f,
+      static_cast<float>(std::max(0, length - 26)),
+  };
+  return SDL_PointInRectFloat(&mouse, &track);
+}
+
 uint32_t Scroll::Click(SDL_FPoint mouse) const {
   const float x = pos.x;
   const float y = pos.y;

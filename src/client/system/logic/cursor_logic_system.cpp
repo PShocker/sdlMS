@@ -121,6 +121,12 @@ bool CursorLogicSystem::RunDefault() {
       return true;
     }
   }
+  // 左键按下时优先使用默认按下光标，不要让滚动条的 Cursor/7
+  // (vscroll 的 u"9") 覆盖按下反馈。
+  if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
+    RunCursorAction(u"12");
+    return true;
+  }
   if (CursorGameInstance::cursor_ui_ == nullptr) {
     if (!(Window::mouse_state_ & SDL_BUTTON_LMASK)) {
       auto npc = CursorNpc();
@@ -165,11 +171,7 @@ bool CursorLogicSystem::RunDefault() {
       return true;
     }
   }
-  if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
-    RunCursorAction(u"12");
-  } else {
-    RunCursorAction(u"0");
-  }
+  RunCursorAction(u"0");
 
   return true;
 }

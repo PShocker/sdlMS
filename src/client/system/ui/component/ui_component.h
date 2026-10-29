@@ -43,6 +43,17 @@ bool DispatchButtonClick(UIComponents& components, bool play_sound);
 // cursor, or -1.
 int ButtonHoverIndex(UIComponents& components);
 
+// Starts a vertical scrollbar drag when `mouse` is inside one of the Scroll
+// components. `index` receives the Scroll ordinal (0-based among Scroll
+// components), or -1 when no scrollbar was hit.
+bool DispatchScrollDragStart(UIComponents& components, int& index,
+                             SDL_FPoint mouse);
+
+// Updates the page of the Scroll selected by DispatchScrollDragStart() from
+// the current mouse position. `val` is the owning UI's page variable.
+bool DispatchScrollDragMove(UIComponents& components, int index,
+                            SDL_FPoint mouse, uint32_t& val);
+
 // Shared storage and drawing for a UI's component list.
 //
 // A UI system derives from this, implements GetComponent() (rebuild the list)

@@ -29,6 +29,13 @@ struct Scroll {
 
   // Returns the page the cursor clicks at `mouse`, or `val` when it misses.
   uint32_t Click(SDL_FPoint mouse = Window::mouse_pos_) const;
+
+  // True when `mouse` is inside the draggable track (not the prev/next buttons).
+  bool InTrack(SDL_FPoint mouse = Window::mouse_pos_) const;
+
+  // Drags the thumb to `mouse.y`: x is forced to the track and y is clamped,
+  // then the page is calculated the same way as Click().
+  uint32_t Drag(SDL_FPoint mouse = Window::mouse_pos_) const;
 };
 
 }  // namespace sdlms

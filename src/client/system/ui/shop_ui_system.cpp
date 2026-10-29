@@ -508,6 +508,7 @@ bool ShopUiSystem::EventItem(SDL_Event* event) {
 }
 
 bool ShopUiSystem::Event(SDL_Event* event) {
+  static int vscroll_drag = -1;
   switch (event->type) {
     case SDL_EVENT_KEY_DOWN: {
       auto scan_code = event->key.scancode;
@@ -525,6 +526,8 @@ bool ShopUiSystem::Event(SDL_Event* event) {
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
       if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui_ == Render) {
+          DispatchScrollDragStart(GetComponent(), vscroll_drag,
+                                  {event->button.x, event->button.y});
         }
       }
       break;
@@ -534,10 +537,18 @@ bool ShopUiSystem::Event(SDL_Event* event) {
         if (CursorGameInstance::cursor_ui_ == Render) {
           EventUI(event);
         }
+        vscroll_drag = -1;
       }
       break;
     }
     case SDL_EVENT_MOUSE_MOTION: {
+      if (vscroll_drag >= 0 && vscroll_drag < 2) {
+        uint32_t val = static_cast<uint32_t>(std::max(pages_[vscroll_drag], 0));
+        if (DispatchScrollDragMove(GetComponent(), vscroll_drag,
+                                   {event->motion.x, event->motion.y}, val)) {
+          pages_[vscroll_drag] = static_cast<int>(val);
+        }
+      }
       break;
     }
     default: {

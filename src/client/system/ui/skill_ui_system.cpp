@@ -511,6 +511,7 @@ void SkillUiSystem::EventMotionBtAudio(SDL_Event* event) {
 }
 
 bool SkillUiSystem::Event(SDL_Event* event) {
+  static int vscroll_drag = -1;
   bool r = true;
   switch (event->type) {
     case SDL_EVENT_KEY_DOWN: {
@@ -532,6 +533,8 @@ bool SkillUiSystem::Event(SDL_Event* event) {
         if (CursorGameInstance::cursor_ui_ == Render) {
           EventTop();
           EventDragStart(event);
+          DispatchScrollDragStart(GetComponent(), vscroll_drag,
+                                  {event->button.x, event->button.y});
           r = false;
         }
       }
@@ -543,10 +546,18 @@ bool SkillUiSystem::Event(SDL_Event* event) {
           r = !EventUI(event);
         }
         EventDragEnd();
+        vscroll_drag = -1;
       }
       break;
     }
     case SDL_EVENT_MOUSE_MOTION: {
+      if (vscroll_drag >= 0) {
+        uint32_t val = page_;
+        if (DispatchScrollDragMove(GetComponent(), vscroll_drag,
+                                   {event->motion.x, event->motion.y}, val)) {
+          page_ = static_cast<uint8_t>(val);
+        }
+      }
       EventMotionBtAudio(event);
       EventMotion(event);
       EventDragMove(event);

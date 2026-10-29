@@ -12,6 +12,7 @@
 
 #include <SDL3/SDL_rect.h>
 
+#include <algorithm>
 #include <flat_map>
 #include <format>
 
@@ -108,11 +109,14 @@ bool ChatLogUiSystem::EventUI(SDL_Event* event) {
 }
 
 bool ChatLogUiSystem::Event(SDL_Event* event) {
+  static int vscroll_drag = -1;
   bool r = true;
   switch (event->type) {
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
       if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui_ == Render) {
+          DispatchScrollDragStart(GetComponent(), vscroll_drag,
+                                  {event->button.x, event->button.y});
         }
       }
       break;
@@ -122,10 +126,18 @@ bool ChatLogUiSystem::Event(SDL_Event* event) {
         if (CursorGameInstance::cursor_ui_ == Render) {
           r = !EventUI(event);
         }
+        vscroll_drag = -1;
       }
       break;
     }
     case SDL_EVENT_MOUSE_MOTION: {
+      if (vscroll_drag >= 0) {
+        uint32_t val = static_cast<uint32_t>(std::max(page_, 0));
+        if (DispatchScrollDragMove(GetComponent(), vscroll_drag,
+                                   {event->motion.x, event->motion.y}, val)) {
+          page_ = static_cast<int>(val);
+        }
+      }
       break;
     }
     default: {
