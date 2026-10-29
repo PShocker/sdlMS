@@ -395,34 +395,22 @@ void SkillUiSystem::EventClose() {
 }
 
 bool SkillUiSystem::EventUI(SDL_Event* event) {
-  const static auto tab_node = WzResource::ui_->find(u"Skill.img/tab:grade");
-  auto jobs =
-      JobSkillGameInstance::LoadSkiTree(CharacterGameInstance::self_.job);
-  std::vector<SDL_FRect> rects;
-  for (size_t i = 0; i < jobs.size(); i++) {
-    rects.push_back(
-        SDL_FRect{static_cast<float>(int(pos_.x) + 5 + 33 * (int)i),
-                  static_cast<float>(int(pos_.y) + 24), 33, 19});
+  auto& components = GetComponent();
+  for (auto& component : components) {
+    if (auto* tab = std::get_if<Tab>(&component)) {
+      if (auto i = tab->Click()) {
+        AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+        active_tab_ = *i;
+        page_ = 0;
+      }
+    }
   }
-  Tab tab{tab_node, u"selected", u"normal", rects, active_tab_};
-  if (auto i = tab.Click()) {
-    AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
-    active_tab_ = *i;
-    page_ = 0;
+  bool consumed = DispatchButtonClick(components, false);
+  for (auto& component : components) {
+    if (auto* scroll = std::get_if<Scroll>(&component)) {
+      page_ = scroll->Click();
+    }
   }
-  bool consumed = DispatchButtonClick(GetComponent(), false);
-  const SDL_FPoint lt{174, 98};
-  const uint32_t length = 236;
-  auto self_job = CharacterGameInstance::self_.job;
-  auto ski_tree = JobSkillGameInstance::LoadSkiTree(self_job);
-  JobType jt = ski_tree.at(active_tab_);
-  auto skill_node = JobSkillGameInstance::LoadJobSkis(jt);
-  int size = skill_node.size() - 6;
-  auto cursor_in = CursorGameInstance::cursor_ui_;
-  bool top = cursor_in == Render;
-  size = std::max(0, size);
-  Scroll scroll(page_, size, length);
-  page_ = scroll.Click((int)pos_.x + lt.x, (int)pos_.y + lt.y, top);
   return consumed;
 }
 

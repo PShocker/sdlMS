@@ -387,18 +387,15 @@ void OptionUiSystem::EventButtonOk() {
 }
 
 bool OptionUiSystem::EventUI(SDL_Event* event) {
-  const static auto tab_node = WzResource::ui_->find(u"Options.img/tab");
-  std::vector<SDL_FRect> rects;
-  for (uint8_t i = 0; i < 5; i++) {
-    rects.push_back(
-        SDL_FRect{static_cast<float>(int(pos_.x + 10 + i * 71)),
-                  static_cast<float>(int(pos_.y + 24)), 71, 21});
+  auto& components = GetComponent();
+  for (auto& component : components) {
+    if (auto* tab = std::get_if<Tab>(&component)) {
+      if (auto i = tab->Click()) {
+        active_tab_ = *i;
+      }
+    }
   }
-  Tab tab{tab_node, u"enabled", u"disabled", rects, active_tab_};
-  if (auto i = tab.Click()) {
-    active_tab_ = *i;
-  }
-  return DispatchButtonClick(GetComponent(), false);
+  return DispatchButtonClick(components, false);
 }
 
 void OptionUiSystem::EventMotionBtAudio(SDL_Event* event) {

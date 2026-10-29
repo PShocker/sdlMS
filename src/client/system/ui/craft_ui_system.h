@@ -1,5 +1,7 @@
 #pragma once
 
+#include "src/client/system/ui/component/ui_component.h"
+
 #include <SDL3/SDL_events.h>
 
 #include <cstdint>
@@ -10,9 +12,10 @@ namespace sdlms {
 class CraftUiSystem {
  private:
   static void RenderBackgrnd();
-  static void RenderTab();
 
   static bool EventUI(SDL_Event* event);
+  static void RenderUI();
+  static UIComponents& GetComponent();
   static void EventTop();
   static void EventDragStart(SDL_Event* event);
   static void EventDragEnd();
@@ -23,6 +26,8 @@ class CraftUiSystem {
   static bool Run();
 
   static inline std::optional<SDL_FPoint> drag_;
+
+  static inline UIComponents components_;
 
  public:
   static inline SDL_FPoint pos_;

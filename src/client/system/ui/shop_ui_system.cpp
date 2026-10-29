@@ -374,54 +374,41 @@ void ShopUiSystem::Open() {
 }
 
 bool ShopUiSystem::EventUI(SDL_Event* event) {
-  const static auto tab_node0 =
-      WzResource::ui_->find(u"UIShop.img/Shop/TabBuy");
-  std::vector<SDL_FRect> rects0;
-  for (uint8_t i = 0; i < 2; i++) {
-    rects0.push_back(SDL_FRect{static_cast<float>(int(pos_.x + 7 + i * 57)),
-                               static_cast<float>(int(pos_.y + 96)), 57, 21});
+  auto& components = GetComponent();
+  int tab_group = 0;
+  for (auto& component : components) {
+    auto* tab = std::get_if<Tab>(&component);
+    if (tab == nullptr) {
+      continue;
+    }
+    auto i = tab->Click();
+    if (i.has_value()) {
+      if (tab_group == 0) {
+        active_tab_[0] = *i;
+        active_item_[0] = std::nullopt;
+        pages_[0] = 0;
+      } else {
+        active_tab_[1] = *i;
+        active_item_[1] = std::nullopt;
+        pages_[1] = 0;
+      }
+      return true;
+    }
+    tab_group++;
   }
-  Tab tab0{tab_node0, u"enabled", u"disabled", rects0,
-           static_cast<uint8_t>(active_tab_[0])};
-  if (auto i = tab0.Click()) {
-    active_tab_[0] = *i;
-    active_item_[0] = std::nullopt;
-    pages_[0] = 0;
-    return true;
+  DispatchButtonClick(components, false);
+  int scroll_group = 0;
+  for (auto& component : components) {
+    if (auto* scroll = std::get_if<Scroll>(&component)) {
+      uint32_t val = scroll->Click();
+      if (scroll_group == 0) {
+        pages_[0] = val;
+      } else {
+        pages_[1] = val;
+      }
+      scroll_group++;
+    }
   }
-  const static auto tab_node1 =
-      WzResource::ui_->find(u"UIShop.img/Shop/TabSell");
-  std::vector<SDL_FRect> rects1;
-  for (uint8_t i = 0; i < 4; i++) {
-    rects1.push_back(SDL_FRect{static_cast<float>(int(pos_.x + 237 + i * 44)),
-                               static_cast<float>(int(pos_.y + 96)), 44, 21});
-  }
-  Tab tab1{tab_node1, u"enabled", u"disabled", rects1,
-           static_cast<uint8_t>(active_tab_[1])};
-  if (auto i = tab1.Click()) {
-    active_tab_[1] = *i;
-    active_item_[1] = std::nullopt;
-    pages_[1] = 0;
-    return true;
-  }
-  DispatchButtonClick(GetComponent(), false);
-  const uint32_t length = 235;
-  auto x = (int)pos_.x + 212;
-  auto y = (int)pos_.y + 129;
-  auto cursor_in = CursorGameInstance::cursor_ui_;
-  int size = shop_->items.size() - 6;
-  if (active_tab_[0] == 1) {
-    size = ShopGameInstance::must_.size() - 6;
-  }
-  bool top = cursor_in == Render;
-  size = std::max(0, size);
-  Scroll scroll(pages_[0], size, length);
-  pages_[0] = scroll.Click(x, y, top);
-  size = ShopGameInstance::LoadPkgItems(active_tab_[1]).size() - 6;
-  x += 230;
-  size = std::max(0, size);
-  Scroll scroll1(pages_[1], size, length);
-  pages_[1] = scroll1.Click(x, y, top);
   return false;
 }
 

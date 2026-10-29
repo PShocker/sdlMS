@@ -445,22 +445,13 @@ void CharacterInfoUiSystem::EventClose() {
 }
 
 bool CharacterInfoUiSystem::EventUI(SDL_Event* event) {
-  bool consumed = DispatchButtonClick(GetComponent(), true);
-  if (!item_) {
-    return consumed;
+  auto& components = GetComponent();
+  bool consumed = DispatchButtonClick(components, true);
+  for (auto& component : components) {
+    if (auto* scroll = std::get_if<Scroll>(&component)) {
+      item_page_ = scroll->Click();
+    }
   }
-  const SDL_FPoint lt{219 + item_lt.x, 32 + item_lt.y};
-  const uint32_t length = 115;
-  auto v = EquipGameInstance::LoadEquips(character_).size();
-  auto v2 = EquipGameInstance::LoadDecos(character_).size();
-  int size = v + v2 - 3;
-  auto cursor_in = CursorGameInstance::cursor_ui_;
-  bool top = cursor_in == Render;
-  size = std::max(0, size);
-  auto mouse_pos = SDL_FPoint{event->button.x, event->button.y};
-  Scroll scroll(item_page_, size, length);
-  item_page_ = scroll.Click((int)pos_.x + lt.x, (int)pos_.y + lt.y, top,
-                            mouse_pos);
   return consumed;
 }
 

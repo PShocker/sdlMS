@@ -27,13 +27,8 @@ struct Scroll {
   // Draws the scrollbar at `pos`.
   void Render() const;
 
-  // Returns the page the cursor clicks at (x, y), or `val` when it misses.
-  uint32_t Click(float x, float y, bool top,
-                 SDL_FPoint mouse = Window::mouse_pos_) const;
-
-  // True when (x, y) points at the draggable thumb.
-  bool ClickThumb(float x, float y,
-                  SDL_FPoint mouse = Window::mouse_pos_) const;
+  // Returns the page the cursor clicks at `mouse`, or `val` when it misses.
+  uint32_t Click(SDL_FPoint mouse = Window::mouse_pos_) const;
 };
 
 }  // namespace sdlms

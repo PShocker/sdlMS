@@ -459,18 +459,15 @@ void EquipUiSystem::EventClose() {
 }
 
 bool EquipUiSystem::EventUI(SDL_Event* event) {
-  static auto node = WzResource::ui_->find(u"Equipment.img/tab:mainTab");
-  std::vector<SDL_FRect> rects;
-  for (uint8_t i = 0; i < 2; i++) {
-    rects.push_back(
-        SDL_FRect{static_cast<float>(int(pos_.x) + 5 + 33 * i),
-                  static_cast<float>(int(pos_.y) + 26), 33, 19});
+  auto& components = GetComponent();
+  for (auto& component : components) {
+    if (auto* tab = std::get_if<Tab>(&component)) {
+      if (auto i = tab->Click()) {
+        active_tab_ = *i;
+      }
+    }
   }
-  Tab tab{node, u"selected", u"normal", rects, active_tab_};
-  if (auto i = tab.Click()) {
-    active_tab_ = *i;
-  }
-  return DispatchButtonClick(GetComponent(), false);
+  return DispatchButtonClick(components, false);
 }
 
 void EquipUiSystem::EventMotion(SDL_Event* event) {

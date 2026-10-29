@@ -27,7 +27,8 @@ void CraftUiSystem::RenderBackgrnd() {
   SDL_RenderTexture(Window::renderer_, texture, nullptr, &pos_rect);
 }
 
-void CraftUiSystem::RenderTab() {
+UIComponents& CraftUiSystem::GetComponent() {
+  components_.clear();
   const static auto tab_node =
       WzResource::ui_->find(u"Crafting.img/tab:category");
   std::vector<SDL_FRect> rects;
@@ -36,13 +37,30 @@ void CraftUiSystem::RenderTab() {
         SDL_FRect{static_cast<float>(int(pos_.x + 9 + i * 88)),
                   static_cast<float>(int(pos_.y + 23)), 88, 21});
   }
-  Tab tab{tab_node, u"selected", u"normal", rects, selected_tab_};
-  tab.Render();
+  components_.push_back(
+      Tab{tab_node, u"selected", u"normal", rects, selected_tab_});
+  return components_;
+}
+
+void CraftUiSystem::RenderUI() {
+  RenderComponents(GetComponent());
+}
+
+bool CraftUiSystem::EventUI(SDL_Event* event) {
+  for (auto& component : GetComponent()) {
+    if (auto* tab = std::get_if<Tab>(&component)) {
+      if (auto i = tab->Click()) {
+        selected_tab_ = *i;
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 bool CraftUiSystem::Render() {
   RenderBackgrnd();
-  RenderTab();
+  RenderUI();
   return true;
 }
 
@@ -121,23 +139,6 @@ bool CraftUiSystem::CursorIn() {
   auto& mouse = Window::mouse_pos_;
   SDL_FRect pos_rect{pos_.x, pos_.y, w, h};
   return SDL_PointInRectFloat(&mouse, &pos_rect);
-}
-
-bool CraftUiSystem::EventUI(SDL_Event* event) {
-  const static auto tab_node =
-      WzResource::ui_->find(u"Crafting.img/tab:category");
-  std::vector<SDL_FRect> rects;
-  for (uint8_t i = 0; i <= 5; i++) {
-    rects.push_back(
-        SDL_FRect{static_cast<float>(int(pos_.x + 9 + i * 88)),
-                  static_cast<float>(int(pos_.y + 23)), 88, 21});
-  }
-  Tab tab{tab_node, u"selected", u"normal", rects, selected_tab_};
-  if (auto i = tab.Click()) {
-    selected_tab_ = *i;
-    return true;
-  }
-  return false;
 }
 
 bool CraftUiSystem::Event(SDL_Event* event) {

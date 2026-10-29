@@ -17,22 +17,6 @@
 
 namespace sdlms {
 
-void ChatLogUiSystem::RenderVscr() {
-  const uint32_t length = 80;
-  auto size = 6;
-  auto cursor_in = CursorGameInstance::cursor_ui_;
-  auto screen_w = CameraGameInstance::camera_.w;
-  auto screen_h = CameraGameInstance::camera_.h;
-  auto base_x = (screen_w - 808) / 2;
-  auto base_y = (screen_h - 73);
-  bool top = cursor_in == Render && !CursorGameInstance::modal_overlay_;
-  Scroll scroll(5, size, length, 1);
-  scroll.pos = {base_x + 570, base_y - 75};
-  scroll.top = top;
-  scroll.Render();
-  return;
-}
-
 void ChatLogUiSystem::RenderChats() {
   float str_h = 0;
   auto& chats = ChatGameInstance::chats_;
@@ -70,7 +54,7 @@ void ChatLogUiSystem::RenderBackgrnd() {
 bool ChatLogUiSystem::Render() {
   RenderBackgrnd();
   RenderChats();
-  RenderVscr();
+  RenderUI();
   return true;
 }
 
@@ -97,24 +81,33 @@ void ChatLogUiSystem::Toggle() {
   }
 }
 
-bool ChatLogUiSystem::EventUI(SDL_Event* event) {
-  const uint32_t length = 76;
+UIComponents& ChatLogUiSystem::GetComponent() {
+  components_.clear();
+  const uint32_t length = 80;
+  auto size = 6;
   auto cursor_in = CursorGameInstance::cursor_ui_;
-  bool top = cursor_in == Render;
   auto screen_w = CameraGameInstance::camera_.w;
   auto screen_h = CameraGameInstance::camera_.h;
   auto base_x = (screen_w - 808) / 2;
   auto base_y = (screen_h - 73);
-  int size = 0;
-  for (const auto& chats : ChatGameInstance::chats_) {
-    auto str = chats.owner + u":" + chats.text;
-    auto h = Freetype::LoadCh(str, 564, 1.1);
-    size += h;
+  bool top = cursor_in == Render && !CursorGameInstance::modal_overlay_;
+  Scroll scroll(page_, size, length, 1);
+  scroll.pos = {base_x + 570, base_y - 75};
+  scroll.top = top;
+  components_.push_back(scroll);
+  return components_;
+}
+
+void ChatLogUiSystem::RenderUI() {
+  RenderComponents(GetComponent());
+}
+
+bool ChatLogUiSystem::EventUI(SDL_Event* event) {
+  for (auto& component : GetComponent()) {
+    if (auto* scroll = std::get_if<Scroll>(&component)) {
+      page_ = scroll->Click();
+    }
   }
-  size = size / (Freetype::LoadLh() * 1.1);
-  size = std::max(0, size);
-  Scroll scroll(page_, size, length);
-  page_ = scroll.Click(base_x + 564, base_y - 71, top);
   return false;
 }
 

@@ -669,35 +669,29 @@ void PackageUiSystem::EventButtonSort() {
 }
 
 bool PackageUiSystem::EventUI(SDL_Event* event) {
-  const static auto tab_node = WzResource::ui_->find(u"Item.img/Tab");
-  std::vector<SDL_FRect> tab_rects;
-  for (uint8_t i = 0; i < 6; i++) {
-    tab_rects.push_back(
-        SDL_FRect{static_cast<float>(int(pos_.x + 5 + i * 33)),
-                  static_cast<float>(int(pos_.y + 24)), 33, 19});
-  }
-  Tab tab{tab_node, u"enabled", u"disabled", tab_rects, active_tab_};
-  if (auto i = tab.Click()) {
-    AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
-    if (active_tab_ != *i) {
-      if (new_itm_.has_value() && (int)new_itm_->type == active_tab_) {
-        new_itm_ = std::nullopt;
+  auto& components = GetComponent();
+  for (auto& component : components) {
+    if (auto* tab = std::get_if<Tab>(&component)) {
+      if (auto i = tab->Click()) {
+        AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+        if (active_tab_ != *i) {
+          if (new_itm_.has_value() && (int)new_itm_->type == active_tab_) {
+            new_itm_ = std::nullopt;
+          }
+          page_ = 0;
+          active_tab_ = *i;
+        }
       }
-      page_ = 0;
-      active_tab_ = *i;
     }
   }
-  if (DispatchButtonClick(GetComponent(), false)) {
+  if (DispatchButtonClick(components, false)) {
     return true;
   }
-  const SDL_FPoint lt{188, 51};
-  const uint32_t length = 202;
-  auto& items = PackageGameInstance::data_[active_tab_];
-  auto size = static_cast<int>(std::ceil((items.size() - 30) / 5.0));
-  size = std::max(0, size);
-  auto mouse_pos = SDL_FPoint{event->button.x, event->button.y};
-  Scroll scroll(page_, size, length);
-  page_ = scroll.Click(pos_.x + lt.x, pos_.y + lt.y, true, mouse_pos);
+  for (auto& component : components) {
+    if (auto* scroll = std::get_if<Scroll>(&component)) {
+      page_ = scroll->Click();
+    }
+  }
   return false;
 }
 

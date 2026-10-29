@@ -113,7 +113,9 @@ void Scroll::Render() const {
   }
 }
 
-uint32_t Scroll::Click(float x, float y, bool top, SDL_FPoint mouse) const {
+uint32_t Scroll::Click(SDL_FPoint mouse) const {
+  const float x = pos.x;
+  const float y = pos.y;
   if (!top) {
     return val;
   }
@@ -158,16 +160,6 @@ uint32_t Scroll::Click(float x, float y, bool top, SDL_FPoint mouse) const {
     return std::round(percent * count);
   }
   return val;
-}
-
-bool Scroll::ClickThumb(float x, float y, SDL_FPoint mouse) const {
-  SDL_FRect pos_rect{
-      x,
-      y + 13,
-      static_cast<float>(15),
-      static_cast<float>(length - 26),
-  };
-  return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
 }  // namespace sdlms
