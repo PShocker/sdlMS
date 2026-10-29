@@ -1043,7 +1043,7 @@ bool CharacterCreateUiSystem::Event(SDL_Event* event) {
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
-        EventUI(event);
+        r = !EventUI(event);
         EventButtonCustom(event);
       }
       break;

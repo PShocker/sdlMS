@@ -318,6 +318,7 @@ bool LoginUiSystem::EventUI(SDL_Event* event) {
 
 bool LoginUiSystem::Event(SDL_Event* event) {
   username_.Event(event);
+  bool r = true;
   switch (event->type) {
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
       if (event->button.button == SDL_BUTTON_LEFT) {
@@ -326,7 +327,7 @@ bool LoginUiSystem::Event(SDL_Event* event) {
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
-        EventUI(event);
+        r = !EventUI(event);
       }
       break;
     }
@@ -337,7 +338,7 @@ bool LoginUiSystem::Event(SDL_Event* event) {
       break;
     }
   }
-  return true;
+  return r;
 }
 
 }  // namespace sdlms

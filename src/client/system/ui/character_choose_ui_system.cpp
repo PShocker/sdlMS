@@ -387,7 +387,7 @@ bool CharacterChooseUiSystem::EventChooseCharacter(SDL_Event* event) {
 }
 
 bool CharacterChooseUiSystem::EventUI(SDL_Event* event) {
-  return !DispatchButtonClick(GetComponent(), false);
+  return DispatchButtonClick(GetComponent(), false);
 }
 
 bool CharacterChooseUiSystem::Event(SDL_Event* event) {
@@ -402,7 +402,7 @@ bool CharacterChooseUiSystem::Event(SDL_Event* event) {
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
         EventChooseCharacter(event);
-        r = EventUI(event);
+        r = !EventUI(event);
       }
       break;
     }

@@ -86,8 +86,4 @@ void ComboBox::Render() const {
   }
 }
 
-bool ComboBox::Click(SDL_FPoint mouse) const {
-  return false;
-}
-
 }  // namespace sdlms

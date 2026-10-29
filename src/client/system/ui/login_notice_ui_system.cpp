@@ -216,7 +216,7 @@ bool LoginNoticeUiSystem::Event(SDL_Event* event) {
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
-        r = EventUI(event);
+        r = !EventUI(event);
       }
       break;
     }

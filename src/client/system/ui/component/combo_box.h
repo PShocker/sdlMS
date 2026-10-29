@@ -26,9 +26,6 @@ struct ComboBox {
 
   // Draws the box at `rect`, together with its drop-down list when `open`.
   void Render() const;
-
-  // Returns true when the click at `mouse` was handled.
-  bool Click(SDL_FPoint mouse = Window::mouse_pos_) const;
 };
 
 }  // namespace sdlms

@@ -31,11 +31,6 @@ struct Button {
   // Refreshes `mouse_over` for the current cursor position and returns it.
   bool Hover();
 
-  // True when the cursor is over an enabled, focused button.
-  bool CursorIn() {
-    return Hover();
-  }
-
   // Draws the button in its normal, hovered, pressed or disabled state.
   void Render();
 };

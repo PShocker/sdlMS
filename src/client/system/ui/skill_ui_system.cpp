@@ -288,7 +288,7 @@ UIComponents& SkillUiSystem::GetComponent() {
                   .rect = rect,
                   .enable = !disable[i],
                   .focused = cursor_on_ui && !modal_blocked};
-    if (i >= 1 && button.CursorIn()) {
+    if (i >= 1 && button.Hover()) {
       ski_button_id = (skill_node.begin() + page_ + (i - 1))->first;
     }
     components_.push_back(button);
@@ -544,7 +544,7 @@ bool SkillUiSystem::Event(SDL_Event* event) {
         if (CursorGameInstance::cursor_ui_ == Render) {
           EventButtonSkiUp();
           EventClickSki(event);
-          r = EventUI(event);
+          r = !EventUI(event);
         }
         EventDragEnd();
       }

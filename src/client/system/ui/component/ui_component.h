@@ -15,6 +15,15 @@ namespace sdlms {
 
 // One element of a UI's component list. The owning UI rebuilds the list in
 // GetComponent() and RenderUI() draws every element in list order.
+//
+// Each UI system follows the same immediate-mode lifecycle:
+//
+//   GetComponent()  rebuilds the component list for the current frame state.
+//   RenderUI()      draws the list in order.
+//   EventUI()       clicks the list; returns true when a component consumed
+//                   the click, so Event() reports false to stop event dispatch.
+//
+// Lists are rebuilt per call, so screen positions always match the cursor.
 using UIComponent =
     std::variant<Button, CheckBox, ComboBox, Scroll, Slider, Tab, TextInput>;
 

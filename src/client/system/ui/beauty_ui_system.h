@@ -26,7 +26,6 @@ class BeautyUiSystem {
   static void EventButtonPrev();
   static void EventButtonNext();
 
-  static bool EventUI(SDL_Event* event);
 
  public:
   static bool Render();
