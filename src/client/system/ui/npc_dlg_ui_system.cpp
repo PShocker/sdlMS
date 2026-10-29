@@ -114,6 +114,12 @@ void NpcDlgUiSystem::RenderNpc() {
 }
 
 void NpcDlgUiSystem::RenderButton() {
+  for (Button& button : GetComponent()) {
+    button.Render();
+  }
+}
+
+std::vector<Button>& NpcDlgUiSystem::GetComponent() {
   components_.clear();
   auto [w, h] = LoadWh();
   std::vector<wz::Node*> buttons_node = {
@@ -122,46 +128,52 @@ void NpcDlgUiSystem::RenderButton() {
   std::vector<SDL_FRect> buttons_rect = {
       SDL_FRect{10, h - 25, 85, 18},  //
   };
+  std::vector<Button::Callback> callbacks = {
+      EventButtonClose,
+  };
 
   auto w0 = w - 72;
   if (index_ < max_index_) {
     buttons_node.push_back(
         WzResource::ui_->find(u"UtilDlgEx.img/UtilDlgEx/BtNext"));
     buttons_rect.push_back(SDL_FRect{w0, h - 76, 46, 18});
+    callbacks.push_back(EventButtonNext);
     w0 -= 52;
   }
   if (index_ > 0) {
     buttons_node.push_back(
         WzResource::ui_->find(u"UtilDlgEx.img/UtilDlgEx/BtPrev"));
     buttons_rect.push_back(SDL_FRect{w0, h - 76, 46, 18});
+    callbacks.push_back(EventButtonPrev);
   }
-  if (type_ == NpcDlgEnum::kQuestAvaliable && index_ == max_index_) {
+  if (index_ == max_index_ && cb_ == nullptr &&
+      type_ == NpcDlgEnum::kQuestAvaliable) {
     buttons_node.push_back(WzResource::ui_->find(u"UIWindow.img/Quest/BtOK"));
     buttons_rect.push_back(SDL_FRect{w - 128, h - 25, 57, 17});
+    callbacks.push_back(EventButtonQuestYes);
 
     buttons_node.push_back(WzResource::ui_->find(u"UIWindow.img/Quest/BtNo"));
     buttons_rect.push_back(SDL_FRect{w - 66, h - 25, 57, 17});
+    callbacks.push_back(EventButtonQuestNo);
   } else {
     buttons_node.push_back(
         WzResource::ui_->find(u"UtilDlgEx.img/UtilDlgEx/BtOK"));
     buttons_rect.push_back(SDL_FRect{w - 56, h - 25, 46, 18});
+    callbacks.push_back(EventButtonOk);
   }
 
   for (size_t i = 0; i < buttons_node.size(); ++i) {
     SDL_FRect rect = buttons_rect[i];
     rect.x += (int)pos_.x;
     rect.y += (int)pos_.y;
-    Button button{.node = buttons_node[i],
-                  .rect = rect,
-                  .enable = true,
-                  .focused = CursorGameInstance::cursor_ui_ == Render &&
-                             !CursorGameInstance::modal_overlay_};
-    components_.push_back(button);
-    button.Render();
+    components_.push_back(
+        Button{.node = buttons_node[i],
+               .rect = rect,
+               .callback = callbacks[i],
+               .enable = true,
+               .focused = CursorGameInstance::cursor_ui_ == Render &&
+                          !CursorGameInstance::modal_overlay_});
   }
-}
-
-std::vector<Button>& NpcDlgUiSystem::GetComponent() {
   return components_;
 }
 
@@ -832,43 +844,7 @@ void NpcDlgUiSystem::EventButtonQuestNo() {
 }
 
 bool NpcDlgUiSystem::EventButton(SDL_Event* event) {
-  auto [w, h] = LoadWh();
-  std::vector<SDL_FRect> buttons_rect = {
-      SDL_FRect{10, h - 25, 85, 18},  //
-  };
-  std::vector<std::function<void()>> func = {
-      EventButtonClose,
-  };
-
-  auto w0 = w - 72;
-  if (index_ < max_index_) {
-    buttons_rect.push_back(SDL_FRect{w0, h - 76, 46, 18});
-    func.push_back(EventButtonNext);
-    w0 -= 52;
-  }
-  if (index_ > 0) {
-    buttons_rect.push_back(SDL_FRect{w0, h - 76, 46, 18});
-    func.push_back(EventButtonPrev);
-  }
-  if (index_ == max_index_ && cb_ == nullptr &&
-      type_ == NpcDlgEnum::kQuestAvaliable) {
-    buttons_rect.push_back(SDL_FRect{w - 128, h - 25, 57, 17});
-    func.push_back(EventButtonQuestYes);
-
-    buttons_rect.push_back(SDL_FRect{w - 66, h - 25, 57, 17});
-    func.push_back(EventButtonQuestNo);
-  } else {
-    buttons_rect.push_back(SDL_FRect{w - 56, h - 25, 46, 18});
-    func.push_back(EventButtonOk);
-  }
-
-  for (size_t i = 0; i < components_.size() && i < func.size(); ++i) {
-    components_[i].callback = func[i];
-  }
-  if (DispatchButtonClick(components_, true)) {
-    return true;
-  }
-  return false;
+  return DispatchButtonClick(GetComponent(), true);
 }
 
 bool NpcDlgUiSystem::CursorIn() {
