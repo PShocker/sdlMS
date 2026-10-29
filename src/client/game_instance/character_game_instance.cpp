@@ -112,7 +112,7 @@ void CharacterGameInstance::InitCharacterBone() {
   for (const auto [k, v] : tmp_bone_map) {
     for (uint8_t i = 0; i < v.size(); i++) {
       const auto& tbd = v[i];
-      for (const auto& zp : zmap) {
+      for (const auto& zp : zmap_) {
         if (!tbd.bones.contains(zp)) {
           continue;
         }
@@ -203,7 +203,7 @@ std::flat_set<std::u16string> CharacterGameInstance::SplitVslot(
 
 std::u16string CharacterGameInstance::SplitIslot(const std::u16string& islot) {
   auto result = SplitVslot(islot);
-  for (auto k : zmap2) {
+  for (auto k : zmap2_) {
     if (result.contains(k)) {
       return k;
     }

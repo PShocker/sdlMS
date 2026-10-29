@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_SYSTEM_UI_LOGIN_NOTICE_UI_SYSTEM_H_
-#define SDLMS_SRC_CLIENT_SYSTEM_UI_LOGIN_NOTICE_UI_SYSTEM_H_
+#pragma once
 
 #include "src/client/system_instance/login_notice_system_instance.h"
 
@@ -19,7 +18,7 @@ class LoginNoticeUiSystem {
  public:
   static void EventClose();
 
-  static inline void (*fn)();
+  static inline void (*fn_)();
 
   static inline LoginNoticeSystemInstance::NoticeType type_;
   static bool Render();
@@ -28,5 +27,3 @@ class LoginNoticeUiSystem {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_SYSTEM_UI_LOGIN_NOTICE_UI_SYSTEM_H_

@@ -12,7 +12,7 @@ namespace sdlms {
 
 void JobSkillGameInstance::Load(const CharacterSaveData& cs) {
   skill_point_ = cs.sp.ski_sp;
-  remain_point = cs.remain_sp;
+  remain_point_ = cs.remain_sp;
 }
 
 uint8_t JobSkillGameInstance::LoadSkiLevel(const std::u16string& id) {

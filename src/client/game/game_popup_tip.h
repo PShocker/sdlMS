@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_GAME_GAME_POPUP_TIP_H_
-#define SDLMS_SRC_CLIENT_GAME_GAME_POPUP_TIP_H_
+#pragma once
 
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/common.h"
@@ -23,5 +22,3 @@ struct GamePopupTip {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_GAME_GAME_POPUP_TIP_H_

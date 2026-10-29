@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_CHARACTER_GAME_INSTANCE_H_
-#define SDLMS_SRC_CLIENT_GAME_INSTANCE_CHARACTER_GAME_INSTANCE_H_
+#pragma once
 
 #include "src/client/game/game_character.h"
 #include "src/common/flatbuffers/common.h"
@@ -115,7 +114,7 @@ class CharacterGameInstance {
 
   static inline std::flat_map<std::u16string, CharacterFaceRender> face_data_;
 
-  const static inline std::vector<std::u16string> zmap = {
+  const static inline std::vector<std::u16string> zmap_ = {
       u"backTamingMobMid",
       u"backMobEquipUnderSaddle",
       u"backSaddle",
@@ -249,7 +248,7 @@ class CharacterGameInstance {
       u"tamingMobFront",
       u"mobEquipFront"};
 
-  const static inline std::vector<std::u16string> zmap2 = {
+  const static inline std::vector<std::u16string> zmap2_ = {
       u"Sd", u"Tm", u"Sr", u"Wg", u"Ma", u"Ws", u"Pn", u"So",
       u"Si", u"Wp", u"Gv", u"Ri", u"Cp", u"Ay", u"As", u"Ae",
       u"Am", u"Af", u"At", u"Fc", u"Hr", u"Hd", u"Bd",
@@ -257,7 +256,7 @@ class CharacterGameInstance {
 
   const static inline std::flat_map<std::u16string,
                                     std::flat_set<std::u16string>>
-      smap = {
+      smap_ = {
           {u"weaponWristOverGlove", {u"Wp"}},
           {u"capeOverHead", {u"Sr"}},
           {u"weaponOverGlove", {u"Wp"}},
@@ -384,5 +383,3 @@ class CharacterGameInstance {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_GAME_INSTANCE_CHARACTER_GAME_INSTANCE_H_

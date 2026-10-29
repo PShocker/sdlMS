@@ -142,7 +142,7 @@ void RequestHandler::HandleRequest(uint64_t client_id, void* buf,
             ServerClientInstance::clients_[r.payload].player_t.character;
         fbs::ServerCharacterInfoT sct;
         sct.payload = std::make_unique<fbs::CharacterT>(*character);
-        ServerResponse::send_to_client(client_id, sct);
+        ServerResponse::SendToClient(client_id, sct);
       }
       break;
     }

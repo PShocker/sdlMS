@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_CURSOR_GAME_INSTANCE_H_
-#define SDLMS_SRC_CLIENT_GAME_INSTANCE_CURSOR_GAME_INSTANCE_H_
+#pragma once
 
 #include "src/common/flatbuffers/common.h"
 
@@ -15,9 +14,9 @@ class CursorGameInstance {
   static inline uint8_t cursor_index_;
   static inline uint32_t cursor_time_;
 
-  static inline bool (*cursor_ui)(void);
+  static inline bool (*cursor_ui_)(void);
   static inline bool cursor_vscr_;
-  static inline bool (*modal_overlay)(void);
+  static inline bool (*modal_overlay_)(void);
 
   // 点击装备,背包,技能,键盘按钮
   enum class CursorHandType {
@@ -85,5 +84,3 @@ class CursorGameInstance {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_GAME_INSTANCE_CURSOR_GAME_INSTANCE_H_

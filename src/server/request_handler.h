@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_SERVER_REQUEST_HANDLER_H_
-#define SDLMS_SRC_SERVER_REQUEST_HANDLER_H_
+#pragma once
 
 #include <cstdint>
 
@@ -11,5 +10,3 @@ class RequestHandler {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_SERVER_REQUEST_HANDLER_H_

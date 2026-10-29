@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_SERVER_SERVER_SERVER_CLIENT_H_
-#define SDLMS_SRC_SERVER_SERVER_SERVER_CLIENT_H_
+#pragma once
 
 #include "src/common/flatbuffers/common.h"
 
@@ -18,5 +17,3 @@ struct ServerClient {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_SERVER_SERVER_SERVER_CLIENT_H_

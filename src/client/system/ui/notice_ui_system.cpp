@@ -12,6 +12,7 @@
 #include "src/client/system/input/keyboard_input_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/button.h"
 #include "src/client/system/ui/shop_ui_system.h"
 #include "src/client/system/ui/text_input_ui_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
@@ -130,25 +131,15 @@ void NoticeUiSystem::RenderButton() {
     }
   }
   for (size_t i = 0; i < buttons_node.size(); ++i) {
-    auto k = buttons_node[i];
-    auto pos_rect = buttons_rect[i];
-    pos_rect.x += (int)pos_.x;
-    pos_rect.y += (int)pos_.y;
-    auto& mouse_pos = Window::mouse_pos_;
-    // 判断按钮是否被遮挡
-    auto cursor_in = CursorGameInstance::cursor_ui;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == Render) {
-      if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
-        auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
-        SDL_RenderTexture(Window::renderer_, pressed, nullptr, &pos_rect);
-      } else {
-        auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
-        SDL_RenderTexture(Window::renderer_, mouse_over, nullptr, &pos_rect);
-      }
-    } else {
-      auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
-      SDL_RenderTexture(Window::renderer_, normal, nullptr, &pos_rect);
-    }
+    SDL_FRect rect = buttons_rect[i];
+    rect.x += (int)pos_.x;
+    rect.y += (int)pos_.y;
+    Button{.node = buttons_node[i],
+           .rect = rect,
+           .enable = true,
+           .focused = CursorGameInstance::cursor_ui_ == Render &&
+                      !CursorGameInstance::modal_overlay_}
+        .Render();
   }
 }
 
@@ -651,7 +642,7 @@ void NoticeUiSystem::EventButtonThrowMul() {
     fbs::ClientCharacterDropT cct;
     cct.map_id = SceneSystemInstance::map_id_;
     cct.payload = std::make_unique<fbs::DropT>(dt);
-    ClientRequest::send_to_host(cct);
+    ClientRequest::SendToHost(cct);
 
     CursorGameInstance::cursor_hand_net_ = {
         .type = CursorGameInstance::CursorHandNetType::kDrop,
@@ -738,7 +729,7 @@ void NoticeUiSystem::EventInput(SDL_Event* event) {
 }
 
 void NoticeUiSystem::EventMotionBtAudio(SDL_Event* event) {
-  if (CursorGameInstance::cursor_ui != Render) {
+  if (CursorGameInstance::cursor_ui_ != Render) {
     return;
   }
   std::vector<SDL_FRect> buttons_rect;
@@ -816,14 +807,14 @@ bool NoticeUiSystem::Event(SDL_Event* event) {
     }
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
       if (event->button.button == SDL_BUTTON_LEFT) {
-        if (CursorGameInstance::cursor_ui == Render) {
+        if (CursorGameInstance::cursor_ui_ == Render) {
         }
       }
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
-        if (CursorGameInstance::cursor_ui == Render) {
+        if (CursorGameInstance::cursor_ui_ == Render) {
           EventButton(event);
         }
       }

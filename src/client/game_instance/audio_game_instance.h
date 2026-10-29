@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_AUDIO_GAME_INSTANCE_H_
-#define SDLMS_SRC_CLIENT_GAME_INSTANCE_AUDIO_GAME_INSTANCE_H_
+#pragma once
 
 #include "src/client/game/game_audio.h"
 
@@ -34,5 +33,3 @@ class AudioGameInstance {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_GAME_INSTANCE_AUDIO_GAME_INSTANCE_H_

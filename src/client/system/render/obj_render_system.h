@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_SYSTEM_RENDER_OBJ_RENDER_SYSTEM_H_
-#define SDLMS_SRC_CLIENT_SYSTEM_RENDER_OBJ_RENDER_SYSTEM_H_
+#pragma once
 
 #include "src/client/game/game_obj.h"
 
@@ -14,5 +13,3 @@ class ObjRenderSystem {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_SYSTEM_RENDER_OBJ_RENDER_SYSTEM_H_

@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_CLOCK_GAME_INSTANCE_H_
-#define SDLMS_SRC_CLIENT_GAME_INSTANCE_CLOCK_GAME_INSTANCE_H_
+#pragma once
 
 #include <SDL3/SDL_rect.h>
 #include <wz/Node.h>
@@ -16,5 +15,3 @@ class ClockGameInstance {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_GAME_INSTANCE_CLOCK_GAME_INSTANCE_H_

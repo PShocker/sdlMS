@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_TEXT_GAME_INSTANCE_H_
-#define SDLMS_SRC_CLIENT_GAME_INSTANCE_TEXT_GAME_INSTANCE_H_
+#pragma once
 
 #include <wz/Node.h>
 
@@ -21,5 +20,3 @@ class TextGameInstance {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_GAME_INSTANCE_TEXT_GAME_INSTANCE_H_

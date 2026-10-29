@@ -26,7 +26,7 @@ void ServerSceneInstance::CleanClient(uint64_t client_id,
     fbs::ServerCharacterOutT r;
     for (const auto other : scenes.clients) {
       r.client_id = client_id;
-      ServerResponse::send_to_client(other, r);
+      ServerResponse::SendToClient(other, r);
     }
   }
 }
@@ -90,7 +90,7 @@ void ServerSceneInstance::SendSceneClients(uint64_t client_id,
     mobt->state->y = m.pos.y;
   }
 
-  ServerResponse::send_to_client(client_id, r);
+  ServerResponse::SendToClient(client_id, r);
 }
 
 void ServerSceneInstance::SendInScene(uint64_t client_id,
@@ -103,7 +103,7 @@ void ServerSceneInstance::SendInScene(uint64_t client_id,
   auto scene = ServerSceneInstance::scenes_[client_scene.map_id];
   scene.clients.erase(client_id);
   for (const auto c : scene.clients) {
-    ServerResponse::send_to_client(c, r);
+    ServerResponse::SendToClient(c, r);
   }
 }
 
@@ -117,7 +117,7 @@ void ServerSceneInstance::SendInFade(uint64_t client_id,
   r.fade = false;
   r.client_id = client_id;
   r.time = Window::dt_time_;
-  ServerResponse::send_to_client(client_id, r);
+  ServerResponse::SendToClient(client_id, r);
 }
 
 void ServerSceneInstance::InitScene(uint64_t client_id,

@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_GAME_GAME_CHAIR_H_
-#define SDLMS_SRC_CLIENT_GAME_GAME_CHAIR_H_
+#pragma once
 
 #include <SDL3/SDL.h>
 
@@ -16,5 +15,3 @@ struct GameChair {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_GAME_GAME_CHAIR_H_

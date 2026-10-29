@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_COMMON_RESPONSE_SERVER_RESPONSE_H_
-#define SDLMS_SRC_COMMON_RESPONSE_SERVER_RESPONSE_H_
+#pragma once
 
 #include "src/common/flatbuffers/protocol.h"
 #include "src/common/flatbuffers/server.h"
@@ -12,7 +11,7 @@ namespace sdlms {
 class ServerResponse {
  public:
   template <typename T>
-  static void send_to_client(uint64_t client_id, T& message_data) {
+  static void SendToClient(uint64_t client_id, T& message_data) {
     // 构建 NetPacket
     fbs::NetPacketT packet;
     fbs::NetPayloadUnion u;
@@ -31,5 +30,3 @@ class ServerResponse {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_COMMON_RESPONSE_SERVER_RESPONSE_H_

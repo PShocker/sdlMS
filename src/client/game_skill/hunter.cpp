@@ -56,7 +56,7 @@ static void Baozhajian() {
     }
     auto cct = BallGameInstance::CreateBallPayload(cm, pos, goal, delay, page,
                                                    700, path);
-    ClientRequest::send_to_host(cct);
+    ClientRequest::SendToHost(cct);
     ServerBallInstance::HandleServerB(cct.payload);
 
     fbs::ClientCharacterAttackT cat;
@@ -76,11 +76,11 @@ static void Baozhajian() {
         }
       }
       cat = SkillGameInstance::CreateAttackPayload(cm, sf.pos, d);
-      ClientRequest::send_to_host(cat);
+      ClientRequest::SendToHost(cat);
     }
     auto ckt = SkillGameInstance::CreateSkillPayload(cat, 3101005, ski_lv);
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
-    ClientRequest::send_to_host(ckt);
+    ClientRequest::SendToHost(ckt);
 
     fbs::ClientMobDebuffT cmb;
     cmb.map_id = SceneSystemInstance::map_id_;
@@ -93,7 +93,7 @@ static void Baozhajian() {
       md.payload->time = Window::dt_time_ + 5000;
     }
     if (!cmb.payload.empty()) {
-      ClientRequest::send_to_host(cmb);
+      ClientRequest::SendToHost(cmb);
     }
   };
   auto& skills = SkillGameInstance::Skis();
@@ -153,7 +153,7 @@ static void Wuyingjian() {
 
     auto ckt = SkillGameInstance::CreateSkillPayload(3101003, ski_lv);
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
-    ClientRequest::send_to_host(ckt);
+    ClientRequest::SendToHost(ckt);
   };
 
   auto& skills = SkillGameInstance::Skis();

@@ -6,6 +6,7 @@
 #include "src/client/game_instance/text_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/button.h"
 #include "src/client/system/ui/character_info_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
@@ -87,26 +88,14 @@ void ContextMenuUiSystem::RenderButton() {
       false, false, false, false, false, false, false,
   };
   for (size_t i = 0; i < buttons_nodes.size(); ++i) {
-    auto k = buttons_nodes[i];
-    auto pos_rect = buttons_rect[i];
-    pos_rect.x = (int)pos_rect.x;
-    pos_rect.y = (int)pos_rect.y;
-    auto& mouse_pos = Window::mouse_pos_;
-    if (disable[i]) {
-      auto d = WzResource::LoadTexture(k->find(u"disabled/0"));
-      SDL_RenderTexture(Window::renderer_, d, nullptr, &pos_rect);
-    } else if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-      if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
-        auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
-        SDL_RenderTexture(Window::renderer_, pressed, nullptr, &pos_rect);
-      } else {
-        auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
-        SDL_RenderTexture(Window::renderer_, mouse_over, nullptr, &pos_rect);
-      }
-    } else {
-      auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
-      SDL_RenderTexture(Window::renderer_, normal, nullptr, &pos_rect);
-    }
+    SDL_FRect rect = buttons_rect[i];
+    rect.x = (int)rect.x;
+    rect.y = (int)rect.y;
+    Button{.node = buttons_nodes[i],
+           .rect = rect,
+           .enable = !disable[i],
+           .focused = true}
+        .Render();
   }
 }
 
@@ -130,7 +119,7 @@ void ContextMenuUiSystem::EventButtonInfo() {
   } else {
     fbs::ClientCharacterInfoT ct;
     ct.payload = client_id_;
-    ClientRequest::send_to_host(ct);
+    ClientRequest::SendToHost(ct);
   }
 }
 
@@ -147,7 +136,7 @@ void ContextMenuUiSystem::EventButtonParty() {}
 void ContextMenuUiSystem::EventButtonTrade() {
   fbs::ClientCharacterTradeT ct;
   ct.to_id = client_id_;
-  ClientRequest::send_to_host(ct);
+  ClientRequest::SendToHost(ct);
 }
 
 void ContextMenuUiSystem::EventButtonFriend() {}
@@ -212,7 +201,7 @@ bool ContextMenuUiSystem::Event(SDL_Event* event) {
     }
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
       if (event->button.button == SDL_BUTTON_LEFT) {
-        if (CursorGameInstance::cursor_ui == Render) {
+        if (CursorGameInstance::cursor_ui_ == Render) {
           r = false;
         }
       }
@@ -220,7 +209,7 @@ bool ContextMenuUiSystem::Event(SDL_Event* event) {
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
-        if (CursorGameInstance::cursor_ui == Render) {
+        if (CursorGameInstance::cursor_ui_ == Render) {
           EventButton(event);
         }
       }

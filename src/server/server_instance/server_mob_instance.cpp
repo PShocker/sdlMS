@@ -114,7 +114,7 @@ void ServerMobInstance::HandleAttack(uint64_t client_id,
   t.client_id = client_id;
   t.payload = std::move(r.payload);
   for (auto c : clients) {
-    ServerResponse::send_to_client(c, t);
+    ServerResponse::SendToClient(c, t);
   }
 }
 
@@ -319,7 +319,7 @@ void ServerMobInstance::HandleCreateMob(fbs::ClientCreateMobT& r) {
   fbs::ServerCreateMobT sct;
   sct.mobs = std::move(r.mobs);
   for (auto client_id : scene.clients) {
-    ServerResponse::send_to_client(client_id, sct);
+    ServerResponse::SendToClient(client_id, sct);
   }
   return;
 }
@@ -441,7 +441,7 @@ void ServerMobInstance::HandleDebuff(uint64_t client_id,
   fbs::ServerMobDebuffT smd;
   smd.payload = std::move(r.payload);
   for (auto c : scene.clients) {
-    ServerResponse::send_to_client(c, smd);
+    ServerResponse::SendToClient(c, smd);
   }
   return;
 }

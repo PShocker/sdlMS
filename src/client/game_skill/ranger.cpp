@@ -32,11 +32,11 @@ static void Jianyu() {
         cm.data[i].delay += 120 * i;
       }
       cat = SkillGameInstance::CreateAttackPayload(cm, sf.pos, delay);
-      ClientRequest::send_to_host(cat);
+      ClientRequest::SendToHost(cat);
     }
     auto ckt = SkillGameInstance::CreateSkillPayload(cat, 3111002, ski_lv);
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
-    ClientRequest::send_to_host(ckt);
+    ClientRequest::SendToHost(ckt);
   };
   auto& skills = SkillGameInstance::Skis();
   skills[g_skill.id] = g_skill;

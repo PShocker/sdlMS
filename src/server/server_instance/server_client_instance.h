@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_SERVER_SERVER_INSTANCE_SERVER_CLIENT_INSTANCE_H_
-#define SDLMS_SRC_SERVER_SERVER_INSTANCE_SERVER_CLIENT_INSTANCE_H_
+#pragma once
 
 #include "src/server/server/server_client.h"
 
@@ -15,5 +14,3 @@ class ServerClientInstance {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_SERVER_SERVER_INSTANCE_SERVER_CLIENT_INSTANCE_H_

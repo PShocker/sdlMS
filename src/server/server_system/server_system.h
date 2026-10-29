@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_SERVER_SERVER_SYSTEM_SERVER_SYSTEM_H_
-#define SDLMS_SRC_SERVER_SERVER_SYSTEM_SERVER_SYSTEM_H_
+#pragma once
 
 #include <vector>
 
@@ -11,5 +10,3 @@ class ServerSystem {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_SERVER_SERVER_SYSTEM_SERVER_SYSTEM_H_

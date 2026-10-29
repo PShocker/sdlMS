@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_MOB_GAME_INSTANCE_H_
-#define SDLMS_SRC_CLIENT_GAME_INSTANCE_MOB_GAME_INSTANCE_H_
+#pragma once
 
 #include "src/client/game/game_mob.h"
 #include "src/common/flatbuffers/common.h"
@@ -34,5 +33,3 @@ class MobGameInstance {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_GAME_INSTANCE_MOB_GAME_INSTANCE_H_

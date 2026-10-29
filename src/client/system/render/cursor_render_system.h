@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_SYSTEM_RENDER_CURSOR_RENDER_SYSTEM_H_
-#define SDLMS_SRC_CLIENT_SYSTEM_RENDER_CURSOR_RENDER_SYSTEM_H_
+#pragma once
 
 namespace sdlms {
 
@@ -13,5 +12,3 @@ class CursorRenderSystem {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_SYSTEM_RENDER_CURSOR_RENDER_SYSTEM_H_

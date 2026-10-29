@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_LADDERROPE_GAME_INSTANCE_H_
-#define SDLMS_SRC_CLIENT_GAME_INSTANCE_LADDERROPE_GAME_INSTANCE_H_
+#pragma once
 
 #include "src/client/game/game_ladderrope.h"
 
@@ -15,5 +14,3 @@ class LadderropeGameInstance {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_GAME_INSTANCE_LADDERROPE_GAME_INSTANCE_H_

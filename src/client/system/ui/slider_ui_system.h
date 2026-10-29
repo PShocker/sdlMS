@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_SYSTEM_UI_SLIDER_UI_SYSTEM_H_
-#define SDLMS_SRC_CLIENT_SYSTEM_UI_SLIDER_UI_SYSTEM_H_
+#pragma once
 
 #include "src/client/window/window.h"
 
@@ -20,5 +19,3 @@ class SliderUiSystem {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_SYSTEM_UI_SLIDER_UI_SYSTEM_H_

@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_SEAT_GAME_INSTANCE_H_
-#define SDLMS_SRC_CLIENT_GAME_INSTANCE_SEAT_GAME_INSTANCE_H_
+#pragma once
 
 #include "src/client/game/game_seat.h"
 
@@ -16,5 +15,3 @@ class SeatGameInstance {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_GAME_INSTANCE_SEAT_GAME_INSTANCE_H_

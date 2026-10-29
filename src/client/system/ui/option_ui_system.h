@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_SYSTEM_UI_OPTION_UI_SYSTEM_H_
-#define SDLMS_SRC_CLIENT_SYSTEM_UI_OPTION_UI_SYSTEM_H_
+#pragma once
 
 #include "src/client/system/ui/combo_box_ui_system.h"
 #include "src/client/system/ui/text_input_ui_system.h"
@@ -65,7 +64,7 @@ class OptionUiSystem {
     kName,
     kHp,
   };
-  static inline ComboBox enemy_info_cm = {
+  static inline ComboBox enemy_info_cm_ = {
       .open = false,
       .w = 226,
       .selected = u"Name and HP",
@@ -77,7 +76,7 @@ class OptionUiSystem {
     kJpeg,
     kPng,
   };
-  static inline ComboBox screenshot_format = {
+  static inline ComboBox screenshot_format_ = {
       .open = false,
       .w = 226,
       .selected = u"JPEG",
@@ -87,7 +86,7 @@ class OptionUiSystem {
   enum class ScreenshotLocationEnum {
     kFolder,
   };
-  static inline ComboBox screenshot_location = {
+  static inline ComboBox screenshot_location_ = {
       .open = false,
       .w = 226,
       .selected = u"MapleStory Folder",
@@ -107,7 +106,7 @@ class OptionUiSystem {
   enum class LanguageEnum {
     kEnglish,
   };
-  static inline ComboBox language = {
+  static inline ComboBox language_ = {
       .open = false,
       .w = 226,
       .selected = u"English",
@@ -129,5 +128,3 @@ class OptionUiSystem {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_SYSTEM_UI_OPTION_UI_SYSTEM_H_

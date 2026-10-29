@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_SYSTEM_RENDER_PET_RENDER_SYSTEM_H_
-#define SDLMS_SRC_CLIENT_SYSTEM_RENDER_PET_RENDER_SYSTEM_H_
+#pragma once
 
 namespace sdlms {
 
@@ -8,5 +7,3 @@ class PetRenderSystem {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_SYSTEM_RENDER_PET_RENDER_SYSTEM_H_

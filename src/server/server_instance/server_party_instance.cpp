@@ -34,7 +34,7 @@ void ServerPartyInstance::HandleParty(uint64_t client_id,
         fbs::ServerCharacterPartyT scp;
         scp.step = 0;
         scp.to_id = client_id;
-        ServerResponse::send_to_client(to_id, scp);
+        ServerResponse::SendToClient(to_id, scp);
       }
       return;
     }
@@ -51,10 +51,10 @@ void ServerPartyInstance::HandleParty(uint64_t client_id,
       for (auto c_id : party.client_ids) {
         const auto player_t = ServerClientInstance::clients_[c_id].player_t;
         scp.players.push_back(std::make_unique<fbs::PlayerT>(player_t));
-        ServerResponse::send_to_client(c_id, scp);
+        ServerResponse::SendToClient(c_id, scp);
       }
       scp.to_id = 0;
-      ServerResponse::send_to_client(captain_id, scp);
+      ServerResponse::SendToClient(captain_id, scp);
       return;
     }
   }

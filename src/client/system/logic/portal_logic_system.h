@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_SYSTEM_LOGIC_PORTAL_LOGIC_SYSTEM_H_
-#define SDLMS_SRC_CLIENT_SYSTEM_LOGIC_PORTAL_LOGIC_SYSTEM_H_
+#pragma once
 
 namespace sdlms {
 
@@ -9,5 +8,3 @@ class PortalLogicSystem {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_SYSTEM_LOGIC_PORTAL_LOGIC_SYSTEM_H_

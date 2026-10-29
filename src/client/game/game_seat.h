@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_GAME_GAME_SEAT_H_
-#define SDLMS_SRC_CLIENT_GAME_GAME_SEAT_H_
+#pragma once
 
 #include <SDL3/SDL_rect.h>
 
@@ -8,11 +7,8 @@
 
 namespace sdlms {
 
-class GameSeat {
- public:
+struct GameSeat {
   SDL_FPoint pos;
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_GAME_GAME_SEAT_H_

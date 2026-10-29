@@ -47,8 +47,8 @@ void PopupTipUiSystem::RenderBackgrnd(GamePopupTip& t) {
   }
   auto screen_w = CameraGameInstance::camera_.w;
   auto screen_h = CameraGameInstance::camera_.h;
-  auto x = pos.x + (screen_w - 808) / 2;
-  auto y = pos.y + (screen_h - 73);
+  auto x = pos_.x + (screen_w - 808) / 2;
+  auto y = pos_.y + (screen_h - 73);
 
   SDL_FRect pos_rect{
       x,
@@ -70,8 +70,8 @@ void PopupTipUiSystem::RenderBackgrnd(GamePopupTip& t) {
 void PopupTipUiSystem::RenderText(GamePopupTip& t) {
   auto screen_w = CameraGameInstance::camera_.w;
   auto screen_h = CameraGameInstance::camera_.h;
-  auto x = pos.x + (screen_w - 808) / 2;
-  auto y = pos.y + (screen_h - 73);
+  auto x = pos_.x + (screen_w - 808) / 2;
+  auto y = pos_.y + (screen_h - 73);
 
   switch (t.type) {
     case PopupTipEnums::kQuest: {
@@ -119,13 +119,13 @@ void PopupTipUiSystem::RenderButton(GamePopupTip& t) {
   }
   // 渲染所有按钮
   bool mouse_down = Window::mouse_state_ & SDL_BUTTON_LMASK;
-  bool cursor_on_ui = CursorGameInstance::cursor_ui == Render;
-  bool modal_blocked = CursorGameInstance::modal_overlay;
+  bool cursor_on_ui = CursorGameInstance::cursor_ui_ == Render;
+  bool modal_blocked = CursorGameInstance::modal_overlay_;
 
   for (size_t i = 0; i < nodes.size(); ++i) {
     SDL_FRect rect = {
-        rects[i].x + (int)pos.x,
-        rects[i].y + (int)pos.y,
+        rects[i].x + (int)pos_.x,
+        rects[i].y + (int)pos_.y,
         rects[i].w,
         rects[i].h,
     };
@@ -169,7 +169,7 @@ bool PopupTipUiSystem::Render() {
 void PopupTipUiSystem::EventButtonParty(GamePopupTip& t) {
   fbs::ClientCharacterPartyT ccp;
   ccp.step = 1;
-  ClientRequest::send_to_host(ccp);
+  ClientRequest::SendToHost(ccp);
   return;
 }
 
@@ -239,7 +239,7 @@ bool PopupTipUiSystem::Event(SDL_Event* event) {
   switch (event->type) {
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
-        if (CursorGameInstance::cursor_ui == Render) {
+        if (CursorGameInstance::cursor_ui_ == Render) {
           r = EventButton(event);
         }
       }

@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_SYSTEM_INSTANCE_SCENE_SYSTEM_INSTANCE_H_
-#define SDLMS_SRC_CLIENT_SYSTEM_INSTANCE_SCENE_SYSTEM_INSTANCE_H_
+#pragma once
 
 #include "src/client/game/game_character.h"
 
@@ -31,5 +30,3 @@ class SceneSystemInstance {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_SYSTEM_INSTANCE_SCENE_SYSTEM_INSTANCE_H_

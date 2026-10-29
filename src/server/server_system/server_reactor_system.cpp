@@ -40,7 +40,7 @@ void ServerReactorSystem::RunRevive(ServerReactorState& r) {
     srt.payload->action = "revive";
     auto scenes = ServerSceneInstance::scenes_[map_id_].clients;
     for (auto c : scenes) {
-      ServerResponse::send_to_client(c, srt);
+      ServerResponse::SendToClient(c, srt);
     }
     r.revive = 0;
     r.state = 0;
@@ -70,7 +70,7 @@ void ServerReactorSystem::RunHit(ServerReactorState& r) {
       srt.payload->action = "hit";
       auto scenes = ServerSceneInstance::scenes_[map_id_].clients;
       for (auto c : scenes) {
-        ServerResponse::send_to_client(c, srt);
+        ServerResponse::SendToClient(c, srt);
       }
 
       r.state = ServerReactorInstance::LoadNextState(r.id, r.state);

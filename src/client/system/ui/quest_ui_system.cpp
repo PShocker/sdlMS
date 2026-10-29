@@ -14,6 +14,7 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/render/npc_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/button.h"
 #include "src/client/system/ui/quest_alarm_ui_system.h"
 #include "src/client/system/ui/scroll_ui_system.h"
 #include "src/client/system/ui/tooltip_ui_system.h"
@@ -134,28 +135,17 @@ void QuestUiSystem::RenderButton() {
   }
 
   for (size_t i = 0; i < buttons_nodes.size(); ++i) {
-    auto k = buttons_nodes[i];
-    auto pos_rect = buttons_rect[i];
-    pos_rect.x += pos_.x;
-    pos_rect.y += pos_.y;
-    pos_rect.x = (int)pos_rect.x;
-    pos_rect.y = (int)pos_rect.y;
-    auto& mouse_pos = Window::mouse_pos_;
-    // 判断按钮是否被遮挡
-    auto cursor_in = CursorGameInstance::cursor_ui;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == Render &&
-        !CursorGameInstance::modal_overlay) {
-      if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
-        auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
-        SDL_RenderTexture(Window::renderer_, pressed, nullptr, &pos_rect);
-      } else {
-        auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
-        SDL_RenderTexture(Window::renderer_, mouse_over, nullptr, &pos_rect);
-      }
-    } else {
-      auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
-      SDL_RenderTexture(Window::renderer_, normal, nullptr, &pos_rect);
-    }
+    SDL_FRect rect = buttons_rect[i];
+    rect.x += pos_.x;
+    rect.y += pos_.y;
+    rect.x = (int)rect.x;
+    rect.y = (int)rect.y;
+    Button{.node = buttons_nodes[i],
+           .rect = rect,
+           .enable = true,
+           .focused = CursorGameInstance::cursor_ui_ == Render &&
+                      !CursorGameInstance::modal_overlay_}
+        .Render();
   }
 }
 
@@ -189,8 +179,8 @@ void QuestUiSystem::RenderAreaName(int i, int y) {
   bool mouse_in = SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect);
   // 渲染所有按钮
   bool mouse_down = Window::mouse_state_ & SDL_BUTTON_LMASK;
-  bool cursor_on_ui = CursorGameInstance::cursor_ui == Render;
-  bool modal_blocked = CursorGameInstance::modal_overlay;
+  bool cursor_on_ui = CursorGameInstance::cursor_ui_ == Render;
+  bool modal_blocked = CursorGameInstance::modal_overlay_;
   if (cursor_on_ui && !modal_blocked && mouse_in) {
     state = mouse_down ? u"pressed" : u"mouseOver";
   }
@@ -617,9 +607,9 @@ void QuestUiSystem::RenderVscr() {
   int px = pos_.x + lt.x;
   int py = pos_.y + lt.y;
   const uint32_t length = 318;
-  auto cursor_in = CursorGameInstance::cursor_ui;
+  auto cursor_in = CursorGameInstance::cursor_ui_;
   bool top =
-      cursor_in == Render && CursorGameInstance::modal_overlay == nullptr;
+      cursor_in == Render && CursorGameInstance::modal_overlay_ == nullptr;
   auto count = LoadVscrNum0();
   ScrollUiSystem::RenderVscroll(px, py, pages_[0], count, length, top, 16);
 
@@ -631,9 +621,9 @@ void QuestUiSystem::RenderDetailVscr() {
   int px = pos_.x + lt.x;
   int py = pos_.y + lt.y;
   const uint32_t length = 244;
-  auto cursor_in = CursorGameInstance::cursor_ui;
+  auto cursor_in = CursorGameInstance::cursor_ui_;
   bool top =
-      cursor_in == Render && CursorGameInstance::modal_overlay == nullptr;
+      cursor_in == Render && CursorGameInstance::modal_overlay_ == nullptr;
   auto count = LoadVscrNum1();
   ScrollUiSystem::RenderVscroll(px, py, pages_[1], count, length, top, 16);
 
@@ -910,7 +900,7 @@ bool QuestUiSystem::EventButton(SDL_Event* event) {
 }
 
 void QuestUiSystem::EventMotionBtAudio(SDL_Event* event) {
-  if (CursorGameInstance::cursor_ui != Render) {
+  if (CursorGameInstance::cursor_ui_ != Render) {
     return;
   }
   std::vector<SDL_FRect> buttons_rect = {
@@ -939,10 +929,10 @@ void QuestUiSystem::EventMotionBtAudio(SDL_Event* event) {
 }
 
 bool QuestUiSystem::RenderInfo() {
-  if (CursorGameInstance::cursor_ui != Render) {
+  if (CursorGameInstance::cursor_ui_ != Render) {
     return true;
   }
-  if (!quest_name.empty() && !CursorGameInstance::modal_overlay) {
+  if (!quest_name.empty() && !CursorGameInstance::modal_overlay_) {
     auto& mouse_pos = Window::mouse_pos_;
     SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 20};
     TooltipUiSystem::RenderStr(quest_name, show_pos.x, show_pos.y);
@@ -960,7 +950,7 @@ void QuestUiSystem::EventMotion(SDL_Event* event) {
 }
 
 void QuestUiSystem::EventWheel(SDL_Event* event) {
-  if (CursorGameInstance::cursor_ui != Render) {
+  if (CursorGameInstance::cursor_ui_ != Render) {
     return;
   }
   auto& mouse_pos = Window::mouse_pos_;
@@ -1011,7 +1001,7 @@ bool QuestUiSystem::Event(SDL_Event* event) {
     }
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
       if (event->button.button == SDL_BUTTON_LEFT) {
-        if (CursorGameInstance::cursor_ui == Render) {
+        if (CursorGameInstance::cursor_ui_ == Render) {
           EventTop();
           EventDragStart(event);
           EventVscrStart(event);
@@ -1022,7 +1012,7 @@ bool QuestUiSystem::Event(SDL_Event* event) {
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
-        if (CursorGameInstance::cursor_ui == Render) {
+        if (CursorGameInstance::cursor_ui_ == Render) {
           EventFold();
           EventQuest();
           if (EventCheckbox()) {

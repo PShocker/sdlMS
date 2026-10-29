@@ -25,7 +25,7 @@ void CursorRenderSystem::RenderHand() {
   if (CursorGameInstance::cursor_hand_net_.has_value()) {
     return;
   }
-  if (CursorGameInstance::modal_overlay) {
+  if (CursorGameInstance::modal_overlay_) {
     return;
   }
   if (CursorGameInstance::cursor_hand_.has_value()) {

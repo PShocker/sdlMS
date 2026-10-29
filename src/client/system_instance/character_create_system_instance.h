@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_SYSTEM_INSTANCE_CHARACTER_CREATE_SYSTEM_INSTANCE_H_
-#define SDLMS_SRC_CLIENT_SYSTEM_INSTANCE_CHARACTER_CREATE_SYSTEM_INSTANCE_H_
+#pragma once
 
 namespace sdlms {
 
@@ -10,5 +9,3 @@ class CharacterCreateSystemInstance {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_SYSTEM_INSTANCE_CHARACTER_CREATE_SYSTEM_INSTANCE_H_

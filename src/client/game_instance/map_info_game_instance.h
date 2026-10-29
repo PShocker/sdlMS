@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_MAP_INFO_GAME_INSTANCE_H_
-#define SDLMS_SRC_CLIENT_GAME_INSTANCE_MAP_INFO_GAME_INSTANCE_H_
+#pragma once
 
 #include <SDL3/SDL_rect.h>
 #include <wz/Node.h>
@@ -23,5 +22,3 @@ class MapInfoGameInstance {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_GAME_INSTANCE_MAP_INFO_GAME_INSTANCE_H_

@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_SERVER_SERVER_SERVER_DROP_H_
-#define SDLMS_SRC_SERVER_SERVER_SERVER_DROP_H_
+#pragma once
 
 #include "src/client/game/game_drop.h"
 #include "src/common/flatbuffers/common.h"
@@ -18,5 +17,3 @@ struct ServerDrop {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_SERVER_SERVER_SERVER_DROP_H_

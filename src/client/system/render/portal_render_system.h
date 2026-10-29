@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_SYSTEM_RENDER_PORTAL_RENDER_SYSTEM_H_
-#define SDLMS_SRC_CLIENT_SYSTEM_RENDER_PORTAL_RENDER_SYSTEM_H_
+#pragma once
 
 #include "src/client/game/game_portal.h"
 
@@ -15,5 +14,3 @@ class PortalRenderSystem {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_SYSTEM_RENDER_PORTAL_RENDER_SYSTEM_H_

@@ -47,7 +47,7 @@ void TrapLogicSystem::RunCollision() {
         fbs::ClientTrapAttackT cta;
         cta.map_id = SceneSystemInstance::map_id_;
         cta.payload = std::make_unique<fbs::AttackT>(std::move(at));
-        ClientRequest::send_to_host(cta);
+        ClientRequest::SendToHost(cta);
         return;
       }
     }

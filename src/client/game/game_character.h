@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_GAME_GAME_CHARACTER_H_
-#define SDLMS_SRC_CLIENT_GAME_GAME_CHARACTER_H_
+#pragma once
 
 #include "src/client/game/game_chair.h"
 #include "src/client/game/game_chatballoon.h"
@@ -102,5 +101,3 @@ struct GameCharacter {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_GAME_GAME_CHARACTER_H_

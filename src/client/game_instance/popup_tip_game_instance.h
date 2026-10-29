@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_POPUP_TIP_GAME_INSTANCE_H_
-#define SDLMS_SRC_CLIENT_GAME_INSTANCE_POPUP_TIP_GAME_INSTANCE_H_
+#pragma once
 
 #include "src/client/game/game_popup_tip.h"
 
@@ -19,5 +18,3 @@ class PopupTipGameInstance {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_GAME_INSTANCE_POPUP_TIP_GAME_INSTANCE_H_

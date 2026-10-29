@@ -5,6 +5,7 @@
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/button.h"
 #include "src/client/system/ui/minimap_ui_system.h"
 #include "src/client/system/ui/notice_ui_system.h"
 #include "src/client/system/ui/tooltip_ui_system.h"
@@ -169,8 +170,8 @@ void WorldmapUiSystem::RenderCurPos(SDL_FPoint point) {
 }
 
 bool WorldmapUiSystem::RenderSpotInfo() {
-  if (CursorGameInstance::modal_overlay == nullptr &&
-      CursorGameInstance::cursor_ui == Render && spot_info_id != 0) {
+  if (CursorGameInstance::modal_overlay_ == nullptr &&
+      CursorGameInstance::cursor_ui_ == Render && spot_info_id != 0) {
     const auto& mouse_pos = Window::mouse_pos_;
     TooltipUiSystem::RenderWorldMapInfo(spot_info_id, mouse_pos.x, mouse_pos.y);
   }
@@ -187,25 +188,17 @@ void WorldmapUiSystem::RenderButton() {
       {w - 18, 6, 12, 12},  //
   };
   // 渲染所有按钮
-  bool mouse_down = Window::mouse_state_ & SDL_BUTTON_LMASK;
-  bool cursor_on_ui = CursorGameInstance::cursor_ui == Render;
-  bool modal_blocked = CursorGameInstance::modal_overlay;
 
   for (size_t i = 0; i < nodes.size(); ++i) {
-    SDL_FRect rect = {
-        rects[i].x + (int)pos_.x,
-        rects[i].y + (int)pos_.y,
-        rects[i].w,
-        rects[i].h,
-    };
-
-    std::u16string state = u"normal";
-    if (cursor_on_ui && !modal_blocked &&
-        SDL_PointInRectFloat(&Window::mouse_pos_, &rect)) {
-      state = mouse_down ? u"pressed" : u"mouseOver";
-    }
-    auto texture = WzResource::LoadTexture(nodes[i]->find((state + u"/0")));
-    SDL_RenderTexture(Window::renderer_, texture, nullptr, &rect);
+    SDL_FRect rect = rects[i];
+    rect.x += (int)pos_.x;
+    rect.y += (int)pos_.y;
+    Button button{.node = nodes[i],
+                  .rect = rect,
+                  .enable = true,
+                  .focused = CursorGameInstance::cursor_ui_ == Render &&
+                             !CursorGameInstance::modal_overlay_};
+    button.Render();
   }
 }
 
@@ -324,7 +317,7 @@ bool WorldmapUiSystem::Event(SDL_Event* event) {
     }
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
       if (event->button.button == SDL_BUTTON_LEFT) {
-        if (CursorGameInstance::cursor_ui == Render) {
+        if (CursorGameInstance::cursor_ui_ == Render) {
           EventTop();
           EventDragStart(event);
           r = false;

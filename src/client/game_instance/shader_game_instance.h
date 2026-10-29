@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_SHADER_GAME_INSTANCE_H_
-#define SDLMS_SRC_CLIENT_GAME_INSTANCE_SHADER_GAME_INSTANCE_H_
+#pragma once
 
 #include <SDL3/SDL_render.h>
 
@@ -21,5 +20,3 @@ class ShaderGameInstance {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_GAME_INSTANCE_SHADER_GAME_INSTANCE_H_

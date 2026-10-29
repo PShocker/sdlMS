@@ -53,7 +53,7 @@ static void Erduantiao() {
     ckt.flip = sf.flip;
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0,
                                        ckt.x, ckt.y, ckt.flip);
-    ClientRequest::send_to_host(ckt);
+    ClientRequest::SendToHost(ckt);
     SkillGameInstance::Skis()[u"4111005"].cd = Window::dt_now_ + 100;
   };
 
@@ -84,7 +84,7 @@ static void Dafeibiao() {
     CheckMobs cm;
     auto cct = BallGameInstance::CreateBallPayload(cm, pos, goal, delay, page,
                                                    800, path);
-    ClientRequest::send_to_host(cct);
+    ClientRequest::SendToHost(cct);
     ServerBallInstance::HandleServerB(cct.payload);
 
     fbs::ClientCharacterAttackT cat;
@@ -107,11 +107,11 @@ static void Dafeibiao() {
       for (auto& data : cat.payload) {
         data->effect = "Afterimage/hit.img/sword2";
       }
-      ClientRequest::send_to_host(cat);
+      ClientRequest::SendToHost(cat);
     }
     auto ckt = SkillGameInstance::CreateSkillPayload(4111004, ski_lv);
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
-    ClientRequest::send_to_host(ckt);
+    ClientRequest::SendToHost(ckt);
   };
   auto& skills = SkillGameInstance::Skis();
   skills[g_skill.id] = g_skill;

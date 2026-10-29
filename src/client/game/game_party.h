@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_GAME_GAME_PARTY_H_
-#define SDLMS_SRC_CLIENT_GAME_GAME_PARTY_H_
+#pragma once
 
 #include "src/common/flatbuffers/common.h"
 
@@ -17,5 +16,3 @@ struct GameParty {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_GAME_GAME_PARTY_H_

@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_SYSTEM_RENDER_CHARACTER_RENDER_SYSTEM_H_
-#define SDLMS_SRC_CLIENT_SYSTEM_RENDER_CHARACTER_RENDER_SYSTEM_H_
+#pragma once
 
 #include "src/client/game/game_character.h"
 
@@ -27,5 +26,3 @@ class CharacterRenderSystem {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_SYSTEM_RENDER_CHARACTER_RENDER_SYSTEM_H_

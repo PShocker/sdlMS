@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_SYSTEM_UI_COMBO_BOX_UI_SYSTEM_H_
-#define SDLMS_SRC_CLIENT_SYSTEM_UI_COMBO_BOX_UI_SYSTEM_H_
+#pragma once
 
 #include "src/client/window/window.h"
 
@@ -27,5 +26,3 @@ class ComboBoxUiSystem {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_SYSTEM_UI_COMBO_BOX_UI_SYSTEM_H_

@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_CAMERA_GAME_INSTANCE_H_
-#define SDLMS_SRC_CLIENT_GAME_INSTANCE_CAMERA_GAME_INSTANCE_H_
+#pragma once
 
 #include <SDL3/SDL_rect.h>
 
@@ -13,5 +12,3 @@ class CameraGameInstance {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_GAME_INSTANCE_CAMERA_GAME_INSTANCE_H_

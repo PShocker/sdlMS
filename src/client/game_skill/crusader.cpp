@@ -258,7 +258,7 @@ static void Douqijizhong() {
     auto& sf = CharacterGameInstance::self_;
     auto ckt = SkillGameInstance::CreateSkillPayload(1111000, ski_lv);
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
-    ClientRequest::send_to_host(ckt);
+    ClientRequest::SendToHost(ckt);
 
     CharacterLogicSystem::RunAction(sf, u"alert4");
     auto& ccs = CharacterLogicSystem::ccs_;
@@ -289,11 +289,11 @@ static void Hupaoxiao() {
         data.hits = {30, 30};
       }
       cat = SkillGameInstance::CreateAttackPayload(cm, sf.pos, delay);
-      ClientRequest::send_to_host(cat);
+      ClientRequest::SendToHost(cat);
     }
     auto ckt = SkillGameInstance::CreateSkillPayload(cat, 1111003, ski_lv);
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
-    ClientRequest::send_to_host(ckt);
+    ClientRequest::SendToHost(ckt);
   };
   auto& skills = SkillGameInstance::Skis();
   skills[g_skill.id] = g_skill;

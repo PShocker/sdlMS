@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_COMMON_FFMPEG_FFMPEG_H_
-#define SDLMS_SRC_COMMON_FFMPEG_FFMPEG_H_
+#pragma once
 
 #include "src/client/game/game_audio.h"
 
@@ -14,5 +13,3 @@ class Ffmpeg {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_COMMON_FFMPEG_FFMPEG_H_

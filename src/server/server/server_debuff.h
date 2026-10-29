@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_SERVER_SERVER_SERVER_DEBUFF_H_
-#define SDLMS_SRC_SERVER_SERVER_SERVER_DEBUFF_H_
+#pragma once
 
 #include "src/client/game/game_debuff.h"
 
@@ -18,5 +17,3 @@ struct ServerDebuff {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_SERVER_SERVER_SERVER_DEBUFF_H_

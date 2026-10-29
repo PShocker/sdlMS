@@ -9,6 +9,7 @@
 #include "src/client/system/render/character_render_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/button.h"
 #include "src/client/system/ui/scroll_ui_system.h"
 #include "src/client/system/ui/tooltip_ui_system.h"
 #include "src/client/window/window.h"
@@ -43,8 +44,8 @@ void CharacterInfoUiSystem::RenderScroll() {
   auto v = EquipGameInstance::LoadEquips(character_).size();
   auto v2 = EquipGameInstance::LoadDecos(character_).size();
   auto size = v + v2;
-  auto cursor_in = CursorGameInstance::cursor_ui;
-  bool top = cursor_in == Render && !CursorGameInstance::modal_overlay;
+  auto cursor_in = CursorGameInstance::cursor_ui_;
+  bool top = cursor_in == Render && !CursorGameInstance::modal_overlay_;
   ScrollUiSystem::RenderVscroll((int)pos_.x + lt.x, (int)pos_.y + lt.y,
                                 item_page_, size, length, top, 3);
   return;
@@ -115,28 +116,17 @@ void CharacterInfoUiSystem::RenderButton() {
   }
 
   for (size_t i = 0; i < buttons_nodes.size(); ++i) {
-    auto k = buttons_nodes[i];
-    auto pos_rect = buttons_rect[i];
-    pos_rect.x += pos_.x;
-    pos_rect.y += pos_.y;
-    pos_rect.x = (int)pos_rect.x;
-    pos_rect.y = (int)pos_rect.y;
-    auto& mouse_pos = Window::mouse_pos_;
-    // 判断按钮是否被遮挡
-    auto cursor_in = CursorGameInstance::cursor_ui;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == Render &&
-        !CursorGameInstance::modal_overlay) {
-      if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
-        auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
-        SDL_RenderTexture(Window::renderer_, pressed, nullptr, &pos_rect);
-      } else {
-        auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
-        SDL_RenderTexture(Window::renderer_, mouse_over, nullptr, &pos_rect);
-      }
-    } else {
-      auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
-      SDL_RenderTexture(Window::renderer_, normal, nullptr, &pos_rect);
-    }
+    SDL_FRect rect = buttons_rect[i];
+    rect.x += pos_.x;
+    rect.y += pos_.y;
+    rect.x = (int)rect.x;
+    rect.y = (int)rect.y;
+    Button{.node = buttons_nodes[i],
+           .rect = rect,
+           .enable = true,
+           .focused = CursorGameInstance::cursor_ui_ == Render &&
+                      !CursorGameInstance::modal_overlay_}
+        .Render();
   }
 }
 
@@ -278,7 +268,7 @@ void CharacterInfoUiSystem::RenderItems() {
     y = pos_.y + item_lt.y + h + line_h * (i - item_page_) + 17;
     Freetype::DrawLine(req3, x, y);
 
-    auto cursor_in = CursorGameInstance::cursor_ui;
+    auto cursor_in = CursorGameInstance::cursor_ui_;
     if (cursor_in != Render) {
       continue;
     }
@@ -329,7 +319,7 @@ bool CharacterInfoUiSystem::EventVscr(SDL_Event* event) {
   auto v = EquipGameInstance::LoadEquips(character_).size();
   auto v2 = EquipGameInstance::LoadDecos(character_).size();
   int size = v + v2 - 3;
-  auto cursor_in = CursorGameInstance::cursor_ui;
+  auto cursor_in = CursorGameInstance::cursor_ui_;
   bool top = cursor_in == Render;
   size = std::max(0, size);
   auto mouse_pos = SDL_FPoint{event->button.x, event->button.y};
@@ -526,7 +516,7 @@ void CharacterInfoUiSystem::EventVscrMove(SDL_Event* event) {
 }
 
 void CharacterInfoUiSystem::EventMotionBtAudio(SDL_Event* event) {
-  if (CursorGameInstance::cursor_ui != Render) {
+  if (CursorGameInstance::cursor_ui_ != Render) {
     return;
   }
   auto wh = LoadWh();
@@ -562,7 +552,7 @@ void CharacterInfoUiSystem::EventMotionBtAudio(SDL_Event* event) {
 }
 
 void CharacterInfoUiSystem::EventWheel(SDL_Event* event) {
-  if (CursorGameInstance::cursor_ui != Render) {
+  if (CursorGameInstance::cursor_ui_ != Render) {
     return;
   }
   auto dy = event->wheel.integer_y;
@@ -601,7 +591,7 @@ bool CharacterInfoUiSystem::Event(SDL_Event* event) {
     }
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
       if (event->button.button == SDL_BUTTON_LEFT) {
-        if (CursorGameInstance::cursor_ui == Render) {
+        if (CursorGameInstance::cursor_ui_ == Render) {
           EventTop();
           EventDragStart(event);
           r = false;
@@ -611,7 +601,7 @@ bool CharacterInfoUiSystem::Event(SDL_Event* event) {
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
-        if (CursorGameInstance::cursor_ui == Render) {
+        if (CursorGameInstance::cursor_ui_ == Render) {
           EventVscr(event);
           r = !EventButton(event);
         }

@@ -494,7 +494,7 @@ void ServerMobSystem::RunSend() {
   events_.map_id = map_id_;
   auto& clients = ServerSceneInstance::scenes_[map_id_].clients;
   for (auto client_id : clients) {
-    ServerResponse::send_to_client(client_id, events_);
+    ServerResponse::SendToClient(client_id, events_);
   }
   events_.payload.clear();
 }

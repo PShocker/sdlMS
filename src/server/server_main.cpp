@@ -86,12 +86,12 @@ void ServerMain::ServerInit() {
   }
   local_port_ = ntohs(assigned_addr.sin_port);
 
-  if (host_addr.sin_port == 0) {
-    uv_ip4_addr("127.0.0.1", local_port_, &host_addr);
+  if (host_addr_.sin_port == 0) {
+    uv_ip4_addr("127.0.0.1", local_port_, &host_addr_);
   }
   if (!host_) {
     // 连接到指定的远程地址
-    uv_udp_connect(&local_socket_, (const struct sockaddr*)&host_addr);
+    uv_udp_connect(&local_socket_, (const struct sockaddr*)&host_addr_);
   }
   // 开始接收数据
   r = uv_udp_recv_start(&local_socket_, AllocCb, OnRecv);
@@ -106,7 +106,7 @@ void ServerMain::ServerInit() {
 
 void ServerMain::ServerInit(const std::string& ip, uint32_t port) {
   host_ = false;
-  uv_ip4_addr(ip.c_str(), port, &host_addr);
+  uv_ip4_addr(ip.c_str(), port, &host_addr_);
   ServerInit();
 }
 

@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_SYSTEM_UI_WORLDMAP_UI_SYSTEM_H_
-#define SDLMS_SRC_CLIENT_SYSTEM_UI_WORLDMAP_UI_SYSTEM_H_
+#pragma once
 
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_rect.h>
@@ -51,5 +50,3 @@ class WorldmapUiSystem {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_SYSTEM_UI_WORLDMAP_UI_SYSTEM_H_

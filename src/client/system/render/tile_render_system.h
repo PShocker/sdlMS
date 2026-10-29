@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_SYSTEM_RENDER_TILE_RENDER_SYSTEM_H_
-#define SDLMS_SRC_CLIENT_SYSTEM_RENDER_TILE_RENDER_SYSTEM_H_
+#pragma once
 
 #include "src/client/game/game_tile.h"
 
@@ -11,5 +10,3 @@ class TileRenderSystem {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_SYSTEM_RENDER_TILE_RENDER_SYSTEM_H_

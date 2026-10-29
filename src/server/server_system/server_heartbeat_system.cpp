@@ -39,7 +39,7 @@ bool ServerHeartbeatSystem::RunClientHeartbeat() {
       ServerHeartbeatInstance::heartbeat_interval * 1000) {
     // 执行你的代码
     fbs::ClientHeartbeatT hb;
-    ClientRequest::send_to_host(hb);
+    ClientRequest::SendToHost(hb);
     // 更新最后执行时间
     last_execution_time = current_time;
   }
@@ -60,7 +60,7 @@ bool ServerHeartbeatSystem::RunServerHeartbeat() {
       for (const auto other : scenes.clients) {
         fbs::ServerCharacterOutT r;
         r.client_id = client.client_id;
-        ServerResponse::send_to_client(other, r);
+        ServerResponse::SendToClient(other, r);
       }
     } else {
       ++it;
@@ -75,7 +75,7 @@ void ServerHeartbeatSystem::ReceiveClientHeartbeat(uint64_t client_id) {
     ServerClientInstance::clients_.at(client_id).heartbeat = Window::dt_now_;
   }
   fbs::ServerHeartbeatT r;
-  ServerResponse::send_to_client(client_id, r);
+  ServerResponse::SendToClient(client_id, r);
 }
 
 void ServerHeartbeatSystem::ReceiveServerHeartbeat() {

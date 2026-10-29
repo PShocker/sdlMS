@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_GAME_GAME_SCROLL_H_
-#define SDLMS_SRC_CLIENT_GAME_GAME_SCROLL_H_
+#pragma once
 
 #include <string>
 
@@ -11,5 +10,3 @@ struct GameScroll {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_GAME_GAME_SCROLL_H_

@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_GAME_GAME_EFFECT_H_
-#define SDLMS_SRC_CLIENT_GAME_GAME_EFFECT_H_
+#pragma once
 
 #include <SDL3/SDL_rect.h>
 
@@ -53,5 +52,3 @@ struct GameEffect {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_GAME_GAME_EFFECT_H_

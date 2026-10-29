@@ -22,7 +22,7 @@ void ServerTradeInstance::HandleClient(uint64_t client_id,
         const auto client_t =
             ServerClientInstance::clients_[client_id].player_t;
         sct.player = std::make_unique<fbs::PlayerT>(client_t);
-        ServerResponse::send_to_client(r.to_id, sct);
+        ServerResponse::SendToClient(r.to_id, sct);
       }
       return;
     }
@@ -33,9 +33,9 @@ void ServerTradeInstance::HandleClient(uint64_t client_id,
       fbs::ServerCharacterTradeT sct;
       sct.step = 1;
       sct.player = std::make_unique<fbs::PlayerT>(client_t);
-      ServerResponse::send_to_client(r.to_id, sct);
+      ServerResponse::SendToClient(r.to_id, sct);
       sct.player = std::make_unique<fbs::PlayerT>(to_t);
-      ServerResponse::send_to_client(client_id, sct);
+      ServerResponse::SendToClient(client_id, sct);
       return;
     }
   }

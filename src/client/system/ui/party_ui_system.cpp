@@ -216,7 +216,7 @@ bool PartyUiSystem::Event(SDL_Event* event) {
   switch (event->type) {
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
       if (event->button.button == SDL_BUTTON_LEFT) {
-        if (CursorGameInstance::cursor_ui == Render) {
+        if (CursorGameInstance::cursor_ui_ == Render) {
           EventTop();
           EventDragStart(event);
           r = false;
@@ -226,7 +226,7 @@ bool PartyUiSystem::Event(SDL_Event* event) {
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
-        if (CursorGameInstance::cursor_ui == Render) {
+        if (CursorGameInstance::cursor_ui_ == Render) {
         }
         EventDragEnd();
       }

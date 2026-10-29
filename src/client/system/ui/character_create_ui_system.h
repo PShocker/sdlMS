@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_SYSTEM_UI_CHARACTER_CREATE_UI_SYSTEM_H_
-#define SDLMS_SRC_CLIENT_SYSTEM_UI_CHARACTER_CREATE_UI_SYSTEM_H_
+#pragma once
 
 #include "src/client/game/game_character.h"
 #include "src/client/system/ui/text_input_ui_system.h"
@@ -111,5 +110,3 @@ class CharacterCreateUiSystem {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_SYSTEM_UI_CHARACTER_CREATE_UI_SYSTEM_H_

@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_TILE_GAME_INSTANCE_H_
-#define SDLMS_SRC_CLIENT_GAME_INSTANCE_TILE_GAME_INSTANCE_H_
+#pragma once
 
 #include "src/client/game/game_tile.h"
 
@@ -18,5 +17,3 @@ class TileGameInstance {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_GAME_INSTANCE_TILE_GAME_INSTANCE_H_

@@ -5,6 +5,7 @@
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/button.h"
 #include "src/client/system/ui/character_stat_ui_system.h"
 #include "src/client/system/ui/craft_ui_system.h"
 #include "src/client/system/ui/equip_ui_system.h"
@@ -136,35 +137,18 @@ void StatusbarMenuUiSystem::RenderButton() {
   }
 
   for (size_t i = 0; i < buttons_nodes.size(); ++i) {
-    auto k = buttons_nodes[i];
-    auto pos_rect = buttons_rect[i];
-    pos_rect.x += x;
-    pos_rect.y += y;
-    pos_rect.x = (int)pos_rect.x;
-    pos_rect.y = (int)pos_rect.y;
-    auto& mouse_pos = Window::mouse_pos_;
-    // 判断按钮是否被遮挡
-    auto cursor_in = CursorGameInstance::cursor_ui;
-    if (disable[i]) {
-      auto disabled = WzResource::LoadTexture(k->find(u"disabled/0"));
-      SDL_SetTextureAlphaMod(disabled, alpha_);
-      SDL_RenderTexture(Window::renderer_, disabled, nullptr, &pos_rect);
-    } else if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) &&
-               cursor_in == Render && !CursorGameInstance::modal_overlay) {
-      if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
-        auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
-        SDL_SetTextureAlphaMod(pressed, alpha_);
-        SDL_RenderTexture(Window::renderer_, pressed, nullptr, &pos_rect);
-      } else {
-        auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
-        SDL_SetTextureAlphaMod(mouse_over, alpha_);
-        SDL_RenderTexture(Window::renderer_, mouse_over, nullptr, &pos_rect);
-      }
-    } else {
-      auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
-      SDL_SetTextureAlphaMod(normal, alpha_);
-      SDL_RenderTexture(Window::renderer_, normal, nullptr, &pos_rect);
-    }
+    SDL_FRect rect = buttons_rect[i];
+    rect.x += x;
+    rect.y += y;
+    rect.x = (int)rect.x;
+    rect.y = (int)rect.y;
+    Button button{.node = buttons_nodes[i],
+                  .rect = rect,
+                  .enable = !disable[i],
+                  .focused = CursorGameInstance::cursor_ui_ == Render &&
+                             !CursorGameInstance::modal_overlay_,
+                  .alpha = static_cast<uint8_t>(alpha_)};
+    button.Render();
   }
 }
 
@@ -347,7 +331,7 @@ bool StatusbarMenuUiSystem::Event(SDL_Event* event) {
     }
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
       if (event->button.button == SDL_BUTTON_LEFT) {
-        if (CursorGameInstance::cursor_ui == Render) {
+        if (CursorGameInstance::cursor_ui_ == Render) {
         }
       }
       break;
@@ -355,7 +339,7 @@ bool StatusbarMenuUiSystem::Event(SDL_Event* event) {
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       r = false;
       if (event->button.button == SDL_BUTTON_LEFT) {
-        if (CursorGameInstance::cursor_ui == Render) {
+        if (CursorGameInstance::cursor_ui_ == Render) {
           r = !EventButton(event);
         }
         Close();

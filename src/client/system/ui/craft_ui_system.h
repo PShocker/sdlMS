@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_SYSTEM_UI_CRAFT_UI_SYSTEM_H_
-#define SDLMS_SRC_CLIENT_SYSTEM_UI_CRAFT_UI_SYSTEM_H_
+#pragma once
 
 #include <SDL3/SDL_events.h>
 
@@ -43,5 +42,3 @@ class CraftUiSystem {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_SYSTEM_UI_CRAFT_UI_SYSTEM_H_

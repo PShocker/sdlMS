@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_GAME_GAME_ITEM_H_
-#define SDLMS_SRC_CLIENT_GAME_GAME_ITEM_H_
+#pragma once
 
 #include "src/client/game/game_scroll.h"
 
@@ -65,5 +64,3 @@ class GameDecoItem : public GameItem {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_GAME_GAME_ITEM_H_

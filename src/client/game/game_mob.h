@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_GAME_GAME_MOB_H_
-#define SDLMS_SRC_CLIENT_GAME_GAME_MOB_H_
+#pragma once
 
 #include "src/client/game/game_debuff.h"
 #include "src/client/game/game_effect.h"
@@ -48,5 +47,3 @@ struct GameMob {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_GAME_GAME_MOB_H_

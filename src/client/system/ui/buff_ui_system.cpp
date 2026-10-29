@@ -92,7 +92,7 @@ bool BuffUiSystem::RenderUiInfo() {
   if (!mouse_ski.has_value()) {
     return true;
   }
-  if (CursorGameInstance::cursor_ui != nullptr) {
+  if (CursorGameInstance::cursor_ui_ != nullptr) {
     return true;
   }
   auto ski = mouse_ski.value();
@@ -150,7 +150,7 @@ bool BuffUiSystem::Event(SDL_Event* event) {
   switch (event->type) {
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_RIGHT) {
-        if (CursorGameInstance::cursor_ui == nullptr) {
+        if (CursorGameInstance::cursor_ui_ == nullptr) {
           if (mouse_ski.has_value()) {
             mouse_ski->end();
           }

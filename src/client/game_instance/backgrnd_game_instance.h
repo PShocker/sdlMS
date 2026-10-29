@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_BACKGRND_GAME_INSTANCE_H_
-#define SDLMS_SRC_CLIENT_GAME_INSTANCE_BACKGRND_GAME_INSTANCE_H_
+#pragma once
 
 #include "src/client/game/game_backgrnd.h"
 
@@ -19,5 +18,3 @@ class BackgrndGameInstance {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_GAME_INSTANCE_BACKGRND_GAME_INSTANCE_H_

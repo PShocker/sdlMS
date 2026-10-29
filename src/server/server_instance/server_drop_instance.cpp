@@ -85,7 +85,7 @@ void ServerDropInstance::HandleClientDrop(uint64_t client_id,
   t.client_id = client_id;
   t.payload = std::move(dts[0]);
   for (const auto c : clients) {
-    ServerResponse::send_to_client(c, t);
+    ServerResponse::SendToClient(c, t);
   }
 }
 
@@ -100,13 +100,13 @@ void ServerDropInstance::HandlePick(uint64_t client_id,
       t.client_id = client_id;
       auto clients = ServerSceneInstance::scenes_[map_id].clients;
       for (const auto c : clients) {
-        ServerResponse::send_to_client(c, t);
+        ServerResponse::SendToClient(c, t);
       }
       scene.drops.erase(r.random_id);
     } else {
       fbs::ServerCharacterPickT t;
       t.random_id = 0;
-      ServerResponse::send_to_client(client_id, t);
+      ServerResponse::SendToClient(client_id, t);
     }
   }
 }

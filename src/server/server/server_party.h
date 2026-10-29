@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_SERVER_SERVER_SERVER_PARTY_H_
-#define SDLMS_SRC_SERVER_SERVER_SERVER_PARTY_H_
+#pragma once
 
 #include <cstdint>
 #include <vector>
@@ -13,5 +12,3 @@ struct ServerParty {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_SERVER_SERVER_SERVER_PARTY_H_

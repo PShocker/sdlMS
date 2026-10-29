@@ -21,7 +21,7 @@ void ServerDropSystem::RunFade() {
     }
     if (!sdf.drop_ids.empty()) {
       for (auto cliend_id : sc.clients) {
-        ServerResponse::send_to_client(cliend_id, sdf);
+        ServerResponse::SendToClient(cliend_id, sdf);
       }
     }
   }
@@ -54,7 +54,7 @@ void ServerDropSystem::RunDelayDrops() {
         }
         auto clients = sc.clients;
         for (auto client : clients) {
-          ServerResponse::send_to_client(client, scd);
+          ServerResponse::SendToClient(client, scd);
         }
       }
     }

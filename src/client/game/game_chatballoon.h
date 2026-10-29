@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_GAME_GAME_CHATBALLOON_H_
-#define SDLMS_SRC_CLIENT_GAME_GAME_CHATBALLOON_H_
+#pragma once
 
 #include <SDL3/SDL_pixels.h>
 #include <SDL3/SDL_rect.h>
@@ -24,5 +23,3 @@ struct GameChatballoon {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_GAME_GAME_CHATBALLOON_H_

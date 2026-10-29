@@ -11,6 +11,9 @@ project(sdlms
 option(SDLMS_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" ON)
 option(SDLMS_NATIVE_OPTIMIZATIONS "Compile for the host CPU in Release builds" ON)
 
+# Needed by clangd / clang-tidy (see .clang-tidy).
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # ------------------------------------------------------------------------------
 # Third-party dependencies (prebuilt, installed outside this repository)
 # ------------------------------------------------------------------------------
@@ -142,6 +145,7 @@ set(SDLMS_CLIENT_SOURCES
   src/client/system/render/tile_render_system.cpp
   src/client/system/ui/beauty_ui_system.cpp
   src/client/system/ui/buff_ui_system.cpp
+  src/client/system/ui/button.cpp
   src/client/system/ui/cash_shop_ui_system.cpp
   src/client/system/ui/character_choose_ui_system.cpp
   src/client/system/ui/character_create_ui_system.cpp

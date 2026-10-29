@@ -157,7 +157,7 @@ void MobLogicSystem::RunCollision() {
     fbs::ClientMobAttackT cma;
     cma.map_id = SceneSystemInstance::map_id_;
     cma.payload = std::make_unique<fbs::AttackT>(std::move(at));
-    ClientRequest::send_to_host(cma);
+    ClientRequest::SendToHost(cma);
   }
 }
 

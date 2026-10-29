@@ -45,7 +45,7 @@ static void Guanchuanjian() {
     CheckMobs cm;
     auto cct = BallGameInstance::CreateBallPayload(cm, pos, goal, delay, page,
                                                    800, path);
-    ClientRequest::send_to_host(cct);
+    ClientRequest::SendToHost(cct);
     ServerBallInstance::HandleServerB(cct.payload);
 
     fbs::ClientCharacterAttackT cat;
@@ -68,11 +68,11 @@ static void Guanchuanjian() {
       for (auto& data : cat.payload) {
         data->effect = "Afterimage/hit.img/sword2";
       }
-      ClientRequest::send_to_host(cat);
+      ClientRequest::SendToHost(cat);
     }
     auto ckt = SkillGameInstance::CreateSkillPayload(4111004, ski_lv);
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
-    ClientRequest::send_to_host(ckt);
+    ClientRequest::SendToHost(ckt);
   };
   auto& skills = SkillGameInstance::Skis();
   skills[g_skill.id] = g_skill;

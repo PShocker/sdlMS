@@ -550,14 +550,14 @@ bool CharacterStatGameInstance::Upgrade() {
     auto job = JobSkillGameInstance::LoadSkiTree(sf.job);
 
     if (job.size() == 1) {
-      JobSkillGameInstance::remain_point[0] += 1;
+      JobSkillGameInstance::remain_point_[0] += 1;
     } else {
-      JobSkillGameInstance::remain_point[job.size() - 1] += 3;
+      JobSkillGameInstance::remain_point_[job.size() - 1] += 3;
     }
 
     fbs::ClientCharacterLvUpT ccl;
     ccl.map_id = SceneSystemInstance::map_id_;
-    ClientRequest::send_to_host(ccl);
+    ClientRequest::SendToHost(ccl);
 
     ServerCharacterInstance::HandleLvUp(sf);
     Update();

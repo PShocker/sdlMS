@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_SERVER_SERVER_SYSTEM_SERVER_HEARTBEAT_SYSTEM_H_
-#define SDLMS_SRC_SERVER_SERVER_SYSTEM_SERVER_HEARTBEAT_SYSTEM_H_
+#pragma once
 
 #include <cstdint>
 
@@ -15,5 +14,3 @@ class ServerHeartbeatSystem {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_SERVER_SERVER_SYSTEM_SERVER_HEARTBEAT_SYSTEM_H_

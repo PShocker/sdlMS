@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_SERVER_SERVER_INSTANCE_SERVER_SCENE_INSTANCE_H_
-#define SDLMS_SRC_SERVER_SERVER_INSTANCE_SERVER_SCENE_INSTANCE_H_
+#pragma once
 
 #include "src/common/flatbuffers/client.h"
 #include "src/server/server/server_scene.h"
@@ -28,5 +27,3 @@ class ServerSceneInstance {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_SERVER_SERVER_INSTANCE_SERVER_SCENE_INSTANCE_H_

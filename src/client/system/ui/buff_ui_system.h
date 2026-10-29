@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_SYSTEM_UI_BUFF_UI_SYSTEM_H_
-#define SDLMS_SRC_CLIENT_SYSTEM_UI_BUFF_UI_SYSTEM_H_
+#pragma once
 
 #include "src/client/game/game_item_buff.h"
 #include "src/client/game/game_skill.h"
@@ -24,5 +23,3 @@ class BuffUiSystem {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_SYSTEM_UI_BUFF_UI_SYSTEM_H_

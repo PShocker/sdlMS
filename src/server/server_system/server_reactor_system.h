@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_SERVER_SERVER_SYSTEM_SERVER_REACTOR_SYSTEM_H_
-#define SDLMS_SRC_SERVER_SERVER_SYSTEM_SERVER_REACTOR_SYSTEM_H_
+#pragma once
 
 #include "src/server/server/server_reactor.h"
 
@@ -21,5 +20,3 @@ class ServerReactorSystem {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_SERVER_SERVER_SYSTEM_SERVER_REACTOR_SYSTEM_H_

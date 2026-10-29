@@ -427,7 +427,7 @@ bool ItemGameInstance::UseMobItem(std::polymorphic<GameItem>& itm) {
             .fh = static_cast<int16_t>(CharacterLogicSystem::self_fh_),
         });
       }
-      ClientRequest::send_to_host(ccm);
+      ClientRequest::SendToHost(ccm);
       r = true;
     }
   }

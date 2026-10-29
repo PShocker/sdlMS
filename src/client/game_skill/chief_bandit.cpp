@@ -43,7 +43,7 @@ static void Jinqianzhadan() {
       }
     }
     if (!ccdf.random_id.empty()) {
-      ClientRequest::send_to_host(ccdf);
+      ClientRequest::SendToHost(ccdf);
     }
     if (!cm.data.empty() && meso > 0) {
       auto delay = SkillGameInstance::LoadSkiTime(sf);
@@ -52,11 +52,11 @@ static void Jinqianzhadan() {
         data.hits = {(int64_t)meso};
       }
       cat = SkillGameInstance::CreateAttackPayload(cm, sf.pos, delay);
-      ClientRequest::send_to_host(cat);
+      ClientRequest::SendToHost(cat);
     }
     auto ckt = SkillGameInstance::CreateSkillPayload(cat, 4211004, ski_lv);
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
-    ClientRequest::send_to_host(ckt);
+    ClientRequest::SendToHost(ckt);
   };
   auto& skills = SkillGameInstance::Skis();
   skills[g_skill.id] = g_skill;
@@ -111,11 +111,11 @@ static void Luoyezhan() {
       auto delay = SkillGameInstance::LoadSkiTime(sf);
       // Create and send attack payload
       cat = SkillGameInstance::CreateAttackPayload(cm, sf.pos, delay);
-      ClientRequest::send_to_host(cat);
+      ClientRequest::SendToHost(cat);
     }
     auto ckt = SkillGameInstance::CreateSkillPayload(cat, 4211001, ski_lv);
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
-    ClientRequest::send_to_host(ckt);
+    ClientRequest::SendToHost(ckt);
     // 地面位移，与瞬移不同
   };
   auto& skills = SkillGameInstance::Skis();

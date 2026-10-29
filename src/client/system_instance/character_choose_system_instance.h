@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_SYSTEM_INSTANCE_CHARACTER_CHOOSE_SYSTEM_INSTANCE_H_
-#define SDLMS_SRC_CLIENT_SYSTEM_INSTANCE_CHARACTER_CHOOSE_SYSTEM_INSTANCE_H_
+#pragma once
 
 #include <string>
 #include <vector>
@@ -15,5 +14,3 @@ class CharacterChooseSystemInstance {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_SYSTEM_INSTANCE_CHARACTER_CHOOSE_SYSTEM_INSTANCE_H_

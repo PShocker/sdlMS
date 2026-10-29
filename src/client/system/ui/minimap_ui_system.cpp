@@ -10,6 +10,7 @@
 #include "src/client/game_instance/text_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/button.h"
 #include "src/client/system/ui/worldmap_ui_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
@@ -49,8 +50,8 @@ void MinimapUiSystem::RenderMini() {
   Freetype::LoadColor(0, 0, 0, 255);
   auto l = LoadWh().x;
   SDL_FRect pos_rect{
-      pos.x,
-      pos.y,
+      pos_.x,
+      pos_.y,
       static_cast<float>(w->w),
       static_cast<float>(w->h),
   };
@@ -63,7 +64,7 @@ void MinimapUiSystem::RenderMini() {
   SDL_RenderTexture(Window::renderer_, c, nullptr, &pos_rect);
   Freetype::DrawLine(s, pos_rect.x, pos_rect.y);
 
-  pos_rect.x = pos.x + l - e->w;
+  pos_rect.x = pos_.x + l - e->w;
   pos_rect.w = e->w;
   SDL_SetTextureAlphaMod(e, 162);
   SDL_RenderTexture(Window::renderer_, e, nullptr, &pos_rect);
@@ -95,41 +96,41 @@ void MinimapUiSystem::RenderMinBackgrnd() {
 
   SDL_FRect pos_rect;
   // 左上
-  pos_rect = {pos.x, pos.y, (float)nw->w, (float)nw->h};
+  pos_rect = {pos_.x, pos_.y, (float)nw->w, (float)nw->h};
   SDL_RenderTexture(Window::renderer_, nw, nullptr, &pos_rect);
   // 左下
-  pos_rect = {pos.x, pos.y + (float)backgrnd_max_wh.y - sw->h, (float)sw->w,
+  pos_rect = {pos_.x, pos_.y + (float)backgrnd_max_wh.y - sw->h, (float)sw->w,
               (float)sw->h};
   SDL_RenderTexture(Window::renderer_, sw, nullptr, &pos_rect);
   // 右上
-  pos_rect = {pos.x + (float)backgrnd_max_wh.x - ne->w, pos.y, (float)ne->w,
+  pos_rect = {pos_.x + (float)backgrnd_max_wh.x - ne->w, pos_.y, (float)ne->w,
               (float)ne->h};
   SDL_RenderTexture(Window::renderer_, ne, nullptr, &pos_rect);
   // 右下
-  pos_rect = {pos.x + (float)backgrnd_max_wh.x - se->w,
-              pos.y + (float)backgrnd_max_wh.y - se->h, (float)se->w,
+  pos_rect = {pos_.x + (float)backgrnd_max_wh.x - se->w,
+              pos_.y + (float)backgrnd_max_wh.y - se->h, (float)se->w,
               (float)se->h};
   SDL_RenderTexture(Window::renderer_, se, nullptr, &pos_rect);
 
   // 竖着的两边
-  pos_rect = {pos.x, pos.y + nw->h, (float)w->w,
+  pos_rect = {pos_.x, pos_.y + nw->h, (float)w->w,
               (float)backgrnd_max_wh.y - nw->h - se->h};
   SDL_RenderTexture(Window::renderer_, w, nullptr, &pos_rect);
-  pos_rect = {pos.x + (float)backgrnd_max_wh.x - e->w, pos.y + nw->h,
+  pos_rect = {pos_.x + (float)backgrnd_max_wh.x - e->w, pos_.y + nw->h,
               (float)e->w, (float)backgrnd_max_wh.y - nw->h - se->h};
   SDL_RenderTexture(Window::renderer_, e, nullptr, &pos_rect);
 
   // 横着的两边
-  pos_rect = {pos.x + nw->w, pos.y, (float)backgrnd_max_wh.x - nw->w * 2,
+  pos_rect = {pos_.x + nw->w, pos_.y, (float)backgrnd_max_wh.x - nw->w * 2,
               (float)n->h};
   SDL_RenderTexture(Window::renderer_, n, nullptr, &pos_rect);
 
-  pos_rect = {pos.x + sw->w, pos.y + (float)backgrnd_max_wh.y - s->h,
+  pos_rect = {pos_.x + sw->w, pos_.y + (float)backgrnd_max_wh.y - s->h,
               (float)backgrnd_max_wh.x - sw->w * 2, (float)s->h};
   SDL_RenderTexture(Window::renderer_, s, nullptr, &pos_rect);
 
   //
-  pos_rect = {pos.x + nw->w, pos.y + nw->h,
+  pos_rect = {pos_.x + nw->w, pos_.y + nw->h,
               (float)backgrnd_max_wh.x - nw->w * 2,
               (float)backgrnd_max_wh.y - nw->h - se->h};
   SDL_SetRenderDrawColor(Window::renderer_, 0, 0, 0, 100);
@@ -139,7 +140,7 @@ void MinimapUiSystem::RenderMinBackgrnd() {
   // 标题
   static auto title =
       WzResource::LoadTexture(WzResource::ui_->find(u"MiniMap.img/title"));
-  pos_rect = {pos.x + 6, pos.y + 10, (float)title->w, (float)title->h};
+  pos_rect = {pos_.x + 6, pos_.y + 10, (float)title->w, (float)title->h};
   SDL_RenderTexture(Window::renderer_, title, nullptr, &pos_rect);
 }
 
@@ -156,41 +157,41 @@ void MinimapUiSystem::RenderMaxBackgrnd() {
 
   SDL_FRect pos_rect;
   // 左上
-  pos_rect = {pos.x, pos.y, (float)nw->w, (float)nw->h};
+  pos_rect = {pos_.x, pos_.y, (float)nw->w, (float)nw->h};
   SDL_RenderTexture(Window::renderer_, nw, nullptr, &pos_rect);
   // 左下
-  pos_rect = {pos.x, pos.y + (float)backgrnd_max_wh.y - sw->h, (float)sw->w,
+  pos_rect = {pos_.x, pos_.y + (float)backgrnd_max_wh.y - sw->h, (float)sw->w,
               (float)sw->h};
   SDL_RenderTexture(Window::renderer_, sw, nullptr, &pos_rect);
   // 右上
-  pos_rect = {pos.x + (float)backgrnd_max_wh.x - ne->w, pos.y, (float)ne->w,
+  pos_rect = {pos_.x + (float)backgrnd_max_wh.x - ne->w, pos_.y, (float)ne->w,
               (float)ne->h};
   SDL_RenderTexture(Window::renderer_, ne, nullptr, &pos_rect);
   // 右下
-  pos_rect = {pos.x + (float)backgrnd_max_wh.x - se->w,
-              pos.y + (float)backgrnd_max_wh.y - se->h, (float)se->w,
+  pos_rect = {pos_.x + (float)backgrnd_max_wh.x - se->w,
+              pos_.y + (float)backgrnd_max_wh.y - se->h, (float)se->w,
               (float)se->h};
   SDL_RenderTexture(Window::renderer_, se, nullptr, &pos_rect);
 
   // 竖着的两边
-  pos_rect = {pos.x, pos.y + nw->h, (float)w->w,
+  pos_rect = {pos_.x, pos_.y + nw->h, (float)w->w,
               (float)backgrnd_max_wh.y - nw->h - se->h};
   SDL_RenderTexture(Window::renderer_, w, nullptr, &pos_rect);
-  pos_rect = {pos.x + (float)backgrnd_max_wh.x - e->w, pos.y + nw->h,
+  pos_rect = {pos_.x + (float)backgrnd_max_wh.x - e->w, pos_.y + nw->h,
               (float)e->w, (float)backgrnd_max_wh.y - nw->h - se->h};
   SDL_RenderTexture(Window::renderer_, e, nullptr, &pos_rect);
 
   // 横着的两边
-  pos_rect = {pos.x + nw->w, pos.y, (float)backgrnd_max_wh.x - nw->w * 2,
+  pos_rect = {pos_.x + nw->w, pos_.y, (float)backgrnd_max_wh.x - nw->w * 2,
               (float)n->h};
   SDL_RenderTexture(Window::renderer_, n, nullptr, &pos_rect);
 
-  pos_rect = {pos.x + sw->w, pos.y + (float)backgrnd_max_wh.y - s->h,
+  pos_rect = {pos_.x + sw->w, pos_.y + (float)backgrnd_max_wh.y - s->h,
               (float)backgrnd_max_wh.x - sw->w * 2, (float)s->h};
   SDL_RenderTexture(Window::renderer_, s, nullptr, &pos_rect);
 
   //
-  pos_rect = {pos.x + nw->w, pos.y + nw->h,
+  pos_rect = {pos_.x + nw->w, pos_.y + nw->h,
               (float)backgrnd_max_wh.x - nw->w * 2,
               (float)backgrnd_max_wh.y - nw->h - se->h};
   SDL_SetRenderDrawColor(Window::renderer_, 0, 0, 0, 100);
@@ -200,7 +201,7 @@ void MinimapUiSystem::RenderMaxBackgrnd() {
   // 标题
   static auto title =
       WzResource::LoadTexture(WzResource::ui_->find(u"MiniMap.img/title"));
-  pos_rect = {pos.x + 6, pos.y + 10, (float)title->w, (float)title->h};
+  pos_rect = {pos_.x + 6, pos_.y + 10, (float)title->w, (float)title->h};
   SDL_RenderTexture(Window::renderer_, title, nullptr, &pos_rect);
 }
 
@@ -239,29 +240,12 @@ void MinimapUiSystem::RenderButton() {
   }
 
   for (size_t i = 0; i < buttons_node.size(); ++i) {
-    auto k = buttons_node[i];
-    auto pos_rect = buttons_rect[i];
-    pos_rect.x += pos.x;
-    pos_rect.y += pos.y;
-    auto& mouse_pos = Window::mouse_pos_;
-    // 判断按钮是否被遮挡
-    auto cursor_in = CursorGameInstance::cursor_ui;
-    if (r[i] == false) {
-      auto d = WzResource::LoadTexture(k->find(u"disabled/0"));
-      SDL_RenderTexture(Window::renderer_, d, nullptr, &pos_rect);
-    } else if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) &&
-               cursor_in == Render) {
-      if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
-        auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
-        SDL_RenderTexture(Window::renderer_, pressed, nullptr, &pos_rect);
-      } else {
-        auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
-        SDL_RenderTexture(Window::renderer_, mouse_over, nullptr, &pos_rect);
-      }
-    } else {
-      auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
-      SDL_RenderTexture(Window::renderer_, normal, nullptr, &pos_rect);
-    }
+    SDL_FRect rect = buttons_rect[i];
+    rect.x += pos_.x;
+    rect.y += pos_.y;
+    Button button{
+        .node = buttons_node[i], .rect = rect, .enable = r[i], .focused = true};
+    button.Render();
   }
 };
 
@@ -389,8 +373,8 @@ SDL_FRect MinimapUiSystem::LoadCanvasViewport() {
 void MinimapUiSystem::RenderCanvasLife() {
   auto canvas_wh = LoadCanvasWh();
   auto canvas_lt = LoadCanvasLt();
-  SDL_Rect clip_r = {static_cast<int>(pos.x + canvas_lt.x),
-                     static_cast<int>(pos.y + canvas_lt.y),
+  SDL_Rect clip_r = {static_cast<int>(pos_.x + canvas_lt.x),
+                     static_cast<int>(pos_.y + canvas_lt.y),
                      static_cast<int>(canvas_wh.x),
                      static_cast<int>(canvas_wh.y)};
   SDL_SetRenderClipRect(Window::renderer_, &clip_r);
@@ -433,8 +417,8 @@ void MinimapUiSystem::RenderCanvasLife() {
       npc_pos.x = npc_pos.x - canvas_viewport.x;
       npc_pos.y = npc_pos.y - canvas_viewport.y;
       SDL_FRect pos_rect = {
-          pos.x + npc_pos.x + canvas_o.x - (float)texture->w,
-          pos.y + npc_pos.y + canvas_o.y - (float)texture->h,
+          pos_.x + npc_pos.x + canvas_o.x - (float)texture->w,
+          pos_.y + npc_pos.y + canvas_o.y - (float)texture->h,
           (float)texture->w,
           (float)texture->h,
       };
@@ -453,8 +437,8 @@ void MinimapUiSystem::RenderCanvasLife() {
     portal_pos.x = portal_pos.x - (canvas_viewport.x);
     portal_pos.y = portal_pos.y - (canvas_viewport.y);
     SDL_FRect pos_rect = {
-        pos.x + portal_pos.x + canvas_o.x - (float)por_texture->w,
-        pos.y + portal_pos.y + canvas_o.y - (float)por_texture->h,
+        pos_.x + portal_pos.x + canvas_o.x - (float)por_texture->w,
+        pos_.y + portal_pos.y + canvas_o.y - (float)por_texture->h,
         (float)por_texture->w, (float)por_texture->h};
     SDL_RenderTexture(Window::renderer_, por_texture, nullptr, &pos_rect);
   }
@@ -468,8 +452,8 @@ void MinimapUiSystem::RenderCanvasLife() {
     character_pos.x = character_pos.x - (canvas_viewport.x);
     character_pos.y = character_pos.y - (canvas_viewport.y);
     SDL_FRect pos_rect = {
-        pos.x + character_pos.x + canvas_o.x - (float)other_texture->w,
-        pos.y + character_pos.y + canvas_o.y - (float)other_texture->h,
+        pos_.x + character_pos.x + canvas_o.x - (float)other_texture->w,
+        pos_.y + character_pos.y + canvas_o.y - (float)other_texture->h,
         (float)other_texture->w,
         (float)other_texture->h,
     };
@@ -481,8 +465,8 @@ void MinimapUiSystem::RenderCanvasLife() {
   self_pos.x = self_pos.x - (canvas_viewport.x);
   self_pos.y = self_pos.y - (canvas_viewport.y);
   SDL_FRect pos_rect = {
-      pos.x + self_pos.x + canvas_o.x - (float)user_texture->w,
-      pos.y + self_pos.y + canvas_o.y - (float)user_texture->h,
+      pos_.x + self_pos.x + canvas_o.x - (float)user_texture->w,
+      pos_.y + self_pos.y + canvas_o.y - (float)user_texture->h,
       (float)user_texture->w,
       (float)user_texture->h,
   };
@@ -499,7 +483,8 @@ void MinimapUiSystem::RenderMark() {
   auto mark_node = WzResource::map_->find(u"MapHelper.img/mark/" + mark_str);
   auto mark_texture = WzResource::LoadTexture(mark_node);
 
-  SDL_FRect pos_rect{pos.x + 6, pos.y + 24, static_cast<float>(mark_texture->w),
+  SDL_FRect pos_rect{pos_.x + 6, pos_.y + 24,
+                     static_cast<float>(mark_texture->w),
                      static_cast<float>(mark_texture->h)};
   SDL_RenderTexture(Window::renderer_, mark_texture, nullptr, &pos_rect);
 }
@@ -536,20 +521,20 @@ void MinimapUiSystem::RenderName() {
   auto w = Freetype::LoadW(map_d.street_name);
   auto h = Freetype::LoadLh();
   Freetype::LoadColor(0, 0, 0, 255);
-  auto x = pos.x + 49;
-  auto y = pos.y + 25;
+  auto x = pos_.x + 49;
+  auto y = pos_.y + 25;
   Freetype::DrawLine(map_d.street_name, x, y);
-  x = pos.x + 48;
-  y = pos.y + 24;
+  x = pos_.x + 48;
+  y = pos_.y + 24;
   Freetype::LoadColor(255, 255, 255, 255);
   Freetype::DrawLine(map_d.street_name, x, y);
 
   Freetype::LoadColor(0, 0, 0, 255);
-  x = pos.x + 49;
+  x = pos_.x + 49;
   y += h;
   Freetype::DrawLine(map_d.map_name, x, y);
 
-  x = pos.x + 48;
+  x = pos_.x + 48;
   y -= 1;
   Freetype::LoadColor(255, 255, 255, 255);
   Freetype::DrawLine(map_d.map_name, x, y);
@@ -568,8 +553,8 @@ void MinimapUiSystem::RenderCanvas() {
 
   auto canvas_o = LoadCanvasO();
   SDL_FRect pos_rect{
-      pos.x + canvas_o.x,
-      pos.y + canvas_o.y,
+      pos_.x + canvas_o.x,
+      pos_.y + canvas_o.y,
       static_cast<float>(canvas_viewport.w),
       static_cast<float>(canvas_viewport.h),
   };
@@ -599,11 +584,11 @@ bool MinimapUiSystem::CursorIn() {
   SDL_FRect pos_rect;
   if (disable_) {
     auto wh = LoadWh();
-    pos_rect = {pos.x, pos.y, wh.x, wh.y};
+    pos_rect = {pos_.x, pos_.y, wh.x, wh.y};
   } else if (!max_) {
-    pos_rect = {pos.x, pos.y, backgrnd_min_wh.x, backgrnd_min_wh.y};
+    pos_rect = {pos_.x, pos_.y, backgrnd_min_wh.x, backgrnd_min_wh.y};
   } else {
-    pos_rect = {pos.x, pos.y, backgrnd_max_wh.x, backgrnd_max_wh.y};
+    pos_rect = {pos_.x, pos_.y, backgrnd_max_wh.x, backgrnd_max_wh.y};
   }
   return SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect);
 }
@@ -635,8 +620,8 @@ void MinimapUiSystem::EventMax() {
   }
   auto& camera = CameraGameInstance::camera_;
   auto [w, h] = LoadWh();
-  pos.x = std::clamp(pos.x, (float)0, camera.w - w);
-  pos.y = std::clamp(pos.y, (float)0, camera.h - h);
+  pos_.x = std::clamp(pos_.x, (float)0, camera.w - w);
+  pos_.y = std::clamp(pos_.y, (float)0, camera.h - h);
   return;
 }
 
@@ -668,8 +653,8 @@ bool MinimapUiSystem::EventButton(SDL_Event* event) {
 
   for (size_t i = 0; i < r.size(); ++i) {
     auto pos_rect = r[i];
-    pos_rect.x += pos.x;
-    pos_rect.y += pos.y;
+    pos_rect.x += pos_.x;
+    pos_rect.y += pos_.y;
     if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect)) {
       fns[i]();
       AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
@@ -693,10 +678,10 @@ void MinimapUiSystem::EventTop() {
 
 void MinimapUiSystem::EventDragStart(SDL_Event* event) {
   auto w = LoadWh().x;
-  SDL_FRect pos_rect = {pos.x, pos.y, w, 20};
+  SDL_FRect pos_rect = {pos_.x, pos_.y, w, 20};
   SDL_FPoint mouse_pos = {event->button.x, event->button.y};
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    drag_ = {pos.x - event->button.x, pos.y - event->button.y};
+    drag_ = {pos_.x - event->button.x, pos_.y - event->button.y};
   }
   return;
 }
@@ -725,17 +710,17 @@ SDL_FPoint MinimapUiSystem::LoadWh() {
 
 void MinimapUiSystem::EventDragMove(SDL_Event* event) {
   if (drag_.has_value()) {
-    pos = {event->motion.x + drag_->x, event->motion.y + drag_->y};
+    pos_ = {event->motion.x + drag_->x, event->motion.y + drag_->y};
     auto& camera = CameraGameInstance::camera_;
     auto [w, h] = LoadWh();
-    pos.x = std::clamp(pos.x, (float)0, camera.w - w);
-    pos.y = std::clamp(pos.y, (float)0, camera.h - h);
+    pos_.x = std::clamp(pos_.x, (float)0, camera.w - w);
+    pos_.y = std::clamp(pos_.y, (float)0, camera.h - h);
   }
   return;
 }
 
 void MinimapUiSystem::EventMotionBtAudio(SDL_Event* event) {
-  if (CursorGameInstance::cursor_ui != Render) {
+  if (CursorGameInstance::cursor_ui_ != Render) {
     return;
   }
   std::vector<SDL_FRect> buttons_rect;
@@ -757,8 +742,8 @@ void MinimapUiSystem::EventMotionBtAudio(SDL_Event* event) {
   int8_t bt_in = -1;
   for (size_t i = 0; i < buttons_rect.size(); ++i) {
     auto pos_rect = buttons_rect[i];
-    pos_rect.x += (int)pos.x;
-    pos_rect.y += (int)pos.y;
+    pos_rect.x += (int)pos_.x;
+    pos_rect.y += (int)pos_.y;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
       bt_in = i;
       break;
@@ -775,7 +760,7 @@ bool MinimapUiSystem::Event(SDL_Event* event) {
   switch (event->type) {
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
       if (event->button.button == SDL_BUTTON_LEFT) {
-        if (CursorGameInstance::cursor_ui == Render) {
+        if (CursorGameInstance::cursor_ui_ == Render) {
           EventTop();
           EventDragStart(event);
           r = false;
@@ -785,7 +770,7 @@ bool MinimapUiSystem::Event(SDL_Event* event) {
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
-        if (CursorGameInstance::cursor_ui == Render) {
+        if (CursorGameInstance::cursor_ui_ == Render) {
           r = !EventButton(event);
         }
         EventDragEnd();

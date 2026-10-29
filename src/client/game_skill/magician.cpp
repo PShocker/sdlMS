@@ -61,7 +61,7 @@ static void Mfdan() {
     }
     auto cct = BallGameInstance::CreateBallPayload(cm, pos, goal, delay, page,
                                                    700, path);
-    ClientRequest::send_to_host(cct);
+    ClientRequest::SendToHost(cct);
     ServerBallInstance::HandleServerB(cct.payload);
 
     fbs::ClientCharacterAttackT cat;
@@ -69,11 +69,11 @@ static void Mfdan() {
       auto d = BallGameInstance::LoadBallTime(cct);
       // Create and send attack payload
       cat = SkillGameInstance::CreateAttackPayload(cm, sf.pos, d);
-      ClientRequest::send_to_host(cat);
+      ClientRequest::SendToHost(cat);
     }
     auto ckt = SkillGameInstance::CreateSkillPayload(cat, 2001002, ski_lv);
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
-    ClientRequest::send_to_host(ckt);
+    ClientRequest::SendToHost(ckt);
   };
   auto& skills = SkillGameInstance::Skis();
   skills[g_skill.id] = g_skill;
@@ -111,7 +111,7 @@ static void Mfdun() {
 
     auto ckt = SkillGameInstance::CreateSkillPayload(2001000, ski_lv);
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
-    ClientRequest::send_to_host(ckt);
+    ClientRequest::SendToHost(ckt);
   };
   auto& skills = SkillGameInstance::Skis();
   skills[g_skill.id] = g_skill;
@@ -134,11 +134,11 @@ static void Mfsj() {
       cm.data[0].hits = {60, 70};
       cat = SkillGameInstance::CreateAttackPayload(cm, sf.pos, delay, 120, "",
                                                    "");
-      ClientRequest::send_to_host(cat);
+      ClientRequest::SendToHost(cat);
     }
     auto ckt = SkillGameInstance::CreateSkillPayload(cat, 2001003, ski_lv);
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
-    ClientRequest::send_to_host(ckt);
+    ClientRequest::SendToHost(ckt);
   };
   auto& skills = SkillGameInstance::Skis();
   skills[g_skill.id] = g_skill;
@@ -184,7 +184,7 @@ static void Mfkaijia() {
     CharacterLogicSystem::RunAction(sf, u"alert2");
     auto ckt = SkillGameInstance::CreateSkillPayload(2001001, ski_lv);
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
-    ClientRequest::send_to_host(ckt);
+    ClientRequest::SendToHost(ckt);
   };
   auto& skills = SkillGameInstance::Skis();
   skills[g_skill.id] = g_skill;

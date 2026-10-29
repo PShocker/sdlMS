@@ -17,6 +17,7 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/render/npc_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/button.h"
 #include "src/client/system/ui/notice_ui_system.h"
 #include "src/client/system/ui/package_ui_system.h"
 #include "src/client/system/ui/scroll_ui_system.h"
@@ -135,7 +136,7 @@ void ShopUiSystem::RenderItem(std::vector<GameShopItem>& items, int page,
     Freetype::DrawLine(tmp2, pos_rect.x + 15, pos_rect.y - 4);
   }
 
-  if (item_info && CursorGameInstance::modal_overlay == Render) {
+  if (item_info && CursorGameInstance::modal_overlay_ == Render) {
     RenderItemInfo(item_info->item);
   }
 }
@@ -178,7 +179,7 @@ void ShopUiSystem::RenderVscr() {
   const uint32_t length = 235;
   auto x = (int)pos_.x + 212;
   auto y = (int)pos_.y + 129;
-  auto cursor_in = CursorGameInstance::cursor_ui;
+  auto cursor_in = CursorGameInstance::cursor_ui_;
   auto items_size = 0;
   if (active_tab_[0] == 0) {
     auto& items = shop_->items;
@@ -187,7 +188,8 @@ void ShopUiSystem::RenderVscr() {
     auto& items = ShopGameInstance::must_;
     items_size = items.size();
   }
-  bool top = cursor_in == Render && CursorGameInstance::modal_overlay == Render;
+  bool top =
+      cursor_in == Render && CursorGameInstance::modal_overlay_ == Render;
   ScrollUiSystem::RenderVscroll(x, y, pages_[0], items_size, length, top, 6);
   x += 230;
   auto pkg_size = ShopGameInstance::LoadPkgItems(active_tab_[1]).size();
@@ -207,26 +209,15 @@ void ShopUiSystem::RenderButton() {
       SDL_FRect{154, 14, 68, 16},  //
   };
   for (size_t i = 0; i < buttons_node.size(); ++i) {
-    auto k = buttons_node[i];
-    auto pos_rect = buttons_rect[i];
-    pos_rect.x += (int)pos_.x;
-    pos_rect.y += (int)pos_.y;
-    auto& mouse_pos = Window::mouse_pos_;
-    // 判断按钮是否被遮挡
-    auto cursor_in = CursorGameInstance::cursor_ui;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == Render &&
-        CursorGameInstance::modal_overlay == Render) {
-      if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
-        auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
-        SDL_RenderTexture(Window::renderer_, pressed, nullptr, &pos_rect);
-      } else {
-        auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
-        SDL_RenderTexture(Window::renderer_, mouse_over, nullptr, &pos_rect);
-      }
-    } else {
-      auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
-      SDL_RenderTexture(Window::renderer_, normal, nullptr, &pos_rect);
-    }
+    SDL_FRect rect = buttons_rect[i];
+    rect.x += (int)pos_.x;
+    rect.y += (int)pos_.y;
+    Button{.node = buttons_node[i],
+           .rect = rect,
+           .enable = true,
+           .focused = CursorGameInstance::cursor_ui_ == Render &&
+                      !CursorGameInstance::modal_overlay_}
+        .Render();
   }
 }
 
@@ -536,7 +527,7 @@ bool ShopUiSystem::EventVscr(SDL_Event* event) {
   if (active_tab_[0] == 1) {
     size = ShopGameInstance::must_.size() - 6;
   }
-  auto cursor_in = CursorGameInstance::cursor_ui;
+  auto cursor_in = CursorGameInstance::cursor_ui_;
   bool top = cursor_in == Render;
   size = std::max(0, size);
   auto val = ScrollUiSystem::ClickVscroll(x, y, pages_[0], size, length, top);
@@ -648,14 +639,14 @@ bool ShopUiSystem::Event(SDL_Event* event) {
     }
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
       if (event->button.button == SDL_BUTTON_LEFT) {
-        if (CursorGameInstance::cursor_ui == Render) {
+        if (CursorGameInstance::cursor_ui_ == Render) {
         }
       }
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
-        if (CursorGameInstance::cursor_ui == Render) {
+        if (CursorGameInstance::cursor_ui_ == Render) {
           if (EventItem(event)) {
             return false;
           }

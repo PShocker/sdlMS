@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_SYSTEM_UI_PACKAGE_UI_SYSTEM_H_
-#define SDLMS_SRC_CLIENT_SYSTEM_UI_PACKAGE_UI_SYSTEM_H_
+#pragma once
 
 #include "src/client/game/game_item.h"
 
@@ -84,5 +83,3 @@ class PackageUiSystem {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_SYSTEM_UI_PACKAGE_UI_SYSTEM_H_

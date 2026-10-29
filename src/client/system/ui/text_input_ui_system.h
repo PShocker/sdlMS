@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_SYSTEM_UI_TEXT_INPUT_UI_SYSTEM_H_
-#define SDLMS_SRC_CLIENT_SYSTEM_UI_TEXT_INPUT_UI_SYSTEM_H_
+#pragma once
 
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_pixels.h>
@@ -46,5 +45,3 @@ class TextInputUiSystem {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_SYSTEM_UI_TEXT_INPUT_UI_SYSTEM_H_

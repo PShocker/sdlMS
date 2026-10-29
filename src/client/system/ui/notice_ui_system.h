@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_SYSTEM_UI_NOTICE_UI_SYSTEM_H_
-#define SDLMS_SRC_CLIENT_SYSTEM_UI_NOTICE_UI_SYSTEM_H_
+#pragma once
 
 #include "src/client/game/game_item.h"
 #include "src/client/system/ui/text_input_ui_system.h"
@@ -88,5 +87,3 @@ class NoticeUiSystem {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_SYSTEM_UI_NOTICE_UI_SYSTEM_H_

@@ -64,7 +64,7 @@ static void Qinggong() {
     auto players = CharacterLogicSystem::RunBuffCheck(sf, g_r);
     auto ckt = SkillGameInstance::CreateSkillPayload(players, 4201001, ski_lv);
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
-    ClientRequest::send_to_host(ckt);
+    ClientRequest::SendToHost(ckt);
   };
 
   auto& skills = SkillGameInstance::Skis();
@@ -90,11 +90,11 @@ static void Huixuanzhan() {
       std::string sound = "Skill.img/4201003/Hit";
       cat = SkillGameInstance::CreateAttackPayload(cm, sf.pos, delay, 120,
                                                    effect, sound);
-      ClientRequest::send_to_host(cat);
+      ClientRequest::SendToHost(cat);
     }
     auto ckt = SkillGameInstance::CreateSkillPayload(4201003, ski_lv);
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
-    ClientRequest::send_to_host(ckt);
+    ClientRequest::SendToHost(ckt);
   };
   auto& skills = SkillGameInstance::Skis();
   skills[g_skill.id] = g_skill;
@@ -113,7 +113,7 @@ static void Shentoushu() {
       auto delay = SkillGameInstance::LoadSkiTime(sf);
       // Create and send attack payload
       cat = SkillGameInstance::CreateAttackPayload(cm, sf.pos, delay);
-      ClientRequest::send_to_host(cat);
+      ClientRequest::SendToHost(cat);
       // drop
       fbs::ClientCreateDropT ccd;
       ccd.map_id = SceneSystemInstance::map_id_;
@@ -124,12 +124,12 @@ static void Shentoushu() {
         ccd.drops.push_back(std::make_unique<fbs::DropT>(dt));
       }
       if (!ccd.drops.empty()) {
-        ClientRequest::send_to_host(ccd);
+        ClientRequest::SendToHost(ccd);
       }
     }
     auto ckt = SkillGameInstance::CreateSkillPayload(cat, 4001002, ski_lv);
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
-    ClientRequest::send_to_host(ckt);
+    ClientRequest::SendToHost(ckt);
   };
   auto& skills = SkillGameInstance::Skis();
   skills[g_skill.id] = g_skill;

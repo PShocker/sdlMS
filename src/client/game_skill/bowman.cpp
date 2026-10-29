@@ -53,7 +53,7 @@ static void Duanhunjian() {
     }
     auto cct = BallGameInstance::CreateBallPayload(cm, pos, goal, delay, page,
                                                    700, path);
-    ClientRequest::send_to_host(cct);
+    ClientRequest::SendToHost(cct);
     ServerBallInstance::HandleServerB(cct.payload);
 
     fbs::ClientCharacterAttackT cat;
@@ -63,11 +63,11 @@ static void Duanhunjian() {
       cm.data[0].y = 0;
       cm.data[0].hits = {10};
       cat = SkillGameInstance::CreateAttackPayload(cm, sf.pos, d);
-      ClientRequest::send_to_host(cat);
+      ClientRequest::SendToHost(cat);
     }
     auto ckt = SkillGameInstance::CreateSkillPayload(cat, 3001001, ski_lv);
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
-    ClientRequest::send_to_host(ckt);
+    ClientRequest::SendToHost(ckt);
   };
   auto& skills = SkillGameInstance::Skis();
   skills[g_skill.id] = g_skill;
@@ -127,12 +127,12 @@ static void Shuangfeizhan() {
       // Create and send attack payload
       cm.data[0].hits = {5, 5};
       cat = SkillGameInstance::CreateAttackPayload(cm, sf.pos, d);
-      ClientRequest::send_to_host(cat);
+      ClientRequest::SendToHost(cat);
     }
     for (auto i : {0, 1}) {
       cct.payload->ball->y1 = sf.pos.y - 28;
       cct.payload->ball->y2 += i * 8;
-      ClientRequest::send_to_host(cct);
+      ClientRequest::SendToHost(cct);
       ServerBallInstance::HandleServerB(cct.payload);
     }
     auto ckt = SkillGameInstance::CreateSkillPayload(cat, 3001002, ski_lv);
@@ -140,7 +140,7 @@ static void Shuangfeizhan() {
       ckt.payload[1]->y += 8;
     }
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
-    ClientRequest::send_to_host(ckt);
+    ClientRequest::SendToHost(ckt);
   };
   auto& skills = SkillGameInstance::Skis();
   skills[g_skill.id] = g_skill;

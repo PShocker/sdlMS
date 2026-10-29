@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_SERVER_SERVER_SERVER_FOOTHOLD_H_
-#define SDLMS_SRC_SERVER_SERVER_SERVER_FOOTHOLD_H_
+#pragma once
 
 #include "src/client/game/game_foothold.h"
 
@@ -12,11 +11,8 @@
 
 namespace sdlms {
 
-class ServerFoothold {
- public:
+struct ServerFoothold {
   GameFoothold fh;
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_SERVER_SERVER_SERVER_FOOTHOLD_H_

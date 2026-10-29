@@ -138,7 +138,7 @@ bool CharacterRenderSystem::RenderCharacter(GameCharacter& g_character) {
   }
 
   std::flat_set<std::u16string> smaps_cover;
-  for (const auto& index : CharacterGameInstance::zmap2) {
+  for (const auto& index : CharacterGameInstance::zmap2_) {
     if (render_parts.contains(index)) {
       auto r = render_parts.at(index);
       if (!r->data.contains(action)) {
@@ -148,7 +148,7 @@ bool CharacterRenderSystem::RenderCharacter(GameCharacter& g_character) {
       std::flat_set<std::u16string> smaps_inter;
       for (const auto& pt : pts) {
         // 获取默认的smap
-        const auto& smaps = CharacterGameInstance::smap.at(pt.z);
+        const auto& smaps = CharacterGameInstance::smap_.at(pt.z);
         // 求交集
         std::flat_set<std::u16string> smaps_inter2;
         std::ranges::set_intersection(
@@ -174,7 +174,7 @@ bool CharacterRenderSystem::RenderCharacter(GameCharacter& g_character) {
     }
   }
 
-  for (const auto& index : CharacterGameInstance::zmap) {
+  for (const auto& index : CharacterGameInstance::zmap_) {
     if (renders.contains(index)) {
       auto [first, last] = renders.equal_range(index);
       for (auto it = first; it != last; ++it) {

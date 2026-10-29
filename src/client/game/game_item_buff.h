@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_GAME_GAME_ITEM_BUFF_H_
-#define SDLMS_SRC_CLIENT_GAME_GAME_ITEM_BUFF_H_
+#pragma once
 
 #include <cstdint>
 #include <string>
@@ -13,5 +12,3 @@ struct GameItemBuff {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_GAME_GAME_ITEM_BUFF_H_

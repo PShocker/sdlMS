@@ -266,7 +266,7 @@ void SceneSystemInstance::EnterPrepare(uint32_t map_id,
 
   // 记录起始时间
   Window::dt_time_start_ = Window::dt_now_;
-  ClientRequest::send_to_host(client_scene);
+  ClientRequest::SendToHost(client_scene);
 }
 
 void SceneSystemInstance::EnterFade() {
@@ -281,7 +281,7 @@ void SceneSystemInstance::EnterFade() {
   client_scene.map_id = prepare_map_id_;
   client_scene.character = std::make_unique<fbs::CharacterT>(std::move(c));
 
-  ClientRequest::send_to_host(client_scene);
+  ClientRequest::SendToHost(client_scene);
 }
 
 void SceneSystemInstance::EnterQuit() {
@@ -294,7 +294,7 @@ void SceneSystemInstance::QuitPrepare() {
   fbs::ClientSceneT client_scene;
   client_scene.fade = false;
   client_scene.map_id = 0;
-  ClientRequest::send_to_host(client_scene);
+  ClientRequest::SendToHost(client_scene);
   FadeSystemInstance::EnterIn(SceneSystemInstance::EnterQuit);
 }
 
@@ -308,7 +308,7 @@ void SceneSystemInstance::CashShopPrepare() {
   fbs::ClientSceneT client_scene;
   client_scene.fade = false;
   client_scene.map_id = 0;
-  ClientRequest::send_to_host(client_scene);
+  ClientRequest::SendToHost(client_scene);
   FadeSystemInstance::EnterIn(SceneSystemInstance::EnterQuit);
 }
 

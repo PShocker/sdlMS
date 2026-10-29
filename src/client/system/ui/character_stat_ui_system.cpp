@@ -8,6 +8,7 @@
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/button.h"
 #include "src/client/system/ui/notice_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
@@ -200,28 +201,17 @@ void CharacterStatUiSystem::RenderButton() {
     disable.push_back(false);
   }
   // 渲染所有按钮
-  bool mouse_down = Window::mouse_state_ & SDL_BUTTON_LMASK;
-  bool cursor_on_ui = CursorGameInstance::cursor_ui == Render;
-  bool modal_blocked = CursorGameInstance::modal_overlay;
 
   for (size_t i = 0; i < nodes.size(); ++i) {
-    SDL_FRect rect = {
-        rects[i].x + (int)pos_.x,
-        rects[i].y + (int)pos_.y,
-        rects[i].w,
-        rects[i].h,
-    };
-
-    std::u16string state = u"normal";
-    bool mouse_in = SDL_PointInRectFloat(&Window::mouse_pos_, &rect);
-
-    if (disable[i]) {
-      state = u"disabled";
-    } else if (cursor_on_ui && !modal_blocked && mouse_in) {
-      state = mouse_down ? u"pressed" : u"mouseOver";
-    }
-    auto texture = WzResource::LoadTexture(nodes[i]->find((state + u"/0")));
-    SDL_RenderTexture(Window::renderer_, texture, nullptr, &rect);
+    SDL_FRect rect = rects[i];
+    rect.x += (int)pos_.x;
+    rect.y += (int)pos_.y;
+    Button button{.node = nodes[i],
+                  .rect = rect,
+                  .enable = !disable[i],
+                  .focused = CursorGameInstance::cursor_ui_ == Render &&
+                             !CursorGameInstance::modal_overlay_};
+    button.Render();
   }
 }
 
@@ -501,7 +491,7 @@ bool CharacterStatUiSystem::Event(SDL_Event* event) {
     }
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
       if (event->button.button == SDL_BUTTON_LEFT) {
-        if (CursorGameInstance::cursor_ui == Render) {
+        if (CursorGameInstance::cursor_ui_ == Render) {
           EventTop();
           EventDragStart(event);
           r = false;
@@ -511,7 +501,7 @@ bool CharacterStatUiSystem::Event(SDL_Event* event) {
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
-        if (CursorGameInstance::cursor_ui == Render) {
+        if (CursorGameInstance::cursor_ui_ == Render) {
           r = !EventButton(event);
         }
         EventDragEnd();

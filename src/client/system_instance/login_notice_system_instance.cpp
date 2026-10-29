@@ -5,9 +5,9 @@
 
 namespace sdlms {
 
-void LoginNoticeSystemInstance::Enter(NoticeType type, void (*fn)()) {
+void LoginNoticeSystemInstance::Enter(NoticeType type, void (*fn_)()) {
   LoginNoticeUiSystem::type_ = type;
-  LoginNoticeUiSystem::fn = fn;
+  LoginNoticeUiSystem::fn_ = fn_;
 
   auto render = LoginNoticeUiSystem::Render;
   System::render_systems_.insert(System::render_systems_.end() - 1, render);

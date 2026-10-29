@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_COMMON_SCRIPT_SCRIPT_H_
-#define SDLMS_SRC_COMMON_SCRIPT_SCRIPT_H_
+#pragma once
 
 #include <any>
 #include <flat_map>
@@ -16,5 +15,3 @@ class Script {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_COMMON_SCRIPT_SCRIPT_H_

@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_ITEM_GAME_INSTANCE_H_
-#define SDLMS_SRC_CLIENT_GAME_INSTANCE_ITEM_GAME_INSTANCE_H_
+#pragma once
 
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_item.h"
@@ -42,5 +41,3 @@ class ItemGameInstance {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_GAME_INSTANCE_ITEM_GAME_INSTANCE_H_

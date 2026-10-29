@@ -394,7 +394,7 @@ void CharacterLogicSystem::RunPick(GameCharacter& g_character) {
             pos.y == std::clamp(pos.y, v.goal.y - 20, v.goal.y + 20)) {
           ccp_.map_id = SceneSystemInstance::map_id_;
           ccp_.random_id = v.random_id;
-          ClientRequest::send_to_host(ccp_);
+          ClientRequest::SendToHost(ccp_);
           return;
         }
       }
@@ -908,7 +908,7 @@ bool CharacterLogicSystem::RunAttack(GameCharacter& g_character) {
     crt.payload = std::make_unique<fbs::ReactorT>();
     crt.payload->reactor_index = r.r.index;
     crt.payload->delay = delay;
-    ClientRequest::send_to_host(crt);
+    ClientRequest::SendToHost(crt);
     return true;
   }
   if (shoot_weapon) {
@@ -949,10 +949,10 @@ bool CharacterLogicSystem::RunAttack(GameCharacter& g_character) {
       auto d = BallGameInstance::LoadBallTime(cct);
       auto cat = SkillGameInstance::CreateAttackPayload(cm, pos, d);
       cat.payload[0]->effect = {effect.begin(), effect.end()};
-      ClientRequest::send_to_host(cat);
+      ClientRequest::SendToHost(cat);
     }
     ServerBallInstance::HandleServerB(cct.payload);
-    ClientRequest::send_to_host(cct);
+    ClientRequest::SendToHost(cct);
   } else {
     auto cm = RunAttackCheck(g_character, g_r);
     if (!cm.data.empty()) {
@@ -963,7 +963,7 @@ bool CharacterLogicSystem::RunAttack(GameCharacter& g_character) {
           "Afterimage/hit.img/" + std::string{hit_type.begin(), hit_type.end()};
       auto cat = SkillGameInstance::CreateAttackPayload(cm, g_character.pos,
                                                         delay, 0, effect, "");
-      ClientRequest::send_to_host(cat);
+      ClientRequest::SendToHost(cat);
     }
   }
   for (auto& buff : SkillGameInstance::ski_) {
@@ -1088,7 +1088,7 @@ void CharacterLogicSystem::RunNetworkSyncState() {
     return;
   }
   ccs_.map_id = SceneSystemInstance::map_id_;
-  ClientRequest::send_to_host(ccs_);
+  ClientRequest::SendToHost(ccs_);
   ccs_.payload.clear();
 }
 
@@ -1108,7 +1108,7 @@ void CharacterLogicSystem::RunNetworkSyncAction() {
     cct.map_id = map_id;
     cct.payload = std::make_unique<fbs::ActionT>(a);
 
-    ClientRequest::send_to_host(cct);
+    ClientRequest::SendToHost(cct);
     action = sf.action;
     action_animate = sf.action_animate;
   }
@@ -1131,7 +1131,7 @@ void CharacterLogicSystem::RunNetworkSyncPos() {
     fbs::ClientCharacterMvT mvt;
     mvt.map_id = map_id;
     mvt.payload = std::make_unique<fbs::MovementT>(mv);
-    ClientRequest::send_to_host(mvt);
+    ClientRequest::SendToHost(mvt);
   }
 }
 
@@ -1145,7 +1145,7 @@ void CharacterLogicSystem::RunNetworkSyncFlip() {
     fbs::ClientCharacterFlipT fpt;
     fpt.map_id = map_id;
     fpt.payload = std::make_unique<fbs::FlipT>(f);
-    ClientRequest::send_to_host(fpt);
+    ClientRequest::SendToHost(fpt);
     flip = sf.flip;
   }
 }
@@ -1164,7 +1164,7 @@ void CharacterLogicSystem::RunNetworkSyncFace() {
       fbs::ClientCharacterFcT fct;
       fct.map_id = map_id;
       fct.payload = std::make_unique<fbs::FaceT>(ft);
-      ClientRequest::send_to_host(fct);
+      ClientRequest::SendToHost(fct);
       face = sf.face.action;
     }
   }
@@ -1175,7 +1175,7 @@ void CharacterLogicSystem::RunNetworkSyncSelf() {
     const auto& sf = CharacterGameInstance::self_;
     auto c = ServerCharacterInstance::LoadCharactert(sf);
     cct_.payload = std::make_unique<fbs::CharacterT>(std::move(c));
-    ClientRequest::send_to_host(cct_);
+    ClientRequest::SendToHost(cct_);
     cct_.map_id = 0;
   }
 }
@@ -1228,7 +1228,7 @@ void CharacterLogicSystem::RunNetworkDieSync(GameCharacter& g_character) {
   fbs::ClientCharacterDieT req;
   req.map_id = SceneSystemInstance::map_id_;
   req.payload = std::make_unique<fbs::DieT>(d);
-  ClientRequest::send_to_host(req);
+  ClientRequest::SendToHost(req);
   return;
 }
 

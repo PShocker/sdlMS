@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_SYSTEM_LOGIC_BALL_LOGIC_SYSTEM_H_
-#define SDLMS_SRC_CLIENT_SYSTEM_LOGIC_BALL_LOGIC_SYSTEM_H_
+#pragma once
 
 #include "src/client/game/game_ball.h"
 
@@ -18,5 +17,3 @@ class BallLogicSystem {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_SYSTEM_LOGIC_BALL_LOGIC_SYSTEM_H_

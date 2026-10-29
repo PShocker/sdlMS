@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_SERVER_SERVER_SYSTEM_SERVER_DROP_SYSTEM_H_
-#define SDLMS_SRC_SERVER_SERVER_SYSTEM_SERVER_DROP_SYSTEM_H_
+#pragma once
 
 namespace sdlms {
 
@@ -14,5 +13,3 @@ class ServerDropSystem {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_SERVER_SERVER_SYSTEM_SERVER_DROP_SYSTEM_H_

@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_RANDOM_GAME_INSTANCE_H_
-#define SDLMS_SRC_CLIENT_GAME_INSTANCE_RANDOM_GAME_INSTANCE_H_
+#pragma once
 
 #include <cstdint>
 #include <ctime>
@@ -13,5 +12,3 @@ class RandomGameInstance {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_GAME_INSTANCE_RANDOM_GAME_INSTANCE_H_

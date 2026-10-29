@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_NPC_GAME_INSTANCE_H_
-#define SDLMS_SRC_CLIENT_GAME_INSTANCE_NPC_GAME_INSTANCE_H_
+#pragma once
 
 #include "src/client/game/game_npc.h"
 
@@ -45,12 +44,10 @@ class NpcGameInstance {
 
   static inline std::array<std::vector<GameNpc>, 8> data_;
 
-  static inline const std::flat_set<std::u16string> default_action = {
+  static inline const std::flat_set<std::u16string> default_action_ = {
       u"stand",
       u"eye",
   };
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_GAME_INSTANCE_NPC_GAME_INSTANCE_H_

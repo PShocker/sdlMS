@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_SYSTEM_UI_MINIMAP_UI_SYSTEM_H_
-#define SDLMS_SRC_CLIENT_SYSTEM_UI_MINIMAP_UI_SYSTEM_H_
+#pragma once
 
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_rect.h>
@@ -50,7 +49,7 @@ class MinimapUiSystem {
   static inline std::optional<SDL_FPoint> drag_;
 
  public:
-  static inline SDL_FPoint pos = {0, 0};
+  static inline SDL_FPoint pos_ = {0, 0};
   static inline bool max_ = true;
   static inline bool disable_;
 
@@ -69,5 +68,3 @@ class MinimapUiSystem {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_SYSTEM_UI_MINIMAP_UI_SYSTEM_H_

@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_COMMON_PHYSIC_PHYSIC_H_
-#define SDLMS_SRC_COMMON_PHYSIC_PHYSIC_H_
+#pragma once
 
 #include "src/client/game/game_foothold.h"
 
@@ -49,5 +48,3 @@ class Physic {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_COMMON_PHYSIC_PHYSIC_H_

@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_SYSTEM_INSTANCE_GAME_SAVE_SYSTEM_INSTANCE_H_
-#define SDLMS_SRC_CLIENT_SYSTEM_INSTANCE_GAME_SAVE_SYSTEM_INSTANCE_H_
+#pragma once
 
 #include "src/client/game/game_save.h"
 
@@ -17,5 +16,3 @@ class GameSaveSystemInstance {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_SYSTEM_INSTANCE_GAME_SAVE_SYSTEM_INSTANCE_H_

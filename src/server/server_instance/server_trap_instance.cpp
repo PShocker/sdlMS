@@ -22,7 +22,7 @@ void ServerTrapInstance::HandleAttack(uint64_t client_id,
   t.client_id = client_id;
   t.payload = std::move(r.payload);
   for (auto c : clients) {
-    ServerResponse::send_to_client(c, t);
+    ServerResponse::SendToClient(c, t);
   }
 }
 

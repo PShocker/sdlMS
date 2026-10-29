@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_SYSTEM_RENDER_DEBUFF_RENDER_SYSTEM_H_
-#define SDLMS_SRC_CLIENT_SYSTEM_RENDER_DEBUFF_RENDER_SYSTEM_H_
+#pragma once
 
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_debuff.h"
@@ -19,5 +18,3 @@ class DebuffRenderSystem {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_SYSTEM_RENDER_DEBUFF_RENDER_SYSTEM_H_

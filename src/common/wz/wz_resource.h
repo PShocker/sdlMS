@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_COMMON_WZ_WZ_RESOURCE_H_
-#define SDLMS_SRC_COMMON_WZ_WZ_RESOURCE_H_
+#pragma once
 
 #include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_render.h>
@@ -51,5 +50,3 @@ class WzResource {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_COMMON_WZ_WZ_RESOURCE_H_

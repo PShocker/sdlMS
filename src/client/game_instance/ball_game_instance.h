@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_BALL_GAME_INSTANCE_H_
-#define SDLMS_SRC_CLIENT_GAME_INSTANCE_BALL_GAME_INSTANCE_H_
+#pragma once
 
 #include "src/client/game/game_ball.h"
 #include "src/client/game/game_character.h"
@@ -36,5 +35,3 @@ class BallGameInstance {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_GAME_INSTANCE_BALL_GAME_INSTANCE_H_

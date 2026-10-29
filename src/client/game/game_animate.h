@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_GAME_GAME_ANIMATE_H_
-#define SDLMS_SRC_CLIENT_GAME_GAME_ANIMATE_H_
+#pragma once
 
 #include <cstdint>
 #include <vector>
@@ -13,5 +12,3 @@ struct GameAnimate {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_GAME_GAME_ANIMATE_H_

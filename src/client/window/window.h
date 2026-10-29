@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_WINDOW_WINDOW_H_
-#define SDLMS_SRC_CLIENT_WINDOW_WINDOW_H_
+#pragma once
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_rect.h>
@@ -38,5 +37,3 @@ class Window {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_WINDOW_WINDOW_H_

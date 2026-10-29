@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_SYSTEM_LOGIC_CHATBALLOON_LOGIC_SYSTEM_H_
-#define SDLMS_SRC_CLIENT_SYSTEM_LOGIC_CHATBALLOON_LOGIC_SYSTEM_H_
+#pragma once
 
 #include <cstdint>
 
@@ -11,5 +10,3 @@ class ChatballoonLogicSystem {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_SYSTEM_LOGIC_CHATBALLOON_LOGIC_SYSTEM_H_

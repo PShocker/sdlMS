@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_SERVER_SERVER_MAIN_H_
-#define SDLMS_SRC_SERVER_SERVER_MAIN_H_
+#pragma once
 
 #include <uv.h>
 
@@ -14,7 +13,7 @@ class ServerMain {
 
   static inline uv_loop_t* loop_;
   static inline bool host_ = true;
-  static inline sockaddr_in host_addr = {};
+  static inline sockaddr_in host_addr_ = {};
 
   static void ServerInit(const std::string& ip, uint32_t port);
   static void ServerInit();
@@ -37,5 +36,3 @@ class ServerMain {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_SERVER_SERVER_MAIN_H_

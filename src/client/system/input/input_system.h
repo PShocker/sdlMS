@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_SYSTEM_INPUT_INPUT_SYSTEM_H_
-#define SDLMS_SRC_CLIENT_SYSTEM_INPUT_INPUT_SYSTEM_H_
+#pragma once
 
 #include "src/client/game/game_input.h"
 
@@ -16,5 +15,3 @@ class InputSystem {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_SYSTEM_INPUT_INPUT_SYSTEM_H_

@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_SYSTEM_UI_KEYBINDING_UI_SYSTEM_H_
-#define SDLMS_SRC_CLIENT_SYSTEM_UI_KEYBINDING_UI_SYSTEM_H_
+#pragma once
 
 #include "src/client/game/game_input.h"
 
@@ -64,5 +63,3 @@ class KeybindingUiSystem {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_SYSTEM_UI_KEYBINDING_UI_SYSTEM_H_

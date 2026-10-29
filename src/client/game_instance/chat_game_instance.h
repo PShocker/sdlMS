@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_CHAT_GAME_INSTANCE_H_
-#define SDLMS_SRC_CLIENT_GAME_INSTANCE_CHAT_GAME_INSTANCE_H_
+#pragma once
 
 #include "src/client/game/game_chat.h"
 
@@ -13,5 +12,3 @@ class ChatGameInstance {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_GAME_INSTANCE_CHAT_GAME_INSTANCE_H_

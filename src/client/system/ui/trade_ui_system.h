@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_SYSTEM_UI_TRADE_UI_SYSTEM_H_
-#define SDLMS_SRC_CLIENT_SYSTEM_UI_TRADE_UI_SYSTEM_H_
+#pragma once
 
 #include "src/client/game/game_character.h"
 
@@ -32,5 +31,3 @@ class TradeUiSystem {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_SYSTEM_UI_TRADE_UI_SYSTEM_H_

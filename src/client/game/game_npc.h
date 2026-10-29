@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_GAME_GAME_NPC_H_
-#define SDLMS_SRC_CLIENT_GAME_GAME_NPC_H_
+#pragma once
 
 #include "src/client/game/game_chatballoon.h"
 
@@ -35,5 +34,3 @@ struct GameNpc {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_GAME_GAME_NPC_H_

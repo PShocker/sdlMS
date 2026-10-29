@@ -108,7 +108,7 @@ static void Shunjianyidong() {
 
     auto ckt = SkillGameInstance::CreateSkillPayload(2301000, ski_lv);
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
-    ClientRequest::send_to_host(ckt);
+    ClientRequest::SendToHost(ckt);
   };
   auto& skills = SkillGameInstance::Skis();
   skills[g_skill.id] = g_skill;
@@ -133,7 +133,7 @@ static void Huixueshu() {
     auto& sf = CharacterGameInstance::self_;
     auto ckt = SkillGameInstance::CreateSkillPayload(1001, ski_lv);
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
-    ClientRequest::send_to_host(ckt);
+    ClientRequest::SendToHost(ckt);
   };
 
   auto& skills = SkillGameInstance::Skis();
@@ -179,7 +179,7 @@ static void Qidao() {
     auto players = CharacterLogicSystem::RunBuffCheck(sf, g_r);
     auto ckt = SkillGameInstance::CreateSkillPayload(players, 2301003, ski_lv);
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
-    ClientRequest::send_to_host(ckt);
+    ClientRequest::SendToHost(ckt);
   };
 
   auto& skills = SkillGameInstance::Skis();

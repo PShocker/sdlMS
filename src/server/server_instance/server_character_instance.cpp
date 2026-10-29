@@ -56,7 +56,7 @@ void ServerCharacterInstance::HandleMv(uint64_t client_id,
   t.payload = std::move(m.payload);
   // 广播给其他所有客户端
   for (const auto c : clients) {
-    ServerResponse::send_to_client(c, t);
+    ServerResponse::SendToClient(c, t);
   }
 }
 
@@ -78,7 +78,7 @@ void ServerCharacterInstance::HandleFlip(uint64_t client_id,
   t.payload = std::move(m.payload);
   // 广播给其他所有客户端
   for (const auto c : clients) {
-    ServerResponse::send_to_client(c, t);
+    ServerResponse::SendToClient(c, t);
   }
 }
 
@@ -109,7 +109,7 @@ void ServerCharacterInstance::HandleAction(uint64_t client_id,
   t.payload = std::move(m.payload);
   // 广播给其他所有客户端
   for (const auto c : clients) {
-    ServerResponse::send_to_client(c, t);
+    ServerResponse::SendToClient(c, t);
   }
 }
 
@@ -135,7 +135,7 @@ void ServerCharacterInstance::HandleDie(uint64_t client_id,
   t.payload = std::move(m.payload);
   // 广播给其他所有客户端
   for (const auto c : clients) {
-    ServerResponse::send_to_client(c, t);
+    ServerResponse::SendToClient(c, t);
   }
 }
 
@@ -157,7 +157,7 @@ void ServerCharacterInstance::HandleFc(uint64_t client_id,
   t.payload = std::move(m.payload);
   // 广播给其他所有客户端
   for (const auto c : clients) {
-    ServerResponse::send_to_client(c, t);
+    ServerResponse::SendToClient(c, t);
   }
 }
 
@@ -267,7 +267,7 @@ void ServerCharacterInstance::HandleSkill(uint64_t client_id,
     t.y = r.y;
     t.flip = r.flip;
     for (auto c : scenes) {
-      ServerResponse::send_to_client(c, t);
+      ServerResponse::SendToClient(c, t);
     }
   }
 }
@@ -298,7 +298,7 @@ void ServerCharacterInstance::HandleAttack(uint64_t client_id,
   t.client_id = client_id;
   t.payload = std::move(r.payload);
   for (auto c : clients) {
-    ServerResponse::send_to_client(c, t);
+    ServerResponse::SendToClient(c, t);
   }
 }
 
@@ -313,7 +313,7 @@ void ServerCharacterInstance::HandleChat(uint64_t client_id,
   t.client_id = client_id;
   t.payload = std::move(r.payload);
   for (auto c : clients) {
-    ServerResponse::send_to_client(c, t);
+    ServerResponse::SendToClient(c, t);
   }
 }
 
@@ -352,7 +352,7 @@ void ServerCharacterInstance::HandleCharacter(uint64_t client_id,
     t.client_id = client_id;
     t.payload = std::move(r.payload);
     for (auto c : scenes) {
-      ServerResponse::send_to_client(c, t);
+      ServerResponse::SendToClient(c, t);
     }
     // save
     ServerClientInstance::clients_[client_id].player_t.character =
@@ -769,7 +769,7 @@ void ServerCharacterInstance::HandleState(uint64_t client_id,
     t.client_id = client_id;
     t.payload = std::move(r.payload);
     for (auto c : scenes) {
-      ServerResponse::send_to_client(c, t);
+      ServerResponse::SendToClient(c, t);
     }
   }
 }
@@ -961,7 +961,7 @@ void ServerCharacterInstance::HandleLvUp(uint64_t client_id,
     fbs::ServerCharacterLvUpT t;
     t.client_id = client_id;
     for (auto c : scenes) {
-      ServerResponse::send_to_client(c, t);
+      ServerResponse::SendToClient(c, t);
     }
   }
 }

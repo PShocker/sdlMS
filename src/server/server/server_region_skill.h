@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_SERVER_SERVER_SERVER_REGION_SKILL_H_
-#define SDLMS_SRC_SERVER_SERVER_SERVER_REGION_SKILL_H_
+#pragma once
 
 #include <SDL3/SDL_rect.h>
 
@@ -27,5 +26,3 @@ struct ServerRegionSkill {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_SERVER_SERVER_SERVER_REGION_SKILL_H_

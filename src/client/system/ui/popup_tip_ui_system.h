@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_SYSTEM_UI_POPUP_TIP_UI_SYSTEM_H_
-#define SDLMS_SRC_CLIENT_SYSTEM_UI_POPUP_TIP_UI_SYSTEM_H_
+#pragma once
 
 #include "src/client/game/game_popup_tip.h"
 
@@ -23,12 +22,10 @@ class PopupTipUiSystem {
   static void Destory();
 
  public:
-  static inline SDL_FPoint pos = {429, -32};
+  static inline SDL_FPoint pos_ = {429, -32};
 
   static bool Render();
   static bool Event(SDL_Event* event);
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_SYSTEM_UI_POPUP_TIP_UI_SYSTEM_H_

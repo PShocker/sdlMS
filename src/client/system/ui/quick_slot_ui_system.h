@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_SYSTEM_UI_QUICK_SLOT_UI_SYSTEM_H_
-#define SDLMS_SRC_CLIENT_SYSTEM_UI_QUICK_SLOT_UI_SYSTEM_H_
+#pragma once
 
 #include "src/client/game/game_input.h"
 
@@ -44,5 +43,3 @@ class QuickSlotUiSystem {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_SYSTEM_UI_QUICK_SLOT_UI_SYSTEM_H_

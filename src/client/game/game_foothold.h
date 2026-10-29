@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_GAME_GAME_FOOTHOLD_H_
-#define SDLMS_SRC_CLIENT_GAME_GAME_FOOTHOLD_H_
+#pragma once
 
 #include <SDL3/SDL_rect.h>
 
@@ -32,5 +31,3 @@ struct GameFoothold {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_GAME_GAME_FOOTHOLD_H_

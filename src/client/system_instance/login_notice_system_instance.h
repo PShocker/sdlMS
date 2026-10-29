@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_SYSTEM_INSTANCE_LOGIN_NOTICE_SYSTEM_INSTANCE_H_
-#define SDLMS_SRC_CLIENT_SYSTEM_INSTANCE_LOGIN_NOTICE_SYSTEM_INSTANCE_H_
+#pragma once
 
 #include <cstdint>
 
@@ -16,9 +15,7 @@ class LoginNoticeSystemInstance {
     kLogining,
     kLoginingUsed,
   };
-  static void Enter(NoticeType type, void (*fn)());
+  static void Enter(NoticeType type, void (*fn_)());
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_SYSTEM_INSTANCE_LOGIN_NOTICE_SYSTEM_INSTANCE_H_

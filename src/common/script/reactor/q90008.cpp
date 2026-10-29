@@ -48,7 +48,7 @@ static void Q90008(std::any data) {
   }
   auto scenes = ServerSceneInstance::scenes_[map_id].clients;
   for (auto c : scenes) {
-    ServerResponse::send_to_client(c, srd);
+    ServerResponse::SendToClient(c, srd);
   }
   return;
 };

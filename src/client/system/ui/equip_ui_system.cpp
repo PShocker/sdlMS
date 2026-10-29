@@ -10,6 +10,7 @@
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/button.h"
 #include "src/client/system/ui/tooltip_ui_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
@@ -171,7 +172,7 @@ void EquipUiSystem::RenderDeco() {
 
 bool EquipUiSystem::RenderInfo() {
   auto index = mouse_index_;
-  if (index.has_value() && !CursorGameInstance::modal_overlay) {
+  if (index.has_value() && !CursorGameInstance::modal_overlay_) {
     auto& mouse_pos = Window::mouse_pos_;
     SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
     if (active_tab_ == 0) {
@@ -246,28 +247,17 @@ void EquipUiSystem::RenderButton() {
   };
 
   for (size_t i = 0; i < buttons_nodes.size(); ++i) {
-    auto k = buttons_nodes[i];
-    auto pos_rect = buttons_rect[i];
-    pos_rect.x += pos_.x;
-    pos_rect.y += pos_.y;
-    pos_rect.x = (int)pos_rect.x;
-    pos_rect.y = (int)pos_rect.y;
-    auto& mouse_pos = Window::mouse_pos_;
-    // 判断按钮是否被遮挡
-    auto cursor_in = CursorGameInstance::cursor_ui;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == Render &&
-        !CursorGameInstance::modal_overlay) {
-      if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
-        auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
-        SDL_RenderTexture(Window::renderer_, pressed, nullptr, &pos_rect);
-      } else {
-        auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
-        SDL_RenderTexture(Window::renderer_, mouse_over, nullptr, &pos_rect);
-      }
-    } else {
-      auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
-      SDL_RenderTexture(Window::renderer_, normal, nullptr, &pos_rect);
-    }
+    SDL_FRect rect = buttons_rect[i];
+    rect.x += pos_.x;
+    rect.y += pos_.y;
+    rect.x = (int)rect.x;
+    rect.y = (int)rect.y;
+    Button{.node = buttons_nodes[i],
+           .rect = rect,
+           .enable = true,
+           .focused = CursorGameInstance::cursor_ui_ == Render &&
+                      !CursorGameInstance::modal_overlay_}
+        .Render();
   }
 }
 
@@ -514,7 +504,7 @@ void EquipUiSystem::EventMotion(SDL_Event* event) {
 }
 
 void EquipUiSystem::EventMotionBtAudio(SDL_Event* event) {
-  if (CursorGameInstance::cursor_ui != Render) {
+  if (CursorGameInstance::cursor_ui_ != Render) {
     return;
   }
   std::vector<SDL_FRect> buttons_rect;
@@ -559,7 +549,7 @@ bool EquipUiSystem::Event(SDL_Event* event) {
     }
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
       if (event->button.button == SDL_BUTTON_LEFT) {
-        if (CursorGameInstance::cursor_ui == Render) {
+        if (CursorGameInstance::cursor_ui_ == Render) {
           EventTop();
           EventDragStart(event);
           r = false;
@@ -569,7 +559,7 @@ bool EquipUiSystem::Event(SDL_Event* event) {
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
-        if (CursorGameInstance::cursor_ui == Render) {
+        if (CursorGameInstance::cursor_ui_ == Render) {
           EventTab(event);
           EventClickEquip(event);
           r = !EventButton(event);

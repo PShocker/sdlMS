@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_GAME_GAME_TOMB_H_
-#define SDLMS_SRC_CLIENT_GAME_GAME_TOMB_H_
+#pragma once
 
 #include <SDL3/SDL_rect.h>
 
@@ -20,5 +19,3 @@ struct GameTomb {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_GAME_GAME_TOMB_H_

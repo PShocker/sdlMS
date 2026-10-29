@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_SERVER_SERVER_SERVER_SCENE_H_
-#define SDLMS_SRC_SERVER_SERVER_SERVER_SCENE_H_
+#pragma once
 
 #include "src/server/server/server_client.h"
 #include "src/server/server/server_drop.h"
@@ -30,5 +29,3 @@ struct ServerSceneState {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_SERVER_SERVER_SERVER_SCENE_H_

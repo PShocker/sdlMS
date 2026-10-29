@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_SYSTEM_UI_STATUSBAR_UI_SYSTEM_H_
-#define SDLMS_SRC_CLIENT_SYSTEM_UI_STATUSBAR_UI_SYSTEM_H_
+#pragma once
 
 #include "src/client/game/game_chat.h"
 #include "src/client/game/game_popup_tip.h"
@@ -60,5 +59,3 @@ class StatusbarUiSystem {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_SYSTEM_UI_STATUSBAR_UI_SYSTEM_H_

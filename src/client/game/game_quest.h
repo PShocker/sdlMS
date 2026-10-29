@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_GAME_GAME_QUEST_H_
-#define SDLMS_SRC_CLIENT_GAME_GAME_QUEST_H_
+#pragma once
 
 #include <wz/Node.h>
 
@@ -47,5 +46,3 @@ struct GameQuest {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_GAME_GAME_QUEST_H_

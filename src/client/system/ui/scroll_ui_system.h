@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_SYSTEM_UI_SCROLL_UI_SYSTEM_H_
-#define SDLMS_SRC_CLIENT_SYSTEM_UI_SCROLL_UI_SYSTEM_H_
+#pragma once
 
 #include "src/client/window/window.h"
 
@@ -21,5 +20,3 @@ class ScrollUiSystem {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_SYSTEM_UI_SCROLL_UI_SYSTEM_H_

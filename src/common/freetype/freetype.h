@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_COMMON_FREETYPE_FREETYPE_H_
-#define SDLMS_SRC_COMMON_FREETYPE_FREETYPE_H_
+#pragma once
 
 #include <SDL3/SDL_pixels.h>
 #include <SDL3/SDL_rect.h>
@@ -79,5 +78,3 @@ class Freetype {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_COMMON_FREETYPE_FREETYPE_H_

@@ -5,6 +5,7 @@
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/button.h"
 #include "src/client/system/ui/combo_box_ui_system.h"
 #include "src/client/system/ui/slider_ui_system.h"
 #include "src/client/window/window.h"
@@ -43,7 +44,7 @@ void OptionUiSystem::RenderBackgrnd() {
 void OptionUiSystem::RenderOption() {
   std::vector<wz::Node*> buttons_nodes;
   std::vector<SDL_FRect> buttons_rect;
-  auto top = CursorGameInstance::cursor_ui == Render;
+  auto top = CursorGameInstance::cursor_ui_ == Render;
 
   switch (static_cast<OptionType>(active_tab_)) {
     case OptionType::kController: {
@@ -240,14 +241,14 @@ void OptionUiSystem::RenderOption() {
       Freetype::LoadColor(255, 255, 255, 255);
       Freetype::DrawCstr(u"Enemy Info", pos_.x + 12, pos_.y + 119, 105, 1.3);
       Freetype::LoadColor(0, 0, 0, 255);
-      ComboBoxUiSystem::Render(pos_.x + 131, pos_.y + 124, enemy_info_cm, top,
+      ComboBoxUiSystem::Render(pos_.x + 131, pos_.y + 124, enemy_info_cm_, top,
                                false);
       // screen format
       Freetype::LoadColor(255, 255, 255, 255);
       Freetype::DrawCstr(u"ScreenShot File\n Format", pos_.x + 12, pos_.y + 158,
                          105, 1);
       Freetype::LoadColor(0, 0, 0, 255);
-      ComboBoxUiSystem::Render(pos_.x + 131, pos_.y + 164, screenshot_format,
+      ComboBoxUiSystem::Render(pos_.x + 131, pos_.y + 164, screenshot_format_,
                                top, false);
       // screen folder
       Freetype::LoadColor(255, 255, 255, 255);
@@ -255,7 +256,7 @@ void OptionUiSystem::RenderOption() {
                          105, 1);
       Freetype::LoadColor(0, 0, 0, 255);
 
-      ComboBoxUiSystem::Render(pos_.x + 131, pos_.y + 197, screenshot_location,
+      ComboBoxUiSystem::Render(pos_.x + 131, pos_.y + 197, screenshot_location_,
                                top, false);
       // burst screen shot
       SDL_Texture* t;
@@ -367,9 +368,9 @@ void OptionUiSystem::RenderOption() {
     pos_rect.y = (int)pos_rect.y;
     auto& mouse_pos = Window::mouse_pos_;
     // 判断按钮是否被遮挡
-    auto cursor_in = CursorGameInstance::cursor_ui;
+    auto cursor_in = CursorGameInstance::cursor_ui_;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == Render &&
-        !CursorGameInstance::modal_overlay) {
+        !CursorGameInstance::modal_overlay_) {
       if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
         auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
         SDL_RenderTexture(Window::renderer_, pressed, nullptr, &pos_rect);
@@ -396,26 +397,15 @@ void OptionUiSystem::RenderButton() {
       SDL_FRect{266, 7, 12, 12},    //
   };
   for (size_t i = 0; i < buttons_node.size(); ++i) {
-    auto k = buttons_node[i];
-    auto pos_rect = buttons_rect[i];
-    pos_rect.x += (int)pos_.x;
-    pos_rect.y += (int)pos_.y;
-    auto& mouse_pos = Window::mouse_pos_;
-    // 判断按钮是否被遮挡
-    auto cursor_in = CursorGameInstance::cursor_ui;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == Render &&
-        !CursorGameInstance::modal_overlay) {
-      if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
-        auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
-        SDL_RenderTexture(Window::renderer_, pressed, nullptr, &pos_rect);
-      } else {
-        auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
-        SDL_RenderTexture(Window::renderer_, mouse_over, nullptr, &pos_rect);
-      }
-    } else {
-      auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
-      SDL_RenderTexture(Window::renderer_, normal, nullptr, &pos_rect);
-    }
+    SDL_FRect rect = buttons_rect[i];
+    rect.x += (int)pos_.x;
+    rect.y += (int)pos_.y;
+    Button{.node = buttons_node[i],
+           .rect = rect,
+           .enable = true,
+           .focused = CursorGameInstance::cursor_ui_ == Render &&
+                      !CursorGameInstance::modal_overlay_}
+        .Render();
   }
 }
 
@@ -565,7 +555,7 @@ bool OptionUiSystem::EventButton(SDL_Event* event) {
 }
 
 void OptionUiSystem::EventMotionBtAudio(SDL_Event* event) {
-  if (CursorGameInstance::cursor_ui != Render) {
+  if (CursorGameInstance::cursor_ui_ != Render) {
     return;
   }
   auto wh = LoadWh();
@@ -594,7 +584,7 @@ bool OptionUiSystem::Event(SDL_Event* event) {
   switch (event->type) {
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
       if (event->button.button == SDL_BUTTON_LEFT) {
-        if (CursorGameInstance::cursor_ui == Render) {
+        if (CursorGameInstance::cursor_ui_ == Render) {
           EventTop();
           EventDragStart(event);
           r = false;
@@ -604,7 +594,7 @@ bool OptionUiSystem::Event(SDL_Event* event) {
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
-        if (CursorGameInstance::cursor_ui == Render) {
+        if (CursorGameInstance::cursor_ui_ == Render) {
           r = !EventButton(event);
         }
         EventDragEnd();

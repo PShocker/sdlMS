@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_SYSTEM_LOGIC_NPC_LOGIC_SYSTEM_H_
-#define SDLMS_SRC_CLIENT_SYSTEM_LOGIC_NPC_LOGIC_SYSTEM_H_
+#pragma once
 
 #include "src/client/game/game_npc.h"
 
@@ -28,5 +27,3 @@ class NpcLogicSystem {
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_SYSTEM_LOGIC_NPC_LOGIC_SYSTEM_H_

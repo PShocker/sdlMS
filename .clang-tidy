@@ -1,45 +1,96 @@
 ---
-# Google C++ style guide checks (run with `clang-tidy -p build`).
+# Google C++ style checks for the sdlMS project.
+#
+# Run against the compilation database:
+#   scripts/clang-tidy.bat            (whole tree)
+#   clang-tidy -p build src/client/main.cpp
 Checks: >
   -*,
   google-*,
-  bugprone-*,
+  -google-runtime-int,
+  -google-runtime-references,
+  -google-readability-todo,
+  -google-upgrade-googletest-case,
+  readability-identifier-naming,
   modernize-use-nullptr,
   modernize-use-override,
-  modernize-use-emplace,
-  readability-braces-around-statements,
-  readability-identifier-naming,
-  readability-const-return-type,
-  readability-container-size-empty
+  modernize-use-using
+
+WarningsAsErrors: ''
+
+# Project headers only; the generated flatbuffers tables keep their own
+# naming and are not checked.
+HeaderFilterRegex: '(src[/\\](client|server)[/\\]|src[/\\]common[/\\](ffmpeg|freetype|physic|request|response|script|wz)[/\\])'
+
+FormatStyle: file
 
 CheckOptions:
+  # --- types -------------------------------------------------------------
+  - key: readability-identifier-naming.NamespaceCase
+    value: lower_case
   - key: readability-identifier-naming.ClassCase
     value: CamelCase
   - key: readability-identifier-naming.StructCase
     value: CamelCase
+  - key: readability-identifier-naming.UnionCase
+    value: CamelCase
   - key: readability-identifier-naming.EnumCase
     value: CamelCase
+  - key: readability-identifier-naming.TypeAliasCase
+    value: CamelCase
+  - key: readability-identifier-naming.TypedefCase
+    value: CamelCase
+
+  # --- functions ---------------------------------------------------------
+  - key: readability-identifier-naming.FunctionCase
+    value: CamelCase
+
+  # --- constants and enumerators ----------------------------------------
   - key: readability-identifier-naming.EnumConstantCase
     value: CamelCase
   - key: readability-identifier-naming.EnumConstantPrefix
     value: k
-  - key: readability-identifier-naming.FunctionCase
+  - key: readability-identifier-naming.ConstexprVariableCase
     value: CamelCase
+  - key: readability-identifier-naming.ConstexprVariablePrefix
+    value: k
+  - key: readability-identifier-naming.GlobalConstantCase
+    value: CamelCase
+  - key: readability-identifier-naming.GlobalConstantPrefix
+    value: k
+
+  # --- variables and parameters -----------------------------------------
+  - key: readability-identifier-naming.GlobalVariableCase
+    value: lower_case
+  - key: readability-identifier-naming.LocalVariableCase
+    value: lower_case
+  - key: readability-identifier-naming.ParameterCase
+    value: lower_case
+
+  # --- class data members: snake_case with a trailing underscore ---------
   - key: readability-identifier-naming.MemberCase
     value: lower_case
   - key: readability-identifier-naming.MemberSuffix
     value: _
-  - key: readability-identifier-naming.VariableCase
-    value: lower_case
-  - key: readability-identifier-naming.NamespaceCase
-    value: lower_case
-  - key: readability-identifier-naming.ConstantCase
-    value: CamelCase
-  - key: readability-identifier-naming.ConstantPrefix
-    value: k
   - key: readability-identifier-naming.ClassMemberCase
     value: lower_case
+  - key: readability-identifier-naming.ClassMemberSuffix
+    value: _
+  - key: readability-identifier-naming.PrivateMemberCase
+    value: lower_case
+  - key: readability-identifier-naming.PrivateMemberSuffix
+    value: _
+  - key: readability-identifier-naming.ProtectedMemberCase
+    value: lower_case
+  - key: readability-identifier-naming.ProtectedMemberSuffix
+    value: _
+  # Public data members of structs carry no suffix; class members are
+  # handled by ClassMember above.
+  - key: readability-identifier-naming.PublicMemberCase
+    value: lower_case
 
-WarningsAsErrors: ''
-HeaderFilterRegex: '(src/.*)'
-FormatStyle: file
+  # --- struct/union members: plain snake_case, no suffix ------------------
+  - key: readability-identifier-naming.StructMemberCase
+    value: lower_case
+  - key: readability-identifier-naming.UnionMemberCase
+    value: lower_case

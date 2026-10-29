@@ -9,6 +9,7 @@
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/system/input/keyboard_input_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/button.h"
 #include "src/client/system/ui/character_stat_ui_system.h"
 #include "src/client/system/ui/chat_log_ui_system.h"
 #include "src/client/system/ui/equip_ui_system.h"
@@ -427,26 +428,15 @@ void StatusbarUiSystem::RenderButton() {
   auto base_y = (screen_h - 73);
 
   for (size_t i = 0; i < buttons_node.size(); ++i) {
-    auto k = buttons_node[i];
-    auto pos_rect = buttons_rect[i];
-    pos_rect.x += base_x;
-    pos_rect.y += base_y;
-    auto& mouse_pos = Window::mouse_pos_;
-    // 判断按钮是否被遮挡
-    auto cursor_in = CursorGameInstance::cursor_ui;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == Render &&
-        !CursorGameInstance::modal_overlay) {
-      if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
-        auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
-        SDL_RenderTexture(Window::renderer_, pressed, nullptr, &pos_rect);
-      } else {
-        auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
-        SDL_RenderTexture(Window::renderer_, mouse_over, nullptr, &pos_rect);
-      }
-    } else {
-      auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
-      SDL_RenderTexture(Window::renderer_, normal, nullptr, &pos_rect);
-    }
+    SDL_FRect rect = buttons_rect[i];
+    rect.x += base_x;
+    rect.y += base_y;
+    Button{.node = buttons_node[i],
+           .rect = rect,
+           .enable = true,
+           .focused = CursorGameInstance::cursor_ui_ == Render &&
+                      !CursorGameInstance::modal_overlay_}
+        .Render();
   }
 }
 
@@ -463,9 +453,9 @@ void StatusbarUiSystem::RenderChat() {
     pos_rect.y += base_y;
     auto& mouse_pos = Window::mouse_pos_;
     // 判断按钮是否被遮挡
-    auto cursor_in = CursorGameInstance::cursor_ui;
+    auto cursor_in = CursorGameInstance::cursor_ui_;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == Render &&
-        !CursorGameInstance::modal_overlay) {
+        !CursorGameInstance::modal_overlay_) {
       if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
         auto pressed =
             WzResource::LoadTexture(TargetSelect->find(u"pressed/0"));
@@ -666,7 +656,7 @@ bool StatusbarUiSystem::EventButton(SDL_Event* event) {
 }
 
 void StatusbarUiSystem::EventMotionBtAudio(SDL_Event* event) {
-  if (CursorGameInstance::cursor_ui != Render) {
+  if (CursorGameInstance::cursor_ui_ != Render) {
     return;
   }
   const static std::array buttons_rect = {
@@ -711,7 +701,7 @@ bool StatusbarUiSystem::Event(SDL_Event* event) {
   switch (event->type) {
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
-        if (CursorGameInstance::cursor_ui == Render) {
+        if (CursorGameInstance::cursor_ui_ == Render) {
           EventButton(event);
           r = false;
         }
@@ -787,7 +777,7 @@ void StatusbarUiSystem::EventChatSend() {
   cct.payload = std::make_unique<fbs::CharacterChatT>();
   cct.payload->type = fbs::ChatEnum_MAP;
   cct.payload->payload = {chat_.text.begin(), chat_.text.end()};
-  ClientRequest::send_to_host(cct);
+  ClientRequest::SendToHost(cct);
   Reset();
 }
 

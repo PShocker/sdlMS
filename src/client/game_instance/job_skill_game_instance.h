@@ -1,5 +1,4 @@
-#ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_JOB_SKILL_GAME_INSTANCE_H_
-#define SDLMS_SRC_CLIENT_GAME_INSTANCE_JOB_SKILL_GAME_INSTANCE_H_
+#pragma once
 
 #include "src/client/game/game_save.h"
 
@@ -41,9 +40,7 @@ class JobSkillGameInstance {
   static std::u16string LoadTwoJump();
 
   static inline std::flat_map<uint32_t, uint8_t> skill_point_;
-  static inline std::vector<uint32_t> remain_point = {100, 100, 100, 100};
+  static inline std::vector<uint32_t> remain_point_ = {100, 100, 100, 100};
 };
 
 }  // namespace sdlms
-
-#endif  // SDLMS_SRC_CLIENT_GAME_INSTANCE_JOB_SKILL_GAME_INSTANCE_H_
