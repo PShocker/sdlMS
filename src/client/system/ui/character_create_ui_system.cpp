@@ -169,16 +169,12 @@ void CharacterCreateUiSystem::RenderStat() {
   };
   SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
 
-  std::array buttons_rect = {
-      SDL_FRect{pos_rect.x + 48, pos_rect.y + 4, 16, 17},
-      SDL_FRect{pos_rect.x + 96, pos_rect.y + 4, 16, 17},
-      SDL_FRect{pos_rect.x + 48, pos_rect.y + 27, 16, 17},
-      SDL_FRect{pos_rect.x + 96, pos_rect.y + 27, 16, 17},
-      SDL_FRect{pos_rect.x + 48, pos_rect.y + 50, 16, 17},
-      SDL_FRect{pos_rect.x + 96, pos_rect.y + 50, 16, 17},
-      SDL_FRect{pos_rect.x + 48, pos_rect.y + 73, 16, 17},
-      SDL_FRect{pos_rect.x + 96, pos_rect.y + 73, 16, 17},
-  };
+  // 属性数字锚定在属性按钮组件上（与 GetComponent 共用同一份布局）
+  auto& components = GetComponent();
+  const SDL_FRect str_rect = std::get<Button>(components[0]).rect;
+  const SDL_FRect dex_rect = std::get<Button>(components[2]).rect;
+  const SDL_FRect int_rect = std::get<Button>(components[4]).rect;
+  const SDL_FRect luk_rect = std::get<Button>(components[6]).rect;
 
   Freetype::LoadSize(13);
   Freetype::LoadAligned(true);
@@ -186,31 +182,27 @@ void CharacterCreateUiSystem::RenderStat() {
   auto str1 = std::to_string(str_point_);
   auto str2 = std::u16string{str1.begin(), str1.end()};
   auto dx = Freetype::LoadW(str2);
-  Freetype::DrawLine(str2, buttons_rect[0].x + 32 - dx / 2,
-                     buttons_rect[0].y - 2);
+  Freetype::DrawLine(str2, str_rect.x + 32 - dx / 2, str_rect.y - 2);
 
   auto dex1 = std::to_string(dex_point_);
   auto dex2 = std::u16string{dex1.begin(), dex1.end()};
   dx = Freetype::LoadW(dex2);
-  Freetype::DrawLine(dex2, buttons_rect[2].x + 32 - dx / 2,
-                     buttons_rect[2].y - 2);
+  Freetype::DrawLine(dex2, dex_rect.x + 32 - dx / 2, dex_rect.y - 2);
 
   auto int1 = std::to_string(int_point_);
   auto int2 = std::u16string{int1.begin(), int1.end()};
   dx = Freetype::LoadW(int2);
-  Freetype::DrawLine(int2, buttons_rect[4].x + 32 - dx / 2,
-                     buttons_rect[4].y - 2);
+  Freetype::DrawLine(int2, int_rect.x + 32 - dx / 2, int_rect.y - 2);
 
   auto luk1 = std::to_string(luk_point_);
   auto luk2 = std::u16string{luk1.begin(), luk1.end()};
   dx = Freetype::LoadW(luk2);
-  Freetype::DrawLine(luk2, buttons_rect[6].x + 32 - dx / 2,
-                     buttons_rect[6].y - 2);
+  Freetype::DrawLine(luk2, luk_rect.x + 32 - dx / 2, luk_rect.y - 2);
   Freetype::LoadBold(true);
   Freetype::LoadSize(21);
   auto r1 = std::to_string(remain_point_);
   auto r2 = std::u16string{r1.begin(), r1.end()};
-  Freetype::DrawLine(r2, buttons_rect[6].x + 98, buttons_rect[6].y - 28);
+  Freetype::DrawLine(r2, luk_rect.x + 98, luk_rect.y - 28);
   Freetype::LoadBold(false);
 
   Freetype::LoadAligned(false);

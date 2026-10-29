@@ -20,18 +20,15 @@
 namespace sdlms {
 
 void PopupTipUiSystem::RenderBackgrnd(GamePopupTip& t) {
-  SDL_Texture* te;
+  SDL_Texture* te = nullptr;
   SDL_Texture* i = nullptr;
-  SDL_FPoint icon_pos;
+  SDL_FPoint icon_pos{0, 0};
   switch (t.type) {
-    case PopupTipEnums::kTrade: {
-      static auto texture = WzResource::LoadTexture(
-          WzResource::ui_->find(u"StatusBar.img/submenu/backgrnd/1"));
-      break;
-    }
+    case PopupTipEnums::kTrade:
     case PopupTipEnums::kParty: {
       static auto texture = WzResource::LoadTexture(
           WzResource::ui_->find(u"StatusBar.img/submenu/backgrnd/1"));
+      te = texture;
       break;
     }
     case PopupTipEnums::kQuest: {
@@ -59,12 +56,14 @@ void PopupTipUiSystem::RenderBackgrnd(GamePopupTip& t) {
   SDL_SetTextureAlphaMod(te, t.alpha);
   SDL_RenderTexture(Window::renderer_, te, nullptr, &pos_rect);
 
-  pos_rect.x -= icon_pos.x;
-  pos_rect.y -= icon_pos.y;
-  pos_rect.w = i->w;
-  pos_rect.h = i->h;
-  SDL_SetTextureAlphaMod(i, t.alpha);
-  SDL_RenderTexture(Window::renderer_, i, nullptr, &pos_rect);
+  if (i != nullptr) {
+    pos_rect.x -= icon_pos.x;
+    pos_rect.y -= icon_pos.y;
+    pos_rect.w = i->w;
+    pos_rect.h = i->h;
+    SDL_SetTextureAlphaMod(i, t.alpha);
+    SDL_RenderTexture(Window::renderer_, i, nullptr, &pos_rect);
+  }
 }
 
 void PopupTipUiSystem::RenderText(GamePopupTip& t) {
