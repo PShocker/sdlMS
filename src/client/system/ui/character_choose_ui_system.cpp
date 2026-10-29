@@ -36,6 +36,8 @@
 #include <string>
 #include <vector>
 
+#include "wz/Node.h"
+
 namespace sdlms {
 
 SDL_FPoint CharacterChooseUiSystem::LoadPos() {
@@ -49,11 +51,16 @@ SDL_FPoint CharacterChooseUiSystem::LoadPos() {
 }
 
 void CharacterChooseUiSystem::RenderUI() {
+  RenderComponents(GetComponent());
+}
+
+UIComponents& CharacterChooseUiSystem::GetComponent() {
   components_.clear();
   const static std::array buttons_nodes = {
       WzResource::ui_->find(u"Login.img/CharSelect/button:select"),
       WzResource::ui_->find(u"Login.img/CharSelect/button:new"),
       WzResource::ui_->find(u"Login.img/CharSelect/button:delete"),
+      WzResource::ui_->find(u"Login.img/LoginStart/BtClassicPrev"),
   };
   auto pos = LoadPos();
   auto& camera = CameraGameInstance::camera_;
@@ -61,26 +68,31 @@ void CharacterChooseUiSystem::RenderUI() {
       SDL_FRect{146 - camera.x, -656 - camera.y, 129, 41},
       SDL_FRect{146 - camera.x, -607 - camera.y, 129, 45},
       SDL_FRect{146 - camera.x, -544 - camera.y, 129, 55},
+      SDL_FRect{163 + pos.x, 574 + pos.y, 161, 69},
   };
-  std::vector<bool> disable = {
-      !choose_.has_value(),
-      false,
-      !choose_.has_value(),
+  std::vector<Button::Callback> callbacks = {
+      EventButtonSelect,
+      EventButtonNew,
+      EventButtonDelete,
+      EventButtonBack,
+  };
+  std::vector<bool> enable = {
+      choose_.has_value(),
+      true,
+      choose_.has_value(),
+      true,
   };
   for (size_t i = 0; i < buttons_nodes.size(); ++i) {
     SDL_FRect rect = buttons_rect[i];
     rect.x = (int)rect.x;
     rect.y = (int)rect.y;
-    Button button{.node = buttons_nodes[i],
-                  .rect = rect,
-                  .enable = !disable[i],
-                  .focused = true};
-    components_.push_back(button);
-    button.Render();
+    components_.push_back(
+        Button{.node = buttons_nodes[i],
+               .rect = rect,
+               .callback = callbacks[i],
+               .enable = enable[i],
+               .focused = true});
   }
-}
-
-UIComponents& CharacterChooseUiSystem::GetComponent() {
   return components_;
 }
 
@@ -96,32 +108,6 @@ void CharacterChooseUiSystem::RenderBanner() {
       static_cast<float>(t->h),
   };
   SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
-
-  const static std::array buttons_nodes = {
-      WzResource::ui_->find(u"Login.img/LoginStart/BtClassicPrev"),
-  };
-  std::array buttons_rect = {
-      SDL_FRect{163 + pos.x, 574 + pos.y, 161, 69},
-  };
-  for (size_t i = 0; i < buttons_nodes.size(); ++i) {
-    auto k = buttons_nodes[i];
-    auto pos_rect = buttons_rect[i];
-    pos_rect.x = (int)pos_rect.x;
-    pos_rect.y = (int)pos_rect.y;
-    auto& mouse_pos = Window::mouse_pos_;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-      if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
-        auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
-        SDL_RenderTexture(Window::renderer_, pressed, nullptr, &pos_rect);
-      } else {
-        auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
-        SDL_RenderTexture(Window::renderer_, mouse_over, nullptr, &pos_rect);
-      }
-    } else {
-      auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
-      SDL_RenderTexture(Window::renderer_, normal, nullptr, &pos_rect);
-    }
-  }
 }
 
 void CharacterChooseUiSystem::RenderBackgrnd() {
@@ -400,39 +386,7 @@ bool CharacterChooseUiSystem::EventChooseCharacter(SDL_Event* event) {
 }
 
 bool CharacterChooseUiSystem::EventUI(SDL_Event* event) {
-  std::vector<SDL_FRect> r;
-  std::vector<void (*)()> fns;
-  auto& camera = CameraGameInstance::camera_;
-  auto pos = LoadPos();
-  r = {
-      SDL_FRect{146 - camera.x, -656 - camera.y, 129, 41},
-      SDL_FRect{146 - camera.x, -607 - camera.y, 129, 45},
-      SDL_FRect{146 - camera.x, -544 - camera.y, 129, 55},
-      SDL_FRect{163 + pos.x, 574 + pos.y, 161, 69},
-  };
-  fns = {
-      EventButtonSelect,
-      EventButtonNew,
-      EventButtonDelete,
-      EventButtonBack,
-  };
-  std::vector<bool> disable = {
-      !choose_.has_value(),
-      false,
-      !choose_.has_value(),
-      false,
-  };
-  for (size_t i = 0; i < r.size(); ++i) {
-    auto pos_rect = r[i];
-    pos_rect.x = (int)pos_rect.x;
-    pos_rect.y = (int)pos_rect.y;
-    if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect) && !disable[i]) {
-      fns[i]();
-      return false;
-    }
-  }
-
-  return true;
+  return !DispatchButtonClick(GetComponent(), false);
 }
 
 bool CharacterChooseUiSystem::Event(SDL_Event* event) {
