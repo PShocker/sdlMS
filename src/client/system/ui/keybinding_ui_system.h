@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/client/component/button.h"
+#include "src/client/system/ui/component/button.h"
 #include "src/client/game/game_input.h"
 
 #include <SDL3/SDL_events.h>

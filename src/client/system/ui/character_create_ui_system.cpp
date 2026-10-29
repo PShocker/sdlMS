@@ -1,6 +1,6 @@
 #include "src/client/system/ui/character_create_ui_system.h"
 
-#include "src/client/component/button.h"
+#include "src/client/system/ui/component/button.h"
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_save.h"
 #include "src/client/game_instance/audio_game_instance.h"

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/client/component/button.h"
+#include "src/client/system/ui/component/button.h"
 #include "src/client/system/ui/combo_box_ui_system.h"
 #include "src/client/system/ui/text_input_ui_system.h"
 

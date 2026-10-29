@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/client/component/button.h"
+#include "src/client/system/ui/component/button.h"
 #include "src/client/game/game_chat.h"
 #include "src/client/game/game_popup_tip.h"
 #include "src/client/system/ui/text_input_ui_system.h"
