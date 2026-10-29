@@ -13,15 +13,13 @@
 
 namespace sdlms {
 
-class NpcDlgUiSystem {
+class NpcDlgUiSystem : public UiComponentHost<NpcDlgUiSystem> {
  private:
   static inline int8_t select_mouse_ = -1;
   static void ResetPos();
 
   static void RenderBackgrnd();
   static void RenderNpc();
-  static void RenderUI();
-  static UIComponents& GetComponent();
   static void RenderText();
   static void RenderList();
   static void RenderObtain();
@@ -46,9 +44,9 @@ class NpcDlgUiSystem {
 
   static bool StartNextQuest();
 
-  static inline UIComponents components_;
 
  public:
+  static UIComponents& GetComponent();
   static bool Render();
 
   static void Open();

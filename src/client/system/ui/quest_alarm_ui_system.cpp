@@ -116,10 +116,6 @@ UIComponents& QuestAlarmUiSystem::GetComponent() {
   return components_;
 }
 
-void QuestAlarmUiSystem::RenderUI() {
-  RenderComponents(GetComponent());
-}
-
 static std::u16string close_quest;
 
 void QuestAlarmUiSystem::RenderQuests() {

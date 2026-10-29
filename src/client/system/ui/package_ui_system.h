@@ -14,14 +14,12 @@
 
 namespace sdlms {
 
-class PackageUiSystem {
+class PackageUiSystem : public UiComponentHost<PackageUiSystem> {
  private:
   static void RenderBackgrnd();
   static void RenderTab();
   static void RenderItems();
   static bool RenderItemsInfo();
-  static void RenderUI();
-  static UIComponents& GetComponent();
   static void RenderMeso();
 
   static void EventClose();
@@ -51,9 +49,9 @@ class PackageUiSystem {
 
   static inline std::optional<SDL_FPoint> drag_;
 
-  static inline UIComponents components_;
 
  public:
+  static UIComponents& GetComponent();
   static void RenderNumber(uint32_t num, int x, int y);
 
   static inline SDL_FPoint pos_;

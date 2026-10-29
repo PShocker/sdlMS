@@ -11,12 +11,10 @@
 
 namespace sdlms {
 
-class ContextMenuUiSystem {
+class ContextMenuUiSystem : public UiComponentHost<ContextMenuUiSystem> {
  private:
   static SDL_FPoint LoadWh();
   static void RenderBackgrnd();
-  static void RenderUI();
-  static UIComponents& GetComponent();
 
   static void EventClose();
   static void EventButtonInfo();
@@ -29,9 +27,9 @@ class ContextMenuUiSystem {
 
   static bool EventUI(SDL_Event* event);
 
-  static inline UIComponents components_;
 
  public:
+  static UIComponents& GetComponent();
   static inline uint64_t client_id_;
   static inline std::u16string client_name_;
 

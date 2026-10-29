@@ -9,13 +9,11 @@
 
 namespace sdlms {
 
-class CraftUiSystem {
+class CraftUiSystem : public UiComponentHost<CraftUiSystem> {
  private:
   static void RenderBackgrnd();
 
   static bool EventUI(SDL_Event* event);
-  static void RenderUI();
-  static UIComponents& GetComponent();
   static void EventTop();
   static void EventDragStart(SDL_Event* event);
   static void EventDragEnd();
@@ -27,9 +25,9 @@ class CraftUiSystem {
 
   static inline std::optional<SDL_FPoint> drag_;
 
-  static inline UIComponents components_;
 
  public:
+  static UIComponents& GetComponent();
   static inline SDL_FPoint pos_;
 
   static inline uint8_t selected_tab_;

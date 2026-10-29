@@ -28,10 +28,6 @@ void ReviveUiSystem::RenderBackgrnd() {
   SDL_RenderTexture(Window::renderer_, texture, nullptr, &pos_rect);
 }
 
-void ReviveUiSystem::RenderUI() {
-  RenderComponents(GetComponent());
-}
-
 
 UIComponents& ReviveUiSystem::GetComponent() {
   const static std::array<Button::Callback, 1> kCallbacks = {

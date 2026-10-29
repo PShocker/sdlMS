@@ -94,10 +94,6 @@ void NoticeUiSystem::RenderBackgrnd() {
   SDL_RenderTexture(Window::renderer_, s, nullptr, &pos_rect);
 }
 
-void NoticeUiSystem::RenderUI() {
-  RenderComponents(GetComponent());
-}
-
 
 UIComponents& NoticeUiSystem::GetComponent() {
   components_.clear();

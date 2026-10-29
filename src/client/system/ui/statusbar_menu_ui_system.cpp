@@ -177,10 +177,6 @@ UIComponents& StatusbarMenuUiSystem::GetComponent() {
 }
 
 
-void StatusbarMenuUiSystem::RenderUI() {
-  RenderComponents(GetComponent());
-}
-
 
 void StatusbarMenuUiSystem::RenderTitle() {
   auto [x, y, w, h] = LoadR();

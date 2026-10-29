@@ -69,10 +69,6 @@ void CharacterInfoUiSystem::RenderBackgrnd() {
   }
 }
 
-void CharacterInfoUiSystem::RenderUI() {
-  RenderComponents(GetComponent());
-}
-
 UIComponents& CharacterInfoUiSystem::GetComponent() {
   components_.clear();
   std::vector<wz::Node*> buttons_nodes = {

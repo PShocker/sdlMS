@@ -15,7 +15,7 @@
 
 namespace sdlms {
 
-class StorageUiSystem {
+class StorageUiSystem : public UiComponentHost<StorageUiSystem> {
  private:
   static bool AddItem(std::polymorphic<GameItem>& item);
 
@@ -23,8 +23,6 @@ class StorageUiSystem {
   static SDL_FPoint LoadWh();
 
   static void RenderBackgrnd();
-  static void RenderUI();
-  static UIComponents& GetComponent();
   static void RenderTab();
 
   static void RenderItems();
@@ -42,9 +40,9 @@ class StorageUiSystem {
   static inline int active_tab_;
   static inline std::array<uint16_t, 2> page_;
 
-  static inline UIComponents components_;
 
  public:
+  static UIComponents& GetComponent();
   static inline std::u16string npc_id_;
   static inline SDL_FPoint pos_;
 

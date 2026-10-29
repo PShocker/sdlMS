@@ -50,10 +50,6 @@ SDL_FPoint CharacterChooseUiSystem::LoadPos() {
   return pos;
 }
 
-void CharacterChooseUiSystem::RenderUI() {
-  RenderComponents(GetComponent());
-}
-
 UIComponents& CharacterChooseUiSystem::GetComponent() {
   components_.clear();
   const static std::array<wz::Node*, 4> buttons_nodes = {

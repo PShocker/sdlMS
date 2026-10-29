@@ -13,12 +13,10 @@
 
 namespace sdlms {
 
-class MinimapUiSystem {
+class MinimapUiSystem : public UiComponentHost<MinimapUiSystem> {
  private:
   static void RenderMaxBackgrnd();
   static void RenderMinBackgrnd();
-  static void RenderUI();
-  static UIComponents& GetComponent();
   static void RenderNameText();
   static void RenderStreetText();
   static void RenderCanvasLife();
@@ -52,9 +50,9 @@ class MinimapUiSystem {
 
   static inline std::optional<SDL_FPoint> drag_;
 
-  static inline UIComponents components_;
 
  public:
+  static UIComponents& GetComponent();
   static inline SDL_FPoint pos_ = {0, 0};
   static inline bool max_ = true;
   static inline bool disable_;

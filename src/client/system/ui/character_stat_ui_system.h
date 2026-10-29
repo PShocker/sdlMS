@@ -10,13 +10,11 @@
 
 namespace sdlms {
 
-class CharacterStatUiSystem {
+class CharacterStatUiSystem : public UiComponentHost<CharacterStatUiSystem> {
  private:
   static void RenderBackgrnd();
   static void RenderText();
   static void RenderRemainAp();
-  static void RenderUI();
-  static UIComponents& GetComponent();
   static void RenderDetail();
   static SDL_FPoint LoadWh();
 
@@ -46,9 +44,9 @@ class CharacterStatUiSystem {
 
   static inline bool detail_;
 
-  static inline UIComponents components_;
 
  public:
+  static UIComponents& GetComponent();
   static inline SDL_FPoint pos_;
   static bool Render();
 

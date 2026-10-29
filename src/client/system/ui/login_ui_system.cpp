@@ -47,10 +47,6 @@ SDL_FPoint LoginUiSystem::LoadPos() {
   return pos;
 }
 
-void LoginUiSystem::RenderUI() {
-  RenderComponents(GetComponent());
-}
-
 UIComponents& LoginUiSystem::GetComponent() {
   components_.clear();
   const static std::array buttons_nodes = {

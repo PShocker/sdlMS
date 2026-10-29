@@ -10,13 +10,11 @@
 
 namespace sdlms {
 
-class SkillUiSystem {
+class SkillUiSystem : public UiComponentHost<SkillUiSystem> {
  private:
   static void RenderBackgrnd();
   static void RenderSkillEntry();
   static bool RenderInfo();
-  static void RenderUI();
-  static UIComponents& GetComponent();
   static void RenderBook();
   static void RenderPoint();
 
@@ -44,9 +42,9 @@ class SkillUiSystem {
   static inline uint8_t active_tab_;
   static inline uint8_t page_;
 
-  static inline UIComponents components_;
 
  public:
+  static UIComponents& GetComponent();
   static inline SDL_FPoint pos_;
 
   static bool CursorIn();

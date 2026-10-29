@@ -43,4 +43,18 @@ bool DispatchButtonClick(UIComponents& components, bool play_sound);
 // cursor, or -1.
 int ButtonHoverIndex(UIComponents& components);
 
+// Shared storage and drawing for a UI's component list.
+//
+// A UI system derives from this, implements GetComponent() (rebuild the list)
+// and EventUI() (click the list); the component storage and RenderUI() come
+// from here.
+template <class Derived>
+class UiComponentHost {
+ protected:
+  static inline UIComponents components_;
+
+ public:
+  static void RenderUI() { RenderComponents(Derived::GetComponent()); }
+};
+
 }  // namespace sdlms

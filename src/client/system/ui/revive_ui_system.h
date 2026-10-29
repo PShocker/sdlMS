@@ -9,11 +9,9 @@
 
 namespace sdlms {
 
-class ReviveUiSystem {
+class ReviveUiSystem : public UiComponentHost<ReviveUiSystem> {
  private:
   static void RenderBackgrnd();
-  static void RenderUI();
-  static UIComponents& GetComponent();
 
   static bool EventUI(SDL_Event* event);
   static void EventButtonOk();
@@ -22,9 +20,9 @@ class ReviveUiSystem {
 
   static SDL_FPoint LoadWh();
 
-  static inline UIComponents components_;
 
  public:
+  static UIComponents& GetComponent();
   static inline SDL_FPoint pos_;
 
   static void Open();

@@ -17,12 +17,11 @@
 
 namespace sdlms {
 
-class StatusbarUiSystem {
+class StatusbarUiSystem : public UiComponentHost<StatusbarUiSystem> {
  private:
   static void RenderHmAlert();
   static void RenderGaugeText();
   static void RenderBackgrnd();
-  static void RenderUI();
   static void RenderCharacterStat();
   static void RenderChat();
   static void RenderBackChat();
@@ -48,9 +47,9 @@ class StatusbarUiSystem {
   static void EventButtonQuickslot();
   static void EventButtonChatlog();
 
-  static inline UIComponents components_;
 
  public:
+  static UIComponents& GetComponent();
   static inline std::optional<GameChatEnum> chat_type_;
   static inline TextInput chat_;
 
@@ -59,7 +58,6 @@ class StatusbarUiSystem {
   static bool Event(SDL_Event* event);
 
   static bool CursorIn();
-  static UIComponents& GetComponent();
 };
 
 }  // namespace sdlms

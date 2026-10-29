@@ -42,10 +42,6 @@ UIComponents& CraftUiSystem::GetComponent() {
   return components_;
 }
 
-void CraftUiSystem::RenderUI() {
-  RenderComponents(GetComponent());
-}
-
 bool CraftUiSystem::EventUI(SDL_Event* event) {
   for (auto& component : GetComponent()) {
     if (auto* tab = std::get_if<Tab>(&component)) {

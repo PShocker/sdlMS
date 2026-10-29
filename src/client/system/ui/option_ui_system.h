@@ -12,11 +12,9 @@
 
 namespace sdlms {
 
-class OptionUiSystem {
+class OptionUiSystem : public UiComponentHost<OptionUiSystem> {
  private:
   static void RenderBackgrnd();
-  static void RenderUI();
-  static UIComponents& GetComponent();
   static void RenderOption();
 
   static bool EventUI(SDL_Event* event);
@@ -33,9 +31,9 @@ class OptionUiSystem {
 
   static inline std::optional<SDL_FPoint> drag_;
 
-  static inline UIComponents components_;
 
  public:
+  static UIComponents& GetComponent();
   // sound
   static inline uint8_t master_volume_;
   static inline bool master_volume_mute_;

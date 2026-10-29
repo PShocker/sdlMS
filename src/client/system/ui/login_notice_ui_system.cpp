@@ -118,10 +118,6 @@ void LoginNoticeUiSystem::RenderBackgrnd() {
   }
 }
 
-void LoginNoticeUiSystem::RenderUI() {
-  RenderComponents(GetComponent());
-}
-
 
 UIComponents& LoginNoticeUiSystem::GetComponent() {
   components_.clear();

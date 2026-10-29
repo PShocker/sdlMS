@@ -67,10 +67,6 @@ void TradeUiSystem::RenderBackgrnd() {
   SDL_RenderTexture(Window::renderer_, backgrnd, nullptr, &pos_rect);
 }
 
-void TradeUiSystem::RenderUI() {
-  RenderComponents(GetComponent());
-}
-
 
 UIComponents& TradeUiSystem::GetComponent() {
   const static std::array<Button::Callback, 1> kCallbacks = {

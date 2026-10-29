@@ -14,7 +14,7 @@
 
 namespace sdlms {
 
-class QuestUiSystem {
+class QuestUiSystem : public UiComponentHost<QuestUiSystem> {
  private:
   static int LoadVscrNum0();
   static int LoadVscrNum1();
@@ -22,8 +22,6 @@ class QuestUiSystem {
   static std::u16string LoadDetailStr();
 
   static void RenderBackgrnd();
-  static void RenderUI();
-  static UIComponents& GetComponent();
   static void RenderQuests();
   static void RenderQuestDetail();
   static void RenderAreaName(int i, int y);
@@ -58,9 +56,9 @@ class QuestUiSystem {
   static inline std::optional<SDL_FPoint> drag_;
 
 
-  static inline UIComponents components_;
 
  public:
+  static UIComponents& GetComponent();
   static void AcceptQuest(const std::u16string& id);
   static void CompleteQuest(const std::u16string& id);
   static inline SDL_FPoint pos_;

@@ -133,10 +133,6 @@ void QuestUiSystem::RenderBackgrnd() {
   }
 }
 
-void QuestUiSystem::RenderUI() {
-  RenderComponents(GetComponent());
-}
-
 UIComponents& QuestUiSystem::GetComponent() {
   components_.clear();
   std::vector<wz::Node*> buttons_nodes = {

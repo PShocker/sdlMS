@@ -65,10 +65,6 @@ void ContextMenuUiSystem::RenderBackgrnd() {
   SDL_RenderTexture(Window::renderer_, s, nullptr, &pos_rect);
 }
 
-void ContextMenuUiSystem::RenderUI() {
-  RenderComponents(GetComponent());
-}
-
 
 UIComponents& ContextMenuUiSystem::GetComponent() {
   const static std::array<Button::Callback, 7> kCallbacks = {

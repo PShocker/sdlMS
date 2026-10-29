@@ -265,10 +265,6 @@ void KeybindingUiSystem::RenderBackgrnd2() {
   return;
 }
 
-void KeybindingUiSystem::RenderUI() {
-  RenderComponents(GetComponent());
-}
-
 
 UIComponents& KeybindingUiSystem::GetComponent() {
   const static std::array<Button::Callback, 9> kCallbacks = {

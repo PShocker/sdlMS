@@ -11,10 +11,8 @@
 
 namespace sdlms {
 
-class KeybindingUiSystem {
+class KeybindingUiSystem : public UiComponentHost<KeybindingUiSystem> {
  private:
-  static void RenderUI();
-  static UIComponents& GetComponent();
   static bool RenderInfo();
 
   static void RenderBackgrnd();
@@ -49,9 +47,9 @@ class KeybindingUiSystem {
   static inline std::optional<SDL_FPoint> drag_;
   static inline uint8_t active_tab_;
 
-  static inline UIComponents components_;
 
  public:
+  static UIComponents& GetComponent();
   static inline SDL_FPoint pos_;
 
   static void Open();

@@ -10,18 +10,16 @@
 
 namespace sdlms {
 
-class TradeUiSystem {
+class TradeUiSystem : public UiComponentHost<TradeUiSystem> {
  private:
   static void RenderBackgrnd();
-  static void RenderUI();
-  static UIComponents& GetComponent();
 
   static void EventButtonClose();
   static bool EventUI(SDL_Event* event);
 
-  static inline UIComponents components_;
 
  public:
+  static UIComponents& GetComponent();
   static inline SDL_FPoint pos_;
   static inline GameCharacter other_;
 

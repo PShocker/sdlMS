@@ -98,10 +98,6 @@ UIComponents& ChatLogUiSystem::GetComponent() {
   return components_;
 }
 
-void ChatLogUiSystem::RenderUI() {
-  RenderComponents(GetComponent());
-}
-
 bool ChatLogUiSystem::EventUI(SDL_Event* event) {
   for (auto& component : GetComponent()) {
     if (auto* scroll = std::get_if<Scroll>(&component)) {

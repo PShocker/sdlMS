@@ -13,13 +13,11 @@
 
 namespace sdlms {
 
-class WorldmapUiSystem {
+class WorldmapUiSystem : public UiComponentHost<WorldmapUiSystem> {
  private:
   static void RenderBackgrnd();
   static void RenderMap();
   static void RenderSpot();
-  static void RenderUI();
-  static UIComponents& GetComponent();
   static bool RenderSpotInfo();
   static void RenderCurPos(SDL_FPoint point);
 
@@ -37,9 +35,9 @@ class WorldmapUiSystem {
 
   static inline std::optional<SDL_FPoint> drag_;
 
-  static inline UIComponents components_;
 
  public:
+  static UIComponents& GetComponent();
   static inline SDL_FPoint pos_;
   static inline std::u16string path_;
 

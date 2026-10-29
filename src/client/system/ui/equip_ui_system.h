@@ -29,7 +29,7 @@ enum class EquipMouseIndex {
   kRing3,
 };
 
-class EquipUiSystem {
+class EquipUiSystem : public UiComponentHost<EquipUiSystem> {
  private:
   static void RenderBackgrnd();
   static void RenderBackgrnd2();
@@ -41,8 +41,6 @@ class EquipUiSystem {
   static void RenderDecoTexture(std::optional<GameDecoItem>& deco,
                                 SDL_FPoint slot, EquipMouseIndex i);
   static bool RenderInfo();
-  static void RenderUI();
-  static UIComponents& GetComponent();
 
   static SDL_FPoint LoadWh();
 
@@ -63,9 +61,9 @@ class EquipUiSystem {
   static inline std::optional<SDL_FPoint> drag_;
   static inline uint8_t active_tab_;
 
-  static inline UIComponents components_;
 
  public:
+  static UIComponents& GetComponent();
   static inline std::optional<EquipMouseIndex> mouse_index_;
 
   static inline SDL_FPoint pos_;

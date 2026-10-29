@@ -11,7 +11,7 @@
 
 namespace sdlms {
 
-class CharacterCreateUiSystem {
+class CharacterCreateUiSystem : public UiComponentHost<CharacterCreateUiSystem> {
  private:
   static std::vector<std::u16string> LoadDefaultFace();
   static std::vector<std::u16string> LoadDefaultHair();
@@ -25,8 +25,6 @@ class CharacterCreateUiSystem {
 
   static SDL_FPoint LoadPos();
   static void RenderBackgrnd();
-  static void RenderUI();
-  static UIComponents& GetComponent();
   static void RenderEffect();
   static void RenderBanner();
   static void RenderStat();
@@ -92,9 +90,9 @@ class CharacterCreateUiSystem {
   static bool EventUI(SDL_Event* event);
   static bool EventButtonCustom(SDL_Event* event);
 
-  static inline UIComponents components_;
 
  public:
+  static UIComponents& GetComponent();
   static inline TextInput name_;
 
   static inline int str_point_;

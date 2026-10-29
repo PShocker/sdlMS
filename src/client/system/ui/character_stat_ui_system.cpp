@@ -235,10 +235,6 @@ UIComponents& CharacterStatUiSystem::GetComponent() {
   return components_;
 }
 
-void CharacterStatUiSystem::RenderUI() {
-  RenderComponents(GetComponent());
-}
-
 void CharacterStatUiSystem::RenderDetail() {
   static auto backgrnd_detail = WzResource::LoadTexture(
       WzResource::ui_->find(u"CharacterStat.img/Detail/backgrnd"));

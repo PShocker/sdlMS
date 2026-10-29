@@ -216,10 +216,6 @@ void EquipUiSystem::RenderBackgrnd2() {
   }
 }
 
-void EquipUiSystem::RenderUI() {
-  RenderComponents(GetComponent());
-}
-
 
 UIComponents& EquipUiSystem::GetComponent() {
   const static std::array<Button::Callback, 1> kCallbacks = {

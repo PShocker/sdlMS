@@ -10,12 +10,10 @@
 
 namespace sdlms {
 
-class StatusbarMenuUiSystem {
+class StatusbarMenuUiSystem : public UiComponentHost<StatusbarMenuUiSystem> {
  private:
   static SDL_FRect LoadR();
   static void RenderBackgrnd();
-  static void RenderUI();
-  static UIComponents& GetComponent();
   static void RenderTitle();
 
   static void EventButtonCc();
@@ -34,9 +32,9 @@ class StatusbarMenuUiSystem {
 
   static inline int alpha_;
 
-  static inline UIComponents components_;
 
  public:
+  static UIComponents& GetComponent();
   enum class MenuEnums {
     kMenu,
     kShortcut,

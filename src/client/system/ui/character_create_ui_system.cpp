@@ -36,10 +36,6 @@
 
 namespace sdlms {
 
-void CharacterCreateUiSystem::RenderUI() {
-  RenderComponents(GetComponent());
-}
-
 UIComponents& CharacterCreateUiSystem::GetComponent() {
   components_.clear();
   auto pos = LoadPos();

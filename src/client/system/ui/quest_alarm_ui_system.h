@@ -12,12 +12,10 @@
 
 namespace sdlms {
 
-class QuestAlarmUiSystem {
+class QuestAlarmUiSystem : public UiComponentHost<QuestAlarmUiSystem> {
  private:
   static void RenderBackgrnd();
   static void RenderQuests();
-  static void RenderUI();
-  static UIComponents& GetComponent();
   static void RenderTitle();
 
   static SDL_FPoint LoadWh();
@@ -38,9 +36,9 @@ class QuestAlarmUiSystem {
 
   static inline std::optional<SDL_FPoint> drag_;
 
-  static inline UIComponents components_;
 
  public:
+  static UIComponents& GetComponent();
   static void AcceptQuest(const std::u16string& id);
   static void CompleteQuest(const std::u16string& id);
   static inline std::flat_set<std::u16string> quests_;

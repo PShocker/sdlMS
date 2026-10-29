@@ -254,10 +254,6 @@ UIComponents& MinimapUiSystem::GetComponent() {
   return components_;
 }
 
-void MinimapUiSystem::RenderUI() {
-  RenderComponents(GetComponent());
-};
-
 SDL_FPoint MinimapUiSystem::LoadCanvasPoint(SDL_FPoint point, int8_t ox,
                                             int8_t oy) {
   struct MapMinimapInfo {

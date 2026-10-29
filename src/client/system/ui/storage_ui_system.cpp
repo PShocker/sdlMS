@@ -80,10 +80,6 @@ void StorageUiSystem::RenderItems() {
 
 void StorageUiSystem::RenderVscr() {}
 
-void StorageUiSystem::RenderUI() {
-  RenderComponents(GetComponent());
-}
-
 
 UIComponents& StorageUiSystem::GetComponent() {
   const static std::array<Button::Callback, 4> kCallbacks = {

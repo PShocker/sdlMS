@@ -113,10 +113,6 @@ void NpcDlgUiSystem::RenderNpc() {
   Freetype::LoadAligned(false);
 }
 
-void NpcDlgUiSystem::RenderUI() {
-  RenderComponents(GetComponent());
-}
-
 UIComponents& NpcDlgUiSystem::GetComponent() {
   components_.clear();
   auto [w, h] = LoadWh();

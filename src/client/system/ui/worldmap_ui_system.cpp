@@ -212,10 +212,6 @@ UIComponents& WorldmapUiSystem::GetComponent() {
 }
 
 
-void WorldmapUiSystem::RenderUI() {
-  RenderComponents(GetComponent());
-}
-
 
 bool WorldmapUiSystem::Render() {
   RenderBackgrnd();

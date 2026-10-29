@@ -6,18 +6,16 @@
 
 namespace sdlms {
 
-class ChatLogUiSystem {
+class ChatLogUiSystem : public UiComponentHost<ChatLogUiSystem> {
  private:
   static void RenderBackgrnd();
   static void RenderChats();
 
   static bool EventUI(SDL_Event* event);
-  static void RenderUI();
-  static UIComponents& GetComponent();
 
-  static inline UIComponents components_;
 
  public:
+  static UIComponents& GetComponent();
   static inline int page_;
 
   static void Open();

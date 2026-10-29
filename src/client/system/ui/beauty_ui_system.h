@@ -15,7 +15,6 @@ class BeautyUiSystem {
  private:
   static void RenderBackgrnd();
   static void RenderNpc();
-  static void RenderUI();
   static void RenderText();
 
   static SDL_FPoint LoadWh();

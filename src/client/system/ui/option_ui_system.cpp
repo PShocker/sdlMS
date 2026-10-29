@@ -205,10 +205,6 @@ void OptionUiSystem::RenderOption() {
   }
 }
 
-void OptionUiSystem::RenderUI() {
-  RenderComponents(GetComponent());
-}
-
 
 UIComponents& OptionUiSystem::GetComponent() {
   const static std::array<Button::Callback, 1> kCallbacks = {

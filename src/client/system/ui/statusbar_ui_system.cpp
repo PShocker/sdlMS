@@ -371,10 +371,6 @@ void StatusbarUiSystem::RenderCharacterStat() {
   RenderGaugeText();
 }
 
-void StatusbarUiSystem::RenderUI() {
-  RenderComponents(GetComponent());
-}
-
 
 UIComponents& StatusbarUiSystem::GetComponent() {
   const static std::array<Button::Callback, 11> kCallbacks = {

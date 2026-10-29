@@ -15,11 +15,9 @@
 
 namespace sdlms {
 
-class ShopUiSystem {
+class ShopUiSystem : public UiComponentHost<ShopUiSystem> {
  private:
   static void RenderBackgrnd();
-  static void RenderUI();
-  static UIComponents& GetComponent();
 
   static void RenderItem(std::vector<GameShopItem>& items, int page,
                          SDL_FPoint p);
@@ -46,9 +44,9 @@ class ShopUiSystem {
 
   static SDL_FPoint LoadWh();
 
-  static inline UIComponents components_;
 
  public:
+  static UIComponents& GetComponent();
   static inline std::array<int, 2> pages_;
 
   static inline std::array<std::optional<int>, 2> active_item_;

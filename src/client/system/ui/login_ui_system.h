@@ -13,14 +13,12 @@
 
 namespace sdlms {
 
-class LoginUiSystem {
+class LoginUiSystem : public UiComponentHost<LoginUiSystem> {
  private:
   static bool LoginAnimate();
 
   static SDL_FPoint LoadPos();
   static void RenderBackgrnd();
-  static void RenderUI();
-  static UIComponents& GetComponent();
   static void RenderEffect();
   static void RenderBanner();
   static void RenderUsername();
@@ -36,9 +34,9 @@ class LoginUiSystem {
 
   static bool EventUI(SDL_Event* event);
 
-  static inline UIComponents components_;
 
  public:
+  static UIComponents& GetComponent();
   static inline uv_pipe_t g_pipe_;
   static inline TextInput username_;
   static bool CameraAnimate(float x, float y);

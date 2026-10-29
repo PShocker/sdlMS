@@ -176,10 +176,6 @@ void ShopUiSystem::RenderItems() {
   }
 }
 
-void ShopUiSystem::RenderUI() {
-  RenderComponents(GetComponent());
-}
-
 UIComponents& ShopUiSystem::GetComponent() {
   components_.clear();
   const static std::array buttons_node = {

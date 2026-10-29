@@ -10,18 +10,16 @@
 
 namespace sdlms {
 
-class LoginNoticeUiSystem {
+class LoginNoticeUiSystem : public UiComponentHost<LoginNoticeUiSystem> {
  private:
   static SDL_FPoint LoadPos();
   static void RenderBackgrnd();
-  static void RenderUI();
-  static UIComponents& GetComponent();
 
   static bool EventUI(SDL_Event* event);
 
-  static inline UIComponents components_;
 
  public:
+  static UIComponents& GetComponent();
   static void EventClose();
 
   static inline void (*fn_)();

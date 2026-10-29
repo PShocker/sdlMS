@@ -24,8 +24,6 @@ void BeautyUiSystem::RenderBackgrnd() {
   SDL_RenderTexture(Window::renderer_, backgrnd, nullptr, &pos_rect);
 }
 
-void BeautyUiSystem::RenderUI() {}
-
 SDL_FPoint BeautyUiSystem::LoadWh() {
   return {545, 409};
 }

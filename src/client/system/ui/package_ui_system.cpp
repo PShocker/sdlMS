@@ -292,10 +292,6 @@ void PackageUiSystem::RenderItems() {
   }
 }
 
-void PackageUiSystem::RenderUI() {
-  RenderComponents(GetComponent());
-}
-
 
 UIComponents& PackageUiSystem::GetComponent() {
   const static std::array<Button::Callback, 4> kCallbacks = {

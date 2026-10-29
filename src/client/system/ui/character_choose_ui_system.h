@@ -13,15 +13,13 @@
 
 namespace sdlms {
 
-class CharacterChooseUiSystem {
+class CharacterChooseUiSystem : public UiComponentHost<CharacterChooseUiSystem> {
  private:
   static bool NewAnimate();
   static bool BackAnimate();
 
   static SDL_FPoint LoadPos();
   static void RenderBackgrnd();
-  static void RenderUI();
-  static UIComponents& GetComponent();
   static void RenderEffect();
   static void RenderBanner();
   static void RenderCharacter();
@@ -38,9 +36,9 @@ class CharacterChooseUiSystem {
   static bool EventUI(SDL_Event* event);
   static bool EventChooseCharacter(SDL_Event* event);
 
-  static inline UIComponents components_;
 
  public:
+  static UIComponents& GetComponent();
   static inline std::optional<uint8_t> choose_;
   static inline std::vector<GameCharacter> characters_;
   static inline GameAnimate board_;

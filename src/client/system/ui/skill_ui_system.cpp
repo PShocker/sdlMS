@@ -318,10 +318,6 @@ UIComponents& SkillUiSystem::GetComponent() {
 }
 
 
-void SkillUiSystem::RenderUI() {
-  RenderComponents(GetComponent());
-}
-
 
 void SkillUiSystem::RenderBook() {
   auto self_job = CharacterGameInstance::self_.job;

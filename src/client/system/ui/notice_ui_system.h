@@ -11,11 +11,9 @@
 
 namespace sdlms {
 
-class NoticeUiSystem {
+class NoticeUiSystem : public UiComponentHost<NoticeUiSystem> {
  private:
   static void RenderBackgrnd();
-  static void RenderUI();
-  static UIComponents& GetComponent();
   static void RenderText();
   static void RenderInput();
 
@@ -41,9 +39,9 @@ class NoticeUiSystem {
 
   static void EventMotionBtAudio(SDL_Event* event);
 
-  static inline UIComponents components_;
 
  public:
+  static UIComponents& GetComponent();
   enum class NoticeEnum {
     kShopbuy,
     kShopbuySell,
