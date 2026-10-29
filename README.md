@@ -72,11 +72,13 @@ The sources follow the
   enumerators are `kPascalCase` (`JobType::kWarrior`).
 * Layout is handled by `clang-format` with the Google base style: two space
   indentation, 80 columns, asterisk bound to the type (`.clang-format`).
-* Headers use include guards of the form `SDLMS_<PATH>_<FILE>_H_` and include
-  their own dependencies first; the related header comes first in `.cpp` files.
+* Headers use `#pragma once` and include their own dependencies first; the
+  related header comes first in `.cpp` files.
 * All project declarations live in `namespace sdlms`; flatbuffers generated
   types stay in `namespace fbs` and are always used fully qualified.
 * Only passive data holders are `struct`s; anything with behaviour is a `class`.
+  UI buttons go through the `Button` value type
+  (`src/client/system/ui/button.h`) instead of hand-rolled texture switching.
 
 Format the tree before sending a change:
 
@@ -84,6 +86,10 @@ Format the tree before sending a change:
 cmake --build build --target format   # or: clang-format -i src/**/*.cpp
 ```
 
-`clang-tidy` checks mirroring the naming rules are configured in
-`.clang-tidy` and can be run against the compilation database in
-`build/compile_commands.json`.
+Static analysis follows the naming rules in `.clang-tidy` and uses the
+compilation database in `build/compile_commands.json`:
+
+```sh
+scripts\clang-tidy.bat                                  # whole tree
+scripts\clang-tidy.bat src\client\system\ui\button.cpp  # one file
+```
