@@ -40,8 +40,8 @@ static void Mfdan() {
     auto& sf = CharacterGameInstance::self_;
     const std::array actions = {u"swingO1", u"swingO2", u"swingO3"};
     std::uniform_int_distribution<> dis(0, actions.size() - 1);
-    auto& gen = RandomGameInstance::gen;
-    CharacterLogicSystem::RunAction(sf, actions[dis(gen)]);
+    auto& gen_ = RandomGameInstance::gen_;
+    CharacterLogicSystem::RunAction(sf, actions[dis(gen_)]);
     auto cm = CharacterLogicSystem::RunAttackCheck(sf, tri);
     if (!cm.data.empty()) {
       cm.data = {cm.data[0]};

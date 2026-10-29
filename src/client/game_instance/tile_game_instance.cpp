@@ -15,12 +15,12 @@ void TileGameInstance::Load(wz::Node* image) {
   uint8_t map_layer = 0;
   for (auto i : {u"0", u"1", u"2", u"3", u"4", u"5", u"6", u"7"}) {
     auto layer_node = map_node->get_child(i);
-    auto tS = layer_node->get_child(u"info")->get_child(u"tS");
-    if (tS == nullptr) {
+    auto ts_node = layer_node->get_child(u"info")->get_child(u"tS");
+    if (ts_node == nullptr) {
       map_layer++;
       continue;
     }
-    auto tS2 = static_cast<wz::Property<std::u16string>*>(tS)->get();
+    auto ts = static_cast<wz::Property<std::u16string>*>(ts_node)->get();
     for (auto [key, val] : *layer_node->get_child(u"tile")->get_children()) {
       GameTile g_tile;
       auto tile_node = val[0];
@@ -40,7 +40,7 @@ void TileGameInstance::Load(wz::Node* image) {
       auto no2 = std::to_string(no);
       auto no3 = std::u16string{no2.begin(), no2.end()};
 
-      g_tile.path = u"Tile/" + tS2 + u".img/" + u + u"/" + no3;
+      g_tile.path = u"Tile/" + ts + u".img/" + u + u"/" + no3;
 
       auto zm =
           static_cast<wz::Property<int>*>(tile_node->get_child(u"zM"))->get();

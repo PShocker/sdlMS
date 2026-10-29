@@ -19,7 +19,7 @@ class PopupTipUiSystem {
 
   static bool EventButton(SDL_Event* event);
 
-  static void Destory();
+  static void Destroy();
 
  public:
   static inline SDL_FPoint pos_ = {429, -32};

@@ -505,8 +505,8 @@ bool ShopUiSystem::EventItem(SDL_Event* event) {
     } else {
       auto num = ItemGameInstance::LoadItemNum(*itm);
       auto itm_info = ItemGameInstance::LoadItemInfo((*itm)->id, 0);
-      bool unitPrice = itm_info->get_child(u"unitPrice");
-      if (num == 1 || unitPrice) {
+      bool unit_price = itm_info->get_child(u"unitPrice");
+      if (num == 1 || unit_price) {
         NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kShopbuySell;
       } else {
         NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kShopbuySellMul;

@@ -140,7 +140,7 @@ void PopupTipUiSystem::RenderButton(GamePopupTip& t) {
   }
 }
 
-void PopupTipUiSystem::Destory() {
+void PopupTipUiSystem::Destroy() {
   auto& data = PopupTipGameInstance::data_;
   const auto now = Window::dt_now_;
   std::erase_if(data, [now](const GamePopupTip& t) {
@@ -161,7 +161,7 @@ bool PopupTipUiSystem::Render() {
     RenderButton(t);
   }
 
-  Destory();
+  Destroy();
 
   return true;
 }

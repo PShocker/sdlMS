@@ -197,9 +197,9 @@ bool CharacterRenderSystem::RenderCharacter(GameCharacter& g_character) {
         // 翻转处理
         if (g_character.flip == 1) {
           // 以角色位置为中心进行水平翻转
-          float centerX = g_character.pos.x;
+          float center_x = g_character.pos.x;
           // 计算翻转后的位置
-          pos_rect.x = centerX - (pos_rect.x - centerX) - pos_rect.w;
+          pos_rect.x = center_x - (pos_rect.x - center_x) - pos_rect.w;
         }
 
         auto& camera = CameraGameInstance::camera_;

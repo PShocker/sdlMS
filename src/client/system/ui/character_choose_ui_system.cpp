@@ -178,14 +178,14 @@ void CharacterChooseUiSystem::RenderCharacterBoard(uint8_t i) {
   SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
   if (ani.ani_index == ani.ani_delay.size() - 1) {
     // render stat
-    static SDL_Texture* charInfo =
+    static SDL_Texture* char_info =
         WzResource::LoadTexture(WzResource::ui_->find(
             u"Login.img/CharSelect/Statboard/canvas:charInfo"));
     pos_rect.x += 31;
     pos_rect.y += 35;
-    pos_rect.w = charInfo->w;
-    pos_rect.h = charInfo->h;
-    SDL_RenderTexture(Window::renderer_, charInfo, nullptr, &pos_rect);
+    pos_rect.w = char_info->w;
+    pos_rect.h = char_info->h;
+    SDL_RenderTexture(Window::renderer_, char_info, nullptr, &pos_rect);
 
     const auto& cs = GameSaveSystemInstance::save_.characters[i];
     Freetype::LoadSize(13);

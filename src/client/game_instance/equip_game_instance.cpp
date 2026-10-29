@@ -169,24 +169,24 @@ std::flat_set<JobType> EquipGameInstance::LoadEquipJob(
     const std::u16string& id) {
   std::flat_set<JobType> r;
   auto equip_info = EquipGameInstance::LoadEquipInfo(id);
-  auto reqJob =
+  auto req_job =
       static_cast<wz::Property<int>*>(equip_info->get_child(u"reqJob"))->get();
-  if (reqJob == 0) {
+  if (req_job == 0) {
     r = {
         JobType::kBeginner, JobType::kWarrior, JobType::kMagician,
         JobType::kBowman,   JobType::kThief,
     };
   } else {
-    if (reqJob & 1) {
+    if (req_job & 1) {
       r.insert(JobType::kWarrior);
     }
-    if (reqJob & 2) {
+    if (req_job & 2) {
       r.insert(JobType::kMagician);
     }
-    if (reqJob & 4) {
+    if (req_job & 4) {
       r.insert(JobType::kMagician);
     }
-    if (reqJob & 8) {
+    if (req_job & 8) {
       r.insert(JobType::kThief);
     }
   }

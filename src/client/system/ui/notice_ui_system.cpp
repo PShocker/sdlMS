@@ -516,10 +516,10 @@ void NoticeUiSystem::EventButtonShopbuySell() {
   switch (type_) {
     case NoticeEnum::kShopbuySell: {
       auto itm_info = ItemGameInstance::LoadItemInfo(gst.item->id, 0);
-      auto unitPrice = itm_info->get_child(u"unitPrice");
+      auto unit_price = itm_info->get_child(u"unitPrice");
       auto num = ItemGameInstance::LoadItemNum(gst.item);
-      if (unitPrice) {
-        auto u_price = static_cast<wz::Property<double>*>(unitPrice)->get();
+      if (unit_price) {
+        auto u_price = static_cast<wz::Property<double>*>(unit_price)->get();
         PackageGameInstance::AddMeso(u_price * num);
       } else {
         PackageGameInstance::AddMeso(gst.price);

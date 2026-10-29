@@ -59,7 +59,7 @@ void GainLogUiSystem::RenderText() {
   }
 }
 
-void GainLogUiSystem::Destory() {
+void GainLogUiSystem::Destroy() {
   auto& data = GainLogGameInstance::data_;
   std::erase_if(data, [](GameGainLog& g_log) {
     auto destroy = g_log.destroy;
@@ -69,7 +69,7 @@ void GainLogUiSystem::Destory() {
 
 bool GainLogUiSystem::Render() {
   RenderText();
-  Destory();
+  Destroy();
 
   return true;
 }

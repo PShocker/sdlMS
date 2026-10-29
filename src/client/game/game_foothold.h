@@ -24,7 +24,7 @@ struct GameFoothold {
   int32_t t;
   int32_t b;
 
-  bool forbidFallDown = false;
+  bool forbid_fall_down = false;
 
   std::optional<float> k = std::nullopt;  // 斜率,若k值不存在,可以判断是否是墙面
   std::optional<float> intercept = std::nullopt;

@@ -331,7 +331,7 @@ static void HandleAudioFrame(AVFrame* frame) {
 static SDL_PropertiesID CreateVideoTextureProperties(AVFrame* frame,
                                                      SDL_PixelFormat format,
                                                      int access) {
-  AVFrameSideData* pSideData;
+  AVFrameSideData* side_data;
   SDL_PropertiesID props;
   int width = frame->width;
   int height = frame->height;
@@ -340,7 +340,7 @@ static SDL_PropertiesID CreateVideoTextureProperties(AVFrame* frame,
   /* ITU-R BT.2408-6 recommends using an SDR white point of 203 nits, which is
    * more likely for game content */
   static const float k_flSDRWhitePoint = 203.0f;
-  float flMaxLuminance = k_flSDRWhitePoint;
+  float fl_max_luminance = k_flSDRWhitePoint;
 
   if (frame->hw_frames_ctx) {
     AVHWFramesContext* frames =
@@ -360,24 +360,24 @@ static SDL_PropertiesID CreateVideoTextureProperties(AVFrame* frame,
   props = SDL_CreateProperties();
   SDL_SetNumberProperty(props, SDL_PROP_TEXTURE_CREATE_COLORSPACE_NUMBER,
                         colorspace);
-  pSideData =
+  side_data =
       av_frame_get_side_data(frame, AV_FRAME_DATA_MASTERING_DISPLAY_METADATA);
-  if (pSideData) {
-    AVMasteringDisplayMetadata* pMasteringDisplayMetadata =
-        (AVMasteringDisplayMetadata*)pSideData->data;
-    flMaxLuminance = (float)pMasteringDisplayMetadata->max_luminance.num /
-                     pMasteringDisplayMetadata->max_luminance.den;
+  if (side_data) {
+    AVMasteringDisplayMetadata* mastering_display_metadata =
+        (AVMasteringDisplayMetadata*)side_data->data;
+    fl_max_luminance = (float)mastering_display_metadata->max_luminance.num /
+                       mastering_display_metadata->max_luminance.den;
   } else if (SDL_COLORSPACETRANSFER(colorspace) ==
              SDL_TRANSFER_CHARACTERISTICS_PQ) {
     /* The official definition is 10000, but PQ game content is often mastered
      * for 400 or 1000 nits */
-    flMaxLuminance = 1000.0f;
+    fl_max_luminance = 1000.0f;
   }
-  if (flMaxLuminance > k_flSDRWhitePoint) {
+  if (fl_max_luminance > k_flSDRWhitePoint) {
     SDL_SetFloatProperty(props, SDL_PROP_TEXTURE_CREATE_SDR_WHITE_POINT_FLOAT,
                          k_flSDRWhitePoint);
     SDL_SetFloatProperty(props, SDL_PROP_TEXTURE_CREATE_HDR_HEADROOM_FLOAT,
-                         flMaxLuminance / k_flSDRWhitePoint);
+                         fl_max_luminance / k_flSDRWhitePoint);
   }
   SDL_SetNumberProperty(props, SDL_PROP_TEXTURE_CREATE_FORMAT_NUMBER, format);
   SDL_SetNumberProperty(props, SDL_PROP_TEXTURE_CREATE_ACCESS_NUMBER, access);

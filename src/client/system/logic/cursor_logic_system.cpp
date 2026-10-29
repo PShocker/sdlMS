@@ -375,17 +375,17 @@ bool CursorLogicSystem::EventCursorHand(SDL_Event* event) {
         auto& itm = PackageGameInstance::data_[active_tab][sub_index];
         int num = ItemGameInstance::LoadItemNum(itm);
         auto itm_info = ItemGameInstance::LoadItemInfo(itm->id, 0);
-        bool unitPrice = itm_info->get_child(u"unitPrice");
+        bool unit_price = itm_info->get_child(u"unitPrice");
 
         // 数量>1且非单价物品，弹出多选对话框
-        if (num > 1 && !unitPrice) {
+        if (num > 1 && !unit_price) {
           NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kThrowMul;
           NoticeUiSystem::data_ = &itm;
           NoticeUiSystem::Open();
           break;  // 不执行丢弃，等待用户选择数量
         }
-        bool tradeBlock = itm_info->get_child(u"tradeBlock");
-        if (tradeBlock) {
+        bool trade_block = itm_info->get_child(u"tradeBlock");
+        if (trade_block) {
           NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kTradeBlock;
           NoticeUiSystem::Open();
           cursor_hand = std::nullopt;

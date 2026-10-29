@@ -528,7 +528,7 @@ bool CharacterLogicSystem::RunJump(GameCharacter& g_character) {
       case ActionEnum::kProne: {
         // 下跳
         const auto& c_fh = FootholdGameInstance::data_.at(self_fh_);
-        if (!c_fh.forbidFallDown) {
+        if (!c_fh.forbid_fall_down) {
           for (auto& fh : FootholdGameInstance::data_ | std::views::values) {
             if (fh.x1 > fh.x2) {
               continue;
@@ -796,7 +796,7 @@ bool CharacterLogicSystem::RunAttackAction(GameCharacter& g_character,
     case ActionEnum::kAlert:
     case ActionEnum::kWalk:
     case ActionEnum::kJump: {
-      auto& gen = RandomGameInstance::gen;
+      auto& gen_ = RandomGameInstance::gen_;
       auto actions = &weapon_attack_action.at(WeaponType);
       if (!shoot) {
         if (weapon_attack_action2.contains(WeaponType)) {
@@ -804,7 +804,7 @@ bool CharacterLogicSystem::RunAttackAction(GameCharacter& g_character,
         }
       }
       std::uniform_int_distribution<> dis(0, actions->size() - 1);
-      auto selected = *std::next(actions->begin(), dis(gen));
+      auto selected = *std::next(actions->begin(), dis(gen_));
       RunAction(g_character, selected);
       break;
     }
@@ -844,7 +844,7 @@ bool CharacterLogicSystem::RunAttack(GameCharacter& g_character) {
   uint64_t delay;
   auto WeaponType = EquipGameInstance::LoadWeaponType(g_character);
   bool shoot_weapon = shoot_weapons.contains(WeaponType);
-  auto& gen = RandomGameInstance::gen;
+  auto& gen_ = RandomGameInstance::gen_;
   const std::flat_set<std::u16string>* actions;
   if (weapon_attack_action2.contains(WeaponType)) {
     actions = &weapon_attack_action2.at(WeaponType);
@@ -852,7 +852,7 @@ bool CharacterLogicSystem::RunAttack(GameCharacter& g_character) {
     actions = &weapon_attack_action.at(WeaponType);
   }
   std::uniform_int_distribution<> dis(0, actions->size() - 1);
-  auto selected = *std::next(actions->begin(), dis(gen));
+  auto selected = *std::next(actions->begin(), dis(gen_));
   RunAction(g_character, selected);
   SDL_FRect g_r = AfterimageGameInstance::LoadRect(g_character).value();
   auto rt = RunReactorCheck(g_character, g_r);
@@ -883,7 +883,7 @@ bool CharacterLogicSystem::RunAttack(GameCharacter& g_character) {
         }
       }
       std::uniform_int_distribution<> dis(0, actions->size() - 1);
-      auto selected = *std::next(actions->begin(), dis(gen));
+      auto selected = *std::next(actions->begin(), dis(gen_));
       RunAction(g_character, selected);
       break;
     }

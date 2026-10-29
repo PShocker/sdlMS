@@ -161,7 +161,7 @@ void NpcDlgUiSystem::RenderButton() {
 
 void NpcDlgUiSystem::RenderText() {
   auto dt = Window::dt_now_ - time_;
-  int visibleCount = int(dt * 0.05);
+  int visible_count = int(dt * 0.05);
   switch (type_) {
     case NpcDlgEnum::kQuest:
     case NpcDlgEnum::kQuestAvaliable:
@@ -179,7 +179,7 @@ void NpcDlgUiSystem::RenderText() {
       Freetype::LoadColor(0, 0, 0, 255);
       select_mouse_ =
           Freetype::DrawRstr(text_, pos_.x + 165, pos_.y + 30, 330, 1.3,
-                             std::nullopt, select_, false, visibleCount)
+                             std::nullopt, select_, false, visible_count)
               .select;
       break;
     }
@@ -493,7 +493,7 @@ void NpcDlgUiSystem::EventButtonOk() {
     auto back_meso = PackageGameInstance::meso_;
     auto back_data = PackageGameInstance::data_;
     if (!act_random_item_.empty()) {
-      auto& r = RandomGameInstance::gen;
+      auto& r = RandomGameInstance::gen_;
       std::uniform_int_distribution<int> dist(0, act_random_item_.size() - 1);
       auto it = act_random_item_.begin();
       std::advance(it, dist(r));

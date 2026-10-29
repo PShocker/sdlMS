@@ -319,10 +319,10 @@ void ItemGameInstance::UnuseBuffItem(const std::u16string& id) {
         CharacterStatGameInstance::SetCritDamage(sf_crt - crt);
       }
       if (info->get_child(u"expBuff")) {
-        auto expBuff =
+        auto exp_buff =
             static_cast<wz::Property<int>*>(info->get_child(u"expBuff"))->get();
         auto itm_exp = CharacterStatGameInstance::GetItmExp();
-        CharacterStatGameInstance::SetItmExp(itm_exp - expBuff);
+        CharacterStatGameInstance::SetItmExp(itm_exp - exp_buff);
       }
       if (info->get_child(u"morph")) {
         auto& sf = CharacterGameInstance::self_;
@@ -383,10 +383,10 @@ bool ItemGameInstance::UseBuffItem(std::polymorphic<GameItem>& itm) {
     r = true;
   }
   if (info->get_child(u"expBuff")) {
-    auto expBuff =
+    auto exp_buff =
         static_cast<wz::Property<int>*>(info->get_child(u"expBuff"))->get();
     auto itm_exp = CharacterStatGameInstance::GetItmExp();
-    CharacterStatGameInstance::SetItmExp(itm_exp + expBuff);
+    CharacterStatGameInstance::SetItmExp(itm_exp + exp_buff);
   }
   if (info->get_child(u"morph")) {
     UseMorphItem(id, CharacterGameInstance::self_);
@@ -448,10 +448,11 @@ bool ItemGameInstance::UseConsumeItem(const std::u16string& id) {
     r = true;
   }
   if (info->get_child(u"hpR")) {
-    auto hpR = static_cast<wz::Property<int>*>(info->get_child(u"hpR"))->get();
+    auto hp_ratio =
+        static_cast<wz::Property<int>*>(info->get_child(u"hpR"))->get();
     auto sf_hp_max = CharacterStatGameInstance::GetHpMax();
     auto sf_hp = CharacterStatGameInstance::GetHp();
-    CharacterStatGameInstance::SetHp(sf_hp + sf_hp_max * hpR);
+    CharacterStatGameInstance::SetHp(sf_hp + sf_hp_max * hp_ratio);
     r = true;
   }
   if (info->get_child(u"mp")) {
@@ -461,16 +462,17 @@ bool ItemGameInstance::UseConsumeItem(const std::u16string& id) {
     r = true;
   }
   if (info->get_child(u"mpR")) {
-    auto mpR = static_cast<wz::Property<int>*>(info->get_child(u"mpR"))->get();
+    auto mp_ratio =
+        static_cast<wz::Property<int>*>(info->get_child(u"mpR"))->get();
     auto sf_mp_max = CharacterStatGameInstance::GetMpMax();
     auto sf_mp = CharacterStatGameInstance::GetMp();
-    CharacterStatGameInstance::SetMp(sf_mp + sf_mp_max * mpR);
+    CharacterStatGameInstance::SetMp(sf_mp + sf_mp_max * mp_ratio);
     r = true;
   }
   if (info->get_child(u"moveTo")) {
-    auto moveTo =
+    auto move_to =
         static_cast<wz::Property<int>*>(info->get_child(u"moveTo"))->get();
-    SceneSystemInstance::EnterPrepare(moveTo, u"sp", 0);
+    SceneSystemInstance::EnterPrepare(move_to, u"sp", 0);
     r = true;
   }
   if (info->get_child(u"exp")) {

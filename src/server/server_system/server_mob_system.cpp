@@ -51,15 +51,15 @@ bool ServerMobSystem::RunTryJump(ServerMob& mob) {
   } else {
     n_fh = s_fh.next;
   }
-  auto& gen = RandomGameInstance::gen;
+  auto& gen_ = RandomGameInstance::gen_;
   bool jump = false;
   std::bernoulli_distribution dist(0.005);
-  jump = dist(gen);
+  jump = dist(gen_);
   if (s_fhs.contains(n_fh)) {
     if (!s_fhs.at(n_fh).fh.k.has_value()) {
       // wall
       std::bernoulli_distribution dist(0.4);
-      jump = dist(gen);
+      jump = dist(gen_);
     }
   }
   if (jump) {
@@ -214,9 +214,9 @@ void ServerMobSystem::RunDuration(ServerMob& mob) {
     return;
   }
 
-  auto& gen = RandomGameInstance::gen;
+  auto& gen_ = RandomGameInstance::gen_;
   std::uniform_int_distribution<size_t> dist(0, actions2.size() - 1);
-  auto it = std::next(actions2.begin(), dist(gen));
+  auto it = std::next(actions2.begin(), dist(gen_));
   auto selected = *it;
   mob.action = actions.at(selected);
 
@@ -238,7 +238,7 @@ void ServerMobSystem::RunDuration(ServerMob& mob) {
         left = g_x <= mob.pos.x;
       } else {
         std::bernoulli_distribution dist(0.5);
-        left = dist(gen);
+        left = dist(gen_);
       }
       mob.hforce = left ? -MOVE_FORCE : MOVE_FORCE;
       mob.flip = left ? false : true;

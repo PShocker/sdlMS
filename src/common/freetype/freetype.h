@@ -25,7 +25,7 @@ class Freetype {
 
   struct FreetypeCacheValue {
     float advance;
-    int32_t bearingY;
+    int32_t bearing_y;
     SDL_Texture* texture;
   };
 
@@ -72,9 +72,9 @@ class Freetype {
                            float h, std::optional<SDL_FRect> obstacle);
   static DrawData DrawRstr(const std::u16string& str, float x, float y, float w,
                            float h, std::optional<SDL_FRect> obstacle,
-                           int default_select, bool dryRun, int visibleCount);
+                           int default_select, bool dry_run, int visible_count);
   static DrawData DrawCstr(const std::u16string& str, float x, float y, float w,
-                           float h, bool dryRun = false);
+                           float h, bool dry_run = false);
 };
 
 }  // namespace sdlms

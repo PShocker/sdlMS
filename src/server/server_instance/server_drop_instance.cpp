@@ -154,9 +154,9 @@ void ServerDropInstance::HandleServerDt(const fbs::DropT& dt) {
 
   switch (dt.drop.type) {
     case fbs::ItemUnion_Equip: {
-      auto equipT = dt.drop.AsEquip();
+      auto equip_t = dt.drop.AsEquip();
       GameEquipItem equip;
-      auto tmp = std::format("{:08d}", equipT->equip_id);
+      auto tmp = std::format("{:08d}", equip_t->equip_id);
       equip.id = {tmp.begin(), tmp.end()};
       drop.data =
           std::polymorphic<GameItem>(std::in_place_type<GameEquipItem>, equip);
@@ -252,7 +252,7 @@ std::vector<std::unique_ptr<fbs::DropT>> ServerDropInstance::CreateDts(
     const std::vector<fbs::DropT>& dts, uint32_t map_id) {
   std::vector<std::unique_ptr<fbs::DropT>> r;
 
-  auto& gen = RandomGameInstance::gen;
+  auto& gen_ = RandomGameInstance::gen_;
   std::uniform_int_distribution<uint64_t> dist(1, UINT64_MAX);
 
   const auto& s_fhs = ServerSceneInstance::scenes_.at(map_id).fhs;
@@ -271,9 +271,9 @@ std::vector<std::unique_ptr<fbs::DropT>> ServerDropInstance::CreateDts(
   for (auto dt : dts) {
     uint64_t random_id = 0;
     do {
-      random_id = dist(gen);
+      random_id = dist(gen_);
     } while (ServerSceneInstance::scenes_[map_id].drops.contains(random_id));
-    dt.random_id = dist(gen);
+    dt.random_id = dist(gen_);
     int x;
     if (dts_size == 1) {
       x = 0;

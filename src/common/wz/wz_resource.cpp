@@ -104,25 +104,25 @@ SDL_Texture* WzResource::LoadNodeTexture(wz::Node* node) {
     case 517:  // rgb565压缩缩略图
     {
       pixel.resize(w * h * 2, 0);
-      int lineIndex = 0;
+      int line_index = 0;
       for (int j0 = 0, j1 = h / 16; j0 < j1; j0++) {
-        int dstIndex = lineIndex;
+        int dst_index = line_index;
         for (int i0 = 0, i1 = h / 16; i0 < i1; i0++) {
           int idx = (i0 + j0 * i1) * 2;
           unsigned char b0 = raw_data[idx];
           unsigned char b1 = raw_data[idx + 1];
           for (int k = 0; k < 16; k++) {
-            pixel[dstIndex++] = b0;
-            pixel[dstIndex++] = b1;
+            pixel[dst_index++] = b0;
+            pixel[dst_index++] = b1;
           }
         }
         for (int k = 1; k < 16; k++) {
           for (int m = 0; m < w * 2; m++) {
-            pixel[dstIndex + m] = pixel[lineIndex + m];
+            pixel[dst_index + m] = pixel[line_index + m];
           }
-          dstIndex += w * 2;
+          dst_index += w * 2;
         }
-        lineIndex += w * 32;
+        line_index += w * 32;
       }
       texture = SDL_CreateTexture(Window::renderer_, SDL_PIXELFORMAT_RGB565,
                                   SDL_TEXTUREACCESS_STATIC, w, h);

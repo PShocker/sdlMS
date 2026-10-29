@@ -62,15 +62,15 @@ bool NpcLogicSystem::RunDuration(GameNpc& g_npc) {
   child.erase(u"info");
   std::uniform_int_distribution<> dis(0, child.size() - 1);
 
-  auto& gen = RandomGameInstance::gen;
-  auto it = std::next(child.begin(), dis(gen));
+  auto& gen_ = RandomGameInstance::gen_;
+  auto it = std::next(child.begin(), dis(gen_));
   auto random_key = it->first;
 
   g_npc.action = random_key;
   auto action_type = LoadActionType(g_npc);
   if (action_type == ActionEnum::kMove) {
     std::bernoulli_distribution dist(0.5);  // 50% 概率为 true
-    bool random_bool = dist(gen);
+    bool random_bool = dist(gen_);
     g_npc.hforce = random_bool ? 1400 : -1400;
     g_npc.hspeed = 0.0f;
     g_npc.duration = Window::dt_now_ + 5000;
@@ -96,9 +96,9 @@ bool NpcLogicSystem::RunChatballoon(GameNpc& g_npc) {
     }
   } else {
     std::uniform_int_distribution<int> dist(5000, 10000);
-    auto& gen = RandomGameInstance::gen;
+    auto& gen_ = RandomGameInstance::gen_;
     // 生成随机数
-    int random_number = dist(gen);
+    int random_number = dist(gen_);
 
     auto npc_node = NpcGameInstance::LoadLinkNpcNode(g_npc.id);
     auto npc_info = npc_node->get_child(u"info");
@@ -134,7 +134,7 @@ bool NpcLogicSystem::RunChatballoon(GameNpc& g_npc) {
     }
     if (!intersection.empty()) {
       std::uniform_int_distribution<int> dist2(0, intersection.size() - 1);
-      int random_number2 = dist2(gen);
+      int random_number2 = dist2(gen_);
       str_node = child.at(intersection[random_number2])[0];
       c.text = static_cast<wz::Property<std::u16string>*>(str_node)->get();
       g_npc.chatballoon = c;

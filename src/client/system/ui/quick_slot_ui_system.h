@@ -26,7 +26,7 @@ class QuickSlotUiSystem {
     kTwo,
     kThree,
   };
-  static inline QuickSlot quickSlot_ = QuickSlot::kTwo;
+  static inline QuickSlot quick_slot_ = QuickSlot::kTwo;
 
   static void Open();
   static void Close();

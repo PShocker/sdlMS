@@ -697,10 +697,10 @@ void PackageUiSystem::EventButtonGather() {}
 void PackageUiSystem::EventButtonSort() {
   const auto cmp = [](const std::polymorphic<GameItem>& a,
                       const std::polymorphic<GameItem>& b) {
-    bool aEmpty = a->id.empty();
-    bool bEmpty = b->id.empty();
-    if (aEmpty != bEmpty)
-      return bEmpty;
+    bool a_empty = a->id.empty();
+    bool b_empty = b->id.empty();
+    if (a_empty != b_empty)
+      return b_empty;
     return a->id < b->id;
   };
   std::ranges::sort(PackageGameInstance::data_[active_tab_], cmp);

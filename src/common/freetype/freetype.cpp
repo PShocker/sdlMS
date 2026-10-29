@@ -81,9 +81,9 @@ float Freetype::DrawChar(float x, float y, char16_t c) {
     return 0;
   }
   SDL_Texture* texture = nullptr;
-  auto lineHeight = face_->size->metrics.height >> 6;
+  auto line_height = face_->size->metrics.height >> 6;
   float advance = 0;
-  int bearingY = 0;
+  int bearing_y = 0;
   FreetypeCacheKey t{
       .c = c,
       .size = size_,
@@ -92,7 +92,7 @@ float Freetype::DrawChar(float x, float y, char16_t c) {
   if (cache_.contains(t)) {
     auto v = cache_.at(t);
     advance = v.advance;
-    bearingY = v.bearingY;
+    bearing_y = v.bearing_y;
     texture = v.texture;
   } else {
     FT_Load_Char(face_, c, FT_LOAD_RENDER | FT_LOAD_TARGET_MONO);
@@ -101,14 +101,14 @@ float Freetype::DrawChar(float x, float y, char16_t c) {
     }
     auto* bitmap = &face_->glyph->bitmap;
     advance = face_->glyph->advance.x >> 6;
-    bearingY = face_->glyph->metrics.horiBearingY >> 6;
-    auto cWidth = bitmap->width;
-    auto cHeight = bitmap->rows;
-    if (cWidth == 0 || cHeight == 0) {
+    bearing_y = face_->glyph->metrics.horiBearingY >> 6;
+    auto c_width = bitmap->width;
+    auto c_height = bitmap->rows;
+    if (c_width == 0 || c_height == 0) {
       return advance;
     }
     // argb888
-    uint8_t* buffer = (uint8_t*)SDL_calloc(1, cWidth * cHeight * 4);
+    uint8_t* buffer = (uint8_t*)SDL_calloc(1, c_width * c_height * 4);
     for (int y = 0; y < bitmap->rows; ++y) {
       for (int x = 0; x < bitmap->width; ++x) {
         auto value =
@@ -122,28 +122,28 @@ float Freetype::DrawChar(float x, float y, char16_t c) {
       }
     }
     texture = SDL_CreateTexture(Window::renderer_, SDL_PIXELFORMAT_ARGB8888,
-                                SDL_TEXTUREACCESS_STATIC, cWidth, cHeight);
-    SDL_UpdateTexture(texture, NULL, buffer, cWidth * 4);
+                                SDL_TEXTUREACCESS_STATIC, c_width, c_height);
+    SDL_UpdateTexture(texture, NULL, buffer, c_width * 4);
     SDL_free(buffer);
-    cache_[t] = {advance, bearingY, texture};
+    cache_[t] = {advance, bearing_y, texture};
   }
   // 纹理的顶部位置 = 基线位置 - bearingY
-  auto posY = y + lineHeight - bearingY;
+  auto pos_y = y + line_height - bearing_y;
 
-  auto posX = x + (advance - texture->w) / 2;
-  SDL_FRect posRect{
-      posX,
-      posY,
+  auto pos_x = x + (advance - texture->w) / 2;
+  SDL_FRect pos_rect{
+      pos_x,
+      pos_y,
       static_cast<float>(texture->w),
       static_cast<float>(texture->h),
   };
   if (aligned_) {
-    posRect.x = int(posRect.x);
-    posRect.y = int(posRect.y);
+    pos_rect.x = int(pos_rect.x);
+    pos_rect.y = int(pos_rect.y);
   }
   SDL_SetTextureColorMod(texture, color_.r, color_.g, color_.b);
   SDL_SetTextureAlphaMod(texture, color_.a);
-  SDL_RenderTexture(Window::renderer_, texture, nullptr, &posRect);
+  SDL_RenderTexture(Window::renderer_, texture, nullptr, &pos_rect);
   return advance;
 }
 
@@ -159,12 +159,12 @@ void Freetype::DrawStr(const std::u16string& str, float x, float y, float w,
                        float h) {
   auto l = x;
   auto t = y;
-  auto lineHeight = face_->size->metrics.height >> 6;
-  lineHeight = lineHeight * h;
+  auto line_height = face_->size->metrics.height >> 6;
+  line_height = line_height * h;
   for (uint32_t i = 0; i < str.size(); i++) {
     auto c = str[i];
     if (l >= x + w || c == u'\n') {
-      t += lineHeight;
+      t += line_height;
       l = x;
     }
     l += DrawChar(l, t, c);
@@ -209,8 +209,8 @@ void Freetype::DrawDashLine(float x1, float y1, float x2, float y2,
 Freetype::DrawData Freetype::DrawRstr(const std::u16string& str, float x,
                                       float y, float w, float h,
                                       std::optional<SDL_FRect> obstacle,
-                                      int default_select, bool dryRun,
-                                      int visibleCount /* = -1 */) {
+                                      int default_select, bool dry_run,
+                                      int visible_count /* = -1 */) {
   // === 常量 ===
   constexpr float kBulletOffsetX = 15.0f;
   constexpr float kDashOn = 3.0f;
@@ -220,14 +220,14 @@ Freetype::DrawData Freetype::DrawRstr(const std::u16string& str, float x,
   constexpr SDL_Color kSelectedLineColor{0, 0, 0, 255};
 
   // === 初始化 ===
-  const float baseLineHeight =
+  const float base_line_height =
       static_cast<float>(face_->size->metrics.height >> 6) * h;
-  const float rightEdge = x + w;
-  const float bottomEdge = y + h;
+  const float right_edge = x + w;
+  const float bottom_edge = y + h;
 
   auto l = x;
   auto t = y;
-  float lineHeight = baseLineHeight;
+  float line_height = base_line_height;
 
   int select = -1;
   int selected = -1;
@@ -236,15 +236,15 @@ Freetype::DrawData Freetype::DrawRstr(const std::u16string& str, float x,
   select_r.reserve(8);
   select_dot.reserve(8);
 
-  const bool typing = (visibleCount >= 0) && !dryRun;
+  const bool typing = (visible_count >= 0) && !dry_run;
   size_t drawn = 0;
-  bool inOption = false;
+  bool in_option = false;
 
   // === 辅助 ===
   const SDL_FRect* obs = obstacle ? &*obstacle : nullptr;
 
-  const auto isBlocked = [obs](float px, float py, float pw,
-                               float ph) noexcept {
+  const auto is_blocked = [obs](float px, float py, float pw,
+                                float ph) noexcept {
     if (!obs)
       return false;
     const SDL_FRect rect{px, py, pw, ph};
@@ -254,8 +254,8 @@ Freetype::DrawData Freetype::DrawRstr(const std::u16string& str, float x,
   // 探测从索引 start 开始、到“下一次实际换行”之前，这一渲染行是否含图标。
   // 模拟实际渲染：累加普通字符宽度，遇到 \n 或超过右边界即停止。
   // startX 用于处理选项缩进（l 的起始位置）。
-  const auto lineHasIconFrom = [&](size_t start, float startX) -> bool {
-    float used = startX - x;
+  const auto line_has_icon_from = [&](size_t start, float start_x) -> bool {
+    float used = start_x - x;
     for (size_t j = start; j < str.size(); ++j) {
       const char16_t c = str[j];
 
@@ -293,57 +293,57 @@ Freetype::DrawData Freetype::DrawRstr(const std::u16string& str, float x,
 
       // 普通字符：累加宽度，超过右边界即视为换行
       used += LoadCharW(c);
-      if (used > rightEdge - x)
+      if (used > right_edge - x)
         break;
     }
     return false;
   };
 
   const auto newline = [&] {
-    t += lineHeight;
+    t += line_height;
     l = x;
-    lineHeight = baseLineHeight;
+    line_height = base_line_height;
   };
 
-  const auto findPlacement = [&](float charWidth) -> bool {
-    while (l + charWidth <= rightEdge) {
+  const auto find_placement = [&](float char_width) -> bool {
+    while (l + char_width <= right_edge) {
       l += 1.0f;
-      if (!isBlocked(l, t, charWidth, lineHeight))
+      if (!is_blocked(l, t, char_width, line_height))
         return true;
     }
     newline();
-    while (t + lineHeight <= bottomEdge) {
-      if (!isBlocked(l, t, charWidth, lineHeight))
+    while (t + line_height <= bottom_edge) {
+      if (!is_blocked(l, t, char_width, line_height))
         return true;
-      t += lineHeight;
+      t += line_height;
     }
     return false;
   };
 
-  const auto shouldShow = [&]() -> bool {
-    if (inOption)
+  const auto should_show = [&]() -> bool {
+    if (in_option)
       return true;
-    return !typing || drawn < static_cast<size_t>(visibleCount);
+    return !typing || drawn < static_cast<size_t>(visible_count);
   };
 
   SDL_Texture* icon = nullptr;
 
   // 进入一行时，先根据“本行是否含图标”决定行高
-  bool lineChecked = false;
+  bool line_checked = false;
 
   // === 主循环 ===
   for (size_t i = 0; i < str.size(); ++i) {
     const char16_t c = str[i];
 
     // 每进入新的一行，先探测行高
-    if (!lineChecked && l == x) {
+    if (!line_checked && l == x) {
       // 普通行从 x 开始探测；选项行在 #L 处理时会重新设置 l 并再次探测
-      if (lineHasIconFrom(i, l)) {
-        lineHeight = kIconLineHeight;
+      if (line_has_icon_from(i, l)) {
+        line_height = kIconLineHeight;
       } else {
-        lineHeight = baseLineHeight;
+        line_height = base_line_height;
       }
-      lineChecked = true;
+      line_checked = true;
     }
 
     if (c == u'\n') {
@@ -351,7 +351,7 @@ Freetype::DrawData Freetype::DrawRstr(const std::u16string& str, float x,
         select_r[select].w = l - x;
       }
       newline();
-      lineChecked = false;
+      line_checked = false;
       continue;
     }
 
@@ -391,13 +391,13 @@ Freetype::DrawData Freetype::DrawRstr(const std::u16string& str, float x,
           i += 3;
           ++select;
           l = x + kBulletOffsetX;
-          inOption = true;
+          in_option = true;
 
           // 选项行缩进后，重新探测本行是否含图标
-          lineHeight =
-              lineHasIconFrom(i + 1, l) ? kIconLineHeight : baseLineHeight;
+          line_height =
+              line_has_icon_from(i + 1, l) ? kIconLineHeight : base_line_height;
 
-          select_r.emplace_back(SDL_FRect{l, t, 0.0f, lineHeight});
+          select_r.emplace_back(SDL_FRect{l, t, 0.0f, line_height});
           select_dot.emplace_back(
               SDL_FPoint{l - size_ * 0.5f, t + size_ * 0.5f});
           break;
@@ -414,11 +414,11 @@ Freetype::DrawData Freetype::DrawRstr(const std::u16string& str, float x,
           // 行高已在本行开始时确定为 32，这里直接底部对齐绘制
           SDL_FRect pos{
               static_cast<float>((int)l),
-              static_cast<float>((int)(t + lineHeight - icon->h)),
+              static_cast<float>((int)(t + line_height - icon->h)),
               static_cast<float>(icon->w),
               static_cast<float>(icon->h),
           };
-          if (shouldShow() && !dryRun) {
+          if (should_show() && !dry_run) {
             SDL_RenderTexture(Window::renderer_, icon, nullptr, &pos);
           }
 
@@ -432,7 +432,7 @@ Freetype::DrawData Freetype::DrawRstr(const std::u16string& str, float x,
           }
           ++i;
           select = -1;
-          inOption = false;
+          in_option = false;
           break;
         }
         default:
@@ -442,61 +442,63 @@ Freetype::DrawData Freetype::DrawRstr(const std::u16string& str, float x,
     }
 
     // --- 普通字符 ---
-    const float charWidth = LoadCharW(c);
-    const float charHeight = lineHeight;
+    const float char_width = LoadCharW(c);
+    const float char_height = line_height;
 
-    if (isBlocked(l, t, charWidth, charHeight)) {
-      if (!findPlacement(charWidth)) {
-        if (!inOption)
+    if (is_blocked(l, t, char_width, char_height)) {
+      if (!find_placement(char_width)) {
+        if (!in_option)
           ++drawn;
         continue;
       }
       // 因障碍物移动后可能进入新行，重新探测行高
-      if (l == x && !lineChecked) {
-        lineHeight = lineHasIconFrom(i, l) ? kIconLineHeight : baseLineHeight;
-        lineChecked = true;
+      if (l == x && !line_checked) {
+        line_height =
+            line_has_icon_from(i, l) ? kIconLineHeight : base_line_height;
+        line_checked = true;
       }
     }
 
-    if (l + charWidth > rightEdge) {
+    if (l + char_width > right_edge) {
       newline();
-      lineChecked = false;
+      line_checked = false;
       // 换行后重新探测行高：从当前字符 i 开始，因为它要放到新行
-      lineHeight = lineHasIconFrom(i, l) ? kIconLineHeight : baseLineHeight;
-      lineChecked = true;
-      if (isBlocked(l, t, charWidth, charHeight)) {
-        if (!inOption)
+      line_height =
+          line_has_icon_from(i, l) ? kIconLineHeight : base_line_height;
+      line_checked = true;
+      if (is_blocked(l, t, char_width, char_height)) {
+        if (!in_option)
           ++drawn;
         continue;
       }
     }
 
-    const bool show = shouldShow();
+    const bool show = should_show();
 
     if (show) {
-      if (!dryRun) {
+      if (!dry_run) {
         if (select >= 0 && selected == -1) {
-          const SDL_FRect pos{l, t, charWidth, charHeight};
+          const SDL_FRect pos{l, t, char_width, char_height};
           if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos)) {
             selected = select;
           }
         }
         // 文字按当前行高底部对齐：draw_char 的 y 为文字顶部
-        const float drawY = t + lineHeight - baseLineHeight;
-        l += DrawChar(l, drawY, c);
+        const float draw_y = t + line_height - base_line_height;
+        l += DrawChar(l, draw_y, c);
       } else {
-        l += charWidth;
+        l += char_width;
       }
     } else {
-      l += charWidth;
+      l += char_width;
     }
 
-    if (!inOption)
+    if (!in_option)
       ++drawn;
   }
 
   // === 选择按钮 ===
-  const auto loadDot = [](bool active) -> SDL_Texture* {
+  const auto load_dot = [](bool active) -> SDL_Texture* {
     static const auto dot0 = WzResource::LoadTexture(
         WzResource::ui_->find(u"UtilDlgEx.img/UtilDlgEx/dot0"));
     static const auto dot1 = WzResource::LoadTexture(
@@ -506,7 +508,7 @@ Freetype::DrawData Freetype::DrawRstr(const std::u16string& str, float x,
 
   for (size_t i = 0; i < select_dot.size(); ++i) {
     const int idx = static_cast<int>(i);
-    SDL_Texture* tex = loadDot(idx == selected || idx == default_select);
+    SDL_Texture* tex = load_dot(idx == selected || idx == default_select);
     const SDL_FRect pos{
         select_dot[i].x,
         select_dot[i].y,
@@ -517,11 +519,11 @@ Freetype::DrawData Freetype::DrawRstr(const std::u16string& str, float x,
   }
 
   // === 下划线 ===
-  const auto drawUnderline = [&](int idx, SDL_Color color, bool dashed) {
+  const auto draw_underline = [&](int idx, SDL_Color color, bool dashed) {
     if (idx < 0 || idx >= static_cast<int>(select_r.size()))
       return;
     const auto& r = select_r[idx];
-    const float y1 = r.y + lineHeight;
+    const float y1 = r.y + line_height;
     SDL_SetRenderDrawColor(Window::renderer_, color.r, color.g, color.b,
                            color.a);
     if (dashed) {
@@ -531,79 +533,79 @@ Freetype::DrawData Freetype::DrawRstr(const std::u16string& str, float x,
     }
   };
 
-  drawUnderline(default_select, kDefaultLineColor, true);
-  drawUnderline(selected, kSelectedLineColor, false);
+  draw_underline(default_select, kDefaultLineColor, true);
+  draw_underline(selected, kSelectedLineColor, false);
 
   // === 返回 ===
   DrawData r;
-  r.height = t - y + lineHeight;
+  r.height = t - y + line_height;
   r.select = selected;
   return r;
 }
 
 Freetype::DrawData Freetype::DrawCstr(const std::u16string& str, float x,
-                                      float y, float w, float h, bool dryRun) {
+                                      float y, float w, float h, bool dry_run) {
   DrawData d{.height = 0};
   if (str.empty())
     return d;
 
   // 行高
-  float lineHeight = static_cast<float>(face_->size->metrics.height >> 6) * h;
+  float line_height = static_cast<float>(face_->size->metrics.height >> 6) * h;
 
   // 当前行
-  std::u16string currentLine;
-  float lineWidth = 0.0f;
-  float currentY = y;
+  std::u16string current_line;
+  float line_width = 0.0f;
+  float current_y = y;
 
   for (uint32_t i = 0; i < str.size(); i++) {
     char16_t c = str[i];
 
     // 处理换行符
     if (c == u'\n') {
-      if (!currentLine.empty()) {
+      if (!current_line.empty()) {
         // 水平居中
-        float midX = x + (w - lineWidth) / 2.0f;
-        DrawLine(currentLine, midX, currentY);
-        currentLine.clear();
-        lineWidth = 0.0f;
+        float mid_x = x + (w - line_width) / 2.0f;
+        DrawLine(current_line, mid_x, current_y);
+        current_line.clear();
+        line_width = 0.0f;
       }
-      currentY += lineHeight;
+      current_y += line_height;
       continue;
     }
 
     // 获取字符宽度
-    float charWidth = static_cast<float>(LoadW({c}));
+    float char_width = static_cast<float>(LoadW({c}));
 
     // 检查是否需要换行（当前行已有内容且加上新字符会超出宽度）
-    if (!currentLine.empty() && lineWidth + charWidth >= w) {
+    if (!current_line.empty() && line_width + char_width >= w) {
       // 绘制当前行（居中）
-      auto dx = (w - lineWidth) / 2.0f;
-      float midX = (int)x + (int)dx;
-      if (!dryRun) {
-        DrawLine(currentLine, midX, currentY);
+      auto dx = (w - line_width) / 2.0f;
+      float mid_x = (int)x + (int)dx;
+      if (!dry_run) {
+        DrawLine(current_line, mid_x, current_y);
       }
 
       // 重置当前行
-      currentLine.clear();
-      lineWidth = 0.0f;
-      currentY += lineHeight;
+      current_line.clear();
+      line_width = 0.0f;
+      current_y += line_height;
     }
 
     // 添加字符到当前行
-    currentLine.push_back(c);
-    lineWidth += charWidth;
+    current_line.push_back(c);
+    line_width += char_width;
   }
 
   // 绘制最后一行（如果有内容）
-  if (!currentLine.empty()) {
-    auto dx = (w - lineWidth) / 2.0f;
-    float midX = (int)x + (int)dx;
-    if (!dryRun) {
-      DrawLine(currentLine, midX, currentY);
+  if (!current_line.empty()) {
+    auto dx = (w - line_width) / 2.0f;
+    float mid_x = (int)x + (int)dx;
+    if (!dry_run) {
+      DrawLine(current_line, mid_x, current_y);
     }
   }
-  d.height = currentY - y;
-  d.height += lineHeight;
+  d.height = current_y - y;
+  d.height += line_height;
   return d;
 }
 

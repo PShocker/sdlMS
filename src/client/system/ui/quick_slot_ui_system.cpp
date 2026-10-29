@@ -180,7 +180,7 @@ void QuickSlotUiSystem::RenderQuickSlot() {
       {SDL_SCANCODE_LSHIFT,
        WzResource::LoadTexture(WzResource::ui_->find(u"QuickSlot.img/key/42"))},
   };
-  switch (quickSlot_) {
+  switch (quick_slot_) {
     case QuickSlot::kHide: {
       break;
     }
@@ -244,7 +244,7 @@ bool QuickSlotUiSystem::Render() {
 }
 
 SDL_FPoint QuickSlotUiSystem::LoadWh() {
-  switch (quickSlot_) {
+  switch (quick_slot_) {
     case QuickSlot::kHide:
       return {0, 0};
     case QuickSlot::kTwo:
@@ -293,7 +293,7 @@ bool QuickSlotUiSystem::CursorIn() {
       w,
       h,
   };
-  if (quickSlot_ == QuickSlot::kTwo) {
+  if (quick_slot_ == QuickSlot::kTwo) {
     pos_rect.y += 36;
   }
   return SDL_PointInRectFloat(&mouse, &pos_rect);
@@ -307,7 +307,7 @@ bool QuickSlotUiSystem::EventClickQuickslot(SDL_Event* event) {
   auto screen_h = CameraGameInstance::camera_.h;
   auto base_x = (screen_w - 808) / 2;
   auto base_y = (screen_h - 73);
-  switch (quickSlot_) {
+  switch (quick_slot_) {
     case QuickSlot::kHide: {
       break;
     }

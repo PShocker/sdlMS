@@ -84,18 +84,18 @@ void ClockUiSystem::RenderTime() {
   switch (type_) {
     case ClockEnum::kMin: {
       // render min
-      auto totalSeconds = dt / 1000;     // 总秒数
-      auto minutes = totalSeconds / 60;  // 分钟
-      auto seconds = totalSeconds % 60;  // 余数秒数
+      auto total_seconds = dt / 1000;     // 总秒数
+      auto minutes = total_seconds / 60;  // 分钟
+      auto seconds = total_seconds % 60;  // 余数秒数
       RenderNumber(minutes, pos_.x, pos_.y);
 
       break;
     }
     case ClockEnum::kHour: {
-      auto totalSeconds = dt / 1000;     // 总秒数
-      auto hours = totalSeconds / 3600;  // 小时（1小时 = 3600秒）
+      auto total_seconds = dt / 1000;     // 总秒数
+      auto hours = total_seconds / 3600;  // 小时（1小时 = 3600秒）
       auto minutes =
-          (totalSeconds % 3600) / 60;  // 分钟（除去小时后，剩余的分钟）
+          (total_seconds % 3600) / 60;  // 分钟（除去小时后，剩余的分钟）
       RenderNumber(minutes, pos_.x, pos_.y);
 
       break;

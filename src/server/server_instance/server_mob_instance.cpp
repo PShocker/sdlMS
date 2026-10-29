@@ -390,9 +390,9 @@ std::vector<fbs::DropT> ServerMobInstance::CreateMobDts(
   auto mob_drops = LoadMobDrops(mob_id);
   std::vector<fbs::DropT> dts;
   for (const auto& drop : mob_drops) {
-    auto& gen = RandomGameInstance::gen;
+    auto& gen_ = RandomGameInstance::gen_;
     std::uniform_real_distribution<float> dis(0.0f, 1.0f);
-    bool success = dis(gen) <= drop.rate;
+    bool success = dis(gen_) <= drop.rate;
     if (!success) {
       continue;
     }
@@ -404,7 +404,7 @@ std::vector<fbs::DropT> ServerMobInstance::CreateMobDts(
       auto min_quantity = drop.min_quantity;
       auto max_quantity = drop.max_quantity;
       std::uniform_int_distribution<int> dis(min_quantity, max_quantity);
-      int random_num = dis(gen);
+      int random_num = dis(gen_);
       fbs::ItemT it;
       it.item_id = std::stoi(std::string{drop.id.begin(), drop.id.end()});
       it.item_num = random_num;

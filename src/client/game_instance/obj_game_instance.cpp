@@ -21,10 +21,10 @@ void ObjGameInstance::Load(wz::Node* image) {
     for (auto [key, val] : *layer_node->get_child(u"obj")->get_children()) {
       GameObj g_obj;
       auto obj_node = val[0];
-      auto oS =
+      auto os_node =
           static_cast<wz::Property<std::u16string>*>(obj_node->get_child(u"oS"))
               ->get();
-      if (oS == u"obj_trap") {
+      if (os_node == u"obj_trap") {
         continue;
       }
       auto l0 =
@@ -36,7 +36,7 @@ void ObjGameInstance::Load(wz::Node* image) {
       auto l2 =
           static_cast<wz::Property<std::u16string>*>(obj_node->get_child(u"l2"))
               ->get();
-      g_obj.path = u"Obj/" + oS + u".img/" + l0 + u"/" + l1 + u"/" + l2;
+      g_obj.path = u"Obj/" + os_node + u".img/" + l0 + u"/" + l1 + u"/" + l2;
 
       auto x =
           static_cast<wz::Property<int>*>(obj_node->get_child(u"x"))->get();

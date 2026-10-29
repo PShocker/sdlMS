@@ -64,12 +64,12 @@ SDL_FPoint BallLogicSystem::Move(SDL_FPoint p1, SDL_FPoint p2, int speed) {
   }
 
   // 否则正常移动 step 距离
-  float normX = dx / length;
-  float normY = dy / length;
+  float norm_x = dx / length;
+  float norm_y = dy / length;
 
   SDL_FPoint result;
-  result.x = p1.x + normX * step;
-  result.y = p1.y + normY * step;
+  result.x = p1.x + norm_x * step;
+  result.y = p1.y + norm_y * step;
 
   return result;
 }

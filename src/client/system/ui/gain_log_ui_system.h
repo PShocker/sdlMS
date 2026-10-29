@@ -1,11 +1,11 @@
-
+#pragma once
 
 namespace sdlms {
 
 class GainLogUiSystem {
  private:
   static void RenderText();
-  static void Destory();
+  static void Destroy();
 
  public:
   static bool Render();

@@ -125,11 +125,11 @@ void StatusbarUiSystem::RenderBackgrnd() {
   pos_rect = {base_x + 7, base_y + 9, static_cast<float>(backgrnd2->w),
               static_cast<float>(backgrnd2->h)};
   SDL_RenderTexture(Window::renderer_, backgrnd2, nullptr, &pos_rect);
-  static auto gaugeLabel = WzResource::LoadTexture(
+  static auto gauge_label = WzResource::LoadTexture(
       WzResource::ui_->find(u"StatusBar.img/canvas:gaugeLabel"));
-  pos_rect = {base_x + 223, base_y + 40, static_cast<float>(gaugeLabel->w),
-              static_cast<float>(gaugeLabel->h)};
-  SDL_RenderTexture(Window::renderer_, gaugeLabel, nullptr, &pos_rect);
+  pos_rect = {base_x + 223, base_y + 40, static_cast<float>(gauge_label->w),
+              static_cast<float>(gauge_label->h)};
+  SDL_RenderTexture(Window::renderer_, gauge_label, nullptr, &pos_rect);
 }
 
 void StatusbarUiSystem::RenderGaugeText() {
@@ -245,7 +245,7 @@ void StatusbarUiSystem::RenderCharacterStat() {
   auto base_x = (screen_w - backgrnd->w) / 2;
   auto base_y = (screen_h - backgrnd->h);
 
-  static auto gaugeHp = WzResource::LoadTexture(
+  static auto gauge_hp = WzResource::LoadTexture(
       WzResource::ui_->find(u"StatusBar.img/gauge/layer:gaugeHp"));
 
   static auto gray = WzResource::LoadTexture(
@@ -259,7 +259,7 @@ void StatusbarUiSystem::RenderCharacterStat() {
   pos_rect = {
       base_x + 224,
       base_y + 56,
-      static_cast<float>(gaugeHp->w),
+      static_cast<float>(gauge_hp->w),
       static_cast<float>(gray->h),
   };
   SDL_RenderTexture(Window::renderer_, gray, nullptr, &pos_rect);
@@ -268,26 +268,26 @@ void StatusbarUiSystem::RenderCharacterStat() {
   SDL_FRect src_rect{
       0,
       0,
-      static_cast<float>(gaugeHp->w * hp_percent),
-      static_cast<float>(gaugeHp->h),
+      static_cast<float>(gauge_hp->w * hp_percent),
+      static_cast<float>(gauge_hp->h),
   };
   pos_rect = {
       base_x + 224,
       base_y + 56,
       static_cast<float>(src_rect.w),
-      static_cast<float>(gaugeHp->h),
+      static_cast<float>(gauge_hp->h),
   };
-  SDL_RenderTexture(Window::renderer_, gaugeHp, &src_rect, &pos_rect);
+  SDL_RenderTexture(Window::renderer_, gauge_hp, &src_rect, &pos_rect);
 
   auto mp = CharacterStatGameInstance::GetMp();
   auto max_mp = CharacterStatGameInstance::GetMpMax();
   auto mp_percent = (float)mp / max_mp;
-  static auto gaugeMp = WzResource::LoadTexture(
+  static auto gauge_mp = WzResource::LoadTexture(
       WzResource::ui_->find(u"StatusBar.img/gauge/layer:gaugeMp"));
   pos_rect = {
       base_x + 332,
       base_y + 56,
-      static_cast<float>(gaugeMp->w),
+      static_cast<float>(gauge_mp->w),
       static_cast<float>(gray->h),
   };
   SDL_RenderTexture(Window::renderer_, gray, nullptr, &pos_rect);
@@ -295,15 +295,15 @@ void StatusbarUiSystem::RenderCharacterStat() {
   src_rect = {
       0,
       0,
-      static_cast<float>(gaugeMp->w * mp_percent),
-      static_cast<float>(gaugeMp->h),
+      static_cast<float>(gauge_mp->w * mp_percent),
+      static_cast<float>(gauge_mp->h),
   };
 
   pos_rect = {base_x + 332, base_y + 56, static_cast<float>(src_rect.w),
-              static_cast<float>(gaugeMp->h)};
-  SDL_RenderTexture(Window::renderer_, gaugeMp, &src_rect, &pos_rect);
+              static_cast<float>(gauge_mp->h)};
+  SDL_RenderTexture(Window::renderer_, gauge_mp, &src_rect, &pos_rect);
 
-  static auto gaugeExp = WzResource::LoadTexture(
+  static auto gauge_exp = WzResource::LoadTexture(
       WzResource::ui_->find(u"StatusBar.img/gauge/layer:gaugeExp"));
   auto exp = CharacterStatGameInstance::GetExp();
   auto max_exp = CharacterStatGameInstance::GetExpMax();
@@ -313,7 +313,7 @@ void StatusbarUiSystem::RenderCharacterStat() {
   pos_rect = {
       base_x + 445,
       base_y + 56,
-      static_cast<float>(gaugeExp->w),
+      static_cast<float>(gauge_exp->w),
       static_cast<float>(gray->h),
   };
   SDL_RenderTexture(Window::renderer_, gray, nullptr, &pos_rect);
@@ -321,19 +321,19 @@ void StatusbarUiSystem::RenderCharacterStat() {
   src_rect = {
       0,
       0,
-      static_cast<float>(gaugeExp->w * exp_percent),
-      static_cast<float>(gaugeExp->h),
+      static_cast<float>(gauge_exp->w * exp_percent),
+      static_cast<float>(gauge_exp->h),
   };
 
   pos_rect = {base_x + 445, base_y + 56, static_cast<float>(src_rect.w),
-              static_cast<float>(gaugeExp->h)};
-  SDL_RenderTexture(Window::renderer_, gaugeExp, nullptr, &pos_rect);
+              static_cast<float>(gauge_exp->h)};
+  SDL_RenderTexture(Window::renderer_, gauge_exp, nullptr, &pos_rect);
 
-  static auto gaugeCover = WzResource::LoadTexture(
+  static auto gauge_cover = WzResource::LoadTexture(
       WzResource::ui_->find(u"StatusBar.img/layer:gaugeCover"));
-  pos_rect = {base_x + 223, base_y + 55, static_cast<float>(gaugeCover->w),
-              static_cast<float>(gaugeCover->h)};
-  SDL_RenderTexture(Window::renderer_, gaugeCover, nullptr, &pos_rect);
+  pos_rect = {base_x + 223, base_y + 55, static_cast<float>(gauge_cover->w),
+              static_cast<float>(gauge_cover->h)};
+  SDL_RenderTexture(Window::renderer_, gauge_cover, nullptr, &pos_rect);
 
   // job
   auto job_node = WzResource::ms_->get_root()->find(
@@ -352,7 +352,7 @@ void StatusbarUiSystem::RenderCharacterStat() {
   Freetype::LoadAligned(false);
 
   // level
-  static auto lvNumber = WzResource::ui_->find(u"StatusBar.img/lvNumber");
+  static auto lv_number = WzResource::ui_->find(u"StatusBar.img/lvNumber");
   auto level = self.level;
   auto level_str = std::to_string(level);
   pos_rect.x = base_x + 44;
@@ -361,7 +361,7 @@ void StatusbarUiSystem::RenderCharacterStat() {
   int digits = level == 0 ? 1 : static_cast<int>(std::log10(level)) + 1;
   pos_rect.x += (36 - digits * 12) / (digits + 1);
   for (auto c : level_str) {
-    auto t = WzResource::LoadTexture(lvNumber->get_child(std::string{c}));
+    auto t = WzResource::LoadTexture(lv_number->get_child(std::string{c}));
     pos_rect.x += w;
     pos_rect.w = t->w;
     pos_rect.h = t->h;
@@ -373,40 +373,34 @@ void StatusbarUiSystem::RenderCharacterStat() {
 }
 
 void StatusbarUiSystem::RenderButton() {
-  static auto CashShop =
+  static auto cash_shop =
       WzResource::ui_->find(u"StatusBar.img/button:CashShop");
-  static auto Menu = WzResource::ui_->find(u"StatusBar.img/button:Menu");
-  static auto Shortcut =
+  static auto menu = WzResource::ui_->find(u"StatusBar.img/button:Menu");
+  static auto shortcut =
       WzResource::ui_->find(u"StatusBar.img/button:Shortcut");
-  static auto Mailbox = WzResource::ui_->find(u"StatusBar.img/button:Mailbox");
+  static auto mailbox = WzResource::ui_->find(u"StatusBar.img/button:Mailbox");
   static auto equip = WzResource::ui_->find(u"StatusBar.img/button:Equip");
-  static auto Inven = WzResource::ui_->find(u"StatusBar.img/button:Inven");
-  static auto Stat = WzResource::ui_->find(u"StatusBar.img/button:Stat");
-  static auto StatUp = WzResource::ui_->find(u"StatusBar.img/button:StatUp");
-  static auto Skill = WzResource::ui_->find(u"StatusBar.img/button:Skill");
-  static auto SkillUp = WzResource::ui_->find(u"StatusBar.img/button:SkillUp");
-  static auto Key = WzResource::ui_->find(u"StatusBar.img/button:Key");
-  static auto QuickSlot =
+  static auto inven = WzResource::ui_->find(u"StatusBar.img/button:Inven");
+  static auto stat = WzResource::ui_->find(u"StatusBar.img/button:Stat");
+  static auto skill = WzResource::ui_->find(u"StatusBar.img/button:Skill");
+  static auto key = WzResource::ui_->find(u"StatusBar.img/button:Key");
+  static auto quick_slot =
       WzResource::ui_->find(u"StatusBar.img/button:QuickSlot");
-  static auto QuickSlotD =
-      WzResource::ui_->find(u"StatusBar.img/button:QuickSlotD");
-  static auto ChatLogMin =
+  static auto chat_log_min =
       WzResource::ui_->find(u"StatusBar.img/button:ChatLogMin");
-  static auto ChatLogMax =
-      WzResource::ui_->find(u"StatusBar.img/button:ChatLogMax");
 
   std::array buttons_node = {
-      CashShop,    //
-      Menu,        //
-      Shortcut,    //
-      Mailbox,     //
-      equip,       //
-      Inven,       //
-      Stat,        // Stat StatUp
-      Skill,       // Skill SkillUp
-      Key,         //
-      QuickSlot,   // QuickSlot QuickSlotD
-      ChatLogMin,  // ChatLogMin ChatLogMax
+      cash_shop,     //
+      menu,          //
+      shortcut,      //
+      mailbox,       //
+      equip,         //
+      inven,         //
+      stat,          //
+      skill,         //
+      key,           //
+      quick_slot,    //
+      chat_log_min,  //
   };
   const static std::array buttons_rect = {
       SDL_FRect{578, 38, 73, 34},  // CashShop
@@ -446,29 +440,14 @@ void StatusbarUiSystem::RenderChat() {
   auto base_x = (screen_w - 808) / 2;
   auto base_y = (screen_h - 73);
   if (chat_type_.has_value()) {
-    static auto TargetSelect =
+    static auto target_select =
         WzResource::ui_->find(u"StatusBar.img/chat/button:ChatTargetSelect");
-    SDL_FRect pos_rect{6, 11, 80, 18};
-    pos_rect.x += base_x;
-    pos_rect.y += base_y;
-    auto& mouse_pos = Window::mouse_pos_;
-    // 判断按钮是否被遮挡
-    auto cursor_in = CursorGameInstance::cursor_ui_;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == Render &&
-        !CursorGameInstance::modal_overlay_) {
-      if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
-        auto pressed =
-            WzResource::LoadTexture(TargetSelect->find(u"pressed/0"));
-        SDL_RenderTexture(Window::renderer_, pressed, nullptr, &pos_rect);
-      } else {
-        auto mouse_over =
-            WzResource::LoadTexture(TargetSelect->find(u"mouseOver/0"));
-        SDL_RenderTexture(Window::renderer_, mouse_over, nullptr, &pos_rect);
-      }
-    } else {
-      auto normal = WzResource::LoadTexture(TargetSelect->find(u"normal/0"));
-      SDL_RenderTexture(Window::renderer_, normal, nullptr, &pos_rect);
-    }
+    SDL_FRect pos_rect{6 + base_x, 11 + base_y, 80, 18};
+    Button{.node = target_select,
+           .rect = pos_rect,
+           .focused = CursorGameInstance::cursor_ui_ == Render &&
+                      !CursorGameInstance::modal_overlay_}
+        .Render();
     Freetype::LoadSize(12);
     Freetype::LoadAligned(true);
     Freetype::LoadColor(255, 255, 255, 255);
@@ -479,15 +458,15 @@ void StatusbarUiSystem::RenderChat() {
 
     TextInputUiSystem::Render(chat_, 5, 5);
   } else {
-    static auto chatBackgrnd = WzResource::LoadTexture(
+    static auto chat_background = WzResource::LoadTexture(
         WzResource::ui_->find(u"StatusBar.img/chat/canvas:chatbackgrnd2"));
     SDL_FRect pos_rect = {
         base_x + 7,
         base_y + 8,
-        static_cast<float>(chatBackgrnd->w),
-        static_cast<float>(chatBackgrnd->h),
+        static_cast<float>(chat_background->w),
+        static_cast<float>(chat_background->h),
     };
-    SDL_RenderTexture(Window::renderer_, chatBackgrnd, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer_, chat_background, nullptr, &pos_rect);
   }
 }
 

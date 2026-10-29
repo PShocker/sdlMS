@@ -254,8 +254,8 @@ SDL_FPoint MinimapUiSystem::LoadCanvasPoint(SDL_FPoint point, int8_t ox,
   struct MapMinimapInfo {
     int32_t width;
     int32_t height;
-    int32_t centerX;
-    int32_t centerY;
+    int32_t center_x;
+    int32_t center_y;
     int8_t mag;
     int8_t scale;
   };
@@ -271,10 +271,10 @@ SDL_FPoint MinimapUiSystem::LoadCanvasPoint(SDL_FPoint point, int8_t ox,
     m_info.height =
         static_cast<wz::Property<int>*>(minimap_node->get_child(u"height"))
             ->get();
-    m_info.centerX =
+    m_info.center_x =
         static_cast<wz::Property<int>*>(minimap_node->get_child(u"centerX"))
             ->get();
-    m_info.centerY =
+    m_info.center_y =
         static_cast<wz::Property<int>*>(minimap_node->get_child(u"centerY"))
             ->get();
     m_info.mag =
@@ -284,7 +284,7 @@ SDL_FPoint MinimapUiSystem::LoadCanvasPoint(SDL_FPoint point, int8_t ox,
   }
   auto m_info = map_minimap_cache.at(map_id);
 
-  SDL_FPoint position = {m_info.centerX + point.x, m_info.centerY + point.y};
+  SDL_FPoint position = {m_info.center_x + point.x, m_info.center_y + point.y};
 
   position.x = (position.x / m_info.scale) + ox;
   position.y = (position.y / m_info.scale) + oy;
