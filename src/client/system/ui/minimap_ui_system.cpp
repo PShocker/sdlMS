@@ -206,10 +206,6 @@ void MinimapUiSystem::RenderMaxBackgrnd() {
 }
 
 std::vector<Button>& MinimapUiSystem::GetComponent() {
-  return components_;
-}
-
-void MinimapUiSystem::RenderButton() {
   components_.clear();
   const static std::array buttons_nodes = {
       WzResource::ui_->find(u"MiniMap.img/BtMap"),
@@ -217,40 +213,49 @@ void MinimapUiSystem::RenderButton() {
       WzResource::ui_->find(u"MiniMap.img/BtMax"),
   };
   std::array buttons_rect = {
-      SDL_FRect{backgrnd_max_wh.x - 42, 6, 36, 12},  //
-      SDL_FRect{backgrnd_max_wh.x - 72, 6, 12, 12},  //
-      SDL_FRect{backgrnd_max_wh.x - 58, 6, 12, 12},  //
+      SDL_FRect{backgrnd_max_wh.x - 72, 6, 12, 12},
+      SDL_FRect{backgrnd_max_wh.x - 58, 6, 12, 12},
   };
-  std::vector<wz::Node*> buttons_node;
-  std::vector<bool> r = {true, true, true};
   if (disable_) {
-    buttons_node = {
-        buttons_nodes[1],
-        buttons_nodes[2],
-    };
     auto wh = LoadWh();
     buttons_rect = {
-        SDL_FRect{wh.x - 34, 4, 12, 12},  //
-        SDL_FRect{wh.x - 20, 4, 12, 12},  //
+        SDL_FRect{wh.x - 34, 4, 12, 12},
+        SDL_FRect{wh.x - 20, 4, 12, 12},
     };
-    if (LoadCanvasTexture() == nullptr) {
-      r = {false, false};
-    }
+    const bool enable = LoadCanvasTexture() != nullptr;
+    components_.push_back(
+        Button{.node = buttons_nodes[1],
+               .rect = SDL_FRect{buttons_rect[0].x + pos_.x,
+                                 buttons_rect[0].y + pos_.y, 12, 12},
+               .callback = EventMin,
+               .enable = enable});
+    components_.push_back(
+        Button{.node = buttons_nodes[2],
+               .rect = SDL_FRect{buttons_rect[1].x + pos_.x,
+                                 buttons_rect[1].y + pos_.y, 12, 12},
+               .callback = EventMax,
+               .enable = enable});
   } else {
-    buttons_node = {
-        buttons_nodes[0],
-        buttons_nodes[1],
-        buttons_nodes[2],
-    };
+    components_.push_back(Button{
+        .node = buttons_nodes[0],
+        .rect = SDL_FRect{backgrnd_max_wh.x - 42 + pos_.x, 6 + pos_.y, 36, 12},
+        .callback = EventWorldMap});
+    components_.push_back(
+        Button{.node = buttons_nodes[1],
+               .rect = SDL_FRect{buttons_rect[0].x + pos_.x,
+                                 buttons_rect[0].y + pos_.y, 12, 12},
+               .callback = EventMin});
+    components_.push_back(
+        Button{.node = buttons_nodes[2],
+               .rect = SDL_FRect{buttons_rect[1].x + pos_.x,
+                                 buttons_rect[1].y + pos_.y, 12, 12},
+               .callback = EventMax});
   }
+  return components_;
+}
 
-  for (size_t i = 0; i < buttons_node.size(); ++i) {
-    SDL_FRect rect = buttons_rect[i];
-    rect.x += pos_.x;
-    rect.y += pos_.y;
-    Button button{
-        .node = buttons_node[i], .rect = rect, .enable = r[i], .focused = true};
-    components_.push_back(button);
+void MinimapUiSystem::RenderButton() {
+  for (Button& button : GetComponent()) {
     button.Render();
   }
 };
@@ -632,38 +637,7 @@ void MinimapUiSystem::EventMax() {
 }
 
 bool MinimapUiSystem::EventButton(SDL_Event* event) {
-  std::vector<SDL_FRect> r;
-  std::vector<void (*)()> fns;
-  if (disable_) {
-    auto wh = LoadWh();
-    r = {
-        SDL_FRect{wh.x - 34, 4, 12, 12},  //
-        SDL_FRect{wh.x - 20, 4, 12, 12},  //
-    };
-    fns = {
-        EventMin,
-        EventMax,
-    };
-  } else {
-    r = {
-        SDL_FRect{backgrnd_max_wh.x - 42, 6, 36, 12},  //
-        SDL_FRect{backgrnd_max_wh.x - 72, 6, 12, 12},  //
-        SDL_FRect{backgrnd_max_wh.x - 58, 6, 12, 12},  //
-    };
-    fns = {
-        EventWorldMap,
-        EventMin,
-        EventMax,
-    };
-  }
-
-  for (size_t i = 0; i < components_.size() && i < fns.size(); ++i) {
-    components_[i].callback = fns[i];
-  }
-  if (DispatchButtonClick(components_, true)) {
-    return true;
-  }
-  return false;
+  return DispatchButtonClick(GetComponent(), true);
 }
 
 void MinimapUiSystem::EventTop() {
