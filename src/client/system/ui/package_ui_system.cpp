@@ -1,6 +1,6 @@
 #include "src/client/system/ui/package_ui_system.h"
 
-#include "src/client/component/button.h"
+#include "src/client/system/ui/component/button.h"
 #include "src/client/game/game_item.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/ball_game_instance.h"

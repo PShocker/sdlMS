@@ -1,6 +1,6 @@
 #include "src/client/system/ui/option_ui_system.h"
 
-#include "src/client/component/button.h"
+#include "src/client/system/ui/component/button.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"

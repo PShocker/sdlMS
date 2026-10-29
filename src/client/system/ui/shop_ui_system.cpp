@@ -1,6 +1,6 @@
 #include "src/client/system/ui/shop_ui_system.h"
 
-#include "src/client/component/button.h"
+#include "src/client/system/ui/component/button.h"
 #include "src/client/game/game_item.h"
 #include "src/client/game/game_npc.h"
 #include "src/client/game/game_shop.h"
