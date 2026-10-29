@@ -130,6 +130,43 @@ UIComponents& CharacterCreateUiSystem::GetComponent() {
       .callback = EventButtonBack,
       .enable = true,
       .focused = focused});
+
+  // 外观调整的左右箭头，只出现在当前选中的行上
+  static auto prev_node =
+      WzResource::ui_->find(u"Login.img/NewChar/customize/button:gender_prev");
+  static auto next_node =
+      WzResource::ui_->find(u"Login.img/NewChar/customize/button:gender_next");
+  std::array<Button::Callback, 9> prev_callback = {
+      EventButtonGenderToggle,   EventButtonFacePrev,
+      EventButtonHairPrev,       EventButtonHairColorPrev,
+      EventButtonSkinColorPrev,  EventButtonTopPrev,
+      EventButtonBottomPrev,     EventButtonShoesPrev,
+      EventButtonWeaponPrev,
+  };
+  std::array<Button::Callback, 9> next_callback = {
+      EventButtonGenderToggle,   EventButtonFaceNext,
+      EventButtonHairNext,       EventButtonHairColorNext,
+      EventButtonSkinColorNext,  EventButtonTopNext,
+      EventButtonBottomNext,     EventButtonShoesNext,
+      EventButtonWeaponNext,
+  };
+  auto cx = -440 - camera.x;
+  auto cy = -1370 - camera.y;
+  auto arrow_y = cy + 30 + choose_index_ * 18;
+  components_.push_back(
+      Button{.node = prev_node,
+             .rect = SDL_FRect{static_cast<float>(cx + 35 + 95),
+                               static_cast<float>(arrow_y), 16, 17},
+             .callback = prev_callback[choose_index_],
+             .enable = true,
+             .focused = focused});
+  components_.push_back(
+      Button{.node = next_node,
+             .rect = SDL_FRect{static_cast<float>(cx + 35 + 235),
+                               static_cast<float>(arrow_y), 16, 17},
+             .callback = next_callback[choose_index_],
+             .enable = true,
+             .focused = focused});
   return components_;
 }
 
@@ -233,7 +270,6 @@ void CharacterCreateUiSystem::RenderCustomItem(float cx, float cy,
   std::u16string item_name;
   SDL_FPoint pos;
   SDL_Texture* t;
-  bool choose = false;
   switch (type) {
     case ChooseType::kGender: {
       if (!gender_) {
@@ -246,7 +282,6 @@ void CharacterCreateUiSystem::RenderCustomItem(float cx, float cy,
         item_name = static_cast<wz::Property<std::u16string>*>(str_node)->get();
       }
       if (choose_index_ == 0) {
-        choose = true;
         t = WzResource::LoadTexture(WzResource::ui_->find(
             "Login.img/NewChar/customize/canvas:gender_selected"));
       } else {
@@ -259,7 +294,6 @@ void CharacterCreateUiSystem::RenderCustomItem(float cx, float cy,
     case ChooseType::kFace: {
       item_name = EquipGameInstance::LoadEquipName(g_character_.face.id);
       if (choose_index_ == 1) {
-        choose = true;
         t = WzResource::LoadTexture(WzResource::ui_->find(
             "Login.img/NewChar/customize/canvas:face_selected"));
       } else {
@@ -272,7 +306,6 @@ void CharacterCreateUiSystem::RenderCustomItem(float cx, float cy,
     case ChooseType::kHairstyle: {
       item_name = EquipGameInstance::LoadEquipName(g_character_.hair);
       if (choose_index_ == 2) {
-        choose = true;
         t = WzResource::LoadTexture(WzResource::ui_->find(
             "Login.img/NewChar/customize/canvas:hairstyle_selected"));
       } else {
@@ -289,7 +322,6 @@ void CharacterCreateUiSystem::RenderCustomItem(float cx, float cy,
       auto node = haircolor_node->get_child(std::u16string{back});
       item_name = static_cast<wz::Property<std::u16string>*>(node)->get();
       if (choose_index_ == 3) {
-        choose = true;
         t = WzResource::LoadTexture(WzResource::ui_->find(
             "Login.img/NewChar/customize/canvas:haircolor_selected"));
       } else {
@@ -302,7 +334,6 @@ void CharacterCreateUiSystem::RenderCustomItem(float cx, float cy,
     case ChooseType::kSkin: {
       item_name = EquipGameInstance::LoadEquipName(g_character_.head);
       if (choose_index_ == 4) {
-        choose = true;
         t = WzResource::LoadTexture(WzResource::ui_->find(
             "Login.img/NewChar/customize/canvas:skincolor_selected"));
       } else {
@@ -315,7 +346,6 @@ void CharacterCreateUiSystem::RenderCustomItem(float cx, float cy,
     case ChooseType::kTop: {
       item_name = EquipGameInstance::LoadEquipName(g_character_.coat->id);
       if (choose_index_ == 5) {
-        choose = true;
         t = WzResource::LoadTexture(WzResource::ui_->find(
             "Login.img/NewChar/customize/canvas:top_selected"));
       } else {
@@ -328,7 +358,6 @@ void CharacterCreateUiSystem::RenderCustomItem(float cx, float cy,
     case ChooseType::kBottom: {
       item_name = EquipGameInstance::LoadEquipName(g_character_.pant->id);
       if (choose_index_ == 6) {
-        choose = true;
         t = WzResource::LoadTexture(WzResource::ui_->find(
             "Login.img/NewChar/customize/canvas:bottom_selected"));
       } else {
@@ -341,7 +370,6 @@ void CharacterCreateUiSystem::RenderCustomItem(float cx, float cy,
     case ChooseType::kShoes: {
       item_name = EquipGameInstance::LoadEquipName(g_character_.shoes->id);
       if (choose_index_ == 7) {
-        choose = true;
         t = WzResource::LoadTexture(WzResource::ui_->find(
             "Login.img/NewChar/customize/canvas:shoes_selected"));
       } else {
@@ -354,7 +382,6 @@ void CharacterCreateUiSystem::RenderCustomItem(float cx, float cy,
     case ChooseType::kWeapon: {
       item_name = EquipGameInstance::LoadEquipName(g_character_.weapon->id);
       if (choose_index_ == 8) {
-        choose = true;
         t = WzResource::LoadTexture(WzResource::ui_->find(
             "Login.img/NewChar/customize/canvas:weapon_selected"));
       } else {
@@ -380,39 +407,6 @@ void CharacterCreateUiSystem::RenderCustomItem(float cx, float cy,
   Freetype::DrawLine(item_name, pos_rect.x + 175 - dx / 2, pos_rect.y);
   Freetype::LoadAligned(false);
 
-  static auto prev_button =
-      WzResource::ui_->find("Login.img/NewChar/customize/button:gender_prev");
-
-  static auto next_button =
-      WzResource::ui_->find("Login.img/NewChar/customize/button:gender_next");
-  if (choose) {
-    std::vector<wz::Node*> buttons_nodes = {prev_button, next_button};
-    std::vector<SDL_FRect> buttons_rect = {
-        SDL_FRect{cx + pos.x + 95, cy + pos.y, 16, 17},   //
-        SDL_FRect{cx + pos.x + 235, cy + pos.y, 16, 17},  //
-    };
-
-    for (size_t i = 0; i < buttons_nodes.size(); ++i) {
-      auto k = buttons_nodes[i];
-      auto pos_rect = buttons_rect[i];
-      pos_rect.x = (int)pos_rect.x;
-      pos_rect.y = (int)pos_rect.y;
-      auto& mouse_pos = Window::mouse_pos_;
-      if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) &&
-          !CursorGameInstance::modal_overlay_) {
-        if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
-          auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
-          SDL_RenderTexture(Window::renderer_, pressed, nullptr, &pos_rect);
-        } else {
-          auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
-          SDL_RenderTexture(Window::renderer_, mouse_over, nullptr, &pos_rect);
-        }
-      } else {
-        auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
-        SDL_RenderTexture(Window::renderer_, normal, nullptr, &pos_rect);
-      }
-    }
-  }
 }
 
 void CharacterCreateUiSystem::RenderCustom() {
@@ -446,10 +440,10 @@ void CharacterCreateUiSystem::RenderName() {
 }
 
 bool CharacterCreateUiSystem::Render() {
+  RenderCustom();
   RenderStat();
   RenderUI();
   RenderCharacter();
-  RenderCustom();
   RenderBackgrnd();
   RenderBanner();
   RenderName();
@@ -832,6 +826,11 @@ void CharacterCreateUiSystem::EventButtonLukDec() {
   }
 }
 
+void CharacterCreateUiSystem::EventButtonGenderToggle() {
+  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+  ResetCharacter(!gender_);
+}
+
 bool CharacterCreateUiSystem::EventButtonCustom(SDL_Event* event) {
   auto& camera = CameraGameInstance::camera_;
   auto cx = -440 - camera.x;
@@ -841,96 +840,9 @@ bool CharacterCreateUiSystem::EventButtonCustom(SDL_Event* event) {
   for (uint8_t i = 0; i <= 8; i++) {
     SDL_FRect pos_rect{cx, cy + 18 * i, 256, 17};
     auto& mouse_pos = Window::mouse_pos_;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-      if (choose_index_ != i) {
-        choose_index_ = i;
-        return true;
-      } else {
-        std::vector<SDL_FRect> buttons_rect = {
-            SDL_FRect{cx + 95, cy + 18 * i, 16, 17},   //
-            SDL_FRect{cx + 235, cy + 18 * i, 16, 17},  //
-        };
-        std::optional<bool> left;
-        if (SDL_PointInRectFloat(&mouse_pos, &buttons_rect[0])) {
-          left = true;
-        } else if (SDL_PointInRectFloat(&mouse_pos, &buttons_rect[1])) {
-          left = false;
-        }
-        if (left.has_value()) {
-          switch (choose_index_) {
-            case 0: {
-              AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
-              ResetCharacter(!gender_);
-              break;
-            }
-            case 1: {
-              // face
-              if (left.value()) {
-                EventButtonFacePrev();
-              } else {
-                EventButtonFaceNext();
-              }
-              break;
-            }
-            case 2: {
-              if (left.value()) {
-                EventButtonHairPrev();
-              } else {
-                EventButtonHairNext();
-              }
-              break;
-            }
-            case 3: {
-              if (left.value()) {
-                EventButtonHairColorPrev();
-              } else {
-                EventButtonHairColorNext();
-              }
-              break;
-            }
-            case 4: {
-              if (left.value()) {
-                EventButtonSkinColorPrev();
-              } else {
-                EventButtonSkinColorNext();
-              }
-              break;
-            }
-            case 5: {
-              if (left.value()) {
-                EventButtonTopPrev();
-              } else {
-                EventButtonTopNext();
-              }
-              break;
-            }
-            case 6: {
-              if (left.value()) {
-                EventButtonBottomPrev();
-              } else {
-                EventButtonBottomNext();
-              }
-              break;
-            }
-            case 7: {
-              if (left.value()) {
-                EventButtonShoesPrev();
-              } else {
-                EventButtonShoesNext();
-              }
-              break;
-            }
-            case 8: {
-              if (left.value()) {
-                EventButtonWeaponPrev();
-              } else {
-                EventButtonWeaponNext();
-              }
-              break;
-            }
-          }
-        }
-      }
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && choose_index_ != i) {
+      choose_index_ = i;
+      return true;
     }
   }
   return false;

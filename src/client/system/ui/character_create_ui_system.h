@@ -87,6 +87,7 @@ class CharacterCreateUiSystem {
   static void EventButtonOk();
   static void EventButtonCancel();
   static void EventButtonBack();
+  static void EventButtonGenderToggle();
 
   static bool EventUI(SDL_Event* event);
   static bool EventButtonCustom(SDL_Event* event);
