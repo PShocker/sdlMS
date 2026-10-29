@@ -2,8 +2,6 @@
 
 namespace sdlms {
 
-void PlayerShopUiSystem::RenderBackgrnd() {}
-
 bool PlayerShopUiSystem::Render() {
   return true;
 }
