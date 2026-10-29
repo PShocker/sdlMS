@@ -37,31 +37,99 @@
 namespace sdlms {
 
 void CharacterCreateUiSystem::RenderUI() {
-  components_.clear();
-  const static std::array buttons_nodes = {
-      WzResource::ui_->find(u"Login.img/NewChar/button:ok"),
-      WzResource::ui_->find(u"Login.img/NewChar/button:cancel"),
-  };
-  auto pos = LoadPos();
-  auto& camera = CameraGameInstance::camera_;
-  std::array buttons_rect = {
-      SDL_FRect{66 - camera.x, -1154 - camera.y, 104, 52},
-      SDL_FRect{160 - camera.x, -1156 - camera.y, 104, 52},
-  };
-  for (size_t i = 0; i < buttons_nodes.size(); ++i) {
-    SDL_FRect rect = buttons_rect[i];
-    rect.x = (int)rect.x;
-    rect.y = (int)rect.y;
-    Button button{.node = buttons_nodes[i],
-                  .rect = rect,
-                  .enable = true,
-                  .focused = !CursorGameInstance::modal_overlay_};
-    components_.push_back(button);
-    button.Render();
-  }
+  RenderComponents(GetComponent());
 }
 
 UIComponents& CharacterCreateUiSystem::GetComponent() {
+  components_.clear();
+  auto pos = LoadPos();
+  auto& camera = CameraGameInstance::camera_;
+  const bool focused = !CursorGameInstance::modal_overlay_;
+
+  // 属性加减按钮
+  const static std::array stat_nodes = {
+      WzResource::ui_->find(u"Login.img/NewChar/stat/button:str_prev"),
+      WzResource::ui_->find(u"Login.img/NewChar/stat/button:str_next"),
+      WzResource::ui_->find(u"Login.img/NewChar/stat/button:dex_prev"),
+      WzResource::ui_->find(u"Login.img/NewChar/stat/button:dex_next"),
+      WzResource::ui_->find(u"Login.img/NewChar/stat/button:int_prev"),
+      WzResource::ui_->find(u"Login.img/NewChar/stat/button:int_next"),
+      WzResource::ui_->find(u"Login.img/NewChar/stat/button:luk_prev"),
+      WzResource::ui_->find(u"Login.img/NewChar/stat/button:luk_next"),
+  };
+  SDL_FPoint stat_point{
+      70 - camera.x,
+      -1322 - camera.y,
+  };
+  std::array stat_rect = {
+      SDL_FRect{stat_point.x + 48, stat_point.y + 4, 16, 17},
+      SDL_FRect{stat_point.x + 96, stat_point.y + 4, 16, 17},
+      SDL_FRect{stat_point.x + 48, stat_point.y + 27, 16, 17},
+      SDL_FRect{stat_point.x + 96, stat_point.y + 27, 16, 17},
+      SDL_FRect{stat_point.x + 48, stat_point.y + 50, 16, 17},
+      SDL_FRect{stat_point.x + 96, stat_point.y + 50, 16, 17},
+      SDL_FRect{stat_point.x + 48, stat_point.y + 73, 16, 17},
+      SDL_FRect{stat_point.x + 96, stat_point.y + 73, 16, 17},
+  };
+  std::vector<Button::Callback> stat_callback = {
+      EventButtonStrDec, EventButtonStrInc, EventButtonDexDec,
+      EventButtonDexInc, EventButtonIntDec, EventButtonIntInc,
+      EventButtonLukDec, EventButtonLukInc,
+  };
+  std::vector<bool> disable = {
+      str_point_ <= 4,
+      str_point_ > 12 || remain_point_ == 0,
+      dex_point_ <= 4,
+      dex_point_ > 12 || remain_point_ == 0,
+      int_point_ <= 4,
+      int_point_ > 12 || remain_point_ == 0,
+      luk_point_ <= 4,
+      luk_point_ > 12 || remain_point_ == 0,
+  };
+  for (size_t i = 0; i < stat_nodes.size(); ++i) {
+    SDL_FRect rect = stat_rect[i];
+    rect.x = (int)rect.x;
+    rect.y = (int)rect.y;
+    components_.push_back(
+        Button{.node = stat_nodes[i],
+               .rect = rect,
+               .callback = stat_callback[i],
+               .enable = !disable[i],
+               .focused = focused});
+  }
+
+  // 确定/取消
+  const static std::array ui_nodes = {
+      WzResource::ui_->find(u"Login.img/NewChar/button:ok"),
+      WzResource::ui_->find(u"Login.img/NewChar/button:cancel"),
+  };
+  std::array ui_rect = {
+      SDL_FRect{66 - camera.x, -1154 - camera.y, 104, 52},
+      SDL_FRect{160 - camera.x, -1156 - camera.y, 104, 52},
+  };
+  std::vector<Button::Callback> ui_callback = {
+      EventButtonOk,
+      EventButtonCancel,
+  };
+  for (size_t i = 0; i < ui_nodes.size(); ++i) {
+    SDL_FRect rect = ui_rect[i];
+    rect.x = (int)rect.x;
+    rect.y = (int)rect.y;
+    components_.push_back(
+        Button{.node = ui_nodes[i],
+               .rect = rect,
+               .callback = ui_callback[i],
+               .enable = true,
+               .focused = focused});
+  }
+
+  // 返回按钮画在背景图上，没有独立的 WZ 节点，仅提供点击区域
+  components_.push_back(Button{
+      .node = nullptr,
+      .rect = SDL_FRect{163 + pos.x, 574 + pos.y, 161, 69},
+      .callback = EventButtonBack,
+      .enable = true,
+      .focused = focused});
   return components_;
 }
 
@@ -101,16 +169,6 @@ void CharacterCreateUiSystem::RenderStat() {
   };
   SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
 
-  const static std::array buttons_nodes = {
-      WzResource::ui_->find(u"Login.img/NewChar/stat/button:str_prev"),
-      WzResource::ui_->find(u"Login.img/NewChar/stat/button:str_next"),
-      WzResource::ui_->find(u"Login.img/NewChar/stat/button:dex_prev"),
-      WzResource::ui_->find(u"Login.img/NewChar/stat/button:dex_next"),
-      WzResource::ui_->find(u"Login.img/NewChar/stat/button:int_prev"),
-      WzResource::ui_->find(u"Login.img/NewChar/stat/button:int_next"),
-      WzResource::ui_->find(u"Login.img/NewChar/stat/button:luk_prev"),
-      WzResource::ui_->find(u"Login.img/NewChar/stat/button:luk_next"),
-  };
   std::array buttons_rect = {
       SDL_FRect{pos_rect.x + 48, pos_rect.y + 4, 16, 17},
       SDL_FRect{pos_rect.x + 96, pos_rect.y + 4, 16, 17},
@@ -121,36 +179,6 @@ void CharacterCreateUiSystem::RenderStat() {
       SDL_FRect{pos_rect.x + 48, pos_rect.y + 73, 16, 17},
       SDL_FRect{pos_rect.x + 96, pos_rect.y + 73, 16, 17},
   };
-  std::vector<bool> r = {
-      str_point_ <= 4, str_point_ > 12 || remain_point_ == 0,
-      dex_point_ <= 4, dex_point_ > 12 || remain_point_ == 0,
-      int_point_ <= 4, int_point_ > 12 || remain_point_ == 0,
-      luk_point_ <= 4, luk_point_ > 12 || remain_point_ == 0,
-  };
-
-  for (size_t i = 0; i < buttons_nodes.size(); ++i) {
-    auto k = buttons_nodes[i];
-    auto pos_rect = buttons_rect[i];
-    pos_rect.x = (int)pos_rect.x;
-    pos_rect.y = (int)pos_rect.y;
-    auto& mouse_pos = Window::mouse_pos_;
-    if (r[i]) {
-      auto d = WzResource::LoadTexture(k->find(u"disabled/0"));
-      SDL_RenderTexture(Window::renderer_, d, nullptr, &pos_rect);
-    } else if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) &&
-               !CursorGameInstance::modal_overlay_) {
-      if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
-        auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
-        SDL_RenderTexture(Window::renderer_, pressed, nullptr, &pos_rect);
-      } else {
-        auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
-        SDL_RenderTexture(Window::renderer_, mouse_over, nullptr, &pos_rect);
-      }
-    } else {
-      auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
-      SDL_RenderTexture(Window::renderer_, normal, nullptr, &pos_rect);
-    }
-  }
 
   Freetype::LoadSize(13);
   Freetype::LoadAligned(true);
@@ -206,32 +234,6 @@ void CharacterCreateUiSystem::RenderBanner() {
       static_cast<float>(t->h),
   };
   SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
-
-  const static std::array buttons_nodes = {
-      WzResource::ui_->find(u"Login.img/LoginStart/BtClassicPrev"),
-  };
-  std::array buttons_rect = {
-      SDL_FRect{163 + pos.x, 574 + pos.y, 161, 69},
-  };
-  for (size_t i = 0; i < buttons_nodes.size(); ++i) {
-    auto k = buttons_nodes[i];
-    auto pos_rect = buttons_rect[i];
-    pos_rect.x = (int)pos_rect.x;
-    pos_rect.y = (int)pos_rect.y;
-    auto& mouse_pos = Window::mouse_pos_;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-      if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
-        auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
-        SDL_RenderTexture(Window::renderer_, pressed, nullptr, &pos_rect);
-      } else {
-        auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
-        SDL_RenderTexture(Window::renderer_, mouse_over, nullptr, &pos_rect);
-      }
-    } else {
-      auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
-      SDL_RenderTexture(Window::renderer_, normal, nullptr, &pos_rect);
-    }
-  }
 }
 
 void CharacterCreateUiSystem::RenderCustomItem(float cx, float cy,
@@ -1013,45 +1015,7 @@ void CharacterCreateUiSystem::EventButtonCancel() {
 }
 
 bool CharacterCreateUiSystem::EventUI(SDL_Event* event) {
-  std::vector<SDL_FRect> r;
-  std::vector<void (*)()> fns;
-  auto& camera = CameraGameInstance::camera_;
-  auto pos = LoadPos();
-  SDL_FPoint stat_point{
-      70 - camera.x,
-      -1322 - camera.y,
-  };
-  r = {
-      SDL_FRect{stat_point.x + 48, stat_point.y + 4, 16, 17},
-      SDL_FRect{stat_point.x + 96, stat_point.y + 4, 16, 17},
-      SDL_FRect{stat_point.x + 48, stat_point.y + 27, 16, 17},
-      SDL_FRect{stat_point.x + 96, stat_point.y + 27, 16, 17},
-      SDL_FRect{stat_point.x + 48, stat_point.y + 50, 16, 17},
-      SDL_FRect{stat_point.x + 96, stat_point.y + 50, 16, 17},
-      SDL_FRect{stat_point.x + 48, stat_point.y + 73, 16, 17},
-      SDL_FRect{stat_point.x + 96, stat_point.y + 73, 16, 17},
-      SDL_FRect{163 + pos.x, 574 + pos.y, 161, 69},
-      SDL_FRect{66 - camera.x, -1154 - camera.y, 104, 52},
-      SDL_FRect{160 - camera.x, -1156 - camera.y, 104, 52},
-
-  };
-  fns = {
-      EventButtonStrDec, EventButtonStrInc, EventButtonDexDec,
-      EventButtonDexInc, EventButtonIntDec, EventButtonIntInc,
-      EventButtonLukDec, EventButtonLukInc, EventButtonBack,
-      EventButtonOk,     EventButtonCancel,
-  };
-  for (size_t i = 0; i < r.size(); ++i) {
-    auto pos_rect = r[i];
-    pos_rect.x = (int)pos_rect.x;
-    pos_rect.y = (int)pos_rect.y;
-    if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect)) {
-      fns[i]();
-      return false;
-    }
-  }
-
-  return false;
+  return !DispatchButtonClick(GetComponent(), false);
 }
 
 bool CharacterCreateUiSystem::Event(SDL_Event* event) {
