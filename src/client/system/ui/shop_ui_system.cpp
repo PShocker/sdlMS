@@ -198,6 +198,12 @@ void ShopUiSystem::RenderVscr() {
 }
 
 void ShopUiSystem::RenderButton() {
+  for (Button& button : GetComponent()) {
+    button.Render();
+  }
+}
+
+std::vector<Button>& ShopUiSystem::GetComponent() {
   components_.clear();
   const static std::array buttons_node = {
       WzResource::ui_->find(u"UIShop.img/Shop/BtBuy"),
@@ -213,17 +219,13 @@ void ShopUiSystem::RenderButton() {
     SDL_FRect rect = buttons_rect[i];
     rect.x += (int)pos_.x;
     rect.y += (int)pos_.y;
-    Button button{.node = buttons_node[i],
-                  .rect = rect,
-                  .enable = true,
-                  .focused = CursorGameInstance::cursor_ui_ == Render &&
-                             !CursorGameInstance::modal_overlay_};
-    components_.push_back(button);
-    button.Render();
+    components_.push_back(
+        Button{.node = buttons_node[i],
+               .rect = rect,
+               .enable = true,
+               .focused = CursorGameInstance::cursor_ui_ == Render &&
+                          !CursorGameInstance::modal_overlay_});
   }
-}
-
-std::vector<Button>& ShopUiSystem::GetComponent() {
   return components_;
 }
 
@@ -407,22 +409,7 @@ void ShopUiSystem::Open() {
 }
 
 bool ShopUiSystem::EventButton(SDL_Event* event) {
-  std::vector<void (*)()> fns;
-  auto wh = LoadWh();
-  std::vector<SDL_FRect> buttons_rect = {
-
-  };
-  fns = {
-
-  };
-
-  for (size_t i = 0; i < components_.size() && i < fns.size(); ++i) {
-    components_[i].callback = fns[i];
-  }
-  if (DispatchButtonClick(components_, false)) {
-    return true;
-  }
-  return false;
+  return DispatchButtonClick(GetComponent(), false);
 }
 
 void ShopUiSystem::Close() {

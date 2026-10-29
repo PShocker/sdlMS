@@ -76,10 +76,6 @@ void QuestAlarmUiSystem::RenderBackgrnd() {
 }
 
 std::vector<Button>& QuestAlarmUiSystem::GetComponent() {
-  return components_;
-}
-
-void QuestAlarmUiSystem::RenderButton() {
   components_.clear();
   // 构建按钮列表
   std::vector<wz::Node*> nodes = {
@@ -90,12 +86,18 @@ void QuestAlarmUiSystem::RenderButton() {
       {173, 4, 21, 12},  //
       {208, 4, 12, 12},  //
   };
+  std::vector<Button::Callback> callbacks = {
+      EventButtonAuto,
+      EventButtonClose,
+  };
   if (max_) {
     nodes.push_back(WzResource::ui_->find(u"Basic.img/BtMin"));
     rects.push_back({195, 4, 12, 12});
+    callbacks.push_back(EventButtonMin);
   } else {
     nodes.push_back(WzResource::ui_->find(u"Basic.img/BtMax"));
     rects.push_back({195, 4, 12, 12});
+    callbacks.push_back(EventButtonMax);
   }
   // 渲染所有按钮
 
@@ -103,12 +105,19 @@ void QuestAlarmUiSystem::RenderButton() {
     SDL_FRect rect = rects[i];
     rect.x += (int)pos_.x;
     rect.y += (int)pos_.y;
-    Button button{.node = nodes[i],
-                  .rect = rect,
-                  .enable = true,
-                  .focused = CursorGameInstance::cursor_ui_ == Render &&
-                             !CursorGameInstance::modal_overlay_};
-    components_.push_back(button);
+    components_.push_back(
+        Button{.node = nodes[i],
+               .rect = rect,
+               .callback = callbacks[i],
+               .enable = true,
+               .focused = CursorGameInstance::cursor_ui_ == Render &&
+                          !CursorGameInstance::modal_overlay_});
+  }
+  return components_;
+}
+
+void QuestAlarmUiSystem::RenderButton() {
+  for (Button& button : GetComponent()) {
     button.Render();
   }
 }
@@ -212,28 +221,7 @@ void QuestAlarmUiSystem::EventButtonClose() {
 }
 
 bool QuestAlarmUiSystem::EventButton(SDL_Event* event) {
-  std::vector<SDL_FRect> r = {
-      {173, 4, 21, 12},  //
-      {208, 4, 12, 12},  //
-  };
-  std::vector<void (*)()> fns = {
-      EventButtonAuto,
-      EventButtonClose,
-  };
-  if (max_) {
-    fns.push_back(EventButtonMin);
-    r.push_back({195, 4, 12, 12});
-  } else {
-    fns.push_back(EventButtonMax);
-    r.push_back({195, 4, 12, 12});
-  }
-  for (size_t i = 0; i < components_.size() && i < fns.size(); ++i) {
-    components_[i].callback = fns[i];
-  }
-  if (DispatchButtonClick(components_, true)) {
-    return true;
-  }
-  return false;
+  return DispatchButtonClick(GetComponent(), true);
 }
 
 void QuestAlarmUiSystem::Open() {

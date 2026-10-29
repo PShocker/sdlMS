@@ -86,6 +86,12 @@ void CharacterInfoUiSystem::RenderBackgrnd() {
 }
 
 void CharacterInfoUiSystem::RenderButton() {
+  for (Button& button : GetComponent()) {
+    button.Render();
+  }
+}
+
+std::vector<Button>& CharacterInfoUiSystem::GetComponent() {
   components_.clear();
   std::vector<wz::Node*> buttons_nodes = {
       WzResource::ui_->find(u"CharacterInfo.img/RemoteInfo/button:party"),
@@ -110,10 +116,16 @@ void CharacterInfoUiSystem::RenderButton() {
       SDL_FRect{245, 160, 67, 16},      //
       SDL_FRect{wh.x - 20, 7, 12, 12},  //
   };
+  std::vector<Button::Callback> callbacks = {
+      EventButtonParty,       EventButtonTrade,  EventButtonToggleitem,
+      EventButtonCitizenship, EventButtonUpFame, EventButtonDowmFame,
+      EventButtonShowPet,     EventClose,
+  };
   if (item_) {
     buttons_nodes.push_back(
         WzResource::ui_->find(u"CharacterInfo.img/ItemList/button:hide"));
     buttons_rect.push_back(SDL_FRect{227 + item_lt.x, 7 + item_lt.y, 12, 12});
+    callbacks.push_back(EventButtonToggleitemHide);
   }
 
   for (size_t i = 0; i < buttons_nodes.size(); ++i) {
@@ -122,17 +134,14 @@ void CharacterInfoUiSystem::RenderButton() {
     rect.y += pos_.y;
     rect.x = (int)rect.x;
     rect.y = (int)rect.y;
-    Button button{.node = buttons_nodes[i],
-                  .rect = rect,
-                  .enable = true,
-                  .focused = CursorGameInstance::cursor_ui_ == Render &&
-                             !CursorGameInstance::modal_overlay_};
-    components_.push_back(button);
-    button.Render();
+    components_.push_back(
+        Button{.node = buttons_nodes[i],
+               .rect = rect,
+               .callback = callbacks[i],
+               .enable = true,
+               .focused = CursorGameInstance::cursor_ui_ == Render &&
+                          !CursorGameInstance::modal_overlay_});
   }
-}
-
-std::vector<Button>& CharacterInfoUiSystem::GetComponent() {
   return components_;
 }
 
@@ -460,35 +469,7 @@ void CharacterInfoUiSystem::EventClose() {
 }
 
 bool CharacterInfoUiSystem::EventButton(SDL_Event* event) {
-  std::vector<void (*)()> fns;
-  auto wh = LoadWh();
-  std::vector<SDL_FRect> buttons_rect = {
-      SDL_FRect{130, 133, 89, 16},      //
-      SDL_FRect{223, 133, 89, 16},      //
-      SDL_FRect{214, 26, 80, 16},       //
-      SDL_FRect{130, 26, 80, 16},       //
-      SDL_FRect{285, 94, 12, 12},       //
-      SDL_FRect{298, 94, 12, 12},       //
-      SDL_FRect{245, 160, 67, 16},      //
-      SDL_FRect{wh.x - 20, 7, 12, 12},  //
-  };
-  fns = {
-      EventButtonParty,       EventButtonTrade,  EventButtonToggleitem,
-      EventButtonCitizenship, EventButtonUpFame, EventButtonDowmFame,
-      EventButtonShowPet,     EventClose,
-  };
-  if (item_) {
-    buttons_rect.push_back(SDL_FRect{227 + item_lt.x, 7 + item_lt.y, 12, 12});
-    fns.push_back(EventButtonToggleitemHide);
-  }
-
-  for (size_t i = 0; i < components_.size() && i < fns.size(); ++i) {
-    components_[i].callback = fns[i];
-  }
-  if (DispatchButtonClick(components_, true)) {
-    return true;
-  }
-  return false;
+  return DispatchButtonClick(GetComponent(), true);
 }
 
 void CharacterInfoUiSystem::EventVscrStart(SDL_Event* event) {

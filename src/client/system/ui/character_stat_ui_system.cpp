@@ -148,10 +148,6 @@ void CharacterStatUiSystem::RenderRemainAp() {
 }
 
 std::vector<Button>& CharacterStatUiSystem::GetComponent() {
-  return components_;
-}
-
-void CharacterStatUiSystem::RenderButton() {
   components_.clear();
   // 构建按钮列表
   std::vector<wz::Node*> nodes = {
@@ -199,11 +195,28 @@ void CharacterStatUiSystem::RenderButton() {
         true,  true, true, true, true, true, true,
     };
   }
+  std::vector<Button::Callback> callbacks = {
+      Close,
+      EventButtonDetailShow,
+      EventButtonHpInc,
+      EventButtonHpIncMax,
+      EventButtonMpInc,
+      EventButtonMpIncMax,
+      EventButtonStrInc,
+      EventButtonStrIncMax,
+      EventButtonDexInc,
+      EventButtonDexIncMax,
+      EventButtonIntInc,
+      EventButtonIntIncMax,
+      EventButtonLukInc,
+      EventButtonLukIncMax,
+  };
 
   if (detail_) {
     nodes.push_back(WzResource::ui_->find(u"Basic.img/BtHide"));
     rects.push_back({164 + detail_rect.x, 203 + detail_rect.y, 13, 12});
     disable.push_back(false);
+    callbacks.push_back(EventButtonDetailHide);
   }
   // 渲染所有按钮
 
@@ -211,12 +224,19 @@ void CharacterStatUiSystem::RenderButton() {
     SDL_FRect rect = rects[i];
     rect.x += (int)pos_.x;
     rect.y += (int)pos_.y;
-    Button button{.node = nodes[i],
-                  .rect = rect,
-                  .enable = !disable[i],
-                  .focused = CursorGameInstance::cursor_ui_ == Render &&
-                             !CursorGameInstance::modal_overlay_};
-    components_.push_back(button);
+    components_.push_back(
+        Button{.node = nodes[i],
+               .rect = rect,
+               .callback = callbacks[i],
+               .enable = !disable[i],
+               .focused = CursorGameInstance::cursor_ui_ == Render &&
+                          !CursorGameInstance::modal_overlay_});
+  }
+  return components_;
+}
+
+void CharacterStatUiSystem::RenderButton() {
+  for (Button& button : GetComponent()) {
     button.Render();
   }
 }
@@ -425,53 +445,7 @@ void CharacterStatUiSystem::EventButtonLukIncMax() {
 }
 
 bool CharacterStatUiSystem::EventButton(SDL_Event* event) {
-  std::vector<void (*)()> fns;
-  auto wh = LoadWh();
-  std::vector<SDL_FRect> buttons_rect = {
-      {166, 6, 12, 12},    // close
-      {122, 256, 47, 18},  // detail
-      {148, 99, 12, 12},   // hp
-      {161, 99, 12, 12},   // hpm
-      {148, 117, 12, 12},  // mp
-      {161, 117, 12, 12},  // mpm
-      {148, 177, 12, 12},  // str
-      {161, 177, 12, 12},  // strall
-      {148, 195, 12, 12},  // dex
-      {161, 195, 12, 12},  // dexall
-      {148, 213, 12, 12},  // dex
-      {161, 213, 12, 12},  // dexall
-      {148, 231, 12, 12},  // dex
-      {161, 231, 12, 12},  // dexall
-  };
-  fns = {
-      Close,
-      EventButtonDetailShow,
-      EventButtonHpInc,
-      EventButtonHpIncMax,
-      EventButtonMpInc,
-      EventButtonMpIncMax,
-      EventButtonStrInc,
-      EventButtonStrIncMax,
-      EventButtonDexInc,
-      EventButtonDexIncMax,
-      EventButtonIntInc,
-      EventButtonIntIncMax,
-      EventButtonLukInc,
-      EventButtonLukIncMax,
-  };
-
-  if (detail_) {
-    buttons_rect.push_back({164 + detail_rect.x, 203 + detail_rect.y, 13, 12});
-    fns.push_back(EventButtonDetailHide);
-  }
-
-  for (size_t i = 0; i < components_.size() && i < fns.size(); ++i) {
-    components_[i].callback = fns[i];
-  }
-  if (DispatchButtonClick(components_, false)) {
-    return true;
-  }
-  return false;
+  return DispatchButtonClick(GetComponent(), false);
 }
 
 bool CharacterStatUiSystem::Event(SDL_Event* event) {

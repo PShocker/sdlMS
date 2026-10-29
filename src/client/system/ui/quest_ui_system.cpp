@@ -121,6 +121,12 @@ void QuestUiSystem::RenderBackgrnd() {
 }
 
 void QuestUiSystem::RenderButton() {
+  for (Button& button : GetComponent()) {
+    button.Render();
+  }
+}
+
+std::vector<Button>& QuestUiSystem::GetComponent() {
   components_.clear();
   std::vector<wz::Node*> buttons_nodes = {
       WzResource::ui_->find(u"Basic.img/BtClose"),
@@ -130,9 +136,14 @@ void QuestUiSystem::RenderButton() {
       SDL_FRect{227, 6, 12, 12},    //
       SDL_FRect{183, 374, 57, 17},  //
   };
+  std::vector<Button::Callback> callbacks = {
+      EventButtonClose,
+      EventButtonDetail,
+  };
   if (detail_) {
     buttons_nodes.push_back(WzResource::ui_->find(u"Basic.img/BtHide"));
     buttons_rect.push_back(SDL_FRect{530, 6, 13, 12});
+    callbacks.push_back(EventButtonDetail);
   }
 
   for (size_t i = 0; i < buttons_nodes.size(); ++i) {
@@ -141,17 +152,14 @@ void QuestUiSystem::RenderButton() {
     rect.y += pos_.y;
     rect.x = (int)rect.x;
     rect.y = (int)rect.y;
-    Button button{.node = buttons_nodes[i],
-                  .rect = rect,
-                  .enable = true,
-                  .focused = CursorGameInstance::cursor_ui_ == Render &&
-                             !CursorGameInstance::modal_overlay_};
-    components_.push_back(button);
-    button.Render();
+    components_.push_back(
+        Button{.node = buttons_nodes[i],
+               .rect = rect,
+               .callback = callbacks[i],
+               .enable = true,
+               .focused = CursorGameInstance::cursor_ui_ == Render &&
+                          !CursorGameInstance::modal_overlay_});
   }
-}
-
-std::vector<Button>& QuestUiSystem::GetComponent() {
   return components_;
 }
 
@@ -879,27 +887,7 @@ void QuestUiSystem::EventButtonDetail() {
 }
 
 bool QuestUiSystem::EventButton(SDL_Event* event) {
-  std::vector<SDL_FRect> buttons_rect = {
-      SDL_FRect{227, 6, 12, 12},    //
-      SDL_FRect{183, 374, 57, 17},  //
-  };
-  std::vector<void (*)()> fns = {
-      EventButtonClose,
-      EventButtonDetail,
-  };
-
-  if (detail_) {
-    buttons_rect.push_back(SDL_FRect{530, 6, 13, 12});
-    fns.push_back(EventButtonDetail);
-  }
-
-  for (size_t i = 0; i < components_.size() && i < fns.size(); ++i) {
-    components_[i].callback = fns[i];
-  }
-  if (DispatchButtonClick(components_, true)) {
-    return true;
-  }
-  return false;
+  return DispatchButtonClick(GetComponent(), true);
 }
 
 void QuestUiSystem::EventMotionBtAudio(SDL_Event* event) {
