@@ -151,6 +151,10 @@ struct PlayerSave;
 struct PlayerSaveBuilder;
 struct PlayerSaveT;
 
+struct OptionSave;
+struct OptionSaveBuilder;
+struct OptionSaveT;
+
 struct GameSave;
 struct GameSaveBuilder;
 struct GameSaveT;
@@ -4173,6 +4177,7 @@ struct PlayerSaveT : public ::flatbuffers::NativeTable {
   typedef PlayerSave TableType;
   std::vector<std::unique_ptr<fbs::CharacterSaveT>> data{};
   std::vector<fbs::ItemUnionUnion> storage{};
+  std::vector<std::unique_ptr<fbs::OptionSaveT>> options{};
   PlayerSaveT() = default;
   PlayerSaveT(const PlayerSaveT &o);
   PlayerSaveT(PlayerSaveT&&) FLATBUFFERS_NOEXCEPT = default;
@@ -4185,7 +4190,8 @@ struct PlayerSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_DATA = 4,
     VT_STORAGE_TYPE = 6,
-    VT_STORAGE = 8
+    VT_STORAGE = 8,
+    VT_OPTIONS = 10
   };
   const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterSave>> *data() const {
     return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterSave>> *>(VT_DATA);
@@ -4205,6 +4211,12 @@ struct PlayerSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   ::flatbuffers::Vector<::flatbuffers::Offset<void>> *mutable_storage() {
     return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<void>> *>(VT_STORAGE);
   }
+  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::OptionSave>> *options() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::OptionSave>> *>(VT_OPTIONS);
+  }
+  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::OptionSave>> *mutable_options() {
+    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::OptionSave>> *>(VT_OPTIONS);
+  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -4216,6 +4228,9 @@ struct PlayerSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyOffset(verifier, VT_STORAGE) &&
            verifier.VerifyVector(storage()) &&
            VerifyItemUnionVector(verifier, storage(), storage_type()) &&
+           VerifyOffset(verifier, VT_OPTIONS) &&
+           verifier.VerifyVector(options()) &&
+           verifier.VerifyVectorOfTables(options()) &&
            verifier.EndTable();
   }
   PlayerSaveT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -4236,6 +4251,9 @@ struct PlayerSaveBuilder {
   void add_storage(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<void>>> storage) {
     fbb_.AddOffset(PlayerSave::VT_STORAGE, storage);
   }
+  void add_options(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::OptionSave>>> options) {
+    fbb_.AddOffset(PlayerSave::VT_OPTIONS, options);
+  }
   explicit PlayerSaveBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -4251,8 +4269,10 @@ inline ::flatbuffers::Offset<PlayerSave> CreatePlayerSave(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterSave>>> data = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> storage_type = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<void>>> storage = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<void>>> storage = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::OptionSave>>> options = 0) {
   PlayerSaveBuilder builder_(_fbb);
+  builder_.add_options(options);
   builder_.add_storage(storage);
   builder_.add_storage_type(storage_type);
   builder_.add_data(data);
@@ -4263,18 +4283,103 @@ inline ::flatbuffers::Offset<PlayerSave> CreatePlayerSaveDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     const std::vector<::flatbuffers::Offset<fbs::CharacterSave>> *data = nullptr,
     const std::vector<uint8_t> *storage_type = nullptr,
-    const std::vector<::flatbuffers::Offset<void>> *storage = nullptr) {
+    const std::vector<::flatbuffers::Offset<void>> *storage = nullptr,
+    const std::vector<::flatbuffers::Offset<fbs::OptionSave>> *options = nullptr) {
   auto data__ = data ? _fbb.CreateVector<::flatbuffers::Offset<fbs::CharacterSave>>(*data) : 0;
   auto storage_type__ = storage_type ? _fbb.CreateVector<uint8_t>(*storage_type) : 0;
   auto storage__ = storage ? _fbb.CreateVector<::flatbuffers::Offset<void>>(*storage) : 0;
+  auto options__ = options ? _fbb.CreateVector<::flatbuffers::Offset<fbs::OptionSave>>(*options) : 0;
   return fbs::CreatePlayerSave(
       _fbb,
       data__,
       storage_type__,
-      storage__);
+      storage__,
+      options__);
 }
 
 ::flatbuffers::Offset<PlayerSave> CreatePlayerSave(::flatbuffers::FlatBufferBuilder &_fbb, const PlayerSaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct OptionSaveT : public ::flatbuffers::NativeTable {
+  typedef OptionSave TableType;
+  std::string key{};
+  int32_t val = 0;
+};
+
+struct OptionSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef OptionSaveT NativeTableType;
+  typedef OptionSaveBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_KEY = 4,
+    VT_VAL = 6
+  };
+  const ::flatbuffers::String *key() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_KEY);
+  }
+  ::flatbuffers::String *mutable_key() {
+    return GetPointer<::flatbuffers::String *>(VT_KEY);
+  }
+  int32_t val() const {
+    return GetField<int32_t>(VT_VAL, 0);
+  }
+  bool mutate_val(int32_t _val = 0) {
+    return SetField<int32_t>(VT_VAL, _val, 0);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_KEY) &&
+           verifier.VerifyString(key()) &&
+           VerifyField<int32_t>(verifier, VT_VAL, 4) &&
+           verifier.EndTable();
+  }
+  OptionSaveT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(OptionSaveT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<OptionSave> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const OptionSaveT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct OptionSaveBuilder {
+  typedef OptionSave Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_key(::flatbuffers::Offset<::flatbuffers::String> key) {
+    fbb_.AddOffset(OptionSave::VT_KEY, key);
+  }
+  void add_val(int32_t val) {
+    fbb_.AddElement<int32_t>(OptionSave::VT_VAL, val, 0);
+  }
+  explicit OptionSaveBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<OptionSave> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<OptionSave>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<OptionSave> CreateOptionSave(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> key = 0,
+    int32_t val = 0) {
+  OptionSaveBuilder builder_(_fbb);
+  builder_.add_val(val);
+  builder_.add_key(key);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<OptionSave> CreateOptionSaveDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *key = nullptr,
+    int32_t val = 0) {
+  auto key__ = key ? _fbb.CreateString(key) : 0;
+  return fbs::CreateOptionSave(
+      _fbb,
+      key__,
+      val);
+}
+
+::flatbuffers::Offset<OptionSave> CreateOptionSave(::flatbuffers::FlatBufferBuilder &_fbb, const OptionSaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
 struct GameSaveT : public ::flatbuffers::NativeTable {
   typedef GameSave TableType;
@@ -5763,11 +5868,14 @@ inline PlayerSaveT::PlayerSaveT(const PlayerSaveT &o)
       : storage(o.storage) {
   data.reserve(o.data.size());
   for (const auto &data_ : o.data) { data.emplace_back((data_) ? new fbs::CharacterSaveT(*data_) : nullptr); }
+  options.reserve(o.options.size());
+  for (const auto &options_ : o.options) { options.emplace_back((options_) ? new fbs::OptionSaveT(*options_) : nullptr); }
 }
 
 inline PlayerSaveT &PlayerSaveT::operator=(PlayerSaveT o) FLATBUFFERS_NOEXCEPT {
   std::swap(data, o.data);
   std::swap(storage, o.storage);
+  std::swap(options, o.options);
   return *this;
 }
 
@@ -5783,6 +5891,7 @@ inline void PlayerSave::UnPackTo(PlayerSaveT *_o, const ::flatbuffers::resolver_
   { auto _e = data(); if (_e) { _o->data.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->data[_i]) { _e->Get(_i)->UnPackTo(_o->data[_i].get(), _resolver); } else { _o->data[_i] = std::unique_ptr<fbs::CharacterSaveT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->data.resize(0); } }
   { auto _e = storage_type(); if (_e) { _o->storage.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->storage[_i].type = static_cast<fbs::ItemUnion>(_e->Get(_i)); } } else { _o->storage.resize(0); } }
   { auto _e = storage(); if (_e) { _o->storage.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->storage[_i].value = fbs::ItemUnionUnion::UnPack(_e->Get(_i), storage_type()->GetEnum<ItemUnion>(_i), _resolver); } } else { _o->storage.resize(0); } }
+  { auto _e = options(); if (_e) { _o->options.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->options[_i]) { _e->Get(_i)->UnPackTo(_o->options[_i].get(), _resolver); } else { _o->options[_i] = std::unique_ptr<fbs::OptionSaveT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->options.resize(0); } }
 }
 
 inline ::flatbuffers::Offset<PlayerSave> CreatePlayerSave(::flatbuffers::FlatBufferBuilder &_fbb, const PlayerSaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -5796,11 +5905,42 @@ inline ::flatbuffers::Offset<PlayerSave> PlayerSave::Pack(::flatbuffers::FlatBuf
   auto _data = _o->data.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::CharacterSave>> (_o->data.size(), [](size_t i, _VectorArgs *__va) { return CreateCharacterSave(*__va->__fbb, __va->__o->data[i].get(), __va->__rehasher); }, &_va ) : 0;
   auto _storage_type = _o->storage.size() ? _fbb.CreateVector<uint8_t>(_o->storage.size(), [](size_t i, _VectorArgs *__va) { return static_cast<uint8_t>(__va->__o->storage[i].type); }, &_va) : 0;
   auto _storage = _o->storage.size() ? _fbb.CreateVector<::flatbuffers::Offset<void>>(_o->storage.size(), [](size_t i, _VectorArgs *__va) { return __va->__o->storage[i].Pack(*__va->__fbb, __va->__rehasher); }, &_va) : 0;
+  auto _options = _o->options.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::OptionSave>> (_o->options.size(), [](size_t i, _VectorArgs *__va) { return CreateOptionSave(*__va->__fbb, __va->__o->options[i].get(), __va->__rehasher); }, &_va ) : 0;
   return fbs::CreatePlayerSave(
       _fbb,
       _data,
       _storage_type,
-      _storage);
+      _storage,
+      _options);
+}
+
+inline OptionSaveT *OptionSave::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<OptionSaveT>(new OptionSaveT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void OptionSave::UnPackTo(OptionSaveT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = key(); if (_e) _o->key = _e->str(); }
+  { auto _e = val(); _o->val = _e; }
+}
+
+inline ::flatbuffers::Offset<OptionSave> CreateOptionSave(::flatbuffers::FlatBufferBuilder &_fbb, const OptionSaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return OptionSave::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<OptionSave> OptionSave::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const OptionSaveT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const OptionSaveT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _key = _o->key.empty() ? 0 : _fbb.CreateString(_o->key);
+  auto _val = _o->val;
+  return fbs::CreateOptionSave(
+      _fbb,
+      _key,
+      _val);
 }
 
 inline GameSaveT::GameSaveT(const GameSaveT &o)

@@ -57,6 +57,10 @@ struct ServerMobDrop;
 struct ServerMobDropBuilder;
 struct ServerMobDropT;
 
+struct ServerMobAttackPlayer;
+struct ServerMobAttackPlayerBuilder;
+struct ServerMobAttackPlayerT;
+
 struct ServerMobEvent;
 struct ServerMobEventBuilder;
 struct ServerMobEventT;
@@ -173,11 +177,12 @@ enum MobEventUnion : uint8_t {
   MobEventUnion_ServerMobState = 4,
   MobEventUnion_ServerMobDie = 5,
   MobEventUnion_ServerMobDrop = 6,
+  MobEventUnion_ServerMobAttackPlayer = 7,
   MobEventUnion_MIN = MobEventUnion_NONE,
-  MobEventUnion_MAX = MobEventUnion_ServerMobDrop
+  MobEventUnion_MAX = MobEventUnion_ServerMobAttackPlayer
 };
 
-inline const MobEventUnion (&EnumValuesMobEventUnion())[7] {
+inline const MobEventUnion (&EnumValuesMobEventUnion())[8] {
   static const MobEventUnion values[] = {
     MobEventUnion_NONE,
     MobEventUnion_ServerMobMv,
@@ -185,13 +190,14 @@ inline const MobEventUnion (&EnumValuesMobEventUnion())[7] {
     MobEventUnion_ServerMobAction,
     MobEventUnion_ServerMobState,
     MobEventUnion_ServerMobDie,
-    MobEventUnion_ServerMobDrop
+    MobEventUnion_ServerMobDrop,
+    MobEventUnion_ServerMobAttackPlayer
   };
   return values;
 }
 
 inline const char * const *EnumNamesMobEventUnion() {
-  static const char * const names[8] = {
+  static const char * const names[9] = {
     "NONE",
     "ServerMobMv",
     "ServerMobFlip",
@@ -199,13 +205,14 @@ inline const char * const *EnumNamesMobEventUnion() {
     "ServerMobState",
     "ServerMobDie",
     "ServerMobDrop",
+    "ServerMobAttackPlayer",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameMobEventUnion(MobEventUnion e) {
-  if (::flatbuffers::IsOutRange(e, MobEventUnion_NONE, MobEventUnion_ServerMobDrop)) return "";
+  if (::flatbuffers::IsOutRange(e, MobEventUnion_NONE, MobEventUnion_ServerMobAttackPlayer)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesMobEventUnion()[index];
 }
@@ -238,6 +245,10 @@ template<> struct MobEventUnionTraits<fbs::ServerMobDrop> {
   static const MobEventUnion enum_value = MobEventUnion_ServerMobDrop;
 };
 
+template<> struct MobEventUnionTraits<fbs::ServerMobAttackPlayer> {
+  static const MobEventUnion enum_value = MobEventUnion_ServerMobAttackPlayer;
+};
+
 template<typename T> struct MobEventUnionUnionTraits {
   static const MobEventUnion enum_value = MobEventUnion_NONE;
 };
@@ -264,6 +275,10 @@ template<> struct MobEventUnionUnionTraits<fbs::ServerMobDieT> {
 
 template<> struct MobEventUnionUnionTraits<fbs::ServerMobDropT> {
   static const MobEventUnion enum_value = MobEventUnion_ServerMobDrop;
+};
+
+template<> struct MobEventUnionUnionTraits<fbs::ServerMobAttackPlayerT> {
+  static const MobEventUnion enum_value = MobEventUnion_ServerMobAttackPlayer;
 };
 
 struct MobEventUnionUnion {
@@ -343,6 +358,14 @@ struct MobEventUnionUnion {
   const fbs::ServerMobDropT *AsServerMobDrop() const {
     return type == MobEventUnion_ServerMobDrop ?
       reinterpret_cast<const fbs::ServerMobDropT *>(value) : nullptr;
+  }
+  fbs::ServerMobAttackPlayerT *AsServerMobAttackPlayer() {
+    return type == MobEventUnion_ServerMobAttackPlayer ?
+      reinterpret_cast<fbs::ServerMobAttackPlayerT *>(value) : nullptr;
+  }
+  const fbs::ServerMobAttackPlayerT *AsServerMobAttackPlayer() const {
+    return type == MobEventUnion_ServerMobAttackPlayer ?
+      reinterpret_cast<const fbs::ServerMobAttackPlayerT *>(value) : nullptr;
   }
 };
 
@@ -1187,6 +1210,95 @@ inline ::flatbuffers::Offset<ServerMobDrop> CreateServerMobDropDirect(
 }
 
 ::flatbuffers::Offset<ServerMobDrop> CreateServerMobDrop(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobDropT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct ServerMobAttackPlayerT : public ::flatbuffers::NativeTable {
+  typedef ServerMobAttackPlayer TableType;
+  uint32_t mob_index = 0;
+  uint64_t client_id = 0;
+  std::unique_ptr<fbs::AttackT> payload{};
+  ServerMobAttackPlayerT() = default;
+  ServerMobAttackPlayerT(const ServerMobAttackPlayerT &o);
+  ServerMobAttackPlayerT(ServerMobAttackPlayerT&&) FLATBUFFERS_NOEXCEPT = default;
+  ServerMobAttackPlayerT &operator=(ServerMobAttackPlayerT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct ServerMobAttackPlayer FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerMobAttackPlayerT NativeTableType;
+  typedef ServerMobAttackPlayerBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_MOB_INDEX = 4,
+    VT_CLIENT_ID = 6,
+    VT_PAYLOAD = 8
+  };
+  uint32_t mob_index() const {
+    return GetField<uint32_t>(VT_MOB_INDEX, 0);
+  }
+  bool mutate_mob_index(uint32_t _mob_index = 0) {
+    return SetField<uint32_t>(VT_MOB_INDEX, _mob_index, 0);
+  }
+  uint64_t client_id() const {
+    return GetField<uint64_t>(VT_CLIENT_ID, 0);
+  }
+  bool mutate_client_id(uint64_t _client_id = 0) {
+    return SetField<uint64_t>(VT_CLIENT_ID, _client_id, 0);
+  }
+  const fbs::Attack *payload() const {
+    return GetPointer<const fbs::Attack *>(VT_PAYLOAD);
+  }
+  fbs::Attack *mutable_payload() {
+    return GetPointer<fbs::Attack *>(VT_PAYLOAD);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_MOB_INDEX, 4) &&
+           VerifyField<uint64_t>(verifier, VT_CLIENT_ID, 8) &&
+           VerifyOffset(verifier, VT_PAYLOAD) &&
+           verifier.VerifyTable(payload()) &&
+           verifier.EndTable();
+  }
+  ServerMobAttackPlayerT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerMobAttackPlayerT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerMobAttackPlayer> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobAttackPlayerT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ServerMobAttackPlayerBuilder {
+  typedef ServerMobAttackPlayer Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_mob_index(uint32_t mob_index) {
+    fbb_.AddElement<uint32_t>(ServerMobAttackPlayer::VT_MOB_INDEX, mob_index, 0);
+  }
+  void add_client_id(uint64_t client_id) {
+    fbb_.AddElement<uint64_t>(ServerMobAttackPlayer::VT_CLIENT_ID, client_id, 0);
+  }
+  void add_payload(::flatbuffers::Offset<fbs::Attack> payload) {
+    fbb_.AddOffset(ServerMobAttackPlayer::VT_PAYLOAD, payload);
+  }
+  explicit ServerMobAttackPlayerBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ServerMobAttackPlayer> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ServerMobAttackPlayer>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ServerMobAttackPlayer> CreateServerMobAttackPlayer(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t mob_index = 0,
+    uint64_t client_id = 0,
+    ::flatbuffers::Offset<fbs::Attack> payload = 0) {
+  ServerMobAttackPlayerBuilder builder_(_fbb);
+  builder_.add_client_id(client_id);
+  builder_.add_payload(payload);
+  builder_.add_mob_index(mob_index);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<ServerMobAttackPlayer> CreateServerMobAttackPlayer(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobAttackPlayerT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
 struct ServerMobEventT : public ::flatbuffers::NativeTable {
   typedef ServerMobEvent TableType;
@@ -3798,6 +3910,51 @@ inline ::flatbuffers::Offset<ServerMobDrop> ServerMobDrop::Pack(::flatbuffers::F
       _drop);
 }
 
+inline ServerMobAttackPlayerT::ServerMobAttackPlayerT(const ServerMobAttackPlayerT &o)
+      : mob_index(o.mob_index),
+        client_id(o.client_id),
+        payload((o.payload) ? new fbs::AttackT(*o.payload) : nullptr) {
+}
+
+inline ServerMobAttackPlayerT &ServerMobAttackPlayerT::operator=(ServerMobAttackPlayerT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(mob_index, o.mob_index);
+  std::swap(client_id, o.client_id);
+  std::swap(payload, o.payload);
+  return *this;
+}
+
+inline ServerMobAttackPlayerT *ServerMobAttackPlayer::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerMobAttackPlayerT>(new ServerMobAttackPlayerT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ServerMobAttackPlayer::UnPackTo(ServerMobAttackPlayerT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = mob_index(); _o->mob_index = _e; }
+  { auto _e = client_id(); _o->client_id = _e; }
+  { auto _e = payload(); if (_e) { if(_o->payload) { _e->UnPackTo(_o->payload.get(), _resolver); } else { _o->payload = std::unique_ptr<fbs::AttackT>(_e->UnPack(_resolver)); } } else if (_o->payload) { _o->payload.reset(); } }
+}
+
+inline ::flatbuffers::Offset<ServerMobAttackPlayer> CreateServerMobAttackPlayer(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobAttackPlayerT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerMobAttackPlayer::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ServerMobAttackPlayer> ServerMobAttackPlayer::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobAttackPlayerT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerMobAttackPlayerT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _mob_index = _o->mob_index;
+  auto _client_id = _o->client_id;
+  auto _payload = _o->payload ? CreateAttack(_fbb, _o->payload.get(), _rehasher) : 0;
+  return fbs::CreateServerMobAttackPlayer(
+      _fbb,
+      _mob_index,
+      _client_id,
+      _payload);
+}
+
 inline ServerMobEventT *ServerMobEvent::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ServerMobEventT>(new ServerMobEventT());
   UnPackTo(_o.get(), _resolver);
@@ -4884,6 +5041,10 @@ inline bool VerifyMobEventUnion(::flatbuffers::VerifierTemplate<B> &verifier, co
       auto ptr = reinterpret_cast<const fbs::ServerMobDrop *>(obj);
       return verifier.VerifyTable(ptr);
     }
+    case MobEventUnion_ServerMobAttackPlayer: {
+      auto ptr = reinterpret_cast<const fbs::ServerMobAttackPlayer *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
     default: return true;
   }
 }
@@ -4928,6 +5089,10 @@ inline void *MobEventUnionUnion::UnPack(const void *obj, MobEventUnion type, con
       auto ptr = reinterpret_cast<const fbs::ServerMobDrop *>(obj);
       return ptr->UnPack(resolver);
     }
+    case MobEventUnion_ServerMobAttackPlayer: {
+      auto ptr = reinterpret_cast<const fbs::ServerMobAttackPlayer *>(obj);
+      return ptr->UnPack(resolver);
+    }
     default: return nullptr;
   }
 }
@@ -4959,6 +5124,10 @@ inline ::flatbuffers::Offset<void> MobEventUnionUnion::Pack(::flatbuffers::FlatB
       auto ptr = reinterpret_cast<const fbs::ServerMobDropT *>(value);
       return CreateServerMobDrop(_fbb, ptr, _rehasher).Union();
     }
+    case MobEventUnion_ServerMobAttackPlayer: {
+      auto ptr = reinterpret_cast<const fbs::ServerMobAttackPlayerT *>(value);
+      return CreateServerMobAttackPlayer(_fbb, ptr, _rehasher).Union();
+    }
     default: return 0;
   }
 }
@@ -4987,6 +5156,10 @@ inline MobEventUnionUnion::MobEventUnionUnion(const MobEventUnionUnion &u) : typ
     }
     case MobEventUnion_ServerMobDrop: {
       value = new fbs::ServerMobDropT(*reinterpret_cast<fbs::ServerMobDropT *>(u.value));
+      break;
+    }
+    case MobEventUnion_ServerMobAttackPlayer: {
+      value = new fbs::ServerMobAttackPlayerT(*reinterpret_cast<fbs::ServerMobAttackPlayerT *>(u.value));
       break;
     }
     default:
@@ -5023,6 +5196,11 @@ inline void MobEventUnionUnion::Reset() {
     }
     case MobEventUnion_ServerMobDrop: {
       auto ptr = reinterpret_cast<fbs::ServerMobDropT *>(value);
+      delete ptr;
+      break;
+    }
+    case MobEventUnion_ServerMobAttackPlayer: {
+      auto ptr = reinterpret_cast<fbs::ServerMobAttackPlayerT *>(value);
       delete ptr;
       break;
     }

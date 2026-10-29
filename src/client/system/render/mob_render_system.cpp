@@ -3,6 +3,7 @@
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/system/logic/mob_logic_system.h"
+#include "src/client/system/ui/option_ui_system.h"
 #include "src/client/system/render/debuff_render_system.h"
 #include "src/client/system/render/effect_render_system.h"
 #include "src/client/system/render/gauge_render_system.h"
@@ -25,11 +26,17 @@ bool MobRenderSystem::RenderMob(GameMob& g_mob) {
   auto mob_node = MobGameInstance::LoadLinkMobNode(g_mob.id);
 
   auto action_node = mob_node->get_child(g_mob.action);
+  if (action_node == nullptr) {
+    return false;
+  }
 
   bool zigzag = action_node->get_child(u"zigzag") == nullptr ? false : true;
   int32_t canvas_count = action_node->children_count();
   if (zigzag) {
     canvas_count -= 1;
+  }
+  if (canvas_count <= 0) {
+    return false;
   }
   std::string frame_index;
   if (zigzag && g_mob.ani_index >= canvas_count) {
@@ -42,8 +49,17 @@ bool MobRenderSystem::RenderMob(GameMob& g_mob) {
   }
 
   mob_node = action_node->get_child(frame_index);
+  if (mob_node == nullptr) {
+    return false;
+  }
   if (mob_node->type == wz::Type::UOL) {
     mob_node = static_cast<wz::Property<wz::WzUOL>*>(mob_node)->get_uol();
+  }
+  if (mob_node == nullptr || mob_node->type != wz::Type::Canvas) {
+    return false;
+  }
+  if (mob_node->get_child(u"origin") == nullptr) {
+    return false;
   }
 
   auto texture = WzResource::LoadTexture(mob_node);
@@ -76,6 +92,11 @@ bool MobRenderSystem::RenderMob(GameMob& g_mob) {
 }
 
 bool MobRenderSystem::RenderGauge(GameMob& g_mob) {
+  // Enemy Info: 0 = Name and HP, 1 = Name, 2 = HP
+  auto enemy_info = OptionUiSystem::EnemyInfo();
+  if (enemy_info == 1) {
+    return false;
+  }
   if (g_mob.gauge.has_value()) {
     auto r = MobLogicSystem::LoadRect(g_mob);
     if (!r.has_value()) {
@@ -148,6 +169,10 @@ void MobRenderSystem::RenderNametag(const std::u16string& text, SDL_FPoint p) {
 }
 
 bool MobRenderSystem::RenderNametag(GameMob& g_mob) {
+  // Enemy Info: 0 = Name and HP, 1 = Name, 2 = HP
+  if (OptionUiSystem::EnemyInfo() == 2) {
+    return false;
+  }
   if (!g_mob.gauge.has_value()) {
     return false;
   }

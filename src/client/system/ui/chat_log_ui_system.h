@@ -17,6 +17,8 @@ class ChatLogUiSystem : public UiComponentHost<ChatLogUiSystem> {
  public:
   static UIComponents& GetComponent();
   static inline int page_;
+  // 聊天字号，由选项窗口的 Chat Box Font Size 决定
+  static inline uint8_t chat_font_size_ = 12;
 
   static void Open();
   static void Close();

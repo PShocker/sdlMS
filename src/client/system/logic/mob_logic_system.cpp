@@ -1,6 +1,7 @@
 #include "src/client/system/logic/mob_logic_system.h"
 
 #include "src/client/game/game_debuff.h"
+#include "src/client/game/game_effect.h"
 #include "src/client/game/game_mob.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
@@ -15,6 +16,7 @@
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server_instance/server_mob_instance.h"
 
+#include <wz/Node.h>
 #include <wz/Property.h>
 #include <wz/Wz.h>
 
@@ -28,14 +30,104 @@
 
 namespace sdlms {
 
+namespace {
+
+// 帧号到 wz 里的画布下标（zigzag 动作是往返播放）
+std::string LoadFrameIndex(uint32_t ani_index, int32_t canvas_count,
+                           bool zigzag) {
+  if (canvas_count <= 0) {
+    return "0";
+  }
+  if (zigzag && canvas_count >= 2 && ani_index >= canvas_count) {
+    uint32_t period = static_cast<uint32_t>(2 * (canvas_count - 1));
+    uint32_t phase = ani_index % period;
+    uint32_t frame_i = (phase <= static_cast<uint32_t>(canvas_count - 1))
+                           ? phase
+                           : (period - phase);
+    return std::to_string(frame_i);
+  }
+  return std::to_string(ani_index);
+}
+
+// 动作节点的有效帧数（zigzag 时末尾的逆序帧也算）
+uint32_t LoadFrameCount(wz::Node* action_node, bool zigzag) {
+  if (action_node == nullptr) {
+    return 0;
+  }
+  int32_t canvas_count = action_node->children_count();
+  if (zigzag) {
+    canvas_count -= 1;
+  }
+  if (canvas_count <= 0) {
+    return 0;
+  }
+  if (!zigzag) {
+    return static_cast<uint32_t>(canvas_count);
+  }
+  return static_cast<uint32_t>((canvas_count - 1) * 2 + 1);
+}
+
+uint32_t LoadFrameDelay(wz::Node* action_node, const std::string& frame_index) {
+  if (action_node == nullptr) {
+    return 100;
+  }
+  auto* canvas_node = action_node->get_child(frame_index);
+  if (canvas_node == nullptr) {
+    return 100;
+  }
+  auto* delay_node = canvas_node->get_child(u"delay");
+  if (delay_node == nullptr) {
+    return 100;
+  }
+  if (delay_node->type == wz::Type::String) {
+    auto delay = static_cast<wz::Property<std::u16string>*>(delay_node)->get();
+    return static_cast<uint32_t>(
+        std::stoi(std::string{delay.begin(), delay.end()}));
+  }
+  if (delay_node->type == wz::Type::Int) {
+    return static_cast<uint32_t>(
+        static_cast<wz::Property<int32_t>*>(delay_node)->get());
+  }
+  return 100;
+}
+
+}  // namespace
+
 MobLogicSystem::ActionEnum MobLogicSystem::LoadActionType(
     const std::u16string& action) {
   const static std::flat_map<std::u16string, ActionEnum> MapName = {
-      {u"stand", ActionEnum::kStand}, {u"move", ActionEnum::kMove},
-      {u"hit1", ActionEnum::kHit},    {u"die1", ActionEnum::kDie},
-      {u"jump", ActionEnum::kJump},   {u"", ActionEnum::kRevive},
+      {u"", ActionEnum::kRevive},
+      {u"stand", ActionEnum::kStand},
+      {u"move", ActionEnum::kMove},
+      {u"jump", ActionEnum::kJump},
+      {u"fly", ActionEnum::kFly},
+      {u"swim", ActionEnum::kSwim},
+      {u"hit1", ActionEnum::kHit},
+      {u"hit2", ActionEnum::kHit},
+      {u"hitF", ActionEnum::kHit},
+      {u"die1", ActionEnum::kDie},
+      {u"die2", ActionEnum::kDie},
+      {u"dieF", ActionEnum::kDie},
+      {u"attack1", ActionEnum::kAttack},
+      {u"attack2", ActionEnum::kAttack},
+      {u"attack3", ActionEnum::kAttack},
+      {u"attack4", ActionEnum::kAttack},
+      {u"attack5", ActionEnum::kAttack},
+      {u"attack6", ActionEnum::kAttack},
+      {u"attack7", ActionEnum::kAttack},
+      {u"attack8", ActionEnum::kAttack},
+      {u"attackF", ActionEnum::kAttack},
   };
-  return MapName.at(action);
+  auto it = MapName.find(action);
+  if (it == MapName.end()) {
+    return ActionEnum::kStand;
+  }
+  return it->second;
+}
+
+bool MobLogicSystem::IsOneShotAction(ActionEnum action_type) {
+  return action_type == ActionEnum::kAttack || action_type == ActionEnum::kHit ||
+         action_type == ActionEnum::kDie;
 }
 
 std::optional<SDL_FRect> MobLogicSystem::LoadRect(const GameMob& g_mob) {
@@ -44,19 +136,20 @@ std::optional<SDL_FRect> MobLogicSystem::LoadRect(const GameMob& g_mob) {
   }
   auto mob_node = MobGameInstance::LoadLinkMobNode(g_mob.id);
   auto mob_action_node = mob_node->get_child(g_mob.action);
+  if (mob_action_node == nullptr) {
+    return std::nullopt;
+  }
   bool zigzag = mob_action_node->get_child(u"zigzag") == nullptr ? false : true;
   int32_t canvas_count = mob_action_node->children_count();
   if (zigzag) {
     canvas_count -= 1;
   }
-  std::string frame_index;
-  if (zigzag && g_mob.ani_index >= canvas_count) {
-    frame_index =
-        std::to_string(canvas_count - 2 - (g_mob.ani_index % canvas_count));
-  } else {
-    frame_index = std::to_string(g_mob.ani_index);
-  }
+  auto frame_index = LoadFrameIndex(g_mob.ani_index, canvas_count, zigzag);
+
   auto texture_node = mob_action_node->get_child(frame_index);
+  if (texture_node == nullptr) {
+    return std::nullopt;
+  }
   if (texture_node->type == wz::Type::UOL) {
     texture_node =
         static_cast<wz::Property<wz::WzUOL>*>(texture_node)->get_uol();
@@ -86,19 +179,20 @@ std::optional<SDL_FPoint> MobLogicSystem::LoadHead(const GameMob& g_mob) {
   }
   auto mob_node = MobGameInstance::LoadLinkMobNode(g_mob.id);
   auto mob_action_node = mob_node->get_child(g_mob.action);
+  if (mob_action_node == nullptr) {
+    return std::nullopt;
+  }
   bool zigzag = mob_action_node->get_child(u"zigzag") == nullptr ? false : true;
   int32_t canvas_count = mob_action_node->children_count();
   if (zigzag) {
     canvas_count -= 1;
   }
-  std::string frame_index;
-  if (zigzag && g_mob.ani_index >= canvas_count) {
-    frame_index =
-        std::to_string(canvas_count - 2 - (g_mob.ani_index % canvas_count));
-  } else {
-    frame_index = std::to_string(g_mob.ani_index);
-  }
+  auto frame_index = LoadFrameIndex(g_mob.ani_index, canvas_count, zigzag);
+
   auto texture_node = mob_action_node->get_child(frame_index);
+  if (texture_node == nullptr) {
+    return std::nullopt;
+  }
   if (texture_node->type == wz::Type::UOL) {
     texture_node =
         static_cast<wz::Property<wz::WzUOL>*>(texture_node)->get_uol();
@@ -127,9 +221,12 @@ void MobLogicSystem::RunCollision() {
     if (m.mob.hp <= 0) {
       continue;
     }
-    auto m_r = LoadRect(m.mob).value();
+    auto m_r = LoadRect(m.mob);
+    if (!m_r.has_value()) {
+      continue;
+    }
     auto c_r = CharacterLogicSystem::LoadRect(self);
-    if (SDL_HasRectIntersectionFloat(&m_r, &c_r)) {
+    if (SDL_HasRectIntersectionFloat(&m_r.value(), &c_r)) {
       auto dx = self.pos.x - m.mob.pos.x;
       auto dy = self.pos.y - m.mob.pos.y;
       auto dis = dx * dx + dy * dy;
@@ -162,49 +259,41 @@ void MobLogicSystem::RunCollision() {
 }
 
 bool MobLogicSystem::RunAnimate(GameMob& g_mob) {
-  bool r = false;
   if (!g_mob.ani_animate) {
-    return r;
+    return false;
   }
-  auto delta = Window::delta_time_;
-  uint32_t size = 0;
-  g_mob.ani_time += delta;
-  //   获取动作延迟时间
-  uint32_t delay = 100;
-
-  auto node =
+  auto action_node =
       MobGameInstance::LoadLinkMobNode(g_mob.id)->get_child(g_mob.action);
-  bool zigzag = node->get_child(u"zigzag") == nullptr ? false : true;
-  int32_t canvas_count = node->children_count();
+  if (action_node == nullptr) {
+    return false;
+  }
+  bool zigzag = action_node->get_child(u"zigzag") == nullptr ? false : true;
+  int32_t canvas_count = action_node->children_count();
   if (zigzag) {
     canvas_count -= 1;
   }
-  std::string frame_index;
-  if (zigzag && g_mob.ani_index >= canvas_count) {
-    uint32_t period = 2 * (canvas_count - 1);
-    uint32_t phase = g_mob.ani_index % period;
-    uint32_t frame_i = (phase <= canvas_count - 1) ? phase : (period - phase);
-    frame_index = std::to_string(frame_i);
-  } else {
-    frame_index = std::to_string(g_mob.ani_index);
+  uint32_t size = LoadFrameCount(action_node, zigzag);
+  if (size == 0) {
+    return false;
   }
-  if (auto canvas_node = node->get_child(frame_index)) {
-    if (auto delay_node = canvas_node->get_child(u"delay")) {
-      if (delay_node->type == wz::Type::String) {
-        auto delay2 =
-            static_cast<wz::Property<std::u16string>*>(delay_node)->get();
-        delay = std::stoi(std::string{delay2.begin(), delay2.end()});
-      } else {
-        delay = static_cast<wz::Property<int32_t>*>(delay_node)->get();
-      }
-    }
+  if (g_mob.ani_index >= size) {
+    g_mob.ani_index = 0;
   }
 
+  g_mob.ani_time += Window::delta_time_;
+  auto frame_index = LoadFrameIndex(g_mob.ani_index, canvas_count, zigzag);
+  uint32_t delay = LoadFrameDelay(action_node, frame_index);
+
+  bool r = false;
   if (g_mob.ani_time >= delay) {
     g_mob.ani_index += 1;
-    int32_t size = !zigzag ? canvas_count : (canvas_count - 1) * 2 + 1;
     r = g_mob.ani_index >= size;
-    g_mob.ani_index = g_mob.ani_index % size;
+    if (r && IsOneShotAction(LoadActionType(g_mob.action))) {
+      // 一次性动作停在最后一帧
+      g_mob.ani_index = size - 1;
+    } else {
+      g_mob.ani_index = g_mob.ani_index % size;
+    }
     g_mob.ani_time = 0;
   }
   return r;
@@ -213,18 +302,15 @@ bool MobLogicSystem::RunAnimate(GameMob& g_mob) {
 void MobLogicSystem::RunAlpha(GameMob& g_mob) {
   auto node =
       MobGameInstance::LoadLinkMobNode(g_mob.id)->get_child(g_mob.action);
+  if (node == nullptr) {
+    return;
+  }
   bool zigzag = node->get_child(u"zigzag") == nullptr ? false : true;
   int32_t canvas_count = node->children_count();
   if (zigzag) {
     canvas_count -= 1;
   }
-  std::string frame_index;
-  if (zigzag && g_mob.ani_index >= canvas_count) {
-    frame_index =
-        std::to_string(canvas_count - 2 - (g_mob.ani_index % canvas_count));
-  } else {
-    frame_index = std::to_string(g_mob.ani_index);
-  }
+  auto frame_index = LoadFrameIndex(g_mob.ani_index, canvas_count, zigzag);
 
   if (auto canvas_node = node->get_child(frame_index)) {
     int32_t a0 = 255;
@@ -237,16 +323,7 @@ void MobLogicSystem::RunAlpha(GameMob& g_mob) {
       a1 =
           static_cast<wz::Property<int>*>(canvas_node->get_child(u"a1"))->get();
     }
-    uint32_t delay = 100;
-    if (auto delay_node = canvas_node->get_child(u"delay")) {
-      if (delay_node->type == wz::Type::String) {
-        auto delay2 =
-            static_cast<wz::Property<std::u16string>*>(delay_node)->get();
-        delay = std::stoi(std::string{delay2.begin(), delay2.end()});
-      } else {
-        delay = static_cast<wz::Property<int32_t>*>(delay_node)->get();
-      }
-    }
+    uint32_t delay = LoadFrameDelay(node, frame_index);
     float t = (float)g_mob.ani_time / (float)delay;
     g_mob.alpha = a0 + (a1 - a0) * t;
   }
@@ -301,6 +378,10 @@ void MobLogicSystem::RunStateMachine(GameMob& g_mob) {
     if (action_type == ActionEnum::kDie) {
       g_mob.action = u"";
       return;
+    }
+    if (IsOneShotAction(action_type)) {
+      // 攻击 / 受击动作只播一次，停在最后一帧等服务器切动作
+      g_mob.ani_animate = false;
     }
   }
   RunAlpha(g_mob);

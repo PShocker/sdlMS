@@ -23,10 +23,13 @@ class MobLogicSystem {
     kSwim,
     kFly,
     kHit,
+    kAttack,
     kDie,
     kRevive,
   };
   static ActionEnum LoadActionType(const std::u16string& action);
+  // 攻击 / 受击 / 死亡动作只播放一次，播放完停在最后一帧
+  static bool IsOneShotAction(ActionEnum action_type);
 
   static bool Run();
   static std::optional<SDL_FRect> LoadRect(const GameMob& g_mob);

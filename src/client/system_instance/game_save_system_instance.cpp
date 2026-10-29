@@ -12,6 +12,7 @@
 #include "src/client/game_instance/portal_game_instance.h"
 #include "src/client/game_instance/quest_game_instance.h"
 #include "src/client/system/ui/character_choose_ui_system.h"
+#include "src/client/system/ui/option_ui_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/server/server_instance/server_character_instance.h"
@@ -118,6 +119,10 @@ bool GameSaveSystemInstance::LoadSave(const std::string& login) {
       }
       save_.characters.push_back(std::move(cs));
     }
+    for (const auto& option : gst.data->options) {
+      std::u16string key{option->key.begin(), option->key.end()};
+      save_.options[key] = option->val;
+    }
     for (const auto& s : gst.data->storage) {
       switch (s.type) {
         case fbs::ItemUnion_Equip: {
@@ -138,8 +143,10 @@ bool GameSaveSystemInstance::LoadSave(const std::string& login) {
       }
     }
     SDL_free(data);
+    OptionUiSystem::Load();
     return true;
   }
+  OptionUiSystem::Load();
   return false;
 }
 
@@ -297,12 +304,12 @@ bool GameSaveSystemInstance::SaveGame() {
         case ItemEnum::kConsume: {
           GameConsumeItem& consume = static_cast<GameConsumeItem&>(*pkg.val);
           item_num = consume.num;
-          [[fallthrough]];
+          break;
         }
         case ItemEnum::kEtc: {
           GameEtcItem& etc = static_cast<GameEtcItem&>(*pkg.val);
           item_num = etc.num;
-          [[fallthrough]];
+          break;
         }
         case ItemEnum::kInstall: {
         }
@@ -325,6 +332,12 @@ bool GameSaveSystemInstance::SaveGame() {
       cst.package.push_back(std::make_unique<fbs::PackageSaveT>(pst));
     }
     pst.data.push_back(std::make_unique<fbs::CharacterSaveT>(cst));
+  }
+  for (const auto& [key, val] : save_.options) {
+    fbs::OptionSaveT ost;
+    ost.key = std::string{key.begin(), key.end()};
+    ost.val = val;
+    pst.options.push_back(std::make_unique<fbs::OptionSaveT>(ost));
   }
   gst.data = std::make_unique<fbs::PlayerSaveT>(pst);
   flatbuffers::FlatBufferBuilder builder;

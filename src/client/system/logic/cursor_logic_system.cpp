@@ -23,6 +23,7 @@
 #include "src/client/system/ui/login_notice_ui_system.h"
 #include "src/client/system/ui/minimap_ui_system.h"
 #include "src/client/system/ui/notice_ui_system.h"
+#include "src/client/system/ui/option_ui_system.h"
 #include "src/client/system/ui/npc_dlg_ui_system.h"
 #include "src/client/system/ui/package_ui_system.h"
 #include "src/client/system/ui/party_ui_system.h"
@@ -267,6 +268,10 @@ void CursorLogicSystem::RunCursorUi() {
       }
     } else if (fn == KeybindingUiSystem::Render) {
       if (KeybindingUiSystem::CursorIn()) {
+        CursorGameInstance::cursor_ui_ = fn;
+      }
+    } else if (fn == OptionUiSystem::Render) {
+      if (OptionUiSystem::CursorIn()) {
         CursorGameInstance::cursor_ui_ = fn;
       }
     } else if (fn == LoginNoticeUiSystem::Render) {

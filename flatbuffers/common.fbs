@@ -281,6 +281,13 @@ table CharacterSave{
 table PlayerSave{
     data:[CharacterSave];
     storage:[ItemUnion];
+    // 选项窗口：key = "<tab>/<element>"
+    options:[OptionSave];
+}
+
+table OptionSave{
+    key:string;
+    val:int32;
 }
 
 table GameSave{

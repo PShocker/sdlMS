@@ -242,18 +242,18 @@ int CharacterStatGameInstance::LoadPrimaryStat() {
     switch (jobs[1]) {
       case JobType::kBeginner:
       case JobType::kWarrior:
-        return static_cast<int>(str_ap_ + eqp_str_ + itm_str_ + ski_str_);
+        return static_cast<int>(str_ap_ + equip_str_ + item_str_ + ski_str_);
       case JobType::kMagician:
-        return static_cast<int>(int_ap_ + eqp_int_ + itm_int_ + ski_int_);
+        return static_cast<int>(int_ap_ + equip_int_ + item_int_ + ski_int_);
       case JobType::kBowman:
-        return static_cast<int>(dex_ap_ + eqp_dex_ + itm_dex_ + ski_dex_);
+        return static_cast<int>(dex_ap_ + equip_dex_ + item_dex_ + ski_dex_);
       case JobType::kThief:
-        return static_cast<int>(luk_ap_ + eqp_luk_ + itm_luk_ + ski_luk_);
+        return static_cast<int>(luk_ap_ + equip_luk_ + item_luk_ + ski_luk_);
       default:
         break;
     }
   }
-  return static_cast<int>(str_ap_ + eqp_str_ + itm_str_ + ski_str_);
+  return static_cast<int>(str_ap_ + equip_str_ + item_str_ + ski_str_);
 }
 
 int CharacterStatGameInstance::LoadSecondaryStat() {
@@ -262,18 +262,18 @@ int CharacterStatGameInstance::LoadSecondaryStat() {
   if (jobs.size() >= 2) {
     switch (jobs[1]) {
       case JobType::kWarrior:
-        return static_cast<int>(dex_ap_ + eqp_dex_ + itm_dex_ + ski_dex_);
+        return static_cast<int>(dex_ap_ + equip_dex_ + item_dex_ + ski_dex_);
       case JobType::kMagician:
-        return static_cast<int>(luk_ap_ + eqp_luk_ + itm_luk_ + ski_luk_);
+        return static_cast<int>(luk_ap_ + equip_luk_ + item_luk_ + ski_luk_);
       case JobType::kBowman:
-        return static_cast<int>(str_ap_ + eqp_str_ + itm_str_ + ski_str_);
+        return static_cast<int>(str_ap_ + equip_str_ + item_str_ + ski_str_);
       case JobType::kThief:  // 指南：匕首/拳套的 Secondary = STR + DEX
-        return static_cast<int>(dex_ap_ + eqp_dex_ + itm_dex_ + ski_dex_);
+        return static_cast<int>(dex_ap_ + equip_dex_ + item_dex_ + ski_dex_);
       default:
         break;
     }
   }
-  return static_cast<int>(dex_ap_ + eqp_dex_ + itm_dex_ + ski_dex_);
+  return static_cast<int>(dex_ap_ + equip_dex_ + item_dex_ + ski_dex_);
 }
 
 void CharacterStatGameInstance::UpdateSfSkillStat() {
@@ -314,24 +314,24 @@ void CharacterStatGameInstance::UpdateSfSkillStat() {
 }
 
 void CharacterStatGameInstance::UpdateSfEquipStat() {
-  eqp_hp_ = 0;
-  eqp_mp_ = 0;
-  eqp_str_ = 0;
-  eqp_dex_ = 0;
-  eqp_int_ = 0;
-  eqp_luk_ = 0;
-  eqp_pro_ = 0;  // 熟练度
+  equip_hp_ = 0;
+  equip_mp_ = 0;
+  equip_str_ = 0;
+  equip_dex_ = 0;
+  equip_int_ = 0;
+  equip_luk_ = 0;
+  equip_pro_ = 0;  // 熟练度
 
-  eqp_accuracy_ = 0;  // 命中
-  eqp_avoid_ = 0;     // 回避
+  equip_accuracy_ = 0;  // 命中
+  equip_avoid_ = 0;     // 回避
 
-  eqp_attack_ = 0;  // pad
-  eqp_magic_ = 0;
+  equip_attack_ = 0;  // pad
+  equip_magic_ = 0;
 
-  eqp_attack_def_ = 0;
-  eqp_magic_def_ = 0;
+  equip_attack_def_ = 0;
+  equip_magic_def_ = 0;
 
-  eqp_exp_ = 0;
+  equip_exp_ = 0;
 
   const auto& sf = CharacterGameInstance::self_;
 
@@ -341,28 +341,28 @@ void CharacterStatGameInstance::UpdateSfEquipStat() {
         for (auto [t, v] : inc) {
           switch (t) {
             case EquipGameInstance::IncType::kWeaponPad:
-              eqp_attack_ += static_cast<uint32_t>(v);
+              equip_attack_ += static_cast<uint32_t>(v);
               break;
             case EquipGameInstance::IncType::kWeaponMad:
-              eqp_magic_ += static_cast<uint32_t>(v);
+              equip_magic_ += static_cast<uint32_t>(v);
               break;
             case EquipGameInstance::IncType::kStr:
-              eqp_str_ += v;
+              equip_str_ += v;
               break;
             case EquipGameInstance::IncType::kDex:
-              eqp_dex_ += v;
+              equip_dex_ += v;
               break;
             case EquipGameInstance::IncType::kInt:
-              eqp_int_ += v;
+              equip_int_ += v;
               break;
             case EquipGameInstance::IncType::kLuk:
-              eqp_luk_ += v;
+              equip_luk_ += v;
               break;
             case EquipGameInstance::IncType::kPdd:
-              eqp_attack_def_ += v;
+              equip_attack_def_ += v;
               break;
             case EquipGameInstance::IncType::kAcc:
-              eqp_accuracy_ += static_cast<uint32_t>(v);
+              equip_accuracy_ += static_cast<uint32_t>(v);
               break;
             default:  // 攻速/CRT 等暂不进入面板数值
               break;
@@ -396,17 +396,17 @@ void CharacterStatGameInstance::Update() {
   UpdateSfSkillStat();
 
   // ---- 总属性（AP + 装备 + 道具/Buff + 技能被动）----
-  str_point_ = str_ap_ + eqp_str_ + itm_str_ + ski_str_;
-  dex_point_ = dex_ap_ + eqp_dex_ + itm_dex_ + ski_dex_;
-  int_point_ = int_ap_ + eqp_int_ + itm_int_ + ski_int_;
-  luk_point_ = luk_ap_ + eqp_luk_ + itm_luk_ + ski_luk_;
+  str_point_ = str_ap_ + equip_str_ + item_str_ + ski_str_;
+  dex_point_ = dex_ap_ + equip_dex_ + item_dex_ + ski_dex_;
+  int_point_ = int_ap_ + equip_int_ + item_int_ + ski_int_;
+  luk_point_ = luk_ap_ + equip_luk_ + item_luk_ + ski_luk_;
 
   // ---- HP / MP 上限 ----
   hp_point_max_ = static_cast<int32_t>(std::clamp<int64_t>(
-      static_cast<int64_t>(GetBaseHpMax()) + eqp_hp_ + itm_hp_ + ski_hp_, 1,
+      static_cast<int64_t>(GetBaseHpMax()) + equip_hp_ + item_hp_ + ski_hp_, 1,
       INT32_MAX));
   mp_point_max_ = static_cast<int32_t>(std::clamp<int64_t>(
-      static_cast<int64_t>(GetBaseMpMax()) + eqp_mp_ + itm_mp_ + ski_mp_, 1,
+      static_cast<int64_t>(GetBaseMpMax()) + equip_mp_ + item_mp_ + ski_mp_, 1,
       INT32_MAX));
   hp_point_ = std::min<int32_t>(hp_point_, hp_point_max_);
   mp_point_ = std::min<int32_t>(mp_point_, mp_point_max_);
@@ -417,9 +417,9 @@ void CharacterStatGameInstance::Update() {
 
   // ---- 攻击力 ----
   // AttackPower：参与最终乘法的攻击力（装备 pad + 道具/Buff pad）
-  const uint32_t atk_power = eqp_attack_ + itm_attack_;
+  const uint32_t atk_power = equip_attack_ + item_attack_;
   // 魔法攻击力（法师公式的 MagicTotal 组成项）
-  const uint32_t mad_power = eqp_magic_ + itm_magic_;
+  const uint32_t mad_power = equip_magic_ + item_magic_;
 
   // ---- 武器动作倍率 W（MeowDB：普通动作包络，MIN 取最低、MAX 取最高）----
   auto [weapon_mult_min, weapon_mult_max] = []() -> std::pair<float, float> {
@@ -457,7 +457,7 @@ void CharacterStatGameInstance::Update() {
 
   // ---- 熟练度：m =（MasteryLevel / 10 + 0.1）× 0.7（物理/魔法共用）----
   const int mastery_lv = static_cast<int>(
-      std::clamp<int64_t>(ski_pro_ + eqp_pro_ + itm_pro_, 0, 10));
+      std::clamp<int64_t>(ski_pro_ + equip_pro_ + item_pro_, 0, 10));
   const float mastery = (static_cast<float>(mastery_lv) / 10.0f + 0.1f) * 0.7f;
 
   // ---- 物理武器攻击伤害（MeowDB「Physical / Weapon attacks」）----
@@ -465,12 +465,12 @@ void CharacterStatGameInstance::Update() {
   // MIN = K × TotalWATK × (0.8 + (P×m×Wmin + Q)/StatDiv + AttackPower/APDiv)
   // MAX = K × TotalWATK × (1.0 + (P×Wmax + Q)/StatDiv + AttackPower/APDiv)
   // 普通近战/射击：StatDiv = 100，APDiv = 50
-  // TotalWATK = 全部装备提供的武器攻击力（eqp_attack）
-  // AttackPower = 道具/Buff 提供的攻击力加成（itm_attack）
+  // TotalWATK = 全部装备提供的武器攻击力（equip_attack）
+  // AttackPower = 道具/Buff 提供的攻击力加成（item_attack）
   constexpr float stat_div = 100.0f;
   constexpr float ap_div = 50.0f;
-  const float total_watk = static_cast<float>(eqp_attack_);
-  const float attack_power = static_cast<float>(itm_attack_);
+  const float total_watk = static_cast<float>(equip_attack_);
+  const float attack_power = static_cast<float>(item_attack_);
   const float phys_max =
       total_watk * (1.0f +
                     (static_cast<float>(primary_ap) * weapon_mult_max +
@@ -492,7 +492,7 @@ void CharacterStatGameInstance::Update() {
   // MAX = K × MagicTotal × (1 + TotalINT / 125)
   // MIN = K × MagicTotal × (1 + TotalINT × m / 125)
   const uint32_t magic_total =
-      static_cast<uint32_t>(int_point_ / 2) + eqp_magic_ + itm_magic_;
+      static_cast<uint32_t>(int_point_ / 2) + equip_magic_ + item_magic_;
   const float mage_max = static_cast<float>(magic_total) *
                          (1.0f + static_cast<float>(int_point_) / 125.0f);
   const float mage_min =
@@ -521,12 +521,12 @@ void CharacterStatGameInstance::Update() {
   magic_ = static_cast<int32_t>(mad_power);
 
   // ---- 命中 / 回避 ----
-  accuracy_ = ski_accuracy_ + eqp_accuracy_ + itm_accuracy_;
-  avoid_ = ski_avoid_ + eqp_avoid_ + itm_avoid_;
+  accuracy_ = ski_accuracy_ + equip_accuracy_ + item_accuracy_;
+  avoid_ = ski_avoid_ + equip_avoid_ + item_avoid_;
 
   // ---- 防御 ----
-  attack_def_ = ski_attack_def_ + eqp_attack_def_ + itm_attack_def_;
-  magic_def_ = ski_magic_def_ + eqp_magic_def_ + itm_magic_def_;
+  attack_def_ = ski_attack_def_ + equip_attack_def_ + item_attack_def_;
+  magic_def_ = ski_magic_def_ + equip_magic_def_ + item_magic_def_;
 
   // ---- 暴击 ----
   // 基础必杀伤害 150%，暴击率默认 0；技能/道具通过 set_crit_rate /
@@ -835,209 +835,209 @@ uint32_t CharacterStatGameInstance::GetSkiExp() {
 }
 
 // ============================================================
-// 装备加成 setter (eqp_)
+// 装备加成 setter (equip_)
 // ============================================================
-void CharacterStatGameInstance::SetEqpHp(int64_t n) {
-  eqp_hp_ = n;
+void CharacterStatGameInstance::SetEquipHp(int64_t n) {
+  equip_hp_ = n;
   Update();
 }
-void CharacterStatGameInstance::SetEqpMp(int64_t n) {
-  eqp_mp_ = n;
+void CharacterStatGameInstance::SetEquipMp(int64_t n) {
+  equip_mp_ = n;
   Update();
 }
-void CharacterStatGameInstance::SetEqpStr(int64_t n) {
-  eqp_str_ = n;
+void CharacterStatGameInstance::SetEquipStr(int64_t n) {
+  equip_str_ = n;
   Update();
 }
-void CharacterStatGameInstance::SetEqpDex(int64_t n) {
-  eqp_dex_ = n;
+void CharacterStatGameInstance::SetEquipDex(int64_t n) {
+  equip_dex_ = n;
   Update();
 }
-void CharacterStatGameInstance::SetEqpInt(int64_t n) {
-  eqp_int_ = n;
+void CharacterStatGameInstance::SetEquipInt(int64_t n) {
+  equip_int_ = n;
   Update();
 }
-void CharacterStatGameInstance::SetEqpLuk(int64_t n) {
-  eqp_luk_ = n;
+void CharacterStatGameInstance::SetEquipLuk(int64_t n) {
+  equip_luk_ = n;
   Update();
 }
-void CharacterStatGameInstance::SetEqpPro(int64_t n) {
-  eqp_pro_ = n;
+void CharacterStatGameInstance::SetEquipPro(int64_t n) {
+  equip_pro_ = n;
   Update();
 }
-void CharacterStatGameInstance::SetEqpAcc(uint32_t n) {
-  eqp_accuracy_ = n;
+void CharacterStatGameInstance::SetEquipAcc(uint32_t n) {
+  equip_accuracy_ = n;
   Update();
 }
-void CharacterStatGameInstance::SetEqpAvd(uint32_t n) {
-  eqp_avoid_ = n;
+void CharacterStatGameInstance::SetEquipAvd(uint32_t n) {
+  equip_avoid_ = n;
   Update();
 }
-void CharacterStatGameInstance::SetEqpDef(int32_t n) {
-  eqp_attack_def_ = n;
+void CharacterStatGameInstance::SetEquipDef(int32_t n) {
+  equip_attack_def_ = n;
   Update();
 }
-void CharacterStatGameInstance::SetEqpMdef(int32_t n) {
-  eqp_magic_def_ = n;
+void CharacterStatGameInstance::SetEquipMdef(int32_t n) {
+  equip_magic_def_ = n;
   Update();
 }
-void CharacterStatGameInstance::SetEqpExp(uint32_t n) {
-  eqp_exp_ = n;
+void CharacterStatGameInstance::SetEquipExp(uint32_t n) {
+  equip_exp_ = n;
   Update();
 }
-void CharacterStatGameInstance::SetEqpAttack(uint32_t n) {
-  eqp_attack_ = n;
+void CharacterStatGameInstance::SetEquipAttack(uint32_t n) {
+  equip_attack_ = n;
   Update();
 }
-void CharacterStatGameInstance::SetEqpMagic(uint32_t n) {
-  eqp_magic_ = n;
+void CharacterStatGameInstance::SetEquipMagic(uint32_t n) {
+  equip_magic_ = n;
   Update();
 }
 // ============================================================
-// 装备加成 getter (eqp_)
+// 装备加成 getter (equip_)
 // ============================================================
-int64_t CharacterStatGameInstance::GetEqpHp() {
-  return eqp_hp_;
+int64_t CharacterStatGameInstance::GetEquipHp() {
+  return equip_hp_;
 }
-int64_t CharacterStatGameInstance::GetEqpMp() {
-  return eqp_mp_;
+int64_t CharacterStatGameInstance::GetEquipMp() {
+  return equip_mp_;
 }
-int64_t CharacterStatGameInstance::GetEqpStr() {
-  return eqp_str_;
+int64_t CharacterStatGameInstance::GetEquipStr() {
+  return equip_str_;
 }
-int64_t CharacterStatGameInstance::GetEqpDex() {
-  return eqp_dex_;
+int64_t CharacterStatGameInstance::GetEquipDex() {
+  return equip_dex_;
 }
-int64_t CharacterStatGameInstance::GetEqpInt() {
-  return eqp_int_;
+int64_t CharacterStatGameInstance::GetEquipInt() {
+  return equip_int_;
 }
-int64_t CharacterStatGameInstance::GetEqpLuk() {
-  return eqp_luk_;
+int64_t CharacterStatGameInstance::GetEquipLuk() {
+  return equip_luk_;
 }
-int64_t CharacterStatGameInstance::GetEqpPro() {
-  return eqp_pro_;
+int64_t CharacterStatGameInstance::GetEquipPro() {
+  return equip_pro_;
 }
-uint32_t CharacterStatGameInstance::GetEqpAcc() {
-  return eqp_accuracy_;
+uint32_t CharacterStatGameInstance::GetEquipAcc() {
+  return equip_accuracy_;
 }
-uint32_t CharacterStatGameInstance::GetEqpAvd() {
-  return eqp_avoid_;
+uint32_t CharacterStatGameInstance::GetEquipAvd() {
+  return equip_avoid_;
 }
-int32_t CharacterStatGameInstance::GetEqpDef() {
-  return eqp_attack_def_;
+int32_t CharacterStatGameInstance::GetEquipDef() {
+  return equip_attack_def_;
 }
-int32_t CharacterStatGameInstance::GetEqpMdef() {
-  return eqp_magic_def_;
+int32_t CharacterStatGameInstance::GetEquipMdef() {
+  return equip_magic_def_;
 }
-uint32_t CharacterStatGameInstance::GetEqpExp() {
-  return eqp_exp_;
+uint32_t CharacterStatGameInstance::GetEquipExp() {
+  return equip_exp_;
 }
 
 // ============================================================
-// 道具加成 setter (itm_)
+// 道具加成 setter (item_)
 // ============================================================
-void CharacterStatGameInstance::SetItmHp(int64_t n) {
-  itm_hp_ = n;
+void CharacterStatGameInstance::SetItemHp(int64_t n) {
+  item_hp_ = n;
   Update();
 }
-void CharacterStatGameInstance::SetItmMp(int64_t n) {
-  itm_mp_ = n;
+void CharacterStatGameInstance::SetItemMp(int64_t n) {
+  item_mp_ = n;
   Update();
 }
-void CharacterStatGameInstance::SetItmStr(int64_t n) {
-  itm_str_ = n;
+void CharacterStatGameInstance::SetItemStr(int64_t n) {
+  item_str_ = n;
   Update();
 }
-void CharacterStatGameInstance::SetItmDex(int64_t n) {
-  itm_dex_ = n;
+void CharacterStatGameInstance::SetItemDex(int64_t n) {
+  item_dex_ = n;
   Update();
 }
-void CharacterStatGameInstance::SetItmInt(int64_t n) {
-  itm_int_ = n;
+void CharacterStatGameInstance::SetItemInt(int64_t n) {
+  item_int_ = n;
   Update();
 }
-void CharacterStatGameInstance::SetItmLuk(int64_t n) {
-  itm_luk_ = n;
+void CharacterStatGameInstance::SetItemLuk(int64_t n) {
+  item_luk_ = n;
   Update();
 }
-void CharacterStatGameInstance::SetItmPro(int64_t n) {
-  itm_pro_ = n;
+void CharacterStatGameInstance::SetItemPro(int64_t n) {
+  item_pro_ = n;
   Update();
 }
-void CharacterStatGameInstance::SetItmAcc(uint32_t n) {
-  itm_accuracy_ = n;
+void CharacterStatGameInstance::SetItemAcc(uint32_t n) {
+  item_accuracy_ = n;
   Update();
 }
-void CharacterStatGameInstance::SetItmAvd(uint32_t n) {
-  itm_avoid_ = n;
+void CharacterStatGameInstance::SetItemAvd(uint32_t n) {
+  item_avoid_ = n;
   Update();
 }
-void CharacterStatGameInstance::SetItmDef(int32_t n) {
-  itm_attack_def_ = n;
+void CharacterStatGameInstance::SetItemDef(int32_t n) {
+  item_attack_def_ = n;
   Update();
 }
-void CharacterStatGameInstance::SetItmMdef(int32_t n) {
-  itm_magic_def_ = n;
+void CharacterStatGameInstance::SetItemMdef(int32_t n) {
+  item_magic_def_ = n;
   Update();
 }
-void CharacterStatGameInstance::SetItmExp(uint32_t n) {
-  itm_exp_ = n;
+void CharacterStatGameInstance::SetItemExp(uint32_t n) {
+  item_exp_ = n;
   Update();
 }
 
-void CharacterStatGameInstance::SetItmAttack(uint32_t n) {
-  itm_attack_ = n;
+void CharacterStatGameInstance::SetItemAttack(uint32_t n) {
+  item_attack_ = n;
   Update();
 }
-void CharacterStatGameInstance::SetItmMagic(uint32_t n) {
-  itm_magic_ = n;
+void CharacterStatGameInstance::SetItemMagic(uint32_t n) {
+  item_magic_ = n;
   Update();
 }
 
 // ============================================================
-// 道具加成 getter (itm_)
+// 道具加成 getter (item_)
 // ============================================================
-int64_t CharacterStatGameInstance::GetItmHp() {
-  return itm_hp_;
+int64_t CharacterStatGameInstance::GetItemHp() {
+  return item_hp_;
 }
-int64_t CharacterStatGameInstance::GetItmMp() {
-  return itm_mp_;
+int64_t CharacterStatGameInstance::GetItemMp() {
+  return item_mp_;
 }
-int64_t CharacterStatGameInstance::GetItmStr() {
-  return itm_str_;
+int64_t CharacterStatGameInstance::GetItemStr() {
+  return item_str_;
 }
-int64_t CharacterStatGameInstance::GetItmDex() {
-  return itm_dex_;
+int64_t CharacterStatGameInstance::GetItemDex() {
+  return item_dex_;
 }
-int64_t CharacterStatGameInstance::GetItmInt() {
-  return itm_int_;
+int64_t CharacterStatGameInstance::GetItemInt() {
+  return item_int_;
 }
-int64_t CharacterStatGameInstance::GetItmLuk() {
-  return itm_luk_;
+int64_t CharacterStatGameInstance::GetItemLuk() {
+  return item_luk_;
 }
-int64_t CharacterStatGameInstance::GetItmPro() {
-  return itm_pro_;
+int64_t CharacterStatGameInstance::GetItemPro() {
+  return item_pro_;
 }
-uint32_t CharacterStatGameInstance::GetItmAcc() {
-  return itm_accuracy_;
+uint32_t CharacterStatGameInstance::GetItemAcc() {
+  return item_accuracy_;
 }
-uint32_t CharacterStatGameInstance::GetItmAvd() {
-  return itm_avoid_;
+uint32_t CharacterStatGameInstance::GetItemAvd() {
+  return item_avoid_;
 }
-uint32_t CharacterStatGameInstance::GetItmAttack() {
-  return itm_attack_;
+uint32_t CharacterStatGameInstance::GetItemAttack() {
+  return item_attack_;
 }
-uint32_t CharacterStatGameInstance::GetItmMagic() {
-  return itm_magic_;
+uint32_t CharacterStatGameInstance::GetItemMagic() {
+  return item_magic_;
 }
-uint32_t CharacterStatGameInstance::GetItmExp() {
-  return itm_exp_;
+uint32_t CharacterStatGameInstance::GetItemExp() {
+  return item_exp_;
 }
-int32_t CharacterStatGameInstance::GetItmDef() {
-  return itm_attack_def_;
+int32_t CharacterStatGameInstance::GetItemDef() {
+  return item_attack_def_;
 }
-int32_t CharacterStatGameInstance::GetItmMdef() {
-  return itm_magic_def_;
+int32_t CharacterStatGameInstance::GetItemMdef() {
+  return item_magic_def_;
 }
 
 }  // namespace sdlms

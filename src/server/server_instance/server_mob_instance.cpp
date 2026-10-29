@@ -4,6 +4,7 @@
 #include "src/client/game/game_gain_log.h"
 #include "src/client/game/game_mob.h"
 #include "src/client/game_instance/audio_game_instance.h"
+#include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
@@ -12,11 +13,13 @@
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/quest_game_instance.h"
 #include "src/client/game_instance/random_game_instance.h"
+#include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/logic/mob_logic_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/flatbuffers/server.h"
+#include "src/common/request/client_request.h"
 #include "src/common/response/server_response.h"
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server/server_mob.h"
@@ -29,37 +32,313 @@
 #include <wz/Property.h>
 
 #include <algorithm>
+#include <cmath>
 #include <cstdint>
 #include <flat_map>
+#include <map>
 #include <memory>
 #include <optional>
+#include <vector>
 
 namespace sdlms {
 
+namespace {
+
+constexpr float kWalkSpeedBase = 125.0f;
+constexpr float kFlySpeedBase = 125.0f;
+
+int32_t ReadInt(wz::Node* node, const char16_t* key, int32_t def) {
+  if (node == nullptr) {
+    return def;
+  }
+  auto* child = node->get_child(key);
+  if (child == nullptr || child->type != wz::Type::Int) {
+    return def;
+  }
+  return static_cast<wz::Property<int32_t>*>(child)->get();
+}
+
+SDL_FPoint ReadPoint(wz::Node* node, const char16_t* key) {
+  SDL_FPoint p{0, 0};
+  if (node == nullptr) {
+    return p;
+  }
+  auto* child = node->get_child(key);
+  if (child == nullptr || child->type != wz::Type::Vector2D) {
+    return p;
+  }
+  auto v = static_cast<wz::Property<wz::WzVec2D>*>(child)->get();
+  p.x = static_cast<float>(v.x);
+  p.y = static_cast<float>(v.y);
+  return p;
+}
+
+// 单帧的延时（wz 里 delay 可能是 int 也可能是字符串）
+uint32_t ReadFrameDelay(wz::Node* node) {
+  if (node == nullptr) {
+    return 0;
+  }
+  auto* delay_node = node->get_child(u"delay");
+  if (delay_node == nullptr) {
+    return 0;
+  }
+  if (delay_node->type == wz::Type::Int) {
+    auto v = static_cast<wz::Property<int32_t>*>(delay_node)->get();
+    return v < 0 ? 0 : static_cast<uint32_t>(v);
+  }
+  if (delay_node->type == wz::Type::String) {
+    auto s =
+        static_cast<wz::Property<std::u16string>*>(delay_node)->get();
+    return static_cast<uint32_t>(std::stoi(std::string{s.begin(), s.end()}));
+  }
+  return 0;
+}
+
+// 动作节点下按帧号排序的延时（"10" 必须排在 "2" 之后）
+std::map<int32_t, uint32_t> ReadFrameDelays(wz::Node* action_node) {
+  std::map<int32_t, uint32_t> delays;
+  if (action_node == nullptr) {
+    return delays;
+  }
+  auto* children = action_node->get_children();
+  if (children == nullptr) {
+    return delays;
+  }
+  for (const auto& [key, value] : *children) {
+    if (key.empty() || key[0] < u'0' || key[0] > u'9') {
+      continue;
+    }
+    if (value.empty()) {
+      continue;
+    }
+    delays[std::stoi(std::string{key.begin(), key.end()})] =
+        ReadFrameDelay(value[0]);
+  }
+  return delays;
+}
+
+}  // namespace
+
+wz::Node* ServerMobInstance::LoadMobNode(const std::u16string& mob_id) {
+  auto* node = WzResource::mob_->find(mob_id + u".img");
+  while (node != nullptr && node->find(u"info/link") != nullptr) {
+    auto* link_node = node->find(u"info/link");
+    auto link = static_cast<wz::Property<std::u16string>*>(link_node)->get();
+    node = WzResource::mob_->find(link + u".img");
+  }
+  return node;
+}
+
+int32_t ServerMobInstance::LoadMobInfoInt(const std::u16string& mob_id,
+                                          const char16_t* key, int32_t def) {
+  auto* node = LoadMobNode(mob_id);
+  if (node == nullptr) {
+    return def;
+  }
+  return ReadInt(node->get_child(u"info"), key, def);
+}
+
+bool ServerMobInstance::HasMobAction(const std::u16string& mob_id,
+                                     const std::u16string& action) {
+  if (action.empty()) {
+    return false;
+  }
+  auto* node = LoadMobNode(mob_id);
+  return node != nullptr && node->get_child(action) != nullptr;
+}
+
+std::u16string ServerMobInstance::LoadFineAction(const std::u16string& mob_id,
+                                                 const std::u16string& action) {
+  if (HasMobAction(mob_id, action)) {
+    return action;
+  }
+  // v95 CMob::GetFineAction：动作缺失时回退到 stand，再回退到 fly
+  if (HasMobAction(mob_id, u"stand")) {
+    return u"stand";
+  }
+  if (HasMobAction(mob_id, u"fly")) {
+    return u"fly";
+  }
+  return action;
+}
+
+uint64_t ServerMobInstance::LoadActionDelay(const std::u16string& mob_id,
+                                            const std::u16string& action) {
+  static std::flat_map<std::u16string, uint64_t> cache;
+  std::u16string key = mob_id + u"/" + action;
+  if (auto it = cache.find(key); it != cache.end()) {
+    return it->second;
+  }
+  uint64_t total = 0;
+  auto* node = LoadMobNode(mob_id);
+  auto* action_node = node == nullptr ? nullptr : node->get_child(action);
+  if (action_node != nullptr) {
+    auto delays = ReadFrameDelays(action_node);
+    for (const auto& [index, delay] : delays) {
+      total += delay;
+    }
+    // zigzag 动作在播放时会往返一遍：末尾帧不重复
+    bool zigzag = action_node->get_child(u"zigzag") != nullptr;
+    if (zigzag && delays.size() >= 2) {
+      total = total * 2 - delays.begin()->second - delays.rbegin()->second;
+    }
+  }
+  cache[key] = total;
+  return total;
+}
+
+// v95 CMob::GetHalfWidth：取动作第二帧画布的 cx（没有第二帧就取第一帧）
+float ServerMobInstance::LoadMobHalfWidth(const std::u16string& mob_id) {
+  static std::flat_map<std::u16string, float> cache;
+
+  auto [it, inserted] = cache.try_emplace(mob_id, 0.0f);
+  if (!inserted) {
+    return it->second;
+  }
+
+  float half = 30.0f;
+  auto* node = LoadMobNode(mob_id);
+  if (node != nullptr) {
+    for (const char16_t* action : {u"stand", u"move", u"fly"}) {
+      auto* action_node = node->get_child(action);
+      if (action_node == nullptr) {
+        continue;
+      }
+      auto* children = action_node->get_children();
+      if (children == nullptr) {
+        continue;
+      }
+      std::map<int32_t, wz::Node*> frames;
+      for (const auto& [key, value] : *children) {
+        if (key.empty() || key[0] < u'0' || key[0] > u'9' || value.empty()) {
+          continue;
+        }
+        frames[std::stoi(std::string{key.begin(), key.end()})] = value[0];
+      }
+      if (frames.empty()) {
+        continue;
+      }
+      wz::Node* frame = frames.size() >= 2 ? std::next(frames.begin())->second
+                                           : frames.begin()->second;
+      if (frame->type == wz::Type::UOL) {
+        frame = static_cast<wz::Property<wz::WzUOL>*>(frame)->get_uol();
+      }
+      if (frame == nullptr || frame->type != wz::Type::Canvas) {
+        continue;
+      }
+      auto canvas = static_cast<wz::Property<wz::WzCanvas>*>(frame)->get();
+      half = static_cast<float>(canvas.width) / 2.0f;
+      break;
+    }
+  }
+  it->second = half;
+  return half;
+}
+
+const std::vector<MobAttack>& ServerMobInstance::LoadMobAttacks(
+    const std::u16string& mob_id) {
+  static std::flat_map<std::u16string, std::vector<MobAttack>> cache;
+
+  auto [it, inserted] = cache.try_emplace(mob_id);
+  if (!inserted) {
+    return it->second;
+  }
+
+  auto& attacks = it->second;
+  auto* mob_node = LoadMobNode(mob_id);
+  if (mob_node == nullptr) {
+    return attacks;
+  }
+
+  for (int32_t i = 1; i <= 8; ++i) {
+    std::u16string action = u"attack" + std::u16string(1, u'0' + i);
+    auto* attack_node = mob_node->get_child(action);
+    if (attack_node == nullptr) {
+      continue;
+    }
+    auto* info = attack_node->get_child(u"info");
+    if (info == nullptr) {
+      continue;
+    }
+    MobAttack attack;
+    attack.action = action;
+    attack.magic = ReadInt(info, u"magic", 0) != 0;
+    attack.do_first = ReadInt(info, u"doFirst", 0) != 0;
+    attack.inactive = ReadInt(info, u"inactive", 0) != 0;
+    attack.pad = ReadInt(info, u"PADamage", 0);
+    attack.attack_after = static_cast<uint64_t>(ReadInt(info, u"attackAfter", 0));
+
+    // v95 LoadAttackInfo 按 type 选择 range 结构；这里按实际存在的键判断，
+    // 兼容缺失 info/type 的数据
+    auto* range = info->get_child(u"range");
+    if (range != nullptr) {
+      if (range->get_child(u"areaCount") != nullptr) {
+        attack.type = MobAttack::RangeType::kArea;
+        attack.start = ReadInt(range, u"start", 0);
+        attack.area_count = std::min(ReadInt(range, u"areaCount", 0), 32);
+        attack.attack_count = ReadInt(range, u"attackCount", 0);
+      } else if (range->get_child(u"r") != nullptr) {
+        attack.type = MobAttack::RangeType::kTrapezoid;
+        attack.range = ReadInt(range, u"r", 0);
+        attack.sp = ReadPoint(range, u"sp");
+      } else {
+        attack.type = MobAttack::RangeType::kRect;
+      }
+      auto lt = ReadPoint(range, u"lt");
+      auto rb = ReadPoint(range, u"rb");
+      attack.rect = SDL_FRect{
+          .x = lt.x,
+          .y = lt.y,
+          .w = rb.x - lt.x,
+          .h = rb.y - lt.y,
+      };
+    }
+    attacks.push_back(std::move(attack));
+  }
+  return attacks;
+}
+
 void ServerMobInstance::LoadDefaultMob(const std::u16string id,
                                        ServerMob& mob) {
-  // default action
   mob.id = id;
-  auto mob_node = WzResource::mob_->find(mob.id + u".img");
-  if (mob_node->get_child(u"info")->get_child("flySpeed")) {
-    mob.action = u"fly";
-    mob.type = ServerMob::MobType::kFly;
-  } else {
-    mob.action = u"stand";
-    mob.type = ServerMob::MobType::kStand;
-  }
-  mob.duration = Window::dt_now_;
+  auto* mob_node = LoadMobNode(mob.id);
 
-  auto info_node = MobGameInstance::LoadMobInfo(mob.id);
-  mob.hp =
-      static_cast<wz::Property<int>*>(info_node->get_child(u"maxHP"))->get();
-  mob.mp =
-      static_cast<wz::Property<int>*>(info_node->get_child(u"maxMP"))->get();
-  if (info_node->get_child(u"speed") != nullptr) {
-    auto speed =
-        static_cast<wz::Property<int>*>(info_node->get_child(u"speed"))->get();
-    mob.hspeed_max = (float)(speed + 100) / 100 * 125;
+  // v95 CMobTemplate::RegisterMob 的移动能力推导：
+  // 有 fly -> 4；有 jump 且能 move -> 3；只能 move -> 1；否则 0
+  bool has_move = mob_node != nullptr && mob_node->get_child(u"move") != nullptr;
+  bool has_jump = mob_node != nullptr && mob_node->get_child(u"jump") != nullptr;
+  bool has_fly = mob_node != nullptr && mob_node->get_child(u"fly") != nullptr;
+  if (has_fly) {
+    mob.move_ability = 4;
+  } else if (has_jump && has_move) {
+    mob.move_ability = 3;
+  } else if (has_move) {
+    mob.move_ability = 1;
+  } else {
+    mob.move_ability = 0;
   }
+  mob.action = LoadFineAction(mob.id, mob.move_ability == 4 ? u"fly" : u"stand");
+  mob.one_shot = false;
+  mob.action_end = 0;
+  mob.attack_hit = 0;
+  mob.hspeed = 0;
+  mob.vspeed = 0;
+  mob.hforce = 0;
+  mob.input_x = 0;
+  mob.think = Window::dt_now_;
+  mob.chase_end = 0;
+  mob.attack_cd = Window::dt_now_;
+
+  auto* info_node = mob_node == nullptr ? nullptr : mob_node->get_child(u"info");
+  mob.hp = ReadInt(info_node, u"maxHP", 1);
+  mob.mp = ReadInt(info_node, u"maxMP", 100);
+
+  // walkSpeed = clamp(100 + speed, 10, 140) / 100 * 125，与 v95 属性表一致
+  auto speed = std::clamp(ReadInt(info_node, u"speed", 0) + 100, 10, 140);
+  mob.hspeed_max = static_cast<float>(speed) / 100.0f * kWalkSpeedBase;
+
+  auto fly_speed = std::clamp(ReadInt(info_node, u"flySpeed", 100), 10, 200);
+  mob.fly_speed = static_cast<float>(fly_speed) / 100.0f * kFlySpeedBase;
 }
 
 void ServerMobInstance::LoadMob(ServerSceneState& scene) {
@@ -134,6 +413,7 @@ void ServerMobInstance::HandleServerAction(const fbs::ServerMobActionT& m) {
   mob.action = std::u16string{a->action.begin(), a->action.end()};
   mob.ani_index = 0;
   mob.ani_time = 0;
+  mob.ani_animate = true;
   auto MobType = MobLogicSystem::LoadActionType(mob.action);
   switch (MobType) {
     case MobLogicSystem::ActionEnum::kDie: {
@@ -226,6 +506,11 @@ void ServerMobInstance::HandleServerEvent(const fbs::ServerMobEventT& m) {
         HandleServerDrop(*d);
         break;
       }
+      case fbs::MobEventUnion_ServerMobAttackPlayer: {
+        const auto d = ev.AsServerMobAttackPlayer();
+        HandleServerAttackPlayer(*d);
+        break;
+      }
       default: {
         break;
       }
@@ -256,6 +541,62 @@ void ServerMobInstance::HandleSAttack(uint64_t client_id, fbs::AttackT& at) {
 
 void ServerMobInstance::HandleServerAttack(fbs::ServerMobAttackT& r) {
   HandleSAttack(r.client_id, *r.payload);
+}
+
+void ServerMobInstance::HandleServerAttackPlayer(
+    const fbs::ServerMobAttackPlayerT& m) {
+  auto it = MobGameInstance::data_.find(static_cast<int32_t>(m.mob_index));
+  if (it == MobGameInstance::data_.end() || m.payload == nullptr) {
+    return;
+  }
+  const auto& g_mob = it->second.mob;
+
+  bool is_self = m.client_id == ServerMain::local_addr_;
+  SDL_FPoint target_pos{};
+  if (is_self) {
+    // v95 的受击无敌期：无敌期间整次攻击被吞掉
+    if (CharacterLogicSystem::self_invincible_cooldown_ >= Window::dt_now_) {
+      return;
+    }
+    target_pos = CharacterGameInstance::self_.pos;
+  } else if (CharacterGameInstance::others_.contains(m.client_id)) {
+    target_pos = CharacterGameInstance::others_.at(m.client_id).g_character.pos;
+  } else {
+    return;
+  }
+
+  // v95 CalcDamage::PDamage + adjust_base_depense：
+  // 攻击力已由服务端给出，这里扣掉玩家防御的平坦减伤与百分比减伤
+  auto def = CharacterStatGameInstance::GetDef();
+  int64_t damage = static_cast<int64_t>(m.payload->num);
+  int64_t flat = static_cast<int64_t>(def * 0.25f);
+  int64_t pct = static_cast<int64_t>(std::sqrt(def * 0.25f));
+  damage = std::min(damage - flat, damage * (100 - pct) / 100);
+  if (damage < 1) {
+    damage = 1;
+  }
+
+  fbs::AttackT at{
+      .delay = Window::dt_time_,
+      .num = static_cast<uint64_t>(damage),
+      .x = target_pos.x,
+      .y = target_pos.y - 30,
+      .type = static_cast<uint8_t>(DamageData::DamageColor::kWhite),
+  };
+  HandleSAttack(0, at);
+
+  if (!is_self) {
+    return;
+  }
+
+  CharacterLogicSystem::RunBeingHit(g_mob.pos.x,
+                                    static_cast<uint64_t>(damage));
+
+  // 把真正的伤害数字广播出去，其他客户端才能看到
+  fbs::ClientMobAttackT cma;
+  cma.map_id = SceneSystemInstance::map_id_;
+  cma.payload = std::make_unique<fbs::AttackT>(std::move(at));
+  ClientRequest::SendToHost(cma);
 }
 
 void ServerMobInstance::HanleServerMob(const std::unique_ptr<fbs::MobT>& m) {

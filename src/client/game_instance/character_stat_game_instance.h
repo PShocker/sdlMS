@@ -73,44 +73,44 @@ class CharacterStatGameInstance {
   static inline int32_t ski_attack_def_ = 0;
   static inline int32_t ski_magic_def_ = 0;
 
-  // ============ 装备加成 (eqp_) ============
-  static inline int64_t eqp_hp_ = 0;
-  static inline int64_t eqp_mp_ = 0;
-  static inline int64_t eqp_str_ = 0;
-  static inline int64_t eqp_dex_ = 0;
-  static inline int64_t eqp_int_ = 0;
-  static inline int64_t eqp_luk_ = 0;
-  static inline int64_t eqp_pro_ = 0;  // 熟练度
+  // ============ 装备加成 (equip_) ============
+  static inline int64_t equip_hp_ = 0;
+  static inline int64_t equip_mp_ = 0;
+  static inline int64_t equip_str_ = 0;
+  static inline int64_t equip_dex_ = 0;
+  static inline int64_t equip_int_ = 0;
+  static inline int64_t equip_luk_ = 0;
+  static inline int64_t equip_pro_ = 0;  // 熟练度
 
-  static inline uint32_t eqp_accuracy_ = 0;  // 命中
-  static inline uint32_t eqp_avoid_ = 0;     // 回避
+  static inline uint32_t equip_accuracy_ = 0;  // 命中
+  static inline uint32_t equip_avoid_ = 0;     // 回避
 
-  static inline uint32_t eqp_attack_ = 0;  // pad
-  static inline uint32_t eqp_magic_ = 0;
+  static inline uint32_t equip_attack_ = 0;  // pad
+  static inline uint32_t equip_magic_ = 0;
 
-  static inline int32_t eqp_attack_def_ = 0;
-  static inline int32_t eqp_magic_def_ = 0;
+  static inline int32_t equip_attack_def_ = 0;
+  static inline int32_t equip_magic_def_ = 0;
 
-  static inline uint32_t eqp_exp_ = 0;
+  static inline uint32_t equip_exp_ = 0;
 
-  // ============ 道具加成 (itm_) ============
-  static inline int64_t itm_hp_ = 0;
-  static inline int64_t itm_mp_ = 0;
-  static inline int64_t itm_str_ = 0;
-  static inline int64_t itm_dex_ = 0;
-  static inline int64_t itm_int_ = 0;
-  static inline int64_t itm_luk_ = 0;
-  static inline int64_t itm_pro_ = 0;  // 熟练度
+  // ============ 道具加成 (item_) ============
+  static inline int64_t item_hp_ = 0;
+  static inline int64_t item_mp_ = 0;
+  static inline int64_t item_str_ = 0;
+  static inline int64_t item_dex_ = 0;
+  static inline int64_t item_int_ = 0;
+  static inline int64_t item_luk_ = 0;
+  static inline int64_t item_pro_ = 0;  // 熟练度
 
-  static inline uint32_t itm_accuracy_ = 0;  // 命中
-  static inline uint32_t itm_avoid_ = 0;     // 回避
+  static inline uint32_t item_accuracy_ = 0;  // 命中
+  static inline uint32_t item_avoid_ = 0;     // 回避
 
-  static inline uint32_t itm_attack_ = 0;  // pad
-  static inline uint32_t itm_magic_ = 0;
-  static inline uint32_t itm_exp_ = 0;
+  static inline uint32_t item_attack_ = 0;  // pad
+  static inline uint32_t item_magic_ = 0;
+  static inline uint32_t item_exp_ = 0;
 
-  static inline int32_t itm_attack_def_ = 0;
-  static inline int32_t itm_magic_def_ = 0;
+  static inline int32_t item_attack_def_ = 0;
+  static inline int32_t item_magic_def_ = 0;
 
   // ============ 剩余 AP ============
   static inline uint32_t remain_ap_ = 100;
@@ -221,74 +221,74 @@ class CharacterStatGameInstance {
   static uint32_t GetSkiExp();
 
   // ============================================================
-  // 装备加成 setter (eqp_)
+  // 装备加成 setter (equip_)
   // ============================================================
-  static void SetEqpHp(int64_t n);
-  static void SetEqpMp(int64_t n);
-  static void SetEqpStr(int64_t n);
-  static void SetEqpDex(int64_t n);
-  static void SetEqpInt(int64_t n);
-  static void SetEqpLuk(int64_t n);
-  static void SetEqpPro(int64_t n);
-  static void SetEqpAcc(uint32_t n);
-  static void SetEqpAvd(uint32_t n);
-  static void SetEqpAttack(uint32_t n);
-  static void SetEqpMagic(uint32_t n);
-  static void SetEqpDef(int32_t n);
-  static void SetEqpMdef(int32_t n);
-  static void SetEqpExp(uint32_t n);
+  static void SetEquipHp(int64_t n);
+  static void SetEquipMp(int64_t n);
+  static void SetEquipStr(int64_t n);
+  static void SetEquipDex(int64_t n);
+  static void SetEquipInt(int64_t n);
+  static void SetEquipLuk(int64_t n);
+  static void SetEquipPro(int64_t n);
+  static void SetEquipAcc(uint32_t n);
+  static void SetEquipAvd(uint32_t n);
+  static void SetEquipAttack(uint32_t n);
+  static void SetEquipMagic(uint32_t n);
+  static void SetEquipDef(int32_t n);
+  static void SetEquipMdef(int32_t n);
+  static void SetEquipExp(uint32_t n);
 
   // ============================================================
-  // 装备加成 getter (eqp_)
+  // 装备加成 getter (equip_)
   // ============================================================
-  static int64_t GetEqpHp();
-  static int64_t GetEqpMp();
-  static int64_t GetEqpStr();
-  static int64_t GetEqpDex();
-  static int64_t GetEqpInt();
-  static int64_t GetEqpLuk();
-  static int64_t GetEqpPro();
-  static uint32_t GetEqpAcc();
-  static uint32_t GetEqpAvd();
-  static int32_t GetEqpDef();
-  static int32_t GetEqpMdef();
-  static uint32_t GetEqpExp();
+  static int64_t GetEquipHp();
+  static int64_t GetEquipMp();
+  static int64_t GetEquipStr();
+  static int64_t GetEquipDex();
+  static int64_t GetEquipInt();
+  static int64_t GetEquipLuk();
+  static int64_t GetEquipPro();
+  static uint32_t GetEquipAcc();
+  static uint32_t GetEquipAvd();
+  static int32_t GetEquipDef();
+  static int32_t GetEquipMdef();
+  static uint32_t GetEquipExp();
 
   // ============================================================
-  // 道具加成 setter (itm_)
+  // 道具加成 setter (item_)
   // ============================================================
-  static void SetItmHp(int64_t n);
-  static void SetItmMp(int64_t n);
-  static void SetItmStr(int64_t n);
-  static void SetItmDex(int64_t n);
-  static void SetItmInt(int64_t n);
-  static void SetItmLuk(int64_t n);
-  static void SetItmPro(int64_t n);
-  static void SetItmAcc(uint32_t n);
-  static void SetItmAvd(uint32_t n);
-  static void SetItmAttack(uint32_t n);
-  static void SetItmMagic(uint32_t n);
-  static void SetItmDef(int32_t n);
-  static void SetItmMdef(int32_t n);
-  static void SetItmExp(uint32_t n);
+  static void SetItemHp(int64_t n);
+  static void SetItemMp(int64_t n);
+  static void SetItemStr(int64_t n);
+  static void SetItemDex(int64_t n);
+  static void SetItemInt(int64_t n);
+  static void SetItemLuk(int64_t n);
+  static void SetItemPro(int64_t n);
+  static void SetItemAcc(uint32_t n);
+  static void SetItemAvd(uint32_t n);
+  static void SetItemAttack(uint32_t n);
+  static void SetItemMagic(uint32_t n);
+  static void SetItemDef(int32_t n);
+  static void SetItemMdef(int32_t n);
+  static void SetItemExp(uint32_t n);
 
   // ============================================================
-  // 道具加成 getter (itm_)
+  // 道具加成 getter (item_)
   // ============================================================
-  static int64_t GetItmHp();
-  static int64_t GetItmMp();
-  static int64_t GetItmStr();
-  static int64_t GetItmDex();
-  static int64_t GetItmInt();
-  static int64_t GetItmLuk();
-  static int64_t GetItmPro();
-  static uint32_t GetItmAcc();
-  static uint32_t GetItmAvd();
-  static uint32_t GetItmAttack();
-  static uint32_t GetItmMagic();
-  static uint32_t GetItmExp();
-  static int32_t GetItmDef();
-  static int32_t GetItmMdef();
+  static int64_t GetItemHp();
+  static int64_t GetItemMp();
+  static int64_t GetItemStr();
+  static int64_t GetItemDex();
+  static int64_t GetItemInt();
+  static int64_t GetItemLuk();
+  static int64_t GetItemPro();
+  static uint32_t GetItemAcc();
+  static uint32_t GetItemAvd();
+  static uint32_t GetItemAttack();
+  static uint32_t GetItemMagic();
+  static uint32_t GetItemExp();
+  static int32_t GetItemDef();
+  static int32_t GetItemMdef();
 };
 
 }  // namespace sdlms

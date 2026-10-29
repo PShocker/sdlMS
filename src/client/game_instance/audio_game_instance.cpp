@@ -7,6 +7,7 @@
 #include <SDL3/SDL_audio.h>
 #include <wz/Property.h>
 
+#include <algorithm>
 #include <cstddef>
 
 namespace sdlms {
@@ -28,6 +29,30 @@ GameAudioCache& AudioGameInstance::LoadCache(const std::u16string& path) {
   return cache_.at(path);
 }
 
+float AudioGameInstance::SfxGain() {
+  return master_volume_ * sfx_volume_;
+}
+
+float AudioGameInstance::BgmGain() {
+  return master_volume_ * bgm_volume_;
+}
+
+void AudioGameInstance::SetVolume(float master, float bgm, float sfx) {
+  master_volume_ = std::clamp(master, 0.0f, 1.0f);
+  bgm_volume_ = std::clamp(bgm, 0.0f, 1.0f);
+  sfx_volume_ = std::clamp(sfx, 0.0f, 1.0f);
+  for (auto& audio : audios_) {
+    if (audio.fade == 0) {
+      SDL_SetAudioStreamGain(audio.stream, SfxGain());
+    }
+  }
+  for (auto& audio : backgrnds_) {
+    if (audio.fade == 0) {
+      SDL_SetAudioStreamGain(audio.stream, BgmGain());
+    }
+  }
+}
+
 void AudioGameInstance::LoadAudio(const std::u16string& path, uint64_t delay) {
   GameAudio audio{
       .path = path,
@@ -36,6 +61,7 @@ void AudioGameInstance::LoadAudio(const std::u16string& path, uint64_t delay) {
   };
   auto spec = LoadCache(path).spec;
   audio.stream = SDL_CreateAudioStream(&spec, NULL);
+  SDL_SetAudioStreamGain(audio.stream, SfxGain());
   SDL_BindAudioStream(device_id_, audio.stream);
   audios_.emplace_back(audio);
 }

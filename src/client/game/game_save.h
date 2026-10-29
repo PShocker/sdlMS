@@ -6,6 +6,7 @@
 #include "src/client/game/game_storage.h"
 
 #include <cstdint>
+#include <flat_map>
 #include <string>
 #include <vector>
 
@@ -60,6 +61,8 @@ struct GameSaveData {
   std::string username;
   std::vector<CharacterSaveData> characters;
   GameStorage storage;
+  // 选项窗口的设置，key = "<tab>/<element>"
+  std::flat_map<std::u16string, int32_t> options;
 };
 
 }  // namespace sdlms

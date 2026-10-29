@@ -11,13 +11,13 @@
 #include "src/client/system/system.h"
 #include "src/client/system/ui/character_stat_ui_system.h"
 #include "src/client/system/ui/chat_log_ui_system.h"
+#include "src/client/system/ui/component/text_input.h"
 #include "src/client/system/ui/component/ui_component.h"
 #include "src/client/system/ui/equip_ui_system.h"
 #include "src/client/system/ui/keybinding_ui_system.h"
 #include "src/client/system/ui/package_ui_system.h"
 #include "src/client/system/ui/skill_ui_system.h"
 #include "src/client/system/ui/statusbar_menu_ui_system.h"
-#include "src/client/system/ui/component/text_input.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
@@ -645,7 +645,7 @@ bool StatusbarUiSystem::Event(SDL_Event* event) {
         }
         r = false;
       }
-      [[fallthrough]];
+      break;
     }
     case SDL_EVENT_KEY_DOWN: {
       auto scan_code = event->key.scancode;
@@ -682,7 +682,7 @@ bool StatusbarUiSystem::Event(SDL_Event* event) {
           break;
         }
       }
-      [[fallthrough]];
+      break;
     }
     case SDL_EVENT_MOUSE_MOTION: {
       EventMotionBtAudio(event);

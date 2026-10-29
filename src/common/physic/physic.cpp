@@ -298,8 +298,9 @@ bool Physic::Fall(SDL_FPoint& pos, float delta_time, float& hspeed,
       const auto& fh = it->second.fh;
 
       // 只处理从左到右的立足点
-      if (fh.x2 < fh.x1)
+      if (fh.x2 < fh.x1) {
         continue;
+      }
 
       if (fh.k.has_value()) {
         // 落地

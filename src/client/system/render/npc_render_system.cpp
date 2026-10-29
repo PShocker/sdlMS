@@ -130,6 +130,7 @@ bool NpcRenderSystem::Render(GameNpc& g_npc) {
   RenderNpc(g_npc);
   RenderNametag(g_npc);
   RenderQuest(g_npc);
+  RenderChatballoon(g_npc);
   return true;
 }
 

@@ -482,6 +482,7 @@ bool CharacterRenderSystem::Render(GameCharacter& g_character) {
     RenderEffectBack(g_character);
   }
   RenderNametag(g_character);
+  RenderChatballoon(g_character);
   // auto r = character_logic_system::load_rect(g_character);
   // auto &camera = camera_game_instance::camera;
   // r.x -= camera.x;

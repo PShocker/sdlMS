@@ -56,6 +56,13 @@ table ServerMobDrop {
     drop:[Drop];
 }
 
+// 怪物攻击命中玩家：client_id 是被命中的一方
+table ServerMobAttackPlayer {
+    mob_index:uint32;
+    client_id:uint64;
+    payload:Attack;
+}
+
 union MobEventUnion {
     ServerMobMv,
     ServerMobFlip,
@@ -63,6 +70,7 @@ union MobEventUnion {
     ServerMobState,
     ServerMobDie,
     ServerMobDrop,
+    ServerMobAttackPlayer,
 }
 
 table ServerMobEvent {

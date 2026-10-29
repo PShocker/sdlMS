@@ -23,7 +23,7 @@ void ChatLogUiSystem::RenderChats() {
   for (int i = chats.size() - 1; i >= 0; i--) {
     auto chat = chats[i];
     Freetype::LoadAligned(true);
-    Freetype::LoadSize(12);
+    Freetype::LoadSize(chat_font_size_);
     auto str = chat.owner + u":" + chat.text;
     auto screen_w = CameraGameInstance::camera_.w;
     auto screen_h = CameraGameInstance::camera_.h;

@@ -285,26 +285,26 @@ void ItemGameInstance::UnuseBuffItem(const std::u16string& id) {
       if (info->get_child(u"pad")) {
         auto pad =
             static_cast<wz::Property<int>*>(info->get_child(u"pad"))->get();
-        auto itm_atk = CharacterStatGameInstance::GetItmAttack();
-        CharacterStatGameInstance::SetItmAttack(itm_atk - pad);
+        auto itm_atk = CharacterStatGameInstance::GetItemAttack();
+        CharacterStatGameInstance::SetItemAttack(itm_atk - pad);
       }
       if (info->get_child(u"mad")) {
         auto mad =
             static_cast<wz::Property<int>*>(info->get_child(u"mad"))->get();
-        auto itm_magic = CharacterStatGameInstance::GetItmMagic();
-        CharacterStatGameInstance::SetItmMagic(itm_magic - mad);
+        auto itm_magic = CharacterStatGameInstance::GetItemMagic();
+        CharacterStatGameInstance::SetItemMagic(itm_magic - mad);
       }
       if (info->get_child(u"acc")) {
         auto acc =
             static_cast<wz::Property<int>*>(info->get_child(u"acc"))->get();
-        auto itm_acc = CharacterStatGameInstance::GetItmAcc();
-        CharacterStatGameInstance::SetItmAcc(itm_acc - acc);
+        auto itm_acc = CharacterStatGameInstance::GetItemAcc();
+        CharacterStatGameInstance::SetItemAcc(itm_acc - acc);
       }
       if (info->get_child(u"eva")) {
         auto eva =
             static_cast<wz::Property<int>*>(info->get_child(u"eva"))->get();
-        auto itm_avd = CharacterStatGameInstance::GetItmAvd();
-        CharacterStatGameInstance::SetItmAvd(itm_avd - eva);
+        auto itm_avd = CharacterStatGameInstance::GetItemAvd();
+        CharacterStatGameInstance::SetItemAvd(itm_avd - eva);
       }
       if (info->get_child(u"speed")) {
         auto speed =
@@ -321,8 +321,8 @@ void ItemGameInstance::UnuseBuffItem(const std::u16string& id) {
       if (info->get_child(u"expBuff")) {
         auto exp_buff =
             static_cast<wz::Property<int>*>(info->get_child(u"expBuff"))->get();
-        auto itm_exp = CharacterStatGameInstance::GetItmExp();
-        CharacterStatGameInstance::SetItmExp(itm_exp - exp_buff);
+        auto itm_exp = CharacterStatGameInstance::GetItemExp();
+        CharacterStatGameInstance::SetItemExp(itm_exp - exp_buff);
       }
       if (info->get_child(u"morph")) {
         auto& sf = CharacterGameInstance::self_;
@@ -349,26 +349,26 @@ bool ItemGameInstance::UseBuffItem(std::polymorphic<GameItem>& itm) {
   auto time = static_cast<wz::Property<int>*>(info->get_child(u"time"))->get();
   if (info->get_child(u"pad")) {
     auto pad = static_cast<wz::Property<int>*>(info->get_child(u"pad"))->get();
-    auto itm_atk = CharacterStatGameInstance::GetItmAttack();
-    CharacterStatGameInstance::SetItmAttack(itm_atk + pad);
+    auto itm_atk = CharacterStatGameInstance::GetItemAttack();
+    CharacterStatGameInstance::SetItemAttack(itm_atk + pad);
     r = true;
   }
   if (info->get_child(u"mad")) {
     auto mad = static_cast<wz::Property<int>*>(info->get_child(u"mad"))->get();
-    auto itm_mag = CharacterStatGameInstance::GetItmMagic();
-    CharacterStatGameInstance::SetItmMagic(itm_mag + mad);
+    auto itm_mag = CharacterStatGameInstance::GetItemMagic();
+    CharacterStatGameInstance::SetItemMagic(itm_mag + mad);
     r = true;
   }
   if (info->get_child(u"acc")) {
     auto acc = static_cast<wz::Property<int>*>(info->get_child(u"acc"))->get();
-    auto itm_acc = CharacterStatGameInstance::GetItmAcc();
-    CharacterStatGameInstance::SetItmAcc(acc + itm_acc);
+    auto itm_acc = CharacterStatGameInstance::GetItemAcc();
+    CharacterStatGameInstance::SetItemAcc(acc + itm_acc);
     r = true;
   }
   if (info->get_child(u"eva")) {
     auto eva = static_cast<wz::Property<int>*>(info->get_child(u"eva"))->get();
-    auto itm_avd = CharacterStatGameInstance::GetItmAvd();
-    CharacterStatGameInstance::SetItmAvd(itm_avd + eva);
+    auto itm_avd = CharacterStatGameInstance::GetItemAvd();
+    CharacterStatGameInstance::SetItemAvd(itm_avd + eva);
     r = true;
   }
   if (info->get_child(u"speed")) {
@@ -385,8 +385,8 @@ bool ItemGameInstance::UseBuffItem(std::polymorphic<GameItem>& itm) {
   if (info->get_child(u"expBuff")) {
     auto exp_buff =
         static_cast<wz::Property<int>*>(info->get_child(u"expBuff"))->get();
-    auto itm_exp = CharacterStatGameInstance::GetItmExp();
-    CharacterStatGameInstance::SetItmExp(itm_exp + exp_buff);
+    auto itm_exp = CharacterStatGameInstance::GetItemExp();
+    CharacterStatGameInstance::SetItemExp(itm_exp + exp_buff);
   }
   if (info->get_child(u"morph")) {
     UseMorphItem(id, CharacterGameInstance::self_);
