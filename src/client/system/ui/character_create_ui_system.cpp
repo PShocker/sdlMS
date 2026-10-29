@@ -14,7 +14,7 @@
 #include "src/client/system/ui/character_choose_ui_system.h"
 #include "src/client/system/ui/component/button.h"
 #include "src/client/system/ui/login_ui_system.h"
-#include "src/client/system/ui/text_input_ui_system.h"
+#include "src/client/system/ui/component/text_input.h"
 #include "src/client/system_instance/character_choose_system_instance.h"
 #include "src/client/system_instance/character_create_system_instance.h"
 #include "src/client/system_instance/game_save_system_instance.h"
@@ -448,7 +448,7 @@ void CharacterCreateUiSystem::RenderCustom() {
 }
 
 void CharacterCreateUiSystem::RenderName() {
-  TextInputUiSystem::Render(name_, 5, 5);
+  name_.Render(5, 5);
 }
 
 bool CharacterCreateUiSystem::Render() {
@@ -463,7 +463,7 @@ bool CharacterCreateUiSystem::Render() {
 }
 
 bool CharacterCreateUiSystem::BackAnimate() {
-  TextInputUiSystem::Close(name_);
+  name_.Close();
   if (LoginUiSystem::CameraAnimate(-80, -479)) {
     CharacterChooseSystemInstance::Enter();
     return false;
@@ -1055,7 +1055,7 @@ bool CharacterCreateUiSystem::EventButton(SDL_Event* event) {
 }
 
 bool CharacterCreateUiSystem::Event(SDL_Event* event) {
-  TextInputUiSystem::Event(event, name_);
+  name_.Event(event);
   bool r = true;
   switch (event->type) {
     case SDL_EVENT_KEY_DOWN: {

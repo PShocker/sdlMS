@@ -20,7 +20,7 @@
 #include "src/client/system/ui/component/button.h"
 #include "src/client/system/ui/notice_ui_system.h"
 #include "src/client/system/ui/package_ui_system.h"
-#include "src/client/system/ui/scroll_ui_system.h"
+#include "src/client/system/ui/component/scroll.h"
 #include "src/client/system/ui/tooltip_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
@@ -190,10 +190,12 @@ void ShopUiSystem::RenderVscr() {
   }
   bool top =
       cursor_in == Render && CursorGameInstance::modal_overlay_ == Render;
-  ScrollUiSystem::RenderVscroll(x, y, pages_[0], items_size, length, top, 6);
+  Scroll scroll(pages_[0], items_size, length, 6);
+  scroll.Render(x, y, top);
   x += 230;
   auto pkg_size = ShopGameInstance::LoadPkgItems(active_tab_[1]).size();
-  ScrollUiSystem::RenderVscroll(x, y, pages_[1], pkg_size, length, top, 6);
+  Scroll scroll1(pages_[1], pkg_size, length, 6);
+  scroll1.Render(x, y, top);
   return;
 }
 
@@ -520,13 +522,15 @@ bool ShopUiSystem::EventVscr(SDL_Event* event) {
   auto cursor_in = CursorGameInstance::cursor_ui_;
   bool top = cursor_in == Render;
   size = std::max(0, size);
-  auto val = ScrollUiSystem::ClickVscroll(x, y, pages_[0], size, length, top);
+  Scroll scroll(pages_[0], size, length);
+  auto val = scroll.Click(x, y, top);
   pages_[0] = val;
 
   size = ShopGameInstance::LoadPkgItems(active_tab_[1]).size() - 6;
   x += 230;
   size = std::max(0, size);
-  val = ScrollUiSystem::ClickVscroll(x, y, pages_[1], size, length, top);
+  Scroll scroll1(pages_[1], size, length);
+  val = scroll1.Click(x, y, top);
   pages_[1] = val;
   return true;
 }
@@ -580,12 +584,12 @@ void ShopUiSystem::EventVscrStart(SDL_Event* event) {
   const uint32_t length = 235;
   if (vscr_motion_[0] == false) {
     vscr_motion_[0] =
-        ScrollUiSystem::ClickThumb(pos_.x + lt.x, pos_.y + lt.y, length);
+        Scroll(0, 0, length).ClickThumb(pos_.x + lt.x, pos_.y + lt.y);
   }
   lt.x += 230;
   if (vscr_motion_[1] == false) {
     vscr_motion_[1] =
-        ScrollUiSystem::ClickThumb(pos_.x + lt.x, pos_.y + lt.y, length);
+        Scroll(0, 0, length).ClickThumb(pos_.x + lt.x, pos_.y + lt.y);
   }
 }
 

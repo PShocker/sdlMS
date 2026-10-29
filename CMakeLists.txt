@@ -55,6 +55,10 @@ set(SDLMS_COMMON_SOURCES
 set(SDLMS_CLIENT_SOURCES
   src/client/game_instance/afterimage_game_instance.cpp
   src/client/system/ui/component/button.cpp
+  src/client/system/ui/component/combo_box.cpp
+  src/client/system/ui/component/scroll.cpp
+  src/client/system/ui/component/slider.cpp
+  src/client/system/ui/component/text_input.cpp
   src/client/game_instance/audio_game_instance.cpp
   src/client/game_instance/backgrnd_game_instance.cpp
   src/client/game_instance/ball_game_instance.cpp
@@ -153,7 +157,6 @@ set(SDLMS_CLIENT_SOURCES
   src/client/system/ui/character_stat_ui_system.cpp
   src/client/system/ui/chat_log_ui_system.cpp
   src/client/system/ui/clock_ui_system.cpp
-  src/client/system/ui/combo_box_ui_system.cpp
   src/client/system/ui/context_menu_ui_system.cpp
   src/client/system/ui/craft_ui_system.cpp
   src/client/system/ui/equip_ui_system.cpp
@@ -176,14 +179,11 @@ set(SDLMS_CLIENT_SOURCES
   src/client/system/ui/quick_slot_ui_system.cpp
   src/client/system/ui/revive_ui_system.cpp
   src/client/system/ui/screen_notice_ui_system.cpp
-  src/client/system/ui/scroll_ui_system.cpp
   src/client/system/ui/shop_ui_system.cpp
   src/client/system/ui/skill_ui_system.cpp
-  src/client/system/ui/slider_ui_system.cpp
   src/client/system/ui/statusbar_menu_ui_system.cpp
   src/client/system/ui/statusbar_ui_system.cpp
   src/client/system/ui/storage_ui_system.cpp
-  src/client/system/ui/text_input_ui_system.cpp
   src/client/system/ui/tooltip_ui_system.cpp
   src/client/system/ui/trade_ui_system.cpp
   src/client/system/ui/video_ui_system.cpp

@@ -14,7 +14,7 @@
 #include "src/client/system/system.h"
 #include "src/client/system/ui/component/button.h"
 #include "src/client/system/ui/shop_ui_system.h"
-#include "src/client/system/ui/text_input_ui_system.h"
+#include "src/client/system/ui/component/text_input.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
@@ -348,7 +348,7 @@ void NoticeUiSystem::RenderInput() {
     case NoticeEnum::kShopbuySellMul:
     case NoticeEnum::kShopbuyMul:
     case NoticeEnum::kThrowMul: {
-      TextInputUiSystem::Render(text_, 5, 5);
+      text_.Render(5, 5);
       break;
     }
     default: {
@@ -402,7 +402,7 @@ void NoticeUiSystem::Open() {
         text_.type.reset();
         text_.type.set(TextInput::kDigit);
         text_.cur = 1;
-        TextInputUiSystem::Active(text_);
+        text_.Active();
         break;
       }
       default: {
@@ -723,7 +723,7 @@ void NoticeUiSystem::EventInput(SDL_Event* event) {
     case NoticeEnum::kShopbuySellMul:
     case NoticeEnum::kShopbuyMul:
     case NoticeEnum::kThrowMul: {
-      TextInputUiSystem::Event(event, text_);
+      text_.Event(event);
     }
     default: {
       break;

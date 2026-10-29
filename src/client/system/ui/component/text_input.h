@@ -10,8 +10,10 @@
 
 namespace sdlms {
 
-// 定义标志位索引
-
+// A single-line text field with selection, cursor blinking and IME support.
+//
+// The owning UI stores the component, calls Active()/Close() to switch focus
+// and forwards events to Event(); Render() draws the field at an offset.
 struct TextInput {
   int max_size;
   std::u16string text;
@@ -34,14 +36,18 @@ struct TextInput {
     kCount,
   };
   std::bitset<kCount> type;
-};
 
-class TextInputUiSystem {
- public:
-  static void Close(TextInput& input);
-  static void Render(TextInput& input, int x, int y);
-  static void Active(TextInput& input);
-  static bool Event(SDL_Event* event, TextInput& input);
+  // Leaves the field focused and closes its IME composition.
+  void Close();
+
+  // Focuses the field and starts IME input when the field allows it.
+  void Active();
+
+  // Draws the field content at (x, y), relative to `r`.
+  void Render(int x, int y) const;
+
+  // Handles one event for this field; returns true when a click fell outside.
+  bool Event(SDL_Event* event);
 };
 
 }  // namespace sdlms

@@ -10,7 +10,7 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/component/button.h"
-#include "src/client/system/ui/scroll_ui_system.h"
+#include "src/client/system/ui/component/scroll.h"
 #include "src/client/system/ui/tooltip_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
@@ -46,8 +46,8 @@ void CharacterInfoUiSystem::RenderScroll() {
   auto size = v + v2;
   auto cursor_in = CursorGameInstance::cursor_ui_;
   bool top = cursor_in == Render && !CursorGameInstance::modal_overlay_;
-  ScrollUiSystem::RenderVscroll((int)pos_.x + lt.x, (int)pos_.y + lt.y,
-                                item_page_, size, length, top, 3);
+  Scroll scroll(item_page_, size, length, 3);
+  scroll.Render((int)pos_.x + lt.x, (int)pos_.y + lt.y, top);
   return;
 }
 
@@ -339,9 +339,9 @@ bool CharacterInfoUiSystem::EventVscr(SDL_Event* event) {
   bool top = cursor_in == Render;
   size = std::max(0, size);
   auto mouse_pos = SDL_FPoint{event->button.x, event->button.y};
-  auto val =
-      ScrollUiSystem::ClickVscroll((int)pos_.x + lt.x, (int)pos_.y + lt.y,
-                                   item_page_, size, length, top, mouse_pos);
+  Scroll scroll(item_page_, size, length);
+  auto val = scroll.Click((int)pos_.x + lt.x, (int)pos_.y + lt.y, top,
+                          mouse_pos);
   item_page_ = val;
   return true;
 }
@@ -477,7 +477,7 @@ void CharacterInfoUiSystem::EventVscrStart(SDL_Event* event) {
   const uint32_t length = 115;
   if (vscr_motion_ == false) {
     vscr_motion_ =
-        ScrollUiSystem::ClickThumb(pos_.x + lt.x, pos_.y + lt.y, length);
+        Scroll(0, 0, length).ClickThumb(pos_.x + lt.x, pos_.y + lt.y);
   }
 }
 

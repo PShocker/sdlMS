@@ -5,7 +5,7 @@
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
-#include "src/client/system/ui/scroll_ui_system.h"
+#include "src/client/system/ui/component/scroll.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
@@ -26,8 +26,8 @@ void ChatLogUiSystem::RenderVscr() {
   auto base_x = (screen_w - 808) / 2;
   auto base_y = (screen_h - 73);
   bool top = cursor_in == Render && !CursorGameInstance::modal_overlay_;
-  ScrollUiSystem::RenderVscroll(base_x + 570, base_y - 75, 5, size, length, top,
-                                1);
+  Scroll scroll(5, size, length, 1);
+  scroll.Render(base_x + 570, base_y - 75, top);
   return;
 }
 
@@ -112,8 +112,8 @@ void ChatLogUiSystem::EventClickChatVscr() {
   }
   size = size / (Freetype::LoadLh() * 1.1);
   size = std::max(0, size);
-  auto val = ScrollUiSystem::ClickVscroll(base_x + 564, base_y - 71, page_,
-                                          size, length, top);
+  Scroll scroll(page_, size, length);
+  auto val = scroll.Click(base_x + 564, base_y - 71, top);
   page_ = val;
   return;
 }

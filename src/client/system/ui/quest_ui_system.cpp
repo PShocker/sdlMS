@@ -16,7 +16,7 @@
 #include "src/client/system/system.h"
 #include "src/client/system/ui/component/button.h"
 #include "src/client/system/ui/quest_alarm_ui_system.h"
-#include "src/client/system/ui/scroll_ui_system.h"
+#include "src/client/system/ui/component/scroll.h"
 #include "src/client/system/ui/tooltip_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
@@ -626,7 +626,8 @@ void QuestUiSystem::RenderVscr() {
   bool top =
       cursor_in == Render && CursorGameInstance::modal_overlay_ == nullptr;
   auto count = LoadVscrNum0();
-  ScrollUiSystem::RenderVscroll(px, py, pages_[0], count, length, top, 16);
+  Scroll scroll(pages_[0], count, length, 16);
+  scroll.Render(px, py, top);
 
   return;
 }
@@ -640,7 +641,8 @@ void QuestUiSystem::RenderDetailVscr() {
   bool top =
       cursor_in == Render && CursorGameInstance::modal_overlay_ == nullptr;
   auto count = LoadVscrNum1();
-  ScrollUiSystem::RenderVscroll(px, py, pages_[1], count, length, top, 16);
+  Scroll scroll(pages_[1], count, length, 16);
+  scroll.Render(px, py, top);
 
   return;
 }
@@ -819,8 +821,8 @@ bool QuestUiSystem::EventVscr(SDL_Event* event) {
 
   auto mouse_pos = SDL_FPoint{event->button.x, event->button.y};
   bool top = true;
-  auto val = ScrollUiSystem::ClickVscroll(px, py, pages_[0], size, length, top,
-                                          mouse_pos);
+  Scroll scroll(pages_[0], size, length);
+  auto val = scroll.Click(px, py, top, mouse_pos);
   pages_[0] = val;
 
   if (detail_ && !detail_quest_.empty()) {
@@ -829,8 +831,8 @@ bool QuestUiSystem::EventVscr(SDL_Event* event) {
     py = pos_.y + lt.y;
     length = 244;
     size = LoadVscrNum1() - 16;
-    val = ScrollUiSystem::ClickVscroll(px, py, pages_[1], size, length, top,
-                                       mouse_pos);
+    Scroll scroll(pages_[1], size, length);
+    val = scroll.Click(px, py, top, mouse_pos);
     pages_[1] = val;
   }
 
@@ -864,13 +866,13 @@ void QuestUiSystem::EventVscrStart(SDL_Event* event) {
   uint32_t length = 318;
   if (vscr_motion_[0] == false) {
     vscr_motion_[0] =
-        ScrollUiSystem::ClickThumb(pos_.x + lt.x, pos_.y + lt.y, length);
+        Scroll(0, 0, length).ClickThumb(pos_.x + lt.x, pos_.y + lt.y);
   }
   lt = {532, 122};
   length = 244;
   if (vscr_motion_[1] == false) {
     vscr_motion_[1] =
-        ScrollUiSystem::ClickThumb(pos_.x + lt.x, pos_.y + lt.y, length);
+        Scroll(0, 0, length).ClickThumb(pos_.x + lt.x, pos_.y + lt.y);
   }
 }
 

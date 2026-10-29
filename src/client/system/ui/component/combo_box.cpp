@@ -1,4 +1,4 @@
-#include "src/client/system/ui/combo_box_ui_system.h"
+#include "src/client/system/ui/component/combo_box.h"
 
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
@@ -9,8 +9,7 @@
 
 namespace sdlms {
 
-void ComboBoxUiSystem::Render(int x, int y, ComboBox cm, bool top,
-                              bool disable) {
+void ComboBox::Render(int x, int y, bool top, bool disable) const {
   SDL_Texture* l = WzResource::LoadTexture(
       WzResource::ui_->find(u"Basic.img/ComboBox/normal/0"));
   SDL_Texture* c = WzResource::LoadTexture(
@@ -29,7 +28,7 @@ void ComboBoxUiSystem::Render(int x, int y, ComboBox cm, bool top,
     SDL_FRect pos_r;
     pos_r.x = x;
     pos_r.y = y;
-    pos_r.w = cm.w;
+    pos_r.w = w;
     pos_r.h = 17;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_r)) {
       if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
@@ -56,17 +55,17 @@ void ComboBoxUiSystem::Render(int x, int y, ComboBox cm, bool top,
   pos_rect.h = l->h;
   SDL_RenderTexture(Window::renderer_, l, nullptr, &pos_rect);
   pos_rect.x += l->w;
-  pos_rect.w = cm.w - l->w - r->w;
+  pos_rect.w = w - l->w - r->w;
   SDL_RenderTextureTiled(Window::renderer_, c, nullptr, 1, &pos_rect);
   pos_rect.x += pos_rect.w;
   pos_rect.w = r->w;
   SDL_RenderTexture(Window::renderer_, r, nullptr, &pos_rect);
   Freetype::LoadSize(12);
   Freetype::LoadColor(0, 0, 0, 255);
-  Freetype::DrawLine(cm.selected, x + 10, pos_rect.y);
-  if (cm.open) {
+  Freetype::DrawLine(selected, x + 10, pos_rect.y);
+  if (open) {
     auto lh = Freetype::LoadLh();
-    auto h = cm.selects.size() * lh * 1.3;
+    auto h = selects.size() * lh * 1.3;
     SDL_SetRenderDrawColor(Window::renderer_, 0, 0, 0, 255);
     SDL_FRect pos_rr;
     pos_rr.x = x;
@@ -77,16 +76,15 @@ void ComboBoxUiSystem::Render(int x, int y, ComboBox cm, bool top,
     SDL_SetRenderDrawColor(Window::renderer_, 0, 0, 0, 255);
     SDL_RenderFillRect(Window::renderer_, &pos_rr);
     auto base_y = pos_rr.y;
-    for (int i = 0; i < cm.selects.size(); i++) {
-      auto text = cm.selects[i];
+    for (int i = 0; i < selects.size(); i++) {
+      auto text = selects[i];
       Freetype::DrawLine(text, x + 10, base_y);
       base_y += lh * 1.3;
     }
   }
 }
 
-bool ComboBoxUiSystem::Click(int x, int y, ComboBox cm, bool top,
-                             bool disable) {
+bool ComboBox::Click(int x, int y, bool top, bool disable) const {
   return false;
 }
 

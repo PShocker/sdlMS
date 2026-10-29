@@ -2,7 +2,7 @@
 
 #include "src/client/system/ui/component/button.h"
 #include "src/client/game/game_character.h"
-#include "src/client/system/ui/text_input_ui_system.h"
+#include "src/client/system/ui/component/text_input.h"
 
 #include <SDL3/SDL_events.h>
 

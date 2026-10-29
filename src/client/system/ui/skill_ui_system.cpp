@@ -11,7 +11,7 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/component/button.h"
-#include "src/client/system/ui/scroll_ui_system.h"
+#include "src/client/system/ui/component/scroll.h"
 #include "src/client/system/ui/tooltip_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
@@ -246,8 +246,8 @@ void SkillUiSystem::RenderScroll() {
   auto size = skill_node.size();
   auto cursor_in = CursorGameInstance::cursor_ui_;
   bool top = (cursor_in == Render) && !CursorGameInstance::modal_overlay_;
-  ScrollUiSystem::RenderVscroll((int)pos_.x + lt.x, (int)pos_.y + lt.y, page_,
-                                size, length, top, 6);
+  Scroll scroll(page_, size, length, 6);
+  scroll.Render((int)pos_.x + lt.x, (int)pos_.y + lt.y, top);
   return;
 }
 
@@ -508,9 +508,8 @@ void SkillUiSystem::EventVscr(SDL_Event* event) {
   auto cursor_in = CursorGameInstance::cursor_ui_;
   bool top = cursor_in == Render;
   size = std::max(0, size);
-  auto val = ScrollUiSystem::ClickVscroll(
-      (int)pos_.x + lt.x, (int)pos_.y + lt.y, page_, size, length, top);
-  page_ = val;
+  Scroll scroll(page_, size, length);
+  page_ = scroll.Click((int)pos_.x + lt.x, (int)pos_.y + lt.y, top);
 }
 
 void SkillUiSystem::EventMotion(SDL_Event* event) {
@@ -527,7 +526,7 @@ void SkillUiSystem::EventVscrStart(SDL_Event* event) {
   const uint32_t length = 236;
   if (vscr_motion_ == false) {
     vscr_motion_ =
-        ScrollUiSystem::ClickThumb(pos_.x + lt.x, pos_.y + lt.y, length);
+        Scroll(0, 0, length).ClickThumb(pos_.x + lt.x, pos_.y + lt.y);
   }
 }
 

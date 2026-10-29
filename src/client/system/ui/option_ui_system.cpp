@@ -5,9 +5,9 @@
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
-#include "src/client/system/ui/combo_box_ui_system.h"
 #include "src/client/system/ui/component/button.h"
-#include "src/client/system/ui/slider_ui_system.h"
+#include "src/client/system/ui/component/combo_box.h"
+#include "src/client/system/ui/component/slider.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
@@ -80,8 +80,7 @@ void OptionUiSystem::RenderOption() {
       Freetype::LoadColor(0, 0, 0, 255);
 
       Freetype::DrawLine(u"0%", pos_.x + 136, pos_.y + 91);
-      SliderUiSystem::RenderHslider(pos_.x + 163, pos_.y + 95, hp_warn_, 100,
-                                    167, top, false);
+      Slider(hp_warn_, 100, 167).Render(pos_.x + 163, pos_.y + 95);
       Freetype::DrawLine(u"100%", pos_.x + 335, pos_.y + 91);
       SDL_Texture* t;
       if (master_volume_mute_) {
@@ -107,8 +106,7 @@ void OptionUiSystem::RenderOption() {
       Freetype::LoadColor(0, 0, 0, 255);
 
       Freetype::DrawLine(u"0%", pos_.x + 136, pos_.y + 91);
-      SliderUiSystem::RenderHslider(pos_.x + 163, pos_.y + 95, hp_warn_, 100,
-                                    167, top, false);
+      Slider(hp_warn_, 100, 167).Render(pos_.x + 163, pos_.y + 95);
       Freetype::DrawLine(u"100%", pos_.x + 335, pos_.y + 91);
       if (bgm_volume_mute_) {
         t = WzResource::LoadTexture(
@@ -133,8 +131,7 @@ void OptionUiSystem::RenderOption() {
       Freetype::LoadColor(0, 0, 0, 255);
 
       Freetype::DrawLine(u"0%", pos_.x + 136, pos_.y + 91);
-      SliderUiSystem::RenderHslider(pos_.x + 163, pos_.y + 95, hp_warn_, 100,
-                                    167, top, false);
+      Slider(hp_warn_, 100, 167).Render(pos_.x + 163, pos_.y + 95);
       Freetype::DrawLine(u"100%", pos_.x + 335, pos_.y + 91);
       if (normal_volume_mute_) {
         t = WzResource::LoadTexture(
@@ -159,8 +156,7 @@ void OptionUiSystem::RenderOption() {
       Freetype::LoadColor(0, 0, 0, 255);
 
       Freetype::DrawLine(u"0%", pos_.x + 136, pos_.y + 91);
-      SliderUiSystem::RenderHslider(pos_.x + 163, pos_.y + 95, hp_warn_, 100,
-                                    167, top, false);
+      Slider(hp_warn_, 100, 167).Render(pos_.x + 163, pos_.y + 95);
       Freetype::DrawLine(u"100%", pos_.x + 335, pos_.y + 91);
       if (monster_volume_mute_) {
         t = WzResource::LoadTexture(
@@ -185,8 +181,7 @@ void OptionUiSystem::RenderOption() {
       Freetype::LoadColor(0, 0, 0, 255);
 
       Freetype::DrawLine(u"0%", pos_.x + 136, pos_.y + 91);
-      SliderUiSystem::RenderHslider(pos_.x + 163, pos_.y + 95, hp_warn_, 100,
-                                    167, top, false);
+      Slider(hp_warn_, 100, 167).Render(pos_.x + 163, pos_.y + 95);
       Freetype::DrawLine(u"100%", pos_.x + 335, pos_.y + 91);
       if (skill_volume_mute_) {
         t = WzResource::LoadTexture(
@@ -224,8 +219,7 @@ void OptionUiSystem::RenderOption() {
 
       Freetype::DrawLine(u"0%", pos_.x + 136, pos_.y + 58);
       // hp slider
-      SliderUiSystem::RenderHslider(pos_.x + 163, pos_.y + 63, hp_warn_, 100,
-                                    167, top, false);
+      Slider(hp_warn_, 100, 167).Render(pos_.x + 163, pos_.y + 63);
       Freetype::DrawLine(u"100%", pos_.x + 335, pos_.y + 58);
 
       // mp warn
@@ -233,31 +227,27 @@ void OptionUiSystem::RenderOption() {
       Freetype::DrawCstr(u"MP Warning", pos_.x + 12, pos_.y + 86, 105, 1.3);
       Freetype::LoadColor(0, 0, 0, 255);
       Freetype::DrawLine(u"0%", pos_.x + 136, pos_.y + 91);
-      SliderUiSystem::RenderHslider(pos_.x + 163, pos_.y + 95, hp_warn_, 100,
-                                    167, top, false);
+      Slider(hp_warn_, 100, 167).Render(pos_.x + 163, pos_.y + 95);
       Freetype::DrawLine(u"100%", pos_.x + 335, pos_.y + 91);
 
       // enemy info
       Freetype::LoadColor(255, 255, 255, 255);
       Freetype::DrawCstr(u"Enemy Info", pos_.x + 12, pos_.y + 119, 105, 1.3);
       Freetype::LoadColor(0, 0, 0, 255);
-      ComboBoxUiSystem::Render(pos_.x + 131, pos_.y + 124, enemy_info_cm_, top,
-                               false);
+      enemy_info_cm_.Render(pos_.x + 131, pos_.y + 124, top, false);
       // screen format
       Freetype::LoadColor(255, 255, 255, 255);
       Freetype::DrawCstr(u"ScreenShot File\n Format", pos_.x + 12, pos_.y + 158,
                          105, 1);
       Freetype::LoadColor(0, 0, 0, 255);
-      ComboBoxUiSystem::Render(pos_.x + 131, pos_.y + 164, screenshot_format_,
-                               top, false);
+      screenshot_format_.Render(pos_.x + 131, pos_.y + 164, top, false);
       // screen folder
       Freetype::LoadColor(255, 255, 255, 255);
       Freetype::DrawCstr(u"ScreenShot File\n Format", pos_.x + 12, pos_.y + 158,
                          105, 1);
       Freetype::LoadColor(0, 0, 0, 255);
 
-      ComboBoxUiSystem::Render(pos_.x + 131, pos_.y + 197, screenshot_location_,
-                               top, false);
+      screenshot_location_.Render(pos_.x + 131, pos_.y + 197, top, false);
       // burst screen shot
       SDL_Texture* t;
       if (continue_capture_) {

@@ -8,7 +8,7 @@
 #include "src/client/system/ui/character_choose_ui_system.h"
 #include "src/client/system/ui/component/button.h"
 #include "src/client/system/ui/login_notice_ui_system.h"
-#include "src/client/system/ui/text_input_ui_system.h"
+#include "src/client/system/ui/component/text_input.h"
 #include "src/client/system_instance/character_choose_system_instance.h"
 #include "src/client/system_instance/login_system_instance.h"
 #include "src/client/window/window.h"
@@ -194,7 +194,7 @@ void LoginUiSystem::RenderEffect() {
 }
 
 void LoginUiSystem::RenderUsername() {
-  TextInputUiSystem::Render(username_, 5, 5);
+  username_.Render(5, 5);
 }
 
 bool LoginUiSystem::Render() {
@@ -232,7 +232,7 @@ bool LoginUiSystem::CameraAnimate(float x, float y) {
 }
 
 bool LoginUiSystem::LoginAnimate() {
-  TextInputUiSystem::Close(username_);
+  username_.Close();
   if (CameraAnimate(-80, -479)) {
     CharacterChooseSystemInstance::Enter();
     return false;
@@ -357,7 +357,7 @@ bool LoginUiSystem::EventButton(SDL_Event* event) {
 }
 
 bool LoginUiSystem::Event(SDL_Event* event) {
-  TextInputUiSystem::Event(event, username_);
+  username_.Event(event);
   switch (event->type) {
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
       if (event->button.button == SDL_BUTTON_LEFT) {

@@ -15,10 +15,9 @@
 #include "src/client/system/ui/equip_ui_system.h"
 #include "src/client/system/ui/keybinding_ui_system.h"
 #include "src/client/system/ui/package_ui_system.h"
-#include "src/client/system/ui/scroll_ui_system.h"
 #include "src/client/system/ui/skill_ui_system.h"
 #include "src/client/system/ui/statusbar_menu_ui_system.h"
-#include "src/client/system/ui/text_input_ui_system.h"
+#include "src/client/system/ui/component/text_input.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
@@ -476,7 +475,7 @@ void StatusbarUiSystem::RenderChat() {
     Freetype::DrawLine(s, pos_rect.x + 40 - w / 2, pos_rect.y);
     Freetype::LoadAligned(false);
 
-    TextInputUiSystem::Render(chat_, 5, 5);
+    chat_.Render(5, 5);
   } else {
     static auto chat_background = WzResource::LoadTexture(
         WzResource::ui_->find(u"StatusBar.img/chat/canvas:chatbackgrnd2"));
@@ -638,7 +637,7 @@ void StatusbarUiSystem::EventMotionBtAudio(SDL_Event* event) {
 }
 
 bool StatusbarUiSystem::Event(SDL_Event* event) {
-  auto cr = TextInputUiSystem::Event(event, chat_);
+  auto cr = chat_.Event(event);
   bool r = true;
   switch (event->type) {
     case SDL_EVENT_MOUSE_BUTTON_UP: {
@@ -670,11 +669,11 @@ bool StatusbarUiSystem::Event(SDL_Event* event) {
           if (chat_type_.has_value()) {
             EventChatSend();
             chat_type_ = std::nullopt;
-            TextInputUiSystem::Close(chat_);
+            chat_.Close();
             System::event_systems_.push_back(KeyboardInputSystem::Event);
           } else {
             chat_type_ = GameChatEnum::kMap;
-            TextInputUiSystem::Active(chat_);
+            chat_.Active();
             KeyboardInputSystem::Reset();
           }
           r = false;
