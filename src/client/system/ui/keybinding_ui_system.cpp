@@ -1,6 +1,5 @@
 #include "src/client/system/ui/keybinding_ui_system.h"
 
-#include "src/client/system/ui/component/button.h"
 #include "src/client/game/game_input.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
@@ -10,6 +9,7 @@
 #include "src/client/system/input/keyboard_input_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/component/button.h"
 #include "src/client/system/ui/quick_slot_ui_system.h"
 #include "src/client/system/ui/tooltip_ui_system.h"
 #include "src/client/window/window.h"
@@ -287,6 +287,19 @@ void KeybindingUiSystem::RenderBackgrnd2() {
 }
 
 void KeybindingUiSystem::RenderButton() {
+  for (Button& button : GetComponent()) {
+    button.Render();
+  }
+}
+
+
+std::vector<Button>& KeybindingUiSystem::GetComponent() {
+  const static std::array<Button::Callback, 9> kCallbacks = {
+      EventButtonClose,     EventButtonDefault,  EventButtonDelete,
+      EventButtonQuickSlot, EventButtonPrePage1, EventButtonPrePage2,
+      EventButtonPrePage3,  EventButtonSave,     EventButtonUndo,
+  };
+
   components_.clear();
   const static std::array buttons_nodes = {
       WzResource::ui_->find(u"Basic.img/BtClose"),
@@ -327,11 +340,10 @@ void KeybindingUiSystem::RenderButton() {
                   .focused = CursorGameInstance::cursor_ui_ == Render &&
                              !CursorGameInstance::modal_overlay_};
     components_.push_back(button);
-    button.Render();
+    if (i < kCallbacks.size()) {
+      components_.back().callback = kCallbacks[i];
+    }
   }
-}
-
-std::vector<Button>& KeybindingUiSystem::GetComponent() {
   return components_;
 }
 
@@ -612,35 +624,9 @@ void KeybindingUiSystem::EventRemainKey() {
 }
 
 bool KeybindingUiSystem::EventButton(SDL_Event* event) {
-  std::vector<void (*)()> fns;
-  auto wh = LoadWh();
-  const std::array buttons_rect = {
-      SDL_FRect{wh.x - 18, 6, 12, 12},  //
-      SDL_FRect{6, 421, 54, 16},        //
-      SDL_FRect{65, 421, 54, 16},       //
-      SDL_FRect{172, 59, 84, 16},       //
-
-      SDL_FRect{74, 60, 25, 14},    //
-      SDL_FRect{103, 60, 25, 14},   //
-      SDL_FRect{132, 60, 25, 14},   //
-      SDL_FRect{495, 419, 65, 19},  //
-      SDL_FRect{564, 419, 65, 19},  //
-
-  };
-  fns = {
-      EventButtonClose,     EventButtonDefault,  EventButtonDelete,
-      EventButtonQuickSlot, EventButtonPrePage1, EventButtonPrePage2,
-      EventButtonPrePage3,  EventButtonSave,     EventButtonUndo,
-  };
-
-  for (size_t i = 0; i < components_.size() && i < fns.size(); ++i) {
-    components_[i].callback = fns[i];
-  }
-  if (DispatchButtonClick(components_, true)) {
-    return true;
-  }
-  return false;
+  return DispatchButtonClick(GetComponent(), false);
 }
+
 
 bool KeybindingUiSystem::Event(SDL_Event* event) {
   bool r = true;

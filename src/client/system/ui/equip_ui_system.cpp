@@ -1,6 +1,5 @@
 #include "src/client/system/ui/equip_ui_system.h"
 
-#include "src/client/system/ui/component/button.h"
 #include "src/client/game/game_item.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
@@ -11,6 +10,7 @@
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/component/button.h"
 #include "src/client/system/ui/tooltip_ui_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
@@ -238,6 +238,17 @@ void EquipUiSystem::RenderBackgrnd2() {
 }
 
 void EquipUiSystem::RenderButton() {
+  for (Button& button : GetComponent()) {
+    button.Render();
+  }
+}
+
+
+std::vector<Button>& EquipUiSystem::GetComponent() {
+  const static std::array<Button::Callback, 1> kCallbacks = {
+      EventClose,
+  };
+
   components_.clear();
   const static std::array buttons_nodes = {
       WzResource::ui_->find(u"Basic.img/BtClose"),
@@ -259,11 +270,10 @@ void EquipUiSystem::RenderButton() {
                   .focused = CursorGameInstance::cursor_ui_ == Render &&
                              !CursorGameInstance::modal_overlay_};
     components_.push_back(button);
-    button.Render();
+    if (i < kCallbacks.size()) {
+      components_.back().callback = kCallbacks[i];
+    }
   }
-}
-
-std::vector<Button>& EquipUiSystem::GetComponent() {
   return components_;
 }
 
@@ -463,24 +473,9 @@ void EquipUiSystem::EventClose() {
 }
 
 bool EquipUiSystem::EventButton(SDL_Event* event) {
-  std::vector<SDL_FRect> r;
-  std::vector<void (*)()> fns;
-  auto wh = LoadWh();
-  r = {
-      SDL_FRect{wh.x - 20, 7, 12, 12},  //
-  };
-  fns = {
-      EventClose,
-  };
-
-  for (size_t i = 0; i < components_.size() && i < fns.size(); ++i) {
-    components_[i].callback = fns[i];
-  }
-  if (DispatchButtonClick(components_, false)) {
-    return true;
-  }
-  return false;
+  return DispatchButtonClick(GetComponent(), false);
 }
+
 
 void EquipUiSystem::EventTab(SDL_Event* event) {
   const static std::array tab_rect = {

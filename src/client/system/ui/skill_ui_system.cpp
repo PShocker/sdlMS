@@ -1,6 +1,5 @@
 #include "src/client/system/ui/skill_ui_system.h"
 
-#include "src/client/system/ui/component/button.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
@@ -11,6 +10,7 @@
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/component/button.h"
 #include "src/client/system/ui/scroll_ui_system.h"
 #include "src/client/system/ui/tooltip_ui_system.h"
 #include "src/client/window/window.h"
@@ -264,10 +264,10 @@ bool SkillUiSystem::RenderInfo() {
 static std::u16string ski_button_id = u"";
 
 std::vector<Button>& SkillUiSystem::GetComponent() {
-  return components_;
-}
+  const static std::array<Button::Callback, 1> kCallbacks = {
+      EventClose,
+  };
 
-void SkillUiSystem::RenderButton() {
   components_.clear();
   ski_button_id = u"";
 
@@ -337,9 +337,20 @@ void SkillUiSystem::RenderButton() {
       ski_button_id = (skill_node.begin() + page_ + (i - 1))->first;
     }
     components_.push_back(button);
+    if (i < kCallbacks.size()) {
+      components_.back().callback = kCallbacks[i];
+    }
+  }
+  return components_;
+}
+
+
+void SkillUiSystem::RenderButton() {
+  for (Button& button : GetComponent()) {
     button.Render();
   }
 }
+
 
 void SkillUiSystem::RenderBook() {
   auto self_job = CharacterGameInstance::self_.job;
@@ -415,24 +426,9 @@ void SkillUiSystem::EventClose() {
 }
 
 bool SkillUiSystem::EventButton(SDL_Event* event) {
-  std::vector<SDL_FRect> r;
-  std::vector<void (*)()> fns;
-  auto wh = LoadWh();
-  r = {
-      SDL_FRect{wh.x - 20, 7, 12, 12},  //
-  };
-  fns = {
-      EventClose,
-  };
-
-  for (size_t i = 0; i < components_.size() && i < fns.size(); ++i) {
-    components_[i].callback = fns[i];
-  }
-  if (DispatchButtonClick(components_, false)) {
-    return true;
-  }
-  return false;
+  return DispatchButtonClick(GetComponent(), false);
 }
+
 
 bool SkillUiSystem::EventClickSki(SDL_Event* event) {
   if (CursorGameInstance::cursor_hand_net_.has_value()) {

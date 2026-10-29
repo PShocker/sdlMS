@@ -1,12 +1,12 @@
 #include "src/client/system/ui/option_ui_system.h"
 
-#include "src/client/system/ui/component/button.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/combo_box_ui_system.h"
+#include "src/client/system/ui/component/button.h"
 #include "src/client/system/ui/slider_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
@@ -386,6 +386,17 @@ void OptionUiSystem::RenderOption() {
 }
 
 void OptionUiSystem::RenderButton() {
+  for (Button& button : GetComponent()) {
+    button.Render();
+  }
+}
+
+
+std::vector<Button>& OptionUiSystem::GetComponent() {
+  const static std::array<Button::Callback, 1> kCallbacks = {
+      EventButtonOk,
+  };
+
   components_.clear();
   const static std::array buttons_node = {
       WzResource::ui_->find(u"KeyBindings.img/quickslot/button:confirm"),
@@ -407,11 +418,10 @@ void OptionUiSystem::RenderButton() {
                   .focused = CursorGameInstance::cursor_ui_ == Render &&
                              !CursorGameInstance::modal_overlay_};
     components_.push_back(button);
-    button.Render();
+    if (i < kCallbacks.size()) {
+      components_.back().callback = kCallbacks[i];
+    }
   }
-}
-
-std::vector<Button>& OptionUiSystem::GetComponent() {
   return components_;
 }
 
@@ -541,21 +551,9 @@ void OptionUiSystem::EventTab(SDL_Event* event) {
 }
 
 bool OptionUiSystem::EventButton(SDL_Event* event) {
-  const static std::array buttons_rect = {
-      SDL_FRect{119, 115, 47, 18},  //
-  };
-  const static std::array buttons_func = {
-      EventButtonOk,
-  };
-
-  for (size_t i = 0; i < components_.size() && i < buttons_func.size(); ++i) {
-    components_[i].callback = buttons_func[i];
-  }
-  if (DispatchButtonClick(components_, true)) {
-    return true;
-  }
-  return false;
+  return DispatchButtonClick(GetComponent(), false);
 }
+
 
 void OptionUiSystem::EventMotionBtAudio(SDL_Event* event) {
   if (CursorGameInstance::cursor_ui_ != Render) {

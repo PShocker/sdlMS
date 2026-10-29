@@ -1,6 +1,5 @@
 #include "src/client/system/ui/package_ui_system.h"
 
-#include "src/client/system/ui/component/button.h"
 #include "src/client/game/game_item.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/ball_game_instance.h"
@@ -14,6 +13,7 @@
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/component/button.h"
 #include "src/client/system/ui/equip_ui_system.h"
 #include "src/client/system/ui/notice_ui_system.h"
 #include "src/client/system/ui/scroll_ui_system.h"
@@ -339,6 +339,20 @@ void PackageUiSystem::RenderScroll() {
 }
 
 void PackageUiSystem::RenderButton() {
+  for (Button& button : GetComponent()) {
+    button.Render();
+  }
+}
+
+
+std::vector<Button>& PackageUiSystem::GetComponent() {
+  const static std::array<Button::Callback, 4> kCallbacks = {
+      EventClose,
+      EventButtonCoin,
+      EventButtonGather,
+      EventButtonSort,
+  };
+
   components_.clear();
   const static std::array buttons_nodes = {
       WzResource::ui_->find(u"Basic.img/BtClose"),
@@ -366,11 +380,10 @@ void PackageUiSystem::RenderButton() {
                   .focused = CursorGameInstance::cursor_ui_ == Render &&
                              !CursorGameInstance::modal_overlay_};
     components_.push_back(button);
-    button.Render();
+    if (i < kCallbacks.size()) {
+      components_.back().callback = kCallbacks[i];
+    }
   }
-}
-
-std::vector<Button>& PackageUiSystem::GetComponent() {
   return components_;
 }
 
@@ -714,30 +727,9 @@ void PackageUiSystem::EventButtonSort() {
 }
 
 bool PackageUiSystem::EventButton(SDL_Event* event) {
-  std::vector<SDL_FRect> r;
-  std::vector<void (*)()> fns;
-  auto wh = LoadWh();
-  r = {
-      SDL_FRect{wh.x - 18, 6, 12, 12},  //
-      SDL_FRect{8, 268, 14, 14},        //
-      SDL_FRect{164, 6, 12, 12},        //
-      SDL_FRect{177, 6, 12, 12},        //
-  };
-  fns = {
-      EventClose,
-      EventButtonCoin,
-      EventButtonGather,
-      EventButtonSort,
-  };
-
-  for (size_t i = 0; i < components_.size() && i < fns.size(); ++i) {
-    components_[i].callback = fns[i];
-  }
-  if (DispatchButtonClick(components_, true)) {
-    return true;
-  }
-  return false;
+  return DispatchButtonClick(GetComponent(), false);
 }
+
 
 void PackageUiSystem::EventMotion(SDL_Event* event) {
   auto& sys = System::render_systems_;

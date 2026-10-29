@@ -1,11 +1,11 @@
 #include "src/client/system/ui/trade_ui_system.h"
 
-#include "src/client/system/ui/component/button.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/component/button.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 
@@ -68,6 +68,17 @@ void TradeUiSystem::RenderBackgrnd() {
 }
 
 void TradeUiSystem::RenderButton() {
+  for (Button& button : GetComponent()) {
+    button.Render();
+  }
+}
+
+
+std::vector<Button>& TradeUiSystem::GetComponent() {
+  const static std::array<Button::Callback, 1> kCallbacks = {
+      EventButtonClose,
+  };
+
   components_.clear();
   const static std::array buttons_node = {
       WzResource::ui_->find(u"MapleChat.img/MapleChat/button:claim"),
@@ -93,11 +104,10 @@ void TradeUiSystem::RenderButton() {
                   .focused = CursorGameInstance::cursor_ui_ == Render &&
                              !CursorGameInstance::modal_overlay_};
     components_.push_back(button);
-    button.Render();
+    if (i < kCallbacks.size()) {
+      components_.back().callback = kCallbacks[i];
+    }
   }
-}
-
-std::vector<Button>& TradeUiSystem::GetComponent() {
   return components_;
 }
 
@@ -111,21 +121,9 @@ void TradeUiSystem::EventButtonClose() {
 }
 
 bool TradeUiSystem::EventButton(SDL_Event* event) {
-  const static std::array buttons_rect = {
-      SDL_FRect{119, 115, 47, 18},  //
-  };
-  const static std::array buttons_func = {
-      EventButtonClose,
-  };
-
-  for (size_t i = 0; i < components_.size() && i < buttons_func.size(); ++i) {
-    components_[i].callback = buttons_func[i];
-  }
-  if (DispatchButtonClick(components_, false)) {
-    return true;
-  }
-  return false;
+  return DispatchButtonClick(GetComponent(), false);
 }
+
 
 bool TradeUiSystem::Event(SDL_Event* event) {
   bool r = true;

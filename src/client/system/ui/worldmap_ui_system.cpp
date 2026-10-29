@@ -1,11 +1,11 @@
 #include "src/client/system/ui/worldmap_ui_system.h"
 
-#include "src/client/system/ui/component/button.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/component/button.h"
 #include "src/client/system/ui/minimap_ui_system.h"
 #include "src/client/system/ui/notice_ui_system.h"
 #include "src/client/system/ui/tooltip_ui_system.h"
@@ -179,10 +179,10 @@ bool WorldmapUiSystem::RenderSpotInfo() {
 }
 
 std::vector<Button>& WorldmapUiSystem::GetComponent() {
-  return components_;
-}
+  const static std::array<Button::Callback, 1> kCallbacks = {
+      EventClose,
+  };
 
-void WorldmapUiSystem::RenderButton() {
   components_.clear();
   // 构建按钮列表
   std::vector<wz::Node*> nodes = {
@@ -204,9 +204,20 @@ void WorldmapUiSystem::RenderButton() {
                   .focused = CursorGameInstance::cursor_ui_ == Render &&
                              !CursorGameInstance::modal_overlay_};
     components_.push_back(button);
+    if (i < kCallbacks.size()) {
+      components_.back().callback = kCallbacks[i];
+    }
+  }
+  return components_;
+}
+
+
+void WorldmapUiSystem::RenderButton() {
+  for (Button& button : GetComponent()) {
     button.Render();
   }
 }
+
 
 bool WorldmapUiSystem::Render() {
   RenderBackgrnd();
@@ -274,22 +285,9 @@ void WorldmapUiSystem::EventClickSpot() {
 }
 
 bool WorldmapUiSystem::EventButton(SDL_Event* event) {
-  auto [w, h] = LoadWh();
-  std::vector<SDL_FRect> buttons_rect = {
-      {w - 18, 6, 12, 12},  //
-  };
-  const static std::array buttons_func = {
-      EventClose,
-  };
-
-  for (size_t i = 0; i < components_.size() && i < buttons_func.size(); ++i) {
-    components_[i].callback = buttons_func[i];
-  }
-  if (DispatchButtonClick(components_, true)) {
-    return true;
-  }
-  return false;
+  return DispatchButtonClick(GetComponent(), false);
 }
+
 
 void WorldmapUiSystem::EventMotion(SDL_Event* event) {
   auto& sys = System::render_systems_;

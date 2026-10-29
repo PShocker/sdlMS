@@ -1,6 +1,5 @@
 #include "src/client/system/ui/context_menu_ui_system.h"
 
-#include "src/client/system/ui/component/button.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
@@ -8,6 +7,7 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/character_info_ui_system.h"
+#include "src/client/system/ui/component/button.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
 #include "src/common/request/client_request.h"
@@ -66,6 +66,18 @@ void ContextMenuUiSystem::RenderBackgrnd() {
 }
 
 void ContextMenuUiSystem::RenderButton() {
+  for (Button& button : GetComponent()) {
+    button.Render();
+  }
+}
+
+
+std::vector<Button>& ContextMenuUiSystem::GetComponent() {
+  const static std::array<Button::Callback, 7> kCallbacks = {
+      EventButtonInfo,  EventButtonSave,   EventButtonWhisper, EventButtonParty,
+      EventButtonTrade, EventButtonFriend, EventButtonChat,
+  };
+
   components_.clear();
   const static std::array buttons_nodes = {
       WzResource::ui_->find(u"ContextMenu.img/ContextMenu/BtInfo"),
@@ -97,11 +109,10 @@ void ContextMenuUiSystem::RenderButton() {
                   .enable = !disable[i],
                   .focused = true};
     components_.push_back(button);
-    button.Render();
+    if (i < kCallbacks.size()) {
+      components_.back().callback = kCallbacks[i];
+    }
   }
-}
-
-std::vector<Button>& ContextMenuUiSystem::GetComponent() {
   return components_;
 }
 
@@ -151,35 +162,9 @@ void ContextMenuUiSystem::EventButtonFriend() {}
 void ContextMenuUiSystem::EventButtonChat() {}
 
 bool ContextMenuUiSystem::EventButton(SDL_Event* event) {
-  std::vector<void (*)()> fns;
-  auto& camera = CameraGameInstance::camera_;
-  std::array r = {
-      SDL_FRect{pos_.x + 9, pos_.y + 6, 85, 14},
-      SDL_FRect{pos_.x + 9, pos_.y + 22, 85, 14},
-      SDL_FRect{pos_.x + 9, pos_.y + 38, 85, 14},
-      SDL_FRect{pos_.x + 9, pos_.y + 54, 85, 14},
-      SDL_FRect{pos_.x + 9, pos_.y + 70, 85, 14},
-      SDL_FRect{pos_.x + 9, pos_.y + 86, 85, 14},
-      SDL_FRect{pos_.x + 9, pos_.y + 102, 85, 14},
-  };
-  fns = {
-      EventButtonInfo,  EventButtonSave,   EventButtonWhisper, EventButtonParty,
-      EventButtonTrade, EventButtonFriend, EventButtonChat,
-  };
-  std::vector<bool> disable = {
-      false,
-      false,
-      false,
-      false,
-  };
-  for (size_t i = 0; i < components_.size() && i < fns.size(); ++i) {
-    components_[i].callback = fns[i];
-  }
-  if (DispatchButtonClick(components_, false)) {
-    return false;
-  }
-  return true;
+  return DispatchButtonClick(GetComponent(), false);
 }
+
 
 void ContextMenuUiSystem::EventClose() {
   Close();

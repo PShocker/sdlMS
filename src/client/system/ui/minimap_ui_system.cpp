@@ -1,6 +1,5 @@
 #include "src/client/system/ui/minimap_ui_system.h"
 
-#include "src/client/system/ui/component/button.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
@@ -11,6 +10,7 @@
 #include "src/client/game_instance/text_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/component/button.h"
 #include "src/client/system/ui/worldmap_ui_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"

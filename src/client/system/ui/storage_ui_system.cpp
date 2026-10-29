@@ -1,12 +1,12 @@
 #include "src/client/system/ui/storage_ui_system.h"
 
-#include "src/client/system/ui/component/button.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/storage_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/component/button.h"
 #include "src/client/system/ui/notice_ui_system.h"
 #include "src/client/system/ui/package_ui_system.h"
 #include "src/client/window/window.h"
@@ -80,6 +80,20 @@ void StorageUiSystem::RenderItems() {
 void StorageUiSystem::RenderVscr() {}
 
 void StorageUiSystem::RenderButton() {
+  for (Button& button : GetComponent()) {
+    button.Render();
+  }
+}
+
+
+std::vector<Button>& StorageUiSystem::GetComponent() {
+  const static std::array<Button::Callback, 4> kCallbacks = {
+      EventButtonGet,
+      EventButtonPut,
+      EventButtonSort,
+      EventButtonExit,
+  };
+
   components_.clear();
   const static std::array buttons_node = {
       WzResource::ui_->find(u"Storage.img/Trunk/button:get"),
@@ -103,11 +117,10 @@ void StorageUiSystem::RenderButton() {
                   .focused = CursorGameInstance::cursor_ui_ == Render &&
                              !CursorGameInstance::modal_overlay_};
     components_.push_back(button);
-    button.Render();
+    if (i < kCallbacks.size()) {
+      components_.back().callback = kCallbacks[i];
+    }
   }
-}
-
-std::vector<Button>& StorageUiSystem::GetComponent() {
   return components_;
 }
 
@@ -157,29 +170,9 @@ void StorageUiSystem::Close() {
 }
 
 bool StorageUiSystem::EventButton(SDL_Event* event) {
-  std::vector<SDL_FRect> r;
-  std::vector<void (*)()> fns;
-  r = {
-      SDL_FRect{132, 31, 70, 18},  //
-      SDL_FRect{340, 11, 70, 18},  //
-      SDL_FRect{132, 51, 70, 19},  //
-      SDL_FRect{132, 11, 70, 18},  //
-  };
-  fns = {
-      EventButtonGet,
-      EventButtonPut,
-      EventButtonSort,
-      EventButtonExit,
-  };
-
-  for (size_t i = 0; i < components_.size() && i < fns.size(); ++i) {
-    components_[i].callback = fns[i];
-  }
-  if (DispatchButtonClick(components_, false)) {
-    return true;
-  }
-  return false;
+  return DispatchButtonClick(GetComponent(), false);
 }
+
 
 void StorageUiSystem::EventTab() {
   const static std::array tab_rect = {

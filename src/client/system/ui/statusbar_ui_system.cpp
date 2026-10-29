@@ -1,6 +1,5 @@
 #include "src/client/system/ui/statusbar_ui_system.h"
 
-#include "src/client/system/ui/component/button.h"
 #include "src/client/game/game_chat.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
@@ -12,6 +11,7 @@
 #include "src/client/system/system.h"
 #include "src/client/system/ui/character_stat_ui_system.h"
 #include "src/client/system/ui/chat_log_ui_system.h"
+#include "src/client/system/ui/component/button.h"
 #include "src/client/system/ui/equip_ui_system.h"
 #include "src/client/system/ui/keybinding_ui_system.h"
 #include "src/client/system/ui/package_ui_system.h"
@@ -373,6 +373,20 @@ void StatusbarUiSystem::RenderCharacterStat() {
 }
 
 void StatusbarUiSystem::RenderButton() {
+  for (Button& button : GetComponent()) {
+    button.Render();
+  }
+}
+
+
+std::vector<Button>& StatusbarUiSystem::GetComponent() {
+  const static std::array<Button::Callback, 11> kCallbacks = {
+      EventButtonCashshop,  EventButtonMenu,    EventButtonShortcut,
+      EventButtonMailbox,   EventButtonEquip,   EventButtonInven,
+      EventButtonStat,      EventButtonSkill,   EventButtonKeybind,
+      EventButtonQuickslot, EventButtonChatlog,
+  };
+
   components_.clear();
   static auto cash_shop =
       WzResource::ui_->find(u"StatusBar.img/button:CashShop");
@@ -432,11 +446,10 @@ void StatusbarUiSystem::RenderButton() {
                   .focused = CursorGameInstance::cursor_ui_ == Render &&
                              !CursorGameInstance::modal_overlay_};
     components_.push_back(button);
-    button.Render();
+    if (i < kCallbacks.size()) {
+      components_.back().callback = kCallbacks[i];
+    }
   }
-}
-
-std::vector<Button>& StatusbarUiSystem::GetComponent() {
   return components_;
 }
 
@@ -604,39 +617,9 @@ std::u16string StatusbarUiSystem::LoadChatType() {
 }
 
 bool StatusbarUiSystem::EventButton(SDL_Event* event) {
-  const static std::array buttons_rect = {
-      SDL_FRect{578, 38, 73, 34},  // CashShop
-      SDL_FRect{652, 38, 73, 34},  // Menu
-      SDL_FRect{726, 38, 73, 34},  // Shortcut
-      SDL_FRect{578, 11, 22, 19},  // Mailbox
-      SDL_FRect{621, 10, 28, 20},  // Equip
-      SDL_FRect{651, 10, 28, 20},  // Inven
-      SDL_FRect{681, 10, 28, 20},  // Stat StatUp
-      SDL_FRect{711, 10, 28, 20},  // Skill SkillUp
-      SDL_FRect{741, 10, 28, 20},  // Key
-      SDL_FRect{771, 10, 28, 20},  // QuickSlot QuickSlotD
-      SDL_FRect{539, 14, 12, 12},  // ChatLogMin ChatLogMax
-  };
-  const static std::array buttons_func = {
-      EventButtonCashshop,  EventButtonMenu,    EventButtonShortcut,
-      EventButtonMailbox,   EventButtonEquip,   EventButtonInven,
-      EventButtonStat,      EventButtonSkill,   EventButtonKeybind,
-      EventButtonQuickslot, EventButtonChatlog,
-  };
-  auto screen_w = CameraGameInstance::camera_.w;
-  auto screen_h = CameraGameInstance::camera_.h;
-  auto [w, h] = LoadWh();
-  auto base_x = (screen_w - w) / 2;
-  auto base_y = (screen_h - h);
-
-  for (size_t i = 0; i < components_.size() && i < buttons_func.size(); ++i) {
-    components_[i].callback = buttons_func[i];
-  }
-  if (DispatchButtonClick(components_, false)) {
-    return true;
-  }
-  return false;
+  return DispatchButtonClick(GetComponent(), false);
 }
+
 
 void StatusbarUiSystem::EventMotionBtAudio(SDL_Event* event) {
   if (CursorGameInstance::cursor_ui_ != Render) {

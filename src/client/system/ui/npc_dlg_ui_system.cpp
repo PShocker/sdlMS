@@ -1,6 +1,5 @@
 #include "src/client/system/ui/npc_dlg_ui_system.h"
 
-#include "src/client/system/ui/component/button.h"
 #include "src/client/game/game_npc.h"
 #include "src/client/game/game_quest.h"
 #include "src/client/game_instance/audio_game_instance.h"
@@ -18,6 +17,7 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/render/npc_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/component/button.h"
 #include "src/client/system/ui/notice_ui_system.h"
 #include "src/client/system/ui/quest_alarm_ui_system.h"
 #include "src/client/system/ui/quest_ui_system.h"

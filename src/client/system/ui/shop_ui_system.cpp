@@ -1,6 +1,5 @@
 #include "src/client/system/ui/shop_ui_system.h"
 
-#include "src/client/system/ui/component/button.h"
 #include "src/client/game/game_item.h"
 #include "src/client/game/game_npc.h"
 #include "src/client/game/game_shop.h"
@@ -18,6 +17,7 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/render/npc_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/component/button.h"
 #include "src/client/system/ui/notice_ui_system.h"
 #include "src/client/system/ui/package_ui_system.h"
 #include "src/client/system/ui/scroll_ui_system.h"
