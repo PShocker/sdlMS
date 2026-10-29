@@ -855,37 +855,12 @@ bool NpcDlgUiSystem::CursorIn() {
 }
 
 void NpcDlgUiSystem::EventMotionBtAudio(SDL_Event* event) {
-  if (CursorGameInstance::cursor_ui_ != Render) {
-    return;
-  }
-  auto [w, h] = LoadWh();
-  std::vector<SDL_FRect> buttons_rect = {
-      SDL_FRect{10, h - 25, 85, 18},  //
-  };
-  auto w0 = w - 72;
-  if (index_ < max_index_) {
-    buttons_rect.push_back(SDL_FRect{w0, h - 76, 46, 18});
-    w0 -= 52;
-  }
-  if (index_ > 0) {
-    buttons_rect.push_back(SDL_FRect{w0, h - 76, 46, 18});
-  }
-  if (index_ == max_index_ && cb_ == nullptr &&
-      type_ == NpcDlgEnum::kQuestAvaliable) {
-    buttons_rect.push_back(SDL_FRect{w - 128, h - 25, 57, 17});
-    buttons_rect.push_back(SDL_FRect{w - 66, h - 25, 57, 17});
-  } else {
-    buttons_rect.push_back(SDL_FRect{w - 56, h - 25, 46, 18});
-  }
   static int8_t bt_audio = -1;
-  auto& mouse_pos = Window::mouse_pos_;
   int8_t bt_in = -1;
-  for (size_t i = 0; i < buttons_rect.size(); ++i) {
-    auto pos_rect = buttons_rect[i];
-    pos_rect.x += (int)pos_.x;
-    pos_rect.y += (int)pos_.y;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-      bt_in = i;
+  auto& components = GetComponent();
+  for (size_t i = 0; i < components.size(); ++i) {
+    if (components[i].Hover()) {
+      bt_in = static_cast<int8_t>(i);
       break;
     }
   }

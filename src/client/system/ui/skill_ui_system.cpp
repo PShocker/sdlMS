@@ -573,9 +573,8 @@ void SkillUiSystem::EventWheel(SDL_Event* event) {
 }
 
 void SkillUiSystem::EventMotionBtAudio(SDL_Event* event) {
-  if (CursorGameInstance::cursor_ui_ != Render) {
-    return;
-  }
+  // 重建按钮列表：GetComponent() 会按悬停位置更新 ski_button_id
+  GetComponent();
   static std::u16string ski_button_i;
   if (!ski_button_id.empty() && ski_button_i.empty()) {
     AudioGameInstance::LoadAudio(u"UI.img/BtMouseOver", 0);
@@ -584,21 +583,10 @@ void SkillUiSystem::EventMotionBtAudio(SDL_Event* event) {
   }
   ski_button_i = ski_button_id;
 
-  auto wh = LoadWh();
-  std::vector<SDL_FRect> buttons_rect = {
-      SDL_FRect{wh.x - 20, 7, 12, 12},  //
-  };
   static int8_t bt_audio = -1;
-  auto& mouse_pos = Window::mouse_pos_;
   int8_t bt_in = -1;
-  for (size_t i = 0; i < buttons_rect.size(); ++i) {
-    auto pos_rect = buttons_rect[i];
-    pos_rect.x += (int)pos_.x;
-    pos_rect.y += (int)pos_.y;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-      bt_in = i;
-      break;
-    }
+  if (!components_.empty() && components_[0].Hover()) {
+    bt_in = 0;
   }
   if (bt_in != -1 && bt_audio != bt_in) {
     AudioGameInstance::LoadAudio(u"UI.img/BtMouseOver", 0);

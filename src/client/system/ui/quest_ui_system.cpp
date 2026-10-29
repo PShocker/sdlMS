@@ -891,25 +891,12 @@ bool QuestUiSystem::EventButton(SDL_Event* event) {
 }
 
 void QuestUiSystem::EventMotionBtAudio(SDL_Event* event) {
-  if (CursorGameInstance::cursor_ui_ != Render) {
-    return;
-  }
-  std::vector<SDL_FRect> buttons_rect = {
-      SDL_FRect{227, 6, 12, 12},    //
-      SDL_FRect{183, 374, 57, 17},  //
-  };
-  if (detail_) {
-    buttons_rect.push_back(SDL_FRect{530, 6, 13, 12});
-  }
   static int8_t bt_audio = -1;
-  auto& mouse_pos = Window::mouse_pos_;
   int8_t bt_in = -1;
-  for (size_t i = 0; i < buttons_rect.size(); ++i) {
-    auto pos_rect = buttons_rect[i];
-    pos_rect.x += (int)pos_.x;
-    pos_rect.y += (int)pos_.y;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-      bt_in = i;
+  auto& components = GetComponent();
+  for (size_t i = 0; i < components.size(); ++i) {
+    if (components[i].Hover()) {
+      bt_in = static_cast<int8_t>(i);
       break;
     }
   }

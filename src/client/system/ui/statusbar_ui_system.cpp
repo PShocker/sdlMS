@@ -622,36 +622,12 @@ bool StatusbarUiSystem::EventButton(SDL_Event* event) {
 
 
 void StatusbarUiSystem::EventMotionBtAudio(SDL_Event* event) {
-  if (CursorGameInstance::cursor_ui_ != Render) {
-    return;
-  }
-  const static std::array buttons_rect = {
-      SDL_FRect{578, 38, 73, 34},  // CashShop
-      SDL_FRect{652, 38, 73, 34},  // Menu
-      SDL_FRect{726, 38, 73, 34},  // Shortcut
-      SDL_FRect{578, 11, 22, 19},  // Mailbox
-      SDL_FRect{621, 10, 28, 20},  // Equip
-      SDL_FRect{651, 10, 28, 20},  // Inven
-      SDL_FRect{681, 10, 28, 20},  // Stat StatUp
-      SDL_FRect{711, 10, 28, 20},  // Skill SkillUp
-      SDL_FRect{741, 10, 28, 20},  // Key
-      SDL_FRect{771, 10, 28, 20},  // QuickSlot QuickSlotD
-      SDL_FRect{539, 14, 12, 12},  // ChatLogMin ChatLogMax
-  };
-  auto screen_w = CameraGameInstance::camera_.w;
-  auto screen_h = CameraGameInstance::camera_.h;
-  auto [w, h] = LoadWh();
-  auto base_x = (screen_w - w) / 2;
-  auto base_y = (screen_h - h);
   static int8_t bt_audio = -1;
-  auto& mouse_pos = Window::mouse_pos_;
   int8_t bt_in = -1;
-  for (size_t i = 0; i < buttons_rect.size(); ++i) {
-    auto pos_rect = buttons_rect[i];
-    pos_rect.x += base_x;
-    pos_rect.y += base_y;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-      bt_in = i;
+  auto& components = GetComponent();
+  for (size_t i = 0; i < components.size(); ++i) {
+    if (components[i].Hover()) {
+      bt_in = static_cast<int8_t>(i);
       break;
     }
   }

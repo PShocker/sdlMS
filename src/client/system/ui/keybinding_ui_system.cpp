@@ -533,32 +533,12 @@ void KeybindingUiSystem::EventButtonUndo() {
 }
 
 void KeybindingUiSystem::EventMotionBtAudio(SDL_Event* event) {
-  if (CursorGameInstance::cursor_ui_ != Render) {
-    return;
-  }
-  auto wh = LoadWh();
-  const std::array buttons_rect = {
-      SDL_FRect{wh.x - 18, 6, 12, 12},  //
-      SDL_FRect{6, 421, 54, 16},        //
-      SDL_FRect{65, 421, 54, 16},       //
-      SDL_FRect{172, 59, 84, 16},       //
-
-      SDL_FRect{74, 60, 25, 14},    //
-      SDL_FRect{103, 60, 25, 14},   //
-      SDL_FRect{132, 60, 25, 14},   //
-      SDL_FRect{495, 419, 65, 19},  //
-      SDL_FRect{564, 419, 65, 19},  //
-
-  };
   static int8_t bt_audio = -1;
-  auto& mouse_pos = Window::mouse_pos_;
   int8_t bt_in = -1;
-  for (size_t i = 0; i < buttons_rect.size(); ++i) {
-    auto pos_rect = buttons_rect[i];
-    pos_rect.x += (int)pos_.x;
-    pos_rect.y += (int)pos_.y;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-      bt_in = i;
+  auto& components = GetComponent();
+  for (size_t i = 0; i < components.size(); ++i) {
+    if (components[i].Hover()) {
+      bt_in = static_cast<int8_t>(i);
       break;
     }
   }
