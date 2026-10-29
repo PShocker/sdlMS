@@ -77,6 +77,8 @@ struct ServerMob {
 
   int64_t hp;
   int64_t mp;
+  // 已执行 RunDie：避免重复死亡事件，并让死亡动画期间停止物理下落
+  bool dead = false;
 
   uint8_t page;
   bool flip;
@@ -92,8 +94,6 @@ struct ServerMob {
   float vspeed;
 
   float hforce = 0;
-
-  uint64_t hate_id;
 
   std::flat_map<uint64_t, MobHit> hits;
 

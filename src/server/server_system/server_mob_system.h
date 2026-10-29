@@ -51,6 +51,7 @@ class ServerMobSystem {
 
   // ---- 受击 / 死亡 ----
   static bool RunHitting(ServerMob& mob);
+  static bool RunHitCheck(ServerMob& mob);
   static void RunHitAction(ServerMob& mob);
   static void RunDie(ServerMob& mob, uint64_t client_id);
 

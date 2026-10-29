@@ -321,6 +321,7 @@ void ServerMobInstance::LoadDefaultMob(const std::u16string id,
   mob.one_shot = false;
   mob.action_end = 0;
   mob.attack_hit = 0;
+  mob.dead = false;
   mob.hspeed = 0;
   mob.vspeed = 0;
   mob.hforce = 0;

@@ -749,8 +749,8 @@ bool ServerMobSystem::RunFall(ServerMob& mob) {
     return false;
   }
   auto border = MapInfoGameInstance::LoadMrBorder(map_id_);
-  border.x = static_cast<float>(mob.rx0);
-  border.w = static_cast<float>(mob.rx1);
+  border.x = static_cast<float>(std::min(mob.rx0, mob.rx1));
+  border.w = static_cast<float>(std::max(mob.rx0, mob.rx1));
 
   // 重力：与人物一致的 2000 px/s^2
   mob.vspeed += static_cast<float>(delta_time_) * 2.0f;
@@ -763,7 +763,10 @@ bool ServerMobSystem::RunFall(ServerMob& mob) {
     // 落地
     mob.vspeed = 0;
     mob.hspeed = 0;
-    RunSetAction(mob, LoadDefaultAction(mob));
+    // 死亡动作不能因为落地切回 stand，否则尸体会停在死亡帧
+    if (!mob.dead) {
+      RunSetAction(mob, LoadDefaultAction(mob));
+    }
     return false;
   }
   return true;
@@ -798,6 +801,22 @@ void ServerMobSystem::RunFly(ServerMob& mob) {
 }
 
 void ServerMobSystem::RunPhysics(ServerMob& mob) {
+  // 死亡动画期间停止物理：只播放 die1，不再让尸体下落。
+  // 注意这只排除 dead；HP<=0 但攻击 delay 未到时仍按空中 fall 处理。
+  if (mob.dead) {
+    return;
+  }
+
+  // 095/main：只要在地上怪的 fh == 0（跳跃/被打飞），就必须执行 fall，
+  // 不能被受击 interrupt 提前 return 挡住。
+  if (mob.fh == 0 && mob.move_ability != 4) {
+    mob.interrupt.active = false;
+    mob.interrupt.vx = 0.0f;
+    mob.interrupt.vy = 0.0f;
+    RunFall(mob);
+    return;
+  }
+
   // 被打断位移（击退等）进行中：这段时间由 RunInterruptStep 接管，不走路
   if (mob.interrupt.active) {
     if (Window::dt_now_ >= mob.interrupt.end_time) {
@@ -829,14 +848,33 @@ void ServerMobSystem::RunPhysics(ServerMob& mob) {
 }
 
 void ServerMobSystem::RunHitAction(ServerMob& mob) {
+  mob.action = ServerMobInstance::LoadFineAction(mob.id, u"hit1");
+  // 受击动作由 RunHitCheck 按 hit1 动画总 delay 结束，不走 one_shot 计时
+  mob.one_shot = false;
+  mob.action_end = 0;
+  mob.attack_hit = 0;
+}
+
+bool ServerMobSystem::RunHitCheck(ServerMob& mob) {
+  if (mob.hits.empty()) {
+    return false;
+  }
+  const auto it = mob.hits.begin();
+  const uint64_t hit_time = it->first;
+  if (!it->second.hit_push) {
+    mob.hits.erase(it);
+    return false;
+  }
+
   auto delay = ServerMobInstance::LoadActionDelay(mob.id, u"hit1");
   if (delay == 0) {
     delay = 300;
   }
-  mob.action = ServerMobInstance::LoadFineAction(mob.id, u"hit1");
-  mob.one_shot = true;
-  mob.action_end = Window::dt_now_ + delay;
-  mob.attack_hit = 0;
+  if (hit_time + delay > Window::dt_time_) {
+    return false;
+  }
+  mob.hits.erase(it);
+  return true;
 }
 
 bool ServerMobSystem::RunHitting(ServerMob& mob) {
@@ -858,19 +896,22 @@ bool ServerMobSystem::RunHitting(ServerMob& mob) {
   const auto& first = mob.hits.begin()->second;
   const auto& last = mob.hits.rbegin()->second;
 
-  // 2) 死亡判定：HP 归零且最后一击已过期
-  if (mob.hp <= 0 && last.hit_time < current_time) {
+  // 2) 死亡判定：攻击 delay 到达后，HP 归零立即死亡
+  if (mob.hp <= 0 && last.hit_time <= current_time) {
     const auto killer_id = last.hit_id;
     mob.hits.clear();
     RunDie(mob, killer_id);
     return true;
   }
 
-  // 3) 仇恨：打我的就是目标
-  mob.hate_id = last.hit_id;
-  if (CanAttack(mob)) {
-    mob.target_id = last.hit_id;
-    mob.chase_end = Window::dt_now_ + kChaseMs;
+  // 3) 受击目标就是攻击者：之后 AI 统一追击 target_id
+  mob.target_id = last.hit_id;
+  mob.chase_end = Window::dt_now_ + kChaseMs;
+
+  // 最后一击：不播放新的 hit 动作、不击退，保留 hits 等 hit_time
+  // 到点后 RunDie。死亡 delay 之前仍允许 AI 播放非 hit 动作。
+  if (mob.hp <= 0) {
+    return false;
   }
 
   if (first.hit_time > current_time) {
@@ -878,13 +919,20 @@ bool ServerMobSystem::RunHitting(ServerMob& mob) {
   }
 
   if (first.hit_push) {
-    // 4) 击退：转向 + nMoveType 0 档的减速滑行 + 受击动作
+    // 当前已经在播放 hit 动作：这一击的击退已经生效，不能每帧重启 interrupt
+    if (mob.action.starts_with(u"hit")) {
+      return true;
+    }
+    // 4) 受击：等攻击 delay 到达后才播放 hit 动作。
+    // 095 的击退距离由 RunInterrupt 的 nMoveType 0 档负责，不用 hforce。
     mob.flip = !first.left;
-    mob.hits.erase(mob.hits.begin());
+    mob.hspeed = 0.0f;
+    mob.hforce = 0.0f;
     RunHitAction(mob);
-    // v95：受击位移走 nMoveType 0（初速 130px/s、drag 40000、mass 100 ⇒ 400px/s²）
-    const float dir = first.left ? 1.0f : -1.0f;
-    RunInterrupt(mob, 0, mob.pos.x + dir * 130.0f, mob.pos.y);
+    if (mob.fh != 0 || mob.move_ability == 4) {
+      const float dir = first.left ? 1.0f : -1.0f;
+      RunInterrupt(mob, 0, mob.pos.x + dir * 130.0f, mob.pos.y);
+    }
     return true;
   }
 
@@ -893,7 +941,7 @@ bool ServerMobSystem::RunHitting(ServerMob& mob) {
 }
 
 void ServerMobSystem::RunDie(ServerMob& mob, uint64_t client_id) {
-  mob.hate_id = 0;
+  mob.dead = true;
   mob.target_id = 0;
   mob.one_shot = false;
   mob.attack_hit = 0;
@@ -1008,34 +1056,51 @@ void ServerMobSystem::RunNetworkSync(ServerMob& mob, ServerMob& o_mob) {
 void ServerMobSystem::RunStateMachine(ServerMob& mob) {
   ServerMob o_mob = mob;
 
-  if (mob.hp > 0) {
-    // 1) 受击（可能直接死亡）
-    if (!RunHitting(mob)) {
-      if (mob.one_shot) {
-        // 2) 一次性动作（攻击 / 受击）：推进到判定与结束时刻
-        if (mob.attack_hit != 0 && Window::dt_now_ >= mob.attack_hit) {
-          RunAttackHit(mob);
-        }
-        if (Window::dt_now_ >= mob.action_end) {
+  if (!mob.dead) {
+    bool hit_state = mob.action.starts_with(u"hit");
+    // 受击队列必须继续处理，即使 HP 已经 <= 0；死亡要等攻击 delay 到达。
+    const bool hit_action = RunHitting(mob);
+
+    // main 的 hit 状态：hit1 动画总 delay 结束后才清 hit，回到 stand。
+    // 最后一击 waiting death 期间也允许清掉旧 hit，随后可以播放非 hit 动作。
+    if (!mob.dead && hit_state &&
+        (mob.hits.empty() || RunHitCheck(mob))) {
+      RunSetAction(mob, LoadDefaultAction(mob));
+      hit_state = false;
+    }
+
+    if (!mob.dead) {
+      if (mob.hp <= 0 && mob.hits.empty()) {
+        // delay 已过但仍未死亡（例如同时间戳命中/空队列边界），补死亡
+        RunDie(mob, mob.target_id);
+      } else if (!hit_state && !hit_action) {
+        if (mob.one_shot) {
+          // 一次性动作（攻击 / 受击）：推进到判定与结束时刻
+          if (mob.attack_hit != 0 && Window::dt_now_ >= mob.attack_hit) {
+            RunAttackHit(mob);
+          }
+          if (Window::dt_now_ >= mob.action_end) {
+            RunSetAction(mob, LoadDefaultAction(mob));
+            mob.attack_hit = 0;
+          }
+        } else if (mob.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
+          // 眩晕：停止思考，原地待机
+          mob.input_x = 0;
+          mob.hspeed = 0;
           RunSetAction(mob, LoadDefaultAction(mob));
-          mob.attack_hit = 0;
-        }
-      } else if (mob.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
-        // 3) 眩晕：停止思考，原地待机
-        mob.input_x = 0;
-        mob.hspeed = 0;
-        RunSetAction(mob, LoadDefaultAction(mob));
-      } else {
-        // 4) 正常思考：选目标 -> 攻击 -> 移动
-        RunTarget(mob);
-        if (!RunTryAttack(mob)) {
-          RunInput(mob);
-          RunMoveAction(mob);
+        } else {
+          // 正常思考 / 最后一击等待死亡期间：追击 target_id 的玩家
+          RunTarget(mob);
+          if (!RunTryAttack(mob)) {
+            RunInput(mob);
+            RunMoveAction(mob);
+          }
         }
       }
     }
   }
 
+  // 空血待死亡期间继续物理；dead 后 RunPhysics 会停止死亡动画的下落
   RunPhysics(mob);
   RunNetworkSync(mob, o_mob);
 }

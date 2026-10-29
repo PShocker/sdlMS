@@ -945,7 +945,7 @@ bool CharacterLogicSystem::RunAttack(GameCharacter& g_character) {
                                                    700, path);
     if (!cm.data.empty()) {
       cm.data = {cm.data[0]};
-      cm.data[0].hits = {100};
+      cm.data[0].hits = {50};
       auto d = BallGameInstance::LoadBallTime(cct);
       auto cat = SkillGameInstance::CreateAttackPayload(cm, pos, d);
       cat.payload[0]->effect = {effect.begin(), effect.end()};
