@@ -422,12 +422,16 @@ bool CharacterChooseUiSystem::EventButton(SDL_Event* event) {
       !choose_.has_value(),
       false,
   };
-  for (size_t i = 0; i < components_.size() && i < fns.size(); ++i) {
-    components_[i].callback = fns[i];
+  for (size_t i = 0; i < r.size(); ++i) {
+    auto pos_rect = r[i];
+    pos_rect.x = (int)pos_rect.x;
+    pos_rect.y = (int)pos_rect.y;
+    if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect) && !disable[i]) {
+      fns[i]();
+      return false;
+    }
   }
-  if (DispatchButtonClick(components_, false)) {
-    return false;
-  }
+
   return true;
 }
 
