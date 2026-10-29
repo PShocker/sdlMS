@@ -13,22 +13,23 @@ void Button::Move(float dx, float dy) {
   rect.y += dy;
 }
 
-bool Button::CursorIn() const {
-  if (node == nullptr || !enable || !focused) {
-    return false;
+bool Button::Hover() {
+  mouse_over = false;
+  if (node != nullptr && enable && focused) {
+    SDL_FRect hit = rect;
+    mouse_over = SDL_PointInRectFloat(&Window::mouse_pos_, &hit);
   }
-  SDL_FRect hit = rect;
-  return SDL_PointInRectFloat(&Window::mouse_pos_, &hit);
+  return mouse_over;
 }
 
-void Button::Render() const {
+void Button::Render() {
   if (node == nullptr) {
     return;
   }
   std::u16string state = u"normal";
   if (!enable) {
     state = u"disabled";
-  } else if (CursorIn()) {
+  } else if (Hover()) {
     state =
         (Window::mouse_state_ & SDL_BUTTON_LMASK) ? u"pressed" : u"mouseOver";
   }
@@ -40,14 +41,12 @@ void Button::Render() const {
   SDL_RenderTexture(Window::renderer_, texture, nullptr, &dst);
 }
 
-bool DispatchButtonClick(const std::vector<Button>& components,
-                         bool play_sound) {
-  for (const Button& button : components) {
+bool DispatchButtonClick(std::vector<Button>& components, bool play_sound) {
+  for (Button& button : components) {
     if (button.callback == nullptr || !button.enable || !button.focused) {
       continue;
     }
-    SDL_FRect hit = button.rect;
-    if (!SDL_PointInRectFloat(&Window::mouse_pos_, &hit)) {
+    if (!button.Hover()) {
       continue;
     }
     if (play_sound) {

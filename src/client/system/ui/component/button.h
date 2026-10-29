@@ -18,20 +18,26 @@ struct Button {
   using Callback = std::function<void()>;
 
   wz::Node* node = nullptr;
-  SDL_FRect rect = {};  // absolute, screen-space rectangle
-  Callback callback;    // invoked when the button is clicked
-  bool enable = true;   // disabled buttons draw `disabled/0`, never hover
-  bool focused = true;  // false while another window covers the owning UI
-  uint8_t alpha = 255;  // 0-255, used by fading windows
+  SDL_FRect rect = {};      // absolute, screen-space rectangle
+  Callback callback;        // invoked when the button is clicked
+  bool enable = true;       // disabled buttons draw `disabled/0`, never hover
+  bool focused = true;      // false while another window covers the owning UI
+  bool mouse_over = false;  // cursor over the button, refreshed by Hover()
+  uint8_t alpha = 255;      // 0-255, used by fading windows
 
   // Offsets the button rectangle, e.g. by the owning window position.
   void Move(float dx, float dy);
 
+  // Refreshes `mouse_over` for the current cursor position and returns it.
+  bool Hover();
+
   // True when the cursor is over an enabled, focused button.
-  bool CursorIn() const;
+  bool CursorIn() {
+    return Hover();
+  }
 
   // Draws the button in its normal, hovered, pressed or disabled state.
-  void Render() const;
+  void Render();
 };
 
 // Fires the callback of the first enabled component under the cursor.
@@ -39,7 +45,6 @@ struct Button {
 // Returns true when a click was consumed. `play_sound` plays the standard
 // button click sound, mirroring the behaviour of each UI before the
 // components were introduced.
-bool DispatchButtonClick(const std::vector<Button>& components,
-                         bool play_sound);
+bool DispatchButtonClick(std::vector<Button>& components, bool play_sound);
 
 }  // namespace sdlms
