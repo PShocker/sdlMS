@@ -856,9 +856,7 @@ void ServerMobSystem::RunHitAction(ServerMob& mob) {
 }
 
 bool ServerMobSystem::RunHitCheck(ServerMob& mob) {
-  if (mob.hits.empty()) {
-    return false;
-  }
+  // 调用方仅在 mob.hits 非空时进入；这里直接处理队首。
   const auto it = mob.hits.begin();
   const uint64_t hit_time = it->first;
 
