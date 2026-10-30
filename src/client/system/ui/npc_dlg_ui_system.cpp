@@ -35,6 +35,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <functional>
+#include <limits>
 #include <optional>
 #include <string>
 #include <vector>
@@ -173,7 +174,12 @@ UIComponents& NpcDlgUiSystem::GetComponent() {
 
 void NpcDlgUiSystem::RenderText() {
   auto dt = Window::dt_now_ - time_;
-  int visible_count = int(dt * 0.05);
+  // 鼠标点击时 time_ 会被设成 UINT64_MAX（立即显示全部文字），
+  // 这里不能直接做无符号减法，否则 visible_count 会下溢。
+  int visible_count = std::numeric_limits<int>::max();
+  if (time_ != UINT64_MAX) {
+    visible_count = static_cast<int>(dt * 0.05);
+  }
   switch (type_) {
     case NpcDlgEnum::kQuest:
     case NpcDlgEnum::kQuestAvaliable:
@@ -350,8 +356,9 @@ void NpcDlgUiSystem::RenderObtain() {
     Freetype::LoadSize(12);
     Freetype::LoadAligned(true);
     Freetype::LoadColor(0, 0, 0, 255);
-    auto tmp = std::to_string(act_exp_);
-    Freetype::DrawLine({tmp.begin(), tmp.end()}, pos_rect.x + 22, pos_rect.y);
+    auto num = TextGameInstance::FormatWithCommas(act_exp_);
+    auto text = TextGameInstance::LoadU16str(num.c_str()) + u" EXP";
+    Freetype::DrawLine(text, pos_rect.x + 22, pos_rect.y);
     pos_rect.y += t2->h + 8;
   }
   if (act_meso_ != 0) {
@@ -364,8 +371,16 @@ void NpcDlgUiSystem::RenderObtain() {
     Freetype::LoadSize(12);
     Freetype::LoadAligned(true);
     Freetype::LoadColor(0, 0, 0, 255);
-    auto tmp = std::to_string(act_meso_);
-    Freetype::DrawLine({tmp.begin(), tmp.end()}, pos_rect.x + 22, pos_rect.y);
+    std::string num;
+    if (act_meso_ < 0) {
+      num = "-" + TextGameInstance::FormatWithCommas(
+                      static_cast<uint64_t>(-static_cast<int64_t>(act_meso_)));
+    } else {
+      num = TextGameInstance::FormatWithCommas(
+          static_cast<uint64_t>(act_meso_));
+    }
+    auto text = TextGameInstance::LoadU16str(num.c_str()) + u" Meso";
+    Freetype::DrawLine(text, pos_rect.x + 22, pos_rect.y);
     pos_rect.y += t3->h + 8;
   }
   if (!act_random_item_.empty()) {
@@ -501,7 +516,8 @@ void NpcDlgUiSystem::EventButtonClose() {
 }
 
 void NpcDlgUiSystem::EventButtonOk() {
-  if (type_ == NpcDlgEnum::kQuestComplete && index_ == max_index_) {
+  // OK 直接确认/关闭，不再先翻页。
+  if (type_ == NpcDlgEnum::kQuestComplete) {
     auto back_meso = PackageGameInstance::meso_;
     auto back_data = PackageGameInstance::data_;
     if (!act_random_item_.empty()) {
@@ -541,6 +557,9 @@ void NpcDlgUiSystem::EventButtonOk() {
     QuestUiSystem::CompleteQuest(quest_id_);
     auto quest_node = QuestGameInstance::LoadQuestNode(quest_id_);
     if (auto n = quest_node->find(u"Say/1/yes/0"); n != nullptr) {
+      // 奖励已结算，这里只显示完成对白；改为 kQuestYes，
+      // 避免下一次 OK 又进入 kQuestComplete 重复发奖励。
+      type_ = NpcDlgEnum::kQuestYes;
       time_ = Window::dt_now_;
       text_ = TextGameInstance::LoadRstr(n);
       index_ = 0;
@@ -575,8 +594,14 @@ void NpcDlgUiSystem::EventButtonUpdate() {
     case NpcDlgEnum::kQuestYes:
       suffix = u"/yes";
       break;
+    case NpcDlgEnum::kQuestNo:
+      suffix = u"/no";
+      break;
     case NpcDlgEnum::kQuestStopItem:
       suffix = u"/item";
+      break;
+    case NpcDlgEnum::kQuestStopMob:
+      suffix = u"/mob";
       break;
     case NpcDlgEnum::kQuestStopLost:
       suffix = u"/lost";
@@ -631,6 +656,8 @@ void NpcDlgUiSystem::EventButtonNext() {
         act_meso_ = QuestGameInstance::LoadQuestActMeso(quest_id_);
         act_item_ = QuestGameInstance::LoadQuestActItem(quest_id_);
         act_exp_ = QuestGameInstance::LoadQuestActExp(quest_id_);
+        act_random_item_ =
+            QuestGameInstance::LoadQuestActRandomItem(quest_id_);
       } else {
         type_ = NpcDlgEnum::kTalk;
         node = QuestGameInstance::LoadQuestNode(quest_id_);
@@ -667,6 +694,8 @@ void NpcDlgUiSystem::EventList() {
   if (selected.empty()) {
     return;
   }
+  // 点击任务列表条目：播放列表点击音
+  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
   script_id_ = u"";
   quest_id_ = selected;
 
@@ -722,7 +751,8 @@ void NpcDlgUiSystem::EventList() {
     act_item_ = QuestGameInstance::LoadQuestActItem(quest_id_);
     act_exp_ = QuestGameInstance::LoadQuestActExp(quest_id_);
     act_random_item_ = QuestGameInstance::LoadQuestActRandomItem(quest_id_);
-    if ((act_meso_ == 0 && act_exp_ == 0) || max_index_ == -1) {
+    if (max_index_ == -1) {
+      // 没有完成对白页时直接结算；有对白/奖励展示时不要跳过。
       max_index_ = 0;
       index_ = max_index_;
       EventButtonOk();
@@ -735,18 +765,18 @@ void NpcDlgUiSystem::EventList() {
     if (!q.item_bool) {
       type_ = NpcDlgEnum::kQuestStopItem;
       node = QuestGameInstance::LoadQuestNode(selected);
-      node = node->find(u"Say/" + quest_index_ + u"/stop/npc");
+      node = node->find(u"Say/" + quest_index_ + u"/stop/item");
     } else if (!q.mob_bool) {
-      type_ = NpcDlgEnum::kQuestStopItem;
+      type_ = NpcDlgEnum::kQuestStopMob;
       node = QuestGameInstance::LoadQuestNode(selected);
       node = node->find(u"Say/" + quest_index_ + u"/stop/mob");
     } else {
       type_ = NpcDlgEnum::kQuestStopNpc;
       node = QuestGameInstance::LoadQuestNode(selected);
-      node = node->find(u"Say/" + quest_index_ + u"/stop/item");
+      node = node->find(u"Say/" + quest_index_ + u"/stop/npc");
     }
     if (node) {
-      max_index_ = node->children_count();
+      max_index_ = node->children_count() - 1;
     }
   } else {
     type_ = NpcDlgEnum::kQuestAvaliable;
@@ -779,28 +809,26 @@ void NpcDlgUiSystem::EventButtonQuestYes() {
     Script::fns().at(script_id_)(nullptr);
     return;
   }
-  act_item_ = QuestGameInstance::LoadQuestActItem(quest_id_);
+  // 接任务前先发放 Act/0 中对应 Check/1 的起始任务道具，
+  // 例如 1001 的镜子 4031000。
+  auto start_items = QuestGameInstance::LoadQuestStartItem(quest_id_);
   auto back_data = PackageGameInstance::data_;
-  for (auto [k, v] : act_item_) {
-    if (v > 0) {
-      std::polymorphic<GameItem> item;
-      if (ItemGameInstance::CheckItem(k)) {
-        item = ItemGameInstance::LoadItem(k, v);
-      } else {
-        item = EquipGameInstance::LoadItem(k);
-      }
-      if (!PackageGameInstance::AddNewItem(item)) {
-        NoticeUiSystem::OpenNoSpace(item->type);
-        PackageGameInstance::data_ = back_data;
-        Close();
-        return;
-      }
+  for (auto [k, v] : start_items) {
+    std::polymorphic<GameItem> item;
+    if (ItemGameInstance::CheckItem(k)) {
+      item = ItemGameInstance::LoadItem(k, v);
     } else {
-      auto item = PackageGameInstance::LoadItem(k);
-      ItemGameInstance::DecItemNum(*item, -v);
+      item = EquipGameInstance::LoadItem(k);
+    }
+    if (!PackageGameInstance::AddNewItem(item)) {
+      NoticeUiSystem::OpenNoSpace(item->type);
+      PackageGameInstance::data_ = back_data;
+      Close();
+      return;
     }
   }
-  // accept quest
+
+  // 接任务只改变任务状态，不发放 Act/1 的完成奖励。
   QuestGameInstance::AcceptQuest(quest_id_);
   QuestAlarmUiSystem::AcceptQuest(quest_id_);
   static wz::Node* yes_node;
@@ -882,12 +910,16 @@ bool NpcDlgUiSystem::Event(SDL_Event* event) {
           break;
         }
         case SDL_SCANCODE_RETURN: {
+          if (index_ < max_index_) {
+            EventButtonNext();
+            return false;
+          }
           if (index_ == max_index_ && cb_ == nullptr &&
               type_ == NpcDlgEnum::kQuestAvaliable) {
             EventButtonQuestYes();
             return false;
           }
-          if (type_ == NpcDlgEnum::kQuestAvaliable && index_ < max_index_) {
+          if (type_ == NpcDlgEnum::kSelect) {
             EventButtonNext();
             return false;
           }
@@ -920,6 +952,7 @@ bool NpcDlgUiSystem::Event(SDL_Event* event) {
           EventList();
           EventUI(event);
           if (type_ == NpcDlgEnum::kSelect && select_mouse_ >= 0) {
+            // 文本选择项确认音
             EventButtonNext();
           }
         }
@@ -942,12 +975,15 @@ bool NpcDlgUiSystem::StartNextQuest() {
   auto node = QuestGameInstance::LoadQuestNode(quest_id_);
   if (auto n = node->find(u"Act/" + quest_index_ + u"/nextQuest");
       n != nullptr) {
-    QuestGameInstance::CompleteQuest(selected);
-    QuestAlarmUiSystem::CompleteQuest(selected);
-    QuestUiSystem::CompleteQuest(quest_id_);
+    const auto current_quest = quest_id_;
+    QuestGameInstance::CompleteQuest(current_quest);
+    QuestAlarmUiSystem::CompleteQuest(current_quest);
+    QuestUiSystem::CompleteQuest(current_quest);
     auto nq = static_cast<wz::Property<int>*>(n)->get();
     auto tmp = std::to_string(nq);
     selected = std::u16string{tmp.begin(), tmp.end()} + u".img";
+    script_id_ = u"";
+    index_ = 0;
     type_ = NpcDlgEnum::kQuest;
     EventList();
     return true;

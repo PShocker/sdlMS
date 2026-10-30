@@ -441,6 +441,45 @@ std::flat_map<std::u16string, int> QuestGameInstance::LoadQuestActItem(
   return r;
 }
 
+std::flat_map<std::u16string, int> QuestGameInstance::LoadQuestStartItem(
+    const std::u16string& id) {
+  std::flat_map<std::u16string, int> r;
+  auto quest_node = LoadQuestNode(id);
+  if (quest_node == nullptr) {
+    return r;
+  }
+  auto check = quest_node->find(u"Check/1/item");
+  auto act = quest_node->find(u"Act/0/item");
+  if (check == nullptr || act == nullptr) {
+    return r;
+  }
+
+  std::flat_set<std::u16string> required;
+  for (auto [k, v] : *check->get_children()) {
+    auto item_id =
+        static_cast<wz::Property<int>*>(v[0]->get_child(u"id"))->get();
+    auto tmp = std::format("{:08d}", item_id);
+    required.emplace(tmp.begin(), tmp.end());
+  }
+  for (auto [k, v] : *act->get_children()) {
+    auto item_id =
+        static_cast<wz::Property<int>*>(v[0]->get_child(u"id"))->get();
+    auto tmp = std::format("{:08d}", item_id);
+    std::u16string item_str{tmp.begin(), tmp.end()};
+    if (!required.contains(item_str)) {
+      continue;
+    }
+    int count = 1;
+    if (auto n = v[0]->get_child(u"count"); n != nullptr) {
+      count = static_cast<wz::Property<int>*>(n)->get();
+    }
+    if (count > 0) {
+      r[item_str] = count;
+    }
+  }
+  return r;
+}
+
 std::flat_map<std::u16string, int> QuestGameInstance::LoadQuestActRandomItem(
     const std::u16string& id) {
   std::flat_map<std::u16string, int> r;

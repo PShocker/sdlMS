@@ -56,7 +56,6 @@ void NoticeUiSystem::RenderBackgrnd() {
     case NoticeEnum::kShopbuySell:
     case NoticeEnum::kShopbuySellNoNum:
     case NoticeEnum::kShopbuy:
-    case NoticeEnum::kTradeBlock:
     case NoticeEnum::kQuestGiveup: {
       node = WzResource::ui_->find(u"PopupWindow.img/Notice1");
       break;
@@ -123,7 +122,6 @@ UIComponents& NoticeUiSystem::GetComponent() {
     case NoticeEnum::kEquipNoAbility:
     case NoticeEnum::kThrowMul:
     case NoticeEnum::kEquipNoSpace:
-    case NoticeEnum::kTradeBlock:
     case NoticeEnum::kQuestGiveup: {
       buttons_node = {
           WzResource::ui_->find(u"Basic.img/BtOK2"),
@@ -325,13 +323,6 @@ void NoticeUiSystem::RenderText() {
       p = {20, 20};
       break;
     }
-    case NoticeEnum::kTradeBlock: {
-      auto n =
-          WzResource::ms_->get_root()->find(u"String.img/Notice/tradeBlock");
-      text = static_cast<wz::Property<std::u16string>*>(n)->get();
-      p = {20, 20};
-      break;
-    }
     case NoticeEnum::kQuestGiveup: {
       text = u"Do you want to forfeit this quest?";
       p = {20, 20};
@@ -425,6 +416,7 @@ void NoticeUiSystem::Open() {
         auto num = ItemGameInstance::LoadItemNum(*p);
         auto tmp = std::to_string(num);
         text_.text = {tmp.begin(), tmp.end()};
+        text_.cur = text_.text.size();
         break;
       }
       default: {
@@ -492,7 +484,6 @@ SDL_FPoint NoticeUiSystem::LoadWh() {
     case NoticeEnum::kNoStorageSpace:
     case NoticeEnum::kEquipNoAbility:
     case NoticeEnum::kEquipNoSpace:
-    case NoticeEnum::kTradeBlock:
     case NoticeEnum::kQuestGiveup: {
       return {266, 116};
     }

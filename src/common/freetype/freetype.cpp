@@ -389,7 +389,9 @@ Freetype::DrawData Freetype::DrawRstr(const std::u16string& str, float x,
           if (i + 3 >= str.size())
             break;
           i += 3;
-          ++select;
+          // 选项下标不能再用 ++select：select 在每行结束时会重置为 -1，
+          // 否则第二行开始的选项会重新从 0 计数，导致第二个选项没有下划线。
+          select = static_cast<int>(select_r.size());
           l = x + kBulletOffsetX;
           in_option = true;
 
@@ -497,6 +499,11 @@ Freetype::DrawData Freetype::DrawRstr(const std::u16string& str, float x,
       ++drawn;
   }
 
+  // 文本末尾的选项可能没有 #l 结束标记，补一次宽度。
+  if (select >= 0 && select < static_cast<int>(select_r.size())) {
+    select_r[select].w = l - x;
+  }
+
   // === 选择按钮 ===
   const auto load_dot = [](bool active) -> SDL_Texture* {
     static const auto dot0 = WzResource::LoadTexture(
@@ -523,7 +530,9 @@ Freetype::DrawData Freetype::DrawRstr(const std::u16string& str, float x,
     if (idx < 0 || idx >= static_cast<int>(select_r.size()))
       return;
     const auto& r = select_r[idx];
-    const float y1 = r.y + line_height;
+    // 每个选项保存自己的行高，不能使用循环结束后的 line_height，
+    // 否则带图标/不同行高的选项下划线会画错位置。
+    const float y1 = r.y + r.h;
     SDL_SetRenderDrawColor(Window::renderer_, color.r, color.g, color.b,
                            color.a);
     if (dashed) {

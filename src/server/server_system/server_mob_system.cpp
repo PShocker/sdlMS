@@ -861,10 +861,6 @@ bool ServerMobSystem::RunHitCheck(ServerMob& mob) {
   }
   const auto it = mob.hits.begin();
   const uint64_t hit_time = it->first;
-  if (!it->second.hit_push) {
-    mob.hits.erase(it);
-    return false;
-  }
 
   auto delay = ServerMobInstance::LoadActionDelay(mob.id, u"hit1");
   if (delay == 0) {
@@ -883,7 +879,7 @@ bool ServerMobSystem::RunHitting(ServerMob& mob) {
   }
   const auto current_time = Window::dt_time_;
 
-  // 1) 结算本帧累积伤害
+  // 1) 在 RunHitting 内结算本帧累积伤害（main 分支语义，int64_t 防溢出）。
   int64_t total_damage = 0;
   for (auto& b : mob.hits | std::views::values) {
     if (b.hit_num != 0) {
@@ -893,51 +889,43 @@ bool ServerMobSystem::RunHitting(ServerMob& mob) {
   }
   mob.hp -= total_damage;
 
+  // 2) 取首/尾；hits 是有序容器，rbegin 是"最后一次命中"。
   const auto& first = mob.hits.begin()->second;
   const auto& last = mob.hits.rbegin()->second;
 
-  // 2) 死亡判定：攻击 delay 到达后，HP 归零立即死亡
-  if (mob.hp <= 0 && last.hit_time <= current_time) {
-    const auto killer_id = last.hit_id;
+  // 首击的 hit_time 未到，暂不推进动作（伤害已结算）。
+  if (first.hit_time > current_time) {
+    return false;
+  }
+
+  // 3) 死亡判定：HP 归零且最后一击已过期。
+  if (mob.hp <= 0 && last.hit_time < current_time) {
+    const auto killer_id = last.hit_id;  // clear 前保存
     mob.hits.clear();
     RunDie(mob, killer_id);
     return true;
   }
 
-  // 3) 受击目标就是攻击者：之后 AI 统一追击 target_id
+  // 4) 受击目标就是攻击者：之后 AI 统一追击 target_id。
   mob.target_id = last.hit_id;
   mob.chase_end = Window::dt_now_ + kChaseMs;
 
-  // 最后一击：不播放新的 hit 动作、不击退，保留 hits 等 hit_time
-  // 到点后 RunDie。死亡 delay 之前仍允许 AI 播放非 hit 动作。
-  if (mob.hp <= 0) {
-    return false;
-  }
-
-  if (first.hit_time > current_time) {
-    return false;
-  }
-
-  if (first.hit_push) {
-    // 当前已经在播放 hit 动作：这一击的击退已经生效，不能每帧重启 interrupt
-    if (mob.action.starts_with(u"hit")) {
-      return true;
-    }
-    // 4) 受击：等攻击 delay 到达后才播放 hit 动作。
-    // 095 的击退距离由 RunInterrupt 的 nMoveType 0 档负责，不用 hforce。
-    mob.flip = !first.left;
-    mob.hspeed = 0.0f;
-    mob.hforce = 0.0f;
-    RunHitAction(mob);
-    if (mob.fh != 0 || mob.move_ability == 4) {
-      const float dir = first.left ? 1.0f : -1.0f;
-      RunInterrupt(mob, 0, mob.pos.x + dir * 130.0f, mob.pos.y);
-    }
+  // 正在播放受击动作：不能每帧重启 hit1。
+  if (mob.action.starts_with(u"hit")) {
     return true;
   }
 
-  mob.hits.erase(mob.hits.begin());
-  return false;
+  // 5) 095：命中进入 hit 状态；hit_push 只决定是否击退。
+  mob.flip = !first.left;
+  mob.hspeed = 0.0f;
+  mob.hforce = 0.0f;
+  RunHitAction(mob);
+  if (first.hit_push && (mob.fh != 0 || mob.move_ability == 4)) {
+    // 095 的击退距离由 RunInterrupt 的 nMoveType 0 档负责，不用 hforce。
+    const float dir = first.left ? 1.0f : -1.0f;
+    RunInterrupt(mob, 0, mob.pos.x + dir * 130.0f, mob.pos.y);
+  }
+  return true;
 }
 
 void ServerMobSystem::RunDie(ServerMob& mob, uint64_t client_id) {

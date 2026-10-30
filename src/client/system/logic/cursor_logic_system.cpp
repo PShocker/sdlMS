@@ -391,13 +391,6 @@ bool CursorLogicSystem::EventCursorHand(SDL_Event* event) {
           NoticeUiSystem::Open();
           break;  // 不执行丢弃，等待用户选择数量
         }
-        bool trade_block = itm_info->get_child(u"tradeBlock");
-        if (trade_block) {
-          NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kTradeBlock;
-          NoticeUiSystem::Open();
-          cursor_hand = std::nullopt;
-          break;  // 不执行丢弃，等待用户选择数量
-        }
 
         // 执行物品丢弃
         fbs::DropT dt;

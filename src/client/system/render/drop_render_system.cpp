@@ -11,6 +11,10 @@
 
 #include <string>
 
+#include "wz/Property.h"
+#include "wz/Wz.h"
+
+
 namespace sdlms {
 
 bool DropRenderSystem::Render(GameDrop& g_drop) {
@@ -33,6 +37,10 @@ bool DropRenderSystem::Render(GameDrop& g_drop) {
           ItemGameInstance::LoadItemInfo(g_drop.data->id, item_num);
       if (item_info->get_child(u"iconRaw")) {
         item_info = item_info->get_child(u"iconRaw");
+        if (item_info->type == wz::Type::UOL) {
+          item_info =
+              static_cast<wz::Property<wz::WzUOL>*>(item_info)->get_uol();
+        }
         icon = WzResource::LoadTexture(item_info);
         o = WzResource::LoadFpoint(item_info->get_child(u"origin"));
       } else {

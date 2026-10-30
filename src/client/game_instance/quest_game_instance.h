@@ -58,6 +58,9 @@ class QuestGameInstance {
 
   static std::flat_map<std::u16string, int> LoadQuestActItem(
       const std::u16string& id);
+  // Act/0 中与 Check/1 需求对应的起始任务道具（如 1001 的镜子）
+  static std::flat_map<std::u16string, int> LoadQuestStartItem(
+      const std::u16string& id);
   static std::flat_map<std::u16string, int> LoadQuestActRandomItem(
       const std::u16string& id);
   static uint32_t LoadQuestActExp(const std::u16string& id);

@@ -72,8 +72,6 @@ class NoticeUiSystem : public UiComponentHost<NoticeUiSystem> {
     kThrowMul,
 
     kQuestGiveup,
-
-    kTradeBlock,
   };
 
   static inline NoticeEnum type_;

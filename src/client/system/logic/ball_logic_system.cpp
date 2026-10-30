@@ -9,6 +9,10 @@
 #include <wz/Node.h>
 #include <wz/Property.h>
 
+#include <algorithm>
+#include <cmath>
+#include <numbers>
+
 namespace sdlms {
 
 void BallLogicSystem::RunAnimate(GameBall& b) {
@@ -35,13 +39,17 @@ void BallLogicSystem::RunAnimate(GameBall& b) {
     }
     b.ani_index = b.ani_index % m.size();
   }
-  float dx = b.goal.x - b.pos.x;
-  float dy = b.goal.y - b.pos.y;
-  if (MobGameInstance::data_.contains(b.mob_index)) {
-    const auto& mob = MobGameInstance::data_.at(b.mob_index).mob;
-    dx = (b.goal.x + mob.pos.x) - b.pos.x;
-    dy = (b.goal.y + mob.pos.y) - b.pos.y;
+  // 095 的子弹 origin 挂在目标 Vector2D 上，但发射时的始/终点偏移固定。
+  // 因此这里用固定的相对弹道，不能在每帧朝怪物当前位置重新瞄准。
+  SDL_FPoint from = b.start_offset;
+  SDL_FPoint to = b.goal;
+  if (!MobGameInstance::data_.contains(b.mob_index)) {
+    from = b.start;
+    to = b.spawn_goal;
   }
+
+  float dx = to.x - from.x;
+  float dy = to.y - from.y;
   float angle = SDL_atan2f(dy, dx) * (180.0f / std::numbers::pi);
   if (dx < 0) {
     angle += 180.0f;
@@ -75,27 +83,39 @@ SDL_FPoint BallLogicSystem::Move(SDL_FPoint p1, SDL_FPoint p2, int speed) {
 }
 
 bool BallLogicSystem::RunMove(GameBall& b) {
-  if (MobGameInstance::data_.contains(b.mob_index)) {
-    auto mob_pos = MobGameInstance::data_.at(b.mob_index).mob.pos;
-    auto p2 = b.goal;
-    p2.x += mob_pos.x;
-    p2.y += mob_pos.y;
-    auto p = Move(b.pos, p2, b.speed);
-    b.pos = p;
-    if (p.x == p2.x && p.y == p2.y) {
-      // 删除ball
-      return false;
-    }
-  } else {
-    auto p2 = b.goal;
-    auto p = Move(b.pos, b.goal, b.speed);
-    b.pos = p;
-    if (p.x == p2.x && p.y == p2.y) {
-      // 删除ball
-      return false;
-    }
+  auto now = Window::dt_time_;
+  if (b.move_start == 0) {
+    b.move_start = now;
   }
-  return true;
+  if (b.duration == 0) {
+    b.duration = 1;
+  }
+
+  // 目标存在时整条弹道跟随目标平移；目标消失后保留发射时的绝对弹道。
+  SDL_FPoint from = b.start;
+  SDL_FPoint to = b.spawn_goal;
+  if (MobGameInstance::data_.contains(b.mob_index)) {
+    const auto mob_pos = MobGameInstance::data_.at(b.mob_index).mob.pos;
+    from = {
+        b.start_offset.x + mob_pos.x,
+        b.start_offset.y + mob_pos.y,
+    };
+    to = {
+        b.goal.x + mob_pos.x,
+        b.goal.y + mob_pos.y,
+    };
+  }
+
+  const auto elapsed = now - b.move_start;
+  const float t =
+      std::min(1.0f, static_cast<float>(elapsed) / static_cast<float>(b.duration));
+  b.pos = {
+      from.x + (to.x - from.x) * t,
+      from.y + (to.y - from.y) * t,
+  };
+
+  // 到达终点后删除 ball
+  return t < 1.0f;
 }
 
 bool BallLogicSystem::Run() {

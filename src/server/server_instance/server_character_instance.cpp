@@ -26,6 +26,7 @@
 #include <wz/Property.h>
 
 #include <cstdint>
+#include <algorithm>
 #include <flat_set>
 #include <format>
 #include <memory>
@@ -284,13 +285,22 @@ void ServerCharacterInstance::HandleAttack(uint64_t client_id,
     auto mob_info = MobGameInstance::LoadMobInfo(mob.id);
     auto pushed =
         static_cast<wz::Property<int>*>(mob_info->get_child(u"pushed"))->get();
+
     MobHit mh;
     mh.left = a->left;
     mh.hit_id = client_id;
     mh.hit_time = a->attack->delay;
     mh.hit_num = a->attack->num;
     mh.hit_push = mh.hit_num >= pushed;
-    mob.hits.emplace(mh.hit_time, mh);
+
+    auto [hit_it, inserted] = mob.hits.emplace(mh.hit_time, mh);
+    if (!inserted) {
+      // 连续攻击可能落在同一毫秒：不能丢掉后一次伤害。
+      hit_it->second.hit_num += mh.hit_num;
+      hit_it->second.hit_push = hit_it->second.hit_push || mh.hit_push;
+      hit_it->second.left = mh.left;
+      hit_it->second.hit_id = mh.hit_id;
+    }
   }
   // 转发
   const auto& clients = ServerSceneInstance::scenes_.at(map_id).clients;
