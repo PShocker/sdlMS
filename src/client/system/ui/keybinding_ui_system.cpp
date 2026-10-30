@@ -321,9 +321,14 @@ UIComponents& KeybindingUiSystem::GetComponent() {
   static auto tab_node = WzResource::ui_->find(u"KeyBindings.img/tab:kind");
   std::vector<SDL_FRect> tab_rects;
   for (uint8_t i = 0; i < 2; i++) {
-    tab_rects.push_back(
-        SDL_FRect{static_cast<float>(int(pos_.x) + 9 + 33 * i),
-                  static_cast<float>(int(pos_.y) + 24), 33, 19});
+    // tab:kind 的两张图都是 110x20，按 105px 间距并排：
+    // 前一张右侧 5px 边框与后一张左侧重叠，正好铺满 lt(9,24)..rb(220,45)。
+    tab_rects.push_back(SDL_FRect{
+        static_cast<float>(int(pos_.x) + 9 + 105 * i),
+        static_cast<float>(int(pos_.y) + 24),
+        105,
+        21,
+    });
   }
   components_.push_back(
       Tab{tab_node, u"selected", u"normal", tab_rects, active_tab_});
@@ -538,6 +543,12 @@ void KeybindingUiSystem::EventBackgrndKey() {
   auto& cursor_hand = CursorGameInstance::cursor_hand_;
   if (cursor_hand.has_value()) {
     auto input = KeyboardGameInstance::LoadCursorInput();
+    if (!input.has_value()) {
+      // 装备/卷轴/其他非法物品不能放进键位：直接清空手持
+      CursorGameInstance::cursor_hand_ = std::nullopt;
+      AudioGameInstance::LoadAudio(u"UI.img/DragEnd", 0);
+      return;
+    }
     KeyboardGameInstance::InsertInput(scan_code, input.value());
     CursorGameInstance::cursor_hand_ = std::nullopt;
     AudioGameInstance::LoadAudio(u"UI.img/DragEnd", 0);
@@ -586,7 +597,23 @@ bool KeybindingUiSystem::EventCancelHand() {
 }
 
 bool KeybindingUiSystem::EventUI(SDL_Event* event) {
-  return DispatchButtonClick(GetComponent(), false);
+  auto& components = GetComponent();
+  const SDL_FPoint mouse{event->button.x, event->button.y};
+  for (auto& component : components) {
+    auto* tab = std::get_if<Tab>(&component);
+    if (tab == nullptr) {
+      continue;
+    }
+    if (auto i = tab->Click(mouse)) {
+      if (active_tab_ != *i) {
+        active_tab_ = *i;
+        AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+      }
+      return true;
+    }
+  }
+  // 按钮点击音效由 DispatchButtonClick 统一播放
+  return DispatchButtonClick(components, true);
 }
 
 
@@ -620,7 +647,25 @@ bool KeybindingUiSystem::Event(SDL_Event* event) {
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
-        if (CursorGameInstance::cursor_ui_ == Render) {
+        const bool on_ui = CursorGameInstance::cursor_ui_ == Render;
+        if (!on_ui) {
+          backgrnd_key = std::nullopt;
+        }
+        // 手持的是键位上的值，但没有点在键位上：
+        // 清掉这个键位原来的绑定，并清空 cursor_hand。
+        if (!backgrnd_key.has_value() &&
+            CursorGameInstance::cursor_hand_.has_value() &&
+            CursorGameInstance::cursor_hand_->type ==
+                CursorGameInstance::CursorHandType::kKeybind) {
+          const auto scan = static_cast<SDL_Scancode>(
+              CursorGameInstance::cursor_hand_->val);
+          if (scan != SDL_SCANCODE_UNKNOWN) {
+            KeyboardGameInstance::EraseInput(scan);
+          }
+          CursorGameInstance::cursor_hand_ = std::nullopt;
+          AudioGameInstance::LoadAudio(u"UI.img/DragEnd", 0);
+        }
+        if (on_ui) {
           // event_tab(event);
           EventBackgrndKey();
           // 手持绑定点在键位以外的区域: 取消手持

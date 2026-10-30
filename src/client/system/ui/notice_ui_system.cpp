@@ -32,6 +32,7 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 
@@ -55,7 +56,8 @@ void NoticeUiSystem::RenderBackgrnd() {
     case NoticeEnum::kShopbuySell:
     case NoticeEnum::kShopbuySellNoNum:
     case NoticeEnum::kShopbuy:
-    case NoticeEnum::kTradeBlock: {
+    case NoticeEnum::kTradeBlock:
+    case NoticeEnum::kQuestGiveup: {
       node = WzResource::ui_->find(u"PopupWindow.img/Notice1");
       break;
     }
@@ -121,7 +123,8 @@ UIComponents& NoticeUiSystem::GetComponent() {
     case NoticeEnum::kEquipNoAbility:
     case NoticeEnum::kThrowMul:
     case NoticeEnum::kEquipNoSpace:
-    case NoticeEnum::kTradeBlock: {
+    case NoticeEnum::kTradeBlock:
+    case NoticeEnum::kQuestGiveup: {
       buttons_node = {
           WzResource::ui_->find(u"Basic.img/BtOK2"),
           WzResource::ui_->find(u"Basic.img/BtCancel2"),
@@ -170,6 +173,11 @@ UIComponents& NoticeUiSystem::GetComponent() {
     case NoticeEnum::kThrowMul: {
       std::get<Button>(components_[0]).callback = EventButtonThrowMul;
       std::get<Button>(components_[1]).callback = EventButtonThrowClose;
+      break;
+    }
+    case NoticeEnum::kQuestGiveup: {
+      std::get<Button>(components_[0]).callback = EventButtonQuestGiveup;
+      std::get<Button>(components_[1]).callback = Close;
       break;
     }
     case NoticeEnum::kEquipNoAbility: {
@@ -324,6 +332,11 @@ void NoticeUiSystem::RenderText() {
       p = {20, 20};
       break;
     }
+    case NoticeEnum::kQuestGiveup: {
+      text = u"Do you want to forfeit this quest?";
+      p = {20, 20};
+      break;
+    }
     default: {
       break;
     }
@@ -459,6 +472,7 @@ void NoticeUiSystem::OpenNoSpace(ItemEnum type) {
 void NoticeUiSystem::Close() {
   std::erase(System::render_systems_, Render);
   std::erase(System::event_systems_, Event);
+  on_confirm_ = nullptr;
 }
 
 SDL_FPoint NoticeUiSystem::LoadWh() {
@@ -478,7 +492,8 @@ SDL_FPoint NoticeUiSystem::LoadWh() {
     case NoticeEnum::kNoStorageSpace:
     case NoticeEnum::kEquipNoAbility:
     case NoticeEnum::kEquipNoSpace:
-    case NoticeEnum::kTradeBlock: {
+    case NoticeEnum::kTradeBlock:
+    case NoticeEnum::kQuestGiveup: {
       return {266, 116};
     }
     case NoticeEnum::kApInc:
@@ -701,6 +716,15 @@ void NoticeUiSystem::EventButtonThrowClose() {
   Close();
 }
 
+void NoticeUiSystem::EventButtonQuestGiveup() {
+  auto confirm = std::move(on_confirm_);
+  on_confirm_ = nullptr;
+  Close();
+  if (confirm) {
+    confirm();
+  }
+}
+
 void NoticeUiSystem::EventButtonEquipNoAp() {
   CursorGameInstance::cursor_hand_ = std::nullopt;
   Close();
@@ -768,6 +792,10 @@ bool NoticeUiSystem::Event(SDL_Event* event) {
             }
             case NoticeEnum::kThrowMul: {
               EventButtonThrowMul();
+              break;
+            }
+            case NoticeEnum::kQuestGiveup: {
+              EventButtonQuestGiveup();
               break;
             }
             default: {

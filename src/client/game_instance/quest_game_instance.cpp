@@ -1,6 +1,7 @@
 #include "src/client/game_instance/quest_game_instance.h"
 
 #include "src/client/game/game_quest.h"
+#include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/popup_tip_game_instance.h"
@@ -324,6 +325,7 @@ void QuestGameInstance::CompleteQuest(GameQuest& q) {
   q.index += 1;
   complete_quests_[q.quest_id] = q;
   progress_quests_.erase(q.quest_id);
+  AudioGameInstance::LoadAudio(u"Game.img/QuestClear", 0);
 }
 
 void QuestGameInstance::CompleteQuest(const std::u16string& id) {
@@ -352,7 +354,13 @@ void QuestGameInstance::UpdateCheckItem(const std::u16string& quest_id) {
       back_num = quest.item[k].count;
     }
     auto num = PackageGameInstance::LoadItemNum(k);
-    if (back_num < (int32_t)v.count && num >= v.count) {
+    if (v.count == 0) {
+      // count 缺省为 0 表示“使用/消耗该物品”：
+      // 持有数量从 >0 变成 0 时才算完成，而不是一开始就满足。
+      if (back_num > 0 && num == 0) {
+        pop_tip = true;
+      }
+    } else if (back_num < (int32_t)v.count && num >= v.count) {
       pop_tip = true;
     }
     quest.item[k] = {.id = v.id, .count = num};
@@ -383,7 +391,7 @@ void QuestGameInstance::UpdateCheckItem() {
 }
 
 void QuestGameInstance::UpdateCheckMob(const std::u16string& mob_id, int num) {
-  for (auto [k, quest] : progress_quests_) {
+  for (auto&& [k, quest] : progress_quests_) {
     bool pop_tip = false;
     if (quest.check_mob.contains(mob_id)) {
       if (quest.mob[mob_id].count < quest.check_mob[mob_id].count) {

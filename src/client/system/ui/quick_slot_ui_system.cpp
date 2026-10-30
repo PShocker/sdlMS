@@ -388,6 +388,12 @@ bool QuickSlotUiSystem::EventClickQuickslot(SDL_Event* event) {
         if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect)) {
           if (CursorGameInstance::cursor_hand_.has_value()) {
             auto input = KeyboardGameInstance::LoadCursorInput();
+            if (!input.has_value()) {
+              // 只允许药水/椅子；其他物品直接清空手持
+              CursorGameInstance::cursor_hand_ = std::nullopt;
+              AudioGameInstance::LoadAudio(u"UI.img/DragEnd", 0);
+              return true;
+            }
             KeyboardGameInstance::InsertInput(t[i], input.value());
             CursorGameInstance::cursor_hand_ = std::nullopt;
             AudioGameInstance::LoadAudio(u"UI.img/DragEnd", 0);

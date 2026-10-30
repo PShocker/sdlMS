@@ -82,7 +82,7 @@ SDL_AppResult AppInit(void** appstate, int argc, char* argv[]) {
   CharacterGameInstance::InitDefaultClothes();
   CharacterGameInstance::LoadSelfCharacter();
   CharacterGameInstance::self_.job = u"000";
-  CharacterGameInstance::self_.level = 1;
+  CharacterGameInstance::self_.level = 100;
   CharacterGameInstance::self_.name = u"进击的蓝蘑菇";
   // CharacterGameInstance::self_.morph = u"0001";
 
@@ -92,14 +92,7 @@ SDL_AppResult AppInit(void** appstate, int argc, char* argv[]) {
   CharacterStatGameInstance::Load(cs);
   QuestGameInstance::Load(cs);
 
-  uint32_t start_map = 1010;
-  if (const char* env_map = std::getenv("SDLMS_START_MAP");
-      env_map != nullptr) {
-    const int value = std::atoi(env_map);
-    if (value > 0) {
-      start_map = static_cast<uint32_t>(value);
-    }
-  }
+  uint32_t start_map = 1;
   SceneSystemInstance::EnterPrepare(start_map, u"sp", 0);
   // SceneSystemInstance::prepare_pos = {600, -470};
   // CharacterCreateSystemInstance::Enter();

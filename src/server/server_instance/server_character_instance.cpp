@@ -331,7 +331,7 @@ void ServerCharacterInstance::HandleServerChat(uint64_t client_id,
     c.destroy = Window::dt_now_ + 5000;
     c.text = {r.payload->payload.begin(), r.payload->payload.end()};
     c.size = 13;
-    c.path = u"25";
+    c.path = u"0";
     g_character->chatballoon = c;
   }
 

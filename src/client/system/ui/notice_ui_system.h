@@ -7,6 +7,7 @@
 #include <SDL3/SDL_events.h>
 
 #include <any>
+#include <functional>
 #include <vector>
 
 namespace sdlms {
@@ -25,6 +26,8 @@ class NoticeUiSystem : public UiComponentHost<NoticeUiSystem> {
 
   static void EventButtonThrowMul();
   static void EventButtonThrowClose();
+
+  static void EventButtonQuestGiveup();
 
   static void EventButtonWorldmapTeleport();
 
@@ -68,6 +71,8 @@ class NoticeUiSystem : public UiComponentHost<NoticeUiSystem> {
 
     kThrowMul,
 
+    kQuestGiveup,
+
     kTradeBlock,
   };
 
@@ -75,6 +80,7 @@ class NoticeUiSystem : public UiComponentHost<NoticeUiSystem> {
   static inline SDL_FPoint pos_;
   static inline TextInput text_;
   static inline std::any data_;
+  static inline std::function<void()> on_confirm_;
 
   static bool Render();
 

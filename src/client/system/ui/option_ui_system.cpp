@@ -246,6 +246,20 @@ std::flat_map<std::u16string, int32_t>& OptionUiSystem::Values() {
   return values;
 }
 
+std::flat_map<std::u16string, int32_t>& OptionUiSystem::AppliedValues() {
+  static std::flat_map<std::u16string, int32_t> values;
+  return values;
+}
+
+int32_t OptionUiSystem::AppliedValue(uint8_t tab, const std::u16string& name) {
+  auto& values = AppliedValues();
+  auto it = values.find(MakeKey(tab, name));
+  if (it != values.end()) {
+    return it->second;
+  }
+  return 0;
+}
+
 // 解析一个 tab 下所有可交互 / 可显示的元素
 std::vector<OptionUiSystem::Element> OptionUiSystem::LoadElements(uint8_t tab) {
   std::vector<Element> elements;
@@ -419,7 +433,7 @@ void OptionUiSystem::SetValue(uint8_t tab, const std::u16string& name,
   Values()[MakeKey(tab, name)] = val;
 }
 
-void OptionUiSystem::Load() {
+void OptionUiSystem::Load(bool apply) {
   auto& values = Values();
   auto& saved = GameSaveSystemInstance::save_.options;
   for (uint8_t tab = 0; tab < kTabCount; ++tab) {
@@ -434,7 +448,10 @@ void OptionUiSystem::Load() {
     }
   }
   loaded_ = true;
-  Apply();
+  if (apply) {
+    AppliedValues() = Values();
+    Apply();
+  }
 }
 
 // 打开窗口时以音频系统的当前音量为准 (音效/音乐可能被别处改过)
@@ -453,46 +470,49 @@ void OptionUiSystem::Save() {
   for (const auto& [key, val] : Values()) {
     saved[key] = val;
   }
+  AppliedValues() = Values();
   Apply();
 }
 
 uint8_t OptionUiSystem::HpWarnPercent() {
   return static_cast<uint8_t>(std::clamp(
-      Value(static_cast<uint8_t>(TabEnum::kGame), u"flashHP"), 0, kSliderMax));
+      AppliedValue(static_cast<uint8_t>(TabEnum::kGame), u"flashHP"), 0,
+      kSliderMax));
 }
 
 uint8_t OptionUiSystem::MpWarnPercent() {
   return static_cast<uint8_t>(std::clamp(
-      Value(static_cast<uint8_t>(TabEnum::kGame), u"flashMP"), 0, kSliderMax));
+      AppliedValue(static_cast<uint8_t>(TabEnum::kGame), u"flashMP"), 0,
+      kSliderMax));
 }
 
 uint8_t OptionUiSystem::EnemyInfo() {
   return static_cast<uint8_t>(std::clamp(
-      Value(static_cast<uint8_t>(TabEnum::kGame), u"monster"), 0, 3));
+      AppliedValue(static_cast<uint8_t>(TabEnum::kGame), u"monster"), 0, 3));
 }
 
 uint8_t OptionUiSystem::ChatFontSize() {
   // 滑块 0..100 映射到 10..16 号字
   auto val = std::clamp(
-      Value(static_cast<uint8_t>(TabEnum::kSocial), u"chatFontsize"), 0,
+      AppliedValue(static_cast<uint8_t>(TabEnum::kSocial), u"chatFontsize"), 0,
       kSliderMax);
   return static_cast<uint8_t>(10 + (val * 6 + 50) / 100);
 }
 
-// 把选项推给真正使用它们的系统
+// 把已经确认的选项推给真正使用它们的系统
 void OptionUiSystem::Apply() {
   const auto sound = static_cast<uint8_t>(TabEnum::kSound);
 
-  auto master = Value(sound, u"volMV");
-  if (Value(sound, u"muteMV") != 0) {
+  auto master = AppliedValue(sound, u"volMV");
+  if (AppliedValue(sound, u"muteMV") != 0) {
     master = 0;
   }
-  auto bgm = Value(sound, u"volBG");
-  if (Value(sound, u"muteBG") != 0) {
+  auto bgm = AppliedValue(sound, u"volBG");
+  if (AppliedValue(sound, u"muteBG") != 0) {
     bgm = 0;
   }
-  auto sfx = Value(sound, u"volSE");
-  if (Value(sound, u"muteSE") != 0) {
+  auto sfx = AppliedValue(sound, u"volSE");
+  if (AppliedValue(sound, u"muteSE") != 0) {
     sfx = 0;
   }
   AudioGameInstance::SetVolume(static_cast<float>(master) / kSliderMax,
@@ -722,7 +742,6 @@ UIComponents& OptionUiSystem::GetComponent() {
         v = up ? std::min(high, v + step) : std::max(low, v - step);
         SetValue(active_tab_, field, v);
         AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
-        Apply();
       };
       components_.push_back(button);
     }
@@ -762,7 +781,6 @@ bool OptionUiSystem::EventUI(SDL_Event* event) {
       if (auto i = ClickCombo(element, mouse)) {
         SetValue(active_tab_, element.name, *i);
         AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
-        Apply();
       }
       open_combo_ = std::nullopt;
       return true;
@@ -791,7 +809,6 @@ bool OptionUiSystem::EventUI(SDL_Event* event) {
                    : std::max(low, value - step);
         SetValue(active_tab_, field, value);
         AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
-        Apply();
       }
       return true;
     }
@@ -799,7 +816,6 @@ bool OptionUiSystem::EventUI(SDL_Event* event) {
       auto val = Value(active_tab_, element.name);
       SetValue(active_tab_, element.name, val == 0 ? 1 : 0);
       AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
-      Apply();
       return true;
     }
     if (element.kind == u"combo") {
@@ -859,7 +875,6 @@ void OptionUiSystem::EventSlider(SDL_Event* event) {
     SetValue(active_tab_, element.name,
              static_cast<int32_t>(std::round(percent * kSliderMax)));
     dragging_slider_ = true;
-    Apply();
     return;
   }
 }
@@ -875,7 +890,8 @@ void OptionUiSystem::Open() {
     return;
   }
   if (!loaded_) {
-    Load();
+    // 打开窗口只读取存档到临时值，不在这里 Apply；否则会改变当前音量。
+    Load(false);
   }
   LoadVolumes();
   auto wh = LoadWh();
@@ -894,6 +910,8 @@ void OptionUiSystem::Close() {
   std::erase(System::event_systems_, Event);
   open_combo_ = std::nullopt;
   dragging_slider_ = false;
+  // 未按 OK 的改动不生效；下次打开时重新从存档载入
+  loaded_ = false;
 }
 
 void OptionUiSystem::EventTop() {
@@ -936,14 +954,12 @@ void OptionUiSystem::EventButtonOk() {
 }
 
 void OptionUiSystem::EventButtonCancel() {
-  // 丢弃本次改动：重新按存档载入
-  loaded_ = false;
-  Load();
+  // 丢弃本次改动，不 Apply
   Close();
 }
 
 void OptionUiSystem::EventButtonClose() {
-  Save();
+  // 右上角关闭等同取消：不保存、不 Apply
   Close();
 }
 

@@ -423,11 +423,13 @@ std::optional<GameInput> KeyboardGameInstance::LoadCursorInput() {
       auto& item =
           PackageGameInstance::data_[cursor_hand.val][cursor_hand.sub_val];
       id = std::string{item->id.begin(), item->id.end()};
-      if (id.starts_with("02")) {
-        if (id.starts_with("0204") || id.starts_with("0206") ||
-            id.starts_with("0207")) {
-          break;
-        }
+      // 快捷栏/键位只接受药水和椅子：
+      // 药水 = 消耗栏 0200xxxx，椅子 = 安装栏 0301xxxx。
+      const bool potion =
+          item->type == ItemEnum::kConsume && id.starts_with("0200");
+      const bool chair =
+          item->type == ItemEnum::kInstall && id.starts_with("0301");
+      if (potion || chair) {
         GameInput input{
             .type = "item",
             .val = id,

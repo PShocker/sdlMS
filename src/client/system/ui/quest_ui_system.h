@@ -28,12 +28,6 @@ class QuestUiSystem : public UiComponentHost<QuestUiSystem> {
   static void RenderQuest(GameQuest& q, int y);
   static void RenderDetailAvaliable();
   static void RenderDetailComplete();
-  static int LoadDetailStateIndex();
-  static int LoadDemandCheckIndex();
-  static int LoadRewardActIndex();
-  static int LoadDescH();
-  static int LoadDemandRewardH();
-  static void RenderDemandReward(int top);
   static void RenderDetailProgress();
   static void RenderDetailSummary();
   static void RenderDetailSummaryBackgrnd();

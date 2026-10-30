@@ -25,6 +25,8 @@
 
 namespace sdlms {
 
+static SDL_FPoint FitHoverTooltip(float x, float y, float w, float h);
+
 int TooltipUiSystem::LoadEquipWidth(const std::u16string& id) {
   Freetype::LoadSize(15);
   auto equip_name = EquipGameInstance::LoadEquipName(id);
@@ -409,6 +411,9 @@ void TooltipUiSystem::RenderDeco(GameDecoItem& deco, float x, float y) {
   // backgrnd
   auto w = LoadEquipWidth(deco.id);
   const auto h = 160 + LoadDecoBottomH(deco.id);
+  auto p = FitHoverTooltip(x, y, w, h);
+  x = p.x;
+  y = p.y;
   RenderBackgrnd(x, y, w, h);
 
   //   render
@@ -518,6 +523,9 @@ void TooltipUiSystem::RenderEquip(GameEquipItem& equip, float x, float y) {
   static auto bottom =
       WzResource::LoadTexture(backgrnd_node->find(u"Frame/bottom"));
   const auto h = 180 + LoadEquipBottomH(equip);
+  auto p = FitHoverTooltip(x, y, static_cast<float>(top->w), h);
+  x = p.x;
+  y = p.y;
   SDL_FRect pos_rect{
       x,
       y,
@@ -826,6 +834,9 @@ void TooltipUiSystem::RenderSkill(const std::u16string& id, uint8_t level,
                                   float x, float y) {
   auto ski_name = SkillGameInstance::LoadSkiName(id);
   auto [w, h] = LoadSkillWh(id);
+  auto p = FitHoverTooltip(x, y, w, h);
+  x = p.x;
+  y = p.y;
   auto desc = ski_name.desc;
   RenderBackgrnd(x, y, w, h);
   static auto dot0 = WzResource::LoadTexture(
@@ -878,6 +889,9 @@ void TooltipUiSystem::RenderSkill(const std::u16string& id, uint8_t level,
 void TooltipUiSystem::RenderItem(GameItem& item, float x, float y) {
   auto item_name = ItemGameInstance::LoadItemText(item.id, u"name");
   auto [w, h] = LoadItemWh(item);
+  auto p = FitHoverTooltip(x, y, w, h);
+  x = p.x;
+  y = p.y;
   RenderBackgrnd(x, y, w, h);
   Freetype::LoadColor(255, 255, 255, 255);
   Freetype::LoadAligned(true);
@@ -927,12 +941,14 @@ void TooltipUiSystem::RenderWorldMapInfo(uint32_t id, float x, float y) {
   Freetype::LoadSize(14);
   const auto bh = 60;
   const auto w = 300;
+  auto box_h = static_cast<float>(bh);
   if (map_desc != u"") {
-    auto h = Freetype::LoadRh(map_desc, 280, 1.1, std::nullopt);
-    RenderBackgrnd(x, y, w, h + bh + 20);
-  } else {
-    RenderBackgrnd(x, y, w, bh);
+    box_h = Freetype::LoadRh(map_desc, 280, 1.1, std::nullopt) + bh + 20;
   }
+  auto p = FitHoverTooltip(x, y, w, box_h);
+  x = p.x;
+  y = p.y;
+  RenderBackgrnd(x, y, w, box_h);
   Freetype::LoadColor(240, 224, 104, 255);
   Freetype::LoadAligned(true);
   auto s1 = street_name;
@@ -957,6 +973,9 @@ void TooltipUiSystem::RenderWorldMapInfo(uint32_t id, float x, float y) {
 
 void TooltipUiSystem::RenderStr(const std::u16string& str, float x, float y) {
   auto [w, h] = LoadStrWh(str);
+  auto p = FitHoverTooltip(x, y, w, h);
+  x = p.x;
+  y = p.y;
   RenderBackgrnd(x, y, w, h);
   Freetype::LoadAligned(true);
   Freetype::LoadColor(255, 255, 255, 255);
@@ -986,18 +1005,21 @@ SDL_FPoint TooltipUiSystem::LoadStrWh(const std::u16string& str) {
   return {Freetype::LoadW(str) + 12, 32};
 }
 
-// 悬浮提示按 "鼠标 + 15" 摆放: 超出屏幕就翻到鼠标另一侧, 再贴边夹住
+// 悬浮提示按 "鼠标 + 15" 摆放；超出屏幕时不翻到另一侧，
+// 只把超出部分贴到屏幕边缘。
 static SDL_FPoint FitHoverTooltip(float x, float y, float w, float h) {
   auto& camera = CameraGameInstance::camera_;
-  constexpr float kGap = 15;
-  if (x + w > camera.w) {
-    x = x - kGap * 2 - w;
+  if (w < camera.w) {
+    x = std::clamp(x, 0.0f, camera.w - w);
+  } else {
+    // 比屏幕还宽时让左边缘贴住屏幕左侧，右侧自然超出
+    x = 0.0f;
   }
-  if (y + h > camera.h) {
-    y = y - kGap * 2 - h;
+  if (h < camera.h) {
+    y = std::clamp(y, 0.0f, camera.h - h);
+  } else {
+    y = 0.0f;
   }
-  x = std::clamp(x, 0.0f, std::max(0.0f, camera.w - w));
-  y = std::clamp(y, 0.0f, std::max(0.0f, camera.h - h));
   return {x, y};
 }
 

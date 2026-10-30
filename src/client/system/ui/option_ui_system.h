@@ -41,8 +41,9 @@ class OptionUiSystem : public UiComponentHost<OptionUiSystem> {
   static int32_t Value(uint8_t tab, const std::u16string& name);
   static void SetValue(uint8_t tab, const std::u16string& name, int32_t val);
 
-  // 从存档读入 / 写回存档，并把影响其它系统的项推下去
-  static void Load();
+  // 从存档读入 / 写回存档，并把影响其它系统的项推下去。
+  // apply=false 只刷新窗口里的临时值，不改变已经生效的配置。
+  static void Load(bool apply = true);
   static void Save();
 
   static void Open();
@@ -99,6 +100,9 @@ class OptionUiSystem : public UiComponentHost<OptionUiSystem> {
 
   // 值 / 存档
   static std::flat_map<std::u16string, int32_t>& Values();
+  // 已经生效的值：只有确认（OK）时才从 Values 同步过来。
+  static std::flat_map<std::u16string, int32_t>& AppliedValues();
+  static int32_t AppliedValue(uint8_t tab, const std::u16string& name);
   static void LoadVolumes();
   static void Apply();
   static inline bool loaded_ = false;

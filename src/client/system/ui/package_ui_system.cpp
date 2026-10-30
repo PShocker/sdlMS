@@ -677,6 +677,9 @@ bool PackageUiSystem::EventUI(SDL_Event* event) {
           }
           page_ = 0;
           active_tab_ = *i;
+          // components 是按旧 tab 的 page 构建的；这里直接结束本次点击，
+          // 避免下面的 Scroll::Click() 把 page_ 写回旧页。
+          return false;
         }
       }
     }
