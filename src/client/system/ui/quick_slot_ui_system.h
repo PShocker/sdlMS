@@ -7,6 +7,7 @@
 #include <SDL3/SDL_scancode.h>
 
 #include <cstdint>
+#include <optional>
 
 namespace sdlms {
 
@@ -14,9 +15,15 @@ class QuickSlotUiSystem {
  private:
   static void RenderQuickSlot();
 
+  static bool RenderInfo();
+  static void EventMotion(SDL_Event* event);
+
   static bool EventClickQuickslot(SDL_Event* event);
 
   static SDL_FPoint LoadWh();
+
+  // 鼠标悬浮的快捷键
+  static inline std::optional<SDL_Scancode> mouse_key_;
 
  public:
   enum class QuickSlot {

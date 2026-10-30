@@ -41,6 +41,7 @@ class KeybindingUiSystem : public UiComponentHost<KeybindingUiSystem> {
 
   static void EventBackgrndKey();
   static void EventRemainKey();
+  static bool EventCancelHand();
 
   static bool EventUI(SDL_Event* event);
 

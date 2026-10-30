@@ -3,6 +3,7 @@
 #include "src/client/game/game_npc.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
+#include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
@@ -14,11 +15,11 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/render/npc_render_system.h"
 #include "src/client/system/system.h"
-#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/system/ui/component/check_box.h"
-#include "src/client/system/ui/quest_alarm_ui_system.h"
 #include "src/client/system/ui/component/scroll.h"
 #include "src/client/system/ui/component/tab.h"
+#include "src/client/system/ui/component/ui_component.h"
+#include "src/client/system/ui/quest_alarm_ui_system.h"
 #include "src/client/system/ui/tooltip_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
@@ -37,7 +38,126 @@
 #include <string>
 #include <vector>
 
+
 namespace sdlms {
+
+namespace {
+
+// 任务需求(Check/<state>)与奖励(Act/<state>)的解析结果
+struct QuestDemandData {
+  std::vector<std::pair<std::u16string, uint32_t>> items;
+  std::vector<std::pair<std::u16string, uint32_t>> mobs;
+  std::vector<std::u16string> quests;
+};
+
+struct QuestRewardData {
+  uint32_t exp = 0;
+  int32_t meso = 0;
+  std::vector<std::pair<std::u16string, uint32_t>> items;
+};
+
+std::u16string NumStr(int n) {
+  auto tmp = std::to_string(n);
+  return {tmp.begin(), tmp.end()};
+}
+
+// 取 <index> 子节点: 取不到先退回上一层, 仍没有就往上一层之上找 (如 QuestInfo/0
+// 缺失时用 QuestInfo/1)
+wz::Node* LoadNodeAt(wz::Node* parent, int index) {
+  auto count = static_cast<int>(parent->children_count());
+  for (int i = index; i >= 0; --i) {
+    if (auto* node = parent->find(NumStr(i))) {
+      return node;
+    }
+  }
+  for (int i = index + 1; i < count; ++i) {
+    if (auto* node = parent->find(NumStr(i))) {
+      return node;
+    }
+  }
+  return parent->find(NumStr(0));
+}
+
+// 物品/装备的名字与图标
+std::u16string LoadItemName(SDL_Texture** tex, const std::u16string& id) {
+  wz::Node* node;
+  std::u16string name;
+  if (ItemGameInstance::CheckItem(id)) {
+    node = ItemGameInstance::LoadItemInfo(id, 1);
+    name = ItemGameInstance::LoadItemText(id, u"name");
+  } else {
+    node = EquipGameInstance::LoadEquipInfo(id);
+    name = EquipGameInstance::LoadEquipName(id);
+  }
+  *tex = WzResource::LoadTexture(node->get_child(u"icon"));
+  return name;
+}
+
+// 取子节点里的 int 字段, 没有就是默认值
+int LoadIntField(wz::Node* node, const std::u16string& name, int def) {
+  for (auto [k, v] : *node->get_children()) {
+    if (k == name) {
+      return static_cast<wz::Property<int>*>(v[0])->get();
+    }
+  }
+  return def;
+}
+
+void LoadDemandData(const std::u16string& id, int index, QuestDemandData& out) {
+  auto check = QuestGameInstance::LoadQuestNode(id)->get_child(u"Check");
+  // 前置任务在 Check/0
+  for (auto [k, v] : *check->get_child(u"0")->get_children()) {
+    if (k == u"quest") {
+      for (auto [qk, qv] : *v[0]->get_children()) {
+        auto quest_id = LoadIntField(qv[0], u"id", 0);
+        auto tmp = std::format("{}.img", quest_id);
+        out.quests.push_back({tmp.begin(), tmp.end()});
+      }
+    }
+  }
+  // 物品 / 怪物需求在 Check/<index>, 取不到退回上一层
+  auto node = LoadNodeAt(check, index);
+  for (auto [k, v] : *node->get_children()) {
+    if (k == u"item") {
+      for (auto [ik, iv] : *v[0]->get_children()) {
+        auto item_id = LoadIntField(iv[0], u"id", 0);
+        auto count = LoadIntField(iv[0], u"count", 0);
+        auto tmp = std::format("{:08d}", item_id);
+        out.items.push_back({std::u16string{tmp.begin(), tmp.end()}, count});
+      }
+    } else if (k == u"mob") {
+      for (auto [mk, mv] : *v[0]->get_children()) {
+        auto mob_id = LoadIntField(mv[0], u"id", 0);
+        auto count = LoadIntField(mv[0], u"count", 0);
+        auto tmp = std::format("{:07d}", mob_id);
+        out.mobs.push_back({std::u16string{tmp.begin(), tmp.end()}, count});
+      }
+    }
+  }
+}
+
+void LoadRewardData(const std::u16string& id, int index, QuestRewardData& out) {
+  auto quest = QuestGameInstance::LoadQuestNode(id);
+  auto node = LoadNodeAt(quest->get_child(u"Act"), index);
+  for (auto [k, v] : *node->get_children()) {
+    if (k == u"exp") {
+      out.exp = static_cast<wz::Property<int>*>(v[0])->get();
+    } else if (k == u"money") {
+      out.meso = static_cast<wz::Property<int>*>(v[0])->get();
+    } else if (k == u"item") {
+      for (auto [ik, iv] : *v[0]->get_children()) {
+        auto item_id = LoadIntField(iv[0], u"id", 0);
+        auto count = LoadIntField(iv[0], u"count", 1);
+        auto tmp = std::format("{:08d}", item_id);
+        out.items.push_back({std::u16string{tmp.begin(), tmp.end()}, count});
+      }
+    }
+  }
+}
+
+}  // namespace
+// 列表每页行数
+static constexpr int kPageRows = 16;
 
 int QuestUiSystem::LoadVscrNum0() {
   std::flat_map<int8_t, std::vector<GameQuest>> quests;
@@ -75,6 +195,7 @@ int QuestUiSystem::LoadVscrNum1() {
   } else {
     h += 18;
   }
+  h += LoadDemandRewardH();
   auto lh = Freetype::LoadLh();
   return h / lh;
 }
@@ -152,6 +273,19 @@ UIComponents& QuestUiSystem::GetComponent() {
     buttons_rect.push_back(SDL_FRect{530, 6, 13, 12});
     callbacks.push_back(EventButtonDetail);
   }
+  // 详情面板按钮: 放弃任务 / 任务提醒
+  if (detail_ && !detail_quest_.empty()) {
+    if (QuestGameInstance::progress_quests_.contains(detail_quest_)) {
+      buttons_nodes.push_back(
+          WzResource::ui_->find(u"Quest.img/Quest/quest_info/BtGiveup"));
+      buttons_rect.push_back(SDL_FRect{389, 374, 57, 17});
+      callbacks.push_back(EventButtonGiveup);
+      buttons_nodes.push_back(
+          WzResource::ui_->find(u"Quest.img/Quest/quest_info/BtArlim"));
+      buttons_rect.push_back(SDL_FRect{452, 374, 77, 17});
+      callbacks.push_back(EventButtonAlarm);
+    }
+  }
 
   for (size_t i = 0; i < buttons_nodes.size(); ++i) {
     SDL_FRect rect = buttons_rect[i];
@@ -172,9 +306,9 @@ UIComponents& QuestUiSystem::GetComponent() {
       WzResource::ui_->find(u"Quest.img/Quest/list/Tab");
   std::vector<SDL_FRect> tab_rects;
   for (uint8_t i = 0; i < 3; i++) {
-    tab_rects.push_back(
-        SDL_FRect{static_cast<float>(int(pos_.x + 6 + i * 72)),
-                  static_cast<float>(int(pos_.y + 24)), 72, 19});
+    tab_rects.push_back(SDL_FRect{static_cast<float>(int(pos_.x + 6 + i * 72)),
+                                  static_cast<float>(int(pos_.y + 24)), 72,
+                                  19});
   }
   components_.push_back(
       Tab{tab_node, u"enabled", u"disabled", tab_rects, active_tab_});
@@ -206,7 +340,7 @@ UIComponents& QuestUiSystem::GetComponent() {
 static std::optional<int> fold;
 static std::optional<std::u16string> d_quest;
 
-void QuestUiSystem::RenderAreaName(int i, int y) {
+void QuestUiSystem::RenderAreaName(int i, int y, int count) {
   const SDL_FPoint lt{10, 50};
   auto t = WzResource::LoadTexture(
       WzResource::ui_->find(u"Quest.img/Quest/icon/icon0"));
@@ -216,10 +350,10 @@ void QuestUiSystem::RenderAreaName(int i, int y) {
   SDL_FRect pos_rect{
       static_cast<float>(px - 2),
       static_cast<float>(py - 2),
-      static_cast<float>(215),
-      static_cast<float>(18),
+      static_cast<float>(202),
+      static_cast<float>(19),
   };
-  SDL_SetRenderDrawColor(Window::renderer_, 154, 176, 203, 255);
+  SDL_SetRenderDrawColor(Window::renderer_, 115, 117, 115, 255);
   SDL_RenderFillRect(Window::renderer_, &pos_rect);
 
   std::u16string state = u"normal";
@@ -249,6 +383,8 @@ void QuestUiSystem::RenderAreaName(int i, int y) {
   }
 
   auto name = QuestGameInstance::LoadAreaName(i);
+  auto tmp = std::format(" ({})", count);
+  name = name + std::u16string{tmp.begin(), tmp.end()};
   Freetype::LoadSize(12);
   Freetype::LoadColor(255, 255, 255, 255);
   Freetype::DrawLine(name, px + 17, py - 3);
@@ -304,6 +440,9 @@ void QuestUiSystem::RenderQuest(GameQuest& q, int y) {
       break;
     }
     case 2: {
+      // 已完成的任务: 只显示任务名, 不画图标
+      str_left = 17;
+      str_len = 26;
       break;
     }
   }
@@ -325,6 +464,9 @@ void QuestUiSystem::RenderQuest(GameQuest& q, int y) {
     SDL_SetRenderDrawColor(Window::renderer_, 51, 100, 148, 255);
     SDL_RenderFillRect(Window::renderer_, &pos_rect);
     Freetype::LoadColor(255, 255, 255, 255);
+  } else if (IsWorthlessQuest(q)) {
+    // 无价值任务(等级超出太多)灰显
+    Freetype::LoadColor(178, 178, 178, 255);
   } else {
     Freetype::LoadColor(0, 0, 0, 255);
   }
@@ -347,7 +489,7 @@ void QuestUiSystem::RenderQuest(GameQuest& q, int y) {
 }
 
 void QuestUiSystem::RenderQuests() {
-  const int MAX_DISPLAY_ITEMS = 16;
+  const int MAX_DISPLAY_ITEMS = kPageRows;
   std::flat_map<int8_t, std::vector<GameQuest>> quests;
   switch (active_tab_) {
     case 0:
@@ -357,6 +499,7 @@ void QuestUiSystem::RenderQuests() {
       quests = QuestGameInstance::LoadUiProgressQuest();
       break;
     case 2:
+      quests = QuestGameInstance::LoadUiCompleteQuest();
       break;
     default:
       return;  // 或处理无效tab
@@ -370,7 +513,7 @@ void QuestUiSystem::RenderQuests() {
     if (i >= MAX_DISPLAY_ITEMS)
       break;
     if (i >= 0) {
-      RenderAreaName(k, i * 20);
+      RenderAreaName(k, i * 20, static_cast<int>(v.size()));
     }
     i++;
     if (disable_fold_.contains(k)) {
@@ -411,7 +554,22 @@ void QuestUiSystem::RenderDetailAvaliable() {
   }
   auto info = LoadDetailStr();
   Freetype::LoadColor(0, 0, 0, 255);
-  Freetype::DrawRstr(info, pos_.x + 260, pos_.y + 148, 265, 1.3, std::nullopt);
+  Freetype::DrawRstr(info, pos_.x + 260, pos_.y + 148 - pages_[1] * 18, 265,
+                     1.3, std::nullopt);
+  RenderDemandReward(pos_.y + 148 + LoadDescH() + 8 - pages_[1] * 18);
+}
+
+void QuestUiSystem::RenderDetailComplete() {
+  if (!QuestGameInstance::complete_quests_.contains(detail_quest_)) {
+    return;
+  }
+  // 和可接任务一样显示任务文本, 但没有 "talk to npc"
+  auto info = LoadDetailStr();
+  Freetype::LoadSize(12);
+  Freetype::LoadColor(0, 0, 0, 255);
+  Freetype::DrawRstr(info, pos_.x + 260, pos_.y + 148 - pages_[1] * 18, 265,
+                     1.3, std::nullopt);
+  RenderDemandReward(pos_.y + 148 + LoadDescH() + 8 - pages_[1] * 18);
 }
 
 void QuestUiSystem::RenderDetailProgress() {
@@ -441,6 +599,7 @@ void QuestUiSystem::RenderDetailProgress() {
   Freetype::LoadColor(0, 0, 0, 255);
   Freetype::DrawRstr(info, pos_.x + 260, pos_.y + h - pages_[1] * 18, 265, 1.3,
                      std::nullopt);
+  RenderDemandReward(pos_.y + h + LoadDescH() + 8 - pages_[1] * 18);
   SDL_SetRenderClipRect(Window::renderer_, NULL);
 }
 
@@ -539,14 +698,180 @@ std::u16string QuestUiSystem::LoadDetailStr() {
     return u"";
   }
   auto index = QuestGameInstance::LoadQuestProgress(detail_quest_);
+  // 已完成的任务显示完成后的文本
+  if (auto it = QuestGameInstance::complete_quests_.find(detail_quest_);
+      it != QuestGameInstance::complete_quests_.end()) {
+    index = it->second.index;
+  }
   std::u16string info;
   auto node = QuestGameInstance::LoadQuestNode(detail_quest_);
   node = node->get_child(u"QuestInfo");
-  node = node->get_child(std::to_string(index));
-  if (node) {
-    info = TextGameInstance::LoadRstr(node);
-  }
+  info = TextGameInstance::LoadRstr(LoadNodeAt(node, index));
   return info;
+}
+
+// 详情任务当前状态对应的 Check 索引 (可接 0 / 进行中 index / 已完成 index)
+int QuestUiSystem::LoadDetailStateIndex() {
+  if (auto it = QuestGameInstance::progress_quests_.find(detail_quest_);
+      it != QuestGameInstance::progress_quests_.end()) {
+    return it->second.index;
+  }
+  if (auto it = QuestGameInstance::complete_quests_.find(detail_quest_);
+      it != QuestGameInstance::complete_quests_.end()) {
+    return it->second.index;
+  }
+  return 0;
+}
+
+int QuestUiSystem::LoadDemandCheckIndex() {
+  if (auto it = QuestGameInstance::complete_quests_.find(detail_quest_);
+      it != QuestGameInstance::complete_quests_.end()) {
+    return std::max(it->second.index - 1, 1);
+  }
+  return std::max(LoadDetailStateIndex(), 1);
+}
+
+int QuestUiSystem::LoadRewardActIndex() {
+  if (auto it = QuestGameInstance::complete_quests_.find(detail_quest_);
+      it != QuestGameInstance::complete_quests_.end()) {
+    return std::max(it->second.index - 1, 1);
+  }
+  return std::max(LoadDetailStateIndex(), 1);
+}
+
+int QuestUiSystem::LoadDescH() {
+  auto info = LoadDetailStr();
+  if (info.empty()) {
+    return 0;
+  }
+  Freetype::LoadSize(12);
+  return static_cast<int>(Freetype::LoadRh(info, 265, 1.3, std::nullopt));
+}
+
+int QuestUiSystem::LoadDemandRewardH() {
+  if (detail_quest_.empty()) {
+    return 0;
+  }
+  int h = 0;
+  // 进行中任务的需求已经由 summary 显示, 这里只补奖励
+  if (!QuestGameInstance::progress_quests_.contains(detail_quest_)) {
+    QuestDemandData demand;
+    LoadDemandData(detail_quest_, LoadDemandCheckIndex(), demand);
+    if (!demand.items.empty() || !demand.mobs.empty() ||
+        !demand.quests.empty()) {
+      h += 20;
+      h += static_cast<int>(demand.items.size()) * 40;
+      h += static_cast<int>(demand.mobs.size()) * 20;
+      h += static_cast<int>(demand.quests.size()) * 20;
+    }
+  }
+  QuestRewardData reward;
+  LoadRewardData(detail_quest_, LoadRewardActIndex(), reward);
+  if (reward.exp > 0 || reward.meso > 0 || !reward.items.empty()) {
+    h += 20;
+    if (reward.exp > 0 || reward.meso > 0) {
+      h += 20;
+    }
+    h += static_cast<int>(reward.items.size()) * 40;
+  }
+  if (h > 0) {
+    h += 10;
+  }
+  return h;
+}
+
+void QuestUiSystem::RenderDemandReward(int top) {
+  if (detail_quest_.empty()) {
+    return;
+  }
+  int x = pos_.x + 260;
+  int y = top;
+  Freetype::LoadSize(12);
+  // 需求
+  if (!QuestGameInstance::progress_quests_.contains(detail_quest_)) {
+    QuestDemandData demand;
+    LoadDemandData(detail_quest_, LoadDemandCheckIndex(), demand);
+    if (!demand.items.empty() || !demand.mobs.empty() ||
+        !demand.quests.empty()) {
+      Freetype::LoadBold(true);
+      Freetype::LoadColor(0, 0, 0, 255);
+      Freetype::DrawLine(u"Demand", x, y);
+      Freetype::LoadBold(false);
+      y += 20;
+      for (auto [mob_id, count] : demand.mobs) {
+        auto name = MobGameInstance::LoadMobName(mob_id);
+        auto tmp = std::format(" x{}", count);
+        name = name + std::u16string{tmp.begin(), tmp.end()};
+        Freetype::LoadColor(0, 0, 0, 255);
+        Freetype::DrawLine(name, x + 5, y);
+        y += 20;
+      }
+      for (auto [item_id, count] : demand.items) {
+        SDL_Texture* tex = nullptr;
+        auto name = LoadItemName(&tex, item_id);
+        if (tex != nullptr) {
+          SDL_FRect pos_rect{static_cast<float>(x + 2), static_cast<float>(y),
+                             static_cast<float>(tex->w),
+                             static_cast<float>(tex->h)};
+          SDL_RenderTexture(Window::renderer_, tex, nullptr, &pos_rect);
+        }
+        auto tmp = std::format(" x{}", count);
+        name = name + std::u16string{tmp.begin(), tmp.end()};
+        Freetype::LoadSize(12);
+        Freetype::LoadColor(0, 0, 0, 255);
+        Freetype::DrawLine(name, x + 5 + 30, y + 8);
+        y += 40;
+      }
+      for (auto& quest_id : demand.quests) {
+        auto node = QuestGameInstance::LoadQuestNode(quest_id);
+        std::u16string name;
+        if (node != nullptr) {
+          if (auto* n = node->find(u"QuestInfo/name")) {
+            name = static_cast<wz::Property<std::u16string>*>(n)->get();
+          }
+        }
+        bool done = QuestGameInstance::complete_quests_.contains(quest_id);
+        name = name + (done ? u" (done)" : u" (not done)");
+        Freetype::LoadColor(done ? 0 : 180, done ? 120 : 0, 0, 255);
+        Freetype::DrawLine(name, x + 5, y);
+        Freetype::LoadColor(0, 0, 0, 255);
+        y += 20;
+      }
+    }
+  }
+  // 奖励
+  QuestRewardData reward;
+  LoadRewardData(detail_quest_, LoadRewardActIndex(), reward);
+  if (reward.exp > 0 || reward.meso > 0 || !reward.items.empty()) {
+    Freetype::LoadBold(true);
+    Freetype::LoadColor(0, 0, 0, 255);
+    Freetype::DrawLine(u"Reward", x, y);
+    Freetype::LoadBold(false);
+    y += 20;
+    if (reward.exp > 0 || reward.meso > 0) {
+      auto text =
+          u"EXP " + NumStr(reward.exp) + u"  Meso " + NumStr(reward.meso);
+      Freetype::LoadColor(0, 0, 0, 255);
+      Freetype::DrawLine(text, x + 5, y);
+      y += 20;
+    }
+    for (auto [item_id, count] : reward.items) {
+      SDL_Texture* tex = nullptr;
+      auto name = LoadItemName(&tex, item_id);
+      if (tex != nullptr) {
+        SDL_FRect pos_rect{static_cast<float>(x + 2), static_cast<float>(y),
+                           static_cast<float>(tex->w),
+                           static_cast<float>(tex->h)};
+        SDL_RenderTexture(Window::renderer_, tex, nullptr, &pos_rect);
+      }
+      auto tmp = std::format(" x{}", count);
+      name = name + std::u16string{tmp.begin(), tmp.end()};
+      Freetype::LoadSize(12);
+      Freetype::LoadColor(0, 0, 0, 255);
+      Freetype::DrawLine(name, x + 5 + 30, y + 8);
+      y += 40;
+    }
+  }
 }
 
 static const SDL_FPoint detail_lt = {245, 0};
@@ -603,6 +928,7 @@ void QuestUiSystem::RenderQuestDetail() {
   Freetype::DrawLine(name, pos_.x + 276, pos_.y + 36);
   Freetype::LoadBold(false);
   RenderDetailAvaliable();
+  RenderDetailComplete();
   RenderDetailProgress();
 }
 
@@ -736,10 +1062,51 @@ void QuestUiSystem::EventFold() {
 void QuestUiSystem::EventQuest() {
   if (d_quest.has_value()) {
     detail_quest_ = d_quest.value();
+    read_quests_.insert(d_quest.value());
     pages_[1] = 0;
     AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
   }
   return;
+}
+
+// 切换 tab 后自动选中该列表的第一个任务, 没有任务则收起详情
+void QuestUiSystem::TrySelectTopQuest() {
+  std::flat_map<int8_t, std::vector<GameQuest>> quests;
+  switch (active_tab_) {
+    case 0:
+      quests = QuestGameInstance::LoadUiAvaliableQuest();
+      break;
+    case 1:
+      quests = QuestGameInstance::LoadUiProgressQuest();
+      break;
+    case 2:
+      quests = QuestGameInstance::LoadUiCompleteQuest();
+      break;
+    default: {
+      break;
+    }
+  }
+  for (const auto& [k, v] : quests) {
+    if (!v.empty()) {
+      detail_quest_ = v.front().quest_id;
+      return;
+    }
+  }
+  detail_quest_ = u"";
+}
+
+// 无价值任务: 可接任务里等级远低于要求(>= 要求等级+10)
+bool QuestUiSystem::IsWorthlessQuest(const GameQuest& q) {
+  if (active_tab_ != 0) {
+    return false;
+  }
+  auto node = QuestGameInstance::LoadQuestNode(q.quest_id);
+  auto lvmin = node->find(u"Check/0/lvmin");
+  if (lvmin == nullptr) {
+    return false;
+  }
+  auto req = static_cast<wz::Property<int>*>(lvmin)->get();
+  return CharacterGameInstance::self_.level >= req + 10;
 }
 
 void QuestUiSystem::EventButtonClose() {
@@ -748,6 +1115,40 @@ void QuestUiSystem::EventButtonClose() {
 
 void QuestUiSystem::EventButtonDetail() {
   detail_ = !detail_;
+}
+
+// 放弃当前选中的进行中任务
+void QuestUiSystem::EventButtonGiveup() {
+  if (!QuestGameInstance::progress_quests_.contains(detail_quest_)) {
+    return;
+  }
+  auto id = detail_quest_;
+  QuestGameInstance::DeclineQuest(id);
+  QuestAlarmUiSystem::CompleteQuest(id);
+  detail_quest_ = u"";
+  pages_[1] = 0;
+  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+}
+
+// 添加/取消任务提醒
+void QuestUiSystem::EventButtonAlarm() {
+  if (!QuestGameInstance::progress_quests_.contains(detail_quest_)) {
+    return;
+  }
+  auto& quests = QuestAlarmUiSystem::quests_;
+  if (quests.contains(detail_quest_)) {
+    quests.erase(detail_quest_);
+  } else {
+    auto alarm = &QuestAlarmUiSystem::Render;
+    if (!std::ranges::contains(System::render_systems_, alarm)) {
+      // 注意: Open 内部会 Close 并清空提醒列表, 所以先开窗再插入
+      QuestAlarmUiSystem::Open();
+    }
+    if (quests.size() < 5) {
+      quests.insert(detail_quest_);
+    }
+  }
+  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 }
 
 bool QuestUiSystem::EventUI(SDL_Event* event) {
@@ -764,7 +1165,9 @@ bool QuestUiSystem::EventUI(SDL_Event* event) {
         if (active_tab_ != *i) {
           disable_fold_ = {};
           pages_[0] = 0;
+          pages_[1] = 0;
           active_tab_ = *i;
+          TrySelectTopQuest();
         }
       }
     }

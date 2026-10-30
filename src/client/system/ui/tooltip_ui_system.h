@@ -1,5 +1,6 @@
 #pragma once
 
+#include "src/client/game/game_input.h"
 #include "src/client/game/game_item.h"
 
 #include <SDL3/SDL_events.h>
@@ -30,6 +31,11 @@ class TooltipUiSystem {
                                 float x, float y);
   static float LoadSkillBottomH(const std::u16string& id);
 
+  // 提示框尺寸, 用于贴边时翻转/夹住位置
+  static SDL_FPoint LoadSkillWh(const std::u16string& id);
+  static SDL_FPoint LoadItemWh(const GameItem& item);
+  static SDL_FPoint LoadStrWh(const std::u16string& str);
+
  public:
   static void RenderDeco(GameDecoItem& deco, float x, float y);
   static void RenderEquip(GameEquipItem& equip, float x, float y);
@@ -38,6 +44,7 @@ class TooltipUiSystem {
   static void RenderSkill(const std::u16string& id, uint8_t level, float x,
                           float y);
   static void RenderWorldMapInfo(uint32_t id, float x, float y);
+  static void RenderInput(const GameInput& input, float x, float y);
   static void RenderStr(const std::u16string& str, float x, float y);
   static bool Event(SDL_Event* event);
 };

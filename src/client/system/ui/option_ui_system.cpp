@@ -437,6 +437,17 @@ void OptionUiSystem::Load() {
   Apply();
 }
 
+// 打开窗口时以音频系统的当前音量为准 (音效/音乐可能被别处改过)
+void OptionUiSystem::LoadVolumes() {
+  const auto sound = static_cast<uint8_t>(TabEnum::kSound);
+  const auto to_slider = [](float volume) {
+    return static_cast<int32_t>(std::lround(volume * kSliderMax));
+  };
+  SetValue(sound, u"volMV", to_slider(AudioGameInstance::master_volume_));
+  SetValue(sound, u"volBG", to_slider(AudioGameInstance::bgm_volume_));
+  SetValue(sound, u"volSE", to_slider(AudioGameInstance::sfx_volume_));
+}
+
 void OptionUiSystem::Save() {
   auto& saved = GameSaveSystemInstance::save_.options;
   for (const auto& [key, val] : Values()) {
@@ -866,6 +877,7 @@ void OptionUiSystem::Open() {
   if (!loaded_) {
     Load();
   }
+  LoadVolumes();
   auto wh = LoadWh();
   auto& camera = CameraGameInstance::camera_;
   pos_.x = std::round((camera.w - wh.x) / 2);

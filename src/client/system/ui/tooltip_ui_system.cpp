@@ -1,5 +1,6 @@
 #include "src/client/system/ui/tooltip_ui_system.h"
 
+#include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
@@ -824,12 +825,8 @@ void TooltipUiSystem::RenderSkillBottom(const std::u16string& id, uint8_t level,
 void TooltipUiSystem::RenderSkill(const std::u16string& id, uint8_t level,
                                   float x, float y) {
   auto ski_name = SkillGameInstance::LoadSkiName(id);
-  const auto w = 390;
-  Freetype::LoadSize(12);
+  auto [w, h] = LoadSkillWh(id);
   auto desc = ski_name.desc;
-  auto rh = Freetype::LoadRh(desc, w - 28, 1.2, SDL_FRect{0, 0, 74, 74});
-  auto h = std::max(140.0f, rh + 60);
-  h += LoadSkillBottomH(id);
   RenderBackgrnd(x, y, w, h);
   static auto dot0 = WzResource::LoadTexture(
       WzResource::ui_->find(u"Tooltip.img/Equip/Dot/0"));
@@ -880,11 +877,8 @@ void TooltipUiSystem::RenderSkill(const std::u16string& id, uint8_t level,
 
 void TooltipUiSystem::RenderItem(GameItem& item, float x, float y) {
   auto item_name = ItemGameInstance::LoadItemText(item.id, u"name");
-  Freetype::LoadBold(true);
-  Freetype::LoadSize(15);
-  auto w = Freetype::LoadW(item_name) + 150;
-  w = std::max(w, 360.0f);
-  RenderBackgrnd(x, y, w, 128);
+  auto [w, h] = LoadItemWh(item);
+  RenderBackgrnd(x, y, w, h);
   Freetype::LoadColor(255, 255, 255, 255);
   Freetype::LoadAligned(true);
   Freetype::DrawLine(item_name, x + 20, y + 10);
@@ -962,13 +956,74 @@ void TooltipUiSystem::RenderWorldMapInfo(uint32_t id, float x, float y) {
 }
 
 void TooltipUiSystem::RenderStr(const std::u16string& str, float x, float y) {
-  const auto w = Freetype::LoadW(str) + 12;
-  Freetype::LoadSize(12);
-  auto h = Freetype::LoadLh();
-  RenderBackgrnd(x, y, w, 32);
+  auto [w, h] = LoadStrWh(str);
+  RenderBackgrnd(x, y, w, h);
   Freetype::LoadAligned(true);
   Freetype::LoadColor(255, 255, 255, 255);
   Freetype::DrawLine(str, x + 5, y + 5);
+}
+
+SDL_FPoint TooltipUiSystem::LoadSkillWh(const std::u16string& id) {
+  const auto w = 390;
+  Freetype::LoadSize(12);
+  auto desc = SkillGameInstance::LoadSkiName(id).desc;
+  auto rh = Freetype::LoadRh(desc, w - 28, 1.2, SDL_FRect{0, 0, 74, 74});
+  auto h = std::max(140.0f, rh + 60);
+  h += LoadSkillBottomH(id);
+  return {w, h};
+}
+
+SDL_FPoint TooltipUiSystem::LoadItemWh(const GameItem& item) {
+  auto item_name = ItemGameInstance::LoadItemText(item.id, u"name");
+  Freetype::LoadBold(true);
+  Freetype::LoadSize(15);
+  auto w = Freetype::LoadW(item_name) + 150;
+  return {std::max(w, 360.0f), 128};
+}
+
+SDL_FPoint TooltipUiSystem::LoadStrWh(const std::u16string& str) {
+  Freetype::LoadSize(12);
+  return {Freetype::LoadW(str) + 12, 32};
+}
+
+// 悬浮提示按 "鼠标 + 15" 摆放: 超出屏幕就翻到鼠标另一侧, 再贴边夹住
+static SDL_FPoint FitHoverTooltip(float x, float y, float w, float h) {
+  auto& camera = CameraGameInstance::camera_;
+  constexpr float kGap = 15;
+  if (x + w > camera.w) {
+    x = x - kGap * 2 - w;
+  }
+  if (y + h > camera.h) {
+    y = y - kGap * 2 - h;
+  }
+  x = std::clamp(x, 0.0f, std::max(0.0f, camera.w - w));
+  y = std::clamp(y, 0.0f, std::max(0.0f, camera.h - h));
+  return {x, y};
+}
+
+// 按绑定内容渲染悬浮提示: 技能显示技能, 物品显示物品, ui/face/action 显示名称
+void TooltipUiSystem::RenderInput(const GameInput& input, float x, float y) {
+  if (input.type == "skill") {
+    std::u16string id{input.val.begin(), input.val.end()};
+    auto level = JobSkillGameInstance::LoadSkiLevel(id);
+    auto [w, h] = LoadSkillWh(id);
+    auto p = FitHoverTooltip(x, y, w, h);
+    RenderSkill(id, level, p.x, p.y);
+  } else if (input.type == "item") {
+    GameItem item{.type = ItemEnum::kConsume,
+                  .id = {input.val.begin(), input.val.end()}};
+    auto [w, h] = LoadItemWh(item);
+    auto p = FitHoverTooltip(x, y, w, h);
+    RenderItem(item, p.x, p.y);
+  } else if (input.type == "ui" || input.type == "face" ||
+             input.type == "action") {
+    std::u16string text{input.val.begin(), input.val.end()};
+    if (!text.empty()) {
+      auto [w, h] = LoadStrWh(text);
+      auto p = FitHoverTooltip(x, y, w, h);
+      RenderStr(text, p.x, p.y);
+    }
+  }
 }
 
 }  // namespace sdlms

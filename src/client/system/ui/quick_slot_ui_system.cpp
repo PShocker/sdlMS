@@ -11,12 +11,14 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/package_ui_system.h"
+#include "src/client/system/ui/tooltip_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 
 #include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_render.h>
 
+#include <algorithm>
 #include <flat_map>
 #include <format>
 #include <optional>
@@ -26,7 +28,7 @@ namespace sdlms {
 
 void QuickSlotUiSystem::RenderInputIcon(const GameInput& i, int x, int y,
                                         uint8_t alpha) {
-  SDL_Texture* t;
+  SDL_Texture* t = nullptr;
   std::u16string id;
   if (i.type == "skill") {
     id = {i.val.begin(), i.val.end()};
@@ -162,6 +164,7 @@ void QuickSlotUiSystem::RenderInputIcon(const GameInput& i, int x, int y,
 }
 
 void QuickSlotUiSystem::RenderQuickSlot() {
+  mouse_key_ = std::nullopt;
   const static std::flat_map<SDL_Scancode, SDL_Texture*> textures = {
       {SDL_SCANCODE_PAGEDOWN,
        WzResource::LoadTexture(WzResource::ui_->find(u"QuickSlot.img/key/81"))},
@@ -216,6 +219,15 @@ void QuickSlotUiSystem::RenderQuickSlot() {
       };
       for (int i = 0; i < r.size(); i++) {
         SDL_FRect pos_rect;
+        SDL_FRect slot_rect{
+            r[i].x,
+            r[i].y + 32,
+            static_cast<float>(32),
+            static_cast<float>(32),
+        };
+        if (SDL_PointInRectFloat(&Window::mouse_pos_, &slot_rect)) {
+          mouse_key_ = scode[i];
+        }
         if (KeyboardGameInstance::data_.contains(scode[i])) {
           const auto& input = KeyboardGameInstance::data_.at(scode[i]);
           RenderInputIcon(input, r[i].x - 2, r[i].y + 32);
@@ -260,12 +272,17 @@ void QuickSlotUiSystem::Open() {
       std::ranges::find(System::render_systems_, &CursorRenderSystem::Render);
   if (it != System::render_systems_.end()) {
     System::render_systems_.insert(it, Render);
+    // 悬浮提示需要紧跟在本窗口之后、鼠标之前渲染
+    it =
+        std::ranges::find(System::render_systems_, &CursorRenderSystem::Render);
+    System::render_systems_.insert(it, RenderInfo);
     System::event_systems_.insert(System::event_systems_.begin(), Event);
   }
 }
 
 void QuickSlotUiSystem::Close() {
   std::erase(System::render_systems_, Render);
+  std::erase(System::render_systems_, RenderInfo);
   std::erase(System::event_systems_, Event);
 }
 
@@ -297,6 +314,35 @@ bool QuickSlotUiSystem::CursorIn() {
     pos_rect.y += 36;
   }
   return SDL_PointInRectFloat(&mouse, &pos_rect);
+}
+
+bool QuickSlotUiSystem::RenderInfo() {
+  if (CursorGameInstance::modal_overlay_) {
+    return true;
+  }
+  if (CursorGameInstance::cursor_ui_ != Render) {
+    return true;
+  }
+  if (CursorGameInstance::cursor_hand_.has_value()) {
+    return true;
+  }
+  if (!mouse_key_.has_value() ||
+      !KeyboardGameInstance::data_.contains(mouse_key_.value())) {
+    return true;
+  }
+  auto& mouse_pos = Window::mouse_pos_;
+  auto input = KeyboardGameInstance::data_.at(mouse_key_.value());
+  TooltipUiSystem::RenderInput(input, mouse_pos.x + 15, mouse_pos.y + 15);
+  return true;
+}
+
+void QuickSlotUiSystem::EventMotion(SDL_Event* event) {
+  auto& sys = System::render_systems_;
+  std::erase(sys, RenderInfo);
+  auto it = std::ranges::find(sys, &CursorRenderSystem::Render);
+  if (it != sys.end()) {
+    sys.insert(it, RenderInfo);
+  }
 }
 
 bool QuickSlotUiSystem::EventClickQuickslot(SDL_Event* event) {
@@ -387,6 +433,7 @@ bool QuickSlotUiSystem::Event(SDL_Event* event) {
       break;
     }
     case SDL_EVENT_MOUSE_MOTION: {
+      EventMotion(event);
       break;
     }
     default: {

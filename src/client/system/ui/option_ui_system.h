@@ -99,6 +99,7 @@ class OptionUiSystem : public UiComponentHost<OptionUiSystem> {
 
   // 值 / 存档
   static std::flat_map<std::u16string, int32_t>& Values();
+  static void LoadVolumes();
   static void Apply();
   static inline bool loaded_ = false;
 

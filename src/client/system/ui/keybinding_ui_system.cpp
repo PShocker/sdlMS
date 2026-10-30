@@ -191,7 +191,7 @@ void KeybindingUiSystem::RenderBackgrndKey() {
       {SDL_SCANCODE_F11, WzResource::LoadTexture(keys->get_child(u"87"))},
       {SDL_SCANCODE_F12, WzResource::LoadTexture(keys->get_child(u"88"))},
 
-      // 以下特殊按键的映射可能需要根据实�?SDL3 定义调整
+      // 以下特殊按键的映射可能需要根据实际 SDL3 定义调整
       {SDL_SCANCODE_HOME,
        WzResource::LoadTexture(keys->get_child(u"71"))},  // Hm
       {SDL_SCANCODE_PAGEUP,
@@ -460,6 +460,10 @@ void KeybindingUiSystem::Open() {
     data_bak = KeyboardGameInstance::data_;
 
     System::render_systems_.insert(it, Render);
+    // 悬浮提示需要紧跟在本窗口之后、鼠标之前渲染
+    it =
+        std::ranges::find(System::render_systems_, &CursorRenderSystem::Render);
+    System::render_systems_.insert(it, RenderInfo);
     System::event_systems_.insert(System::event_systems_.begin(), Event);
   }
 }
@@ -552,22 +556,8 @@ void KeybindingUiSystem::EventRemainKey() {
   if (CursorGameInstance::cursor_hand_net_.has_value()) {
     return;
   }
-  const auto b_w = 1;
-  const auto b_h = 1;
-  SDL_FRect pos_rect;
-  pos_rect.x = pos_.x + remain_lt.x;
-  pos_rect.y = pos_.y + remain_lt.y;
-  pos_rect.w = b_w;
-  pos_rect.h = b_h;
-  auto& mouse_pos = Window::mouse_pos_;
-  if (CursorGameInstance::cursor_hand_.has_value()) {
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-      CursorGameInstance::cursor_hand_ = std::nullopt;
-      AudioGameInstance::LoadAudio(u"UI.img/DragEnd", 0);
-      return;
-    }
-  }
-
+  // 手持绑定的落点由 EventBackgrndKey(键位) 与 EventCancelHand(其它区域) 处理,
+  // 这里只负责从剩余功能图标拾取
   if (remain_key.has_value()) {
     CursorGameInstance::cursor_hand_ = {
         .type = CursorGameInstance::CursorHandType::kKeybind,
@@ -576,6 +566,23 @@ void KeybindingUiSystem::EventRemainKey() {
     };
     AudioGameInstance::LoadAudio(u"UI.img/DragStart", 0);
   }
+}
+
+// 手持按键/技能/物品时, 点在键位以外的区域即取消手持
+bool KeybindingUiSystem::EventCancelHand() {
+  if (CursorGameInstance::cursor_hand_net_.has_value()) {
+    return false;
+  }
+  if (!CursorGameInstance::cursor_hand_.has_value()) {
+    return false;
+  }
+  // 键位区域由 EventBackgrndKey 负责放置
+  if (backgrnd_key.has_value()) {
+    return false;
+  }
+  CursorGameInstance::cursor_hand_ = std::nullopt;
+  AudioGameInstance::LoadAudio(u"UI.img/DragEnd", 0);
+  return true;
 }
 
 bool KeybindingUiSystem::EventUI(SDL_Event* event) {
@@ -616,7 +623,10 @@ bool KeybindingUiSystem::Event(SDL_Event* event) {
         if (CursorGameInstance::cursor_ui_ == Render) {
           // event_tab(event);
           EventBackgrndKey();
-          EventRemainKey();
+          // 手持绑定点在键位以外的区域: 取消手持
+          if (!EventCancelHand()) {
+            EventRemainKey();
+          }
           r = !EventUI(event);
         }
         EventDragEnd();
@@ -704,183 +714,18 @@ bool KeybindingUiSystem::RenderInfo() {
   if (CursorGameInstance::cursor_hand_.has_value()) {
     return true;
   }
+  auto& mouse_pos = Window::mouse_pos_;
+  SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
   if (remain_key.has_value()) {
-    std::u16string text;
-    switch ((CursorGameInstance::CursorKeybindType)remain_key.value()) {
-      case CursorGameInstance::CursorKeybindType::kKeybindUiMenu: {
-        text = u"menu";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindFaceHit: {
-        text = u"hit";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindFaceSmile: {
-        text = u"smile";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindFaceTroubled: {
-        text = u"troubled";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindFaceCry: {
-        text = u"menu";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindFaceAngry: {
-        text = u"angry";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindFaceBewildered: {
-        text = u"bewildered";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindFaceStunned: {
-        text = u"bewildered";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindUiToAll: {
-        text = u"to all";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindUiToParty: {
-        text = u"to party";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindUiQuest: {
-        text = u"quest";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindUiWorldMap: {
-        text = u"worldMap";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindUiEquip: {
-        text = u"equip";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindUiPackage: {
-        text = u"item";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindUiBuddy: {
-        text = u"buddy";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindUiParty: {
-        text = u"party";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindUiMapleChat: {
-        text = u"mapleChat";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindUiQuickSlot: {
-        text = u"quickSlot";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindUiKeyBind: {
-        text = u"keyBind";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindUiCharacterStat: {
-        text = u"characterStat";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindUiWhisper: {
-        text = u"whisper";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindUiSkill: {
-        text = u"skill";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindUiCraft: {
-        text = u"craft";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindUiMailBox: {
-        text = u"mailBox";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindUiChatPlus: {
-        text = u"chat+";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindUiMiniMap: {
-        text = u"miniMap";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindUiChangeChannel: {
-        text = u"changeChannel";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindUiOk: {
-        text = u"ok";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindActionPick: {
-        text = u"pick";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindActionSit: {
-        text = u"sit";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindActionAttack: {
-        text = u"ok";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindActionJump: {
-        text = u"jump";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindActionHarvest: {
-        text = u"harvest";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindActionUp: {
-        text = u"up";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindActionDown: {
-        text = u"down";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindActionLeft: {
-        text = u"left";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindActionRight: {
-        text = u"right";
-        break;
-      }
-      case CursorGameInstance::CursorKeybindType::kKeybindFaceVomit: {
-        text = u"vomit";
-        break;
-      }
-    }
-    auto& mouse_pos = Window::mouse_pos_;
-    SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
-    TooltipUiSystem::RenderStr(text, show_pos.x, show_pos.y);
+    // 剩余功能图标: 操作 / 表情 / UI
+    auto input = KeyboardGameInstance::FindInputByCursor(
+        static_cast<int>(remain_key.value()));
+    TooltipUiSystem::RenderInput(input, show_pos.x, show_pos.y);
   } else if (backgrnd_key.has_value() &&
              KeyboardGameInstance::data_.contains(backgrnd_key.value())) {
-    auto scan_code = backgrnd_key.value();
-    auto input = KeyboardGameInstance::data_.at(scan_code);
-    auto& mouse_pos = Window::mouse_pos_;
-    SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
-    if (input.type == "skill") {
-      auto ski_id = input.val;
-      std::u16string ski_id2{ski_id.begin(), ski_id.end()};
-      auto ski_lv = JobSkillGameInstance::LoadSkiLevel(ski_id2);
-      TooltipUiSystem::RenderSkill(ski_id2, ski_lv, show_pos.x, show_pos.y);
-    } else if (input.type == "item") {
-      auto item_id = input.val;
-      GameItem item;
-      item.id = {item_id.begin(), item_id.end()};
-      TooltipUiSystem::RenderItem(item, show_pos.x, show_pos.y);
-    } else {
-    }
+    // 键盘按键: 技能 / 物品 / 操作 / 表情 / UI
+    auto input = KeyboardGameInstance::data_.at(backgrnd_key.value());
+    TooltipUiSystem::RenderInput(input, show_pos.x, show_pos.y);
   }
   return true;
 }

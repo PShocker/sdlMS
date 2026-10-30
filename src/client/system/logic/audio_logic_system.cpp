@@ -18,7 +18,8 @@ void AudioLogicSystem::RunBackgrnd() {
   }
   if (audio.fade > 0) {
     audio.fade -= 0.010;
-    SDL_SetAudioStreamGain(audio.stream, audio.fade);
+    auto bgm_v = audio.fade * AudioGameInstance::BgmGain();
+    SDL_SetAudioStreamGain(audio.stream, bgm_v);
   } else if (backgrnds.size() > 1) {
     AudioGameInstance::CloseAudio(audio);
     backgrnds.erase(backgrnds.begin());

@@ -24,9 +24,16 @@ class QuestUiSystem : public UiComponentHost<QuestUiSystem> {
   static void RenderBackgrnd();
   static void RenderQuests();
   static void RenderQuestDetail();
-  static void RenderAreaName(int i, int y);
+  static void RenderAreaName(int i, int y, int count);
   static void RenderQuest(GameQuest& q, int y);
   static void RenderDetailAvaliable();
+  static void RenderDetailComplete();
+  static int LoadDetailStateIndex();
+  static int LoadDemandCheckIndex();
+  static int LoadRewardActIndex();
+  static int LoadDescH();
+  static int LoadDemandRewardH();
+  static void RenderDemandReward(int top);
   static void RenderDetailProgress();
   static void RenderDetailSummary();
   static void RenderDetailSummaryBackgrnd();
@@ -37,6 +44,10 @@ class QuestUiSystem : public UiComponentHost<QuestUiSystem> {
 
   static void EventButtonClose();
   static void EventButtonDetail();
+  static void EventButtonGiveup();
+  static void EventButtonAlarm();
+  static void TrySelectTopQuest();
+  static bool IsWorthlessQuest(const GameQuest& q);
 
   static bool EventCheckbox();
   static bool EventUI(SDL_Event* event);
@@ -67,6 +78,8 @@ class QuestUiSystem : public UiComponentHost<QuestUiSystem> {
   static inline std::flat_set<int> disable_fold_;
   static inline std::array<int, 2> pages_;
   static inline std::u16string detail_quest_;  // quest
+
+  static inline std::flat_set<std::u16string> read_quests_;  // 已读任务
 
   static void Open();
   static void Close();
