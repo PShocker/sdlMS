@@ -34,7 +34,12 @@ void CharacterStatGameInstance::Load(const CharacterSaveData& cs) {
   remain_ap_ = cs.remain_ap;
 
   Update();
-  hp_point_ = 1;
+  hp_point_ = std::clamp<int32_t>(
+      static_cast<int32_t>(std::min<uint32_t>(cs.hp, INT32_MAX)), 1,
+      hp_point_max_);
+  mp_point_ = std::clamp<int32_t>(
+      static_cast<int32_t>(std::min<uint32_t>(cs.mp, INT32_MAX)), 1,
+      mp_point_max_);
 }
 
 uint32_t CharacterStatGameInstance::GetBaseHpMax() {

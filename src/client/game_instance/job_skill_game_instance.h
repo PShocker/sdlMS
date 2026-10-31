@@ -40,7 +40,7 @@ class JobSkillGameInstance {
   static std::u16string LoadTwoJump();
 
   static inline std::flat_map<uint32_t, uint8_t> skill_point_;
-  static inline std::vector<uint32_t> remain_point_ = {100, 100, 100, 100};
+  static inline std::vector<uint32_t> remain_point_;
 };
 
 }  // namespace sdlms

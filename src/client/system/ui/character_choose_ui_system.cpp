@@ -7,6 +7,8 @@
 #include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/game_instance/keyboard_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
+#include "src/client/game_instance/popup_tip_game_instance.h"
+#include "src/client/game_instance/quest_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/character_render_system.h"
 #include "src/client/system/render/cursor_render_system.h"
@@ -37,13 +39,14 @@
 #include <vector>
 
 #include "wz/Node.h"
+#include "wz/Property.h"
 
 namespace sdlms {
 
 SDL_FPoint CharacterChooseUiSystem::LoadPos() {
   SDL_FPoint pos;
   const auto w = 1366;
-  const auto h = 768;
+  const auto h = 768; 
   auto& camera = CameraGameInstance::camera_;
   pos.x = (camera.w - w) / 2;
   pos.y = (camera.h - h) / 2;
@@ -56,8 +59,8 @@ UIComponents& CharacterChooseUiSystem::GetComponent() {
       WzResource::ui_->find(u"Login.img/CharSelect/button:select"),
       WzResource::ui_->find(u"Login.img/CharSelect/button:new"),
       WzResource::ui_->find(u"Login.img/CharSelect/button:delete"),
-      // 返回按钮画在背景图上，没有独立的 WZ 节点，仅提供点击区域
-      nullptr,
+      // 返回按钮使用 LoginStart 的 BtClassicPrev。
+      WzResource::ui_->find(u"Login.img/LoginStart/BtClassicPrev"),
   };
   auto pos = LoadPos();
   auto& camera = CameraGameInstance::camera_;
@@ -178,25 +181,36 @@ void CharacterChooseUiSystem::RenderCharacterBoard(uint8_t i) {
     SDL_RenderTexture(Window::renderer_, char_info, nullptr, &pos_rect);
 
     const auto& cs = GameSaveSystemInstance::save_.characters[i];
+    const float info_x = pos_rect.x;
+    const float info_y = pos_rect.y;
+
     Freetype::LoadSize(13);
     Freetype::LoadAligned(true);
     Freetype::LoadColor(0, 0, 0, 255);
-    auto str1 = std::to_string(cs.ap.str_ap);
-    auto str2 = std::u16string{str1.begin(), str1.end()};
-    Freetype::DrawLine(str2, 0, 0);
 
-    str1 = std::to_string(cs.ap.dex_ap);
-    str2 = std::u16string{str1.begin(), str1.end()};
-    Freetype::DrawLine(str2, 0, 0);
+    // charInfo 自带 JOB/LV./STR/DEX/INT/LUK 标签，这里只填右侧数值。
+    const float value_cx = info_x + 90.0f;
+    const auto draw_center = [&](const std::u16string& text, float y) {
+      auto w = Freetype::LoadW(text);
+      Freetype::DrawLine(text, value_cx - w / 2, info_y + y);
+    };
+    const auto to_text = [](uint32_t value) {
+      auto str = std::to_string(value);
+      return std::u16string{str.begin(), str.end()};
+    };
 
-    str1 = std::to_string(cs.ap.int_ap);
-    str2 = std::u16string{str1.begin(), str1.end()};
-    Freetype::DrawLine(str2, 0, 0);
-
-    str1 = std::to_string(cs.ap.luk_ap);
-    str2 = std::u16string{str1.begin(), str1.end()};
-    Freetype::DrawLine(str2, 0, 0);
-    Freetype::LoadAligned(false);
+    auto job_node =
+        WzResource::ms_->get_root()->find(u"String.img/Job/" +
+                                         cs.character.job);
+    if (job_node != nullptr) {
+      draw_center(
+          static_cast<wz::Property<std::u16string>*>(job_node)->get(), 0.0f);
+    }
+    draw_center(to_text(cs.character.level), 24.0f);
+    draw_center(to_text(cs.ap.str_ap), 54.0f);
+    draw_center(to_text(cs.ap.dex_ap), 80.0f);
+    draw_center(to_text(cs.ap.int_ap), 104.0f);
+    draw_center(to_text(cs.ap.luk_ap), 128.0f);
   }
 }
 
@@ -223,10 +237,10 @@ void CharacterChooseUiSystem::RenderCharacterEffect(uint8_t i) {
 }
 
 bool CharacterChooseUiSystem::Render() {
-  RenderUI();
   RenderCharacter();
   RenderBackgrnd();
   RenderBanner();
+  RenderUI();
   return true;
 }
 
@@ -240,7 +254,11 @@ void CharacterChooseUiSystem::EventButtonSelect() {
   auto character = characters_[cse];
   uint32_t map_id;
   uint32_t portal_id;
+  // 先应用角色自身数据，再按该角色计算 HP/MP 上限。
+  CharacterGameInstance::self_ = character;
   // load
+  // 登录读档期间清理旧提示，并禁止弹已完成任务提示。
+  PopupTipGameInstance::Load();
   for (auto& cs : GameSaveSystemInstance::save_.characters) {
     if (cs.character.name == character.name) {
       map_id = cs.map_id;
@@ -250,10 +268,10 @@ void CharacterChooseUiSystem::EventButtonSelect() {
       CharacterStatGameInstance::Load(cs);
       JobSkillGameInstance::Load(cs);
       KeyboardGameInstance::Load(cs);
+      QuestGameInstance::Load(cs);
     }
   }
-  // init
-  CharacterGameInstance::self_ = character;
+  PopupTipGameInstance::EndLoad();
 
   SceneSystemInstance::EnterPrepare(map_id, u"sp", portal_id);
   // notice login
@@ -328,6 +346,7 @@ bool CharacterChooseUiSystem::BackAnimate() {
 }
 
 void CharacterChooseUiSystem::EventButtonBack() {
+  ClearChoose();
   AudioGameInstance::LoadAudio(u"UI.img/ScrollUp", 0);
 
   GameSaveSystemInstance::SaveGame();
@@ -340,6 +359,20 @@ void CharacterChooseUiSystem::EventButtonBack() {
       CursorRenderSystem::Render,
   };
   System::event_systems_ = {};
+}
+
+void CharacterChooseUiSystem::ClearChoose() {
+  if (!choose_.has_value()) {
+    return;
+  }
+  choose_ = std::nullopt;
+  for (auto& character : characters_) {
+    CharacterLogicSystem::RunStandAction(character);
+  }
+  board_.ani_index = 0;
+  board_.ani_time = 0;
+  effect_.ani_index = 0;
+  effect_.ani_time = 0;
 }
 
 bool CharacterChooseUiSystem::EventChooseCharacter(SDL_Event* event) {
@@ -386,7 +419,13 @@ bool CharacterChooseUiSystem::EventUI(SDL_Event* event) {
   if (EventChooseCharacter(event)) {
     return true;
   }
-  return DispatchButtonClick(GetComponent(), true);
+  if (DispatchButtonClick(GetComponent(), true)) {
+    return true;
+  }
+
+  // 点击非角色、非按钮区域时取消选中，卷轴和特效随之隐藏。
+  ClearChoose();
+  return true;
 }
 
 bool CharacterChooseUiSystem::Event(SDL_Event* event) {

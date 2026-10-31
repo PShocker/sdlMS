@@ -80,23 +80,23 @@ SDL_AppResult AppInit(void** appstate, int argc, char* argv[]) {
 
   CharacterGameInstance::InitCharacterBone();
   CharacterGameInstance::InitDefaultClothes();
-  CharacterGameInstance::LoadSelfCharacter();
-  CharacterGameInstance::self_.job = u"000";
-  CharacterGameInstance::self_.level = 1;
-  CharacterGameInstance::self_.name = u"进击的蓝蘑菇";
-  // CharacterGameInstance::self_.morph = u"0001";
-
   SDL_HideCursor();
-  CharacterSaveData cs;
-  PackageGameInstance::Load(cs);
-  CharacterStatGameInstance::Load(cs);
-  QuestGameInstance::Load(cs);
 
-  uint32_t start_map = 1;
-  SceneSystemInstance::EnterPrepare(start_map, u"sp", 0);
+  // CharacterGameInstance::LoadSelfCharacter();
+  // CharacterGameInstance::self_.job = u"000";
+  // CharacterGameInstance::self_.level = 1;
+  // CharacterGameInstance::self_.name = u"进击的蓝蘑菇";
+  // CharacterGameInstance::self_.morph = u"0001";
+  // CharacterSaveData cs;
+  // PackageGameInstance::Load(cs);
+  // CharacterStatGameInstance::Load(cs);
+  // QuestGameInstance::Load(cs);
+
+  // uint32_t start_map = 1;
+  // SceneSystemInstance::EnterPrepare(start_map, u"sp", 0);
   // SceneSystemInstance::prepare_pos = {600, -470};
   // CharacterCreateSystemInstance::Enter();
-  // LoginSystemInstance::Enter();
+  LoginSystemInstance::Enter();
 
   return SDL_APP_CONTINUE;
 }

@@ -58,7 +58,11 @@ std::u16string ItemGameInstance::LoadItemType(const std::u16string& id) {
       {u"03", u"Ins"},  {u"50", u"Pet"},     {u"09", u"Special"},
   };
   auto r = str.substr(0, 2);
-  return types.at(r);
+  if (auto it = types.find(r); it != types.end()) {
+    return it->second;
+  }
+  // 旧存档可能存在无效/未知物品 ID，返回 Etc 避免读档直接抛异常。
+  return u"Etc";
 }
 
 wz::Node* ItemGameInstance::LoadItemInfo(const std::u16string& id,
@@ -106,8 +110,11 @@ std::polymorphic<GameItem> ItemGameInstance::LoadItem(const std::u16string& id,
     cash.id = id;
     return std::polymorphic<GameItem>(cash);
   }
-  // 处理未知类型 - 返回空或抛出异常
-  return std::polymorphic<GameItem>();  // 返回空对象
+  // 未知类型回退为 Etc，避免存档中残留数据生成空 polymorphic 对象。
+  GameEtcItem etc;
+  etc.id = id;
+  etc.num = num;
+  return std::polymorphic<GameItem>(etc);
 }
 
 int ItemGameInstance::LoadSlotMax(const std::u16string& id) {

@@ -35,6 +35,7 @@ class CharacterChooseUiSystem : public UiComponentHost<CharacterChooseUiSystem> 
 
   static bool EventUI(SDL_Event* event);
   static bool EventChooseCharacter(SDL_Event* event);
+  static void ClearChoose();
 
 
  public:

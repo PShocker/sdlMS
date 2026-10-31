@@ -5,6 +5,7 @@
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/popup_tip_game_instance.h"
+#include "src/client/system/ui/quest_alarm_ui_system.h"
 #include "src/client/system/ui/quest_ui_system.h"
 #include "src/common/wz/wz_resource.h"
 
@@ -237,19 +238,40 @@ wz::Node* QuestGameInstance::LoadQuestNode(const std::u16string& id) {
 }
 
 void QuestGameInstance::Load(CharacterSaveData& cs) {
-  AcceptQuest(u"10317.img");
+  progress_quests_.clear();
+  complete_quests_.clear();
+  decline_quests_.clear();
+  QuestAlarmUiSystem::quests_.clear();
   for (auto& q : cs.quests) {
     switch (q.type) {
-      case QuestEnum::kProgress: {
+      case QuestEnum::kProgress: { 
+        // 旧存档里已完成的任务可能仍标记为进行中，且对应 Check 阶段已不存在。
+        bool has_step = false;
+        if (auto node = LoadQuestNode(q.quest_id); node != nullptr) {
+          if (auto check = node->get_child(u"Check"); check != nullptr) {
+            if (check->get_child(std::to_string(q.index)) != nullptr) {
+              has_step = true;
+            }
+          }
+        }
+        if (!has_step && q.index > 1) {
+          q.type = QuestEnum::kComplete;
+          complete_quests_[q.quest_id] = q;
+          break;
+        }
         AcceptQuest(q);
+        // 读档后重新计算任务目标，恢复 mob_bool / item_bool。
+        UpdateCheckMob(u"", 0);
+        UpdateCheckItem(q.quest_id);
         break;
       }
       case QuestEnum::kComplete: {
-        CompleteQuest(q);
+        // 存档中的 index 已经是完成后的任务阶段，不能再次 CompleteQuest 自增。
+        complete_quests_[q.quest_id] = q;
         break;
       }
       case QuestEnum::kDecline: {
-        DeclineQuest(q);
+        decline_quests_[q.quest_id] = q;
         break;
       }
     }
@@ -260,25 +282,48 @@ void QuestGameInstance::Load(CharacterSaveData& cs) {
   QuestUiSystem::disable_fold_.clear();
   QuestUiSystem::pages_ = {};
   QuestUiSystem::detail_quest_ = u"";
-  if (auto aq = QuestGameInstance::LoadUiAvaliableQuest(); !aq.empty()) {
-    QuestUiSystem::detail_quest_ = aq.begin()->second.begin()->quest_id;
+  // 优先选中已保存的进行中任务，避免读档时重新扫描全部可用任务。
+  if (!progress_quests_.empty()) {
+    QuestUiSystem::detail_quest_ = progress_quests_.begin()->first;
   }
 }
 
 void QuestGameInstance::AcceptQuest(GameQuest& q) {
-  q.index = 1;
+  if (q.index == 0) {
+    q.index = 1;
+  }
   if (decline_quests_.contains(q.quest_id)) {
     q.index = decline_quests_[q.quest_id].index;
   }
   auto node = LoadQuestNode(q.quest_id);
+  if (node == nullptr) {
+    progress_quests_[q.quest_id] = q;
+    return;
+  }
+  auto check = node->get_child(u"Check");
+  if (check == nullptr) {
+    progress_quests_[q.quest_id] = q;
+    return;
+  }
   auto i = std::to_string(q.index);
-  node = node->get_child(u"Check");
-  node = node->get_child(i);
+  node = check->get_child(i);
+  if (node == nullptr) {
+    progress_quests_[q.quest_id] = q;
+    return;
+  }
   if (auto n = node->get_child(u"item"); n != nullptr) {
     for (auto [k, v] : *n->get_children()) {
-      auto id = static_cast<wz::Property<int>*>(v[0]->get_child(u"id"))->get();
+      if (v.empty() || v[0] == nullptr) {
+        continue;
+      }
+      auto id_node = v[0]->get_child(u"id");
+      if (id_node == nullptr || id_node->type != wz::Type::Int) {
+        continue;
+      }
+      auto id = static_cast<wz::Property<int>*>(id_node)->get();
       int count = 0;
-      if (auto nn = v[0]->get_child(u"count"); nn != nullptr) {
+      if (auto nn = v[0]->get_child(u"count");
+          nn != nullptr && nn->type == wz::Type::Int) {
         count = static_cast<wz::Property<int>*>(nn)->get();
       }
       QuestItem qi;
@@ -290,9 +335,17 @@ void QuestGameInstance::AcceptQuest(GameQuest& q) {
   }
   if (auto n = node->get_child(u"mob"); n != nullptr) {
     for (auto [k, v] : *n->get_children()) {
-      auto id = static_cast<wz::Property<int>*>(v[0]->get_child(u"id"))->get();
+      if (v.empty() || v[0] == nullptr) {
+        continue;
+      }
+      auto id_node = v[0]->get_child(u"id");
+      if (id_node == nullptr || id_node->type != wz::Type::Int) {
+        continue;
+      }
+      auto id = static_cast<wz::Property<int>*>(id_node)->get();
       int count = 0;
-      if (auto nn = v[0]->get_child(u"count"); nn != nullptr) {
+      if (auto nn = v[0]->get_child(u"count");
+          nn != nullptr && nn->type == wz::Type::Int) {
         count = static_cast<wz::Property<int>*>(nn)->get();
       }
       QuestMob qm;
@@ -323,6 +376,7 @@ void QuestGameInstance::AcceptQuest(const std::u16string& id) {
 
 void QuestGameInstance::CompleteQuest(GameQuest& q) {
   q.index += 1;
+  q.type = QuestEnum::kComplete;
   complete_quests_[q.quest_id] = q;
   progress_quests_.erase(q.quest_id);
   AudioGameInstance::LoadAudio(u"Game.img/QuestClear", 0);
@@ -334,6 +388,7 @@ void QuestGameInstance::CompleteQuest(const std::u16string& id) {
 }
 
 void QuestGameInstance::DeclineQuest(GameQuest& q) {
+  q.type = QuestEnum::kDecline;
   decline_quests_[q.quest_id] = q;
   progress_quests_.erase(q.quest_id);
   return;

@@ -4,6 +4,7 @@
 #include "src/client/game/game_quest.h"
 #include "src/client/game/game_save.h"
 #include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
@@ -43,8 +44,12 @@ bool GameSaveSystemInstance::LoadSave(const std::string& login) {
     auto root = flatbuffers::GetRoot<fbs::GameSave>(data);
     fbs::GameSaveT gst;
     root->UnPackTo(&gst);
+    if (gst.data == nullptr) {
+      SDL_free(data);
+      return false;
+    }
     for (const auto& c : gst.data->data) {
-      CharacterSaveData cs;
+      CharacterSaveData cs{};
       cs.map_id = c->map_id;
       cs.character = ServerCharacterInstance::LoadGCharacter(c->character);
       std::u16string name{c->character->name.begin(), c->character->name.end()};
@@ -70,7 +75,8 @@ bool GameSaveSystemInstance::LoadSave(const std::string& login) {
             auto itm = item->data.AsItem();
             auto tmp = std::format("{:08d}", itm->item_id);
             std::u16string item_id{tmp.begin(), tmp.end()};
-            auto item2 = ItemGameInstance::LoadItem(item_id, itm->item_num);
+            uint32_t num = itm->item_num;
+            auto item2 = ItemGameInstance::LoadItem(item_id, num);
             cs.package.emplace_back(item->index, std::move(item2));
             break;
           }
@@ -80,15 +86,22 @@ bool GameSaveSystemInstance::LoadSave(const std::string& login) {
         }
       }
       cs.meso = c->meso;
-      cs.ap.hp_ap = c->ap->hp_ap;
-      cs.ap.mp_ap = c->ap->mp_ap;
-
-      cs.ap.str_ap = c->ap->str_ap;
-      cs.ap.dex_ap = c->ap->dex_ap;
-      cs.ap.int_ap = c->ap->int_ap;
-      cs.ap.luk_ap = c->ap->luk_ap;
+      if (c->ap != nullptr) {
+        cs.ap.hp_ap = c->ap->hp_ap;
+        cs.ap.mp_ap = c->ap->mp_ap;
+        cs.ap.str_ap = c->ap->str_ap;
+        cs.ap.dex_ap = c->ap->dex_ap;
+        cs.ap.int_ap = c->ap->int_ap;
+        cs.ap.luk_ap = c->ap->luk_ap;
+      }
 
       cs.exp = c->exp;
+      cs.remain_ap = c->remain_ap;
+      cs.remain_sp = c->remain_sp;
+      cs.hp = c->hp;
+      cs.mp = c->mp;
+      cs.portal_id = c->portal_id;
+      cs.return_map_id = c->return_map_id;
 
       for (const auto& quest : c->quest) {
         GameQuest g_quest;
@@ -160,7 +173,7 @@ bool GameSaveSystemInstance::SaveGame() {
   // save
   auto character = CharacterGameInstance::self_;
   if (!character.name.empty()) {
-    CharacterSaveData cs;
+    CharacterSaveData cs{};
     cs.character = character;
     cs.ap.hp_ap = CharacterStatGameInstance::GetHpAp(),
     cs.ap.mp_ap = CharacterStatGameInstance::GetMpAp(),
@@ -169,6 +182,8 @@ bool GameSaveSystemInstance::SaveGame() {
     cs.ap.int_ap = CharacterStatGameInstance::GetIntAp(),
     cs.ap.luk_ap = CharacterStatGameInstance::GetLukAp(),
     cs.sp = {JobSkillGameInstance::skill_point_};
+    cs.remain_ap = CharacterStatGameInstance::GetRemainAp();
+    cs.remain_sp = JobSkillGameInstance::remain_point_;
 
     cs.map_id = SceneSystemInstance::map_id_;
 
@@ -181,7 +196,14 @@ bool GameSaveSystemInstance::SaveGame() {
       auto dy = portal.pos.y - character_pos.y;
       por_dis[dx * dx + dy * dy] = static_cast<int>(std::distance(first, it));
     }
-    cs.portal_id = por_dis.begin()->second;
+    cs.portal_id = por_dis.empty() ? 0 : por_dis.begin()->second;
+
+    for (auto& save_character : save_.characters) {
+      if (save_character.character.name == character.name) {
+        cs.return_map_id = save_character.return_map_id;
+        break;
+      }
+    }
 
     cs.meso = PackageGameInstance::meso_;
 
@@ -189,17 +211,17 @@ bool GameSaveSystemInstance::SaveGame() {
     cs.mp = CharacterStatGameInstance::GetMp();
     cs.exp = CharacterStatGameInstance::GetExp();
 
-    for (auto [k, v] : QuestGameInstance::progress_quests_) {
-      cs.quests.push_back(std::move(v));
+    for (auto&& [k, v] : QuestGameInstance::progress_quests_) {
+      cs.quests.push_back(v);
     }
-    for (auto [k, v] : QuestGameInstance::complete_quests_) {
-      cs.quests.push_back(std::move(v));
+    for (auto&& [k, v] : QuestGameInstance::complete_quests_) {
+      cs.quests.push_back(v);
     }
-    for (auto [k, v] : QuestGameInstance::decline_quests_) {
-      cs.quests.push_back(std::move(v));
+    for (auto&& [k, v] : QuestGameInstance::decline_quests_) {
+      cs.quests.push_back(v);
     }
 
-    for (auto [k, v] : KeyboardGameInstance::data_) {
+    for (auto&& [k, v] : KeyboardGameInstance::data_) {
       cs.keys.push_back({
           .scan_code = static_cast<uint16_t>(k),
           .type = v.type,
@@ -212,16 +234,21 @@ bool GameSaveSystemInstance::SaveGame() {
       for (uint32_t i = 0; i < d.size(); ++i) {
         auto& v = d[i];
         if (!v->id.empty()) {
-          cs.package.push_back({.index = i, .val = std::move(v)});
+          cs.package.push_back({.index = i, .val = v});
         }
       }
     }
-    for (int i = 0; i < save_.characters.size(); i++) {
-      auto& save_character = save_.characters[i].character;
-      if (save_character.name == character.name) {
-        save_.characters[i] = std::move(cs);
+
+    bool replaced = false;
+    for (auto& save_character : save_.characters) {
+      if (save_character.character.name == character.name) {
+        save_character = std::move(cs);
+        replaced = true;
         break;
       }
+    }
+    if (!replaced) {
+      save_.characters.push_back(std::move(cs));
     }
   }
 
@@ -231,7 +258,7 @@ bool GameSaveSystemInstance::SaveGame() {
   gst.username = save_.username;
   for (uint32_t i = 0; i < save_.characters.size(); i++) {
     fbs::CharacterSaveT cst;
-    auto character_s = std::move(save_.characters[i]);
+    auto& character_s = save_.characters[i];
     auto ct = ServerCharacterInstance::LoadCharactert(character_s.character);
     cst.character = std::make_unique<fbs::CharacterT>(ct);
     cst.ap = std::make_unique<fbs::APSaveT>();
@@ -243,8 +270,12 @@ bool GameSaveSystemInstance::SaveGame() {
     cst.ap->int_ap = character_s.ap.int_ap;
     cst.ap->luk_ap = character_s.ap.luk_ap;
 
+    cst.remain_ap = character_s.remain_ap;
+    cst.remain_sp = character_s.remain_sp;
+
     cst.map_id = character_s.map_id;
     cst.portal_id = character_s.portal_id;
+    cst.return_map_id = character_s.return_map_id;
     cst.meso = character_s.meso;
 
     cst.hp = character_s.hp;
@@ -303,15 +334,26 @@ bool GameSaveSystemInstance::SaveGame() {
         }
         case ItemEnum::kConsume: {
           GameConsumeItem& consume = static_cast<GameConsumeItem&>(*pkg.val);
-          item_num = consume.num;
+          fbs::ItemT it;
+          it.item_id = item_id;
+          it.item_num = consume.num;
+          pst.data.Set(it);
           break;
         }
         case ItemEnum::kEtc: {
           GameEtcItem& etc = static_cast<GameEtcItem&>(*pkg.val);
-          item_num = etc.num;
+          fbs::ItemT it;
+          it.item_id = item_id;
+          it.item_num = etc.num;
+          pst.data.Set(it);
           break;
         }
         case ItemEnum::kInstall: {
+          fbs::ItemT it;
+          it.item_id = item_id;
+          it.item_num = 1;
+          pst.data.Set(it);
+          break;
         }
         case ItemEnum::kCash: {
           fbs::ItemT it;
@@ -348,11 +390,11 @@ bool GameSaveSystemInstance::SaveGame() {
   auto save_path = "./Save/" + save_.username + ".bin";
   SDL_IOStream* io = SDL_IOFromFile(save_path.c_str(), "wb");
   if (io == NULL) {
-    return -1;
+    return false;
   }
-  SDL_WriteIO(io, pointer, size);
+  const size_t written = SDL_WriteIO(io, pointer, size);
   SDL_CloseIO(io);
-  return true;
+  return written == size;
 }
 
 }  // namespace sdlms

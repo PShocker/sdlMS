@@ -7,6 +7,7 @@
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
+#include "src/client/game_instance/keyboard_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/character_render_system.h"
 #include "src/client/system/render/cursor_render_system.h"
@@ -490,6 +491,8 @@ void CharacterCreateUiSystem::ResetCharacter(bool g) {
   gender_ = g;
 
   auto& g_character = CharacterCreateUiSystem::g_character_;
+  g_character.job = u"000";
+  g_character.level = 1;
   CharacterGameInstance::AddBody(g_character, u"00002000");
   CharacterGameInstance::AddHead(g_character, u"00012000");
   CharacterGameInstance::AddEar(g_character, u"humanEar");
@@ -875,10 +878,14 @@ void CharacterCreateUiSystem::EventButtonOk() {
   g_character_.name = name_text;
   characters.push_back(g_character_);
 
-  CharacterSaveData cs;
+  CharacterSaveData cs{};
   cs.character = g_character_;
   cs.ap.hp_ap = 0;
   cs.ap.mp_ap = 0;
+  cs.hp = 50;
+  cs.mp = 50;
+  cs.exp = 0;
+  cs.keys = KeyboardGameInstance::DefaultKeys();
 
   cs.ap.str_ap = str_point_;
   cs.ap.dex_ap = dex_point_;

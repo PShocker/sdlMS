@@ -13,7 +13,7 @@ namespace sdlms {
 enum class ItemEnum { kEquip, kConsume, kInstall, kEtc, kCash, kDeco };
 
 struct GameItem {
-  ItemEnum type;
+  ItemEnum type = ItemEnum::kEtc;
   std::u16string id;
   uint64_t expire = 0;
 };

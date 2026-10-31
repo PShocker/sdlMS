@@ -9,6 +9,7 @@
 #include <flat_map>
 #include <optional>
 #include <string>
+#include <vector>
 
 namespace sdlms {
 
@@ -18,6 +19,7 @@ class KeyboardGameInstance {
 
   static void Load(const CharacterSaveData& cs);
   static void Load();
+  static std::vector<KeySave> DefaultKeys();
   static inline std::flat_map<SDL_Scancode, GameInput> data_;
   static SDL_Scancode FindKeyByVal(const std::string& target_val);
   static GameInput FindInputByCursor(int i);

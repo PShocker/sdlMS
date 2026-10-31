@@ -9,6 +9,7 @@
 #include <format>
 #include <optional>
 #include <string>
+#include <utility>
 
 namespace sdlms {
 
@@ -66,6 +67,23 @@ void KeyboardGameInstance::Load(const CharacterSaveData& cs) {
         .sub_val = k.sub_val,
     };
   }
+}
+
+std::vector<KeySave> KeyboardGameInstance::DefaultKeys() {
+  auto current = data_;
+  Reset();
+  std::vector<KeySave> keys;
+  keys.reserve(data_.size());
+  for (auto&& [k, v] : data_) {
+    keys.push_back({
+        .scan_code = static_cast<uint16_t>(k),
+        .type = v.type,
+        .val = v.val,
+        .sub_val = v.sub_val,
+    });
+  }
+  data_ = std::move(current);
+  return keys;
 }
 
 SDL_Scancode KeyboardGameInstance::FindKeyByVal(const std::string& target_val) {

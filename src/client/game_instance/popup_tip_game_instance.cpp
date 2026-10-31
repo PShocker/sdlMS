@@ -25,7 +25,19 @@ void PopupTipGameInstance::AddTip(PopupTipEnums type, fbs::PlayerT player_t) {
   AudioGameInstance::LoadAudio(u"UI.img/Invite", 0);
 }
 
+void PopupTipGameInstance::Load() {
+  data_.clear();
+  suppress_quest_tip_ = true;
+}
+
+void PopupTipGameInstance::EndLoad() {
+  suppress_quest_tip_ = false;
+}
+
 void PopupTipGameInstance::AddQuestTip(const std::u16string& id) {
+  if (suppress_quest_tip_) {
+    return;
+  }
   GamePopupTip tp;
   tp.type = PopupTipEnums::kQuest;
   tp.data = id;

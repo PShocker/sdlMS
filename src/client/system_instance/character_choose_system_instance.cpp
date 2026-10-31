@@ -26,6 +26,10 @@ namespace sdlms {
 
 void CharacterChooseSystemInstance::EnterPrepare(const std::string& login) {
   GameSaveSystemInstance::LoadSave(login);
+  // 进入角色选择页时清空上一次的选中状态和卷轴动画。
+  CharacterChooseUiSystem::choose_ = std::nullopt;
+  CharacterChooseUiSystem::board_ = {};
+  CharacterChooseUiSystem::effect_ = {};
   // 进一步解析game_save
   auto character_size = GameSaveSystemInstance::save_.characters.size();
   CharacterChooseUiSystem::characters_.resize(character_size);

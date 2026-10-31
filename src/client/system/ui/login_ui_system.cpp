@@ -227,12 +227,12 @@ void LoginUiSystem::EventButtonLogin() {
   if (username_.text.empty()) {
     return;
   }
+  static std::string username;
   static std::string name;
   int init_result;
-  name = {username_.text.begin(), username_.text.end()};
+  username = {username_.text.begin(), username_.text.end()};
   // 命名管道检测是否多次打开
-  name = "__sdlMS__" + name;
-  name = PIPENAME + name;
+  name = std::string{PIPENAME} + "__sdlMS__" + username;
 
   init_result = uv_pipe_init(ServerMain::loop_, &g_pipe_, 0);
   if (init_result != 0) {
@@ -270,7 +270,7 @@ void LoginUiSystem::EventButtonLogin() {
     return;
   }
 
-  CharacterChooseSystemInstance::EnterPrepare(name);
+  CharacterChooseSystemInstance::EnterPrepare(username);
   System::logic_systems_.push_back(LoginAnimate);
   System::render_systems_ = {
       LoginSystemInstance::RenderGame,

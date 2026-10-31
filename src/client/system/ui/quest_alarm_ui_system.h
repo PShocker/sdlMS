@@ -45,7 +45,7 @@ class QuestAlarmUiSystem : public UiComponentHost<QuestAlarmUiSystem> {
 
   static inline bool max_ = true;
 
-  static inline SDL_FPoint pos_;
+  static inline SDL_FPoint pos_ = {300, 0};
 
   static void EventAutoQuests();
 

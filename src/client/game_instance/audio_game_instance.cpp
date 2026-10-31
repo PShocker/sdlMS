@@ -66,6 +66,15 @@ void AudioGameInstance::LoadAudio(const std::u16string& path, uint64_t delay) {
   audios_.emplace_back(audio);
 }
 
+void AudioGameInstance::PlayNow(const std::u16string& path) {
+  LoadAudio(path, 0);
+  auto& audio = audios_.back();
+  auto& data = LoadCache(path);
+  SDL_PutAudioStreamData(audio.stream, data.data.data(), data.data.size());
+  SDL_FlushAudioStream(audio.stream);
+  audio.fade = 1;
+}
+
 void AudioGameInstance::LoadBackgrndAudio(const std::u16string& path) {
   // if (path.empty()) {
   //   return;

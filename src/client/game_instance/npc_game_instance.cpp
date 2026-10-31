@@ -245,9 +245,15 @@ std::vector<std::u16string> NpcGameInstance::LoadProgressCompleteQuest(
   for (auto& p : progress) {
     if (p.item_bool && p.mob_bool) {
       auto node = QuestGameInstance::LoadQuestNode(p.quest_id);
+      if (node == nullptr) {
+        continue;
+      }
       auto tmp = std::to_string(p.index);
-      node = node->find("Check/" + tmp + "/npc");
-      auto npc_id = static_cast<wz::Property<int>*>(node)->get();
+      auto npc_node = node->find("Check/" + tmp + "/npc");
+      if (npc_node == nullptr || npc_node->type != wz::Type::Int) {
+        continue;
+      }
+      auto npc_id = static_cast<wz::Property<int>*>(npc_node)->get();
       auto npc_id2 = std::stoi(std::string{id.begin(), id.end()});
       if (npc_id == npc_id2) {
         result.push_back(p.quest_id);

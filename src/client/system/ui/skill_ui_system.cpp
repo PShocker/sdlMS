@@ -10,9 +10,9 @@
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
-#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/system/ui/component/scroll.h"
 #include "src/client/system/ui/component/tab.h"
+#include "src/client/system/ui/component/ui_component.h"
 #include "src/client/system/ui/tooltip_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
@@ -244,6 +244,9 @@ UIComponents& SkillUiSystem::GetComponent() {
   const auto disable_ski = [](std::u16string id) {
     auto active = active_tab_;
     const auto sps = JobSkillGameInstance::remain_point_;
+    if (sps.size() <= active) {
+      return true;
+    }
     if (sps.at(active) == 0) {
       return true;
     }
@@ -309,14 +312,14 @@ UIComponents& SkillUiSystem::GetComponent() {
 
   const SDL_FPoint vscr_lt{174, 98};
   const uint32_t vscr_length = 236;
-  Scroll scroll(page_, static_cast<uint32_t>(skill_node.size()), vscr_length, 6);
+  Scroll scroll(page_, static_cast<uint32_t>(skill_node.size()), vscr_length,
+                6);
   scroll.pos = {static_cast<float>((int)pos_.x + vscr_lt.x),
                 static_cast<float>((int)pos_.y + vscr_lt.y)};
   scroll.top = cursor_on_ui && !modal_blocked;
   components_.push_back(scroll);
   return components_;
 }
-
 
 
 void SkillUiSystem::RenderBook() {
@@ -345,7 +348,10 @@ void SkillUiSystem::RenderBook() {
 }
 
 void SkillUiSystem::RenderPoint() {
-  auto point = JobSkillGameInstance::remain_point_[active_tab_];
+  uint32_t point = 0;
+  if (JobSkillGameInstance::remain_point_.size() > active_tab_) {
+    point = JobSkillGameInstance::remain_point_[active_tab_];
+  }
   Freetype::LoadAligned(true);
   Freetype::LoadSize(12);
   Freetype::LoadColor(0, 0, 0, 255);

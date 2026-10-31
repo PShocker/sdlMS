@@ -16,6 +16,7 @@
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/npc_game_instance.h"
 #include "src/client/game_instance/obj_game_instance.h"
+#include "src/client/system_instance/game_save_system_instance.h"
 #include "src/client/game_instance/portal_game_instance.h"
 #include "src/client/game_instance/reactor_game_instance.h"
 #include "src/client/game_instance/seat_game_instance.h"
@@ -293,6 +294,8 @@ void SceneSystemInstance::EnterQuit() {
 }
 
 void SceneSystemInstance::QuitPrepare() {
+  // 退出到登录页前保存当前角色，包括任务和背包状态。
+  GameSaveSystemInstance::SaveGame();
   fbs::ClientSceneT client_scene;
   client_scene.fade = false;
   client_scene.map_id = 0;

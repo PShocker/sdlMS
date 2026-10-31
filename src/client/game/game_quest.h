@@ -31,9 +31,9 @@ enum class QuestEnum : uint8_t {
 
 struct GameQuest {
   std::u16string quest_id;
-  uint8_t index;
+  uint8_t index = 0;
 
-  QuestEnum type;
+  QuestEnum type = QuestEnum::kProgress;
 
   std::flat_map<std::u16string, QuestMob> mob;
   std::flat_map<std::u16string, QuestItem> item;
@@ -41,8 +41,8 @@ struct GameQuest {
   std::flat_map<std::u16string, QuestMob> check_mob;
   std::flat_map<std::u16string, QuestItem> check_item;
 
-  bool mob_bool;
-  bool item_bool;
+  bool mob_bool = false;
+  bool item_bool = false;
 };
 
 }  // namespace sdlms

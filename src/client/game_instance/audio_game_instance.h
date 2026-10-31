@@ -30,6 +30,8 @@ class AudioGameInstance {
   static float BgmGain();
 
   static void LoadAudio(const std::u16string& path, uint64_t delay);
+  // 立即提交播放，避免调用方后续阻塞导致音效延迟。
+  static void PlayNow(const std::u16string& path);
   static void LoadBackgrndAudio(const std::u16string& path);
 
   static void CloseAudio(const GameAudio& audio);

@@ -111,8 +111,12 @@ wz::Node* EquipGameInstance::LoadEquipInfo(const std::u16string& id) {
   static std::flat_map<std::u16string, wz::Node*> cache;
   if (!cache.contains(id)) {
     auto equip_type = LoadEquipType(id);
-    cache[id] =
-        WzResource::character_->find(equip_type + u"/" + id + u".img/info");
+    if (equip_type.empty()) {
+      cache[id] = nullptr;
+    } else {
+      cache[id] =
+          WzResource::character_->find(equip_type + u"/" + id + u".img/info");
+    }
   }
   return cache[id];
 }

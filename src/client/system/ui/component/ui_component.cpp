@@ -22,7 +22,8 @@ bool DispatchButtonClick(UIComponents& components, bool play_sound) {
       continue;
     }
     if (play_sound) {
-      AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+      // 立即提交音频，避免回调里的存盘/切场景阻塞导致按钮音效延迟。
+      AudioGameInstance::PlayNow(u"UI.img/BtMouseClick");
     }
     button->callback();
     return true;

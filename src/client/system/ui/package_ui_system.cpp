@@ -216,7 +216,8 @@ void PackageUiSystem::RenderItems() {
       info = ItemGameInstance::LoadItemInfo(item->id, 0);
     }
 
-    auto icon = WzResource::LoadTexture(info->get_child(u"icon"));
+    auto icon = info == nullptr ? nullptr
+                                : WzResource::LoadTexture(info->get_child(u"icon"));
     if (!icon)
       continue;
 
