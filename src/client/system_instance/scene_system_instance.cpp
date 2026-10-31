@@ -56,6 +56,7 @@
 #include "src/client/system/ui/buff_ui_system.h"
 #include "src/client/system/ui/gain_log_ui_system.h"
 #include "src/client/system/ui/minimap_ui_system.h"
+#include "src/client/system/ui/notice_ui_system.h"
 #include "src/client/system/ui/popup_tip_ui_system.h"
 #include "src/client/system/ui/quest_alarm_ui_system.h"
 #include "src/client/system/ui/quick_slot_ui_system.h"
@@ -196,7 +197,7 @@ void SceneSystemInstance::Enter(uint32_t map_id) {
   BallGameInstance::Reset();
   DropGameInstance::Reset();
   auto bgm = MapInfoGameInstance::LoadBgm(map_id);
-  AudioGameInstance::LoadBackgrndAudio(bgm);
+  AudioGameInstance::LoadBackgrndAudio(bgm);  
 
   System::event_systems_ = {
       QuestAlarmUiSystem::Event,  MinimapUiSystem::Event,
@@ -228,6 +229,7 @@ void SceneSystemInstance::Enter(uint32_t map_id) {
       CursorRenderSystem::Render,
   };
   FadeSystemInstance::EnterOut();
+  CharacterGameInstance::self_.effect.clear();
   Window::delta_time_ = 0;
 }
 

@@ -42,6 +42,9 @@ struct GameDrop {
 
   uint64_t pick_time;
   std::optional<GameDropPick> picker;
+
+  // 服务器通知掉落物消失的时刻；alpha 在 500ms 内从 255 渐隐到 0。
+  uint64_t fade_time = 0;
 };
 
 }  // namespace sdlms

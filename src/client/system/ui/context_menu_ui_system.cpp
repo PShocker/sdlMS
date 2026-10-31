@@ -156,7 +156,7 @@ void ContextMenuUiSystem::EventButtonFriend() {}
 void ContextMenuUiSystem::EventButtonChat() {}
 
 bool ContextMenuUiSystem::EventUI(SDL_Event* event) {
-  return DispatchButtonClick(GetComponent(), false);
+  return DispatchButtonClick(GetComponent(), true);
 }
 
 

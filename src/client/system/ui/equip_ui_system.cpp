@@ -395,7 +395,6 @@ void EquipUiSystem::Close() {
 }
 
 void EquipUiSystem::Toggle() {
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
   auto fn = &Render;
   if (std::ranges::contains(System::render_systems_, fn)) {
     Close();
@@ -463,7 +462,7 @@ bool EquipUiSystem::EventUI(SDL_Event* event) {
       }
     }
   }
-  return DispatchButtonClick(components, false);
+  return DispatchButtonClick(components, true);
 }
 
 void EquipUiSystem::EventMotion(SDL_Event* event) {

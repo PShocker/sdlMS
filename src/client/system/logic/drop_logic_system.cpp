@@ -111,6 +111,14 @@ void DropLogicSystem::RunStateMachine(GameDrop& drop) {
       break;
     }
     case GameDrop::DropEnum::kFade: {
+      constexpr uint64_t FADE_DURATION = 500;
+      auto elapsed = Window::dt_now_ - drop.fade_time;
+      if (drop.fade_time == 0 || elapsed >= FADE_DURATION) {
+        drop.alpha = 0;
+      } else {
+        drop.alpha = static_cast<uint8_t>(
+            255 * (1.0f - static_cast<float>(elapsed) / FADE_DURATION));
+      }
       break;
     }
   }

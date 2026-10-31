@@ -4,12 +4,16 @@
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 
+#include <SDL3/SDL_clipboard.h>
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_scancode.h>
 
 #include <algorithm>
+#include <cstdint>
+#include <cstring>
 #include <optional>
+#include <string>
 
 namespace sdlms {
 
@@ -295,6 +299,89 @@ bool TextInput::Event(SDL_Event* event) {
         break;
       }
       auto scan_code = event->key.scancode;
+      if (event->key.mod & SDL_KMOD_CTRL) {
+        switch (scan_code) {
+          case SDL_SCANCODE_C: {
+            int begin = 0;
+            int end = static_cast<int>(text.size());
+            if (cur_next.has_value()) {
+              begin = std::min(cur, *cur_next);
+              end = std::max(cur, *cur_next);
+            }
+            auto copied = text.substr(begin, end - begin);
+            auto utf8 = TextGameInstance::LoadU8str(copied);
+            SDL_SetClipboardText(utf8.c_str());
+            break;
+          }
+          case SDL_SCANCODE_V: {
+            char* clip = SDL_GetClipboardText();
+            if (clip == nullptr) {
+              break;
+            }
+            std::string paste = clip;
+            SDL_free(clip);
+
+            // 按输入框允许的类型校验粘贴内容；任意字符不合法则整次跳过。
+            auto source = TextGameInstance::LoadU16str(paste.c_str());
+            std::u16string filtered;
+            bool valid = true;
+            for (auto c : source) {
+              if (c == u'\r' || c == u'\n') {
+                if (!type.test(kIme)) {
+                  valid = false;
+                  break;
+                }
+                filtered.push_back(u' ');
+                continue;
+              }
+              if (type.test(kIme)) {
+                if (c < u' ') {
+                  valid = false;
+                  break;
+                }
+                filtered.push_back(c);
+                continue;
+              }
+              const bool digit = c >= u'0' && c <= u'9';
+              const bool letter = (c >= u'A' && c <= u'Z') ||
+                                  (c >= u'a' && c <= u'z');
+              if (digit) {
+                if (!type.test(kDigit)) {
+                  valid = false;
+                  break;
+                }
+              } else if (letter) {
+                if (!type.test(kLetter)) {
+                  valid = false;
+                  break;
+                }
+              } else if (!type.test(kSymbol)) {
+                valid = false;
+                break;
+              }
+              filtered.push_back(c);
+            }
+            if (!valid || filtered.empty()) {
+              break;
+            }
+            auto paste_text = TextGameInstance::LoadU8str(filtered);
+            SDL_Event e{};
+            e.type = SDL_EVENT_TEXT_INPUT;
+            e.edit.text = paste_text.c_str();
+            Event(&e);
+            break;
+          }
+          case SDL_SCANCODE_A: {
+            cur = 0;
+            cur_next = static_cast<int>(text.size());
+            break;
+          }
+          default: {
+            break;
+          }
+        }
+        break;
+      }
       switch (scan_code) {
         case SDL_SCANCODE_LEFT: {
           cur--;

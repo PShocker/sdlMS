@@ -16,6 +16,7 @@
 #include "src/client/system/system.h"
 #include "src/client/system/ui/character_info_ui_system.h"
 #include "src/client/system/ui/character_stat_ui_system.h"
+#include "src/client/system/ui/chat_log_ui_system.h"
 #include "src/client/system/ui/context_menu_ui_system.h"
 #include "src/client/system/ui/craft_ui_system.h"
 #include "src/client/system/ui/equip_ui_system.h"
@@ -189,6 +190,10 @@ void CursorLogicSystem::RunCursorUi() {
       if (StatusbarUiSystem::CursorIn()) {
         CursorGameInstance::cursor_ui_ = fn;
       }
+    } else if (fn == ChatLogUiSystem::Render) {
+      if (ChatLogUiSystem::CursorIn()) {
+        CursorGameInstance::cursor_ui_ = fn;
+      }
     } else if (fn == WorldmapUiSystem::Render) {
       if (WorldmapUiSystem::CursorIn()) {
         CursorGameInstance::cursor_ui_ = fn;
@@ -218,6 +223,7 @@ void CursorLogicSystem::RunCursorUi() {
         CursorGameInstance::cursor_ui_ = fn;
       }
     } else if (fn == ReviveUiSystem::Render) {
+      CursorGameInstance::modal_overlay_ = fn;
       if (ReviveUiSystem::CursorIn()) {
         CursorGameInstance::cursor_ui_ = fn;
       }
@@ -279,7 +285,8 @@ void CursorLogicSystem::RunCursorUi() {
     } else if (fn == LoginNoticeUiSystem::Render) {
       CursorGameInstance::modal_overlay_ = fn;
     }
-    if (CursorGameInstance::cursor_ui_ != nullptr) {
+    if (CursorGameInstance::cursor_ui_ != nullptr ||
+        CursorGameInstance::modal_overlay_ != nullptr) {
       break;
     }
   }
@@ -383,9 +390,11 @@ bool CursorLogicSystem::EventCursorHand(SDL_Event* event) {
         int num = ItemGameInstance::LoadItemNum(itm);
         auto itm_info = ItemGameInstance::LoadItemInfo(itm->id, 0);
         bool unit_price = itm_info->get_child(u"unitPrice");
+        // 飞镖 0207 按整组处理，不能拆出单个丢弃。
+        bool is_star = itm->id.starts_with(u"0207");
 
         // 数量>1且非单价物品，弹出多选对话框
-        if (num > 1 && !unit_price) {
+        if (num > 1 && !unit_price && !is_star) {
           NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kThrowMul;
           NoticeUiSystem::data_ = &itm;
           NoticeUiSystem::Open();

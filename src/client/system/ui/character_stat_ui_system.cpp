@@ -343,7 +343,6 @@ void CharacterStatUiSystem::Close() {
 }
 
 void CharacterStatUiSystem::Toggle() {
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
   auto fn = &Render;
   if (std::ranges::contains(System::render_systems_, fn)) {
     Close();
@@ -439,7 +438,7 @@ void CharacterStatUiSystem::EventButtonLukIncMax() {
 }
 
 bool CharacterStatUiSystem::EventUI(SDL_Event* event) {
-  return DispatchButtonClick(GetComponent(), false);
+  return DispatchButtonClick(GetComponent(), true);
 }
 
 bool CharacterStatUiSystem::Event(SDL_Event* event) {

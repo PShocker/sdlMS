@@ -34,6 +34,7 @@ void CharacterStatGameInstance::Load(const CharacterSaveData& cs) {
   remain_ap_ = cs.remain_ap;
 
   Update();
+  hp_point_ = 1;
 }
 
 uint32_t CharacterStatGameInstance::GetBaseHpMax() {

@@ -385,6 +385,17 @@ void MobLogicSystem::RunStateMachine(GameMob& g_mob) {
     }
   }
   RunAlpha(g_mob);
+  if (g_mob.revive_time != 0) {
+    constexpr uint64_t kReviveFadeMs = 1000;
+    auto elapsed = Window::dt_now_ - g_mob.revive_time;
+    if (elapsed >= kReviveFadeMs) {
+      g_mob.alpha = 255;
+      g_mob.revive_time = 0;
+    } else {
+      g_mob.alpha =
+          static_cast<uint8_t>(255 * elapsed / kReviveFadeMs);
+    }
+  }
   RunDebuff(g_mob);
 }
 

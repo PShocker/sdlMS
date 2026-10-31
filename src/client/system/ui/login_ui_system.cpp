@@ -282,26 +282,20 @@ void LoginUiSystem::EventButtonLogin() {
 }
 
 void LoginUiSystem::EventButtonLoginSave() {
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 }
 
 void LoginUiSystem::EventButtonFindId() {
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 }
 
 void LoginUiSystem::EventButtonFindPw() {
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 }
 
 void LoginUiSystem::EventButtonRegister() {
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 }
 void LoginUiSystem::EventButtonHomepage() {
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 }
 
 void LoginUiSystem::EventButtonQuit() {
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 }
 
 void LoginUiSystem::EventButtonBack() {
@@ -309,7 +303,7 @@ void LoginUiSystem::EventButtonBack() {
 }
 
 bool LoginUiSystem::EventUI(SDL_Event* event) {
-  return !DispatchButtonClick(GetComponent(), false);
+  return !DispatchButtonClick(GetComponent(), true);
 }
 
 bool LoginUiSystem::Event(SDL_Event* event) {

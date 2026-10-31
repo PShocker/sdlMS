@@ -13,6 +13,7 @@
 #include "src/client/system/ui/component/ui_component.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
+#include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
 
 #include <algorithm>
@@ -30,43 +31,41 @@ void ReviveUiSystem::RenderBackgrnd() {
 
 
 UIComponents& ReviveUiSystem::GetComponent() {
-  const static std::array<Button::Callback, 1> kCallbacks = {
-      EventButtonOk,
-  };
-
   components_.clear();
-  const static std::array buttons_node = {
-      WzResource::ui_->find(u"Basic.img/BtOK2"),
-  };
-  const std::array buttons_rect = {
-      SDL_FRect{15, 84, 47, 18},  //
-  };
-  for (size_t i = 0; i < buttons_node.size(); ++i) {
-    SDL_FRect rect = buttons_rect[i];
-    rect.x += pos_.x;
-    rect.y += pos_.y;
-    Button button{.node = buttons_node[i],
-                  .rect = rect,
-                  .enable = true,
-                  .focused = CursorGameInstance::cursor_ui_ == Render &&
-                             !CursorGameInstance::modal_overlay_};
-    components_.push_back(button);
-    if (i < kCallbacks.size()) {
-      std::get<Button>(components_.back()).callback = kCallbacks[i];
-    }
-  }
+  const SDL_FRect rect{pos_.x + 108, pos_.y + 84, 47, 18};
+  components_.push_back(Button{
+      .node = WzResource::ui_->find(u"Basic.img/BtOK2"),
+      .rect = rect,
+      .callback = EventButtonOk,
+      .enable = true,
+      .focused = CursorGameInstance::cursor_ui_ == Render,
+  });
   return components_;
+}
+
+void ReviveUiSystem::RenderText() {
+  const std::u16string str = u"You have died.\nRevive at the nearest town?";
+  const float text_x = pos_.x + 88;
+
+  Freetype::LoadSize(12);
+  Freetype::LoadColor(255, 255, 255, 255);
+  Freetype::LoadAligned(true);
+  Freetype::DrawStr(str, text_x, pos_.y + 25, 262, 1.3);
+  Freetype::LoadAligned(false);
 }
 
 
 bool ReviveUiSystem::Render() {
   RenderBackgrnd();
+  RenderText();
   RenderUI();
   return true;
 }
 
 SDL_FPoint ReviveUiSystem::LoadWh() {
-  return {286, 146};
+  static auto texture =
+      WzResource::LoadTexture(WzResource::ui_->find(u"Revive.img/backgrnd"));
+  return {static_cast<float>(texture->w), static_cast<float>(texture->h)};
 }
 
 void ReviveUiSystem::Open() {
@@ -170,7 +169,7 @@ void ReviveUiSystem::EventButtonOk() {
 }
 
 bool ReviveUiSystem::EventUI(SDL_Event* event) {
-  return DispatchButtonClick(GetComponent(), false);
+  return DispatchButtonClick(GetComponent(), true);
 }
 
 

@@ -82,7 +82,7 @@ SDL_AppResult AppInit(void** appstate, int argc, char* argv[]) {
   CharacterGameInstance::InitDefaultClothes();
   CharacterGameInstance::LoadSelfCharacter();
   CharacterGameInstance::self_.job = u"000";
-  CharacterGameInstance::self_.level = 100;
+  CharacterGameInstance::self_.level = 1;
   CharacterGameInstance::self_.name = u"进击的蓝蘑菇";
   // CharacterGameInstance::self_.morph = u"0001";
 

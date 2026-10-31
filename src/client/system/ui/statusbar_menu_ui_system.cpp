@@ -226,8 +226,6 @@ void StatusbarMenuUiSystem::Open() {
 void StatusbarMenuUiSystem::Close() {
   std::erase(System::render_systems_, Render);
   std::erase(System::event_systems_, Event);
-
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 }
 
 void StatusbarMenuUiSystem::Toggle() {
@@ -289,7 +287,7 @@ void StatusbarMenuUiSystem::EventButtonCraft() {
 }
 
 bool StatusbarMenuUiSystem::EventUI(SDL_Event* event) {
-  return DispatchButtonClick(GetComponent(), false);
+  return DispatchButtonClick(GetComponent(), true);
 }
 
 

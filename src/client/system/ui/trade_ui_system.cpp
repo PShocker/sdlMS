@@ -115,7 +115,7 @@ void TradeUiSystem::EventButtonClose() {
 }
 
 bool TradeUiSystem::EventUI(SDL_Event* event) {
-  return DispatchButtonClick(GetComponent(), false);
+  return DispatchButtonClick(GetComponent(), true);
 }
 
 

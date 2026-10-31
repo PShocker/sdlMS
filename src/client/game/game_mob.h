@@ -23,6 +23,8 @@ struct GameMob {
   std::u16string action;
 
   uint8_t alpha = 255;
+  // 复活开始时刻；非 0 时 alpha 在 1 秒内由 0 渐显到 255。
+  uint64_t revive_time = 0;
 
   uint32_t ani_index = 0;
   uint32_t ani_time;

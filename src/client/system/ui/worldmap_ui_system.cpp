@@ -279,7 +279,7 @@ void WorldmapUiSystem::EventClickSpot() {
 }
 
 bool WorldmapUiSystem::EventUI(SDL_Event* event) {
-  if (DispatchButtonClick(GetComponent(), false)) {
+  if (DispatchButtonClick(GetComponent(), true)) {
     return true;
   }
   EventClickSpot();
@@ -350,7 +350,6 @@ bool WorldmapUiSystem::CursorIn() {
 }
 
 void WorldmapUiSystem::Toggle() {
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
   auto fn = &Render;
   if (std::ranges::contains(System::render_systems_, fn)) {
     Close();

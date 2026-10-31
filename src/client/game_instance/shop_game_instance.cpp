@@ -60,6 +60,11 @@ GameShop ShopGameInstance::LoadShop(const std::u16string& shop_id) {
     GameShopItem item;
     item.price = price;
     item.item = LoadItem(id);
+    // 飞镖按整组出售：0207 固定带满一组，购买时不拆分数量。
+    if (id.starts_with(u"0207")) {
+      ItemGameInstance::SetItemNum(
+          item.item, ItemGameInstance::LoadSlotMax(id));
+    }
     shop.items.push_back(std::move(item));
   }
   return shop;
@@ -93,6 +98,11 @@ bool ShopGameInstance::AddMustItem(std::polymorphic<GameItem>& item) {
   switch (item->type) {
     case ItemEnum::kConsume:
     case ItemEnum::kEtc: {
+      // 飞镖按整组记录，不与其他 Must 飞镖叠加。
+      if (item->id.starts_with(u"0207")) {
+        must_.push_back(gst);
+        break;
+      }
       for (auto& shop : must_) {
         auto itm_id = shop.item->id;
         if (item->id == itm_id) {

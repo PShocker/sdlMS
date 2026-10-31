@@ -365,7 +365,6 @@ bool SkillUiSystem::Render() {
 }
 
 void SkillUiSystem::Toggle() {
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
   auto fn = &Render;
   if (std::ranges::contains(System::render_systems_, fn)) {
     Close();
@@ -403,7 +402,7 @@ bool SkillUiSystem::EventUI(SDL_Event* event) {
       }
     }
   }
-  bool consumed = DispatchButtonClick(components, false);
+  bool consumed = DispatchButtonClick(components, true);
   for (auto& component : components) {
     if (auto* scroll = std::get_if<Scroll>(&component)) {
       page_ = scroll->Click();

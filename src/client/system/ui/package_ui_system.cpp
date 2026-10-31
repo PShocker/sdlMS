@@ -623,7 +623,6 @@ void PackageUiSystem::EventDragMove(SDL_Event* event) {
 }
 
 void PackageUiSystem::Toggle() {
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
   auto fn = &Render;
   if (std::ranges::contains(System::render_systems_, fn)) {
     Close();
@@ -684,7 +683,7 @@ bool PackageUiSystem::EventUI(SDL_Event* event) {
       }
     }
   }
-  if (DispatchButtonClick(components, false)) {
+  if (DispatchButtonClick(components, true)) {
     return true;
   }
   for (auto& component : components) {

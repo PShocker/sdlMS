@@ -405,9 +405,9 @@ int32_t OptionUiSystem::DefaultValue(const Element& element) {
     }
   }
   if (element.kind == u"combo") {
-    // 参考图默认 Show Name and HP（第 3 项）
+    // Show Name and HP 默认 No Labels（第 0 项）
     if (element.name == u"monster") {
-      return 3;
+      return 0;
     }
   }
   if (element.kind == u"check") {
@@ -826,8 +826,7 @@ bool OptionUiSystem::EventUI(SDL_Event* event) {
   }
 
   // 按钮最后处理，避免被控件抢掉
-  if (DispatchButtonClick(components, false)) {
-    AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+  if (DispatchButtonClick(components, true)) {
     return true;
   }
   return false;
@@ -1012,7 +1011,6 @@ bool OptionUiSystem::Event(SDL_Event* event) {
 }
 
 void OptionUiSystem::Toggle() {
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
   auto fn = &Render;
   if (std::ranges::contains(System::render_systems_, fn)) {
     Close();

@@ -12,6 +12,7 @@ namespace sdlms {
 class ReviveUiSystem : public UiComponentHost<ReviveUiSystem> {
  private:
   static void RenderBackgrnd();
+  static void RenderText();
 
   static bool EventUI(SDL_Event* event);
   static void EventButtonOk();

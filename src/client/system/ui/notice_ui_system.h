@@ -33,6 +33,8 @@ class NoticeUiSystem : public UiComponentHost<NoticeUiSystem> {
 
   static void EventButtonApInc();
 
+  static void EventButtonShopRecharge();
+
   static void EventButtonEquipNoAp();
 
   static bool EventUI(SDL_Event* event);
@@ -72,6 +74,8 @@ class NoticeUiSystem : public UiComponentHost<NoticeUiSystem> {
     kThrowMul,
 
     kQuestGiveup,
+
+    kShopRecharge,
   };
 
   static inline NoticeEnum type_;

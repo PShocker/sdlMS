@@ -9,6 +9,7 @@
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/shop_game_instance.h"
+#include "src/client/game_instance/text_game_instance.h"
 #include "src/client/system/input/keyboard_input_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
@@ -56,7 +57,8 @@ void NoticeUiSystem::RenderBackgrnd() {
     case NoticeEnum::kShopbuySell:
     case NoticeEnum::kShopbuySellNoNum:
     case NoticeEnum::kShopbuy:
-    case NoticeEnum::kQuestGiveup: {
+    case NoticeEnum::kQuestGiveup:
+    case NoticeEnum::kShopRecharge: {
       node = WzResource::ui_->find(u"PopupWindow.img/Notice1");
       break;
     }
@@ -122,7 +124,8 @@ UIComponents& NoticeUiSystem::GetComponent() {
     case NoticeEnum::kEquipNoAbility:
     case NoticeEnum::kThrowMul:
     case NoticeEnum::kEquipNoSpace:
-    case NoticeEnum::kQuestGiveup: {
+    case NoticeEnum::kQuestGiveup:
+    case NoticeEnum::kShopRecharge: {
       buttons_node = {
           WzResource::ui_->find(u"Basic.img/BtOK2"),
           WzResource::ui_->find(u"Basic.img/BtCancel2"),
@@ -153,7 +156,7 @@ UIComponents& NoticeUiSystem::GetComponent() {
       break;
     }
     case NoticeEnum::kApInc: {
-      std::get<Button>(components_[0]).callback = EventButtonShopbuySell;
+      std::get<Button>(components_[0]).callback = EventButtonApInc;
       std::get<Button>(components_[1]).callback = Close;
       break;
     }
@@ -175,6 +178,11 @@ UIComponents& NoticeUiSystem::GetComponent() {
     }
     case NoticeEnum::kQuestGiveup: {
       std::get<Button>(components_[0]).callback = EventButtonQuestGiveup;
+      std::get<Button>(components_[1]).callback = Close;
+      break;
+    }
+    case NoticeEnum::kShopRecharge: {
+      std::get<Button>(components_[0]).callback = EventButtonShopRecharge;
       std::get<Button>(components_[1]).callback = Close;
       break;
     }
@@ -301,6 +309,9 @@ void NoticeUiSystem::RenderText() {
       break;
     }
     case NoticeEnum::kApInc: {
+      // 角色加点提示框固定文案
+      text = u"Please enter the number of AP to add.";
+      p = {20, 20};
       break;
     }
     case NoticeEnum::kWorldmapDisable: {
@@ -325,6 +336,17 @@ void NoticeUiSystem::RenderText() {
     }
     case NoticeEnum::kQuestGiveup: {
       text = u"Do you want to forfeit this quest?";
+      p = {20, 20};
+      break;
+    }
+    case NoticeEnum::kShopRecharge: {
+      uint64_t cost = 0;
+      if (auto p = std::any_cast<uint64_t>(&data_); p != nullptr) {
+        cost = *p;
+      }
+      auto num = TextGameInstance::FormatWithCommas(cost);
+      text = u"Recharge this throwing star to full?\nCost: " +
+             TextGameInstance::LoadU16str(num.c_str()) + u" mesos";
       p = {20, 20};
       break;
     }
@@ -381,7 +403,7 @@ void NoticeUiSystem::Open() {
       case NoticeEnum::kShopbuyMul:
       case NoticeEnum::kThrowMul: {
         text_ = {
-            .max_size = 12,
+            .max_size = 9,
             .text = u"1",
             .composition = {},
             .disable = false,
@@ -484,7 +506,8 @@ SDL_FPoint NoticeUiSystem::LoadWh() {
     case NoticeEnum::kNoStorageSpace:
     case NoticeEnum::kEquipNoAbility:
     case NoticeEnum::kEquipNoSpace:
-    case NoticeEnum::kQuestGiveup: {
+    case NoticeEnum::kQuestGiveup:
+    case NoticeEnum::kShopRecharge: {
       return {266, 116};
     }
     case NoticeEnum::kApInc:
@@ -503,39 +526,43 @@ void NoticeUiSystem::EventClose() {
 void NoticeUiSystem::EventButtonShopbuy() {
   auto p = std::any_cast<const GameShopItem*>(NoticeUiSystem::data_);
   auto itm = p->item;
+  std::optional<int> must_index;
+  if (ShopUiSystem::active_tab_[0] == 1 &&
+      ShopUiSystem::active_item_[0].has_value()) {
+    must_index = ShopUiSystem::active_item_[0].value();
+  }
   switch (type_) {
     case NoticeEnum::kShopbuy: {
-      PackageGameInstance::AddItem(itm);
+      if (!PackageGameInstance::AddItem(itm)) {
+        OpenNoSpace(itm->type);
+        return;
+      }
       PackageGameInstance::meso_ -= p->price;
       break;
     }
     case NoticeEnum::kShopbuyMul: {
       auto num = std::stoi(std::string{text_.text.begin(), text_.text.end()});
       ItemGameInstance::SetItemNum(itm, num);
-      auto price = p->price * num;
+      auto price = static_cast<uint64_t>(p->price) * num;
       if (PackageGameInstance::meso_ < price) {
         type_ = NoticeEnum::kShopbuyNoMeso;
         return;
         break;
       }
-      auto buy_num =
-          std::stoi(std::string{text_.text.begin(), text_.text.end()});
-      if (ShopUiSystem::active_tab_[0] == 1) {
+      if (must_index.has_value()) {
         auto& must = ShopGameInstance::must_;
-        auto& must_itm = must[ShopUiSystem::active_item_[0].value()];
-        auto itm_num = ItemGameInstance::LoadItemNum(must_itm.item);
-        if (buy_num > itm_num) {
+        if (*must_index < 0 || *must_index >= static_cast<int>(must.size())) {
+          return;
+        }
+        auto itm_num =
+            ItemGameInstance::LoadItemNum(must[*must_index].item);
+        if (num > itm_num) {
           type_ = NoticeEnum::kShopbuySellNoNum;
           return;
         }
       }
       if (PackageGameInstance::AddItem(itm)) {
         PackageGameInstance::meso_ -= price;
-        if (ShopUiSystem::active_tab_[0] == 1) {
-          auto& must = ShopGameInstance::must_;
-          auto& must_itm = must[ShopUiSystem::active_item_[0].value()];
-          ItemGameInstance::DecItemNum(must_itm.item, buy_num);
-        }
       } else {
         OpenNoSpace(itm->type);
         return;
@@ -546,11 +573,11 @@ void NoticeUiSystem::EventButtonShopbuy() {
       break;
     }
   }
-  if (ShopUiSystem::active_tab_[0] == 1) {
+  // 从 Must 买回后删除对应记录，而不是只把数量减为 0。
+  if (must_index.has_value()) {
     auto& must = ShopGameInstance::must_;
-    auto& itm = must[ShopUiSystem::active_item_[0].value()].item;
-    if (ItemGameInstance::LoadItemNum(itm) == 0) {
-      must.erase(must.begin() + ShopUiSystem::active_item_[0].value());
+    if (*must_index >= 0 && *must_index < static_cast<int>(must.size())) {
+      must.erase(must.begin() + *must_index);
     }
     ShopUiSystem::pages_[0] = 0;
   }
@@ -566,19 +593,28 @@ void NoticeUiSystem::EventButtonShopbuySell() {
   gst.item = *p;
   switch (type_) {
     case NoticeEnum::kShopbuySell: {
-      auto itm_info = ItemGameInstance::LoadItemInfo(gst.item->id, 0);
-      auto unit_price = itm_info->get_child(u"unitPrice");
-      auto num = ItemGameInstance::LoadItemNum(gst.item);
-      if (unit_price) {
-        auto u_price = static_cast<wz::Property<double>*>(unit_price)->get();
-        PackageGameInstance::AddMeso(u_price * num);
-      } else {
+      if (gst.item->type == ItemEnum::kEquip) {
+        // 装备没有 unitPrice，也不能走 ItemGameInstance::LoadItemInfo。
         PackageGameInstance::AddMeso(gst.price);
-      }
-      if ((*p)->id.starts_with(u"0207")) {
-        (*p)->id = u"";
+        ItemGameInstance::DecItemNum(*p, 1);
       } else {
-        ItemGameInstance::DecItemNum(*p, num);
+        auto itm_info = ItemGameInstance::LoadItemInfo(gst.item->id, 0);
+        auto unit_price = itm_info->get_child(u"unitPrice");
+        auto num = ItemGameInstance::LoadItemNum(gst.item);
+        if (unit_price) {
+          auto u_price = static_cast<wz::Property<double>*>(unit_price)->get();
+          PackageGameInstance::AddMeso(u_price * num);
+        } else {
+          PackageGameInstance::AddMeso(gst.price);
+        }
+        if ((*p)->id.starts_with(u"0207")) {
+          (*p)->id = u"";
+          // 0207 的 DecItemNum 会保留 id，出售时必须把数量一并清零，
+          // 否则买回时 AddItemSlot 会把旧数量和新数量相加（3 变 6）。
+          ItemGameInstance::SetItemNum(*p, 0);
+        } else {
+          ItemGameInstance::DecItemNum(*p, num);
+        }
       }
       break;
     }
@@ -607,7 +643,13 @@ void NoticeUiSystem::EventButtonShopbuySell() {
 }
 
 void NoticeUiSystem::EventButtonApInc() {
+  if (text_.text.empty()) {
+    return;
+  }
   auto num = std::stoi(std::string{text_.text.begin(), text_.text.end()});
+  if (num <= 0) {
+    return;
+  }
   auto r_ap = CharacterStatGameInstance::GetRemainAp();
   if (num > r_ap) {
     type_ = NoticeEnum::kShopbuySellNoNum;
@@ -663,7 +705,7 @@ void NoticeUiSystem::EventButtonWorldmapTeleport() {
 }
 
 void NoticeUiSystem::EventButtonThrowMul() {
-  int itm_num;
+  uint64_t itm_num = 0;
   std::u16string itm_id;
   if (std::any_cast<std::nullptr_t>(&NoticeUiSystem::data_)) {
     itm_id = u"0";
@@ -671,10 +713,13 @@ void NoticeUiSystem::EventButtonThrowMul() {
   } else {
     auto p = std::any_cast<std::polymorphic<GameItem>*>(NoticeUiSystem::data_);
     itm_id = (*p)->id;
-    itm_num = ItemGameInstance::LoadItemNum(*p);
+    itm_num = static_cast<uint64_t>(ItemGameInstance::LoadItemNum(*p));
   }
   auto throw_num = std::stoi(std::string{text_.text.begin(), text_.text.end()});
-  if (throw_num > itm_num) {
+  if (throw_num <= 0) {
+    return;
+  }
+  if (static_cast<uint64_t>(throw_num) > itm_num) {
     type_ = NoticeEnum::kShopbuySellNoNum;
     CursorGameInstance::cursor_hand_ = std::nullopt;
     return;
@@ -716,13 +761,22 @@ void NoticeUiSystem::EventButtonQuestGiveup() {
   }
 }
 
+void NoticeUiSystem::EventButtonShopRecharge() {
+  auto confirm = std::move(on_confirm_);
+  on_confirm_ = nullptr;
+  Close();
+  if (confirm) {
+    confirm();
+  }
+}
+
 void NoticeUiSystem::EventButtonEquipNoAp() {
   CursorGameInstance::cursor_hand_ = std::nullopt;
   Close();
 }
 
 bool NoticeUiSystem::EventUI(SDL_Event* event) {
-  return DispatchButtonClick(GetComponent(), false);
+  return DispatchButtonClick(GetComponent(), true);
 }
 
 
@@ -775,6 +829,7 @@ bool NoticeUiSystem::Event(SDL_Event* event) {
               break;
             }
             case NoticeEnum::kApInc: {
+              EventButtonApInc();
               break;
             }
             case NoticeEnum::kWorldmapTeleport: {
@@ -787,6 +842,10 @@ bool NoticeUiSystem::Event(SDL_Event* event) {
             }
             case NoticeEnum::kQuestGiveup: {
               EventButtonQuestGiveup();
+              break;
+            }
+            case NoticeEnum::kShopRecharge: {
+              EventButtonShopRecharge();
               break;
             }
             default: {

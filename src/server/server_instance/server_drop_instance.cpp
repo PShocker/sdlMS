@@ -56,7 +56,7 @@ void ServerDropInstance::SaveDrop(uint64_t map_id, const fbs::DropT& drop) {
   auto& scene = ServerSceneInstance::scenes_[map_id];
   ServerDrop sd;
   sd.dt = drop;
-  sd.destroy = Window::dt_now_ + 60 * 5 * 1000;
+  sd.destroy = Window::dt_now_ + 120 * 1000;
   sd.available = Window::dt_now_ + CalAvailableTime(drop.y1, drop.y2) * 1000;
   scene.drops.emplace(drop.random_id, sd);
 }
@@ -66,7 +66,7 @@ void ServerDropInstance::SaveDelayDrop(uint64_t map_id, uint64_t d,
   auto& scene = ServerSceneInstance::scenes_[map_id];
   ServerDrop sd;
   sd.dt = drop;
-  sd.destroy = Window::dt_now_ + (d - Window::dt_time_) + 60 * 5 * 1000;
+  sd.destroy = Window::dt_now_ + (d - Window::dt_time_) + 120 * 1000;
   sd.available = Window::dt_now_ + (d - Window::dt_time_) +
                  CalAvailableTime(drop.y1, drop.y2) * 1000;
   scene.delay_drops[d].emplace_back(sd);
@@ -328,6 +328,7 @@ void ServerDropInstance::HandleServerDropFade(fbs::ServerDropFadeT& r) {
   for (const auto id : r.drop_ids) {
     if (data.contains(id)) {
       data.at(id).type = GameDrop::DropEnum::kFade;
+      data.at(id).fade_time = Window::dt_now_;
     }
   }
   return;

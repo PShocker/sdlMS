@@ -1,5 +1,6 @@
 #include "src/client/system/input/input_system.h"
 
+#include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/ui/character_info_ui_system.h"
 #include "src/client/system/ui/character_stat_ui_system.h"
@@ -33,6 +34,8 @@ void InputSystem::HandleUiInput(GameInput& g_input) {
       {"menu", StatusbarMenuUiSystem::Toggle},
   };
   if (fns.contains(g_input.val)) {
+    // 键盘打开 UI 与鼠标点击按钮保持同一种提示音。
+    AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
     fns.at(g_input.val)();
   }
 }

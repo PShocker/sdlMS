@@ -1006,8 +1006,7 @@ bool CharacterLogicSystem::RunPortal(GameCharacter& g_character) {
           if (por.tm != SceneSystemInstance::map_id_) {
             // need to change map
             SceneSystemInstance::EnterPrepare(por.tm, por.tn, 0);
-            self_portal_cooldown_ = Window::dt_now_ + 1000;
-            AudioGameInstance::LoadAudio(u"Game.img/Portal", 0);
+            self_portal_cooldown_ = Window::dt_now_ + 1000; 
           } else {
             // no change map
             const auto& tn = PortalGameInstance::data_.find(por.tn)->second;

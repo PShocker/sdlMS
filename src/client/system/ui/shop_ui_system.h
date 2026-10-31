@@ -37,6 +37,11 @@ class ShopUiSystem : public UiComponentHost<ShopUiSystem> {
   static bool EventItem(SDL_Event* event);
 
   static void EventClose();
+  static void EventButtonBuy();
+  static void EventButtonSell();
+  static void EventButtonRecharge(int index);
+  static void BuyItem(int index);
+  static void SellItem(int index);
   static bool EventUI(SDL_Event* event);
 
 

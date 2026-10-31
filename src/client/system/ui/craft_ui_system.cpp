@@ -121,7 +121,6 @@ void CraftUiSystem::EventDragMove(SDL_Event* event) {
 }
 
 void CraftUiSystem::Toggle() {
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
   auto fn = &Render;
   if (std::ranges::contains(System::render_systems_, fn)) {
     Close();

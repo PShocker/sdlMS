@@ -610,7 +610,7 @@ std::u16string StatusbarUiSystem::LoadChatType() {
 }
 
 bool StatusbarUiSystem::EventUI(SDL_Event* event) {
-  return DispatchButtonClick(GetComponent(), false);
+  return DispatchButtonClick(GetComponent(), true);
 }
 
 

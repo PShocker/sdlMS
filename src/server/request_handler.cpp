@@ -1,6 +1,7 @@
 #include "src/server/request_handler.h"
 
 #include "src/client/game/game_character.h"
+#include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/system/ui/character_info_ui_system.h"
 #include "src/client/system_instance/fade_system_instance.h"
@@ -259,6 +260,8 @@ void RequestHandler::HandleRequest(uint64_t client_id, void* buf,
         Window::dt_time_ = Window::dt_time_base_;
 
         ServerMain::local_addr_ = r.client_id;
+        // 开始渐隐到黑屏时播放传送音效。
+        AudioGameInstance::LoadAudio(u"Game.img/Portal", 0);
         FadeSystemInstance::EnterIn(SceneSystemInstance::EnterFade);
       }
       break;

@@ -83,7 +83,8 @@ struct ServerMob {
   uint8_t page;
   bool flip;
 
-  uint64_t revive;  // 复活时间
+  uint64_t revive;  // 死亡后下一次复活/渐显结束的时间
+  bool reviving = false;  // 已复活，正在 1 秒渐显阶段
 
   int32_t rx0;
   int32_t rx1;

@@ -12,9 +12,9 @@ namespace sdlms {
 void ServerDropSystem::RunFade() {
   fbs::ServerDropFadeT sdf;
   auto& scene = ServerSceneInstance::scenes_;
-  for (auto [map_id, sc] : scene) {
+  for (auto&& [map_id, sc] : scene) {
     sdf.drop_ids.clear();
-    for (auto [random_id, dt] : sc.drops) {
+    for (auto&& [random_id, dt] : sc.drops) {
       if (dt.destroy <= Window::dt_now_) {
         sdf.drop_ids.push_back(dt.dt.random_id);
       }
@@ -30,7 +30,7 @@ void ServerDropSystem::RunFade() {
 
 void ServerDropSystem::RunDestroy() {
   auto& scene = ServerSceneInstance::scenes_;
-  for (auto [map_id, sc] : scene) {
+  for (auto&& [map_id, sc] : scene) {
     std::erase_if(sc.drops, [](const auto& pair) {
       const auto& [id, drop] = pair;
       return drop.destroy <= Window::dt_now_;
@@ -40,7 +40,7 @@ void ServerDropSystem::RunDestroy() {
 
 void ServerDropSystem::RunDelayDrops() {
   auto& scene = ServerSceneInstance::scenes_;
-  for (auto [map_id, sc] : scene) {
+  for (auto&& [map_id, sc] : scene) {
     auto& delay_drops = sc.delay_drops;
     for (auto [k, v] : delay_drops) {
       if (k <= Window::dt_time_) {

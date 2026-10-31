@@ -172,6 +172,7 @@ UIComponents& LoginNoticeUiSystem::GetComponent() {
     case LoginNoticeSystemInstance::NoticeType::kCharacterUseAp:
     case LoginNoticeSystemInstance::NoticeType::kLoginingUsed:
     case LoginNoticeSystemInstance::NoticeType::kCharacternameUsed: {
+      std::get<Button>(components_[0]).callback = EventClose;
       break;
     }
     case LoginNoticeSystemInstance::NoticeType::kCharacterDelete: {
@@ -197,10 +198,11 @@ bool LoginNoticeUiSystem::Render() {
 void LoginNoticeUiSystem::EventClose() {
   std::erase(System::render_systems_, Render);
   std::erase(System::event_systems_, Event);
+  std::erase(System::logic_systems_, Run);
 }
 
 bool LoginNoticeUiSystem::EventUI(SDL_Event* event) {
-  return DispatchButtonClick(GetComponent(), false);
+  return DispatchButtonClick(GetComponent(), true);
 }
 
 

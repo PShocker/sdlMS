@@ -842,7 +842,6 @@ void QuestUiSystem::EventDragMove(SDL_Event* event) {
 }
 
 void QuestUiSystem::Toggle() {
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
   auto fn = &Render;
   if (std::ranges::contains(System::render_systems_, fn)) {
     Close();
@@ -898,7 +897,7 @@ void QuestUiSystem::EventQuest() {
   return;
 }
 
-// 切换 tab 后自动选中该列表的第一个任务, 没有任务则收起详情
+  // 当前 tab 没有任何任务时，在列表区域显示对应提示图。
 void QuestUiSystem::TrySelectTopQuest() {
   std::flat_map<int8_t, std::vector<GameQuest>> quests;
   switch (active_tab_) {

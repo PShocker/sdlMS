@@ -17,11 +17,11 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/render/npc_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/component/scroll.h"
+#include "src/client/system/ui/component/tab.h"
 #include "src/client/system/ui/component/ui_component.h"
 #include "src/client/system/ui/notice_ui_system.h"
 #include "src/client/system/ui/package_ui_system.h"
-#include "src/client/system/ui/component/scroll.h"
-#include "src/client/system/ui/component/tab.h"
 #include "src/client/system/ui/tooltip_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
@@ -32,15 +32,23 @@
 #include <wz/Property.h>
 
 #include <algorithm>
+#include <cmath>
+#include <cstdint>
 #include <optional>
 #include <string>
 #include <utility>
 #include <vector>
 
+
 namespace sdlms {
 
+static std::optional<GameShopItem> hovered_shop_item_;
+
 SDL_FPoint ShopUiSystem::LoadWh() {
-  return SDL_FPoint{465, 381};
+  static const auto backgrnd = WzResource::LoadTexture(
+      WzResource::ui_->find(u"UIShop.img/Shop/backgrnd"));
+  return SDL_FPoint{static_cast<float>(backgrnd->w),
+                    static_cast<float>(backgrnd->h)};
 }
 
 void ShopUiSystem::RenderBackgrnd() {
@@ -53,29 +61,42 @@ void ShopUiSystem::RenderBackgrnd() {
       static_cast<float>(texture->h),
   };
   SDL_RenderTexture(Window::renderer_, texture, nullptr, &pos_rect);
+
+  static auto meso_box = WzResource::LoadTexture(
+      WzResource::ui_->find(u"UIShop.img/Shop/mesoBox"));
+  pos_rect = {
+      static_cast<float>((int)pos_.x + 344),
+      static_cast<float>((int)pos_.y + 65),
+      static_cast<float>(meso_box->w),
+      static_cast<float>(meso_box->h),
+  };
+  SDL_RenderTexture(Window::renderer_, meso_box, nullptr, &pos_rect);
 }
 
 void ShopUiSystem::RenderItem(std::vector<GameShopItem>& items, int page,
                               SDL_FPoint p) {
-  GameShopItem* item_info = nullptr;
   const auto page_size = 6;
+  static auto disabled = WzResource::LoadTexture(
+      WzResource::ui_->find(u"Item.img/canvas:disabled"));
+  const auto draw_disabled = [&](float x, float y) {
+    SDL_FRect pos_rect{
+        std::floor(x),
+        std::floor(y),
+        static_cast<float>(disabled->w),
+        static_cast<float>(disabled->h),
+    };
+    SDL_RenderTexture(Window::renderer_, disabled, nullptr, &pos_rect);
+  };
   for (int i = page; i < page + page_size; i++) {
     auto x = (int)pos_.x + p.x;
     auto y = (int)pos_.y + p.y + (i - page) * 40;
     if (i >= items.size()) {
-      auto icon = WzResource::LoadTexture(
-          WzResource::ui_->find(u"Item.img/canvas:disabled"));
-      SDL_FRect pos_rect{
-          std::floor(x),
-          std::floor(y),
-          static_cast<float>(icon->w),
-          static_cast<float>(icon->h),
-      };
-      SDL_RenderTexture(Window::renderer_, icon, nullptr, &pos_rect);
+      draw_disabled(x, y);
       continue;
     }
     auto& item = items[i];
     if (item.item->id.empty()) {
+      draw_disabled(x, y);
       continue;
     }
     SDL_Texture* texture;
@@ -113,7 +134,7 @@ void ShopUiSystem::RenderItem(std::vector<GameShopItem>& items, int page,
     pos_rect.h = 35;
     const auto& mouse_pos = Window::mouse_pos_;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-      item_info = &item;
+      hovered_shop_item_ = item;
     }
     // render name
     Freetype::LoadAligned(true);
@@ -136,29 +157,15 @@ void ShopUiSystem::RenderItem(std::vector<GameShopItem>& items, int page,
     tmp2 = tmp2 + u" " + static_cast<wz::Property<std::u16string>*>(n)->get();
     Freetype::DrawLine(tmp2, pos_rect.x + 15, pos_rect.y - 4);
   }
-
-  if (item_info && CursorGameInstance::modal_overlay_ == Render) {
-    RenderItemInfo(item_info->item);
-  }
 }
 
 void ShopUiSystem::RenderPkgItems() {
   std::vector<GameShopItem> items;
   auto its = ShopGameInstance::LoadPkgItems(active_tab_[1]);
   for (auto& itm : its) {
-    if (itm != nullptr) {
-      auto item = ShopGameInstance::LoadShopItem((*itm)->id);
-      item.item = *itm;
-      items.push_back(std::move(item));
-    } else {
-      GameShopItem item;
-      items.push_back(item);
-    }
-  }
-  auto& r = PackageGameInstance::data_[active_tab_[1]];
-  if (items.size() < 6) {
-    auto min = std::min(items.size() + 6, r.size());
-    items.resize(min);
+    auto item = ShopGameInstance::LoadShopItem((*itm)->id);
+    item.item = *itm;
+    items.push_back(std::move(item));
   }
   RenderItem(items, pages_[1], {238, 129});
 }
@@ -169,9 +176,6 @@ void ShopUiSystem::RenderItems() {
     RenderItem(items, pages_[0], {8, 129});
   } else {
     auto items = ShopGameInstance::must_;
-    if (items.size() < 6) {
-      items.resize(6);
-    }
     RenderItem(items, pages_[0], {8, 129});
   }
 }
@@ -197,7 +201,32 @@ UIComponents& ShopUiSystem::GetComponent() {
                .rect = rect,
                .enable = true,
                .focused = CursorGameInstance::cursor_ui_ == Render &&
-                          !CursorGameInstance::modal_overlay_});
+                          (CursorGameInstance::modal_overlay_ == nullptr ||
+                           CursorGameInstance::modal_overlay_ == Render)});
+  }
+  std::get<Button>(components_[0]).callback = EventButtonBuy;
+  std::get<Button>(components_[1]).callback = EventButtonSell;
+  std::get<Button>(components_[2]).callback = EventClose;
+
+  // 每个飞镖行右侧都显示 Rech.，不依赖当前选中行。
+  auto pkg_items = ShopGameInstance::LoadPkgItems(active_tab_[1]);
+  for (int row = 0; row < 6; row++) {
+    auto index = pages_[1] + row;
+    if (index < 0 || index >= static_cast<int>(pkg_items.size())) {
+      break;
+    }
+    auto* item = pkg_items[index];
+    if (item == nullptr || !(*item)->id.starts_with(u"0207")) {
+      continue;
+    }
+    components_.push_back(
+        Button{.node = WzResource::ui_->find(u"UIShop.img/Shop/BtRecharge"),
+               .rect = SDL_FRect{pos_.x + 408, pos_.y + 149 + row * 40, 30, 16},
+               .callback = [index] { EventButtonRecharge(index); },
+               .enable = true,
+               .focused = CursorGameInstance::cursor_ui_ == Render &&
+                          (CursorGameInstance::modal_overlay_ == nullptr ||
+                           CursorGameInstance::modal_overlay_ == Render)});
   }
 
   const static auto tab_node0 =
@@ -249,8 +278,8 @@ UIComponents& ShopUiSystem::GetComponent() {
 
 
 void ShopUiSystem::RenderActiveItem() {
-  static auto texture = WzResource::LoadTexture(
-      WzResource::ui_->find(u"PlayerShop.img/Store/ItemEntry/selected"));
+  static auto texture =
+      WzResource::LoadTexture(WzResource::ui_->find(u"UIShop.img/Shop/select"));
   if (active_item_[0].has_value()) {
     auto x = (int)pos_.x + 45;
     auto index = (active_item_[0].value() - pages_[0]);
@@ -339,14 +368,21 @@ void ShopUiSystem::RenderMeso() {
 }
 
 bool ShopUiSystem::Render() {
+  hovered_shop_item_.reset();
   RenderBackgrnd();
-  RenderUI();
   RenderActiveItem();
   RenderNpc();
   RenderAvatar();
   RenderMeso();
   RenderPkgItems();
   RenderItems();
+  // UI 最后绘制，保证 Rech. 等按钮不会被物品行/选中高亮盖住。
+  RenderUI();
+  // tooltip 再最后绘制；Notice 打开时商店不是 modal_overlay，不再显示悬停提示。
+  if (hovered_shop_item_.has_value() &&
+      CursorGameInstance::modal_overlay_ == Render) {
+    RenderItemInfo(hovered_shop_item_->item);
+  }
   return true;
 }
 
@@ -370,10 +406,10 @@ void ShopUiSystem::Open() {
 }
 
 bool ShopUiSystem::EventUI(SDL_Event* event) {
-  if (EventItem(event)) {
+  auto& components = GetComponent();
+  if (DispatchButtonClick(components, true)) {
     return true;
   }
-  auto& components = GetComponent();
   int tab_group = 0;
   for (auto& component : components) {
     auto* tab = std::get_if<Tab>(&component);
@@ -395,7 +431,9 @@ bool ShopUiSystem::EventUI(SDL_Event* event) {
     }
     tab_group++;
   }
-  DispatchButtonClick(components, false);
+  if (EventItem(event)) {
+    return true;
+  }
   int scroll_group = 0;
   for (auto& component : components) {
     if (auto* scroll = std::get_if<Scroll>(&component)) {
@@ -425,6 +463,122 @@ bool ShopUiSystem::CursorIn() {
 
 void ShopUiSystem::EventClose() {
   Close();
+}
+
+void ShopUiSystem::BuyItem(int index) {
+  if (shop_ == nullptr) {
+    return;
+  }
+  const auto* items =
+      (active_tab_[0] == 0) ? &shop_->items : &ShopGameInstance::must_;
+  if (index < 0 || index >= static_cast<int>(items->size())) {
+    return;
+  }
+  const auto& itm = items->at(index);
+  if (itm.item->id.empty()) {
+    return;
+  }
+  auto itm2 = items->at(index);
+  bool space = PackageGameInstance::LoadEmptyIndex(itm2.item).empty();
+  if (PackageGameInstance::meso_ < itm.price) {
+    NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kShopbuyNoMeso;
+  } else if (space) {
+    NoticeUiSystem::OpenNoSpace(itm2.item->type);
+    return;
+  } else {
+    NoticeUiSystem::type_ = (itm.item->type == ItemEnum::kEquip ||
+                             itm.item->id.starts_with(u"0207"))
+                                ? NoticeUiSystem::NoticeEnum::kShopbuy
+                                : NoticeUiSystem::NoticeEnum::kShopbuyMul;
+    NoticeUiSystem::data_ = &itm;
+  }
+  NoticeUiSystem::Open();
+}
+
+void ShopUiSystem::SellItem(int index) {
+  auto items = ShopGameInstance::LoadPkgItems(active_tab_[1]);
+  if (index < 0 || index >= static_cast<int>(items.size())) {
+    return;
+  }
+  auto itm = items[index];
+  if (itm == nullptr || (*itm)->id.empty()) {
+    return;
+  }
+  if ((*itm)->type == ItemEnum::kEquip) {
+    NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kShopbuySell;
+  } else {
+    auto num = ItemGameInstance::LoadItemNum(*itm);
+    auto itm_info = ItemGameInstance::LoadItemInfo((*itm)->id, 0);
+    bool unit_price = itm_info->get_child(u"unitPrice");
+    NoticeUiSystem::type_ = (num == 1 || unit_price)
+                                ? NoticeUiSystem::NoticeEnum::kShopbuySell
+                                : NoticeUiSystem::NoticeEnum::kShopbuySellMul;
+  }
+  NoticeUiSystem::data_ = itm;
+  NoticeUiSystem::Open();
+}
+
+void ShopUiSystem::EventButtonBuy() {
+  if (active_item_[0].has_value()) {
+    BuyItem(*active_item_[0]);
+  }
+}
+
+void ShopUiSystem::EventButtonSell() {
+  if (active_item_[1].has_value()) {
+    SellItem(*active_item_[1]);
+  }
+}
+
+void ShopUiSystem::EventButtonRecharge(int index) {
+  auto items = ShopGameInstance::LoadPkgItems(active_tab_[1]);
+  if (index < 0 || index >= static_cast<int>(items.size())) {
+    return;
+  }
+  auto* item = items[index];
+  if (item == nullptr || !(*item)->id.starts_with(u"0207")) {
+    return;
+  }
+  auto id = (*item)->id;
+  auto num = ItemGameInstance::LoadItemNum(*item);
+  auto slot_max = ItemGameInstance::LoadSlotMax(id);
+  if (num >= slot_max) {
+    return;
+  }
+  auto info = ItemGameInstance::LoadItemInfo(id, 0);
+  auto unit_price = info->get_child(u"unitPrice");
+  if (unit_price == nullptr) {
+    return;
+  }
+  auto price = static_cast<wz::Property<double>*>(unit_price)->get();
+  auto cost =
+      static_cast<uint64_t>(std::llround(price * (slot_max - num)));
+  NoticeUiSystem::data_ = cost;
+
+  NoticeUiSystem::on_confirm_ = [item]() {
+    auto id = (*item)->id;
+    auto num = ItemGameInstance::LoadItemNum(*item);
+    auto slot_max = ItemGameInstance::LoadSlotMax(id);
+    if (num >= slot_max) {
+      return;
+    }
+    auto info = ItemGameInstance::LoadItemInfo(id, 0);
+    auto unit_price = info->get_child(u"unitPrice");
+    if (unit_price == nullptr) {
+      return;
+    }
+    auto price = static_cast<wz::Property<double>*>(unit_price)->get();
+    auto cost = static_cast<uint64_t>(std::llround(price * (slot_max - num)));
+    if (PackageGameInstance::meso_ < cost) {
+      NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kShopbuyNoMeso;
+      NoticeUiSystem::Open();
+      return;
+    }
+    PackageGameInstance::meso_ -= cost;
+    ItemGameInstance::AddItemNum(*item, slot_max - num);
+  };
+  NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kShopRecharge;
+  NoticeUiSystem::Open();
 }
 
 std::optional<int> ShopUiSystem::EventItemClick(SDL_Event* event,
@@ -457,22 +611,7 @@ bool ShopUiSystem::EventItem(SDL_Event* event) {
       active_item_[1] = std::nullopt;
       return true;
     }
-    auto meso = PackageGameInstance::meso_;
-    const auto& itm = items->at(index);
-    auto itm2 = items->at(index);
-    bool space = PackageGameInstance::LoadEmptyIndex(itm2.item).empty();
-    if (meso < itm.price) {
-      NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kShopbuyNoMeso;
-    } else if (space) {
-      NoticeUiSystem::OpenNoSpace(itm2.item->type);
-      return true;
-    } else {
-      NoticeUiSystem::type_ = (itm.item->type == ItemEnum::kEquip)
-                                  ? NoticeUiSystem::NoticeEnum::kShopbuy
-                                  : NoticeUiSystem::NoticeEnum::kShopbuyMul;
-      NoticeUiSystem::data_ = &itm;
-    }
-    NoticeUiSystem::Open();
+    BuyItem(index);
     return true;
   }
 
@@ -488,27 +627,14 @@ bool ShopUiSystem::EventItem(SDL_Event* event) {
       active_item_[0] = std::nullopt;
       return true;
     }
-    auto itm = items[index];
-    if ((*itm)->type == ItemEnum::kEquip) {
-      NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kShopbuySell;
-    } else {
-      auto num = ItemGameInstance::LoadItemNum(*itm);
-      auto itm_info = ItemGameInstance::LoadItemInfo((*itm)->id, 0);
-      bool unit_price = itm_info->get_child(u"unitPrice");
-      if (num == 1 || unit_price) {
-        NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kShopbuySell;
-      } else {
-        NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kShopbuySellMul;
-      }
-    }
-    NoticeUiSystem::data_ = itm;
-    NoticeUiSystem::Open();
+    SellItem(index);
   }
   return false;
 }
 
 bool ShopUiSystem::Event(SDL_Event* event) {
   static int vscroll_drag = -1;
+  const bool modal = CursorGameInstance::modal_overlay_ == Render;
   switch (event->type) {
     case SDL_EVENT_KEY_DOWN: {
       auto scan_code = event->key.scancode;
@@ -524,6 +650,9 @@ bool ShopUiSystem::Event(SDL_Event* event) {
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
+      if (!modal) {
+        break;
+      }
       if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui_ == Render) {
           DispatchScrollDragStart(GetComponent(), vscroll_drag,
@@ -533,6 +662,10 @@ bool ShopUiSystem::Event(SDL_Event* event) {
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
+      if (!modal) {
+        vscroll_drag = -1;
+        break;
+      }
       if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui_ == Render) {
           EventUI(event);
@@ -542,12 +675,45 @@ bool ShopUiSystem::Event(SDL_Event* event) {
       break;
     }
     case SDL_EVENT_MOUSE_MOTION: {
+      if (!modal) {
+        vscroll_drag = -1;
+        break;
+      }
       if (vscroll_drag >= 0 && vscroll_drag < 2) {
         uint32_t val = static_cast<uint32_t>(std::max(pages_[vscroll_drag], 0));
         if (DispatchScrollDragMove(GetComponent(), vscroll_drag,
                                    {event->motion.x, event->motion.y}, val)) {
           pages_[vscroll_drag] = static_cast<int>(val);
         }
+      }
+      break;
+    }
+    case SDL_EVENT_MOUSE_WHEEL: {
+      if (!modal || CursorGameInstance::cursor_ui_ != Render) {
+        break;
+      }
+      const auto& mouse = Window::mouse_pos_;
+      SDL_FRect left{pos_.x + 8, pos_.y + 129, 224, 238};
+      SDL_FRect right{pos_.x + 238, pos_.y + 129, 224, 238};
+      int size = 0;
+      int* page = nullptr;
+      if (SDL_PointInRectFloat(&mouse, &left)) {
+        size = (active_tab_[0] == 0)
+                   ? static_cast<int>(shop_->items.size())
+                   : static_cast<int>(ShopGameInstance::must_.size());
+        page = &pages_[0];
+      } else if (SDL_PointInRectFloat(&mouse, &right)) {
+        size = static_cast<int>(
+            ShopGameInstance::LoadPkgItems(active_tab_[1]).size());
+        page = &pages_[1];
+      } else {
+        break;
+      }
+      const int max_page = std::max(0, size - 6);
+      if (event->wheel.integer_y > 0) {
+        *page = std::max(0, *page - 1);
+      } else if (event->wheel.integer_y < 0) {
+        *page = std::min(max_page, *page + 1);
       }
       break;
     }

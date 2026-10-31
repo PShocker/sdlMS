@@ -386,7 +386,7 @@ bool CharacterChooseUiSystem::EventUI(SDL_Event* event) {
   if (EventChooseCharacter(event)) {
     return true;
   }
-  return DispatchButtonClick(GetComponent(), false);
+  return DispatchButtonClick(GetComponent(), true);
 }
 
 bool CharacterChooseUiSystem::Event(SDL_Event* event) {

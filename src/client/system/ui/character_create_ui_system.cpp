@@ -31,6 +31,7 @@
 #include <cmath>
 #include <cstdint>
 #include <optional>
+#include <ranges>
 #include <string>
 #include <vector>
 
@@ -328,7 +329,14 @@ void CharacterCreateUiSystem::RenderCustomItem(float cx, float cy,
       break;
     }
     case ChooseType::kSkin: {
-      item_name = EquipGameInstance::LoadEquipName(g_character_.head);
+      // 皮肤名在 Eqp.img/ClassicWorld/Skin 下；head id 仍用于角色贴图。
+      auto view = g_character_.head |
+                  std::views::drop_while([](char16_t c) { return c == u'0'; });
+      std::u16string skin_id(view.begin(), view.end());
+      static auto skin_node =
+          WzResource::string_->find(u"Eqp.img/ClassicWorld/Skin");
+      auto name_node = skin_node->get_child(skin_id)->get_child(u"name");
+      item_name = static_cast<wz::Property<std::u16string>*>(name_node)->get();
       if (choose_index_ == 4) {
         t = WzResource::LoadTexture(WzResource::ui_->find(
             "Login.img/NewChar/customize/canvas:skincolor_selected"));
@@ -508,7 +516,6 @@ std::vector<std::u16string> CharacterCreateUiSystem::LoadDefaultFace() {
 }
 
 void CharacterCreateUiSystem::EventButtonFacePrev() {
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 
   auto faces = LoadDefaultFace();
   auto face_id = g_character_.face.id;
@@ -521,7 +528,6 @@ void CharacterCreateUiSystem::EventButtonFacePrev() {
 }
 
 void CharacterCreateUiSystem::EventButtonFaceNext() {
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 
   auto faces = LoadDefaultFace();
   auto face_id = g_character_.face.id;
@@ -543,7 +549,6 @@ std::vector<std::u16string> CharacterCreateUiSystem::LoadDefaultHair() {
 }
 
 void CharacterCreateUiSystem::EventButtonHairPrev() {
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 
   auto hairs = LoadDefaultHair();
   auto hair_id = g_character_.hair;
@@ -556,7 +561,6 @@ void CharacterCreateUiSystem::EventButtonHairPrev() {
 }
 
 void CharacterCreateUiSystem::EventButtonHairNext() {
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 
   auto hairs = LoadDefaultHair();
   auto hair_id = g_character_.hair;
@@ -569,7 +573,6 @@ void CharacterCreateUiSystem::EventButtonHairNext() {
 }
 
 void CharacterCreateUiSystem::EventButtonHairColorPrev() {
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 
   auto hair_id = g_character_.hair;
   auto back = hair_id.back();
@@ -583,7 +586,6 @@ void CharacterCreateUiSystem::EventButtonHairColorPrev() {
 }
 
 void CharacterCreateUiSystem::EventButtonHairColorNext() {
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 
   auto hair_id = g_character_.hair;
   auto back = hair_id.back();
@@ -597,7 +599,6 @@ void CharacterCreateUiSystem::EventButtonHairColorNext() {
 }
 
 void CharacterCreateUiSystem::EventButtonSkinColorPrev() {
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 
   auto head_id = g_character_.head;
   auto body_id = g_character_.body;
@@ -614,7 +615,6 @@ void CharacterCreateUiSystem::EventButtonSkinColorPrev() {
 }
 
 void CharacterCreateUiSystem::EventButtonSkinColorNext() {
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 
   auto& head_id = g_character_.head;
   auto body_id = g_character_.body;
@@ -641,7 +641,6 @@ std::vector<std::u16string> CharacterCreateUiSystem::LoadDefaultTop() {
 }
 
 void CharacterCreateUiSystem::EventButtonTopPrev() {
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 
   auto tops = LoadDefaultTop();
   auto top_id = g_character_.coat->id;
@@ -653,7 +652,6 @@ void CharacterCreateUiSystem::EventButtonTopPrev() {
 }
 
 void CharacterCreateUiSystem::EventButtonTopNext() {
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 
   auto tops = LoadDefaultTop();
   auto top_id = g_character_.coat->id;
@@ -675,7 +673,6 @@ std::vector<std::u16string> CharacterCreateUiSystem::LoadDefaultBottom() {
 }
 
 void CharacterCreateUiSystem::EventButtonBottomPrev() {
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 
   auto bottoms = LoadDefaultBottom();
   auto pant_id = g_character_.pant->id;
@@ -687,7 +684,6 @@ void CharacterCreateUiSystem::EventButtonBottomPrev() {
 }
 
 void CharacterCreateUiSystem::EventButtonBottomNext() {
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 
   auto bottoms = LoadDefaultBottom();
   auto pant_id = g_character_.pant->id;
@@ -705,7 +701,6 @@ std::vector<std::u16string> CharacterCreateUiSystem::LoadDefaultShoes() {
 }
 
 void CharacterCreateUiSystem::EventButtonShoesPrev() {
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 
   auto shoes = LoadDefaultShoes();
   auto shoes_id = g_character_.shoes->id;
@@ -717,7 +712,6 @@ void CharacterCreateUiSystem::EventButtonShoesPrev() {
 }
 
 void CharacterCreateUiSystem::EventButtonShoesNext() {
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 
   auto shoes = LoadDefaultShoes();
   auto shoes_id = g_character_.shoes->id;
@@ -735,7 +729,6 @@ std::vector<std::u16string> CharacterCreateUiSystem::LoadDefaultWeapon() {
 }
 
 void CharacterCreateUiSystem::EventButtonWeaponPrev() {
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 
   auto weapons = LoadDefaultWeapon();
   auto weapon_id = g_character_.weapon->id;
@@ -747,7 +740,6 @@ void CharacterCreateUiSystem::EventButtonWeaponPrev() {
 }
 
 void CharacterCreateUiSystem::EventButtonWeaponNext() {
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 
   auto weapons = LoadDefaultWeapon();
   auto weapon_id = g_character_.weapon->id;
@@ -760,7 +752,6 @@ void CharacterCreateUiSystem::EventButtonWeaponNext() {
 
 void CharacterCreateUiSystem::EventButtonStrInc() {
   if (remain_point_ > 0) {
-    AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
     str_point_++;
     remain_point_--;
   }
@@ -768,7 +759,6 @@ void CharacterCreateUiSystem::EventButtonStrInc() {
 
 void CharacterCreateUiSystem::EventButtonStrDec() {
   if (str_point_ > 4) {
-    AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
     str_point_--;
     remain_point_++;
   }
@@ -776,7 +766,6 @@ void CharacterCreateUiSystem::EventButtonStrDec() {
 
 void CharacterCreateUiSystem::EventButtonDexInc() {
   if (remain_point_ > 0) {
-    AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
     dex_point_++;
     remain_point_--;
   }
@@ -784,7 +773,6 @@ void CharacterCreateUiSystem::EventButtonDexInc() {
 
 void CharacterCreateUiSystem::EventButtonDexDec() {
   if (dex_point_ > 4) {
-    AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
     dex_point_--;
     remain_point_++;
   }
@@ -792,7 +780,6 @@ void CharacterCreateUiSystem::EventButtonDexDec() {
 
 void CharacterCreateUiSystem::EventButtonIntInc() {
   if (remain_point_ > 0) {
-    AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
     int_point_++;
     remain_point_--;
   }
@@ -800,7 +787,6 @@ void CharacterCreateUiSystem::EventButtonIntInc() {
 
 void CharacterCreateUiSystem::EventButtonIntDec() {
   if (int_point_ > 4) {
-    AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
     int_point_--;
     remain_point_++;
   }
@@ -808,7 +794,6 @@ void CharacterCreateUiSystem::EventButtonIntDec() {
 
 void CharacterCreateUiSystem::EventButtonLukInc() {
   if (remain_point_ > 0) {
-    AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
     luk_point_++;
     remain_point_--;
   }
@@ -816,14 +801,12 @@ void CharacterCreateUiSystem::EventButtonLukInc() {
 
 void CharacterCreateUiSystem::EventButtonLukDec() {
   if (luk_point_ > 4) {
-    AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
     luk_point_--;
     remain_point_++;
   }
 }
 
 void CharacterCreateUiSystem::EventButtonGenderToggle() {
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
   ResetCharacter(!gender_);
 }
 
@@ -871,7 +854,7 @@ void CharacterCreateUiSystem::EventButtonOk() {
   for (auto ch : name_text) {
     if (SDL_ispunct(static_cast<int>(ch)) ||
         SDL_isspace(static_cast<int>(ch))) {
-      // 发现标点符号
+      // 名字不能为空
       LoginNoticeSystemInstance::Enter(
           LoginNoticeSystemInstance::NoticeType::kCharacternameError, nullptr);
       AudioGameInstance::LoadAudio(u"UI.img/DlgNotice", 0);
@@ -880,7 +863,7 @@ void CharacterCreateUiSystem::EventButtonOk() {
   }
   for (auto g : characters) {
     if (g.name == name_text) {
-      // 名称重复
+      // 名字重复
       LoginNoticeSystemInstance::Enter(
           LoginNoticeSystemInstance::NoticeType::kCharacternameUsed, nullptr);
       AudioGameInstance::LoadAudio(u"UI.img/DlgNotice", 0);
@@ -918,7 +901,7 @@ bool CharacterCreateUiSystem::EventUI(SDL_Event* event) {
   if (EventButtonCustom(event)) {
     return true;
   }
-  return DispatchButtonClick(GetComponent(), false);
+  return DispatchButtonClick(GetComponent(), true);
 }
 
 bool CharacterCreateUiSystem::Event(SDL_Event* event) {

@@ -233,7 +233,7 @@ bool StorageUiSystem::EventUI(SDL_Event* event) {
       }
     }
   }
-  return DispatchButtonClick(components, false);
+  return DispatchButtonClick(components, true);
 }
 
 bool StorageUiSystem::Event(SDL_Event* event) {

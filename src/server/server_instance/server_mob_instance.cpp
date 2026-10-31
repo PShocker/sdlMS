@@ -415,6 +415,19 @@ void ServerMobInstance::HandleServerAction(const fbs::ServerMobActionT& m) {
   mob.ani_index = 0;
   mob.ani_time = 0;
   mob.ani_animate = true;
+
+  // 服务器复活时先发空动作：客户端用 stand/fly 显示，并在 1 秒内渐显。
+  if (mob.action.empty()) {
+    auto node = MobGameInstance::LoadLinkMobNode(mob.id);
+    if (node != nullptr && node->get_child(u"stand") != nullptr) {
+      mob.action = u"stand";
+    } else if (node != nullptr && node->get_child(u"fly") != nullptr) {
+      mob.action = u"fly";
+    }
+    mob.alpha = 0;
+    mob.revive_time = Window::dt_now_;
+  }
+
   auto MobType = MobLogicSystem::LoadActionType(mob.action);
   switch (MobType) {
     case MobLogicSystem::ActionEnum::kDie: {
