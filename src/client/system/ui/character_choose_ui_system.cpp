@@ -9,6 +9,7 @@
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/popup_tip_game_instance.h"
 #include "src/client/game_instance/quest_game_instance.h"
+#include "src/client/system/ui/quest_ui_system.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/character_render_system.h"
 #include "src/client/system/render/cursor_render_system.h"
@@ -273,6 +274,9 @@ void CharacterChooseUiSystem::EventButtonSelect() {
     }
   }
   PopupTipGameInstance::EndLoad();
+
+  // 清除登录页/上一角色遗留的 QuestUI 窗口、页签和详情状态。
+  QuestUiSystem::Reset();
 
   // Option 配置在角色正式进入游戏时才应用，不能在角色选择页提前生效。
   OptionUiSystem::Load();

@@ -983,6 +983,8 @@ bool CharacterInfoUiSystem::Event(SDL_Event* event) {
 
         case SDL_SCANCODE_ESCAPE: {
 
+          AudioGameInstance::PlayNow(u"UI.img/BtMouseClick");
+
           EventClose();
 
           return false;

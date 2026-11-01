@@ -782,6 +782,12 @@ void QuestUiSystem::Open() {
   if (it != System::render_systems_.end()) {
     detail_ = true;
 
+    // 进入角色后第一次打开 QuestUI：可接任务存在时默认选中第一个。
+    if (detail_quest_.empty() && active_tab_ == 0) {
+      TrySelectTopQuest();
+      pages_[1] = 0;
+    }
+
     auto wh = LoadWh();
     auto& camera = CameraGameInstance::camera_;
     pos_.x = (camera.w - wh.x) / 2;
@@ -800,6 +806,22 @@ void QuestUiSystem::Close() {
   std::erase(System::event_systems_, Event);
 
   EventDragEnd();
+}
+
+void QuestUiSystem::Reset() {
+  Close();
+  pos_ = {0, 0};
+  detail_ = false;
+  active_tab_ = 0;
+  disable_fold_.clear();
+  pages_ = {0, 0};
+  detail_quest_.clear();
+  read_quests_.clear();
+  fold.reset();
+  d_quest.reset();
+  quest_name.clear();
+  checkbox_quest_name.clear();
+  drag_.reset();
 }
 
 void QuestUiSystem::EventTop() {
@@ -1099,6 +1121,7 @@ bool QuestUiSystem::Event(SDL_Event* event) {
       auto scan_code = event->key.scancode;
       switch (scan_code) {
         case SDL_SCANCODE_ESCAPE: {
+          AudioGameInstance::PlayNow(u"UI.img/BtMouseClick");
           Close();
           return false;
           break;

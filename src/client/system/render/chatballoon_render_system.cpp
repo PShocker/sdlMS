@@ -132,14 +132,41 @@ ChatballoonRenderSystem::RenderBackgrnd(GameChatballoon& g_chatballoon,
     e = c;
   }
 
-  // 换行宽度：请求宽度向上取整到中心块宽度，右边不留残块
-  const int inner_w_int = CeilToMultiple(
-      static_cast<int>(std::max(g_chatballoon.w, kMinInnerWidth)), c.texture->w);
-  const float inner_w = static_cast<float>(inner_w_int);
-
+  // 请求宽度是上限：短文本时按实际排版后的最大行宽收窄。
+  const float max_inner_w =
+      std::max(g_chatballoon.w, kMinInnerWidth);
   Freetype::LoadSize(g_chatballoon.size);
   // 排版和真正绘制必须使用同样的字重，否则换行宽度会不同
   Freetype::LoadBold(false);
+
+  float max_line_w = 0.0f;
+  float line_w = 0.0f;
+  bool line_has_text = false;
+  for (char16_t c : g_chatballoon.text) {
+    if (c == u'\n') {
+      max_line_w = std::max(max_line_w, line_w);
+      line_w = 0.0f;
+      line_has_text = false;
+      continue;
+    }
+    const float char_w = Freetype::LoadW(std::u16string(1, c));
+    if (line_has_text && line_w + char_w >= max_inner_w) {
+      max_line_w = std::max(max_line_w, line_w);
+      line_w = 0.0f;
+      line_has_text = false;
+    }
+    line_w += char_w;
+    line_has_text = true;
+  }
+  max_line_w = std::max(max_line_w, line_w);
+
+  // 左右各留一点内边距；仍不能超过请求的最大宽度。
+  const float desired_inner_w =
+      std::min(max_inner_w, std::max(kMinInnerWidth, max_line_w + 12.0f));
+  const int inner_w_int = CeilToMultiple(
+      static_cast<int>(std::ceil(desired_inner_w)), c.texture->w);
+  const float inner_w = static_cast<float>(inner_w_int);
+
   const float block_h = Freetype::LoadCh(
       g_chatballoon.text, inner_w, kLineSpacing);
   // 中心区域取整到整块高度，文字在区域内垂直居中

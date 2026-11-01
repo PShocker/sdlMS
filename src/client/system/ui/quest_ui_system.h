@@ -77,6 +77,8 @@ class QuestUiSystem : public UiComponentHost<QuestUiSystem> {
 
   static void Open();
   static void Close();
+  // 登录/换角色时清掉上一角色的窗口、页签和详情状态。
+  static void Reset();
 
   static bool Render();
   static bool Event(SDL_Event* event);

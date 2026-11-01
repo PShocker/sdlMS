@@ -912,6 +912,8 @@ bool NpcDlgUiSystem::Event(SDL_Event* event) {
           break;
         }
         case SDL_SCANCODE_ESCAPE: {
+          AudioGameInstance::PlayNow(u"UI.img/BtMouseClick");
+
           EventButtonClose();
           return false;
           break;

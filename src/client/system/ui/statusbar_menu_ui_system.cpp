@@ -298,7 +298,9 @@ bool StatusbarMenuUiSystem::Event(SDL_Event* event) {
       auto scan_code = event->key.scancode;
       switch (scan_code) {
         case SDL_SCANCODE_ESCAPE: {
-          return r;
+          Close();
+          AudioGameInstance::PlayNow(u"UI.img/BtMouseClick");
+          return false;
           break;
         }
         default: {

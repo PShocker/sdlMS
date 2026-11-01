@@ -1,6 +1,7 @@
 #include "src/client/system/ui/context_menu_ui_system.h"
 
 #include "src/client/game_instance/camera_game_instance.h"
+#include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/text_game_instance.h"
@@ -171,6 +172,7 @@ bool ContextMenuUiSystem::Event(SDL_Event* event) {
       auto scan_code = event->key.scancode;
       switch (scan_code) {
         case SDL_SCANCODE_ESCAPE: {
+          AudioGameInstance::PlayNow(u"UI.img/BtMouseClick");
           EventClose();
           return false;
           break;

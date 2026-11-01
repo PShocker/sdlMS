@@ -303,6 +303,7 @@ bool WorldmapUiSystem::Event(SDL_Event* event) {
       auto scan_code = event->key.scancode;
       switch (scan_code) {
         case SDL_SCANCODE_ESCAPE: {
+          AudioGameInstance::PlayNow(u"UI.img/BtMouseClick");
           EventClose();
           return false;
           break;

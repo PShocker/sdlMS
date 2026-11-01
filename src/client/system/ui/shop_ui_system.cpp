@@ -4,6 +4,7 @@
 #include "src/client/game/game_npc.h"
 #include "src/client/game/game_shop.h"
 #include "src/client/game_instance/camera_game_instance.h"
+#include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
@@ -627,6 +628,7 @@ bool ShopUiSystem::Event(SDL_Event* event) {
       auto scan_code = event->key.scancode;
       switch (scan_code) {
         case SDL_SCANCODE_ESCAPE: {
+          AudioGameInstance::PlayNow(u"UI.img/BtMouseClick");
           EventClose();
           break;
         }
