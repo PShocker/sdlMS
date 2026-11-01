@@ -529,7 +529,7 @@ void QuestUiSystem::RenderDetailAvaliable() {
     auto tmp = std::format("{:07d}", npc_i);
     std::u16string npc_id{tmp.begin(), tmp.end()};
     auto npc_name = NpcGameInstance::LoadNpcText(npc_id, u"name");
-    node = WzResource::ms_->get_root()->find(u"String.img/Quest/talkNPC");
+    node = WzResource::ms_->get_root()->find(u"String.img/talkNPC");
     auto npc_str = static_cast<wz::Property<std::u16string>*>(node)->get();
     npc_str = npc_str + npc_name;
     Freetype::LoadBold(true);
@@ -730,7 +730,7 @@ void QuestUiSystem::RenderQuestDetail() {
   // level
   Freetype::LoadSize(12);
   Freetype::LoadColor(255, 255, 255, 255);
-  node = WzResource::ms_->get_root()->find(u"String.img/Quest/lv");
+  node = WzResource::ms_->get_root()->find(u"String.img/lv");
   auto lv_str = static_cast<wz::Property<std::u16string>*>(node)->get();
   node = QuestGameInstance::LoadQuestNode(detail_quest_);
   node = node->find(u"Check/0/lvmin");

@@ -11,14 +11,14 @@ static void state() {
   switch (NpcDlgUiSystem::index_) {
     case 0: {
       auto text_node =
-          WzResource::ms_->get_root()->find(u"String.img/Script/npc_8/t0");
+          WzResource::ms_->get_root()->find(u"String.img/npc_8/t0");
       auto text = static_cast<wz::Property<std::u16string>*>(text_node)->get();
       NpcDlgUiSystem::text_ = text;
       break;
     }
     case 1: {
       auto text_node =
-          WzResource::ms_->get_root()->find(u"String.img/Script/npc_8/t1");
+          WzResource::ms_->get_root()->find(u"String.img/npc_8/t1");
       auto text = static_cast<wz::Property<std::u16string>*>(text_node)->get();
       NpcDlgUiSystem::text_ = text;
       break;

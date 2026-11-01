@@ -158,6 +158,11 @@ CheckMobs CharacterLogicSystem::RunAttackCheck(GameCharacter& g_character,
       TriangleGameInstance::LoadTri(tri, g_character.flip, g_character.pos);
   for (const auto& [k, v] : MobGameInstance::data_) {
     auto& mob = v.mob;
+    // 渐显中的怪物不参与人物攻击判定。
+    if (mob.revive_time != 0 &&
+        Window::dt_now_ - mob.revive_time < 1000) {
+      continue;
+    }
     if (mob.hp <= 0) {
       continue;
     }
@@ -199,6 +204,11 @@ CheckMobs CharacterLogicSystem::RunAttackCheck(SDL_FPoint pos, SDL_FRect g_r,
   auto& g_pos = pos;
   for (const auto& [k, v] : MobGameInstance::data_) {
     auto& mob = v.mob;
+    // 渐显中的怪物不参与人物攻击判定。
+    if (mob.revive_time != 0 &&
+        Window::dt_now_ - mob.revive_time < 1000) {
+      continue;
+    }
     auto mob_action = MobLogicSystem::LoadActionType(mob.action);
     if (mob_action == MobLogicSystem::ActionEnum::kRevive ||
         mob_action == MobLogicSystem::ActionEnum::kDie) {
@@ -378,7 +388,13 @@ bool CharacterLogicSystem::RunFlip(GameCharacter& g_character) {
 
 void CharacterLogicSystem::RunPick(GameCharacter& g_character) {
   if (ccp_.random_id != 0) {
-    return;
+    // 服务器没有回包/掉落物已被别人捡走时避免永久卡住。
+    if (Window::dt_now_ - ccp_time_ > 500) {
+      ccp_ = {};
+      ccp_time_ = 0;
+    } else {
+      return;
+    }
   }
   if (g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
     return;
@@ -394,6 +410,7 @@ void CharacterLogicSystem::RunPick(GameCharacter& g_character) {
             pos.y == std::clamp(pos.y, v.goal.y - 20, v.goal.y + 20)) {
           ccp_.map_id = SceneSystemInstance::map_id_;
           ccp_.random_id = v.random_id;
+          ccp_time_ = Window::dt_now_;
           ClientRequest::SendToHost(ccp_);
           return;
         }

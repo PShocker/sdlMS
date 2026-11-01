@@ -6,6 +6,7 @@
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
+#include "src/common/wz/wz_resource.h"
 
 #include <format>
 #include <string>
@@ -29,21 +30,32 @@ void GainLogUiSystem::RenderText() {
         auto num2 = std::to_string(num);
         auto num3 = std::u16string{num2.begin(), num2.end()};
         if (itm_id == u"00000000") {
-          text = u"You have gained meso (+" + num3 + u")";
+          text = WzResource::LoadMSString(u"gainMeso",
+                                          u"You have gained meso (+") +
+                 num3 + u")";
         } else if (ItemGameInstance::CheckItem(itm_id)) {
           item_name = ItemGameInstance::LoadItemText(itm_id, u"name");
           auto item_type = ItemGameInstance::LoadItemType(itm_id);
-          text = item_name + u" x" + num3 + u" earned (" + item_type + u")";
+          text = item_name +
+                 WzResource::LoadMSString(u"itemCountPrefix", u" x") + num3 +
+                 WzResource::LoadMSString(u"gainEarned", u"  earned (") +
+                 item_type + u")";
         } else {
           item_name = EquipGameInstance::LoadEquipName(itm_id);
-          text = item_name + u" x" + num3 + u" earned (Equip/Deco)";
+          text = item_name +
+                 WzResource::LoadMSString(u"itemCountPrefix", u" x") + num3 +
+                 WzResource::LoadMSString(u"gainEquipDeco",
+                                          u"  earned (Equip/Deco)") +
+                 u")";
         }
         break;
       }
       case GainEnum::kExperience: {
         auto exp_str = std::to_string(g_log.num);
         auto exp_str2 = std::u16string{exp_str.begin(), exp_str.end()};
-        text = u"You received EXP (+" + exp_str2 + u")";
+        text = WzResource::LoadMSString(u"gainExp",
+                                        u"You received EXP (+") +
+               exp_str2 + u")";
         break;
       }
     }

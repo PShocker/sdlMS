@@ -33,6 +33,44 @@
 
 namespace sdlms {
 
+namespace {
+bool MeetsSkillRequirements(const std::u16string& id) {
+  auto ski_node = SkillGameInstance::LoadSkiNode(id);
+  if (ski_node == nullptr) {
+    return false;
+  }
+  if (auto req = ski_node->get_child(u"req"); req != nullptr) {
+    for (auto [k, v] : *req) {
+      auto required_level = static_cast<wz::Property<int>*>(v[0])->get();
+      auto current_level = JobSkillGameInstance::LoadSkiLevel(k);
+      if (current_level < required_level) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+bool CanUpgradeSkill(const std::u16string& id, int active_tab) {
+  const auto& sps = JobSkillGameInstance::remain_point_;
+  if (sps.size() <= static_cast<size_t>(active_tab) ||
+      sps.at(active_tab) == 0) {
+    return false;
+  }
+  if (!MeetsSkillRequirements(id)) {
+    return false;
+  }
+  return JobSkillGameInstance::LoadSkiLevel(id) <
+         SkillGameInstance::LoadSkiMaxLvl(id);
+}
+
+bool ShouldGraySkillIcon(const std::u16string& id) {
+  // 已学会的技能不灰；0 级且前置不满足才灰。
+  return JobSkillGameInstance::LoadSkiLevel(id) == 0 &&
+         !MeetsSkillRequirements(id);
+}
+}  // namespace
+
 SDL_FPoint SkillUiSystem::LoadWh() {
   return {197, 371};
 }
@@ -152,6 +190,8 @@ void SkillUiSystem::RenderSkillEntry() {
 
     SDL_Texture* ski_texture;
     auto ski_level = JobSkillGameInstance::LoadSkiLevel(k);
+    const bool disabled = ShouldGraySkillIcon(k);
+    SDL_Texture* entry_texture = entry;
     SDL_FRect pos_rect = {
         pos_.x + lt.x + 2,
         pos_.y + lt.y + i * entry->h + l * i + 2,
@@ -161,7 +201,7 @@ void SkillUiSystem::RenderSkillEntry() {
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
       mouse_skill_id = k;
     }
-    if (ski_level > 0) {
+    if (!disabled) {
       if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == Render &&
           !CursorGameInstance::modal_overlay_) {
         ski_texture =
@@ -170,19 +210,19 @@ void SkillUiSystem::RenderSkillEntry() {
         ski_texture = WzResource::LoadTexture(v[0]->get_child(u"icon"));
       }
     } else {
-      // disable
+      // 0 级且前置不满足（或没有可加点数）：灰色禁用。
       ski_texture = WzResource::LoadTexture(v[0]->get_child(u"iconDisabled"));
-      entry = WzResource::LoadTexture(
+      entry_texture = WzResource::LoadTexture(
           WzResource::ui_->find(u"Skill.img/entry/skill0"));
     }
     // render backgrnd
     pos_rect = {
         pos_.x + lt.x,
         pos_.y + lt.y + i * entry->h + l * i,
-        static_cast<float>(entry->w),
-        static_cast<float>(entry->h),
+        static_cast<float>(entry_texture->w),
+        static_cast<float>(entry_texture->h),
     };
-    SDL_RenderTexture(Window::renderer_, entry, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer_, entry_texture, nullptr, &pos_rect);
 
     pos_rect = {
         pos_.x + lt.x + 2,
@@ -193,7 +233,8 @@ void SkillUiSystem::RenderSkillEntry() {
     SDL_RenderTexture(Window::renderer_, ski_texture, nullptr, &pos_rect);
     // render ski_name
     auto ski_name = SkillGameInstance::LoadSkiName(k);
-    Freetype::LoadColor(0, 0, 0, 255);
+    Freetype::LoadColor(disabled ? 128 : 0, disabled ? 128 : 0,
+                        disabled ? 128 : 0, 255);
     Freetype::LoadAligned(true);
     Freetype::LoadSize(12);
     Freetype::DrawLine(ski_name.name, pos_.x + lt.x + 40, pos_rect.y - 3);
@@ -242,31 +283,7 @@ UIComponents& SkillUiSystem::GetComponent() {
   std::vector<SDL_FRect> rects = {{wh.x - 20, 8, 12, 12}};
 
   const auto disable_ski = [](std::u16string id) {
-    auto active = active_tab_;
-    const auto sps = JobSkillGameInstance::remain_point_;
-    if (sps.size() <= active) {
-      return true;
-    }
-    if (sps.at(active) == 0) {
-      return true;
-    }
-    // 判断前置技能
-    auto ski_node = SkillGameInstance::LoadSkiNode(id);
-    if (auto req = ski_node->get_child(u"req")) {
-      for (auto [k, v] : *req) {
-        auto lv = static_cast<wz::Property<int>*>(v[0])->get();
-        auto req_lv = JobSkillGameInstance::LoadSkiLevel(k);
-        if (req_lv < lv) {
-          return true;
-        }
-      }
-    }
-    auto ski_max_lvl = SkillGameInstance::LoadSkiMaxLvl(id);
-    auto ski_lvl = JobSkillGameInstance::LoadSkiLevel(id);
-    if (ski_lvl >= ski_max_lvl) {
-      return true;
-    }
-    return false;
+    return !CanUpgradeSkill(id, active_tab_);
   };
 
   std::vector<bool> disable = {
@@ -381,6 +398,9 @@ void SkillUiSystem::Toggle() {
 
 void SkillUiSystem::EventButtonSkiUp() {
   if (ski_button_id == u"") {
+    return;
+  }
+  if (!CanUpgradeSkill(ski_button_id, active_tab_)) {
     return;
   }
   auto ski_id =

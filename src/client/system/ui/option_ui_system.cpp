@@ -34,24 +34,24 @@ namespace sdlms {
 
 namespace {
 
-// 面板尺寸（Options.img/backgrnd 的 canvas 大小）
+// 面板尺寸（Options.img/backgrnd �?canvas 大小�?
 constexpr float kPanelW = 375.0f;
 constexpr float kPanelH = 495.0f;
 // tab 个数
 constexpr uint8_t kTabCount = 5;
-// 字号：标签 fType 280、说明/数值 fType 283
+// 字号：标�?fType 280、说�?数�?fType 283
 constexpr uint8_t kLabelSize = 11;
 constexpr uint8_t kSmallSize = 11;
-// 行距（按字体行高倍数）
+// 行距（按字体行高倍数�?
 constexpr float kLineSpacing = 1.0f;
-// 下拉列表每项高度，也用作滑块轨道的点击高度
+// 下拉列表每项高度，也用作滑块轨道的点击高�?
 constexpr float kComboItemH = 16.0f;
-// 下拉列表最下面的留白
+// 下拉列表最下面的留�?
 constexpr float kComboListBottomPad = 4.0f;
-// 滑块的取值范围
+// 滑块的取值范�?
 constexpr int32_t kSliderMax = 100;
 
-// 元素的矩形：多数用 lt/rb，部分说明文字用 pos/width/height
+// 元素的矩形：多数�?lt/rb，部分说明文字用 pos/width/height
 SDL_FRect LoadRect(wz::Node* node) {
   if (node->get_child(u"lt") != nullptr) {
     auto lt =
@@ -72,7 +72,7 @@ SDL_FRect LoadRect(wz::Node* node) {
                    static_cast<float>(width), static_cast<float>(height)};
 }
 
-// 画布按 origin 摆放：位置 = 锚点 - origin
+// 画布�?origin 摆放：位�?= 锚点 - origin
 SDL_FRect LoadOriginRect(SDL_Texture* texture, SDL_FPoint origin,
                          SDL_FPoint anchor) {
   if (texture == nullptr) {
@@ -94,8 +94,9 @@ int32_t LoadInt(wz::Node* node, const char16_t* name, int32_t fallback) {
   return static_cast<wz::Property<int32_t>*>(child)->get();
 }
 
-// 单段文字的按词换行；放不下时优先在最后一个空格处断开。
-std::vector<std::u16string> WrapParagraph(const std::u16string& paragraph,
+// 单段文字的按词换行；放不下时优先在最后一个空格处断开�?
+std::vector<std::u16string> WrapParagraph(const
+std::u16string& paragraph,
                                           float width, bool wrap) {
   std::vector<std::u16string> lines;
   if (!wrap) {
@@ -131,9 +132,9 @@ std::vector<std::u16string> WrapParagraph(const std::u16string& paragraph,
   return lines;
 }
 
-// 按 WZ 里的 alignHorizontal / alignVertical 排版：
-// 0 = 左/上，1 = 右/下，2 = 中。多行文本逐行对齐。
-std::vector<std::u16string> WrapText(const std::u16string& text, float width,
+// �?WZ 里的 alignHorizontal / alignVertical 排版�?// 0 = �?上，1 = �?下，2 = 中。多行文本逐行对齐�?
+std::vector<std::u16string> WrapText(const
+std::u16string& text, float width,
                                      bool wrap) {
   std::vector<std::u16string> lines;
   std::u16string paragraph;
@@ -156,8 +157,9 @@ std::vector<std::u16string> WrapText(const std::u16string& text, float width,
   return lines;
 }
 
-// 单行超宽时水平压缩绘制，保持字号不变且不超出 WZ 文本框。
-void DrawCompressedLine(const std::u16string& line, float x, float y,
+// 单行超宽时水平压缩绘制，保持字号不变且不超出 WZ 文本框�?
+void DrawCompressedLine(const
+std::u16string& line, float x, float y,
                         float max_w) {
   const float total = Freetype::LoadW(line);
   if (total <= max_w || total <= 0.0f) {
@@ -260,7 +262,7 @@ int32_t OptionUiSystem::AppliedValue(uint8_t tab, const std::u16string& name) {
   return 0;
 }
 
-// 解析一个 tab 下所有可交互 / 可显示的元素
+// 解析一�?tab 下所有可交互 / 可显示的元素
 std::vector<OptionUiSystem::Element> OptionUiSystem::LoadElements(uint8_t tab) {
   std::vector<Element> elements;
   auto* node = LoadTabNode(tab);
@@ -283,7 +285,7 @@ std::vector<OptionUiSystem::Element> OptionUiSystem::LoadElements(uint8_t tab) {
       continue;  // 背景图单独画
     }
     if (element.kind == u"staticText") {
-      // 标签用 SID 到 StringTable 取文案，数值类直接写 text
+      // 标签�?SID �?StringTable 取文案，数值类直接�?text
       if (auto* sid = element.node->get_child(u"SID")) {
         element.text = LoadText(
             static_cast<wz::Property<std::u16string>*>(sid)->get());
@@ -291,14 +293,24 @@ std::vector<OptionUiSystem::Element> OptionUiSystem::LoadElements(uint8_t tab) {
         element.text =
             static_cast<wz::Property<std::u16string>*>(text)->get();
       }
-      // 参考客户端里这些标签是固定两行；本 WZ 的 StringTable 用空格代替了
-      // 换行，这里补回来，保证行数和参考图一致。
-      static const std::flat_map<std::u16string, std::u16string> kLabelLines = {
-          {u"BackgroundQualityLabel", u"Background\nQuality"},
-          {u"DamageSkinEffects", u"Damage Skin\nEffects"},
-          {u"DamageSkinDisplayLabel", u"Damage Skin\nDisplay"},
-          {u"ScreenshotFileFormatLabel", u"Screenshot File\nFormat"},
-          {u"MemoryMappedIOLabel", u"Memory-mapped\nI/O"},
+      // 参考客户端里这些标签是固定两行；本 WZ �?StringTable 用空格代替了
+      // 换行，这里补回来，保证行数和参考图一致�?
+static const std::flat_map<std::u16string, std::u16string> kLabelLines = {
+          {u"BackgroundQualityLabel",
+           WzResource::LoadMSString(u"optionBgQuality",
+                                    u"Background\nQuality")},
+          {u"DamageSkinEffects",
+           WzResource::LoadMSString(u"optionDamageSkinEffects",
+                                    u"Damage Skin\nEffects")},
+          {u"DamageSkinDisplayLabel",
+           WzResource::LoadMSString(u"optionDamageSkinDisplay",
+                                    u"Damage Skin\nDisplay")},
+          {u"ScreenshotFileFormatLabel",
+           WzResource::LoadMSString(u"optionScreenshotFormat",
+                                    u"Screenshot File\nFormat")},
+          {u"MemoryMappedIOLabel",
+           WzResource::LoadMSString(u"optionMemoryMapped",
+                                    u"Memory-mapped\nI/O")},
       };
       if (auto it = kLabelLines.find(element.name); it != kLabelLines.end()) {
         element.text = it->second;
@@ -312,9 +324,9 @@ std::vector<OptionUiSystem::Element> OptionUiSystem::LoadElements(uint8_t tab) {
     } else if (element.kind == u"check") {
       element.rect = LoadRect(element.node);
     } else if (element.kind == u"edit") {
-      // WZ 里连续截图 checkbox 和 burst 数字都叫 inarow，存档键会冲突；
-      // burst 数字单独用 burstCount。
-      if (element.name == u"inarow") {
+      // WZ 里连续截�?checkbox �?burst 数字都叫 inarow，存档键会冲突；
+      // burst 数字单独�?burstCount�?
+if (element.name == u"inarow") {
         element.name = u"burstCount";
       }
       element.rect = LoadRect(element.node);
@@ -350,7 +362,7 @@ std::vector<OptionUiSystem::Element> OptionUiSystem::LoadElements(uint8_t tab) {
         }
       }
     } else if (element.kind == u"button") {
-      // Game tab 的 Burst / Memory 加减按钮：按钮位置由 normal/0 的 origin 给出
+      // Game tab �?Burst / Memory 加减按钮：按钮位置由 normal/0 �?origin 给出
       auto* normal = element.node->get_child(u"normal");
       auto* canvas =
           normal == nullptr ? nullptr : normal->get_child(u"0");
@@ -411,8 +423,8 @@ int32_t OptionUiSystem::DefaultValue(const Element& element) {
     }
   }
   if (element.kind == u"check") {
-    // 自动截图默认开启
-    if (element.name == u"auto") {
+    // 自动截图默认开�?
+if (element.name == u"auto") {
       return 1;
     }
   }
@@ -454,7 +466,7 @@ void OptionUiSystem::Load(bool apply) {
   }
 }
 
-// 打开窗口时以音频系统的当前音量为准 (音效/音乐可能被别处改过)
+// 打开窗口时以音频系统的当前音量为�?(音效/音乐可能被别处改�?
 void OptionUiSystem::LoadVolumes() {
   const auto sound = static_cast<uint8_t>(TabEnum::kSound);
   const auto to_slider = [](float volume) {
@@ -492,14 +504,14 @@ uint8_t OptionUiSystem::EnemyInfo() {
 }
 
 uint8_t OptionUiSystem::ChatFontSize() {
-  // 滑块 0..100 映射到 10..16 号字
+  // 滑块 0..100 映射�?10..16 号字
   auto val = std::clamp(
       AppliedValue(static_cast<uint8_t>(TabEnum::kSocial), u"chatFontsize"), 0,
       kSliderMax);
   return static_cast<uint8_t>(10 + (val * 6 + 50) / 100);
 }
 
-// 把已经确认的选项推给真正使用它们的系统
+// 把已经确认的选项推给真正使用它们的系�?
 void OptionUiSystem::Apply() {
   const auto sound = static_cast<uint8_t>(TabEnum::kSound);
 
@@ -532,8 +544,8 @@ void OptionUiSystem::RenderBackgrnd() {
     SDL_RenderTexture(Window::renderer_, backgrnd, nullptr, &pos_rect);
   }
 
-  // 当前 tab 的内容区背景（layer:backgrnd）
-  auto* node = LoadTabNode(active_tab_);
+  // 当前 tab 的内容区背景（layer:backgrnd�?
+auto* node = LoadTabNode(active_tab_);
   if (node == nullptr) {
     return;
   }
@@ -552,8 +564,7 @@ void OptionUiSystem::RenderBackgrnd() {
   SDL_RenderTexture(Window::renderer_, texture, nullptr, &rect);
 }
 
-// 静态文字：标签/说明用 SID 取文案，数值由元素名推出来。
-// 左侧标签栏是粉色底（白字），右侧是米色底（深色字）。
+// 静态文字：标签/说明�?SID 取文案，数值由元素名推出来�?// 左侧标签栏是粉色底（白字），右侧是米色底（深色字）�?
 void OptionUiSystem::RenderContent() {
   const SDL_Color label_color{255, 255, 255, 255};
   const SDL_Color small_color{70, 60, 60, 255};
@@ -563,14 +574,14 @@ void OptionUiSystem::RenderContent() {
     rect.y += std::round(pos_.y);
     if (element.kind == u"staticText") {
       bool is_label = element.f_type != 283;
-      // 标签左右各留 3px，避免字号加大后被压缩到紧贴/切掉粉色条边缘
-      if (is_label) {
+      // 标签左右各留 3px，避免字号加大后被压缩到紧贴/切掉粉色条边�?
+if (is_label) {
         rect.x += 3.0f;
         rect.w = std::max(0.0f, rect.w - 6.0f);
       }
-      // 说明文字和复选框同一行：把文字基线略上移，和参考图中
-      // checkbox 与文字的中心对齐一致。
-      if (!is_label && element.align_h == 0) {
+      // 说明文字和复选框同一行：把文字基线略上移，和参考图�?
+// checkbox 与文字的中心对齐一致�?
+if (!is_label && element.align_h == 0) {
         rect.y -= 2.0f;
       }
       DrawAlignedText(element.text, rect, is_label ? kLabelSize : kSmallSize,
@@ -600,8 +611,8 @@ void OptionUiSystem::RenderComboList() {
     rect.x = std::round(pos_.x + rect.x);
     rect.y = std::round(pos_.y + rect.y);
 
-    // 下拉框和展开列表都交给 ComboBox 组件绘制（在 RenderUI 之后调用，
-    // 因此列表始终盖在其它控件上面）。
+    // 下拉框和展开列表都交�?ComboBox 组件绘制（在 RenderUI 之后调用�?
+// 因此列表始终盖在其它控件上面）
     ComboBox combo;
     combo.open = true;
     combo.w = static_cast<uint32_t>(rect.w);
@@ -633,7 +644,7 @@ UIComponents& OptionUiSystem::GetComponent() {
   const bool top = CursorGameInstance::cursor_ui_ == Render &&
                    !CursorGameInstance::modal_overlay_;
 
-  // 三个窗口按钮：位置由 wz 里 normal/0 的 origin 给出
+  // 三个窗口按钮：位置由 wz �?normal/0 �?origin 给出
   const std::array<std::pair<const char16_t*, Button::Callback>, 3> buttons = {{
       {u"button:OK", EventButtonOk},
       {u"button:Cancel", EventButtonCancel},
@@ -705,9 +716,9 @@ UIComponents& OptionUiSystem::GetComponent() {
                     static_cast<int>(std::lround(rect.y))};
       components_.push_back(slider);
     } else if (element.kind == u"combo") {
-      // 展开中的 combo 由 RenderComboList 用 ComboBox::Render 画，
-      // 并且要盖在其它控件上面；这里先跳过，避免同一个框画两遍。
-      if (open_combo_.has_value() && *open_combo_ == element.name) {
+      // 展开中的 combo �?RenderComboList �?ComboBox::Render 画，
+      // 并且要盖在其它控件上面；这里先跳过，避免同一个框画两遍�?
+if (open_combo_.has_value() && *open_combo_ == element.name) {
         continue;
       }
       ComboBox combo;
@@ -723,7 +734,7 @@ UIComponents& OptionUiSystem::GetComponent() {
       combo.rect = rect;
       components_.push_back(combo);
     } else if (element.kind == u"button") {
-      // Game tab 的 Burst / Memory 加减按钮
+      // Game tab �?Burst / Memory 加减按钮
       const bool up = element.name.ends_with(u"Up");
       const bool memory = element.name.starts_with(u"memory");
       const std::u16string field =
@@ -772,8 +783,8 @@ bool OptionUiSystem::EventUI(SDL_Event* event) {
     }
   }
 
-  // 已经展开的下拉列表优先吃掉点击
-  if (open_combo_.has_value()) {
+  // 已经展开的下拉列表优先吃掉点�?
+if (open_combo_.has_value()) {
     for (const auto& element : LoadElements(active_tab_)) {
       if (element.kind != u"combo" || element.name != *open_combo_) {
         continue;
@@ -795,7 +806,7 @@ bool OptionUiSystem::EventUI(SDL_Event* event) {
       continue;
     }
     if (element.kind == u"button") {
-      // Game tab 的 Burst / Memory 加减按钮，直接按点击坐标处理
+      // Game tab �?Burst / Memory 加减按钮，直接按点击坐标处理
       const bool up = element.name.ends_with(u"Up");
       const bool memory = element.name.starts_with(u"memory");
       const std::u16string field =
@@ -825,8 +836,8 @@ bool OptionUiSystem::EventUI(SDL_Event* event) {
     }
   }
 
-  // 按钮最后处理，避免被控件抢掉
-  if (DispatchButtonClick(components, true)) {
+  // 按钮最后处理，避免被控件抢�?
+if (DispatchButtonClick(components, true)) {
     return true;
   }
   return false;
@@ -850,7 +861,7 @@ std::optional<uint8_t> OptionUiSystem::ClickCombo(const Element& element,
   return static_cast<uint8_t>(index);
 }
 
-// 拖动 / 点击滑块，边拖边改
+// 拖动 / 点击滑块，边拖边�?
 void OptionUiSystem::EventSlider(SDL_Event* event) {
   auto mouse = SDL_FPoint{event->motion.x, event->motion.y};
   if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
@@ -866,7 +877,7 @@ void OptionUiSystem::EventSlider(SDL_Event* event) {
     if (!SDL_PointInRectFloat(&mouse, &rect)) {
       continue;
     }
-    // 与 Slider 的 thumb 纹理行程一致：左侧内缩 2px，右侧留 5px
+    // �?Slider �?thumb 纹理行程一致：左侧内缩 2px，右侧留 5px
     const float track_x = rect.x + 2.0f;
     const float track_w = std::max(1.0f, rect.w - 7.0f);
     auto percent =
@@ -889,7 +900,7 @@ void OptionUiSystem::Open() {
     return;
   }
   if (!loaded_) {
-    // 打开窗口只读取存档到临时值，不在这里 Apply；否则会改变当前音量。
+    // 打开窗口只读取存档到临时值，不在这里 Apply；否则会改变当前音量
     Load(false);
   }
   LoadVolumes();

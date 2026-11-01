@@ -14,6 +14,7 @@
 #include "src/client/system/ui/character_choose_ui_system.h"
 #include "src/client/system/ui/option_ui_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
+#include "src/client/window/window.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/server/server_instance/server_character_instance.h"
 
@@ -51,6 +52,11 @@ bool GameSaveSystemInstance::LoadSave(const std::string& login) {
       CharacterSaveData cs{};
       cs.map_id = c->map_id;
       cs.character = ServerCharacterInstance::LoadGCharacter(c->character);
+      // 存档/读档都从默认表情开始显示。
+      cs.character.face.action = u"default";
+      cs.character.face.index = 0;
+      cs.character.face.time = 0;
+      cs.character.face.destroy = Window::dt_now_ + 4000;
       std::u16string name{c->character->name.begin(), c->character->name.end()};
       cs.character.name = name;
       for (auto& item : c->package) {
@@ -155,10 +161,8 @@ bool GameSaveSystemInstance::LoadSave(const std::string& login) {
       }
     }
     SDL_free(data);
-    OptionUiSystem::Load();
     return true;
   }
-  OptionUiSystem::Load();
   return false;
 }
 
@@ -174,6 +178,11 @@ bool GameSaveSystemInstance::SaveGame() {
   if (!character.name.empty()) {
     CharacterSaveData cs{};
     cs.character = character;
+    // 保存时也把表情固定为 default。
+    cs.character.face.action = u"default";
+    cs.character.face.index = 0;
+    cs.character.face.time = 0;
+    cs.character.face.destroy = 0;
     cs.ap.hp_ap = CharacterStatGameInstance::GetHpAp(),
     cs.ap.mp_ap = CharacterStatGameInstance::GetMpAp(),
     cs.ap.str_ap = CharacterStatGameInstance::GetStrAp(),

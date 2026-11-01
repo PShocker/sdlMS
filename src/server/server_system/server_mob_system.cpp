@@ -49,8 +49,8 @@ constexpr float kLoseHeight = 400.0f;   // 放弃追击高度差
 constexpr uint32_t kChaseMs = 180'000;  // 追击持续时间（v95: 180~240s）
 constexpr uint32_t kAttackGapMs = 300;  // 动作结束后的攻击间隔
 
-// 死亡后原地复活：8 秒后开始渐显，1 秒渐显完成
-constexpr uint64_t kReviveDelayMs = 8000;
+// 死亡后原地复活：6 秒后开始渐显，1 秒渐显完成
+constexpr uint64_t kReviveDelayMs = 6000;
 constexpr uint64_t kReviveFadeMs = 1000;
 
 // 被打断位移（v95 CVecCtrlMob::UpdateActiveInterrupted）
@@ -933,8 +933,8 @@ bool ServerMobSystem::RunHitting(ServerMob& mob) {
 void ServerMobSystem::RunDie(ServerMob& mob, uint64_t client_id) {
   mob.dead = true;
   mob.reviving = false;
-  // 死亡 8 秒后原地复活。
-  mob.revive = Window::dt_now_ + 8000;
+  // 死亡 6 秒后回到 WZ 初始出生点复活。
+  mob.revive = Window::dt_now_ + kReviveDelayMs;
   mob.target_id = 0;
   mob.one_shot = false;
   mob.attack_hit = 0;
@@ -1049,12 +1049,15 @@ void ServerMobSystem::RunNetworkSync(ServerMob& mob, ServerMob& o_mob) {
 void ServerMobSystem::RunStateMachine(ServerMob& mob) {
   ServerMob o_mob = mob;
 
-  // 死亡：8 秒后原地满血复活，并保持 1 秒的渐显阶段。
+  // 死亡：6 秒后回到出生点满血复活，并保持 1 秒的渐显阶段。
   if (mob.dead) {
     if (Window::dt_now_ >= mob.revive) {
       mob.dead = false;
       mob.reviving = true;
       mob.revive = Window::dt_now_ + kReviveFadeMs;
+      mob.pos = mob.spawn_pos;
+      mob.fh = mob.spawn_fh;
+      mob.page = mob.spawn_page;
       mob.hp = ServerMobInstance::LoadMobInfoInt(mob.id, u"maxHP", 1);
       mob.mp = ServerMobInstance::LoadMobInfoInt(mob.id, u"maxMP", 100);
       mob.action = u"";
@@ -1075,6 +1078,7 @@ void ServerMobSystem::RunStateMachine(ServerMob& mob) {
       mob.action = LoadDefaultAction(mob);
       RunNetworkSync(mob, o_mob);
     }
+    // 渐显结束前：不产生 AI 碰撞/攻击，也不接受玩家攻击。
     return;
   }
 

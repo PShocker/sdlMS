@@ -18,16 +18,37 @@
 namespace sdlms {
 
 bool DropRenderSystem::Render(GameDrop& g_drop) {
-  SDL_Texture* icon;
-  SDL_FPoint o;
+  if (g_drop.data->id.empty()) {
+    return false;
+  }
+  SDL_Texture* icon = nullptr;
+  SDL_FPoint o{};
   switch (g_drop.data->type) {
-    case ItemEnum::kEquip: {
-      case ItemEnum::kDeco:
-        auto equip_info = EquipGameInstance::LoadEquipInfo(g_drop.data->id);
-        icon = WzResource::LoadTexture(equip_info->get_child(u"iconRaw"));
-        o = WzResource::LoadFpoint(
-            equip_info->get_child(u"iconRaw")->get_child(u"origin"));
-        break;
+    case ItemEnum::kEquip:
+    case ItemEnum::kDeco: {
+      auto equip_info = EquipGameInstance::LoadEquipInfo(g_drop.data->id);
+      if (equip_info == nullptr) {
+        return false;
+      }
+      auto icon_node = equip_info->get_child(u"iconRaw");
+      if (icon_node == nullptr) {
+        return false;
+      }
+      if (icon_node->type == wz::Type::UOL) {
+        icon_node = static_cast<wz::Property<wz::WzUOL>*>(icon_node)->get_uol();
+      }
+      if (icon_node == nullptr) {
+        return false;
+      }
+      icon = WzResource::LoadTexture(icon_node);
+      if (icon == nullptr) {
+        return false;
+      }
+      if (auto origin = icon_node->get_child(u"origin");
+          origin != nullptr) {
+        o = WzResource::LoadFpoint(origin);
+      }
+      break;
     }
     case ItemEnum::kConsume:
     case ItemEnum::kEtc:
@@ -35,27 +56,47 @@ bool DropRenderSystem::Render(GameDrop& g_drop) {
       auto item_num = ItemGameInstance::LoadItemNum(g_drop.data);
       auto item_info =
           ItemGameInstance::LoadItemInfo(g_drop.data->id, item_num);
-      if (item_info->get_child(u"iconRaw")) {
-        item_info = item_info->get_child(u"iconRaw");
-        if (item_info->type == wz::Type::UOL) {
-          item_info =
-              static_cast<wz::Property<wz::WzUOL>*>(item_info)->get_uol();
+      if (item_info == nullptr) {
+        return false;
+      }
+      wz::Node* icon_node = item_info->get_child(u"iconRaw");
+      if (icon_node != nullptr) {
+        if (icon_node->type == wz::Type::UOL) {
+          icon_node =
+              static_cast<wz::Property<wz::WzUOL>*>(icon_node)->get_uol();
         }
-        icon = WzResource::LoadTexture(item_info);
-        o = WzResource::LoadFpoint(item_info->get_child(u"origin"));
+        if (icon_node == nullptr) {
+          return false;
+        }
+        icon = WzResource::LoadTexture(icon_node);
       } else {
+        const auto count = item_info->children_count();
+        if (count == 0) {
+          return false;
+        }
         auto now = Window::dt_now_;
-        auto sum = item_info->children_count() * 100;
-        auto offset = now % sum;  // 取余，得到周期内偏移
-        auto i = offset / 100;
-        item_info = item_info->get_child(std::to_string(i));
-        icon = WzResource::LoadTexture(item_info);
-        o = WzResource::LoadFpoint(item_info->get_child(u"origin"));
+        auto i = (now / 100) % count;
+        icon_node = item_info->get_child(std::to_string(i));
+        if (icon_node == nullptr) {
+          return false;
+        }
+        icon = WzResource::LoadTexture(icon_node);
+      }
+      if (icon == nullptr) {
+        return false;
+      }
+      if (icon_node != nullptr) {
+        if (auto origin = icon_node->get_child(u"origin");
+            origin != nullptr) {
+          o = WzResource::LoadFpoint(origin);
+        }
       }
       break;
     }
     case ItemEnum::kCash: {
-      break;
+      // Cash drops have a different Item.wz layout; skip rendering rather than
+      // dereferencing an invalid icon.
+      return false;
     }
   }
   SDL_FRect pos_rect{

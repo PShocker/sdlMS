@@ -106,8 +106,16 @@ void ServerDropInstance::HandlePick(uint64_t client_id,
     } else {
       fbs::ServerCharacterPickT t;
       t.random_id = 0;
+      t.client_id = client_id;
       ServerResponse::SendToClient(client_id, t);
     }
+  } else {
+    // 掉落物已被其他玩家/宠物捡走或已消失，也必须回包，否则客户端
+    // CharacterLogicSystem::ccp_ 会一直保留 random_id，之后无法再捡取。
+    fbs::ServerCharacterPickT t;
+    t.random_id = 0;
+    t.client_id = client_id;
+    ServerResponse::SendToClient(client_id, t);
   }
 }
 
@@ -116,6 +124,7 @@ void ServerDropInstance::HandleServerPick(uint64_t client_id,
   if (r.client_id == ServerMain::local_addr_ && r.random_id == 0) {
     // 捡取物品失败
     CharacterLogicSystem::ccp_ = {};
+    CharacterLogicSystem::ccp_time_ = 0;
     return;
   }
   if (DropGameInstance::data_.contains(r.random_id)) {
@@ -135,6 +144,7 @@ void ServerDropInstance::HandleServerPick(uint64_t client_id,
       AudioGameInstance::PlayNow(u"Game.img/PickUpItem");
 
       CharacterLogicSystem::ccp_ = {};
+      CharacterLogicSystem::ccp_time_ = 0;
 
       auto itm_num = ItemGameInstance::LoadItemNum(dt.data);
       itm_num = std::max(1, itm_num);

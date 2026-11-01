@@ -44,7 +44,8 @@ UIComponents& ReviveUiSystem::GetComponent() {
 }
 
 void ReviveUiSystem::RenderText() {
-  const std::u16string str = u"You have died.\nRevive at the nearest town?";
+  const std::u16string str = WzResource::LoadMSString(
+      u"reviveAsk", u"You have died.\nRevive at the nearest town?");
   const float text_x = pos_.x + 88;
 
   Freetype::LoadSize(12);

@@ -76,27 +76,14 @@ void ShopUiSystem::RenderBackgrnd() {
 void ShopUiSystem::RenderItem(std::vector<GameShopItem>& items, int page,
                               SDL_FPoint p) {
   const auto page_size = 6;
-  static auto disabled = WzResource::LoadTexture(
-      WzResource::ui_->find(u"Item.img/canvas:disabled"));
-  const auto draw_disabled = [&](float x, float y) {
-    SDL_FRect pos_rect{
-        std::floor(x),
-        std::floor(y),
-        static_cast<float>(disabled->w),
-        static_cast<float>(disabled->h),
-    };
-    SDL_RenderTexture(Window::renderer_, disabled, nullptr, &pos_rect);
-  };
   for (int i = page; i < page + page_size; i++) {
     auto x = (int)pos_.x + p.x;
     auto y = (int)pos_.y + p.y + (i - page) * 40;
     if (i >= items.size()) {
-      draw_disabled(x, y);
       continue;
     }
     auto& item = items[i];
     if (item.item->id.empty()) {
-      draw_disabled(x, y);
       continue;
     }
     SDL_Texture* texture;
@@ -153,7 +140,7 @@ void ShopUiSystem::RenderItem(std::vector<GameShopItem>& items, int page,
     SDL_RenderTexture(Window::renderer_, meso, nullptr, &pos_rect);
     auto tmp = std::to_string(item.price);
     std::u16string tmp2{tmp.begin(), tmp.end()};
-    auto n = WzResource::ms_->get_root()->find(u"String.img/Shop/mesos");
+    auto n = WzResource::ms_->get_root()->find(u"String.img/mesos");
     tmp2 = tmp2 + u" " + static_cast<wz::Property<std::u16string>*>(n)->get();
     Freetype::DrawLine(tmp2, pos_rect.x + 15, pos_rect.y - 4);
   }

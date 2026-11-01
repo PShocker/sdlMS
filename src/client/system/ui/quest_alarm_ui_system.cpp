@@ -182,7 +182,7 @@ void QuestAlarmUiSystem::RenderQuests() {
 }
 
 void QuestAlarmUiSystem::RenderTitle() {
-  auto n = WzResource::ms_->get_root()->find(u"String.img/Quest/Helper");
+  auto n = WzResource::ms_->get_root()->find(u"String.img/Helper");
   auto str = static_cast<wz::Property<std::u16string>*>(n)->get();
   Freetype::LoadSize(12);
   Freetype::LoadColor(0, 0, 0, 255);

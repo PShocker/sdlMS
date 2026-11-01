@@ -68,6 +68,9 @@ struct ServerMob {
   std::u16string id;
 
   SDL_FPoint pos;
+  SDL_FPoint spawn_pos;  // WZ 初始出生位置，复活回到这里
+  int32_t spawn_fh = 0;
+  uint8_t spawn_page = 0;
 
   std::u16string action;
 

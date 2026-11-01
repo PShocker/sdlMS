@@ -622,7 +622,7 @@ uint64_t CharacterStatGameInstance::GetExp() {
 }
 
 uint64_t CharacterStatGameInstance::GetExpMax() {
-  static std::flat_map<int, int> cache;
+  static std::flat_map<int, uint64_t> cache;
   auto& sf = CharacterGameInstance::self_;
   if (!cache.contains(sf.level)) {
     auto exp_node = WzResource::ms_->get_root()->find(u"LevelExp.img");
@@ -630,7 +630,12 @@ uint64_t CharacterStatGameInstance::GetExpMax() {
     if (exp_node == nullptr) {
       return UINT64_MAX;
     }
-    exp_point_max_ = static_cast<wz::Property<int>*>(exp_node)->get();
+    if (exp_node->type == wz::Type::Long) {
+      exp_point_max_ =
+          static_cast<wz::Property<int64_t>*>(exp_node)->get();
+    } else {
+      exp_point_max_ = static_cast<wz::Property<int>*>(exp_node)->get();
+    }
     cache[sf.level] = exp_point_max_;
   }
   exp_point_max_ = cache.at(sf.level);

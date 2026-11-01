@@ -282,6 +282,10 @@ void ServerCharacterInstance::HandleAttack(uint64_t client_id,
   auto& Mobs = ServerSceneInstance::scenes_.at(map_id).mobs;
   for (const auto& a : r.payload) {
     auto& mob = Mobs.at(a->mob_index);
+    // 死亡状态下不接受伤害；渐显判断由客户端负责。
+    if (mob.dead) {
+      continue;
+    }
     auto mob_info = MobGameInstance::LoadMobInfo(mob.id);
     auto pushed =
         static_cast<wz::Property<int>*>(mob_info->get_child(u"pushed"))->get();

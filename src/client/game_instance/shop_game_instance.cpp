@@ -71,20 +71,21 @@ GameShop ShopGameInstance::LoadShop(const std::u16string& shop_id) {
 }
 
 const GameShop* ShopGameInstance::LoadNpcShop(const std::u16string& npc_id) {
-  std::optional<GameShop> shop;
   static std::flat_map<std::u16string, GameShop> cache;
   if (cache.empty()) {
     auto node = WzResource::ms_->get_root()->find(u"Shop.img/ShopNpc");
-    for (auto [k, v] : *node->get_children()) {
+    if (node == nullptr) {
+      return nullptr;
+    }
+    for (auto&& [k, v] : *node->get_children()) {
       auto npc_i = static_cast<wz::Property<std::u16string>*>(v[0])->get();
-      cache.emplace(std::move(npc_i), LoadShop(k));
+      cache.emplace(std::move(npc_i), LoadShop(npc_i));
     }
   }
   if (cache.contains(npc_id)) {
     return &cache.at(npc_id);
-  } else {
-    return nullptr;
   }
+  return nullptr;
 }
 
 bool ShopGameInstance::AddMustItem(std::polymorphic<GameItem>& item) {

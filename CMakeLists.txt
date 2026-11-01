@@ -102,6 +102,27 @@ if(SDLMS_WARNINGS_AS_ERRORS)
 endif()
 
 # ------------------------------------------------------------------------------
+# Debug symbols: keep main.exe small for the Windows loader and put DWARF in
+# main.exe.debug next to it. GDB finds it through .gnu_debuglink.
+# ------------------------------------------------------------------------------
+if(WIN32 AND CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+  find_program(SDLMS_OBJCOPY_EXECUTABLE NAMES objcopy)
+  if(SDLMS_OBJCOPY_EXECUTABLE)
+    add_custom_command(TARGET main POST_BUILD
+      COMMAND ${SDLMS_OBJCOPY_EXECUTABLE} --only-keep-debug
+              $<TARGET_FILE_NAME:main> $<TARGET_FILE_NAME:main>.debug
+      COMMAND ${SDLMS_OBJCOPY_EXECUTABLE} --strip-debug
+              $<TARGET_FILE_NAME:main>
+      COMMAND ${SDLMS_OBJCOPY_EXECUTABLE}
+              --add-gnu-debuglink=$<TARGET_FILE_NAME:main>.debug
+              $<TARGET_FILE_NAME:main>
+      WORKING_DIRECTORY $<TARGET_FILE_DIR:main>
+      COMMENT "Splitting debug symbols into $<TARGET_FILE_NAME:main>.debug"
+      VERBATIM)
+  endif()
+endif()
+
+# ------------------------------------------------------------------------------
 # Release tuning
 # ------------------------------------------------------------------------------
 if(CMAKE_BUILD_TYPE STREQUAL "Release")

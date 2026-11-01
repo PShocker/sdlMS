@@ -1,5 +1,6 @@
 #include "src/client/game_instance/item_game_instance.h"
 
+#include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/quest_game_instance.h"
@@ -20,6 +21,7 @@
 #include <flat_map>
 #include <ranges>
 #include <string>
+
 
 namespace sdlms {
 
@@ -67,9 +69,19 @@ std::u16string ItemGameInstance::LoadItemType(const std::u16string& id) {
 
 wz::Node* ItemGameInstance::LoadItemInfo(const std::u16string& id,
                                          uint32_t num) {
-  wz::Node* node;
+  wz::Node* node = nullptr;
   if (id == u"00000000") {
-    node = WzResource::item_->find(u"Special/0900.img/09000000/iconRaw");
+    // 金币图标随数量变化：1-50 / 51-100 / 101-1000 / 1001+。
+    std::u16string meso_id = u"09000000";
+    if (num > 1000) {
+      meso_id = u"09000003";
+    } else if (num > 100) {
+      meso_id = u"09000002";
+    } else if (num > 50) {
+      meso_id = u"09000001";
+    }
+    node = WzResource::item_->find(u"Special/0900.img/" + meso_id +
+                                   u"/iconRaw");
     return node;
   }
   auto type = LoadItemType(id);
@@ -78,8 +90,19 @@ wz::Node* ItemGameInstance::LoadItemInfo(const std::u16string& id,
   }
   if (type == u"Consume" || type == u"Etc" || type == u"Install") {
     auto r = id.substr(0, 4) + u".img";
-    node = WzResource::item_->find(type + u"/" + r + u"/" + id)
-               ->get_child(u"info");
+    if (auto image = WzResource::item_->find(type + u"/" + r);
+        image != nullptr) {
+      if (auto item = image->get_child(id); item != nullptr) {
+        node = item->get_child(u"info");
+      }
+    }
+  } else if (type == u"Cash") {
+    auto r = id.substr(0, 4) + u".img";
+    if (auto image = WzResource::item_->find(u"Cash/" + r); image != nullptr) {
+      if (auto item = image->get_child(id); item != nullptr) {
+        node = item->get_child(u"info");
+      }
+    }
   }
   return node;
 }
@@ -514,6 +537,7 @@ void ItemGameInstance::UseItem(std::polymorphic<GameItem>& itm) {
       if (!g_character.morph.empty()) {
         return;
       }
+      AudioGameInstance::PlayNow(u"Item.img/" + itm->id);
       auto action_type = CharacterLogicSystem::LoadActionType(g_character);
       switch (action_type) {
         case CharacterLogicSystem::ActionEnum::kStand: {
@@ -532,6 +556,11 @@ void ItemGameInstance::UseItem(std::polymorphic<GameItem>& itm) {
     }
   } else if (item_type == u"Consume") {
     if (UseConsumeItem(itm)) {
+      std::u16string path = u"Item.img/" + itm->id + u"/Use";
+      auto audio_node = WzResource::sound_->find(path);
+      if (audio_node) {
+        AudioGameInstance::PlayNow(path);
+      }
       DecItemNum(itm, 1);
     }
   }

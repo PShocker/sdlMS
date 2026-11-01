@@ -374,7 +374,10 @@ void ServerMobInstance::LoadMob(ServerSceneState& scene) {
         static_cast<float>(x),
         static_cast<float>(y),
     };
+    mob.spawn_pos = mob.pos;
     mob.page = m_fh.page;
+    mob.spawn_fh = mob.fh;
+    mob.spawn_page = mob.page;
     LoadDefaultMob(mob.id, mob);
     data[mob.index] = mob;
   }
@@ -425,6 +428,7 @@ void ServerMobInstance::HandleServerAction(const fbs::ServerMobActionT& m) {
       mob.action = u"fly";
     }
     mob.alpha = 0;
+    mob.gauge.reset();
     mob.revive_time = Window::dt_now_;
   }
 
@@ -660,8 +664,11 @@ void ServerMobInstance::HandleCreateMob(fbs::ClientCreateMobT& r) {
         static_cast<float>(mb->state->x),
         static_cast<float>(mb->state->y),
     };
+    mob.spawn_pos = mob.pos;
     mob.page = mb->state->page;
     mob.fh = mb->state->fh;
+    mob.spawn_fh = mob.fh;
+    mob.spawn_page = mob.page;
     auto tmp = std::format("{:07d}", mb->mob_id);
     LoadDefaultMob({tmp.begin(), tmp.end()}, mob);
     scene.mobs[mob.index] = mob;

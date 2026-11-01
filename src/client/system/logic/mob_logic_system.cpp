@@ -32,6 +32,9 @@ namespace sdlms {
 
 namespace {
 
+constexpr uint64_t kReviveFadeMs = 1000;
+
+
 // 帧号到 wz 里的画布下标（zigzag 动作是往返播放）
 std::string LoadFrameIndex(uint32_t ani_index, int32_t canvas_count,
                            bool zigzag) {
@@ -96,26 +99,16 @@ uint32_t LoadFrameDelay(wz::Node* action_node, const std::string& frame_index) {
 MobLogicSystem::ActionEnum MobLogicSystem::LoadActionType(
     const std::u16string& action) {
   const static std::flat_map<std::u16string, ActionEnum> MapName = {
-      {u"", ActionEnum::kRevive},
-      {u"stand", ActionEnum::kStand},
-      {u"move", ActionEnum::kMove},
-      {u"jump", ActionEnum::kJump},
-      {u"fly", ActionEnum::kFly},
-      {u"swim", ActionEnum::kSwim},
-      {u"hit1", ActionEnum::kHit},
-      {u"hit2", ActionEnum::kHit},
-      {u"hitF", ActionEnum::kHit},
-      {u"die1", ActionEnum::kDie},
-      {u"die2", ActionEnum::kDie},
-      {u"dieF", ActionEnum::kDie},
-      {u"attack1", ActionEnum::kAttack},
-      {u"attack2", ActionEnum::kAttack},
-      {u"attack3", ActionEnum::kAttack},
-      {u"attack4", ActionEnum::kAttack},
-      {u"attack5", ActionEnum::kAttack},
-      {u"attack6", ActionEnum::kAttack},
-      {u"attack7", ActionEnum::kAttack},
-      {u"attack8", ActionEnum::kAttack},
+      {u"", ActionEnum::kRevive},        {u"stand", ActionEnum::kStand},
+      {u"move", ActionEnum::kMove},      {u"jump", ActionEnum::kJump},
+      {u"fly", ActionEnum::kFly},        {u"swim", ActionEnum::kSwim},
+      {u"hit1", ActionEnum::kHit},       {u"hit2", ActionEnum::kHit},
+      {u"hitF", ActionEnum::kHit},       {u"die1", ActionEnum::kDie},
+      {u"die2", ActionEnum::kDie},       {u"dieF", ActionEnum::kDie},
+      {u"attack1", ActionEnum::kAttack}, {u"attack2", ActionEnum::kAttack},
+      {u"attack3", ActionEnum::kAttack}, {u"attack4", ActionEnum::kAttack},
+      {u"attack5", ActionEnum::kAttack}, {u"attack6", ActionEnum::kAttack},
+      {u"attack7", ActionEnum::kAttack}, {u"attack8", ActionEnum::kAttack},
       {u"attackF", ActionEnum::kAttack},
   };
   auto it = MapName.find(action);
@@ -126,8 +119,8 @@ MobLogicSystem::ActionEnum MobLogicSystem::LoadActionType(
 }
 
 bool MobLogicSystem::IsOneShotAction(ActionEnum action_type) {
-  return action_type == ActionEnum::kAttack || action_type == ActionEnum::kHit ||
-         action_type == ActionEnum::kDie;
+  return action_type == ActionEnum::kAttack ||
+         action_type == ActionEnum::kHit || action_type == ActionEnum::kDie;
 }
 
 std::optional<SDL_FRect> MobLogicSystem::LoadRect(const GameMob& g_mob) {
@@ -214,6 +207,11 @@ void MobLogicSystem::RunCollision() {
   }
   std::flat_map<float, GameMob> Mobs;
   for (auto& m : MobGameInstance::data_ | std::views::values) {
+    // 复活渐显尚未结束时，怪物不产生碰撞伤害。
+    if (m.mob.revive_time != 0 &&
+        Window::dt_now_ - m.mob.revive_time < kReviveFadeMs) {
+      continue;
+    }
     auto action_type = LoadActionType(m.mob.action);
     if (action_type == ActionEnum::kRevive || action_type == ActionEnum::kDie) {
       continue;
@@ -371,6 +369,9 @@ void MobLogicSystem::RunDebuff(GameMob& g_mob) {
 
 void MobLogicSystem::RunStateMachine(GameMob& g_mob) {
   auto action_type = LoadActionType(g_mob.action);
+  if (action_type == ActionEnum::kDie) {
+    g_mob.gauge.reset();
+  }
   if (action_type == ActionEnum::kRevive) {
     return;
   }
@@ -386,14 +387,12 @@ void MobLogicSystem::RunStateMachine(GameMob& g_mob) {
   }
   RunAlpha(g_mob);
   if (g_mob.revive_time != 0) {
-    constexpr uint64_t kReviveFadeMs = 1000;
     auto elapsed = Window::dt_now_ - g_mob.revive_time;
     if (elapsed >= kReviveFadeMs) {
       g_mob.alpha = 255;
       g_mob.revive_time = 0;
     } else {
-      g_mob.alpha =
-          static_cast<uint8_t>(255 * elapsed / kReviveFadeMs);
+      g_mob.alpha = static_cast<uint8_t>(255 * elapsed / kReviveFadeMs);
     }
   }
   RunDebuff(g_mob);

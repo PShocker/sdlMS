@@ -262,11 +262,11 @@ void CharacterCreateUiSystem::RenderCustomItem(float cx, float cy,
     case ChooseType::kGender: {
       if (!gender_) {
         auto str_node =
-            WzResource::ms_->get_root()->find(u"String.img/Character/gender/0");
+            WzResource::ms_->get_root()->find(u"String.img/gender/0");
         item_name = static_cast<wz::Property<std::u16string>*>(str_node)->get();
       } else {
         auto str_node =
-            WzResource::ms_->get_root()->find(u"String.img/Character/gender/1");
+            WzResource::ms_->get_root()->find(u"String.img/gender/1");
         item_name = static_cast<wz::Property<std::u16string>*>(str_node)->get();
       }
       if (choose_index_ == 0) {

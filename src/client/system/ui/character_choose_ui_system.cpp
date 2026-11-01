@@ -17,6 +17,7 @@
 #include "src/client/system/ui/component/ui_component.h"
 #include "src/client/system/ui/login_notice_ui_system.h"
 #include "src/client/system/ui/login_ui_system.h"
+#include "src/client/system/ui/option_ui_system.h"
 #include "src/client/system_instance/character_create_system_instance.h"
 #include "src/client/system_instance/game_save_system_instance.h"
 #include "src/client/system_instance/login_notice_system_instance.h"
@@ -200,7 +201,7 @@ void CharacterChooseUiSystem::RenderCharacterBoard(uint8_t i) {
     };
 
     auto job_node =
-        WzResource::ms_->get_root()->find(u"String.img/Job/" +
+        WzResource::ms_->get_root()->find(u"String.img/" +
                                          cs.character.job);
     if (job_node != nullptr) {
       draw_center(
@@ -273,6 +274,8 @@ void CharacterChooseUiSystem::EventButtonSelect() {
   }
   PopupTipGameInstance::EndLoad();
 
+  // Option 配置在角色正式进入游戏时才应用，不能在角色选择页提前生效。
+  OptionUiSystem::Load();
   SceneSystemInstance::EnterPrepare(map_id, u"sp", portal_id);
   // notice login
   auto NoticeType = LoginNoticeSystemInstance::NoticeType::kLogining;

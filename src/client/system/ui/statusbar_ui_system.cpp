@@ -336,7 +336,7 @@ void StatusbarUiSystem::RenderCharacterStat() {
 
   // job
   auto job_node = WzResource::ms_->get_root()->find(
-      u"String.img/Job/" + CharacterGameInstance::self_.job);
+      u"String.img/" + CharacterGameInstance::self_.job);
   auto job_name = static_cast<wz::Property<std::u16string>*>(job_node)->get();
   Freetype::LoadSize(12);
   Freetype::LoadColor(255, 255, 255, 255);

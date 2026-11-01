@@ -22,7 +22,6 @@ void DropLogicSystem::RunStateMachine(GameDrop& drop) {
       drop.vspeed = std::min(drop.vspeed, 400.0f);
       auto dy = drop.vspeed * delta_time;
       drop.pos.y += dy;
-      // 095：水平位移覆盖整个抛物线飞行过程，而不是只在上升段移动。
       drop.pos.x += drop.hspeed * delta_time;
       if (drop.pos.y >= drop.goal.y && drop.vspeed > 0) {
         drop.pos.x = drop.goal.x;

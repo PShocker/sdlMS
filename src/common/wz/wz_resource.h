@@ -38,6 +38,9 @@ class WzResource {
   static wz::Node* LoadMapNode(uint32_t map_id);
   static SDL_Texture* LoadTexture(wz::Node* node);
   static SDL_FPoint LoadFpoint(wz::Node* node);
+  // String.img 根节点下的界面文案；缺失时返回 fallback。
+  static std::u16string LoadMSString(const std::u16string& key,
+                                     const std::u16string& fallback = u"");
 
  private:
   static void InitKey();

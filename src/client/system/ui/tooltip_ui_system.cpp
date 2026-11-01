@@ -92,13 +92,13 @@ void TooltipUiSystem::RenderDecoBottom(GameDecoItem& deco, float x, float y) {
   auto equip_type = EquipGameInstance::LoadEquipType(id);
   if (equip_type == u"Weapon") {
     static auto weapon_node =
-        WzResource::ms_->get_root()->find(u"String.img/Equip/weapon/type");
+        WzResource::ms_->get_root()->find(u"String.img/weapon/type");
     auto sub_id = id.substr(0, 4);
     equip_type = static_cast<wz::Property<std::u16string>*>(
                      weapon_node->get_child(sub_id))
                      ->get();
   }
-  auto str_node = WzResource::ms_->get_root()->find(u"String.img/Equip/type");
+  auto str_node = WzResource::ms_->get_root()->find(u"String.img/type");
   auto type_str = static_cast<wz::Property<std::u16string>*>(str_node)->get();
   RenderEquipBottomInc(type_str, equip_type, x, y);
 
@@ -133,36 +133,36 @@ void TooltipUiSystem::RenderEquipBottom(GameEquipItem& equip, float x,
   auto equip_type = EquipGameInstance::LoadEquipType(id);
   if (equip_type == u"Weapon") {
     static auto weapon_node =
-        WzResource::ms_->get_root()->find(u"String.img/Equip/weapon/type");
+        WzResource::ms_->get_root()->find(u"String.img/weapon/type");
     auto sub_id = id.substr(0, 4);
     equip_type = static_cast<wz::Property<std::u16string>*>(
                      weapon_node->get_child(sub_id))
                      ->get();
   }
-  auto str_node = WzResource::ms_->get_root()->find(u"String.img/Equip/type");
+  auto str_node = WzResource::ms_->get_root()->find(u"String.img/type");
   auto type_str = static_cast<wz::Property<std::u16string>*>(str_node)->get();
   RenderEquipBottomInc(type_str, equip_type, x, y);
   // weapon speed
   if (equip_inc.contains(EquipGameInstance::IncType::kWeaponSpeed)) {
     auto str_node =
-        WzResource::ms_->get_root()->find(u"String.img/Equip/attackSpeed");
+        WzResource::ms_->get_root()->find(u"String.img/attackSpeed");
     auto spd_str = static_cast<wz::Property<std::u16string>*>(str_node)->get();
     std::u16string val_str;
     auto val = equip_inc.at(EquipGameInstance::IncType::kWeaponSpeed);
     if (val >= 6) {
       // slow
       str_node = WzResource::ms_->get_root()->find(
-          u"String.img/Equip/weapon/speed/slow");
+          u"String.img/weapon/speed/slow");
       val_str = static_cast<wz::Property<std::u16string>*>(str_node)->get();
     } else if (val > 4) {
       // Normal
       str_node = WzResource::ms_->get_root()->find(
-          u"String.img/Equip/weapon/speed/normal");
+          u"String.img/weapon/speed/normal");
       val_str = static_cast<wz::Property<std::u16string>*>(str_node)->get();
     } else {
       // Fast
       str_node = WzResource::ms_->get_root()->find(
-          u"String.img/Equip/weapon/speed/fast");
+          u"String.img/weapon/speed/fast");
       val_str = static_cast<wz::Property<std::u16string>*>(str_node)->get();
     }
     auto speed_val_str = std::to_string(val);
@@ -176,7 +176,7 @@ void TooltipUiSystem::RenderEquipBottom(GameEquipItem& equip, float x,
   if (equip_inc.contains(EquipGameInstance::IncType::kWeaponPad) ||
       scroll_inc.contains(EquipGameInstance::IncType::kWeaponPad)) {
     auto str_node =
-        WzResource::ms_->get_root()->find(u"String.img/Equip/weaponAttack");
+        WzResource::ms_->get_root()->find(u"String.img/weaponAttack");
     auto pad_str = static_cast<wz::Property<std::u16string>*>(str_node)->get();
     auto val = equip_inc[EquipGameInstance::IncType::kWeaponPad];
     std::string val_str = "+";
@@ -193,7 +193,7 @@ void TooltipUiSystem::RenderEquipBottom(GameEquipItem& equip, float x,
   // weapon pdd
   if (equip_inc.contains(EquipGameInstance::IncType::kPdd) ||
       scroll_inc.contains(EquipGameInstance::IncType::kPdd)) {
-    str_node = WzResource::ms_->get_root()->find(u"String.img/Character/pdd");
+    str_node = WzResource::ms_->get_root()->find(u"String.img/pdd");
     auto pdd_str = static_cast<wz::Property<std::u16string>*>(str_node)->get();
     auto val = equip_inc[EquipGameInstance::IncType::kPdd];
     std::string val_str = "+";
@@ -211,7 +211,7 @@ void TooltipUiSystem::RenderEquipBottom(GameEquipItem& equip, float x,
   if (equip_inc.contains(EquipGameInstance::IncType::kWeaponMad) ||
       scroll_inc.contains(EquipGameInstance::IncType::kWeaponMad)) {
     str_node =
-        WzResource::ms_->get_root()->find(u"String.img/Equip/weaponMagic");
+        WzResource::ms_->get_root()->find(u"String.img/weaponMagic");
     auto mad_str = static_cast<wz::Property<std::u16string>*>(str_node)->get();
     auto val = equip_inc[EquipGameInstance::IncType::kWeaponMad];
     std::string val_str = "+";
@@ -228,7 +228,7 @@ void TooltipUiSystem::RenderEquipBottom(GameEquipItem& equip, float x,
   // acc
   if (equip_inc.contains(EquipGameInstance::IncType::kAcc) ||
       scroll_inc.contains(EquipGameInstance::IncType::kAcc)) {
-    str_node = WzResource::ms_->get_root()->find(u"String.img/Character/acc");
+    str_node = WzResource::ms_->get_root()->find(u"String.img/acc");
     auto acc_str = static_cast<wz::Property<std::u16string>*>(str_node)->get();
     auto val = equip_inc[EquipGameInstance::IncType::kAcc];
     std::string val_str = "+";
@@ -245,7 +245,7 @@ void TooltipUiSystem::RenderEquipBottom(GameEquipItem& equip, float x,
   if (equip_inc.contains(EquipGameInstance::IncType::kStr) ||
       scroll_inc.contains(EquipGameInstance::IncType::kStr)) {
     auto str_node =
-        WzResource::ms_->get_root()->find(u"String.img/Character/str");
+        WzResource::ms_->get_root()->find(u"String.img/str");
     auto str_str = static_cast<wz::Property<std::u16string>*>(str_node)->get();
     auto val = equip_inc[EquipGameInstance::IncType::kStr];
     std::string val_str = "+";
@@ -262,7 +262,7 @@ void TooltipUiSystem::RenderEquipBottom(GameEquipItem& equip, float x,
   if (equip_inc.contains(EquipGameInstance::IncType::kDex) ||
       scroll_inc.contains(EquipGameInstance::IncType::kDex)) {
     auto str_node =
-        WzResource::ms_->get_root()->find(u"String.img/Character/dex");
+        WzResource::ms_->get_root()->find(u"String.img/dex");
     auto dex_str = static_cast<wz::Property<std::u16string>*>(str_node)->get();
     auto val = equip_inc[EquipGameInstance::IncType::kDex];
     std::string val_str = "+";
@@ -279,7 +279,7 @@ void TooltipUiSystem::RenderEquipBottom(GameEquipItem& equip, float x,
   if (equip_inc.contains(EquipGameInstance::IncType::kInt) ||
       scroll_inc.contains(EquipGameInstance::IncType::kInt)) {
     auto str_node =
-        WzResource::ms_->get_root()->find(u"String.img/Character/int");
+        WzResource::ms_->get_root()->find(u"String.img/int");
     auto int_str = static_cast<wz::Property<std::u16string>*>(str_node)->get();
     auto val = equip_inc[EquipGameInstance::IncType::kInt];
     std::string val_str = "+";
@@ -296,7 +296,7 @@ void TooltipUiSystem::RenderEquipBottom(GameEquipItem& equip, float x,
   if (equip_inc.contains(EquipGameInstance::IncType::kSpeed) ||
       scroll_inc.contains(EquipGameInstance::IncType::kSpeed)) {
     auto str_node =
-        WzResource::ms_->get_root()->find(u"String.img/Character/speed");
+        WzResource::ms_->get_root()->find(u"String.img/speed");
     auto spd_str = static_cast<wz::Property<std::u16string>*>(str_node)->get();
     auto val = equip_inc[EquipGameInstance::IncType::kSpeed];
     std::string val_str = "+";
@@ -313,7 +313,7 @@ void TooltipUiSystem::RenderEquipBottom(GameEquipItem& equip, float x,
   if (equip_inc.contains(EquipGameInstance::IncType::kJump) ||
       scroll_inc.contains(EquipGameInstance::IncType::kJump)) {
     auto str_node =
-        WzResource::ms_->get_root()->find(u"String.img/Character/jump");
+        WzResource::ms_->get_root()->find(u"String.img/jump");
     auto jump_str = static_cast<wz::Property<std::u16string>*>(str_node)->get();
     auto val = equip_inc[EquipGameInstance::IncType::kJump];
     std::string val_str = "+";
@@ -328,7 +328,7 @@ void TooltipUiSystem::RenderEquipBottom(GameEquipItem& equip, float x,
   }
   // enh
   str_node = WzResource::ms_->get_root()->find(
-      u"String.img/Equip/remainingEnhancements");
+      u"String.img/remainingEnhancements");
   auto enh_str = static_cast<wz::Property<std::u16string>*>(str_node)->get();
   auto val = EquipGameInstance::LoadEquipTuc(id) - equip.scroll.size();
   auto val_str = std::to_string(val);
@@ -778,7 +778,7 @@ void TooltipUiSystem::RenderSkillBottom(const std::u16string& id, uint8_t level,
     Freetype::LoadSize(12);
     Freetype::LoadColor(255, 255, 255, 255);
     auto next_node =
-        WzResource::ms_->get_root()->find(u"String.img/Skill/nextLevel");
+        WzResource::ms_->get_root()->find(u"String.img/nextLevel");
     auto str = static_cast<wz::Property<std::u16string>*>(next_node)->get();
 
     str = u"[" + str + u" " + next_level3 + u"]";
@@ -791,7 +791,7 @@ void TooltipUiSystem::RenderSkillBottom(const std::u16string& id, uint8_t level,
     Freetype::LoadSize(12);
     Freetype::LoadColor(255, 255, 255, 255);
     auto cur_node =
-        WzResource::ms_->get_root()->find(u"String.img/Skill/currentLevel");
+        WzResource::ms_->get_root()->find(u"String.img/currentLevel");
     auto str = static_cast<wz::Property<std::u16string>*>(cur_node)->get();
 
     str = u"[" + str + u" " + ski_level3 + u"]";
@@ -804,7 +804,7 @@ void TooltipUiSystem::RenderSkillBottom(const std::u16string& id, uint8_t level,
     Freetype::LoadSize(12);
     Freetype::LoadColor(255, 255, 255, 255);
     auto cur_node =
-        WzResource::ms_->get_root()->find(u"String.img/Skill/currentLevel");
+        WzResource::ms_->get_root()->find(u"String.img/currentLevel");
     auto str = static_cast<wz::Property<std::u16string>*>(cur_node)->get();
 
     str = u"[" + str + u" " + ski_level3 + u"]";
@@ -818,7 +818,7 @@ void TooltipUiSystem::RenderSkillBottom(const std::u16string& id, uint8_t level,
     y += lh;
 
     auto next_node =
-        WzResource::ms_->get_root()->find(u"String.img/Skill/nextLevel");
+        WzResource::ms_->get_root()->find(u"String.img/nextLevel");
     str = static_cast<wz::Property<std::u16string>*>(next_node)->get();
 
     Freetype::LoadColor(255, 255, 255, 255);

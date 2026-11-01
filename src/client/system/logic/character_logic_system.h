@@ -90,6 +90,7 @@ class CharacterLogicSystem {
  public:
   static inline fbs::ClientCharacterStateT ccs_;
   static inline fbs::ClientCharacterPickT ccp_;
+  static inline uint64_t ccp_time_ = 0;
   static inline fbs::ClientCharacterT cct_;
 
   static bool RunHarvest(GameCharacter& g_character);  // or npc talk
