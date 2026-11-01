@@ -84,28 +84,28 @@ void AudioGameInstance::Play(const std::u16string& path, uint64_t delay) {
 }
 
 void AudioGameInstance::LoadBackgrndAudio(const std::u16string& path) {
-  // if (path.empty()) {
-  //   return;
-  // }
-  // if (!backgrnds.empty()) {
-  //   if (backgrnds[0].path == path && backgrnds[0].fade == 0) {
-  //     return;
-  //   }
-  // }
-  // game_audio backgrnd{
-  //     .path = path,
-  //     .delay = 0,
-  //     .fade = 0,
-  // };
-  // auto spec = load_cache(path).spec;
-  // backgrnd.stream = SDL_CreateAudioStream(&spec, NULL);
-  // SDL_BindAudioStream(device_id, backgrnd.stream);
-  // if (!backgrnds.empty()) {
-  //   if (backgrnds[0].fade == 0) {
-  //     backgrnds[0].fade = 1;
-  //   }
-  // }
-  // backgrnds.emplace_back(backgrnd);
+  if (path.empty()) {
+    return;
+  }
+  if (!backgrnds_.empty()) {
+    if (backgrnds_[0].path == path && backgrnds_[0].fade == 0) {
+      return;
+    }
+  }
+  GameAudio backgrnd{
+      .path = path,
+      .delay = 0,
+      .fade = 0,
+  };
+  auto spec = LoadCache(path).spec;
+  backgrnd.stream = SDL_CreateAudioStream(&spec, NULL);
+  SDL_BindAudioStream(device_id_, backgrnd.stream);
+  if (!backgrnds_.empty()) {
+    if (backgrnds_[0].fade == 0) {
+      backgrnds_[0].fade = 1;
+    }
+  }
+  backgrnds_.emplace_back(backgrnd);
 }
 
 void AudioGameInstance::CloseAudio(const GameAudio& audio) {
