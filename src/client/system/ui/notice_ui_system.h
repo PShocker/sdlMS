@@ -72,6 +72,7 @@ class NoticeUiSystem : public UiComponentHost<NoticeUiSystem> {
     kWorldmapTeleport,
 
     kThrowMul,
+    kCannotThrow,
 
     kQuestGiveup,
 

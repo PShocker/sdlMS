@@ -36,6 +36,7 @@
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server_instance/server_ball_instance.h"
 #include "src/server/server_instance/server_character_instance.h"
+#include "src/server/server_instance/server_mob_instance.h"
 
 #include <SDL3/SDL_rect.h>
 #include <wz/Property.h>
@@ -54,6 +55,21 @@
 #include <vector>
 
 namespace sdlms {
+
+namespace {
+
+int32_t LoadMobInfoInt(wz::Node* node, const char16_t* key, int32_t def) {
+  if (node == nullptr) {
+    return def;
+  }
+  auto* child = node->get_child(key);
+  if (child == nullptr || child->type != wz::Type::Int) {
+    return def;
+  }
+  return static_cast<wz::Property<int32_t>*>(child)->get();
+}
+
+}  // namespace
 
 static const std::flat_set<EquipGameInstance::WeaponType> shoot_weapons = {
     EquipGameInstance::WeaponType::kBow,
@@ -171,6 +187,14 @@ CheckMobs CharacterLogicSystem::RunAttackCheck(GameCharacter& g_character,
         mob_action == MobLogicSystem::ActionEnum::kDie) {
       continue;
     }
+    auto* info = MobGameInstance::LoadMobInfo(mob.id);
+    auto chance = CharacterStatGameInstance::CalcHitChance(
+        static_cast<uint32_t>(LoadMobInfoInt(info, u"eva", 0)),
+        static_cast<uint32_t>(LoadMobInfoInt(info, u"level", 1)));
+    std::uniform_int_distribution<uint32_t> hit_roll(0, 99);
+    if (hit_roll(RandomGameInstance::gen_) >= chance) {
+      continue;
+    }
     auto m_r = MobLogicSystem::LoadRect(mob).value();
 
     if (TriangleGameInstance::RectInsTri(m_r, t)) {
@@ -215,6 +239,14 @@ CheckMobs CharacterLogicSystem::RunAttackCheck(SDL_FPoint pos, SDL_FRect g_r,
       continue;
     }
     if (mob.hp <= 0) {
+      continue;
+    }
+    auto* info = MobGameInstance::LoadMobInfo(mob.id);
+    auto chance = CharacterStatGameInstance::CalcHitChance(
+        static_cast<uint32_t>(LoadMobInfoInt(info, u"eva", 0)),
+        static_cast<uint32_t>(LoadMobInfoInt(info, u"level", 1)));
+    std::uniform_int_distribution<uint32_t> hit_roll(0, 99);
+    if (hit_roll(RandomGameInstance::gen_) >= chance) {
       continue;
     }
     auto m_r = MobLogicSystem::LoadRect(mob).value();
@@ -709,7 +741,7 @@ bool CharacterLogicSystem::RunClimbing(GameCharacter& g_character) {
 }
 
 bool CharacterLogicSystem::RunSit(GameCharacter& g_character) {
-  if (!g_character.morph.empty()) {
+  if (!g_character.morph.empty() || IsAlert()) {
     return false;
   }
   if (character_action_input_.contains("sit")) {
@@ -739,6 +771,10 @@ bool CharacterLogicSystem::RunSitting(GameCharacter& g_character) {
     return false;
   }
   return true;
+}
+
+bool CharacterLogicSystem::IsAlert() {
+  return self_alert_cooldown_ > Window::dt_now_;
 }
 
 bool CharacterLogicSystem::RunSkill(GameCharacter& g_character,
@@ -779,12 +815,34 @@ bool CharacterLogicSystem::RunSkill(GameCharacter& g_character,
       }
     }
     if (use) {
+      if (ski.can_use && !ski.can_use(ski_lv)) {
+        return false;
+      }
+      const int mp_cost = SkillGameInstance::LoadSkiMpCost(id, ski_lv);
+      if (mp_cost > 0 &&
+          CharacterStatGameInstance::GetMp() < mp_cost) {
+        return false;
+      }
       for (auto& buff : SkillGameInstance::ski_) {
         if (buff.action) {
           buff.action(&buff, id);
         }
       }
       ski.use(0, ski_lv);
+      if (mp_cost > 0) {
+        CharacterStatGameInstance::SetMp(
+            CharacterStatGameInstance::GetMp() - mp_cost);
+      }
+      // 095 以 Skill.wz 的 cooltime 为准；技能自身设置的动画冷却不能更短。
+      const int cooldown =
+          SkillGameInstance::LoadSkiCooldown(id, ski_lv);
+      if (cooldown > 0) {
+        auto& used_skill = SkillGameInstance::Skis()[id];
+        const uint64_t until =
+            Window::dt_now_ + static_cast<uint64_t>(cooldown) * 1000;
+        used_skill.cd = std::max(used_skill.cd, until);
+      }
+      self_alert_cooldown_ = Window::dt_now_ + 5000;
       CharacterLogicSystem::LoadSfx(g_character);
     }
   }
@@ -1574,6 +1632,7 @@ void CharacterLogicSystem::RunColor() {
 bool CharacterLogicSystem::Run() {
   RunOthers();
   RunStateMachine();
+  RunRecovery(CharacterGameInstance::self_);
   RunColor();
   return true;
 }
@@ -1679,6 +1738,9 @@ float CharacterLogicSystem::LoadAttackSpeed(GameCharacter& g_character) {
 
 void CharacterLogicSystem::RunSitChair(GameCharacter& g_character,
                                        const std::u16string& id) {
+  if (IsAlert()) {
+    return;
+  }
   RunAction(g_character, u"sit");
   g_character.chair = GameChair{};
   g_character.chair->id = id;
@@ -1712,6 +1774,97 @@ void CharacterLogicSystem::RunUnsitChair(GameCharacter& g_character) {
   return;
 }
 
+void CharacterLogicSystem::RunRecovery(GameCharacter& g_character) {
+  if (&g_character != &CharacterGameInstance::self_ ||
+      g_character.action == u"dead") {
+    self_recovery_time_ = 0;
+    return;
+  }
+  auto action = LoadActionType(g_character);
+  const bool standing =
+      action == ActionEnum::kStand || action == ActionEnum::kAlert;
+  const bool sitting = action == ActionEnum::kSit;
+  // 095 is_stand_action 包含绳/梯上的静止动作，绳子上也允许自然恢复。
+  const bool climbing = action == ActionEnum::kClimb;
+  if (!standing && !sitting && !climbing) {
+    self_recovery_time_ = 0;
+    return;
+  }
+  const uint64_t now = Window::dt_now_;
+  if (self_recovery_time_ == 0) {
+    self_recovery_time_ = now + 10000;
+    return;
+  }
+  if (now < self_recovery_time_) {
+    return;
+  }
+  self_recovery_time_ = now + 10000;
+
+  // 095 CWvsContext::TryRecovery：
+  // 地图 recovery 倍率 × 站立 10 HP / 3 MP；坐下 ×1.5。
+  // 椅子自带 recoveryHP / recoveryMP 时直接使用椅子数值。
+  // 095 还会把披风（aEquipped[5]）的 recovery 属性乘到地图恢复倍率上。
+  double rate = std::max(
+      0.0, MapInfoGameInstance::LoadRecovery(SceneSystemInstance::map_id_));
+  if (rate > 1.0 && g_character.cape.has_value()) {
+    auto* equip_info =
+        EquipGameInstance::LoadEquipInfo(g_character.cape->id);
+    if (equip_info != nullptr) {
+      auto* node = equip_info->get_child(u"recovery");
+      if (node != nullptr && node->type == wz::Type::Double) {
+        rate *= static_cast<wz::Property<double>*>(node)->get();
+      } else if (node != nullptr && node->type == wz::Type::Int) {
+        rate *= static_cast<double>(
+            static_cast<wz::Property<int>*>(node)->get());
+      }
+    }
+  }
+  int32_t hp_gain = 0;
+  int32_t mp_gain = 0;
+  if (sitting && g_character.chair.has_value()) {
+    auto* info =
+        ItemGameInstance::LoadItemInfo(g_character.chair->id, 0);
+    if (info != nullptr) {
+      auto load = [&](const char16_t* key) -> int32_t {
+        auto* node = info->get_child(key);
+        if (node == nullptr || node->type != wz::Type::Int) {
+          return 0;
+        }
+        return static_cast<wz::Property<int>*>(node)->get();
+      };
+      hp_gain = load(u"recoveryHP");
+      mp_gain = load(u"recoveryMP");
+    }
+  }
+  if (hp_gain <= 0) {
+    hp_gain = static_cast<int32_t>(
+        std::trunc(rate * (sitting ? 15.0 : 10.0)));
+  }
+  if (mp_gain <= 0) {
+    mp_gain = static_cast<int32_t>(
+        std::trunc(rate * (sitting ? 4.5 : 3.0)));
+  }
+  auto hp = CharacterStatGameInstance::GetHp();
+  auto mp = CharacterStatGameInstance::GetMp();
+  const auto new_hp = std::min(CharacterStatGameInstance::GetHpMax(),
+                               hp + hp_gain);
+  const auto new_mp = std::min(CharacterStatGameInstance::GetMpMax(),
+                               mp + mp_gain);
+  CharacterStatGameInstance::SetHp(new_hp);
+  CharacterStatGameInstance::SetMp(new_mp);
+
+  // 095 CUser::MakeIncDecHPEffect：头顶蓝色恢复数字。
+  if (new_hp > hp) {
+    fbs::AttackT at;
+    at.x = g_character.pos.x - 10;
+    at.y = g_character.pos.y - 30;
+    at.type = static_cast<uint8_t>(DamageData::DamageColor::kBlue);
+    at.num = static_cast<uint64_t>(new_hp - hp);
+    ServerMobInstance::HandleSAttack(0, at);
+  }
+}
+
+
 void CharacterLogicSystem::RunItem(GameCharacter& g_character) {
   if (!character_item_input_.empty()) {
     for (const auto& input : character_item_input_) {
@@ -1720,6 +1873,10 @@ void CharacterLogicSystem::RunItem(GameCharacter& g_character) {
       auto itm = PackageGameInstance::LoadItem(item_id2);
       if (itm == nullptr) {
         return;
+      }
+      // 095 SendStatChangeItemUseRequest：alert 期间不能用 236 类属性道具。
+      if (IsAlert() && item_id2.starts_with(u"0236")) {
+        continue;
       }
       ItemGameInstance::UseItem(*itm);
     }

@@ -47,6 +47,10 @@ class SkillGameInstance {
   static int LoadSkiBallNum(const std::u16string& id, uint8_t lv);
   static int LoadSkiMobCount(const std::u16string& id, uint8_t lv);
   static int LoadSkiAtkCount(const std::u16string& id, uint8_t lv);
+  // 主动技能 MP 消耗（Skill.wz level/<lv>/mpCon）。
+  static int LoadSkiMpCost(const std::u16string& id, uint8_t lv);
+  // 主动技能冷却（秒，Skill.wz level/<lv>/cooltime）。
+  static int LoadSkiCooldown(const std::u16string& id, uint8_t lv);
 
   static fbs::ClientCharacterAttackT CreateAttackPayload(CheckMobs& cm,
                                                          SDL_FPoint pos,

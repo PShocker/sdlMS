@@ -179,6 +179,10 @@ class CharacterStatGameInstance {
   // ============================================================
   static uint32_t GetMinAtk();
   static uint32_t GetMaxAtk();
+  // 按当前面板伤害和技能百分比掷出一次实际伤害。
+  static uint32_t RollAttackDamage(uint32_t skill_percent);
+  // v95 calc_accr：返回 0..100 的命中率。
+  static uint32_t CalcHitChance(uint32_t mob_eva, uint32_t mob_level);
   static uint32_t GetCritRate();
   static uint32_t GetCritDamage();
   static uint32_t GetAcc();

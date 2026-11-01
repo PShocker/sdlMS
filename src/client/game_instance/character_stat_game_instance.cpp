@@ -3,6 +3,7 @@
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
+#include "src/client/game_instance/random_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/common/flatbuffers/client.h"
@@ -26,6 +27,8 @@ namespace sdlms {
 // load
 // ============================================================
 void CharacterStatGameInstance::Load(const CharacterSaveData& cs) {
+  hp_ap_ = cs.ap.hp_ap;
+  mp_ap_ = cs.ap.mp_ap;
   str_ap_ = cs.ap.str_ap;
   dex_ap_ = cs.ap.dex_ap;
   int_ap_ = cs.ap.int_ap;
@@ -35,6 +38,12 @@ void CharacterStatGameInstance::Load(const CharacterSaveData& cs) {
   remain_ap_ = cs.remain_ap;
 
   Update();
+  // MeowDB：总 AP = 25 + 5 × (level - 1)。
+  const uint32_t total_ap =
+      25 + 5 * (std::max<uint32_t>(1, CharacterGameInstance::self_.level) - 1);
+  const uint32_t used_ap =
+      hp_ap_ + mp_ap_ + str_ap_ + dex_ap_ + int_ap_ + luk_ap_;
+  remain_ap_ = total_ap > used_ap ? total_ap - used_ap : 0;
   hp_point_ = std::clamp<int32_t>(
       static_cast<int32_t>(std::min<uint32_t>(cs.hp, INT32_MAX)), 1,
       hp_point_max_);
@@ -43,200 +52,65 @@ void CharacterStatGameInstance::Load(const CharacterSaveData& cs) {
       mp_point_max_);
 }
 
-uint32_t CharacterStatGameInstance::GetBaseHpMax() {
-  int base_hp_per = 0;
-  int base_hp = 0;
-  auto& sf = CharacterGameInstance::self_;
-  auto sf_job = sf.job;
-  auto jobs = JobSkillGameInstance::LoadSkiTree(sf_job);
-  if (jobs.size() == 1) {
-    // beginner
-    base_hp_per = 16;
-    base_hp = 50 + (sf.level - 1) * base_hp_per;
-    return base_hp + base_hp_per * hp_ap_;
-  }
-  auto job = jobs[1];
+namespace {
+
+struct HpMpCurve {
+  int hp_per_level;
+  int mp_per_level;
+  int hp_advance;
+  int mp_advance;
+};
+
+// MeowDB HP/MP 表：10 级转职后的每级成长与转职奖励。
+HpMpCurve LoadHpMpCurve(JobType job) {
   switch (job) {
-    case JobType::kWarrior: {
-      base_hp_per = 28;
-      base_hp = 50 + 16 * 9 + (sf.level - 10) * base_hp_per;
-      break;
-    }
-    case JobType::kMagician: {
-      base_hp_per = 16;
-      base_hp = 50 + 16 * 7 + (sf.level - 8) * base_hp_per;
-      break;
-    }
-    case JobType::kBowman: {
-      base_hp_per = 22;
-      base_hp = 50 + 16 * 9 + (sf.level - 10) * base_hp_per;
-      break;
-    }
-    case JobType::kThief: {
-      base_hp_per = 22;
-      base_hp = 50 + 16 * 9 + (sf.level - 10) * base_hp_per;
-      break;
-    }
-    default: {
-      break;
-    }
+    case JobType::kWarrior:
+      return {28, 12, 350, 150};
+    case JobType::kBowman:
+    case JobType::kThief:
+      return {22, 17, 250, 250};
+    case JobType::kMagician:
+      return {16, 22, 150, 350};
+    default:
+      return {16, 12, 0, 0};
   }
-  for (int i = 1; i < jobs.size(); i++) {
-    switch (jobs[i]) {
-      case JobType::kWarrior: {
-        base_hp += 300;
-        break;
-      }
-      case JobType::kMagician: {
-        base_hp += 150;
-        break;
-      }
-      case JobType::kBowman: {
-        base_hp += 250;
-        break;
-      }
-      case JobType::kThief: {
-        base_hp += 250;
-        break;
-      }
-      case JobType::kFighter: {
-        break;
-      }
-      case JobType::kPage: {
-        break;
-      }
-      case JobType::kSpearman: {
-        break;
-      }
-      case JobType::kFpWizard: {
-        break;
-      }
-      case JobType::kIlWizard: {
-        break;
-      }
-      case JobType::kCleric: {
-        break;
-      }
-      case JobType::kHunter: {
-        base_hp += 250;
-        break;
-      }
-      case JobType::kCrossbowman: {
-        base_hp += 250;
-        break;
-      }
-      case JobType::kAssassin: {
-        base_hp += 250;
-        break;
-      }
-      case JobType::kBandit: {
-        base_hp += 250;
-        break;
-      }
-      default: {
-        break;
-      }
-    }
+}
+
+}  // namespace
+
+uint32_t CharacterStatGameInstance::GetBaseHpMax() {
+  auto& sf = CharacterGameInstance::self_;
+  auto jobs = JobSkillGameInstance::LoadSkiTree(sf.job);
+  const int level = std::max(1, static_cast<int>(sf.level));
+  if (jobs.size() == 1 || level < 10) {
+    return static_cast<uint32_t>(50 + (level - 1) * 16 + hp_ap_ * 16);
   }
-  return base_hp + base_hp_per * hp_ap_;
+  const auto curve = LoadHpMpCurve(jobs[1]);
+  // 10 级转职前按 9 级的 Beginner 基础值。
+  const int base_hp = 50 + 8 * 16;
+  const bool second_advance = jobs.size() >= 3 && level >= 30;
+  const int advance_mul = 1 + (second_advance ? 1 : 0);
+  return static_cast<uint32_t>(base_hp +
+                               curve.hp_advance * advance_mul +
+                               (level - 10) * curve.hp_per_level +
+                               hp_ap_ * curve.hp_per_level);
 }
 
 uint32_t CharacterStatGameInstance::GetBaseMpMax() {
-  int base_mp_per = 0;
-  int base_mp = 0;
   auto& sf = CharacterGameInstance::self_;
-  auto sf_job = sf.job;
-  auto jobs = JobSkillGameInstance::LoadSkiTree(sf_job);
-  if (jobs.size() == 1) {
-    // beginner
-    base_mp_per = 12;
-    base_mp = 50 + (sf.level - 1) * base_mp_per;
-    return base_mp + base_mp_per * mp_ap_;
+  auto jobs = JobSkillGameInstance::LoadSkiTree(sf.job);
+  const int level = std::max(1, static_cast<int>(sf.level));
+  if (jobs.size() == 1 || level < 10) {
+    return static_cast<uint32_t>(5 + (level - 1) * 12 + mp_ap_ * 12);
   }
-  auto job = jobs[1];
-  switch (job) {
-    case JobType::kWarrior: {
-      base_mp_per = 28;
-      base_mp = 50 + 16 * 9 + (sf.level - 10) * base_mp_per;
-      break;
-    }
-    case JobType::kMagician: {
-      base_mp_per = 16;
-      base_mp = 50 + 16 * 7 + (sf.level - 8) * base_mp_per;
-      break;
-    }
-    case JobType::kBowman: {
-      base_mp_per = 22;
-      base_mp = 50 + 16 * 9 + (sf.level - 10) * base_mp_per;
-      break;
-    }
-    case JobType::kThief: {
-      base_mp_per = 22;
-      base_mp = 50 + 16 * 9 + (sf.level - 10) * base_mp_per;
-      break;
-    }
-    default: {
-      break;
-    }
-  }
-  for (int i = 1; i < jobs.size(); i++) {
-    switch (jobs[i]) {
-      case JobType::kWarrior: {
-        base_mp += 150;
-        break;
-      }
-      case JobType::kMagician: {
-        base_mp += 350;
-        break;
-      }
-      case JobType::kBowman: {
-        base_mp += 250;
-        break;
-      }
-      case JobType::kThief: {
-        base_mp += 250;
-        break;
-      }
-      case JobType::kFighter: {
-        break;
-      }
-      case JobType::kPage: {
-        break;
-      }
-      case JobType::kSpearman: {
-        break;
-      }
-      case JobType::kFpWizard: {
-        break;
-      }
-      case JobType::kIlWizard: {
-        break;
-      }
-      case JobType::kCleric: {
-        break;
-      }
-      case JobType::kHunter: {
-        base_mp += 250;
-        break;
-      }
-      case JobType::kCrossbowman: {
-        base_mp += 250;
-        break;
-      }
-      case JobType::kAssassin: {
-        base_mp += 250;
-        break;
-      }
-      case JobType::kBandit: {
-        base_mp += 250;
-        break;
-      }
-      default: {
-        break;
-      }
-    }
-  }
-  return base_mp + base_mp_per * mp_ap_;
+  const auto curve = LoadHpMpCurve(jobs[1]);
+  const int base_mp = 5 + 8 * 12;
+  const bool second_advance = jobs.size() >= 3 && level >= 30;
+  const int advance_mul = 1 + (second_advance ? 1 : 0);
+  return static_cast<uint32_t>(base_mp +
+                               curve.mp_advance * advance_mul +
+                               (level - 10) * curve.mp_per_level +
+                               mp_ap_ * curve.mp_per_level);
 }
 
 // ============================================================
@@ -536,11 +410,17 @@ void CharacterStatGameInstance::Update() {
   magic_def_ = ski_magic_def_ + equip_magic_def_ + item_magic_def_;
 
   // ---- 暴击 ----
-  // 基础必杀伤害 150%，暴击率默认 0；技能/道具通过 set_crit_rate /
-  // set_crit_damage 累加。这里不再每次重置（旧实现按"副属性/2"重置无公式
-  // 依据，且会把 buff 加成冲掉）。
+  // MeowDB：弓箭手基础 5% 暴击；暴击伤害为额外 20%（即 1.2 倍）。
+  if (crit_rate_ == 0) {
+    auto jobs = JobSkillGameInstance::LoadSkiTree(
+        CharacterGameInstance::self_.job);
+    if (jobs.size() >= 2 &&
+        (jobs[1] == JobType::kBowman || jobs[1] == JobType::kThief)) {
+      crit_rate_ = 5;
+    }
+  }
   if (crit_damage_ == 0) {
-    crit_damage_ = 150;
+    crit_damage_ = 120;
   }
 }
 
@@ -554,13 +434,7 @@ bool CharacterStatGameInstance::Upgrade() {
     sf.level += 1;
 
     remain_ap_ += 5;
-    auto job = JobSkillGameInstance::LoadSkiTree(sf.job);
-
-    if (job.size() == 1) {
-      JobSkillGameInstance::remain_point_[0] += 1;
-    } else {
-      JobSkillGameInstance::remain_point_[job.size() - 1] += 3;
-    }
+    JobSkillGameInstance::RecalculateRemainSp();
 
     fbs::ClientCharacterLvUpT ccl;
     ccl.map_id = SceneSystemInstance::map_id_;
@@ -568,6 +442,9 @@ bool CharacterStatGameInstance::Upgrade() {
 
     ServerCharacterInstance::HandleLvUp(sf);
     Update();
+    // 升级后按 MeowDB 的新 HP/MP 上限回满。
+    hp_point_ = hp_point_max_;
+    mp_point_ = mp_point_max_;
     return true;
   }
   return false;
@@ -728,6 +605,63 @@ uint32_t CharacterStatGameInstance::GetMinAtk() {
 }
 uint32_t CharacterStatGameInstance::GetMaxAtk() {
   return max_atk_;
+}
+
+uint32_t CharacterStatGameInstance::RollAttackDamage(uint32_t skill_percent) {
+  uint32_t lo = min_atk_;
+  uint32_t hi = max_atk_;
+  if (hi < lo) {
+    std::swap(lo, hi);
+  }
+  if (hi == 0) {
+    return 1;
+  }
+  std::uniform_int_distribution<uint32_t> dist(lo, hi);
+  uint64_t damage = static_cast<uint64_t>(dist(RandomGameInstance::gen_)) *
+                    skill_percent / 100;
+  std::uniform_int_distribution<uint32_t> crit_roll(0, 99);
+  if (crit_roll(RandomGameInstance::gen_) < crit_rate_) {
+    damage = damage * std::max<uint32_t>(100, crit_damage_) / 100;
+  }
+  return static_cast<uint32_t>(std::max<uint64_t>(1, damage));
+}
+
+uint32_t CharacterStatGameInstance::CalcHitChance(uint32_t mob_eva,
+                                                  uint32_t mob_level) {
+  const double acc = static_cast<double>(accuracy_);
+  const double eva = static_cast<double>(mob_eva);
+  const double player_level =
+      static_cast<double>(std::max<uint32_t>(1, CharacterGameInstance::self_.level));
+  const double level_gap =
+      std::max(0.0, static_cast<double>(std::max<uint32_t>(1, mob_level)) -
+                        player_level);
+  const double roll_center = 100.0 * acc / (10.0 * level_gap + 255.0);
+  double chance = 0.0;
+  if (eva <= 0.0) {
+    chance = 1.0;
+  } else if (acc <= 0.0) {
+    chance = 0.0;
+  } else {
+    const double diff = roll_center - eva;
+    const double spread = 0.15 + 0.2 / (1.0 + std::exp(diff / 12.0));
+    if (diff >= 25.0 + level_gap * (0.5 * player_level + 15.0)) {
+      chance = 1.0;
+    } else if (roll_center <= 0.0) {
+      chance = eva <= 0.0 ? 1.0 : 0.0;
+    } else {
+      const double ratio = eva / roll_center;
+      if (ratio <= 1.0 - spread) {
+        chance = 1.0;
+      } else if (ratio >= 1.0 + spread) {
+        chance = 0.0;
+      } else {
+        chance = (1.0 + spread - ratio) / (2.0 * spread);
+      }
+    }
+  }
+  return static_cast<uint32_t>(
+      std::clamp<int32_t>(static_cast<int32_t>(std::lround(chance * 100.0)), 0,
+                          100));
 }
 uint32_t CharacterStatGameInstance::GetCritRate() {
   return crit_rate_;

@@ -36,6 +36,8 @@ class JobSkillGameInstance {
   static std::vector<JobType> LoadSkiTree(int i);
   static std::u16string LoadJobId(JobType type);
   static wz::WzMap LoadJobSkis(JobType type);
+  // 按 MeowDB 的 9 + 3/级 SP 公式重新校验剩余 SP。
+  static void RecalculateRemainSp();
 
   static std::u16string LoadTwoJump();
 

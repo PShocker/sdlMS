@@ -23,6 +23,7 @@
 #include "src/client/game_instance/text_game_instance.h"
 
 #include "src/client/system/input/keyboard_input_system.h"
+#include "src/client/system/logic/character_logic_system.h"
 
 #include "src/client/system/render/cursor_render_system.h"
 
@@ -113,6 +114,8 @@ void NoticeUiSystem::RenderBackgrnd() {
     case NoticeEnum::kShopbuySell:
 
     case NoticeEnum::kShopbuySellNoNum:
+
+    case NoticeEnum::kCannotThrow:
 
     case NoticeEnum::kShopbuy:
 
@@ -223,6 +226,8 @@ UIComponents& NoticeUiSystem::GetComponent() {
     case NoticeEnum::kShopbuySellMul:
 
     case NoticeEnum::kShopbuySellNoNum:
+
+    case NoticeEnum::kCannotThrow:
 
     case NoticeEnum::kShopbuy:
 
@@ -597,6 +602,16 @@ void NoticeUiSystem::RenderText() {
           WzResource::ms_->get_root()->find(u"String.img/sellItemMul");
 
       text = static_cast<wz::Property<std::u16string>*>(n)->get();
+
+      p = {20, 20};
+
+      break;
+
+    }
+
+    case NoticeEnum::kCannotThrow: {
+
+      text = u"You cannot drop this item.";
 
       p = {20, 20};
 
@@ -1011,6 +1026,8 @@ SDL_FPoint NoticeUiSystem::LoadWh() {
     case NoticeEnum::kShopbuySell:
 
     case NoticeEnum::kShopbuySellNoNum:
+
+    case NoticeEnum::kCannotThrow:
 
     case NoticeEnum::kShopbuy:
 
@@ -1461,6 +1478,16 @@ void NoticeUiSystem::EventButtonWorldmapTeleport() {
 
 
 void NoticeUiSystem::EventButtonThrowMul() {
+
+  if (CharacterLogicSystem::IsAlert()) {
+
+    type_ = NoticeEnum::kCannotThrow;
+
+    CursorGameInstance::cursor_hand_ = std::nullopt;
+
+    return;
+
+  }
 
   uint64_t itm_num = 0;
 

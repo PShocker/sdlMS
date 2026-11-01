@@ -50,6 +50,7 @@ static void Jinqianzhadan() {
       // Create and send attack payload
       for (auto& data : cm.data) {
         data.hits = {(int64_t)meso};
+        data.raw_damage = true;
       }
       cat = SkillGameInstance::CreateAttackPayload(cm, sf.pos, delay);
       ClientRequest::SendToHost(cat);

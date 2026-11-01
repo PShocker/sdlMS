@@ -279,6 +279,7 @@ void QuestAlarmUiSystem::EventQuestClose() {
     return;
   }
   quests_.erase(close_quest);
+  AudioGameInstance::PlayNow(u"UI.img/BtMouseClick");
 }
 
 bool QuestAlarmUiSystem::Event(SDL_Event* event) {

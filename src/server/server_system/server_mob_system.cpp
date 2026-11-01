@@ -66,6 +66,10 @@ constexpr float kAccessPad = 40.0f;         // 访问限位外的减速余量
 constexpr float kPlayerHalfWidth = 18.0f;
 constexpr float kPlayerHeight = 60.0f;
 
+// 服务端只为玩家附近的怪物运行 AI，远处怪物保留状态、不做完整模拟。
+constexpr float kMobActiveRangeX = 1200.0f;
+constexpr float kMobActiveRangeY = 700.0f;
+
 int8_t Sign(float value) {
   if (value > 0) {
     return 1;
@@ -413,22 +417,19 @@ void ServerMobSystem::RunAttackHit(ServerMob& mob) {
     return;
   }
 
-  // 攻击力 = 怪物 PADamage + 该攻击的 PADamage，伤害浮动 85%~100%
+  // 只下发怪物攻击力；伤害浮动、WDEF/等级减伤全部由客户端结算。
   int32_t pad = ServerMobInstance::LoadMobInfoInt(mob.id, u"PADamage", 0);
   pad = std::clamp(pad + attack.pad, 0, 29999);
   if (pad <= 0) {
     pad = 1;
   }
-  std::uniform_real_distribution<float> dist(0.85f, 1.0f);
-  auto damage = static_cast<uint64_t>(
-      std::max(1.0f, static_cast<float>(pad) * dist(RandomGameInstance::gen_)));
 
   fbs::ServerMobAttackPlayerT event;
   event.mob_index = mob.index;
   event.client_id = mob.target_id;
   event.payload = std::make_unique<fbs::AttackT>(fbs::AttackT{
       .delay = Window::dt_time_,
-      .num = damage,
+      .num = static_cast<uint64_t>(pad),
       .x = mob.pos.x,
       .y = mob.pos.y,
       .type = 0,
@@ -1163,7 +1164,27 @@ bool ServerMobSystem::Run() {
     for (const auto& [key, value] : sc.fhs) {
       g_fhs_.emplace(key, value.fh);
     }
+    auto is_active = [&](const ServerMob& mob) {
+      for (auto client_id : sc.clients) {
+        auto it = ServerClientInstance::clients_.find(client_id);
+        if (it == ServerClientInstance::clients_.end() ||
+            it->second.player_t.character == nullptr ||
+            it->second.player_t.character->state == nullptr) {
+          continue;
+        }
+        const auto& state = *it->second.player_t.character->state;
+        if (std::fabs(state.x - mob.pos.x) <= kMobActiveRangeX &&
+            std::fabs(state.y - mob.pos.y) <= kMobActiveRangeY) {
+          return true;
+        }
+      }
+      return false;
+    };
     for (auto& mob : sc.mobs | std::views::values) {
+      // 死亡/渐显计时必须继续；其余怪物只在玩家附近运行完整 AI。
+      if (!mob.dead && !mob.reviving && !is_active(mob)) {
+        continue;
+      }
       RunStateMachine(mob);
     }
     RunSend();

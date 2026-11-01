@@ -17,6 +17,8 @@ namespace sdlms {
 struct GameSkill {
   std::u16string id;
   std::function<void(uint64_t, int)> use;
+  // 释放前的额外条件（道具、状态等）；返回 false 时不扣 MP、不进冷却。
+  std::function<bool(int)> can_use;
   std::function<void()> frame;
   std::function<void(int)> passive;
   std::function<void()> end;

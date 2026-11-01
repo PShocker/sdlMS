@@ -18,6 +18,7 @@ class MapInfoGameInstance {
   static std::optional<SDL_FRect> LoadSwimRect(uint32_t map_id);
   static std::vector<SDL_FPoint> LoadSeat(uint32_t map_id);
   static uint32_t LoadReturnMap(uint32_t map_id);
+  static double LoadRecovery(uint32_t map_id);
   static std::u16string LoadBgm(uint32_t map_id);
 };
 

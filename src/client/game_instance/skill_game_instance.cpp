@@ -3,6 +3,7 @@
 #include "src/client/game/game_gauge.h"
 #include "src/client/game_instance/afterimage_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/text_game_instance.h"
@@ -13,6 +14,7 @@
 #include <wz/Node.h>
 #include <wz/Property.h>
 
+#include <algorithm>
 #include <cstdint>
 #include <flat_map>
 #include <string>
@@ -191,6 +193,63 @@ int SkillGameInstance::LoadSkiAtkCount(const std::u16string& id, uint8_t lv) {
   return r;
 }
 
+int SkillGameInstance::LoadSkiMpCost(const std::u16string& id, uint8_t lv) {
+  if (lv == 0) {
+    return 0;
+  }
+  auto ski_node = LoadSkiLevelNode(id, lv);
+  if (ski_node == nullptr) {
+    return 0;
+  }
+  for (const char16_t* key : {u"mpCon", u"mp"}) {
+    auto* node = ski_node->get_child(key);
+    if (node == nullptr) {
+      continue;
+    }
+    if (node->type == wz::Type::Int) {
+      return std::max(0, static_cast<wz::Property<int>*>(node)->get());
+    }
+    if (node->type == wz::Type::String) {
+      auto text =
+          static_cast<wz::Property<std::u16string>*>(node)->get();
+      try {
+        return std::max(
+            0, std::stoi(std::string(text.begin(), text.end())));
+      } catch (...) {
+        return 0;
+      }
+    }
+  }
+  return 0;
+}
+
+int SkillGameInstance::LoadSkiCooldown(const std::u16string& id,
+                                       uint8_t lv) {
+  if (lv == 0) {
+    return 0;
+  }
+  auto ski_node = LoadSkiLevelNode(id, lv);
+  if (ski_node == nullptr) {
+    return 0;
+  }
+  auto* node = ski_node->get_child(u"cooltime");
+  if (node == nullptr) {
+    return 0;
+  }
+  if (node->type == wz::Type::Int) {
+    return std::max(0, static_cast<wz::Property<int>*>(node)->get());
+  }
+  if (node->type == wz::Type::String) {
+    auto text = static_cast<wz::Property<std::u16string>*>(node)->get();
+    try {
+      return std::max(0, std::stoi(std::string(text.begin(), text.end())));
+    } catch (...) {
+      return 0;
+    }
+  }
+  return 0;
+}
+
 fbs::ClientCharacterAttackT SkillGameInstance::CreateAttackPayload(
     CheckMobs& cm, SDL_FPoint pos, uint64_t delay, uint32_t interval,
     std::string effect, std::string sound) {
@@ -199,11 +258,23 @@ fbs::ClientCharacterAttackT SkillGameInstance::CreateAttackPayload(
   for (int m = 0; m < Mobs.size(); m++) {
     auto& mob = Mobs[m];
     auto& mb = MobGameInstance::data_.at(mob.mob.index).mob;
-    for (int n = 0; n < mob.hits.size(); n++) {
+    std::vector<int64_t> hits = mob.hits;
+    if (hits.empty()) {
+      // 普通攻击：技能百分比按 100%。
+      hits.push_back(100);
+    }
+    for (int n = 0; n < hits.size(); n++) {
       fbs::CharacterAttackT ct;
       ct.mob_index = mob.mob.index;
       ct.attack = std::make_unique<fbs::AttackT>();
-      ct.attack->num = mob.hits[n];
+      if (mob.raw_damage) {
+        ct.attack->num = static_cast<uint64_t>(std::max<int64_t>(1, hits[n]));
+      } else {
+        auto percent = static_cast<uint32_t>(
+            std::clamp<int64_t>(hits[n], 0, 100000));
+        ct.attack->num =
+            CharacterStatGameInstance::RollAttackDamage(percent);
+      }
       ct.attack->delay = delay + n * interval + mob.delay;
       ct.attack->x = mob.x;
       ct.attack->y = mob.y;

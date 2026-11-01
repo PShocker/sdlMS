@@ -856,7 +856,7 @@ void CharacterCreateUiSystem::EventButtonOk() {
   cs.ap.hp_ap = 0;
   cs.ap.mp_ap = 0;
   cs.hp = 50;
-  cs.mp = 50;
+  cs.mp = 5;
   cs.exp = 0;
   cs.keys = KeyboardGameInstance::DefaultKeys();
 
@@ -866,7 +866,7 @@ void CharacterCreateUiSystem::EventButtonOk() {
   cs.ap.luk_ap = luk_point_;
 
   cs.map_id = 1;
-  cs.remain_sp = {0};
+  cs.remain_sp = {1};
 
   GameSaveSystemInstance::save_.characters.push_back(std::move(cs));
 

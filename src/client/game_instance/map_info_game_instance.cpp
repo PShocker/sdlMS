@@ -106,6 +106,24 @@ uint32_t MapInfoGameInstance::LoadReturnMap(uint32_t map_id) {
   return r;
 }
 
+double MapInfoGameInstance::LoadRecovery(uint32_t map_id) {
+  auto map_info = Load(map_id);
+  if (map_info == nullptr) {
+    return 1.0;
+  }
+  auto* node = map_info->get_child(u"recovery");
+  if (node == nullptr) {
+    return 1.0;
+  }
+  if (node->type == wz::Type::Double) {
+    return static_cast<wz::Property<double>*>(node)->get();
+  }
+  if (node->type == wz::Type::Int) {
+    return static_cast<double>(static_cast<wz::Property<int>*>(node)->get());
+  }
+  return 1.0;
+}
+
 std::u16string MapInfoGameInstance::LoadBgm(uint32_t map_id) {
   auto map_info = Load(map_id);
   if (map_info->get_child(u"bgm")) {

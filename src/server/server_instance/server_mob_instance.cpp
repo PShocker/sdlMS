@@ -569,46 +569,39 @@ void ServerMobInstance::HandleServerAttackPlayer(
   }
   const auto& g_mob = it->second.mob;
 
-  bool is_self = m.client_id == ServerMain::local_addr_;
-  SDL_FPoint target_pos{};
-  if (is_self) {
-    // v95 的受击无敌期：无敌期间整次攻击被吞掉
-    if (CharacterLogicSystem::self_invincible_cooldown_ >= Window::dt_now_) {
-      return;
-    }
-    target_pos = CharacterGameInstance::self_.pos;
-  } else if (CharacterGameInstance::others_.contains(m.client_id)) {
-    target_pos = CharacterGameInstance::others_.at(m.client_id).g_character.pos;
-  } else {
+  // 伤害判定完全在客户端：服务端只下发怪物攻击力和目标 client_id。
+  if (m.client_id != ServerMain::local_addr_) {
     return;
   }
-
-  // v95 CalcDamage::PDamage + adjust_base_depense：
-  // 攻击力已由服务端给出，这里扣掉玩家防御的平坦减伤与百分比减伤
-  auto def = CharacterStatGameInstance::GetDef();
-  int64_t damage = static_cast<int64_t>(m.payload->num);
-  int64_t flat = static_cast<int64_t>(def * 0.25f);
-  int64_t pct = static_cast<int64_t>(std::sqrt(def * 0.25f));
-  damage = std::min(damage - flat, damage * (100 - pct) / 100);
-  if (damage < 1) {
-    damage = 1;
+  // v95 的受击无敌期：无敌期间整次攻击被吞掉
+  if (CharacterLogicSystem::self_invincible_cooldown_ >= Window::dt_now_) {
+    return;
   }
+  SDL_FPoint target_pos = CharacterGameInstance::self_.pos;
+
+  // MeowDB「Damage taken」：attack × 1.2~1.4，再按 WDEF/等级减伤。
+  auto def = static_cast<double>(CharacterStatGameInstance::GetDef());
+  std::uniform_real_distribution<double> dist(1.2, 1.4);
+  double attack = static_cast<double>(m.payload->num) *
+                  dist(RandomGameInstance::gen_);
+  double damage =
+      attack * (1.0 - def / (def + 300.0 + 2.0 * attack)) -
+      (def / 25.0 +
+       static_cast<double>(CharacterGameInstance::self_.level) / 10.0);
+  int64_t final_damage =
+      static_cast<int64_t>(std::max(1.0, std::trunc(damage)));
 
   fbs::AttackT at{
       .delay = Window::dt_time_,
-      .num = static_cast<uint64_t>(damage),
+      .num = static_cast<uint64_t>(final_damage),
       .x = target_pos.x,
       .y = target_pos.y - 30,
       .type = static_cast<uint8_t>(DamageData::DamageColor::kWhite),
   };
   HandleSAttack(0, at);
 
-  if (!is_self) {
-    return;
-  }
-
   CharacterLogicSystem::RunBeingHit(g_mob.pos.x,
-                                    static_cast<uint64_t>(damage));
+                                    static_cast<uint64_t>(final_damage));
 
   // 把真正的伤害数字广播出去，其他客户端才能看到
   fbs::ClientMobAttackT cma;

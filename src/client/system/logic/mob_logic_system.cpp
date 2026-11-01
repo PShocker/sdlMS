@@ -5,7 +5,9 @@
 #include "src/client/game/game_mob.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
+#include "src/client/game_instance/random_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
@@ -21,6 +23,7 @@
 #include <wz/Wz.h>
 
 #include <algorithm>
+#include <cmath>
 #include <cstdint>
 #include <flat_map>
 #include <optional>
@@ -92,6 +95,28 @@ uint32_t LoadFrameDelay(wz::Node* action_node, const std::string& frame_index) {
         static_cast<wz::Property<int32_t>*>(delay_node)->get());
   }
   return 100;
+}
+
+int32_t LoadInt(wz::Node* node, const char16_t* key, int32_t def) {
+  if (node == nullptr) {
+    return def;
+  }
+  auto* child = node->get_child(key);
+  if (child == nullptr || child->type != wz::Type::Int) {
+    return def;
+  }
+  return static_cast<wz::Property<int32_t>*>(child)->get();
+}
+
+// MeowDB「Damage taken」：怪物攻击 × 1.2~1.4，再按 WDEF/等级减伤。
+int32_t AdjustMobDamageByDefense(double attack, int32_t pdd,
+                                 int32_t player_level) {
+  double t = attack;
+  double def = static_cast<double>(pdd);
+  double damage =
+      t * (1.0 - def / (def + 300.0 + 2.0 * t)) -
+      (def / 25.0 + static_cast<double>(player_level) / 10.0);
+  return static_cast<int32_t>(std::max(1.0, std::trunc(damage)));
 }
 
 }  // namespace
@@ -233,7 +258,17 @@ void MobLogicSystem::RunCollision() {
   }
   if (!Mobs.empty()) {
     auto& mob = Mobs.begin()->second;
-    uint64_t hit_num = 1;
+    // MeowDB「Damage taken」：怪物 PADamage 的 1.2~1.4 倍，再按玩家 WDEF/等级减伤。
+    auto* info = MobGameInstance::LoadMobInfo(mob.id);
+    int32_t pad = LoadInt(info, u"PADamage", 0);
+    if (pad <= 0) {
+      pad = 1;
+    }
+    std::uniform_real_distribution<double> dist(1.2, 1.4);
+    auto& self = CharacterGameInstance::self_;
+    uint64_t hit_num = static_cast<uint64_t>(AdjustMobDamageByDefense(
+        static_cast<double>(pad) * dist(RandomGameInstance::gen_),
+        CharacterStatGameInstance::GetDef(), self.level));
     auto& buff = SkillGameInstance::ski_;
     for (auto& buf : buff) {
       if (buf.hit) {

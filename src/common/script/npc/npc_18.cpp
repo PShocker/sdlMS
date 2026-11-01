@@ -6,10 +6,10 @@ namespace sdlms {
 
 static void Npc18(std::any data) {
   NpcDlgUiSystem::type_ = NpcDlgUiSystem::NpcDlgEnum::kTalk;
-  NpcDlgUiSystem::text_ = u"npc_19";
+  NpcDlgUiSystem::text_ = u"npc_18";
   NpcDlgUiSystem::index_ = 0;
   NpcDlgUiSystem::max_index_ = 0;
-  NpcDlgUiSystem::npc_id_ = u"0000019";
+  NpcDlgUiSystem::npc_id_ = u"0000018";
   NpcDlgUiSystem::time_ = Window::dt_now_;
 };
 

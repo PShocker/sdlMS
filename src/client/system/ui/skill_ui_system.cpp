@@ -408,6 +408,7 @@ void SkillUiSystem::EventButtonSkiUp() {
   JobSkillGameInstance::skill_point_[ski_id] += 1;
   JobSkillGameInstance::remain_point_[active_tab_] -= 1;
   CharacterStatGameInstance::Update();
+  AudioGameInstance::PlayNow(u"UI.img/BtMouseClick");
   return;
 }
 
@@ -416,7 +417,10 @@ void SkillUiSystem::EventClose() {
 }
 
 bool SkillUiSystem::EventUI(SDL_Event* event) {
-  EventButtonSkiUp();
+  if (event->type == SDL_EVENT_MOUSE_BUTTON_UP &&
+      event->button.button == SDL_BUTTON_LEFT) {
+    EventButtonSkiUp();
+  }
   EventClickSki(event);
   auto& components = GetComponent();
   for (auto& component : components) {

@@ -4,6 +4,7 @@
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/common/wz/wz_resource.h"
 
+#include <algorithm>
 #include <cstdint>
 #include <flat_set>
 #include <string>
@@ -13,6 +14,43 @@ namespace sdlms {
 void JobSkillGameInstance::Load(const CharacterSaveData& cs) {
   skill_point_ = cs.sp.ski_sp;
   remain_point_ = cs.remain_sp;
+  RecalculateRemainSp();
+}
+
+void JobSkillGameInstance::RecalculateRemainSp() {
+  auto jobs = LoadSkiTree(CharacterGameInstance::self_.job);
+  const int level = static_cast<int>(CharacterGameInstance::self_.level);
+  auto sp_total = [level](int from, int to) -> uint32_t {
+    if (level < from) {
+      return 0;
+    }
+    return static_cast<uint32_t>(1 + 3 * (std::min(level, to) - from));
+  };
+  std::vector<uint32_t> total(std::max<size_t>(4, jobs.size()), 0);
+  // Beginner 初始 1 SP，之后每级 +1，最多 9（三个新手技能各 3 级）。
+  total[0] = static_cast<uint32_t>(std::min(9, std::max(1, level)));
+  if (jobs.size() >= 2) {
+    total[1] = sp_total(10, 30);
+  }
+  if (jobs.size() >= 3) {
+    total[2] = sp_total(30, 70);
+  }
+  if (jobs.size() >= 4) {
+    total[3] = sp_total(70, 120);
+  }
+
+  remain_point_.assign(total.size(), 0);
+  for (size_t tab = 0; tab < jobs.size(); ++tab) {
+    uint32_t used = 0;
+    auto skis = LoadJobSkis(jobs[tab]);
+    for (auto [ski_id, node] : skis) {
+      auto id = std::stoi(std::string(ski_id.begin(), ski_id.end()));
+      if (skill_point_.contains(id)) {
+        used += skill_point_.at(id);
+      }
+    }
+    remain_point_[tab] = total[tab] > used ? total[tab] - used : 0;
+  }
 }
 
 uint8_t JobSkillGameInstance::LoadSkiLevel(const std::u16string& id) {

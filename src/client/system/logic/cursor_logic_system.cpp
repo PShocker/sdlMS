@@ -360,6 +360,14 @@ bool CursorLogicSystem::EventCursorHand(SDL_Event* event) {
       break;
     }
     case CursorGameInstance::CursorHandType::kPackage: {
+      // 095：alert 状态禁止丢弃物品，弹出不可丢弃提示。
+      if (CharacterLogicSystem::IsAlert()) {
+        NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kCannotThrow;
+        NoticeUiSystem::Open();
+        cursor_hand = std::nullopt;
+        AudioGameInstance::PlayNow(u"UI.img/DragEnd");
+        break;
+      }
       int active_tab = cursor_hand->val;
       int sub_index = cursor_hand->sub_val;
       // 处理装备丢弃

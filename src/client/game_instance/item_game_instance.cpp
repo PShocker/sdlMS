@@ -534,6 +534,10 @@ void ItemGameInstance::UseItem(std::polymorphic<GameItem>& itm) {
 
   if (item_type == u"Ins") {
     if (itm->id.starts_with(u"0301") && self_sit_cooldown < Window::dt_now_) {
+      // 095：alert 期间不能使用椅子。
+      if (CharacterLogicSystem::IsAlert()) {
+        return;
+      }
       if (!g_character.morph.empty()) {
         return;
       }

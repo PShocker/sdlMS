@@ -24,6 +24,8 @@ struct CheckMobs {
     float y;
     std::vector<int64_t> hits;
     uint64_t delay = 0;
+    // true 表示 hits 是最终伤害（例如金钱炸弹），不再乘技能百分比。
+    bool raw_damage = false;
   };
   std::vector<Mobs> data;
 };
@@ -62,6 +64,7 @@ class CharacterLogicSystem {
   static void RunTomb(GameCharacter& g_character);
 
   static void RunItem(GameCharacter& g_character);
+  static void RunRecovery(GameCharacter& g_character);
 
   static void RunStateMachine();
   static void RunColor();
@@ -88,6 +91,8 @@ class CharacterLogicSystem {
   static void RunAnimateChair(GameCharacter& g_character);
 
  public:
+  // 095 CAvatar::SetAlertMode：攻击/技能/受击后 5 秒的 alert 状态。
+  static bool IsAlert();
   static inline fbs::ClientCharacterStateT ccs_;
   static inline fbs::ClientCharacterPickT ccp_;
   static inline uint64_t ccp_time_ = 0;
@@ -169,6 +174,7 @@ class CharacterLogicSystem {
   static inline uint64_t self_portal_cooldown_;
   static inline uint64_t self_flip_cooldown_;
   static inline uint64_t self_attack_cooldown_;
+  static inline uint64_t self_recovery_time_;
   static inline uint64_t self_invincible_cooldown_;
   static inline uint64_t self_two_jump_cooldown_;
 
