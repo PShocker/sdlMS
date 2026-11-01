@@ -22,7 +22,7 @@ void PopupTipGameInstance::AddTip(PopupTipEnums type, fbs::PlayerT player_t) {
   tp.type = type;
   tp.data = player_t;
   data_.emplace_back(tp);
-  AudioGameInstance::LoadAudio(u"UI.img/Invite", 0);
+  AudioGameInstance::PlayNow(u"UI.img/Invite");
 }
 
 void PopupTipGameInstance::Load() {
@@ -44,7 +44,7 @@ void PopupTipGameInstance::AddQuestTip(const std::u16string& id) {
   tp.destroy = Window::dt_now_ + 5 * 1000;
   data_.emplace_back(tp);
   // 任务条件满足 / 新的任务 pop_tip
-  AudioGameInstance::LoadAudio(u"UI.img/Invite", 0);
+  AudioGameInstance::PlayNow(u"UI.img/Invite");
 }
 
 }  // namespace sdlms

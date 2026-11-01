@@ -13,9 +13,9 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/character_choose_ui_system.h"
+#include "src/client/system/ui/component/text_input.h"
 #include "src/client/system/ui/component/ui_component.h"
 #include "src/client/system/ui/login_ui_system.h"
-#include "src/client/system/ui/component/text_input.h"
 #include "src/client/system_instance/character_choose_system_instance.h"
 #include "src/client/system_instance/character_create_system_instance.h"
 #include "src/client/system_instance/game_save_system_instance.h"
@@ -75,25 +75,20 @@ UIComponents& CharacterCreateUiSystem::GetComponent() {
       EventButtonLukDec, EventButtonLukInc,
   };
   std::vector<bool> disable = {
-      str_point_ <= 4,
-      str_point_ > 12 || remain_point_ == 0,
-      dex_point_ <= 4,
-      dex_point_ > 12 || remain_point_ == 0,
-      int_point_ <= 4,
-      int_point_ > 12 || remain_point_ == 0,
-      luk_point_ <= 4,
-      luk_point_ > 12 || remain_point_ == 0,
+      str_point_ <= 4, str_point_ > 12 || remain_point_ == 0,
+      dex_point_ <= 4, dex_point_ > 12 || remain_point_ == 0,
+      int_point_ <= 4, int_point_ > 12 || remain_point_ == 0,
+      luk_point_ <= 4, luk_point_ > 12 || remain_point_ == 0,
   };
   for (size_t i = 0; i < stat_nodes.size(); ++i) {
     SDL_FRect rect = stat_rect[i];
     rect.x = (int)rect.x;
     rect.y = (int)rect.y;
-    components_.push_back(
-        Button{.node = stat_nodes[i],
-               .rect = rect,
-               .callback = stat_callback[i],
-               .enable = !disable[i],
-               .focused = focused});
+    components_.push_back(Button{.node = stat_nodes[i],
+                                 .rect = rect,
+                                 .callback = stat_callback[i],
+                                 .enable = !disable[i],
+                                 .focused = focused});
   }
 
   // 确定/取消
@@ -113,21 +108,20 @@ UIComponents& CharacterCreateUiSystem::GetComponent() {
     SDL_FRect rect = ui_rect[i];
     rect.x = (int)rect.x;
     rect.y = (int)rect.y;
-    components_.push_back(
-        Button{.node = ui_nodes[i],
-               .rect = rect,
-               .callback = ui_callback[i],
-               .enable = true,
-               .focused = focused});
+    components_.push_back(Button{.node = ui_nodes[i],
+                                 .rect = rect,
+                                 .callback = ui_callback[i],
+                                 .enable = true,
+                                 .focused = focused});
   }
 
   // 返回按钮画在背景图上，没有独立的 WZ 节点，仅提供点击区域
-  components_.push_back(Button{
-      .node = nullptr,
-      .rect = SDL_FRect{163 + pos.x, 574 + pos.y, 161, 69},
-      .callback = EventButtonBack,
-      .enable = true,
-      .focused = focused});
+  components_.push_back(
+      Button{.node = nullptr,
+             .rect = SDL_FRect{163 + pos.x, 574 + pos.y, 161, 69},
+             .callback = EventButtonBack,
+             .enable = true,
+             .focused = focused});
 
   // 外观调整的左右箭头，只出现在当前选中的行上
   static auto prev_node =
@@ -135,18 +129,14 @@ UIComponents& CharacterCreateUiSystem::GetComponent() {
   static auto next_node =
       WzResource::ui_->find(u"Login.img/NewChar/customize/button:gender_next");
   std::array<Button::Callback, 9> prev_callback = {
-      EventButtonGenderToggle,   EventButtonFacePrev,
-      EventButtonHairPrev,       EventButtonHairColorPrev,
-      EventButtonSkinColorPrev,  EventButtonTopPrev,
-      EventButtonBottomPrev,     EventButtonShoesPrev,
-      EventButtonWeaponPrev,
+      EventButtonGenderToggle,  EventButtonFacePrev,      EventButtonHairPrev,
+      EventButtonHairColorPrev, EventButtonSkinColorPrev, EventButtonTopPrev,
+      EventButtonBottomPrev,    EventButtonShoesPrev,     EventButtonWeaponPrev,
   };
   std::array<Button::Callback, 9> next_callback = {
-      EventButtonGenderToggle,   EventButtonFaceNext,
-      EventButtonHairNext,       EventButtonHairColorNext,
-      EventButtonSkinColorNext,  EventButtonTopNext,
-      EventButtonBottomNext,     EventButtonShoesNext,
-      EventButtonWeaponNext,
+      EventButtonGenderToggle,  EventButtonFaceNext,      EventButtonHairNext,
+      EventButtonHairColorNext, EventButtonSkinColorNext, EventButtonTopNext,
+      EventButtonBottomNext,    EventButtonShoesNext,     EventButtonWeaponNext,
   };
   auto cx = -440 - camera.x;
   auto cy = -1370 - camera.y;
@@ -411,7 +401,6 @@ void CharacterCreateUiSystem::RenderCustomItem(float cx, float cy,
   auto dx = Freetype::LoadW(item_name);
   Freetype::DrawLine(item_name, pos_rect.x + 175 - dx / 2, pos_rect.y);
   Freetype::LoadAligned(false);
-
 }
 
 void CharacterCreateUiSystem::RenderCustom() {
@@ -465,7 +454,7 @@ bool CharacterCreateUiSystem::BackAnimate() {
 }
 
 void CharacterCreateUiSystem::EventButtonBack() {
-  AudioGameInstance::LoadAudio(u"UI.img/ScrollUp", 0);
+  AudioGameInstance::PlayNow(u"UI.img/ScrollUp");
   CharacterChooseUiSystem::choose_ = std::nullopt;
 
   CharacterCreateSystemInstance::Enter();
@@ -519,7 +508,6 @@ std::vector<std::u16string> CharacterCreateUiSystem::LoadDefaultFace() {
 }
 
 void CharacterCreateUiSystem::EventButtonFacePrev() {
-
   auto faces = LoadDefaultFace();
   auto face_id = g_character_.face.id;
   auto it = std::ranges::find(faces, face_id);
@@ -531,7 +519,6 @@ void CharacterCreateUiSystem::EventButtonFacePrev() {
 }
 
 void CharacterCreateUiSystem::EventButtonFaceNext() {
-
   auto faces = LoadDefaultFace();
   auto face_id = g_character_.face.id;
   auto it = std::ranges::find(faces, face_id);
@@ -552,7 +539,6 @@ std::vector<std::u16string> CharacterCreateUiSystem::LoadDefaultHair() {
 }
 
 void CharacterCreateUiSystem::EventButtonHairPrev() {
-
   auto hairs = LoadDefaultHair();
   auto hair_id = g_character_.hair;
   hair_id.back() = u'0';
@@ -564,7 +550,6 @@ void CharacterCreateUiSystem::EventButtonHairPrev() {
 }
 
 void CharacterCreateUiSystem::EventButtonHairNext() {
-
   auto hairs = LoadDefaultHair();
   auto hair_id = g_character_.hair;
   hair_id.back() = u'0';
@@ -576,7 +561,6 @@ void CharacterCreateUiSystem::EventButtonHairNext() {
 }
 
 void CharacterCreateUiSystem::EventButtonHairColorPrev() {
-
   auto hair_id = g_character_.hair;
   auto back = hair_id.back();
   if (back > u'0') {
@@ -589,7 +573,6 @@ void CharacterCreateUiSystem::EventButtonHairColorPrev() {
 }
 
 void CharacterCreateUiSystem::EventButtonHairColorNext() {
-
   auto hair_id = g_character_.hair;
   auto back = hair_id.back();
   if (back < u'7') {
@@ -602,7 +585,6 @@ void CharacterCreateUiSystem::EventButtonHairColorNext() {
 }
 
 void CharacterCreateUiSystem::EventButtonSkinColorPrev() {
-
   auto head_id = g_character_.head;
   auto body_id = g_character_.body;
   auto back = head_id.back();
@@ -618,7 +600,6 @@ void CharacterCreateUiSystem::EventButtonSkinColorPrev() {
 }
 
 void CharacterCreateUiSystem::EventButtonSkinColorNext() {
-
   auto& head_id = g_character_.head;
   auto body_id = g_character_.body;
   auto back = head_id.back();
@@ -644,7 +625,6 @@ std::vector<std::u16string> CharacterCreateUiSystem::LoadDefaultTop() {
 }
 
 void CharacterCreateUiSystem::EventButtonTopPrev() {
-
   auto tops = LoadDefaultTop();
   auto top_id = g_character_.coat->id;
   auto it = std::ranges::find(tops, top_id);
@@ -655,7 +635,6 @@ void CharacterCreateUiSystem::EventButtonTopPrev() {
 }
 
 void CharacterCreateUiSystem::EventButtonTopNext() {
-
   auto tops = LoadDefaultTop();
   auto top_id = g_character_.coat->id;
   auto it = std::ranges::find(tops, top_id);
@@ -676,7 +655,6 @@ std::vector<std::u16string> CharacterCreateUiSystem::LoadDefaultBottom() {
 }
 
 void CharacterCreateUiSystem::EventButtonBottomPrev() {
-
   auto bottoms = LoadDefaultBottom();
   auto pant_id = g_character_.pant->id;
   auto it = std::ranges::find(bottoms, pant_id);
@@ -687,7 +665,6 @@ void CharacterCreateUiSystem::EventButtonBottomPrev() {
 }
 
 void CharacterCreateUiSystem::EventButtonBottomNext() {
-
   auto bottoms = LoadDefaultBottom();
   auto pant_id = g_character_.pant->id;
   auto it = std::ranges::find(bottoms, pant_id);
@@ -704,7 +681,6 @@ std::vector<std::u16string> CharacterCreateUiSystem::LoadDefaultShoes() {
 }
 
 void CharacterCreateUiSystem::EventButtonShoesPrev() {
-
   auto shoes = LoadDefaultShoes();
   auto shoes_id = g_character_.shoes->id;
   auto it = std::ranges::find(shoes, shoes_id);
@@ -715,7 +691,6 @@ void CharacterCreateUiSystem::EventButtonShoesPrev() {
 }
 
 void CharacterCreateUiSystem::EventButtonShoesNext() {
-
   auto shoes = LoadDefaultShoes();
   auto shoes_id = g_character_.shoes->id;
   auto it = std::ranges::find(shoes, shoes_id);
@@ -732,7 +707,6 @@ std::vector<std::u16string> CharacterCreateUiSystem::LoadDefaultWeapon() {
 }
 
 void CharacterCreateUiSystem::EventButtonWeaponPrev() {
-
   auto weapons = LoadDefaultWeapon();
   auto weapon_id = g_character_.weapon->id;
   auto it = std::ranges::find(weapons, weapon_id);
@@ -743,7 +717,6 @@ void CharacterCreateUiSystem::EventButtonWeaponPrev() {
 }
 
 void CharacterCreateUiSystem::EventButtonWeaponNext() {
-
   auto weapons = LoadDefaultWeapon();
   auto weapon_id = g_character_.weapon->id;
   auto it = std::ranges::find(weapons, weapon_id);
@@ -836,7 +809,7 @@ void CharacterCreateUiSystem::EventButtonOk() {
   if (characters.size() >= 3) {
     LoginNoticeSystemInstance::Enter(
         LoginNoticeSystemInstance::NoticeType::kCharacterFull, nullptr);
-    AudioGameInstance::LoadAudio(u"UI.img/DlgNotice", 0);
+    AudioGameInstance::PlayNow(u"UI.img/DlgNotice");
     return;
   }
   // check name
@@ -844,14 +817,14 @@ void CharacterCreateUiSystem::EventButtonOk() {
   if (name_text.empty()) {
     LoginNoticeSystemInstance::Enter(
         LoginNoticeSystemInstance::NoticeType::kCharacternameError, nullptr);
-    AudioGameInstance::LoadAudio(u"UI.img/DlgNotice", 0);
+    AudioGameInstance::PlayNow(u"UI.img/DlgNotice");
     return;
   }
   // check ap
   if (remain_point_ != 0) {
     LoginNoticeSystemInstance::Enter(
         LoginNoticeSystemInstance::NoticeType::kCharacterUseAp, nullptr);
-    AudioGameInstance::LoadAudio(u"UI.img/DlgNotice", 0);
+    AudioGameInstance::PlayNow(u"UI.img/DlgNotice");
     return;
   }
   for (auto ch : name_text) {
@@ -860,7 +833,7 @@ void CharacterCreateUiSystem::EventButtonOk() {
       // 名字不能为空
       LoginNoticeSystemInstance::Enter(
           LoginNoticeSystemInstance::NoticeType::kCharacternameError, nullptr);
-      AudioGameInstance::LoadAudio(u"UI.img/DlgNotice", 0);
+      AudioGameInstance::PlayNow(u"UI.img/DlgNotice");
       return;
     }
   }
@@ -869,11 +842,11 @@ void CharacterCreateUiSystem::EventButtonOk() {
       // 名字重复
       LoginNoticeSystemInstance::Enter(
           LoginNoticeSystemInstance::NoticeType::kCharacternameUsed, nullptr);
-      AudioGameInstance::LoadAudio(u"UI.img/DlgNotice", 0);
+      AudioGameInstance::PlayNow(u"UI.img/DlgNotice");
       return;
     }
   }
-  AudioGameInstance::LoadAudio(u"UI.img/ScrollUp", 0);
+  AudioGameInstance::PlayNow(u"UI.img/ScrollUp");
 
   g_character_.name = name_text;
   characters.push_back(g_character_);
@@ -893,6 +866,7 @@ void CharacterCreateUiSystem::EventButtonOk() {
   cs.ap.luk_ap = luk_point_;
 
   cs.map_id = 1;
+  cs.remain_sp = {0};
 
   GameSaveSystemInstance::save_.characters.push_back(std::move(cs));
 

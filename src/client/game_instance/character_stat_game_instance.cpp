@@ -30,6 +30,7 @@ void CharacterStatGameInstance::Load(const CharacterSaveData& cs) {
   dex_ap_ = cs.ap.dex_ap;
   int_ap_ = cs.ap.int_ap;
   luk_ap_ = cs.ap.luk_ap;
+  exp_point_ = cs.exp;
 
   remain_ap_ = cs.remain_ap;
 

@@ -204,7 +204,7 @@ void ServerCharacterInstance::HandleServerAction(
       break;
     }
     case CharacterLogicSystem::ActionEnum::kDead: {
-      AudioGameInstance::LoadAudio(u"Game.img/Tombstone", 0);
+      AudioGameInstance::PlayNow(u"Game.img/Tombstone");
       break;
     }
     default: {
@@ -398,7 +398,7 @@ void ServerCharacterInstance::HandleServerAtk(uint64_t client_id,
     // 声音
     if (!ct->sound.empty()) {
       std::u16string tmp{ct->sound.begin(), ct->sound.end()};
-      AudioGameInstance::LoadAudio(tmp, ct->attack->delay);
+      AudioGameInstance::Play(tmp, ct->attack->delay);
     }
     // 伤害数字
     DamageData data = {
@@ -420,7 +420,7 @@ void ServerCharacterInstance::HandleServerAtk(uint64_t client_id,
       mob.attack_val += data.num;
     }
     std::u16string path = u"Mob.img/" + mob.id + u"/Damage";
-    AudioGameInstance::LoadAudio(path, ct->attack->delay);
+    AudioGameInstance::Play(path, ct->attack->delay);
     MobHit.insert(mob.index);
     EffectGameInstance::data_[7].emplace_back(d);
   }
@@ -526,7 +526,7 @@ void ServerCharacterInstance::HandleSki(
   auto sound_path = u"Skill.img/" + ski_id3 + u"/Use";
   auto audio_node = WzResource::sound_->find(sound_path);
   if (audio_node) {
-    AudioGameInstance::LoadAudio(sound_path, 0);
+    AudioGameInstance::PlayNow(sound_path);
   }
 
   auto& mob = MobGameInstance::data_;
@@ -959,7 +959,7 @@ void ServerCharacterInstance::HandleLvUp(GameCharacter& g_character) {
       .z = false,
   };
   g_character.effect.emplace_back(e);
-  AudioGameInstance::LoadAudio(u"Game.img/LevelUp", 0);
+  AudioGameInstance::PlayNow(u"Game.img/LevelUp");
 }
 
 void ServerCharacterInstance::HandleLvUp(uint64_t client_id,

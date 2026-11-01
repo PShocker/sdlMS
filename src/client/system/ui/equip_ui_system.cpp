@@ -286,7 +286,7 @@ bool EquipUiSystem::EventClickEquip(SDL_Event* event) {
   auto& self = CharacterGameInstance::self_;
   auto& cursor_hand = CursorGameInstance::cursor_hand_;
   if (cursor_hand.has_value()) {
-    AudioGameInstance::LoadAudio(u"UI.img/DragEnd", 0);
+    AudioGameInstance::PlayNow(u"UI.img/DragEnd");
     switch (cursor_hand->type) {
       case CursorGameInstance::CursorHandType::kEquipment: {
         if (index == cursor_hand->sub_val && active_tab_ == 0) {
@@ -350,7 +350,7 @@ bool EquipUiSystem::EventClickEquip(SDL_Event* event) {
         click = EquipGameInstance::LoadDeco(index)->has_value();
       }
       if (click) {
-        AudioGameInstance::LoadAudio(u"UI.img/DragStart", 0);
+        AudioGameInstance::PlayNow(u"UI.img/DragStart");
         if (active_tab_ == 0) {
           CursorGameInstance::cursor_hand_ = {
               .type = CursorGameInstance::CursorHandType::kEquipment,
@@ -478,7 +478,7 @@ void EquipUiSystem::EventMotionBtAudio(SDL_Event* event) {
   static int8_t bt_audio = -1;
   int8_t bt_in = static_cast<int8_t>(ButtonHoverIndex(GetComponent()));
   if (bt_in != -1 && bt_audio != bt_in) {
-    AudioGameInstance::LoadAudio(u"UI.img/BtMouseOver", 0);
+    AudioGameInstance::PlayNow(u"UI.img/BtMouseOver");
   }
   bt_audio = bt_in;
 }

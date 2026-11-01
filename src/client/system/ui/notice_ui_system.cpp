@@ -445,7 +445,7 @@ void NoticeUiSystem::Open() {
         break;
       }
     }
-    AudioGameInstance::LoadAudio(u"UI.img/DlgNotice", 0);
+    AudioGameInstance::PlayNow(u"UI.img/DlgNotice");
     System::render_systems_.insert(it, Render);
     System::event_systems_.insert(System::event_systems_.begin(), Event);
   }
@@ -798,7 +798,7 @@ void NoticeUiSystem::EventMotionBtAudio(SDL_Event* event) {
   static int8_t bt_audio = -1;
   int8_t bt_in = static_cast<int8_t>(ButtonHoverIndex(GetComponent()));
   if (bt_in != -1 && bt_audio != bt_in) {
-    AudioGameInstance::LoadAudio(u"UI.img/BtMouseOver", 0);
+    AudioGameInstance::PlayNow(u"UI.img/BtMouseOver");
   }
   bt_audio = bt_in;
 }

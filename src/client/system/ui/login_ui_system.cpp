@@ -266,7 +266,7 @@ void LoginUiSystem::EventButtonLogin() {
     // 绑定失败
     LoginNoticeSystemInstance::Enter(
         LoginNoticeSystemInstance::NoticeType::kLoginingUsed, nullptr);
-    AudioGameInstance::LoadAudio(u"UI.img/DlgNotice", 0);
+    AudioGameInstance::PlayNow(u"UI.img/DlgNotice");
     return;
   }
 
@@ -278,7 +278,7 @@ void LoginUiSystem::EventButtonLogin() {
       CursorRenderSystem::Render,
   };
   System::event_systems_ = {};
-  AudioGameInstance::LoadAudio(u"UI.img/ScrollUp", 0);
+  AudioGameInstance::PlayNow(u"UI.img/ScrollUp");
 }
 
 void LoginUiSystem::EventButtonLoginSave() {

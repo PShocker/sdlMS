@@ -35,7 +35,7 @@ void InputSystem::HandleUiInput(GameInput& g_input) {
   };
   if (fns.contains(g_input.val)) {
     // 键盘打开 UI 与鼠标点击按钮保持同一种提示音。
-    AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+    AudioGameInstance::PlayNow(u"UI.img/BtMouseClick");
     fns.at(g_input.val)();
   }
 }

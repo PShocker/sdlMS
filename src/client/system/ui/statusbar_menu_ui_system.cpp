@@ -234,7 +234,7 @@ void StatusbarMenuUiSystem::Toggle() {
     Close();
   } else {
     Open();
-    AudioGameInstance::LoadAudio(u"UI.img/DlgNotice", 0);
+    AudioGameInstance::PlayNow(u"UI.img/DlgNotice");
   }
 }
 

@@ -345,18 +345,18 @@ bool CursorLogicSystem::EventCursorHand(SDL_Event* event) {
       auto c = (SDL_Scancode)cursor_hand->val;
       KeyboardGameInstance::EraseInput(c);
       cursor_hand = std::nullopt;
-      AudioGameInstance::LoadAudio(u"UI.img/DragEnd", 0);
+      AudioGameInstance::PlayNow(u"UI.img/DragEnd");
       break;
     }
     case CursorGameInstance::CursorHandType::kEquipment: {
       cursor_hand = std::nullopt;
-      AudioGameInstance::LoadAudio(u"UI.img/DragEnd", 0);
+      AudioGameInstance::PlayNow(u"UI.img/DragEnd");
 
       break;
     }
     case CursorGameInstance::CursorHandType::kSkill: {
       cursor_hand = std::nullopt;
-      AudioGameInstance::LoadAudio(u"UI.img/DragEnd", 0);
+      AudioGameInstance::PlayNow(u"UI.img/DragEnd");
       break;
     }
     case CursorGameInstance::CursorHandType::kPackage: {

@@ -75,6 +75,14 @@ void AudioGameInstance::PlayNow(const std::u16string& path) {
   audio.fade = 1;
 }
 
+void AudioGameInstance::Play(const std::u16string& path, uint64_t delay) {
+  if (delay == 0) {
+    PlayNow(path);
+  } else {
+    LoadAudio(path, delay);
+  }
+}
+
 void AudioGameInstance::LoadBackgrndAudio(const std::u16string& path) {
   // if (path.empty()) {
   //   return;

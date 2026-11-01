@@ -295,7 +295,7 @@ void QuestUiSystem::RenderAreaName(int i, int y, int count) {
   static int hovered_area = -1;
   if (cursor_on_ui && !modal_blocked && mouse_in) {
     if (hovered_area != i) {
-      AudioGameInstance::LoadAudio(u"UI.img/BtMouseOver", 0);
+      AudioGameInstance::PlayNow(u"UI.img/BtMouseOver");
     }
     hovered_area = i;
   } else if (hovered_area == i) {
@@ -875,7 +875,7 @@ bool QuestUiSystem::EventCheckbox() {
 
 void QuestUiSystem::EventFold() {
   if (fold.has_value()) {
-    AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+    AudioGameInstance::PlayNow(u"UI.img/BtMouseClick");
     if (disable_fold_.contains(fold.value())) {
       disable_fold_.erase(fold.value());
     } else {
@@ -892,7 +892,7 @@ void QuestUiSystem::EventQuest() {
     detail_quest_ = d_quest.value();
     read_quests_.insert(d_quest.value());
     pages_[1] = 0;
-    AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+    AudioGameInstance::PlayNow(u"UI.img/BtMouseClick");
   }
   return;
 }
@@ -959,10 +959,10 @@ void QuestUiSystem::EventButtonGiveup() {
     QuestAlarmUiSystem::CompleteQuest(id);
     QuestUiSystem::detail_quest_ = u"";
     QuestUiSystem::pages_[1] = 0;
-    AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+    AudioGameInstance::PlayNow(u"UI.img/BtMouseClick");
   };
   NoticeUiSystem::Open();
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+  AudioGameInstance::PlayNow(u"UI.img/BtMouseClick");
 }
 
 // 添加/取消任务提醒
@@ -983,7 +983,7 @@ void QuestUiSystem::EventButtonAlarm() {
       quests.insert(detail_quest_);
     }
   }
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+  AudioGameInstance::PlayNow(u"UI.img/BtMouseClick");
 }
 
 bool QuestUiSystem::EventUI(SDL_Event* event) {
@@ -996,7 +996,7 @@ bool QuestUiSystem::EventUI(SDL_Event* event) {
   for (auto& component : components) {
     if (auto* tab = std::get_if<Tab>(&component)) {
       if (auto i = tab->Click()) {
-        AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+        AudioGameInstance::PlayNow(u"UI.img/BtMouseClick");
         if (active_tab_ != *i) {
           disable_fold_ = {};
           pages_[0] = 0;
@@ -1032,7 +1032,7 @@ void QuestUiSystem::EventMotionBtAudio(SDL_Event* event) {
   static int8_t bt_audio = -1;
   int8_t bt_in = static_cast<int8_t>(ButtonHoverIndex(GetComponent()));
   if (bt_in != -1 && bt_audio != bt_in) {
-    AudioGameInstance::LoadAudio(u"UI.img/BtMouseOver", 0);
+    AudioGameInstance::PlayNow(u"UI.img/BtMouseOver");
   }
   bt_audio = bt_in;
 }

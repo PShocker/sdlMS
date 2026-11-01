@@ -391,19 +391,19 @@ bool QuickSlotUiSystem::EventClickQuickslot(SDL_Event* event) {
             if (!input.has_value()) {
               // 只允许药水/椅子；其他物品直接清空手持
               CursorGameInstance::cursor_hand_ = std::nullopt;
-              AudioGameInstance::LoadAudio(u"UI.img/DragEnd", 0);
+              AudioGameInstance::PlayNow(u"UI.img/DragEnd");
               return true;
             }
             KeyboardGameInstance::InsertInput(t[i], input.value());
             CursorGameInstance::cursor_hand_ = std::nullopt;
-            AudioGameInstance::LoadAudio(u"UI.img/DragEnd", 0);
+            AudioGameInstance::PlayNow(u"UI.img/DragEnd");
           } else {
             if (KeyboardGameInstance::data_.contains(t[i])) {
               CursorGameInstance::cursor_hand_ = {
                   .type = CursorGameInstance::CursorHandType::kKeybind,
                   .val = t[i],
               };
-              AudioGameInstance::LoadAudio(u"UI.img/DragStart", 0);
+              AudioGameInstance::PlayNow(u"UI.img/DragStart");
             }
           }
           return true;

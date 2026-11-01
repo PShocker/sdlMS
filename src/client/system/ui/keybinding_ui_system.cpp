@@ -527,7 +527,7 @@ void KeybindingUiSystem::EventMotionBtAudio(SDL_Event* event) {
   static int8_t bt_audio = -1;
   int8_t bt_in = static_cast<int8_t>(ButtonHoverIndex(GetComponent()));
   if (bt_in != -1 && bt_audio != bt_in) {
-    AudioGameInstance::LoadAudio(u"UI.img/BtMouseOver", 0);
+    AudioGameInstance::PlayNow(u"UI.img/BtMouseOver");
   }
   bt_audio = bt_in;
 }
@@ -546,19 +546,19 @@ void KeybindingUiSystem::EventBackgrndKey() {
     if (!input.has_value()) {
       // 装备/卷轴/其他非法物品不能放进键位：直接清空手持
       CursorGameInstance::cursor_hand_ = std::nullopt;
-      AudioGameInstance::LoadAudio(u"UI.img/DragEnd", 0);
+      AudioGameInstance::PlayNow(u"UI.img/DragEnd");
       return;
     }
     KeyboardGameInstance::InsertInput(scan_code, input.value());
     CursorGameInstance::cursor_hand_ = std::nullopt;
-    AudioGameInstance::LoadAudio(u"UI.img/DragEnd", 0);
+    AudioGameInstance::PlayNow(u"UI.img/DragEnd");
   } else {
     if (KeyboardGameInstance::data_.contains(scan_code)) {
       CursorGameInstance::cursor_hand_ = {
           .type = CursorGameInstance::CursorHandType::kKeybind,
           .val = scan_code,
       };
-      AudioGameInstance::LoadAudio(u"UI.img/DragStart", 0);
+      AudioGameInstance::PlayNow(u"UI.img/DragStart");
     }
   }
 }
@@ -575,7 +575,7 @@ void KeybindingUiSystem::EventRemainKey() {
         .val = SDL_SCANCODE_UNKNOWN,
         .sub_val = remain_key.value(),
     };
-    AudioGameInstance::LoadAudio(u"UI.img/DragStart", 0);
+    AudioGameInstance::PlayNow(u"UI.img/DragStart");
   }
 }
 
@@ -592,7 +592,7 @@ bool KeybindingUiSystem::EventCancelHand() {
     return false;
   }
   CursorGameInstance::cursor_hand_ = std::nullopt;
-  AudioGameInstance::LoadAudio(u"UI.img/DragEnd", 0);
+  AudioGameInstance::PlayNow(u"UI.img/DragEnd");
   return true;
 }
 
@@ -607,7 +607,7 @@ bool KeybindingUiSystem::EventUI(SDL_Event* event) {
     if (auto i = tab->Click(mouse)) {
       if (active_tab_ != *i) {
         active_tab_ = *i;
-        AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+        AudioGameInstance::PlayNow(u"UI.img/BtMouseClick");
       }
       return true;
     }
@@ -625,7 +625,7 @@ bool KeybindingUiSystem::Event(SDL_Event* event) {
       switch (scan_code) {
         case SDL_SCANCODE_ESCAPE: {
           EventButtonClose();
-          AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+          AudioGameInstance::PlayNow(u"UI.img/BtMouseClick");
           return false;
           break;
         }
@@ -663,7 +663,7 @@ bool KeybindingUiSystem::Event(SDL_Event* event) {
             KeyboardGameInstance::EraseInput(scan);
           }
           CursorGameInstance::cursor_hand_ = std::nullopt;
-          AudioGameInstance::LoadAudio(u"UI.img/DragEnd", 0);
+          AudioGameInstance::PlayNow(u"UI.img/DragEnd");
         }
         if (on_ui) {
           // event_tab(event);

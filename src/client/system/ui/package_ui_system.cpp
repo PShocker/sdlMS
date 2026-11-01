@@ -453,7 +453,7 @@ bool PackageUiSystem::EventClickItem(SDL_Event* event) {
         .val = active_tab_,
         .sub_val = index.value(),
     };
-    AudioGameInstance::LoadAudio(u"UI.img/DragStart", 0);
+    AudioGameInstance::PlayNow(u"UI.img/DragStart");
     return true;
   }
 
@@ -462,7 +462,7 @@ bool PackageUiSystem::EventClickItem(SDL_Event* event) {
   auto& hand = CursorGameInstance::cursor_hand_.value();
   auto& r = PackageGameInstance::data_[hand.val];
   if (index.value() >= r.size()) {
-    AudioGameInstance::LoadAudio(u"UI.img/DragEnd", 0);
+    AudioGameInstance::PlayNow(u"UI.img/DragEnd");
     CursorGameInstance::cursor_hand_ = std::nullopt;
     return false;
   }
@@ -477,7 +477,7 @@ bool PackageUiSystem::EventClickItem(SDL_Event* event) {
         auto eqp2 = std::polymorphic<GameItem>(eqp->value());
         r[index.value()] = eqp2;
         *eqp = std::nullopt;
-        AudioGameInstance::LoadAudio(u"UI.img/DragEnd", 0);
+        AudioGameInstance::PlayNow(u"UI.img/DragEnd");
         CursorGameInstance::cursor_hand_ = std::nullopt;
         CharacterLogicSystem::cct_.map_id = SceneSystemInstance::map_id_;
       }
@@ -493,7 +493,7 @@ bool PackageUiSystem::EventClickItem(SDL_Event* event) {
         auto eqp2 = std::polymorphic<GameItem>(eqp->value());
         r[index.value()] = eqp2;
         *eqp = std::nullopt;
-        AudioGameInstance::LoadAudio(u"UI.img/DragEnd", 0);
+        AudioGameInstance::PlayNow(u"UI.img/DragEnd");
         CursorGameInstance::cursor_hand_ = std::nullopt;
         CharacterLogicSystem::cct_.map_id = SceneSystemInstance::map_id_;
       }
@@ -514,7 +514,7 @@ bool PackageUiSystem::EventClickItem(SDL_Event* event) {
         case ItemEnum::kEquip: {
           // 点击的是同一个格子：尝试穿戴
           if (hand.val == active_tab_) {
-            AudioGameInstance::LoadAudio(u"UI.img/DragEnd", 0);
+            AudioGameInstance::PlayNow(u"UI.img/DragEnd");
             if (hand.sub_val == index.value()) {
               EquipGameInstance::UseEquip(index.value());
               CursorGameInstance::cursor_hand_ = std::nullopt;
@@ -531,7 +531,7 @@ bool PackageUiSystem::EventClickItem(SDL_Event* event) {
           break;
         }
         case ItemEnum::kDeco: {
-          AudioGameInstance::LoadAudio(u"UI.img/DragEnd", 0);
+          AudioGameInstance::PlayNow(u"UI.img/DragEnd");
           if (hand.sub_val == index.value()) {
             EquipGameInstance::UseDeco(index.value());
             CursorGameInstance::cursor_hand_ = std::nullopt;
@@ -548,7 +548,7 @@ bool PackageUiSystem::EventClickItem(SDL_Event* event) {
         case ItemEnum::kEtc:
         case ItemEnum::kInstall:
         case ItemEnum::kConsume: {
-          AudioGameInstance::LoadAudio(u"UI.img/DragEnd", 0);
+          AudioGameInstance::PlayNow(u"UI.img/DragEnd");
           // 处理普通背包栏
           auto& r = PackageGameInstance::data_[hand.val];
           if ((int)ItemEnum::kEquip == active_tab_) {
@@ -670,7 +670,7 @@ bool PackageUiSystem::EventUI(SDL_Event* event) {
   for (auto& component : components) {
     if (auto* tab = std::get_if<Tab>(&component)) {
       if (auto i = tab->Click()) {
-        AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+        AudioGameInstance::PlayNow(u"UI.img/BtMouseClick");
         if (active_tab_ != *i) {
           if (new_itm_.has_value() && (int)new_itm_->type == active_tab_) {
             new_itm_ = std::nullopt;
@@ -729,7 +729,7 @@ void PackageUiSystem::EventMotionBtAudio(SDL_Event* event) {
   static int8_t bt_audio = -1;
   int8_t bt_in = static_cast<int8_t>(ButtonHoverIndex(GetComponent()));
   if (bt_in != -1 && bt_audio != bt_in) {
-    AudioGameInstance::LoadAudio(u"UI.img/BtMouseOver", 0);
+    AudioGameInstance::PlayNow(u"UI.img/BtMouseOver");
   }
   bt_audio = bt_in;
 }

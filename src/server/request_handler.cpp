@@ -261,7 +261,7 @@ void RequestHandler::HandleRequest(uint64_t client_id, void* buf,
 
         ServerMain::local_addr_ = r.client_id;
         // 开始渐隐到黑屏时播放传送音效。
-        AudioGameInstance::LoadAudio(u"Game.img/Portal", 0);
+        AudioGameInstance::PlayNow(u"Game.img/Portal");
         FadeSystemInstance::EnterIn(SceneSystemInstance::EnterFade);
       }
       break;

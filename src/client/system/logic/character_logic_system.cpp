@@ -546,7 +546,7 @@ bool CharacterLogicSystem::RunJump(GameCharacter& g_character) {
                 self_foothold_cooldown_ = Window::dt_now_ + 120;
                 RunAction(g_character, u"jump");
                 self_two_jump_cooldown_ = Window::dt_now_ + 400;
-                AudioGameInstance::LoadAudio(u"Game.img/Jump", 0);
+                AudioGameInstance::PlayNow(u"Game.img/Jump");
                 break;
               }
             }
@@ -592,7 +592,7 @@ bool CharacterLogicSystem::RunJump(GameCharacter& g_character) {
     self_fall_fh_ = self_fh_;
     self_fh_ = 0;
     RunAction(g_character, u"jump");
-    AudioGameInstance::LoadAudio(u"Game.img/Jump", 0);
+    AudioGameInstance::PlayNow(u"Game.img/Jump");
     return true;
   }
   return false;
@@ -957,7 +957,7 @@ bool CharacterLogicSystem::RunAttack(GameCharacter& g_character) {
     auto cm = RunAttackCheck(g_character, g_r);
     if (!cm.data.empty()) {
       cm.data = {cm.data[0]};
-      cm.data[0].hits = {1};
+      cm.data[0].hits = {100};
       auto hit_type = AfterimageGameInstance::LoadHitType(g_character);
       auto effect =
           "Afterimage/hit.img/" + std::string{hit_type.begin(), hit_type.end()};
@@ -1017,7 +1017,7 @@ bool CharacterLogicSystem::RunPortal(GameCharacter& g_character) {
             self_fh_ = 0;
             RunAction(g_character, u"jump");
             self_portal_cooldown_ = Window::dt_now_ + 1200;
-            AudioGameInstance::LoadAudio(u"Game.img/Portal", 0);
+            AudioGameInstance::PlayNow(u"Game.img/Portal");
             return true;
           }
         }
@@ -1594,7 +1594,7 @@ void CharacterLogicSystem::RunDieAction(GameCharacter& g_character) {
 
   RunNetworkDieSync(g_character);
 
-  AudioGameInstance::LoadAudio(u"Game.img/Tombstone", 0);
+  AudioGameInstance::PlayNow(u"Game.img/Tombstone");
 
   ReviveUiSystem::Toggle();
 }
@@ -1641,11 +1641,11 @@ void CharacterLogicSystem::LoadSfx(GameCharacter& g_character) {
       return;
     }
   }
-  AudioGameInstance::LoadAudio(u"Weapon.img/" + sfx, delay);
+  AudioGameInstance::Play(u"Weapon.img/" + sfx, delay);
   if (g_character.skill.has_value()) {
     // hard code
     if (g_character.skill == u"4001003") {
-      AudioGameInstance::LoadAudio(u"Weapon.img/" + sfx, delay + 120);
+      AudioGameInstance::Play(u"Weapon.img/" + sfx, delay + 120);
     }
   }
 }

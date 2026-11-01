@@ -133,7 +133,7 @@ void ServerReactorInstance::HandleSReactor(const fbs::ReactorT& r) {
     std::u16string r(view.begin(), view.end());
 
     std::u16string path = u"Reactor.img/" + r + u"/" + tmp_state2 + u"/Hit";
-    AudioGameInstance::LoadAudio(path, 0);
+    AudioGameInstance::PlayNow(path);
   } else if (r.action == "revive") {
     reactor->alpha = 0;
     reactor->hit = false;

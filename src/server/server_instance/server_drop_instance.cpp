@@ -132,7 +132,7 @@ void ServerDropInstance::HandleServerPick(uint64_t client_id,
     if (r.client_id == ServerMain::local_addr_) {
       auto itm = dt.data;
       PackageGameInstance::AddNewItem(itm);
-      AudioGameInstance::LoadAudio(u"Game.img/PickUpItem", 0);
+      AudioGameInstance::PlayNow(u"Game.img/PickUpItem");
 
       CharacterLogicSystem::ccp_ = {};
 
@@ -150,7 +150,16 @@ void ServerDropInstance::HandleServerDt(const fbs::DropT& dt) {
   drop.vspeed = -400;
   drop.pos = SDL_FPoint{dt.x1, dt.y1};
   drop.goal = SDL_FPoint{dt.x2, dt.y2};
-  drop.hspeed = (dt.x2 - dt.x1) / (-drop.vspeed / 800);
+  // 095/客户端物理：上升 0.5s 到最高点，再下落到 y2。
+  // 水平位移应覆盖整个飞行时间，而不是只在上升阶段移动。
+  constexpr float kGravity = 800.0f;
+  constexpr float kRiseTime = 400.0f / kGravity;
+  constexpr float kMaxRise = 400.0f * 400.0f / (2.0f * kGravity);
+  const float max_height = dt.y1 - kMaxRise;
+  const float fall_distance = std::max(0.0f, dt.y2 - max_height);
+  const float fall_time = std::sqrt(2.0f * fall_distance / kGravity);
+  const float flight_time = kRiseTime + fall_time;
+  drop.hspeed = (dt.x2 - dt.x1) / std::max(flight_time, 0.001f);
 
   switch (dt.drop.type) {
     case fbs::ItemUnion_Equip: {
@@ -245,7 +254,7 @@ void ServerDropInstance::HandleServerDrop(uint64_t client_id,
     }
   }
   HandleServerDt(*r.payload);
-  AudioGameInstance::LoadAudio(u"Game.img/DropItem", 0);
+  AudioGameInstance::PlayNow(u"Game.img/DropItem");
 }
 
 std::vector<std::unique_ptr<fbs::DropT>> ServerDropInstance::CreateDts(
@@ -364,7 +373,7 @@ void ServerDropInstance::HandleServerCreateDrop(uint64_t client_id,
   for (const auto& dt : r.payload) {
     ServerDropInstance::HandleServerDt(*dt);
   }
-  AudioGameInstance::LoadAudio(u"Game.img/DropItem", 0);
+  AudioGameInstance::PlayNow(u"Game.img/DropItem");
 }
 
 }  // namespace sdlms

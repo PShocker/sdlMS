@@ -695,7 +695,7 @@ void NpcDlgUiSystem::EventList() {
     return;
   }
   // 点击任务列表条目：播放列表点击音
-  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+  AudioGameInstance::PlayNow(u"UI.img/BtMouseClick");
   script_id_ = u"";
   quest_id_ = selected;
 
@@ -879,7 +879,7 @@ void NpcDlgUiSystem::EventMotionBtAudio(SDL_Event* event) {
   static int8_t bt_audio = -1;
   int8_t bt_in = static_cast<int8_t>(ButtonHoverIndex(GetComponent()));
   if (bt_in != -1 && bt_audio != bt_in) {
-    AudioGameInstance::LoadAudio(u"UI.img/BtMouseOver", 0);
+    AudioGameInstance::PlayNow(u"UI.img/BtMouseOver");
   }
   bt_audio = bt_in;
 }

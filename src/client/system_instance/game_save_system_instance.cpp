@@ -4,7 +4,6 @@
 #include "src/client/game/game_quest.h"
 #include "src/client/game/game_save.h"
 #include "src/client/game_instance/character_game_instance.h"
-#include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
@@ -287,9 +286,9 @@ bool GameSaveSystemInstance::SaveGame() {
       qt.id = {quest.quest_id.begin(), quest.quest_id.end()};
       qt.index = quest.index;
       qt.type = (uint8_t)quest.type;
-      for (const auto& v : quest.mob | std::views::values) {
+      for (const auto& [k, v] : quest.mob) {
         fbs::QuestMobSaveT qmt;
-        qmt.mob_id = std::stoi(std::string{v.id.begin(), v.id.end()});
+        qmt.mob_id = std::stoi(std::string{k.begin(), k.end()});
         qmt.mob_num = v.count;
         qt.mob.push_back(std::make_unique<fbs::QuestMobSaveT>(qmt));
       }

@@ -432,7 +432,7 @@ void ServerMobInstance::HandleServerAction(const fbs::ServerMobActionT& m) {
   switch (MobType) {
     case MobLogicSystem::ActionEnum::kDie: {
       mob.debuffs = {};
-      AudioGameInstance::LoadAudio(u"Mob.img/" + mob.id + u"/Die", 0);
+      AudioGameInstance::PlayNow(u"Mob.img/" + mob.id + u"/Die");
       break;
     }
     default: {
@@ -480,7 +480,7 @@ void ServerMobInstance::HandleServerDrop(const fbs::ServerMobDropT& m) {
   for (const auto& dt : m.drop) {
     ServerDropInstance::HandleServerDt(*dt);
   }
-  AudioGameInstance::LoadAudio(u"Game.img/DropItem", 0);
+  AudioGameInstance::PlayNow(u"Game.img/DropItem");
   return;
 }
 

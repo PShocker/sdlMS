@@ -248,7 +248,7 @@ void CharacterChooseUiSystem::EventButtonSelect() {
   if (!choose_.has_value()) {
     return;
   }
-  AudioGameInstance::LoadAudio(u"Game.img/GameIn", 0);
+  AudioGameInstance::PlayNow(u"Game.img/GameIn");
 
   auto cse = choose_.value();
   auto character = characters_[cse];
@@ -284,10 +284,10 @@ void CharacterChooseUiSystem::EventButtonNew() {
   if (characters_.size() >= 3) {
     LoginNoticeSystemInstance::Enter(
         LoginNoticeSystemInstance::NoticeType::kCharacterFull, nullptr);
-    AudioGameInstance::LoadAudio(u"UI.img/DlgNotice", 0);
+    AudioGameInstance::PlayNow(u"UI.img/DlgNotice");
     return;
   }
-  AudioGameInstance::LoadAudio(u"UI.img/ScrollUp", 0);
+  AudioGameInstance::PlayNow(u"UI.img/ScrollUp");
 
   CharacterCreateSystemInstance::EnterPrepare();
 
@@ -319,7 +319,7 @@ void CharacterChooseUiSystem::EventButtonDeleteCb() {
 }
 
 void CharacterChooseUiSystem::EventButtonDelete() {
-  AudioGameInstance::LoadAudio(u"UI.img/DlgNotice", 0);
+  AudioGameInstance::PlayNow(u"UI.img/DlgNotice");
   LoginNoticeSystemInstance::Enter(
       LoginNoticeSystemInstance::NoticeType::kCharacterDelete,
       EventButtonDeleteCb);
@@ -347,7 +347,7 @@ bool CharacterChooseUiSystem::BackAnimate() {
 
 void CharacterChooseUiSystem::EventButtonBack() {
   ClearChoose();
-  AudioGameInstance::LoadAudio(u"UI.img/ScrollUp", 0);
+  AudioGameInstance::PlayNow(u"UI.img/ScrollUp");
 
   GameSaveSystemInstance::SaveGame();
   LoginSystemInstance::EnterPrepare();
@@ -410,7 +410,7 @@ bool CharacterChooseUiSystem::EventChooseCharacter(SDL_Event* event) {
     board_.ani_time = 0;
     effect_.ani_index = 0;
     effect_.ani_time = 0;
-    AudioGameInstance::LoadAudio(u"UI.img/CharSelect", 0);
+    AudioGameInstance::PlayNow(u"UI.img/CharSelect");
   }
   return true;
 }

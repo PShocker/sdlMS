@@ -379,7 +379,7 @@ void QuestGameInstance::CompleteQuest(GameQuest& q) {
   q.type = QuestEnum::kComplete;
   complete_quests_[q.quest_id] = q;
   progress_quests_.erase(q.quest_id);
-  AudioGameInstance::LoadAudio(u"Game.img/QuestClear", 0);
+  AudioGameInstance::PlayNow(u"Game.img/QuestClear");
 }
 
 void QuestGameInstance::CompleteQuest(const std::u16string& id) {

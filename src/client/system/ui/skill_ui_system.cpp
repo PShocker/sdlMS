@@ -402,7 +402,7 @@ bool SkillUiSystem::EventUI(SDL_Event* event) {
   for (auto& component : components) {
     if (auto* tab = std::get_if<Tab>(&component)) {
       if (auto i = tab->Click()) {
-        AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+        AudioGameInstance::PlayNow(u"UI.img/BtMouseClick");
         active_tab_ = *i;
         page_ = 0;
       }
@@ -443,10 +443,10 @@ bool SkillUiSystem::EventClickSki(SDL_Event* event) {
           }
         }
         CursorGameInstance::cursor_hand_ = std::nullopt;
-        AudioGameInstance::LoadAudio(u"UI.img/DragEnd", 0);
+        AudioGameInstance::PlayNow(u"UI.img/DragEnd");
         return false;
       } else {
-        AudioGameInstance::LoadAudio(u"UI.img/DragStart", 0);
+        AudioGameInstance::PlayNow(u"UI.img/DragStart");
         CursorGameInstance::cursor_hand_ = {
             .type = CursorGameInstance::CursorHandType::kSkill,
             .val = active_tab_,
@@ -498,7 +498,7 @@ void SkillUiSystem::EventMotionBtAudio(SDL_Event* event) {
   GetComponent();
   static std::u16string ski_button_i;
   if (!ski_button_id.empty() && ski_button_i.empty()) {
-    AudioGameInstance::LoadAudio(u"UI.img/BtMouseOver", 0);
+    AudioGameInstance::PlayNow(u"UI.img/BtMouseOver");
     ski_button_i = ski_button_id;
     return;
   }
@@ -510,7 +510,7 @@ void SkillUiSystem::EventMotionBtAudio(SDL_Event* event) {
     bt_in = 0;
   }
   if (bt_in != -1 && bt_audio != bt_in) {
-    AudioGameInstance::LoadAudio(u"UI.img/BtMouseOver", 0);
+    AudioGameInstance::PlayNow(u"UI.img/BtMouseOver");
   }
   bt_audio = bt_in;
 }

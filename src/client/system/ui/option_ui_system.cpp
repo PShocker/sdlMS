@@ -741,7 +741,7 @@ UIComponents& OptionUiSystem::GetComponent() {
         int32_t v = Value(active_tab_, field);
         v = up ? std::min(high, v + step) : std::max(low, v - step);
         SetValue(active_tab_, field, v);
-        AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+        AudioGameInstance::PlayNow(u"UI.img/BtMouseClick");
       };
       components_.push_back(button);
     }
@@ -766,7 +766,7 @@ bool OptionUiSystem::EventUI(SDL_Event* event) {
       if (*i != active_tab_) {
         active_tab_ = *i;
         open_combo_ = std::nullopt;
-        AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+        AudioGameInstance::PlayNow(u"UI.img/BtMouseClick");
       }
       return true;
     }
@@ -780,7 +780,7 @@ bool OptionUiSystem::EventUI(SDL_Event* event) {
       }
       if (auto i = ClickCombo(element, mouse)) {
         SetValue(active_tab_, element.name, *i);
-        AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+        AudioGameInstance::PlayNow(u"UI.img/BtMouseClick");
       }
       open_combo_ = std::nullopt;
       return true;
@@ -808,19 +808,19 @@ bool OptionUiSystem::EventUI(SDL_Event* event) {
         value = up ? std::min(high, value + step)
                    : std::max(low, value - step);
         SetValue(active_tab_, field, value);
-        AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+        AudioGameInstance::PlayNow(u"UI.img/BtMouseClick");
       }
       return true;
     }
     if (element.kind == u"check") {
       auto val = Value(active_tab_, element.name);
       SetValue(active_tab_, element.name, val == 0 ? 1 : 0);
-      AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+      AudioGameInstance::PlayNow(u"UI.img/BtMouseClick");
       return true;
     }
     if (element.kind == u"combo") {
       open_combo_ = element.name;
-      AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+      AudioGameInstance::PlayNow(u"UI.img/BtMouseClick");
       return true;
     }
   }
@@ -967,7 +967,7 @@ void OptionUiSystem::EventMotionBtAudio(SDL_Event* event) {
   static int8_t hover = -1;
   int8_t now = static_cast<int8_t>(ButtonHoverIndex(GetComponent()));
   if (now != -1 && hover != now) {
-    AudioGameInstance::LoadAudio(u"UI.img/BtMouseOver", 0);
+    AudioGameInstance::PlayNow(u"UI.img/BtMouseOver");
   }
   hover = now;
 }
