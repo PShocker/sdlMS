@@ -37,7 +37,7 @@ constexpr float kJumpSpeed = -555.0f;
 constexpr float kFallVspeedMin = -5550.0f;
 constexpr float kFallVspeedMax = 670.0f;
 constexpr float kFlyDeadZone = 10.0f;     // 飞行到点死区
-constexpr float kChaseDeadZone = 100.0f;  // 追击贴脸死区
+constexpr float kChaseDeadZone = 2.0f;    // 追击时与玩家重合的停止死区
 constexpr uint32_t kWanderMinMs = 330;    // 巡游换向间隔
 constexpr uint32_t kWanderMaxMs = 990;
 
@@ -265,9 +265,12 @@ void ServerMobSystem::RunInput(ServerMob& mob) {
       clients.at(mob.target_id).player_t.character != nullptr) {
     const auto& state = *clients.at(mob.target_id).player_t.character->state;
     float dx = state.x - mob.pos.x;
-    // 贴脸死区：|dx| < 100 时保持当前方向（v95 CtrlUpdateActiveMove）
-    if (std::fabs(dx) >= kChaseDeadZone || mob.input_x == 0) {
-      mob.input_x = dx >= 0 ? 1 : -1;
+    // 追击时必须每帧重新朝玩家方向走。原来在 |dx|<100 时保留旧方向，
+    // 怪物会从静止的玩家身边走过头，最后一直顶着墙走。
+    if (std::fabs(dx) <= kChaseDeadZone) {
+      mob.input_x = 0;
+    } else {
+      mob.input_x = dx > 0 ? 1 : -1;
     }
     return;
   }
@@ -742,7 +745,12 @@ void ServerMobSystem::RunWalk(ServerMob& mob) {
   // 撞墙或走到地形尽头：有跳跃能力的怪起跳，否则掉头
   if (mob.move_ability == 3) {
     RunTryJump(mob);
-  } else if (mob.target_id == 0) {
+  } else if (mob.target_id != 0) {
+    // 追击时被墙挡住：先停下，下一帧继续按玩家位置重新选方向，
+    // 不能保持原方向一直顶墙。
+    mob.input_x = 0;
+    mob.hspeed = 0;
+  } else {
     mob.input_x = static_cast<int8_t>(-mob.input_x);
     mob.flip = mob.input_x > 0;
     mob.think = Window::dt_now_ + 500;
