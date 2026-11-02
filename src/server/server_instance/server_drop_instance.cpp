@@ -292,7 +292,7 @@ std::vector<std::unique_ptr<fbs::DropT>> ServerDropInstance::CreateDts(
     do {
       random_id = dist(gen_);
     } while (ServerSceneInstance::scenes_[map_id].drops.contains(random_id));
-    dt.random_id = dist(gen_);
+    dt.random_id = random_id;
     int x;
     if (dts_size == 1) {
       x = 0;
@@ -318,8 +318,8 @@ std::vector<std::unique_ptr<fbs::DropT>> ServerDropInstance::CreateDts(
       }
     }
 
-    int32_t tmp_fh;
-    uint8_t tmp_page;
+    int32_t tmp_fh = 0;
+    uint8_t tmp_page = 0;
     float tmp_hsp = 0;
     float tmp_vsp = 10000;
     SDL_FPoint tmp_fp{dt.x2, dt.y2};
