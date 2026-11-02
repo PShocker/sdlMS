@@ -66,10 +66,6 @@ constexpr float kAccessPad = 40.0f;         // 访问限位外的减速余量
 constexpr float kPlayerHalfWidth = 18.0f;
 constexpr float kPlayerHeight = 60.0f;
 
-// 服务端只为玩家附近的怪物运行 AI，远处怪物保留状态、不做完整模拟。
-constexpr float kMobActiveRangeX = 1200.0f;
-constexpr float kMobActiveRangeY = 700.0f;
-
 int8_t Sign(float value) {
   if (value > 0) {
     return 1;
@@ -205,9 +201,8 @@ void ServerMobSystem::RunTarget(ServerMob& mob) {
 
   // 1) 目标失效检查
   if (mob.target_id != 0) {
-    bool valid =
-        clients.contains(mob.target_id) &&
-        clients.at(mob.target_id).player_t.character != nullptr;
+    bool valid = clients.contains(mob.target_id) &&
+                 clients.at(mob.target_id).player_t.character != nullptr;
     if (valid) {
       const auto& state = *clients.at(mob.target_id).player_t.character->state;
       float dx = state.x - mob.pos.x;
@@ -301,13 +296,15 @@ bool ServerMobSystem::RunAttackRange(const ServerMob& mob,
       if (attack.type == MobAttack::RangeType::kArea && attack.area_count > 0) {
         // 区域攻击覆盖 [start, start+areaCount) 这一段格子
         left = attack.rect.x + cell_width * static_cast<float>(attack.start);
-        right = attack.rect.x +
-                cell_width * static_cast<float>(attack.start + attack.area_count);
+        right =
+            attack.rect.x +
+            cell_width * static_cast<float>(attack.start + attack.area_count);
       }
       SDL_FRect rect;
       rect.w = std::fabs(right - left);
       rect.h = std::fabs(attack.rect.h);
-      rect.y = mob.pos.y + std::min(attack.rect.y, attack.rect.y + attack.rect.h);
+      rect.y =
+          mob.pos.y + std::min(attack.rect.y, attack.rect.y + attack.rect.h);
       if (mob.flip) {
         rect.x = mob.pos.x - right;
       } else {
@@ -550,9 +547,8 @@ void ServerMobSystem::RunInterruptGround(ServerMob& mob, uint32_t t_elapse) {
     }
 
     // 世界坐标 -> 沿段一维位置（v95 RelPos::SetFromAbsPos）
-    float pos = std::fabs(axis.uvx) > 0.5f
-                    ? (mob.pos.x - axis.ox) / axis.uvx
-                    : (mob.pos.y - axis.oy) / axis.uvy;
+    float pos = std::fabs(axis.uvx) > 0.5f ? (mob.pos.x - axis.ox) / axis.uvx
+                                           : (mob.pos.y - axis.oy) / axis.uvy;
 
     const float adx = std::fabs(mob.pos.x - it.end_x);
     const float dir_v = it.vx > 0.0f ? 1.0f : (it.vx < 0.0f ? -1.0f : 0.0f);
@@ -608,8 +604,8 @@ void ServerMobSystem::RunInterruptGround(ServerMob& mob, uint32_t t_elapse) {
     // 越过段端点：能接上就换段，接不上就减速停在端点
     if (pos < 0.0f) {
       int32_t prev = fh.prev;
-      bool wall = prev == 0 || !g_fhs_.contains(prev) ||
-                  !g_fhs_.at(prev).k.has_value();
+      bool wall =
+          prev == 0 || !g_fhs_.contains(prev) || !g_fhs_.at(prev).k.has_value();
       if (wall) {
         it.vx /= kSlowDiv;
         pos = 0.0f;
@@ -623,8 +619,8 @@ void ServerMobSystem::RunInterruptGround(ServerMob& mob, uint32_t t_elapse) {
       }
     } else if (pos > axis.len) {
       int32_t next = fh.next;
-      bool wall = next == 0 || !g_fhs_.contains(next) ||
-                  !g_fhs_.at(next).k.has_value();
+      bool wall =
+          next == 0 || !g_fhs_.contains(next) || !g_fhs_.at(next).k.has_value();
       if (wall) {
         it.vx /= kSlowDiv;
         pos = axis.len;
@@ -1090,8 +1086,7 @@ void ServerMobSystem::RunStateMachine(ServerMob& mob) {
 
     // main 的 hit 状态：hit1 动画总 delay 结束后才清 hit，回到 stand。
     // 最后一击 waiting death 期间也允许清掉旧 hit，随后可以播放非 hit 动作。
-    if (!mob.dead && hit_state &&
-        (mob.hits.empty() || RunHitCheck(mob))) {
+    if (!mob.dead && hit_state && (mob.hits.empty() || RunHitCheck(mob))) {
       RunSetAction(mob, LoadDefaultAction(mob));
       hit_state = false;
     }
@@ -1164,27 +1159,7 @@ bool ServerMobSystem::Run() {
     for (const auto& [key, value] : sc.fhs) {
       g_fhs_.emplace(key, value.fh);
     }
-    auto is_active = [&](const ServerMob& mob) {
-      for (auto client_id : sc.clients) {
-        auto it = ServerClientInstance::clients_.find(client_id);
-        if (it == ServerClientInstance::clients_.end() ||
-            it->second.player_t.character == nullptr ||
-            it->second.player_t.character->state == nullptr) {
-          continue;
-        }
-        const auto& state = *it->second.player_t.character->state;
-        if (std::fabs(state.x - mob.pos.x) <= kMobActiveRangeX &&
-            std::fabs(state.y - mob.pos.y) <= kMobActiveRangeY) {
-          return true;
-        }
-      }
-      return false;
-    };
     for (auto& mob : sc.mobs | std::views::values) {
-      // 死亡/渐显计时必须继续；其余怪物只在玩家附近运行完整 AI。
-      if (!mob.dead && !mob.reviving && !is_active(mob)) {
-        continue;
-      }
       RunStateMachine(mob);
     }
     RunSend();
