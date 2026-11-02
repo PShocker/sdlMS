@@ -195,7 +195,11 @@ CheckMobs CharacterLogicSystem::RunAttackCheck(GameCharacter& g_character,
     if (hit_roll(RandomGameInstance::gen_) >= chance) {
       continue;
     }
-    auto m_r = MobLogicSystem::LoadRect(mob).value();
+    auto m_r_opt = MobLogicSystem::LoadRect(mob);
+    if (!m_r_opt.has_value()) {
+      continue;
+    }
+    auto& m_r = m_r_opt.value();
 
     if (TriangleGameInstance::RectInsTri(m_r, t)) {
       auto& m_pos = mob.pos;
@@ -249,7 +253,11 @@ CheckMobs CharacterLogicSystem::RunAttackCheck(SDL_FPoint pos, SDL_FRect g_r,
     if (hit_roll(RandomGameInstance::gen_) >= chance) {
       continue;
     }
-    auto m_r = MobLogicSystem::LoadRect(mob).value();
+    auto m_r_opt = MobLogicSystem::LoadRect(mob);
+    if (!m_r_opt.has_value()) {
+      continue;
+    }
+    auto& m_r = m_r_opt.value();
     if (SDL_HasRectIntersectionFloat(&m_r, &g_r)) {
       auto& m_pos = mob.pos;
       auto dis = (m_pos.x - g_pos.x) * (m_pos.x - g_pos.x) +
@@ -929,7 +937,11 @@ bool CharacterLogicSystem::RunAttack(GameCharacter& g_character) {
   std::uniform_int_distribution<> dis(0, actions->size() - 1);
   auto selected = *std::next(actions->begin(), dis(gen_));
   RunAction(g_character, selected);
-  SDL_FRect g_r = AfterimageGameInstance::LoadRect(g_character).value();
+  auto g_r_opt = AfterimageGameInstance::LoadRect(g_character);
+  if (!g_r_opt.has_value()) {
+    return false;
+  }
+  SDL_FRect g_r = g_r_opt.value();
   auto rt = RunReactorCheck(g_character, g_r);
   auto ball = PackageGameInstance::LoadActiveBall();
   switch (g_action) {
@@ -1866,22 +1878,23 @@ void CharacterLogicSystem::RunRecovery(GameCharacter& g_character) {
 
 
 void CharacterLogicSystem::RunItem(GameCharacter& g_character) {
-  if (!character_item_input_.empty()) {
-    for (const auto& input : character_item_input_) {
-      auto item_id = input.val;
-      std::u16string item_id2{item_id.begin(), item_id.end()};
-      auto itm = PackageGameInstance::LoadItem(item_id2);
-      if (itm == nullptr) {
-        return;
-      }
-      // 095 SendStatChangeItemUseRequest：alert 期间不能用 236 类属性道具。
-      if (IsAlert() && item_id2.starts_with(u"0236")) {
-        continue;
-      }
-      ItemGameInstance::UseItem(*itm);
-    }
+  if (character_item_input_.empty()) {
+    return;
   }
-  return;
+  for (const auto& input : character_item_input_) {
+    auto item_id = input.val;
+    std::u16string item_id2{item_id.begin(), item_id.end()};
+    auto itm = PackageGameInstance::LoadItem(item_id2);
+    if (itm == nullptr) {
+      continue;
+    }
+    // 095 SendStatChangeItemUseRequest：alert 期间不能用 236 类属性道具。
+    if (IsAlert() && item_id2.starts_with(u"0236")) {
+      continue;
+    }
+    // 冷却统一由 ItemGameInstance::UseItem 管理。
+    ItemGameInstance::UseItem(*itm);
+  }
 }
 
 std::u16string CharacterLogicSystem::LoadMorphType(GameCharacter& g_character) {

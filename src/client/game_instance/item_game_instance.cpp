@@ -528,6 +528,13 @@ bool ItemGameInstance::UseConsumeItem(std::polymorphic<GameItem>& itm) {
 }
 
 void ItemGameInstance::UseItem(std::polymorphic<GameItem>& itm) {
+  const uint64_t now = Window::dt_now_;
+  if (now < item_use_cooldown_) {
+    return;
+  }
+  // 键盘、快捷栏、背包双击等所有入口统一进入 0.6 秒冷却。
+  item_use_cooldown_ = now + 600;
+
   auto item_type = ItemGameInstance::LoadItemType(itm->id);
   auto& g_character = CharacterGameInstance::self_;
   auto self_sit_cooldown = CharacterLogicSystem::self_sit_cooldown_;

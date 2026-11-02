@@ -15,10 +15,10 @@
 namespace sdlms {
 
 struct GameMob {
-  uint32_t index;
+  uint32_t index = 0;
   std::u16string id;
 
-  SDL_FPoint pos;
+  SDL_FPoint pos = {0.0f, 0.0f};
 
   std::u16string action;
 
@@ -27,16 +27,16 @@ struct GameMob {
   uint64_t revive_time = 0;
 
   uint32_t ani_index = 0;
-  uint32_t ani_time;
+  uint32_t ani_time = 0;
   bool ani_animate = true;
 
-  int64_t hp;
-  int64_t mp;
+  int64_t hp = 0;
+  int64_t mp = 0;
 
-  int64_t max_hp;
+  int64_t max_hp = 0;
 
-  uint8_t page;
-  bool flip;
+  uint8_t page = 0;
+  bool flip = false;
 
   std::vector<GameEffect> effect;
 

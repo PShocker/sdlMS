@@ -64,11 +64,11 @@ struct MobAttack {
 };
 
 struct ServerMob {
-  uint32_t index;
+  uint32_t index = 0;
   std::u16string id;
 
-  SDL_FPoint pos;
-  SDL_FPoint spawn_pos;  // WZ 初始出生位置，复活回到这里
+  SDL_FPoint pos = {0.0f, 0.0f};
+  SDL_FPoint spawn_pos = {0.0f, 0.0f};  // WZ 初始出生位置，复活回到这里
   int32_t spawn_fh = 0;
   uint8_t spawn_page = 0;
 
@@ -78,24 +78,24 @@ struct ServerMob {
   bool one_shot = false;
   uint64_t action_end = 0;  // 一次性动作结束时刻
 
-  int64_t hp;
-  int64_t mp;
+  int64_t hp = 0;
+  int64_t mp = 0;
   // 已执行 RunDie：避免重复死亡事件，并让死亡动画期间停止物理下落
   bool dead = false;
 
-  uint8_t page;
-  bool flip;
+  uint8_t page = 0;
+  bool flip = false;
 
-  uint64_t revive;  // 死亡后下一次复活/渐显结束的时间
+  uint64_t revive = 0;  // 死亡后下一次复活/渐显结束的时间
   bool reviving = false;  // 已复活，正在 1 秒渐显阶段
 
-  int32_t rx0;
-  int32_t rx1;
-  int32_t fh;
+  int32_t rx0 = 0;
+  int32_t rx1 = 0;
+  int32_t fh = 0;
 
-  float hspeed;
-  float hspeed_max;
-  float vspeed;
+  float hspeed = 0.0f;
+  float hspeed_max = 0.0f;
+  float vspeed = 0.0f;
 
   float hforce = 0;
 

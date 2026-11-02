@@ -37,6 +37,8 @@ class ItemGameInstance {
   static void UnuseBuffItem(const std::u16string& id);
   static bool UseConsumeItem(const std::u16string& id);
   static bool UseConsumeItem(std::polymorphic<GameItem>& itm);
+  // 所有使用物品的入口共用 1 秒冷却。
+  static inline uint64_t item_use_cooldown_ = 0;
   static void UseItem(std::polymorphic<GameItem>& itm);
 };
 

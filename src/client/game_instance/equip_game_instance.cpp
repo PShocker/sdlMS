@@ -544,6 +544,8 @@ void EquipGameInstance::AddEquip(GameEquipItem& equip, GameCharacter& character,
     character.cape = equip;
 
   } else if (type == u"Coat") {
+    // 上衣和套服互斥；裤子保留。
+    character.longcoat.reset();
     CharacterGameInstance::AddCoat(character, equip.id);
 
     character.coat = equip;
@@ -554,11 +556,16 @@ void EquipGameInstance::AddEquip(GameEquipItem& equip, GameCharacter& character,
     character.glove = equip;
 
   } else if (type == u"Longcoat") {
+    // 套服占用上衣 + 裤子两个槽位。
+    character.coat.reset();
+    character.pant.reset();
     CharacterGameInstance::AddLongcoat(character, equip.id);
 
     character.longcoat = equip;
 
   } else if (type == u"Pants") {
+    // 裤子和套服互斥；上衣保留。
+    character.longcoat.reset();
     CharacterGameInstance::AddPants(character, equip.id);
 
     character.pant = equip;
@@ -770,8 +777,12 @@ std::vector<GameEquipItem> EquipGameInstance::LoadEquipSlot(
     }
 
   } else if (type == u"Coat") {
+    // 上衣与套服共用 Clothes 槽：穿上衣时套服也要一起脱下。
     if (character.coat.has_value()) {
       r.push_back(character.coat.value());
+    }
+    if (character.longcoat.has_value()) {
+      r.push_back(character.longcoat.value());
     }
 
   } else if (type == u"Glove") {
@@ -780,6 +791,7 @@ std::vector<GameEquipItem> EquipGameInstance::LoadEquipSlot(
     }
 
   } else if (type == u"Longcoat") {
+    // 套服占用上衣 + 裤子两个槽位。
     if (character.coat.has_value()) {
       r.push_back(character.coat.value());
     }
@@ -791,6 +803,9 @@ std::vector<GameEquipItem> EquipGameInstance::LoadEquipSlot(
   } else if (type == u"Pants") {
     if (character.pant.has_value()) {
       r.push_back(character.pant.value());
+    }
+    if (character.longcoat.has_value()) {
+      r.push_back(character.longcoat.value());
     }
 
   } else if (type == u"Ring") {
@@ -1240,7 +1255,11 @@ std::optional<GameEquipItem>* EquipGameInstance::LoadEquip(int index) {
     }
 
     case EquipMouseIndex::kClothes: {
-      equip = &self.coat;
+      if (self.coat.has_value()) {
+        equip = &self.coat;
+      } else {
+        equip = &self.longcoat;
+      }
 
       break;
     }

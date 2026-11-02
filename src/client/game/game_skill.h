@@ -34,11 +34,11 @@ struct GameSkill {
   bool fall = false;
   bool climb = false;
 
-  uint64_t destroy;
-  uint64_t duration;
-  uint64_t cd;
-  uint64_t start;
-  uint8_t lv;
+  uint64_t destroy = 0;
+  uint64_t duration = 0;
+  uint64_t cd = 0;
+  uint64_t start = 0;
+  uint8_t lv = 0;
 };
 
 }  // namespace sdlms
