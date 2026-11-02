@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <format>
 #include <memory>
 #include <optional>
 
@@ -27,7 +28,15 @@ void PackageGameInstance::Load(const CharacterSaveData& cs) {
 
   for (auto& pkg : cs.package) {
     auto type = (int)pkg.val->type;
-    data_[type][pkg.index] = pkg.val;
+    auto item = pkg.val;
+    // 背包 ID 统一成 8 位，后续商店、堆叠、快捷栏都按统一格式比较。
+    if (!item->id.empty()) {
+      const int value =
+          std::stoi(std::string(item->id.begin(), item->id.end()));
+      auto text = std::format("{:08d}", value);
+      item->id = {text.begin(), text.end()};
+    }
+    data_[type][pkg.index] = std::move(item);
   }
   meso_ = cs.meso;
 }
@@ -63,7 +72,8 @@ std::vector<int> PackageGameInstance::LoadEmptyIndex(
 
   auto* r = &PackageGameInstance::data_[static_cast<int>(item->type)];
   const auto slot_max = ItemGameInstance::LoadSlotMax(item->id);
-  int num = ItemGameInstance::LoadItemNum(item);
+  // 数量 0 表示商店/掉落模板尚未填数量；容量检查至少按 1 个计算。
+  int num = std::max(1, ItemGameInstance::LoadItemNum(item));
 
   std::vector<int> blank;
   const size_t n = r->size();

@@ -8,6 +8,7 @@
 
 #include <any>
 #include <functional>
+#include <string>
 #include <vector>
 
 namespace sdlms {
@@ -73,6 +74,7 @@ class NoticeUiSystem : public UiComponentHost<NoticeUiSystem> {
 
     kThrowMul,
     kCannotThrow,
+    kCannotChangeEquip,
 
     kQuestGiveup,
 

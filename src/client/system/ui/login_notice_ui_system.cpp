@@ -80,6 +80,13 @@ void LoginNoticeUiSystem::RenderBackgrnd() {
       text_pos = {17, 13};
       break;
     }
+    case LoginNoticeSystemInstance::NoticeType::kUnableToConnectToGameSvr: {
+      backgrnd = WzResource::LoadTexture(notice_node->find(u"backgrnd/0"));
+      text = WzResource::LoadTexture(
+          notice_node->find(u"text/unableToConnectToGameSvr"));
+      text_pos = {17, 13};
+      break;
+    }
   }
   SDL_FRect pos_rect{
       bx + (w - backgrnd->w) / 2,
@@ -131,6 +138,7 @@ UIComponents& LoginNoticeUiSystem::GetComponent() {
     case LoginNoticeSystemInstance::NoticeType::kCharacterFull:
     case LoginNoticeSystemInstance::NoticeType::kCharacterUseAp:
     case LoginNoticeSystemInstance::NoticeType::kLoginingUsed:
+    case LoginNoticeSystemInstance::NoticeType::kUnableToConnectToGameSvr:
     case LoginNoticeSystemInstance::NoticeType::kCharacternameUsed: {
       buttons_nodes = {
           WzResource::ui_->find(u"Login.img/Notice/BtYes"),
@@ -171,6 +179,7 @@ UIComponents& LoginNoticeUiSystem::GetComponent() {
     case LoginNoticeSystemInstance::NoticeType::kCharacterFull:
     case LoginNoticeSystemInstance::NoticeType::kCharacterUseAp:
     case LoginNoticeSystemInstance::NoticeType::kLoginingUsed:
+    case LoginNoticeSystemInstance::NoticeType::kUnableToConnectToGameSvr:
     case LoginNoticeSystemInstance::NoticeType::kCharacternameUsed: {
       std::get<Button>(components_[0]).callback = EventClose;
       break;

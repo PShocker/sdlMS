@@ -441,12 +441,17 @@ std::optional<GameInput> KeyboardGameInstance::LoadCursorInput() {
       auto& item =
           PackageGameInstance::data_[cursor_hand.val][cursor_hand.sub_val];
       id = std::string{item->id.begin(), item->id.end()};
-      // 快捷栏/键位只接受药水和椅子：
-      // 药水 = 消耗栏 0200xxxx，椅子 = 安装栏 0301xxxx。
+      // 快捷栏/键位接受药水、食物和椅子：消耗栏 0200/0201，安装栏 0301。
+      // 背包里可能保存 7 位 ID，先补零再判断前缀。
+      std::string norm = id;
+      if (norm.size() < 8) {
+        norm.insert(0, 8 - norm.size(), '0');
+      }
       const bool potion =
-          item->type == ItemEnum::kConsume && id.starts_with("0200");
+          item->type == ItemEnum::kConsume &&
+          (norm.starts_with("0200") || norm.starts_with("0201"));
       const bool chair =
-          item->type == ItemEnum::kInstall && id.starts_with("0301");
+          item->type == ItemEnum::kInstall && norm.starts_with("0301");
       if (potion || chair) {
         GameInput input{
             .type = "item",

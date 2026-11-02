@@ -24,6 +24,7 @@
 #include "src/client/game_instance/tooltip_game_instance.h"
 #include "src/client/game_instance/trap_game_instance.h"
 #include "src/client/system/input/keyboard_input_system.h"
+#include "src/server/server_instance/server_heartbeat_instance.h"
 #include "src/client/system/logic/audio_logic_system.h"
 #include "src/client/system/logic/backgrnd_logic_system.h"
 #include "src/client/system/logic/ball_logic_system.h"
@@ -177,6 +178,9 @@ void SceneSystemInstance::EnterPrepare() {
 void SceneSystemInstance::Enter(uint32_t map_id) {
   EnterPrepare();
   SceneSystemInstance::map_id_ = map_id;
+  // 进入游戏后重新开始心跳，避免沿用上一次登录的超时时间。
+  ServerHeartbeatInstance::host_heartbeat = 0;
+  ServerHeartbeatInstance::client_started = true;
 
   FootholdGameInstance::data_ = FootholdGameInstance::Load(map_id);
   BackgrndGameInstance::Load(map_id);
@@ -288,6 +292,7 @@ void SceneSystemInstance::EnterFade() {
 }
 
 void SceneSystemInstance::EnterQuit() {
+  ServerHeartbeatInstance::client_started = false;
   LoginSystemInstance::Enter();
   FadeSystemInstance::EnterOut();
   FadeSystemInstance::EnterOut();

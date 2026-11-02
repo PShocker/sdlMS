@@ -127,7 +127,18 @@ void ShopUiSystem::RenderItem(std::vector<GameShopItem>& items, int page,
     // render name
     Freetype::LoadAligned(true);
     Freetype::LoadSize(12);
+    Freetype::LoadBold(false);
     Freetype::LoadColor(0, 0, 0, 255);
+    constexpr float kMaxNameWidth = 160.0f;
+    if (Freetype::LoadW(item_name) > kMaxNameWidth) {
+      const std::u16string ellipsis = u"...";
+      const float ellipsis_w = Freetype::LoadW(ellipsis);
+      while (!item_name.empty() &&
+             Freetype::LoadW(item_name) + ellipsis_w > kMaxNameWidth) {
+        item_name.pop_back();
+      }
+      item_name += ellipsis;
+    }
     x = x + 42;
     y = y - 2;
     Freetype::DrawLine(item_name, x, y);

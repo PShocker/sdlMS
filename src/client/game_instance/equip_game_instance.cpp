@@ -1116,6 +1116,11 @@ int EquipGameInstance::UseEquipScroll(GameEquipItem& eqp, GameConsumeItem& s) {
 
 
 int EquipGameInstance::UseEquip(int i, int slot) {
+  if (CharacterLogicSystem::IsAlert()) {
+    NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kCannotChangeEquip;
+    NoticeUiSystem::Open();
+    return 0;
+  }
   auto& equips = PackageGameInstance::data_[(int)ItemEnum::kEquip];
 
   auto& itm = equips[i];
@@ -1148,11 +1153,14 @@ int EquipGameInstance::UseEquip(int i, int slot) {
     return 0;
   }
 
+  // 先清空当前装备槽，再把被替换下来的装备放回背包。
+  // 如果 blank_slot 里正好包含当前槽 i，原来的顺序会先写入旧装备，
+  // 随后 itm->id = "" 又把旧装备清掉。
+  itm->id = u"";
+
   for (int32_t i = 0; i < ev.size(); i++) {
     equips[blank_slot[i]] = std::polymorphic<GameItem>(ev[i]);
   }
-
-  itm->id = u"";
 
   CharacterLogicSystem::cct_.map_id = SceneSystemInstance::map_id_;
 
@@ -1163,6 +1171,11 @@ int EquipGameInstance::UseEquip(int i, int slot) {
 
 
 int EquipGameInstance::UseDeco(int i, int slot) {
+  if (CharacterLogicSystem::IsAlert()) {
+    NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kCannotChangeEquip;
+    NoticeUiSystem::Open();
+    return 0;
+  }
   auto& equips = PackageGameInstance::data_[(int)ItemEnum::kDeco];
 
   auto& itm = equips[i];
@@ -1173,7 +1186,7 @@ int EquipGameInstance::UseDeco(int i, int slot) {
 
   auto ev = EquipGameInstance::LoadDecoSlot(de.id, sf);
 
-  auto blank_slot = PackageGameInstance::LoadEmptyIndex((int)ItemEnum::kEquip);
+  auto blank_slot = PackageGameInstance::LoadEmptyIndex((int)ItemEnum::kDeco);
 
   blank_slot.push_back(i);
 
@@ -1195,11 +1208,12 @@ int EquipGameInstance::UseDeco(int i, int slot) {
     return 0;
   }
 
+  // 先清空当前装饰槽，再放回被替换的装饰装备。
+  itm->id = u"";
+
   for (int32_t i = 0; i < ev.size(); i++) {
     equips[blank_slot[i]] = std::polymorphic<GameItem>(ev[i]);
   }
-
-  itm->id = u"";
 
   CharacterLogicSystem::cct_.map_id = SceneSystemInstance::map_id_;
 
@@ -1358,6 +1372,11 @@ std::optional<GameDecoItem>* EquipGameInstance::LoadDeco(int index) {
 
 
 int EquipGameInstance::UnuseEquip(int i) {
+  if (CharacterLogicSystem::IsAlert()) {
+    NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kCannotChangeEquip;
+    NoticeUiSystem::Open();
+    return 0;
+  }
   auto eqp = std::polymorphic<GameItem>(LoadEquip(i)->value());
 
   if (!PackageGameInstance::AddItem(eqp)) {
@@ -1379,6 +1398,11 @@ int EquipGameInstance::UnuseEquip(int i) {
 
 
 int EquipGameInstance::UnuseDeco(int i) {
+  if (CharacterLogicSystem::IsAlert()) {
+    NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kCannotChangeEquip;
+    NoticeUiSystem::Open();
+    return 0;
+  }
   auto eqp = std::polymorphic<GameItem>(LoadDeco(i)->value());
 
   if (!PackageGameInstance::AddItem(eqp)) {

@@ -290,7 +290,9 @@ bool EquipUiSystem::EventClickEquip(SDL_Event* event) {
     switch (cursor_hand->type) {
       case CursorGameInstance::CursorHandType::kEquipment: {
         if (index == cursor_hand->sub_val && active_tab_ == 0) {
-          EquipGameInstance::UnuseEquip(index);
+          if (EquipGameInstance::UnuseEquip(index) == 0) {
+            return true;
+          }
         }
         CursorGameInstance::cursor_hand_ = std::nullopt;
         break;
@@ -298,11 +300,15 @@ bool EquipUiSystem::EventClickEquip(SDL_Event* event) {
       case CursorGameInstance::CursorHandType::kPackage: {
         switch ((ItemEnum)cursor_hand->val) {
           case ItemEnum::kEquip: {
-            EquipGameInstance::UseEquip(cursor_hand->sub_val);
+            if (EquipGameInstance::UseEquip(cursor_hand->sub_val) == 0) {
+              return true;
+            }
             break;
           }
           case ItemEnum::kDeco: {
-            EquipGameInstance::UseDeco(cursor_hand->sub_val);
+            if (EquipGameInstance::UseDeco(cursor_hand->sub_val) == 0) {
+              return true;
+            }
             CharacterLogicSystem::cct_.map_id = SceneSystemInstance::map_id_;
             break;
           }
@@ -331,7 +337,9 @@ bool EquipUiSystem::EventClickEquip(SDL_Event* event) {
       }
       case CursorGameInstance::CursorHandType::kDeco: {
         if (index == cursor_hand->sub_val && active_tab_ == 1) {
-          EquipGameInstance::UnuseDeco(index);
+          if (EquipGameInstance::UnuseDeco(index) == 0) {
+            return true;
+          }
         }
         CursorGameInstance::cursor_hand_ = std::nullopt;
 

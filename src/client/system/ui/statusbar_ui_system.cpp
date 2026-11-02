@@ -280,7 +280,8 @@ void StatusbarUiSystem::RenderCharacterStat() {
 
   auto mp = CharacterStatGameInstance::GetMp();
   auto max_mp = CharacterStatGameInstance::GetMpMax();
-  auto mp_percent = (float)mp / max_mp;
+  auto mp_percent_now = (float)mp / max_mp;
+  static auto mp_percent = mp_percent_now;
   static auto gauge_mp = WzResource::LoadTexture(
       WzResource::ui_->find(u"StatusBar.img/gauge/layer:gaugeMp"));
   pos_rect = {
@@ -290,6 +291,11 @@ void StatusbarUiSystem::RenderCharacterStat() {
       static_cast<float>(gray->h),
   };
   SDL_RenderTexture(Window::renderer_, gray, nullptr, &pos_rect);
+
+  mp_percent = std::lerp(mp_percent, mp_percent_now, 0.05f);
+  if (std::abs(mp_percent - mp_percent_now) < std::pow(10, -4)) {
+    mp_percent = mp_percent_now;
+  }
 
   src_rect = {
       0,
@@ -306,9 +312,8 @@ void StatusbarUiSystem::RenderCharacterStat() {
       WzResource::ui_->find(u"StatusBar.img/gauge/layer:gaugeExp"));
   auto exp = CharacterStatGameInstance::GetExp();
   auto max_exp = CharacterStatGameInstance::GetExpMax();
-  auto exp_percent = (float)exp / max_exp;
-  exp_percent = std::min(1.0f, exp_percent);
-
+  auto exp_percent_now = std::min(1.0f, (float)exp / max_exp);
+  static auto exp_percent = exp_percent_now;
   pos_rect = {
       base_x + 445,
       base_y + 56,
@@ -316,6 +321,12 @@ void StatusbarUiSystem::RenderCharacterStat() {
       static_cast<float>(gray->h),
   };
   SDL_RenderTexture(Window::renderer_, gray, nullptr, &pos_rect);
+
+  exp_percent = std::lerp(exp_percent, exp_percent_now, 0.05f);
+  if (std::abs(exp_percent - exp_percent_now) < std::pow(10, -4)) {
+    exp_percent = exp_percent_now;
+  }
+  exp_percent = std::min(1.0f, exp_percent);
 
   src_rect = {
       0,

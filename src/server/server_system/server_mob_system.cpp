@@ -705,6 +705,10 @@ void ServerMobSystem::RunInterruptStep(ServerMob& mob, uint32_t t_elapse) {
     mob.interrupt.vx = 0.0f;
     mob.interrupt.vy = 0.0f;
   }
+  // 击退落点不能越过地图边缘，否则怪物会被推出地图。
+  const auto border = MapInfoGameInstance::LoadMrBorder(map_id_);
+  mob.pos.x = std::clamp(mob.pos.x, border.x + 10.0f, border.w - 10.0f);
+  mob.pos.y = std::clamp(mob.pos.y, border.y + 10.0f, border.h - 10.0f);
 }
 
 void ServerMobSystem::RunTryJump(ServerMob& mob) {

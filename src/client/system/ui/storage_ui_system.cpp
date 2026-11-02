@@ -2,6 +2,7 @@
 
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
+#include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/storage_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
@@ -175,7 +176,10 @@ void StorageUiSystem::EventButtonGet() {
       return;
     }
     if (PackageGameInstance::AddItem(itm)) {
-      itm->id = u"";
+      // 只有整组都转移进背包后才清空仓库槽；部分叠加时保留剩余数量。
+      if (ItemGameInstance::LoadItemNum(itm) == 0) {
+        itm->id = u"";
+      }
     } else {
       NoticeUiSystem::OpenNoSpace(itm->type);
     }
@@ -203,6 +207,10 @@ void StorageUiSystem::EventButtonPut() {
     if (!AddItem(itm)) {
       NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kNoStorageSpace;
       NoticeUiSystem::Open();
+    } else {
+      // 仓库只复制到空槽，成功存入后必须清空背包源槽。
+      itm->id = u"";
+      ItemGameInstance::SetItemNum(itm, 0);
     }
   }
   return;

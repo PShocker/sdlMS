@@ -14,6 +14,7 @@ class LoginNoticeSystemInstance {
     kCharacterUseAp,
     kLogining,
     kLoginingUsed,
+    kUnableToConnectToGameSvr,
   };
   static void Enter(NoticeType type, void (*fn_)());
 };

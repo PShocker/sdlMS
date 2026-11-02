@@ -16,6 +16,7 @@
 #include "src/client/system/system.h"
 #include "src/client/system/ui/login_ui_system.h"
 #include "src/common/wz/wz_resource.h"
+#include "src/server/server_instance/server_heartbeat_instance.h"
 
 #include <algorithm>
 #include <ranges>
@@ -71,6 +72,7 @@ void LoginSystemInstance::EnterPrepare() {
 }
 
 void LoginSystemInstance::Enter() {
+  ServerHeartbeatInstance::client_started = false;
   AudioGameInstance::LoadBackgrndAudio(u"BgmUI.img/TitleClassic");
 
   EnterPrepare();

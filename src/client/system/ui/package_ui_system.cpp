@@ -516,8 +516,9 @@ bool PackageUiSystem::EventClickItem(SDL_Event* event) {
           if (hand.val == active_tab_) {
             AudioGameInstance::PlayNow(u"UI.img/DragEnd");
             if (hand.sub_val == index.value()) {
-              EquipGameInstance::UseEquip(index.value());
-              CursorGameInstance::cursor_hand_ = std::nullopt;
+              if (EquipGameInstance::UseEquip(index.value()) != 0) {
+                CursorGameInstance::cursor_hand_ = std::nullopt;
+              }
               return true;
             } else {
               auto& equips = r;
