@@ -36,9 +36,8 @@ constexpr uint32_t kMinFrameIntervalMs = 33;
 constexpr float kJumpSpeed = -555.0f;
 constexpr float kFallVspeedMin = -5550.0f;
 constexpr float kFallVspeedMax = 670.0f;
-constexpr float kFlyDeadZone = 10.0f;     // 飞行到点死区
-constexpr float kChaseDeadZone = 2.0f;    // 追击时与玩家重合的停止死区
-constexpr uint32_t kWanderMinMs = 330;    // 巡游换向间隔
+constexpr float kFlyDeadZone = 10.0f;   // 飞行到点死区
+constexpr uint32_t kWanderMinMs = 330;  // 巡游换向间隔
 constexpr uint32_t kWanderMaxMs = 990;
 
 // 仇恨 / 攻击
@@ -259,30 +258,23 @@ void ServerMobSystem::RunInput(ServerMob& mob) {
     mob.input_x = 0;
     return;
   }
-
-  auto& clients = ServerClientInstance::clients_;
-  if (mob.target_id != 0 && clients.contains(mob.target_id) &&
-      clients.at(mob.target_id).player_t.character != nullptr) {
-    const auto& state = *clients.at(mob.target_id).player_t.character->state;
-    float dx = state.x - mob.pos.x;
-    // 追击时必须每帧重新朝玩家方向走。原来在 |dx|<100 时保留旧方向，
-    // 怪物会从静止的玩家身边走过头，最后一直顶着墙走。
-    if (std::fabs(dx) <= kChaseDeadZone) {
-      mob.input_x = 0;
-    } else {
-      mob.input_x = dx > 0 ? 1 : -1;
-    }
-    return;
-  }
-
   // 无目标：每 330~990ms 随机掷一次方向（-1 / 0 / 1），窗口内保持不变
   if (now < mob.think) {
     return;
   }
+
   std::uniform_int_distribution<int32_t> dist(-1, 1);
   mob.input_x = Sign(static_cast<float>(dist(RandomGameInstance::gen_)));
   std::uniform_int_distribution<uint32_t> dist2(kWanderMinMs, kWanderMaxMs);
   mob.think = now + dist2(RandomGameInstance::gen_);
+
+  auto& clients = ServerClientInstance::clients_;
+  if (mob.target_id != 0 && clients.contains(mob.target_id)) {
+    const auto& state = *clients.at(mob.target_id).player_t.character->state;
+    float dx = state.x - mob.pos.x;
+    mob.input_x = dx > 0 ? 1 : -1;
+    return;
+  }
 }
 
 bool ServerMobSystem::RunAttackRange(const ServerMob& mob,
