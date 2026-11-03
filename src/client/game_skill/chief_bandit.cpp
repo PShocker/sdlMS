@@ -20,7 +20,7 @@
 
 namespace sdlms {
 
-static void Jinqianzhadan() {
+static void MesoExplosion() {
   GameSkill g_skill;
   g_skill.id = u"4211004";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
@@ -63,7 +63,7 @@ static void Jinqianzhadan() {
   skills[g_skill.id] = g_skill;
 }
 
-static void Luoyezhan() {
+static void Assaulter() {
   GameSkill g_skill;
   g_skill.id = u"4211001";
 
@@ -124,8 +124,8 @@ static void Luoyezhan() {
 }
 
 [[maybe_unused]] static const bool r = [] {
-  Jinqianzhadan();
-  Luoyezhan();
+  MesoExplosion();
+  Assaulter();
   return true;
 }();
 

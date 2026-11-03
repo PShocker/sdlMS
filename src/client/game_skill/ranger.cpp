@@ -14,7 +14,7 @@
 
 namespace sdlms {
 
-static void Jianyu() {
+static void ArrowRain() {
   GameSkill g_skill;
   g_skill.id = u"3111002";
 
@@ -43,7 +43,7 @@ static void Jianyu() {
 }
 
 [[maybe_unused]] static const bool r = [] {
-  Jianyu();
+  ArrowRain();
   return true;
 }();
 

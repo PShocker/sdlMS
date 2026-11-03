@@ -5,6 +5,7 @@
 #include "src/client/game_instance/afterimage_game_instance.h"
 #include "src/client/game_instance/ball_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
@@ -22,19 +23,16 @@
 
 namespace sdlms {
 
-static void Qinggong() {
+static void Haste() {
   GameSkill g_skill;
   g_skill.climb = true;
   g_skill.id = u"4201001";
   g_skill.end = []() {
     auto& ski = SkillGameInstance::ski_;
-    auto it = std::ranges::find_if(
-        ski, [](const GameSkill& s) { return s.id == u"4201001"; });
-    if (it != ski.end()) {
-      ski.erase(it);
-      CharacterLogicSystem::self_hspeed_max_ -= 100;
-      CharacterLogicSystem::self_hspeed_min_ += 100;
-    }
+    std::erase_if(ski,
+                  [](const GameSkill& s) { return s.id == u"4201001"; });
+    // 速度/跳跃由 buff 层重算后自动收回
+    CharacterStatGameInstance::Update();
   };
 
   g_skill.frame = []() { return; };
@@ -43,12 +41,15 @@ static void Qinggong() {
     auto& ski = SkillGameInstance::ski_;
     g_skill.end();
     g_skill.lv = ski_lv;
-    g_skill.duration = 30 * 1000;
+    // 持续时间取 WZ 的 time (秒)
+    g_skill.duration =
+        static_cast<uint64_t>(SkillGameInstance::LoadSkiLevelInt(
+            u"4201001", static_cast<uint8_t>(ski_lv), u"time", 30)) *
+        1000;
     g_skill.destroy = Window::dt_now_ + g_skill.duration;
     ski.push_back(g_skill);
-
-    CharacterLogicSystem::self_hspeed_max_ += 100;
-    CharacterLogicSystem::self_hspeed_min_ -= 100;
+    // indieSpeed/indieJump 命中 buff 层
+    CharacterStatGameInstance::Update();
 
     if (client_id != 0) {
       return;
@@ -71,7 +72,7 @@ static void Qinggong() {
   skills[g_skill.id] = g_skill;
 }
 
-static void Huixuanzhan() {
+static void SavageBlow() {
   GameSkill g_skill;
   g_skill.id = u"4201003";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
@@ -100,44 +101,9 @@ static void Huixuanzhan() {
   skills[g_skill.id] = g_skill;
 }
 
-static void Shentoushu() {
-  GameSkill g_skill;
-  g_skill.id = u"4001002";
-  g_skill.use = [](uint64_t client_id, int ski_lv) {
-    auto& sf = CharacterGameInstance::self_;
-    CharacterLogicSystem::RunAttackAction(sf, false);
-    auto g_r = SkillGameInstance::LoadSkiR(u"4001002");
-    auto cm = CharacterLogicSystem::RunAttackCheck(sf, g_r);
-    fbs::ClientCharacterAttackT cat;
-    if (!cm.data.empty()) {
-      auto delay = SkillGameInstance::LoadSkiTime(sf);
-      // Create and send attack payload
-      cat = SkillGameInstance::CreateAttackPayload(cm, sf.pos, delay);
-      ClientRequest::SendToHost(cat);
-      // drop
-      fbs::ClientCreateDropT ccd;
-      ccd.map_id = SceneSystemInstance::map_id_;
-      auto& mob = cm.data[0].mob;
-      auto dts = ServerMobInstance::CreateMobDts(mob.id, mob.pos.x, mob.pos.y,
-                                                 mob.page);
-      for (auto dt : dts) {
-        ccd.drops.push_back(std::make_unique<fbs::DropT>(dt));
-      }
-      if (!ccd.drops.empty()) {
-        ClientRequest::SendToHost(ccd);
-      }
-    }
-    auto ckt = SkillGameInstance::CreateSkillPayload(cat, 4001002, ski_lv);
-    ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
-    ClientRequest::SendToHost(ckt);
-  };
-  auto& skills = SkillGameInstance::Skis();
-  skills[g_skill.id] = g_skill;
-}
-
 [[maybe_unused]] static const bool r = [] {
-  Qinggong();
-  Huixuanzhan();
+  Haste();
+  SavageBlow();
   return true;
 }();
 

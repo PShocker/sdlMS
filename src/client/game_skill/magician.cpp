@@ -31,7 +31,7 @@
 
 namespace sdlms {
 
-static void Mfdan() {
+static void EnergyBolt() {
   GameSkill g_skill;
   g_skill.id = u"2001002";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
@@ -79,7 +79,7 @@ static void Mfdan() {
   skills[g_skill.id] = g_skill;
 }
 
-static void Mfdun() {
+static void MagicGuard() {
   GameSkill g_skill;
   g_skill.id = u"2001000";
   g_skill.hit = [](GameMob* mob, uint64_t n) -> uint64_t {
@@ -117,7 +117,7 @@ static void Mfdun() {
   skills[g_skill.id] = g_skill;
 }
 
-static void Mfsj() {
+static void MagicClaw() {
   GameSkill g_skill;
   g_skill.id = u"2001003";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
@@ -144,7 +144,7 @@ static void Mfsj() {
   skills[g_skill.id] = g_skill;
 }
 
-static void Mfkaijia() {
+static void MagicArmor() {
   GameSkill g_skill;
   g_skill.id = u"2001001";
 
@@ -190,28 +190,11 @@ static void Mfkaijia() {
   skills[g_skill.id] = g_skill;
 }
 
-static void Molitisheng() {
-  GameSkill g_skill;
-  g_skill.id = u"2001099";
-
-  g_skill.end = []() {
-    auto& skills = SkillGameInstance::Skis();
-    auto ski_lv = skills[u"2001099"].lv;
-  };
-  g_skill.passive = [](int ski_lv) {
-    auto& skills = SkillGameInstance::Skis();
-    skills[u"2001099"].lv = ski_lv;
-  };
-  auto& skills = SkillGameInstance::Skis();
-
-  skills[g_skill.id] = g_skill;
-}
-
 [[maybe_unused]] static const bool r = [] {
-  Mfdan();
-  Mfsj();
-  Mfkaijia();
-  Molitisheng();
+  EnergyBolt();
+  MagicGuard();
+  MagicClaw();
+  MagicArmor();
   return true;
 }();
 

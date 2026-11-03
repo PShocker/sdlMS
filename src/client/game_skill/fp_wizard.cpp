@@ -15,7 +15,7 @@
 
 namespace sdlms {
 
-static void Huojianshu() {
+static void FireArrow() {
   GameSkill g_skill;
   g_skill.id = u"2101003";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
@@ -64,7 +64,7 @@ static void Huojianshu() {
 }
 
 [[maybe_unused]] static const bool r = [] {
-  Huojianshu();
+  FireArrow();
   return true;
 }();
 

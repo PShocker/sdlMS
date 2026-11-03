@@ -4,17 +4,37 @@ sdlms 是一个用 **C++26** 实现的 2.5D 横版游戏（MapleStory风格）�
 基于 SDL3 的客户端。资源直接读取游戏的 **WZ** 文件，物理、动作、UI 全部由 WZ 数据
 驱动；客户端自带一个本地服务端，单人模式不额外起进程。
 
-技术栈：
+技术栈（版本列是当前实际验证过的组合，不是“最低要求”）：
 
-| 依赖 | 用途 |
-| --- | --- |
-| [SDL3](https://github.com/libsdl-org/SDL/tree/main) | 窗口、渲染、音频、输入 |
-| [libuv](https://github.com/libuv/libuv) | UDP 网络事件循环 |
-| [wzlib](https://github.com/PShocker/wzlib) | WZ 资源解析 |
-| [FlatBuffers](https://github.com/google/flatbuffers) | 网络协议序列化 |
-| [FFmpeg](https://ffmpeg.org/) | 音频解码 |
-| [FreeType](https://github.com/freetype/freetype) | 文字渲染 |
-| CMake + Ninja | 构建 |
+| 依赖 | 版本 | 用途 |
+| --- | --- | --- |
+| [SDL3](https://github.com/libsdl-org/SDL) | **3.4.10** | 窗口、渲染、音频、输入 |
+| [libuv](https://github.com/libuv/libuv) | **1.52.1-dev**（1.x） | UDP 网络事件循环 |
+| [wzlib](https://github.com/PShocker/wzlib) | **git `5b7d465`**，内置 zlib 1.3.2.1 | WZ 资源解析 |
+| [FlatBuffers](https://github.com/google/flatbuffers) | **25.12.19**（HEAD `10c99415`） | 网络协议序列化 |
+| [FFmpeg](https://ffmpeg.org/) | **N-115845-g7c95c7de4a**（2024-06-16，gpl-shared 动态库） | 音频/视频解码 |
+| [FreeType](https://github.com/freetype/freetype) | **2.13.2** | 文字渲染 |
+| CMake | **3.30.0**（`CMakeLists.txt` 要求 ≥ 3.28） | 构建 |
+| Ninja | **1.12.1** | 构建 |
+| MinGW-w64 GCC | **16.1.0**（`x86_64-posix-seh-rev1`） | 编译器 |
+
+版本约定：
+
+- **FFmpeg 的 ABI 是成组绑定的**：`libavcodec 61 / libavformat 61 / libavutil 59 /
+  libswscale 8 / libswresample 5`（对应 `bin/` 里的 `avcodec-61.dll` 这一套）。
+  升级时必须把 `include/`、`lib/*.dll.a`、`bin/*.dll` 整包一起换，只换 dll
+  或只换头文件都会在运行期崩。
+- **SDL3** 是 3.4.x 系列；代码用了 `SDL_IOStream`/`SDL_ReadIO`/`SDL_ReadU8` 等
+  3.x 接口，升级到 3.5+ 前要重新核对签名。`C:/SDL3-3.4.10` 这个目录名也带版本，
+  换版本时记得同步 `SDLMS_SDL3_ROOT`。
+- **wzlib** 没有语义化版本，按 git commit 固定；它会把自带的 zlib
+  （`ZLIB_VERSION "1.3.2.1-motley"`）以静态对象方式并进 `wzlib` 共享库。
+  跨平台（非 Windows/PE）构建时它需要 `CMAKE_POSITION_INDEPENDENT_CODE=ON`，
+  否则 ELF 平台链接期会报 `recompile with -fPIC`。
+- **FlatBuffers**：`https://github.com/google/flatbuffers.git`，本地 `C:/flatbuffers`
+  （HEAD `10c99415`）。只有头文件参与编译，`flatc` 须与头文件同版本（25.12.19）。
+- **libuv 与 FreeType 是本地源码树自建的**（分别产出 `libuv.dll.a`、
+  `libfreetype.dll.a`），不来自包管理器；其余依赖是预编译二进制包。
 
 ### 项目架构
 
@@ -63,22 +83,27 @@ scripts/              flatbuffers / 着色器代码生成、clang-tidy 脚本
 ### 环境要求
 
 - Windows 10/11 x64（当前只在 Windows + MinGW-w64 上验证过，脚本是 `.bat`）
-- CMake ≥ 3.28，Ninja
-- 支持 C++26 的编译器：GCC 14+ / Clang 18+ / MSVC 19.4+（用到 `std::flat_map`、`std::polymorphic`）
-- 预编译好的 SDL3、libuv、wzlib、FlatBuffers、FFmpeg、FreeType
+- **MinGW-w64 GCC 16.x**（实测 `16.1.0`，`x86_64-posix-seh-rev1`）
+- CMake ≥ 3.28（实测 3.30.0）+ Ninja（实测 1.12.1）
+- 需要 C++26 标准库设施：`std::polymorphic`（GCC 16 的 libstdc++ 才提供）和
+  C++23 的 `std::flat_map`。已实测 GCC 16.1.0 + `-std=gnu++26` 可用；
+  GCC 15 及更早会因缺 `std::polymorphic` 直接编译失败。
+  Clang / MSVC 未验证，若要支持需自行确认这两个设施的实现。
+- 依赖库：SDL3 3.4.10、libuv 1.52.1、wzlib（git `5b7d465`）、
+  FlatBuffers 25.12.19、FFmpeg N-115845、FreeType 2.13.2（见上方版本表）
 
 ### 编译
 
 依赖路径默认指向作者机器，可用 CMake 变量覆盖：
 
-| 变量 | 默认值 |
-| --- | --- |
-| `SDLMS_SDL3_ROOT` | `C:/SDL3-3.4.10` |
-| `SDLMS_LIBUV_ROOT` | `C:/libuv-1.x` |
-| `SDLMS_WZLIB_ROOT` | `C:/Users/Shocker/Desktop/wzlib` |
-| `SDLMS_FLATBUFFERS_ROOT` | `C:/flatbuffers` |
-| `SDLMS_FFMPEG_ROOT` | `C:/ffmpeg-master-latest-win64-gpl-shared` |
-| `SDLMS_FREETYPE_ROOT` | `C:/freetype` |
+| 变量 | 默认值 | 该路径实际提供的版本 / 链接产物 |
+| --- | --- | --- |
+| `SDLMS_SDL3_ROOT` | `C:/SDL3-3.4.10` | SDL3 **3.4.10**，链接 `lib/x64/SDL3.dll.a` |
+| `SDLMS_LIBUV_ROOT` | `C:/libuv-1.x` | libuv **1.52.1-dev**，源码树自建，链接 `build/libuv.dll.a` |
+| `SDLMS_WZLIB_ROOT` | `C:/Users/Shocker/Desktop/wzlib` | wzlib @ `5b7d465`，链接 `build/libwzlib.dll.a`（内置 zlib 1.3.2.1） |
+| `SDLMS_FLATBUFFERS_ROOT` | `C:/flatbuffers` | FlatBuffers **25.12.19**，只用头文件，不链接库 |
+| `SDLMS_FFMPEG_ROOT` | `C:/ffmpeg-master-latest-win64-gpl-shared` | FFmpeg **N-115845-g7c95c7de4a**，链接 `lib/av*-*.dll.a` |
+| `SDLMS_FREETYPE_ROOT` | `C:/freetype` | FreeType **2.13.2**，源码树自建，链接 `build/libfreetype.dll.a` |
 
 ```sh
 cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
@@ -110,7 +135,31 @@ cd build
 ./main.exe <server-ip> <port>   # 连接远端服务端
 ```
 
+`main.exe` 实际导入的 DLL（版本必须与编译期一致，可从上面的 `*_ROOT` 目录拷到
+`build/` 或放进 `PATH`）：
+
+| DLL | 来源 | 版本 |
+| --- | --- | --- |
+| `SDL3.dll` | SDL3 3.4.10 | 3.4.10 |
+| `libuv.dll` | libuv 源码树 | 1.52.1-dev |
+| `libwzlib.dll` | wzlib 构建产物 | wzlib `5b7d465`（内置 zlib 1.3.2.1） |
+| `libfreetype.dll` | FreeType 源码树 | 2.13.2 |
+| `avcodec-61.dll`、`avformat-61.dll`、`avutil-59.dll`、`swscale-8.dll` | FFmpeg 预编译包 | N-115845-g7c95c7de4a |
+| `libstdc++-6.dll`、`libgcc_s_seh-1.dll` | MinGW-w64 GCC | 16.1.0 |
+
+> `CMakeLists.txt` 里链接了 `swresample`，但当前代码没有引用它的符号，所以
+> `main.exe` 并不导入 `swresample-5.dll`；真正会用到时再一并拷贝。
+
 ### 工具
+
+工具版本（这些不是链接依赖，但生成产物必须与库版本对齐）：
+
+| 工具 | 版本 | 说明 |
+| --- | --- | --- |
+| `clang-format` | 23.1.3 | `format` 目标使用 |
+| `clang-tidy` | 23.1.4（LLVM 23） | 需配合 `C:/mingw64` 的 GCC 头文件 |
+| `flatc` | 25.12.19 | **必须与 `flatbuffers/include` 头文件同版本** |
+| `shadercross` | 3.0.0 | 与 SDL3 3.4.x 配套，输出 SPIR-V / MSL / DXIL |
 
 ```sh
 cmake --build build --target format   # clang-format 格式化 src/

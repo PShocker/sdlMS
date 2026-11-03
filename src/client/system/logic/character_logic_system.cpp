@@ -515,7 +515,8 @@ bool CharacterLogicSystem::RunWalk(GameCharacter& g_character) {
   auto border = MapInfoGameInstance::LoadMrBorder(map_id);
 
   r = Physic::Walk(g_character.pos, delta_time, self_hspeed_, self_vspeed_,
-                   self_hforce_, self_hspeed_min_, self_hspeed_max_, 800, true,
+                   self_hforce_, CharacterStatGameInstance::GetHspeedMin(),
+                   CharacterStatGameInstance::GetHspeedMax(), 800, true,
                    self_fh_, border, FootholdGameInstance::data_);
   return r;
 }
@@ -543,7 +544,8 @@ bool CharacterLogicSystem::RunFall(GameCharacter& g_character) {
   auto border = MapInfoGameInstance::LoadMrBorder(map_id);
 
   bool r = Physic::Fall(g_character.pos, delta_time, self_hspeed_, self_vspeed_,
-                        self_vspeed_min_, self_vspeed_max_, border,
+                        CharacterStatGameInstance::GetVspeedMin(),
+                        CharacterStatGameInstance::GetVspeedMax(), border,
                         fall_collide, true, self_fh_, g_character.page,
                         FootholdGameInstance::data_, self_fall_fh_);
   if (!r) {
@@ -579,7 +581,7 @@ bool CharacterLogicSystem::RunJump(GameCharacter& g_character) {
       case ActionEnum::kStand:
       case ActionEnum::kAlert:
       case ActionEnum::kWalk: {
-        self_vspeed_ = self_vspeed_min_ * 0.1;
+        self_vspeed_ = CharacterStatGameInstance::GetVspeedMin() * 0.1f;
         break;
       }
       case ActionEnum::kProne: {
@@ -1093,7 +1095,7 @@ bool CharacterLogicSystem::RunPortal(GameCharacter& g_character) {
           if (por.tm != SceneSystemInstance::map_id_) {
             // need to change map
             SceneSystemInstance::EnterPrepare(por.tm, por.tn, 0);
-            self_portal_cooldown_ = Window::dt_now_ + 1000; 
+            self_portal_cooldown_ = Window::dt_now_ + 1000;
           } else {
             // no change map
             const auto& tn = PortalGameInstance::data_.find(por.tn)->second;
@@ -1655,7 +1657,7 @@ void CharacterLogicSystem::RunDieAction(GameCharacter& g_character) {
     auto o_character = g_character;
     // 空中
     self_hspeed_ = 0;
-    self_vspeed_ = self_vspeed_max_;
+    self_vspeed_ = CharacterStatGameInstance::GetVspeedMax();
     //
     auto map_id = SceneSystemInstance::map_id_;
     auto border = MapInfoGameInstance::LoadMrBorder(map_id);

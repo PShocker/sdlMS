@@ -32,7 +32,7 @@
 
 namespace sdlms {
 
-static void Douqijizhong() {
+static void ComboAttack() {
   GameSkill g_skill;
   g_skill.climb = true;
   g_skill.id = u"1111000";
@@ -273,7 +273,7 @@ static void Douqijizhong() {
   skills[g_skill.id] = g_skill;
 }
 
-static void Hupaoxiao() {
+static void Shout() {
   GameSkill g_skill;
   g_skill.id = u"1111003";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
@@ -300,8 +300,8 @@ static void Hupaoxiao() {
 }
 
 [[maybe_unused]] static const bool r = [] {
-  Douqijizhong();
-  Hupaoxiao();
+  ComboAttack();
+  Shout();
   return true;
 }();
 

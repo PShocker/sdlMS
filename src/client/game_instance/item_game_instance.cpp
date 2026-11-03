@@ -339,8 +339,8 @@ void ItemGameInstance::UnuseBuffItem(const std::u16string& id) {
       if (info->get_child(u"speed")) {
         auto speed =
             static_cast<wz::Property<int>*>(info->get_child(u"speed"))->get();
-        CharacterLogicSystem::self_hspeed_max_ -= 5;
-        CharacterLogicSystem::self_hspeed_min_ += 5;
+        CharacterStatGameInstance::SetItemSpeed(
+            CharacterStatGameInstance::GetItemSpeed() - speed);
       }
       if (info->get_child(u"crt")) {
         auto crt =
@@ -402,8 +402,9 @@ bool ItemGameInstance::UseBuffItem(std::polymorphic<GameItem>& itm) {
     r = true;
   }
   if (info->get_child(u"speed")) {
-    CharacterLogicSystem::self_hspeed_max_ += 5;
-    CharacterLogicSystem::self_hspeed_min_ -= 5;
+    auto speed = static_cast<wz::Property<int>*>(info->get_child(u"speed"))->get();
+    CharacterStatGameInstance::SetItemSpeed(
+        CharacterStatGameInstance::GetItemSpeed() + speed);
     r = true;
   }
   if (info->get_child(u"crt")) {

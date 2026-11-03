@@ -20,7 +20,7 @@
 
 namespace sdlms {
 
-static void PowerStrke() {
+static void PowerStrike() {
   GameSkill g_skill;
   g_skill.id = u"1001001";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
@@ -67,7 +67,7 @@ static void SlashBlast() {
 }
 
 [[maybe_unused]] static const bool r = [] {
-  PowerStrke();
+  PowerStrike();
   SlashBlast();
   return true;
 }();

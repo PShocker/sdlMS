@@ -13,7 +13,7 @@
 
 namespace sdlms {
 
-static void Leidianshu() {
+static void ThunderBolt() {
   GameSkill g_skill;
   g_skill.id = u"2201004";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
@@ -41,7 +41,7 @@ static void Leidianshu() {
 }
 
 [[maybe_unused]] static const bool r = [] {
-  Leidianshu();
+  ThunderBolt();
   return true;
 }();
 

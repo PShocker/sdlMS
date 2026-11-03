@@ -60,7 +60,7 @@ static std::u16string LoadShellId(int lv) {
   return {text.begin(), text.end()};
 }
 
-static void ThreeSnail() {
+static void ThreeSnails() {
   GameSkill g_skill;
   g_skill.id = u"0001000";
   g_skill.can_use = [](int ski_lv) { return true; };
@@ -113,7 +113,7 @@ static void ThreeSnail() {
   skills[g_skill.id] = g_skill;
 }
 
-static void Recover() {
+static void Recovery() {
   GameSkill g_skill;
   g_skill.climb = true;
   g_skill.id = u"0001001";
@@ -175,17 +175,11 @@ static void NimbleFeet() {
   GameSkill g_skill;
   g_skill.climb = true;
   g_skill.id = u"0001002";
-  static float speed_bonus = 0.0f;
   g_skill.end = []() {
     auto& ski = SkillGameInstance::ski_;
-    auto it = std::ranges::find_if(
-        ski, [](const GameSkill& s) { return s.id == u"0001002"; });
-    if (it != ski.end()) {
-      ski.erase(it);
-      CharacterLogicSystem::self_hspeed_max_ -= speed_bonus;
-      CharacterLogicSystem::self_hspeed_min_ += speed_bonus;
-      speed_bonus = 0.0f;
-    }
+    std::erase_if(ski, [](const GameSkill& s) { return s.id == u"0001002"; });
+    // 速度由 buff 层重算后自动收回
+    CharacterStatGameInstance::Update();
   };
 
   g_skill.frame = []() { return; };
@@ -204,12 +198,9 @@ static void NimbleFeet() {
         1000;
     g_skill.destroy = Window::dt_now_ + g_skill.duration;
     ski.push_back(g_skill);
-
-    // 速度 1 点约等于 1.25 px/s，WZ 的 speed=10 即 +12.5。
-    auto speed = LoadSkiInt(u"0001002", ski_lv, u"speed", 0);
-    speed_bonus = 125.0f * static_cast<float>(speed) / 100.0f;
-    CharacterLogicSystem::self_hspeed_max_ += speed_bonus;
-    CharacterLogicSystem::self_hspeed_min_ -= speed_bonus;
+    // WZ 的 speed 命中 buff 层, 由 CharacterStatGameInstance::UpdateMoveLimits
+    // 生效
+    CharacterStatGameInstance::Update();
 
     auto& sf = CharacterGameInstance::self_;
     auto ckt = SkillGameInstance::CreateSkillPayload(1002, ski_lv);
@@ -220,10 +211,9 @@ static void NimbleFeet() {
   auto& skills = SkillGameInstance::Skis();
   skills[g_skill.id] = g_skill;
 }
-
 [[maybe_unused]] static const bool r = [] {
-  ThreeSnail();
-  Recover();
+  ThreeSnails();
+  Recovery();
   NimbleFeet();
   return true;
 }();

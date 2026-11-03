@@ -112,11 +112,35 @@ class CharacterStatGameInstance {
   static inline int32_t item_attack_def_ = 0;
   static inline int32_t item_magic_def_ = 0;
 
+  // ============ 主动技能 buff 加成 (buff_) ============
+  static inline int64_t buff_hp_ = 0;
+  static inline int64_t buff_mp_ = 0;
+  static inline uint32_t buff_pad_ = 0;    // 物攻
+  static inline uint32_t buff_mad_ = 0;    // 魔攻
+  static inline uint32_t buff_acc_ = 0;    // 命中
+  static inline uint32_t buff_avd_ = 0;    // 回避
+  static inline int32_t buff_pdd_ = 0;     // 物防
+  static inline int32_t buff_mdd_ = 0;     // 魔防
+  static inline uint32_t buff_speed_ = 0;  // 移速
+  static inline uint32_t buff_jump_ = 0;   // 跳跃
+  static inline int32_t item_speed_ = 0;   // 道具(药水等)给的移速
+
+  // ============ 移动上限 (由移速 / 跳跃属性推导) ============
+  // 水平：基础 125 px/s，每点移速 ±1.25 px/s
+  static inline float hspeed_min_ = -125.0f;
+  static inline float hspeed_max_ = 125.0f;
+  // 竖直：vspeed_min_ 是下落极速，vspeed_max_ 是跳跃初速度
+  static inline float vspeed_min_ = -5550.0f;
+  static inline float vspeed_max_ = 670.0f;
+
   // ============ 剩余 AP ============
   static inline uint32_t remain_ap_ = 100;
 
   static void UpdateSfSkillStat();
   static void UpdateSfEquipStat();
+  static void UpdateSfBuffStat();
+  // 按当前移速 / 跳跃属性刷新移动上限，属性变化时由 Update() 调用
+  static void UpdateMoveLimits();
 
  public:
   // ============================================================
@@ -293,6 +317,30 @@ class CharacterStatGameInstance {
   static uint32_t GetItemExp();
   static int32_t GetItemDef();
   static int32_t GetItemMdef();
+  static void SetItemSpeed(int32_t n);
+  static int32_t GetItemSpeed();
+
+  // ============================================================
+  // buff 加成 getter (buff_)
+  // ============================================================
+  static int64_t GetBuffHp();
+  static int64_t GetBuffMp();
+  static uint32_t GetBuffPad();
+  static uint32_t GetBuffMad();
+  static uint32_t GetBuffAcc();
+  static uint32_t GetBuffAvd();
+  static int32_t GetBuffPdd();
+  static int32_t GetBuffMdd();
+  static uint32_t GetBuffSpeed();
+  static uint32_t GetBuffJump();
+
+  // ============================================================
+  // 移动上限 (随技能 buff / 道具 / 装备刷新)
+  // ============================================================
+  static float GetHspeedMin();
+  static float GetHspeedMax();
+  static float GetVspeedMin();
+  static float GetVspeedMax();
 };
 
 }  // namespace sdlms

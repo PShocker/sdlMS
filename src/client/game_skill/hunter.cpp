@@ -24,9 +24,9 @@
 namespace sdlms {
 
 // 310
-static void Baozhajian() {
+static void ArrowBombBow() {
   GameSkill g_skill;
-  g_skill.id = u"3101005";
+  g_skill.id = u"3101004";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
     GameTriangle tri = {
         {
@@ -63,7 +63,7 @@ static void Baozhajian() {
     if (!cm.data.empty()) {
       auto d = BallGameInstance::LoadBallTime(cct);
       auto mob_pos = cm.data[0].mob.pos;
-      auto g_r = SkillGameInstance::LoadSkiR(u"3101005", mob_pos, sf.flip);
+      auto g_r = SkillGameInstance::LoadSkiR(u"3101004", mob_pos, sf.flip);
       cm = CharacterLogicSystem::RunAttackCheck(mob_pos, g_r, 2);
       // Create and send attack payload
       for (int i = 0; i < cm.data.size(); i++) {
@@ -78,7 +78,7 @@ static void Baozhajian() {
       cat = SkillGameInstance::CreateAttackPayload(cm, sf.pos, d);
       ClientRequest::SendToHost(cat);
     }
-    auto ckt = SkillGameInstance::CreateSkillPayload(cat, 3101005, ski_lv);
+    auto ckt = SkillGameInstance::CreateSkillPayload(cat, 3101004, ski_lv);
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
     ClientRequest::SendToHost(ckt);
 
@@ -100,7 +100,7 @@ static void Baozhajian() {
   skills[g_skill.id] = g_skill;
 }
 
-static void Wuyingjian() {
+static void SoulArrowBow() {
   GameSkill g_skill;
   g_skill.climb = true;
   g_skill.id = u"3101003";
@@ -161,8 +161,8 @@ static void Wuyingjian() {
 }
 
 [[maybe_unused]] static const bool r = [] {
-  Baozhajian();
-  Wuyingjian();
+  ArrowBombBow();
+  SoulArrowBow();
   return true;
 }();
 

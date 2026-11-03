@@ -160,12 +160,6 @@ class CharacterLogicSystem {
   static inline float self_hspeed_ = 0.0;
   static inline float self_vspeed_ = 0.0;
 
-  static inline float self_hspeed_min_ = -125.0f;
-  static inline float self_hspeed_max_ = 125.0f;
-
-  static inline float self_vspeed_min_ = -5550.0f;
-  static inline float self_vspeed_max_ = 670.0f;
-
   static inline uint64_t self_alert_cooldown_;
   static inline uint64_t self_ladderrope_cooldown_;
   static inline uint64_t self_foothold_cooldown_;

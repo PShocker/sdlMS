@@ -22,7 +22,7 @@
 
 namespace sdlms {
 
-static void Duanhunjian() {
+static void ArrowBlow() {
   GameSkill g_skill;
   g_skill.id = u"3001001";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
@@ -73,7 +73,7 @@ static void Duanhunjian() {
   skills[g_skill.id] = g_skill;
 }
 
-static void Shuangfeizhan() {
+static void DoubleShot() {
   GameSkill g_skill;
   g_skill.id = u"3001002";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
@@ -147,8 +147,8 @@ static void Shuangfeizhan() {
 }
 
 [[maybe_unused]] static const bool r = [] {
-  Duanhunjian();
-  Shuangfeizhan();
+  ArrowBlow();
+  DoubleShot();
   return true;
 }();
 

@@ -5,7 +5,6 @@
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
-#include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/component/ui_component.h"
@@ -296,13 +295,13 @@ void CharacterStatUiSystem::RenderDetail() {
   Freetype::DrawLine(s2, p.x, p.y);
   // hspd
   p = {dx + 78, dy + 154};
-  auto hspd = CharacterLogicSystem::self_hspeed_max_;
+  auto hspd = CharacterStatGameInstance::GetHspeedMax();
   s = std::to_string((int)hspd);
   s2 = std::u16string{s.begin(), s.end()};
   Freetype::DrawLine(s2, p.x, p.y);
   // vspd
   p = {dx + 78, dy + 172};
-  auto vspd = -CharacterLogicSystem::self_vspeed_min_ * 0.1;
+  auto vspd = -CharacterStatGameInstance::GetVspeedMin() * 0.1f;
   s = std::to_string((int)vspd);
   s2 = std::u16string{s.begin(), s.end()};
   Freetype::DrawLine(s2, p.x, p.y);

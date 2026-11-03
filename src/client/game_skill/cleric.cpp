@@ -29,7 +29,7 @@
 
 namespace sdlms {
 
-static void Shunjianyidong() {
+static void Teleport() {
   GameSkill g_skill;
   g_skill.id = u"2301000";
 
@@ -114,12 +114,19 @@ static void Shunjianyidong() {
   skills[g_skill.id] = g_skill;
 }
 
-static void Huixueshu() {
+static void Heal() {
   GameSkill g_skill;
   g_skill.climb = true;
   g_skill.id = u"2301001";
 
   static uint64_t now;
+  g_skill.end = []() {
+    auto& ski = SkillGameInstance::ski_;
+    std::erase_if(ski,
+                  [](const GameSkill& s) { return s.id == u"2301001"; });
+    CharacterStatGameInstance::Update();
+  };
+
   g_skill.use = [g_skill](uint64_t client_id, int ski_lv) mutable {
     SkillGameInstance::Skis()[u"2301001"].cd = Window::dt_now_ + 1000;
 
@@ -140,19 +147,16 @@ static void Huixueshu() {
   skills[g_skill.id] = g_skill;
 }
 
-static void Qidao() {
+static void Bless() {
   GameSkill g_skill;
   g_skill.climb = true;
   g_skill.id = u"2301003";
   g_skill.end = []() {
     auto& ski = SkillGameInstance::ski_;
-    auto it = std::ranges::find_if(
-        ski, [](const GameSkill& s) { return s.id == u"2301003"; });
-    if (it != ski.end()) {
-      ski.erase(it);
-      CharacterLogicSystem::self_hspeed_max_ -= 100;
-      CharacterLogicSystem::self_hspeed_min_ += 100;
-    }
+    std::erase_if(ski,
+                  [](const GameSkill& s) { return s.id == u"2301003"; });
+    // 命中/回避由 buff 层重算后自动收回
+    CharacterStatGameInstance::Update();
   };
 
   g_skill.frame = []() { return; };
@@ -161,12 +165,15 @@ static void Qidao() {
     auto& ski = SkillGameInstance::ski_;
     g_skill.end();
     g_skill.lv = ski_lv;
-    g_skill.duration = 30 * 1000;
+    // 持续时间取 WZ 的 time (秒)
+    g_skill.duration =
+        static_cast<uint64_t>(SkillGameInstance::LoadSkiLevelInt(
+            u"2301003", static_cast<uint8_t>(ski_lv), u"time", 30)) *
+        1000;
     g_skill.destroy = Window::dt_now_ + g_skill.duration;
     ski.push_back(g_skill);
-
-    CharacterLogicSystem::self_hspeed_max_ += 100;
-    CharacterLogicSystem::self_hspeed_min_ -= 100;
+    // indieAcc/indieEva 由 buff 层计入属性
+    CharacterStatGameInstance::Update();
 
     if (client_id != 0) {
       return;
@@ -187,7 +194,9 @@ static void Qidao() {
 }
 
 [[maybe_unused]] static const bool r = [] {
-  Shunjianyidong();
+  Teleport();
+  Heal();
+  Bless();
   return true;
 }();
 

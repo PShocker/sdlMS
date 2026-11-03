@@ -17,6 +17,7 @@
 #include <cmath>
 #include <cstdint>
 #include <flat_map>
+#include <flat_set>
 #include <optional>
 #include <string>
 #include <utility>
@@ -194,6 +195,40 @@ void CharacterStatGameInstance::UpdateSfSkillStat() {
   }
 }
 
+// 主动技能 buff: 每次整体重算, 不做增量 (重复施放/漏调 end 都不会漂移)
+void CharacterStatGameInstance::UpdateSfBuffStat() {
+  buff_hp_ = 0;
+  buff_mp_ = 0;
+  buff_pad_ = 0;
+  buff_mad_ = 0;
+  buff_acc_ = 0;
+  buff_avd_ = 0;
+  buff_pdd_ = 0;
+  buff_mdd_ = 0;
+  buff_speed_ = 0;
+  buff_jump_ = 0;
+  std::flat_set<std::u16string> applied;  // 同一技能只算一次
+  for (auto& buff : SkillGameInstance::ski_) {
+    if (!applied.insert(buff.id).second) {
+      continue;
+    }
+    auto stat = SkillGameInstance::LoadSkiBuffStat(buff.id, buff.lv);
+    if (buff.buff_stat) {
+      buff.buff_stat(buff.lv, stat);
+    }
+    buff_hp_ += stat.hp;
+    buff_mp_ += stat.mp;
+    buff_pad_ += stat.pad;
+    buff_mad_ += stat.mad;
+    buff_acc_ += stat.acc;
+    buff_avd_ += stat.eva;
+    buff_pdd_ += stat.pdd;
+    buff_mdd_ += stat.mdd;
+    buff_speed_ += stat.speed;
+    buff_jump_ += stat.jump;
+  }
+}
+
 void CharacterStatGameInstance::UpdateSfEquipStat() {
   equip_hp_ = 0;
   equip_mp_ = 0;
@@ -275,6 +310,7 @@ void CharacterStatGameInstance::UpdateSfEquipStat() {
 void CharacterStatGameInstance::Update() {
   UpdateSfEquipStat();
   UpdateSfSkillStat();
+  UpdateSfBuffStat();
 
   // ---- 总属性（AP + 装备 + 道具/Buff + 技能被动）----
   str_point_ = str_ap_ + equip_str_ + item_str_ + ski_str_;
@@ -283,12 +319,14 @@ void CharacterStatGameInstance::Update() {
   luk_point_ = luk_ap_ + equip_luk_ + item_luk_ + ski_luk_;
 
   // ---- HP / MP 上限 ----
-  hp_point_max_ = static_cast<int32_t>(std::clamp<int64_t>(
-      static_cast<int64_t>(GetBaseHpMax()) + equip_hp_ + item_hp_ + ski_hp_, 1,
-      INT32_MAX));
-  mp_point_max_ = static_cast<int32_t>(std::clamp<int64_t>(
-      static_cast<int64_t>(GetBaseMpMax()) + equip_mp_ + item_mp_ + ski_mp_, 1,
-      INT32_MAX));
+  hp_point_max_ = static_cast<int32_t>(
+      std::clamp<int64_t>(static_cast<int64_t>(GetBaseHpMax()) + equip_hp_ +
+                              item_hp_ + ski_hp_ + buff_hp_,
+                          1, INT32_MAX));
+  mp_point_max_ = static_cast<int32_t>(
+      std::clamp<int64_t>(static_cast<int64_t>(GetBaseMpMax()) + equip_mp_ +
+                              item_mp_ + ski_mp_ + buff_mp_,
+                          1, INT32_MAX));
   hp_point_ = std::min<int32_t>(hp_point_, hp_point_max_);
   mp_point_ = std::min<int32_t>(mp_point_, mp_point_max_);
 
@@ -298,9 +336,9 @@ void CharacterStatGameInstance::Update() {
 
   // ---- 攻击力 ----
   // AttackPower：参与最终乘法的攻击力（装备 pad + 道具/Buff pad）
-  const uint32_t atk_power = equip_attack_ + item_attack_;
+  const uint32_t atk_power = equip_attack_ + item_attack_ + buff_pad_;
   // 魔法攻击力（法师公式的 MagicTotal 组成项）
-  const uint32_t mad_power = equip_magic_ + item_magic_;
+  const uint32_t mad_power = equip_magic_ + item_magic_ + buff_mad_;
 
   // ---- 武器动作倍率 W（MeowDB：普通动作包络，MIN 取最低、MAX 取最高）----
   auto [weapon_mult_min, weapon_mult_max] = []() -> std::pair<float, float> {
@@ -372,8 +410,8 @@ void CharacterStatGameInstance::Update() {
   // MagicTotal = floor(TotalINT / 2) + EquipmentMATK + ScrollMATK + BuffMATK
   // MAX = K × MagicTotal × (1 + TotalINT / 125)
   // MIN = K × MagicTotal × (1 + TotalINT × m / 125)
-  const uint32_t magic_total =
-      static_cast<uint32_t>(int_point_ / 2) + equip_magic_ + item_magic_;
+  const uint32_t magic_total = static_cast<uint32_t>(int_point_ / 2) +
+                               equip_magic_ + item_magic_ + buff_mad_;
   const float mage_max = static_cast<float>(magic_total) *
                          (1.0f + static_cast<float>(int_point_) / 125.0f);
   const float mage_min =
@@ -402,12 +440,13 @@ void CharacterStatGameInstance::Update() {
   magic_ = static_cast<int32_t>(mad_power);
 
   // ---- 命中 / 回避 ----
-  accuracy_ = ski_accuracy_ + equip_accuracy_ + item_accuracy_;
-  avoid_ = ski_avoid_ + equip_avoid_ + item_avoid_;
+  accuracy_ = ski_accuracy_ + equip_accuracy_ + item_accuracy_ + buff_acc_;
+  avoid_ = ski_avoid_ + equip_avoid_ + item_avoid_ + buff_avd_;
 
   // ---- 防御 ----
-  attack_def_ = ski_attack_def_ + equip_attack_def_ + item_attack_def_;
-  magic_def_ = ski_magic_def_ + equip_magic_def_ + item_magic_def_;
+  attack_def_ =
+      ski_attack_def_ + equip_attack_def_ + item_attack_def_ + buff_pdd_;
+  magic_def_ = ski_magic_def_ + equip_magic_def_ + item_magic_def_ + buff_mdd_;
 
   // ---- 暴击 ----
   // MeowDB：弓箭手基础 5% 暴击；暴击伤害为额外 20%（即 1.2 倍）。
@@ -422,6 +461,37 @@ void CharacterStatGameInstance::Update() {
   if (crit_damage_ == 0) {
     crit_damage_ = 120;
   }
+
+  // 速度/跳跃上限只在属性变化时刷新 (技能 buff / 药水 / 装备都会走到这里)
+  UpdateMoveLimits();
+}
+
+// ============================================================
+// 移动上限
+// ============================================================
+// 速度 1 点约等于 1.25 px/s (与原 0001002 的换算一致)
+void CharacterStatGameInstance::UpdateMoveLimits() {
+  // 移速 = 技能 buff(轻功/极速等) + 道具(药水等)
+  const auto speed = static_cast<float>(
+      GetBuffSpeed() + std::max(GetItemSpeed(), 0));
+  const auto jump = static_cast<float>(GetBuffJump());
+  hspeed_max_ = 125.0f + 1.25f * speed;
+  hspeed_min_ = -125.0f - 1.25f * speed;
+  // 跳跃: 每点约 +1% 初速度
+  vspeed_max_ = 670.0f * (1.0f + 0.01f * jump);
+}
+
+float CharacterStatGameInstance::GetHspeedMin() {
+  return hspeed_min_;
+}
+float CharacterStatGameInstance::GetHspeedMax() {
+  return hspeed_max_;
+}
+float CharacterStatGameInstance::GetVspeedMin() {
+  return vspeed_min_;
+}
+float CharacterStatGameInstance::GetVspeedMax() {
+  return vspeed_max_;
 }
 
 // ============================================================
@@ -508,8 +578,7 @@ uint64_t CharacterStatGameInstance::GetExpMax() {
       return UINT64_MAX;
     }
     if (exp_node->type == wz::Type::Long) {
-      exp_point_max_ =
-          static_cast<wz::Property<int64_t>*>(exp_node)->get();
+      exp_point_max_ = static_cast<wz::Property<int64_t>*>(exp_node)->get();
     } else {
       exp_point_max_ = static_cast<wz::Property<int>*>(exp_node)->get();
     }
@@ -630,8 +699,8 @@ uint32_t CharacterStatGameInstance::CalcHitChance(uint32_t mob_eva,
                                                   uint32_t mob_level) {
   const double acc = static_cast<double>(accuracy_);
   const double eva = static_cast<double>(mob_eva);
-  const double player_level =
-      static_cast<double>(std::max<uint32_t>(1, CharacterGameInstance::self_.level));
+  const double player_level = static_cast<double>(
+      std::max<uint32_t>(1, CharacterGameInstance::self_.level));
   const double level_gap =
       std::max(0.0, static_cast<double>(std::max<uint32_t>(1, mob_level)) -
                         player_level);
@@ -659,9 +728,8 @@ uint32_t CharacterStatGameInstance::CalcHitChance(uint32_t mob_eva,
       }
     }
   }
-  return static_cast<uint32_t>(
-      std::clamp<int32_t>(static_cast<int32_t>(std::lround(chance * 100.0)), 0,
-                          100));
+  return static_cast<uint32_t>(std::clamp<int32_t>(
+      static_cast<int32_t>(std::lround(chance * 100.0)), 0, 100));
 }
 uint32_t CharacterStatGameInstance::GetCritRate() {
   return crit_rate_;
@@ -984,6 +1052,47 @@ int32_t CharacterStatGameInstance::GetItemDef() {
 }
 int32_t CharacterStatGameInstance::GetItemMdef() {
   return item_magic_def_;
+}
+void CharacterStatGameInstance::SetItemSpeed(int32_t n) {
+  item_speed_ = std::max(n, 0);
+  Update();
+}
+int32_t CharacterStatGameInstance::GetItemSpeed() {
+  return item_speed_;
+}
+
+// ============================================================
+// buff 加成 getter (buff_)
+// ============================================================
+int64_t CharacterStatGameInstance::GetBuffHp() {
+  return buff_hp_;
+}
+int64_t CharacterStatGameInstance::GetBuffMp() {
+  return buff_mp_;
+}
+uint32_t CharacterStatGameInstance::GetBuffPad() {
+  return buff_pad_;
+}
+uint32_t CharacterStatGameInstance::GetBuffMad() {
+  return buff_mad_;
+}
+uint32_t CharacterStatGameInstance::GetBuffAcc() {
+  return buff_acc_;
+}
+uint32_t CharacterStatGameInstance::GetBuffAvd() {
+  return buff_avd_;
+}
+int32_t CharacterStatGameInstance::GetBuffPdd() {
+  return buff_pdd_;
+}
+int32_t CharacterStatGameInstance::GetBuffMdd() {
+  return buff_mdd_;
+}
+uint32_t CharacterStatGameInstance::GetBuffSpeed() {
+  return buff_speed_;
+}
+uint32_t CharacterStatGameInstance::GetBuffJump() {
+  return buff_jump_;
 }
 
 }  // namespace sdlms

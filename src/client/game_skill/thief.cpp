@@ -23,7 +23,7 @@
 
 namespace sdlms {
 
-static void Yinshenshu() {
+static void DarkSight() {
   GameSkill g_skill;
   g_skill.climb = true;
   g_skill.id = u"4001001";
@@ -96,24 +96,7 @@ static void Yinshenshu() {
   skills[g_skill.id] = g_skill;
 }
 
-static void Huibishu() {
-  GameSkill g_skill;
-  g_skill.id = u"2001099";
-
-  g_skill.end = []() {
-    auto& skills = SkillGameInstance::Skis();
-    auto ski_lv = skills[u"2001099"].lv;
-  };
-  g_skill.passive = [](int ski_lv) {
-    auto& skills = SkillGameInstance::Skis();
-    skills[u"2001099"].lv = ski_lv;
-  };
-  auto& skills = SkillGameInstance::Skis();
-
-  skills[g_skill.id] = g_skill;
-}
-
-static void Shuangfeizhan() {
+static void LuckySeven() {
   GameSkill g_skill;
   g_skill.id = u"4001003";
   g_skill.fall = true;
@@ -180,7 +163,7 @@ static void Shuangfeizhan() {
   skills[g_skill.id] = g_skill;
 }
 
-static void Erlianji() {
+static void DoubleStab() {
   GameSkill g_skill;
   g_skill.id = u"4001002";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
@@ -204,10 +187,9 @@ static void Erlianji() {
 }
 
 [[maybe_unused]] static const bool r = [] {
-  Yinshenshu();
-  Huibishu();
-  Shuangfeizhan();
-  Erlianji();
+  DarkSight();
+  LuckySeven();
+  DoubleStab();
   return true;
 }();
 

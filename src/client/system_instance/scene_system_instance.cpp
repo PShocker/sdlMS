@@ -7,6 +7,7 @@
 #include "src/client/game_instance/backgrnd_game_instance.h"
 #include "src/client/game_instance/ball_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
+#include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/drop_game_instance.h"
 #include "src/client/game_instance/effect_game_instance.h"
@@ -196,6 +197,9 @@ void SceneSystemInstance::Enter(uint32_t map_id) {
   SeatGameInstance::Load(map_id);
   MinimapUiSystem::Load();
   CharacterGameInstance::others_.clear();
+  // 切图保留 buff: destroy 是绝对时间戳, 持续时间照旧走;
+  // 这里只按保留下来的 buff 重算属性 (含移速/跳跃上限)。
+  CharacterStatGameInstance::Update();
   EffectGameInstance::Reset();
   CameraGameInstance::Reset();
   StatusbarUiSystem::Reset();

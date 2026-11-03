@@ -29,6 +29,71 @@ wz::Node* SkillGameInstance::LoadSkiLevelNode(const std::u16string& id,
   return level_node;
 }
 
+int32_t SkillGameInstance::LoadSkiLevelInt(const std::u16string& id, uint8_t lv,
+                                           const char16_t* key, int32_t def) {
+  auto node = LoadSkiLevelNode(id, lv);
+  if (node == nullptr) {
+    return def;
+  }
+  auto* child = node->get_child(key);
+  if (child == nullptr) {
+    return def;
+  }
+  if (child->type == wz::Type::Int) {
+    return static_cast<wz::Property<int32_t>*>(child)->get();
+  }
+  if (child->type == wz::Type::String) {
+    auto text = static_cast<wz::Property<std::u16string>*>(child)->get();
+    try {
+      return std::stoi(std::string{text.begin(), text.end()});
+    } catch (...) {
+      return def;
+    }
+  }
+  return def;
+}
+
+SkillBuffStat SkillGameInstance::LoadSkiBuffStat(const std::u16string& id,
+                                                 uint8_t lv) {
+  SkillBuffStat stat;
+  auto node = LoadSkiLevelNode(id, lv);
+  if (node == nullptr) {
+    return stat;
+  }
+  // 依次尝试几个名字, 取第一个存在的 int 字段
+  auto read = [node](std::initializer_list<const char16_t*> keys) -> int32_t {
+    for (auto key : keys) {
+      auto* child = node->get_child(key);
+      if (child == nullptr) {
+        continue;
+      }
+      if (child->type == wz::Type::Int) {
+        return static_cast<wz::Property<int32_t>*>(child)->get();
+      }
+      if (child->type == wz::Type::String) {
+        auto text = static_cast<wz::Property<std::u16string>*>(child)->get();
+        try {
+          return std::stoi(std::string{text.begin(), text.end()});
+        } catch (...) {
+          return 0;
+        }
+      }
+    }
+    return 0;
+  };
+  stat.hp = read({u"mhp", u"indieMhp"});
+  stat.mp = read({u"mmp", u"indieMmp"});
+  stat.pad = read({u"indiePad", u"pad"});
+  stat.mad = read({u"indieMad", u"mad"});
+  stat.acc = read({u"indieAcc", u"acc"});
+  stat.eva = read({u"indieEva", u"eva"});
+  stat.pdd = read({u"indiePdd", u"pdd", u"wdef"});
+  stat.mdd = read({u"indieMdd", u"mdd"});
+  stat.speed = read({u"indieSpeed", u"speed"});
+  stat.jump = read({u"indieJump", u"jump"});
+  return stat;
+}
+
 wz::Node* SkillGameInstance::LoadSkiNode(uint32_t id) {
   auto tmp = std::format("{:07d}", id);
   std::u16string ski_id{tmp.begin(), tmp.end()};

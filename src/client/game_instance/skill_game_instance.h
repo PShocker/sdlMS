@@ -27,6 +27,11 @@ class SkillGameInstance {
   static wz::Node* LoadSkiNode(const std::string& id);
   static wz::Node* LoadSkiNode(const std::u16string& id);
   static wz::Node* LoadSkiLevelNode(const std::u16string& id, uint8_t l);
+  // 从 level 节点解析这个技能 buff 提供哪些属性
+  static SkillBuffStat LoadSkiBuffStat(const std::u16string& id, uint8_t lv);
+  // 读 level 节点里的 int 字段 (字符串数字也解析), 取不到返回 def
+  static int32_t LoadSkiLevelInt(const std::u16string& id, uint8_t lv,
+                                 const char16_t* key, int32_t def);
 
   static uint64_t LoadSkiTime(GameCharacter& g_character);
   static SDL_FRect LoadR(SDL_FPoint lt, SDL_FPoint rb, SDL_FPoint pos,
