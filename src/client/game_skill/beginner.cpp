@@ -71,7 +71,7 @@ static void ThreeSnails() {
         SDL_FPoint{0, -28},
     }};
     auto& sf = CharacterGameInstance::self_;
-    CharacterLogicSystem::RunAttackAction(sf, false);
+    CharacterLogicSystem::RunAttackAction(sf, false, true);
     auto cm = CharacterLogicSystem::RunAttackCheck(sf, tri);
     if (!cm.data.empty()) {
       cm.data = {cm.data[0]};

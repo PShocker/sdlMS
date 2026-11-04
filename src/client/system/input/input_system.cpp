@@ -7,6 +7,7 @@
 #include "src/client/system/ui/craft_ui_system.h"
 #include "src/client/system/ui/equip_ui_system.h"
 #include "src/client/system/ui/keybinding_ui_system.h"
+#include "src/client/system/ui/minimap_ui_system.h"
 #include "src/client/system/ui/option_ui_system.h"
 #include "src/client/system/ui/package_ui_system.h"
 #include "src/client/system/ui/quest_ui_system.h"
@@ -32,6 +33,7 @@ void InputSystem::HandleUiInput(GameInput& g_input) {
       {"quest", QuestUiSystem::Toggle},
       {"option", OptionUiSystem::Toggle},
       {"menu", StatusbarMenuUiSystem::Toggle},
+      {"miniMap", MinimapUiSystem::Cycle},
   };
   if (fns.contains(g_input.val)) {
     // 键盘打开 UI 与鼠标点击按钮保持同一种提示音。

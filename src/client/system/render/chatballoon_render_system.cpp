@@ -25,7 +25,7 @@ namespace {
 // 尾巴尖端与头顶的间距（v95 CChatBalloon::AdjustCoordY 里是 -nHeight - 5）
 constexpr float kTipGap = 5.0f;
 // 行高倍数，必须和 Freetype::LoadCh / DrawCstr 用的保持一致
-constexpr float kLineSpacing = 1.3f;
+constexpr float kLineSpacing = 1.2f;
 // 文字区最小宽度，避免请求宽度过小时挤成一列
 constexpr float kMinInnerWidth = 40.0f;
 

@@ -237,7 +237,7 @@ void WorldmapUiSystem::Open() {
   auto it =
       std::ranges::find(System::render_systems_, &CursorRenderSystem::Render);
   if (it != System::render_systems_.end()) {
-    if (MinimapUiSystem::disable_) {
+    if (!MinimapUiSystem::HasCanvas()) {
       NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kWorldmapDisable;
       NoticeUiSystem::Close();
       NoticeUiSystem::Open();

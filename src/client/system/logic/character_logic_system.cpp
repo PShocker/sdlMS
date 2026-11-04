@@ -175,8 +175,7 @@ CheckMobs CharacterLogicSystem::RunAttackCheck(GameCharacter& g_character,
   for (const auto& [k, v] : MobGameInstance::data_) {
     auto& mob = v.mob;
     // 渐显中的怪物不参与人物攻击判定。
-    if (mob.revive_time != 0 &&
-        Window::dt_now_ - mob.revive_time < 1000) {
+    if (mob.revive_time != 0 && Window::dt_now_ - mob.revive_time < 1000) {
       continue;
     }
     if (mob.hp <= 0) {
@@ -233,8 +232,7 @@ CheckMobs CharacterLogicSystem::RunAttackCheck(SDL_FPoint pos, SDL_FRect g_r,
   for (const auto& [k, v] : MobGameInstance::data_) {
     auto& mob = v.mob;
     // 渐显中的怪物不参与人物攻击判定。
-    if (mob.revive_time != 0 &&
-        Window::dt_now_ - mob.revive_time < 1000) {
+    if (mob.revive_time != 0 && Window::dt_now_ - mob.revive_time < 1000) {
       continue;
     }
     auto mob_action = MobLogicSystem::LoadActionType(mob.action);
@@ -407,6 +405,11 @@ bool CharacterLogicSystem::RunAnimate(GameCharacter& g_character) {
 }
 
 bool CharacterLogicSystem::RunFlip(GameCharacter& g_character) {
+  // 在梯子/绳子上固定朝左，方向键不能改变朝向。
+  if (self_lr_ != 0) {
+    g_character.flip = 0;
+    return false;
+  }
   if (g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
     return false;
   }
@@ -476,7 +479,7 @@ bool CharacterLogicSystem::RunHarvest(GameCharacter& g_character) {
         auto n_pos = g_npc.pos;
         auto dx = n_pos.x - g_pos.x;
         auto dy = n_pos.y - g_pos.y;
-        if (dx * dx + dy * dy <= std::pow(50, 2)) {
+        if (dx * dx + dy * dy <= std::pow(100, 2)) {
           return CursorLogicSystem::EventClickNpc(g_npc);
         }
       }
@@ -626,18 +629,18 @@ bool CharacterLogicSystem::RunJump(GameCharacter& g_character) {
         break;
       }
       case ActionEnum::kClimb: {
-        if (character_action_input_.contains("up") ||
-            character_action_input_.contains("down")) {
-          return false;
-          break;
-        }
+        // 左右键优先于上下键：正在向上/向下爬时也能主动跳离绳索/梯子。
         if (character_action_input_.contains("left") ||
             character_action_input_.contains("right")) {
           self_hspeed_ = character_action_input_.contains("left") ? -140 : 140;
+          g_character.flip = self_hspeed_ < 0 ? false : true;
           g_character.action_animate = true;
           self_vspeed_ = -310;
           self_lr_ = 0;
           self_ladderrope_cooldown_ = Window::dt_now_ + 120;
+        } else if (character_action_input_.contains("up") ||
+                   character_action_input_.contains("down")) {
+          return false;
         } else {
           return false;
         }
@@ -691,6 +694,8 @@ bool CharacterLogicSystem::RunClimb(GameCharacter& g_character) {
           self_lr_ = id;
           self_vspeed_ = 0;
           self_hspeed_ = 0;
+          // 上梯/上绳的瞬间固定朝左。
+          g_character.flip = 0;
           pos.x = lr.x;
           pos.y = std::clamp(pos.y, (float)lr.t, (float)lr.b);
           g_character.page = lr.page;
@@ -829,8 +834,7 @@ bool CharacterLogicSystem::RunSkill(GameCharacter& g_character,
         return false;
       }
       const int mp_cost = SkillGameInstance::LoadSkiMpCost(id, ski_lv);
-      if (mp_cost > 0 &&
-          CharacterStatGameInstance::GetMp() < mp_cost) {
+      if (mp_cost > 0 && CharacterStatGameInstance::GetMp() < mp_cost) {
         return false;
       }
       for (auto& buff : SkillGameInstance::ski_) {
@@ -840,12 +844,11 @@ bool CharacterLogicSystem::RunSkill(GameCharacter& g_character,
       }
       ski.use(0, ski_lv);
       if (mp_cost > 0) {
-        CharacterStatGameInstance::SetMp(
-            CharacterStatGameInstance::GetMp() - mp_cost);
+        CharacterStatGameInstance::SetMp(CharacterStatGameInstance::GetMp() -
+                                         mp_cost);
       }
       // 095 以 Skill.wz 的 cooltime 为准；技能自身设置的动画冷却不能更短。
-      const int cooldown =
-          SkillGameInstance::LoadSkiCooldown(id, ski_lv);
+      const int cooldown = SkillGameInstance::LoadSkiCooldown(id, ski_lv);
       if (cooldown > 0) {
         auto& used_skill = SkillGameInstance::Skis()[id];
         const uint64_t until =
@@ -868,11 +871,15 @@ bool CharacterLogicSystem::RunSkill(GameCharacter& g_character) {
 }
 
 bool CharacterLogicSystem::RunAttackAction(GameCharacter& g_character,
-                                           bool shoot) {
+                                           bool shoot, bool force_stand) {
   if (!g_character.weapon.has_value()) {
     return false;
   }
   auto g_action = LoadActionType(g_character);
+  // 三蜗牛等投掷技能在趴地时使用站立攻击动作，而不是 proneStab。
+  if (force_stand && g_action == ActionEnum::kProne) {
+    g_action = ActionEnum::kStand;
+  }
   auto g_weapon = g_character.weapon->id;
   auto g_weapon_info = EquipGameInstance::LoadEquipInfo(g_weapon);
   auto WeaponType = EquipGameInstance::LoadWeaponType(g_character);
@@ -1821,23 +1828,21 @@ void CharacterLogicSystem::RunRecovery(GameCharacter& g_character) {
   double rate = std::max(
       0.0, MapInfoGameInstance::LoadRecovery(SceneSystemInstance::map_id_));
   if (rate > 1.0 && g_character.cape.has_value()) {
-    auto* equip_info =
-        EquipGameInstance::LoadEquipInfo(g_character.cape->id);
+    auto* equip_info = EquipGameInstance::LoadEquipInfo(g_character.cape->id);
     if (equip_info != nullptr) {
       auto* node = equip_info->get_child(u"recovery");
       if (node != nullptr && node->type == wz::Type::Double) {
         rate *= static_cast<wz::Property<double>*>(node)->get();
       } else if (node != nullptr && node->type == wz::Type::Int) {
-        rate *= static_cast<double>(
-            static_cast<wz::Property<int>*>(node)->get());
+        rate *=
+            static_cast<double>(static_cast<wz::Property<int>*>(node)->get());
       }
     }
   }
   int32_t hp_gain = 0;
   int32_t mp_gain = 0;
   if (sitting && g_character.chair.has_value()) {
-    auto* info =
-        ItemGameInstance::LoadItemInfo(g_character.chair->id, 0);
+    auto* info = ItemGameInstance::LoadItemInfo(g_character.chair->id, 0);
     if (info != nullptr) {
       auto load = [&](const char16_t* key) -> int32_t {
         auto* node = info->get_child(key);
@@ -1851,19 +1856,17 @@ void CharacterLogicSystem::RunRecovery(GameCharacter& g_character) {
     }
   }
   if (hp_gain <= 0) {
-    hp_gain = static_cast<int32_t>(
-        std::trunc(rate * (sitting ? 15.0 : 10.0)));
+    hp_gain = static_cast<int32_t>(std::trunc(rate * (sitting ? 15.0 : 10.0)));
   }
   if (mp_gain <= 0) {
-    mp_gain = static_cast<int32_t>(
-        std::trunc(rate * (sitting ? 4.5 : 3.0)));
+    mp_gain = static_cast<int32_t>(std::trunc(rate * (sitting ? 4.5 : 3.0)));
   }
   auto hp = CharacterStatGameInstance::GetHp();
   auto mp = CharacterStatGameInstance::GetMp();
-  const auto new_hp = std::min(CharacterStatGameInstance::GetHpMax(),
-                               hp + hp_gain);
-  const auto new_mp = std::min(CharacterStatGameInstance::GetMpMax(),
-                               mp + mp_gain);
+  const auto new_hp =
+      std::min(CharacterStatGameInstance::GetHpMax(), hp + hp_gain);
+  const auto new_mp =
+      std::min(CharacterStatGameInstance::GetMpMax(), mp + mp_gain);
   CharacterStatGameInstance::SetHp(new_hp);
   CharacterStatGameInstance::SetMp(new_mp);
 

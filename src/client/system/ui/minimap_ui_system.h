@@ -65,6 +65,10 @@ class MinimapUiSystem : public UiComponentHost<MinimapUiSystem> {
   static MapName LoadMapName(uint32_t map_id);
 
   static void Load();
+  // 当前地图是否有 miniMap/canvas；与世界地图按钮是否可用无关。
+  static bool HasCanvas();
+  // 快捷键循环：Max -> Min -> 关闭标题条 -> Max
+  static void Cycle();
   static bool Render();
   static bool Event(SDL_Event* event);
 

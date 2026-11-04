@@ -1,6 +1,7 @@
 #include "src/client/system/logic/drop_logic_system.h"
 
 #include "src/client/game/game_drop.h"
+#include "src/client/game_instance/afterimage_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/drop_game_instance.h"
 #include "src/client/window/window.h"
@@ -89,12 +90,30 @@ void DropLogicSystem::RunStateMachine(GameDrop& drop) {
         break;
       }
 
+      // 095：被拾取物从“地面 - 图标半高”开始，飞向人物身体中心，
+      // 不是飞向脚底。
+      auto body_center_y = [](GameCharacter& c) {
+        if (auto rect = AfterimageGameInstance::LoadRect(c);
+            rect.has_value()) {
+          return rect->y + rect->h / 2;
+        }
+        return c.pos.y - 40.0f;
+      };
+      SDL_FPoint target{pos->x, pos->y};
+      if (pk->client_id == ServerMain::local_addr_) {
+        target.y = body_center_y(CharacterGameInstance::self_);
+      } else if (CharacterGameInstance::others_.contains(pk->client_id)) {
+        target.y = body_center_y(
+            CharacterGameInstance::others_[pk->client_id].g_character);
+      }
+      const SDL_FPoint start{drop.goal.x, drop.goal.y - drop.icon_h / 2};
+
       // 计算位置插值（带抛物线弧线效果）
       float progress = static_cast<float>(elapsed) / PICK_UP_DURATION;
       float inverse_progress = 1.0f - progress;
 
       // 线性插值位置
-      float x = pos->x * progress + drop.goal.x * inverse_progress;
+      float x = target.x * progress + start.x * inverse_progress;
 
       // Y轴带抛物线弧线：基础线性插值 + 抛物线偏移
       float parabola_offset =
@@ -102,7 +121,7 @@ void DropLogicSystem::RunStateMachine(GameDrop& drop) {
                                         static_cast<float>(PICK_UP_DURATION),
                                     2) -
           PARABOLA_PEAK_DELTA;
-      float y = (pos->y * progress + drop.goal.y * inverse_progress) +
+      float y = (target.y * progress + start.y * inverse_progress) +
                 parabola_offset;
       drop.pos = {x, y};
       break;

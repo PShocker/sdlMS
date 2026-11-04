@@ -4,6 +4,7 @@
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
+#include "src/client/system/input/keyboard_input_system.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/character_stat_ui_system.h"
 #include "src/client/system/ui/component/ui_component.h"
@@ -220,12 +221,16 @@ void StatusbarMenuUiSystem::Open() {
 
     System::render_systems_.insert(it, Render);
     System::event_systems_.insert(System::event_systems_.begin(), Event);
+    // 与 ShopUiSystem 相同：打开时清空当前人物输入。
+    KeyboardInputSystem::Reset();
   }
 }
 
 void StatusbarMenuUiSystem::Close() {
   std::erase(System::render_systems_, Render);
   std::erase(System::event_systems_, Event);
+  // 关闭后重新开始接收人物输入。
+  KeyboardInputSystem::Reset();
 }
 
 void StatusbarMenuUiSystem::Toggle() {
@@ -292,7 +297,6 @@ bool StatusbarMenuUiSystem::EventUI(SDL_Event* event) {
 
 
 bool StatusbarMenuUiSystem::Event(SDL_Event* event) {
-  bool r = true;
   switch (event->type) {
     case SDL_EVENT_KEY_DOWN: {
       auto scan_code = event->key.scancode;
@@ -317,10 +321,9 @@ bool StatusbarMenuUiSystem::Event(SDL_Event* event) {
       break;
     }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
-      r = false;
       if (event->button.button == SDL_BUTTON_LEFT) {
         if (CursorGameInstance::cursor_ui_ == Render) {
-          r = !EventUI(event);
+          EventUI(event);
         }
         Close();
       }
@@ -331,7 +334,8 @@ bool StatusbarMenuUiSystem::Event(SDL_Event* event) {
     }
   }
 
-  return r;
+  // 与 ShopUiSystem 一致：菜单打开期间消费事件，KeyboardInputSystem 不会执行。
+  return false;
 }
 
 bool StatusbarMenuUiSystem::CursorIn() {

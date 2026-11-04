@@ -17,7 +17,7 @@ namespace {
 // 下拉列表每项的高度，必须和 OptionUiSystem 的命中测试保持一致
 constexpr float kItemHeight = 16.0f;
 // 列表最下面留一点空白，避免和边框挤在一起
-constexpr float kListBottomPad = 4.0f;
+constexpr float kListBottomPad = 1.0f;
 
 SDL_Texture* LoadBoxTexture(const char16_t* path) {
   return WzResource::LoadTexture(WzResource::ui_->find(path));

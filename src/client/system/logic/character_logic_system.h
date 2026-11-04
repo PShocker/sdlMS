@@ -125,7 +125,8 @@ class CharacterLogicSystem {
   static void RunDieAction(GameCharacter& g_character);
   static void RunStandAction(GameCharacter& g_character);
   static void RunWalkAction(GameCharacter& g_character);
-  static bool RunAttackAction(GameCharacter& g_character, bool shoot);
+  static bool RunAttackAction(GameCharacter& g_character, bool shoot,
+                              bool force_stand = false);
 
   static void LoadSfx(GameCharacter& g_character);
   static float LoadAttackSpeed(GameCharacter& g_character);

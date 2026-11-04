@@ -635,6 +635,7 @@ void ServerMobSystem::RunInterruptGround(ServerMob& mob, uint32_t t_elapse) {
       mob.pos.x = cur_axis.ox + pos * cur_axis.uvx;
       mob.pos.y = cur_axis.oy + pos * cur_axis.uvy;
     }
+    mob.pos.x = std::clamp(mob.pos.x, (float)mob.rx0, (float)mob.rx1);
   }
 }
 

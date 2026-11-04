@@ -42,14 +42,13 @@ void AudioGameInstance::SetVolume(float master, float bgm, float sfx) {
   bgm_volume_ = std::clamp(bgm, 0.0f, 1.0f);
   sfx_volume_ = std::clamp(sfx, 0.0f, 1.0f);
   for (auto& audio : audios_) {
-    if (audio.fade == 0) {
-      SDL_SetAudioStreamGain(audio.stream, SfxGain());
-    }
+    // 渐隐中的流也要立即应用新音量；下一帧 fade 逻辑再继续衰减。
+    SDL_SetAudioStreamGain(audio.stream,
+                           (audio.fade > 0 ? audio.fade : 1.0f) * SfxGain());
   }
   for (auto& audio : backgrnds_) {
-    if (audio.fade == 0) {
-      SDL_SetAudioStreamGain(audio.stream, BgmGain());
-    }
+    SDL_SetAudioStreamGain(audio.stream,
+                           (audio.fade > 0 ? audio.fade : 1.0f) * BgmGain());
   }
 }
 
@@ -99,6 +98,8 @@ void AudioGameInstance::LoadBackgrndAudio(const std::u16string& path) {
   };
   auto spec = LoadCache(path).spec;
   backgrnd.stream = SDL_CreateAudioStream(&spec, NULL);
+  // 新地图 BGM 必须继承当前选项音量，否则 master/bgm 为 0 时会恢复默认音量。
+  SDL_SetAudioStreamGain(backgrnd.stream, BgmGain());
   SDL_BindAudioStream(device_id_, backgrnd.stream);
   if (!backgrnds_.empty()) {
     if (backgrnds_[0].fade == 0) {

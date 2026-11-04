@@ -109,6 +109,7 @@ class OptionUiSystem : public UiComponentHost<OptionUiSystem> {
 
   static inline std::optional<SDL_FPoint> drag_;
   static inline bool dragging_slider_ = false;
+  static inline std::optional<std::u16string> dragging_slider_name_;
   static inline std::optional<std::u16string> open_combo_;  // 展开的 combo 名
   static inline uint8_t active_tab_ = 0;
   static inline SDL_FPoint pos_ = {0, 0};

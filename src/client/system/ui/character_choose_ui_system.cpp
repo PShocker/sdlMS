@@ -209,7 +209,7 @@ void CharacterChooseUiSystem::RenderCharacterBoard(uint8_t i) {
           static_cast<wz::Property<std::u16string>*>(job_node)->get(), 0.0f);
     }
     draw_center(to_text(cs.character.level), 24.0f);
-    draw_center(to_text(cs.ap.str_ap), 54.0f);
+    draw_center(to_text(cs.ap.str_ap), 57.0f);
     draw_center(to_text(cs.ap.dex_ap), 80.0f);
     draw_center(to_text(cs.ap.int_ap), 104.0f);
     draw_center(to_text(cs.ap.luk_ap), 128.0f);

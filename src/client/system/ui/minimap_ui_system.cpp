@@ -82,6 +82,8 @@ SDL_Texture* MinimapUiSystem::LoadCanvasTexture() {
   return nullptr;
 }
 
+bool MinimapUiSystem::HasCanvas() { return LoadCanvasTexture() != nullptr; }
+
 void MinimapUiSystem::RenderMinBackgrnd() {
   static auto node = WzResource::ui_->find(u"MiniMap.img/MinMap");
   static auto c = WzResource::LoadTexture(node->get_child(u"c"));
@@ -218,21 +220,21 @@ UIComponents& MinimapUiSystem::GetComponent() {
   };
   if (disable_) {
     auto wh = LoadWh();
-    buttons_rect = {
-        SDL_FRect{wh.x - 34, 4, 12, 12},
-        SDL_FRect{wh.x - 20, 4, 12, 12},
-    };
     const bool enable = LoadCanvasTexture() != nullptr;
+    // 最小化标题条与最大化使用同一组按钮布局。
+    components_.push_back(
+        Button{.node = buttons_nodes[0],
+               .rect = SDL_FRect{wh.x - 42 + pos_.x, 6 + pos_.y, 36, 12},
+               .callback = EventWorldMap,
+               .enable = enable});
     components_.push_back(
         Button{.node = buttons_nodes[1],
-               .rect = SDL_FRect{buttons_rect[0].x + pos_.x,
-                                 buttons_rect[0].y + pos_.y, 12, 12},
+               .rect = SDL_FRect{wh.x - 72 + pos_.x, 6 + pos_.y, 12, 12},
                .callback = EventMin,
                .enable = enable});
     components_.push_back(
         Button{.node = buttons_nodes[2],
-               .rect = SDL_FRect{buttons_rect[1].x + pos_.x,
-                                 buttons_rect[1].y + pos_.y, 12, 12},
+               .rect = SDL_FRect{wh.x - 58 + pos_.x, 6 + pos_.y, 12, 12},
                .callback = EventMax,
                .enable = enable});
   } else {
@@ -604,12 +606,21 @@ void MinimapUiSystem::EventWorldMap() {
 }
 
 void MinimapUiSystem::EventMin() {
-  if (max_) {
-    max_ = false;
+  if (disable_) {
+    if (LoadCanvasTexture() == nullptr) {
+      return;
+    }
     disable_ = false;
+    max_ = false;
+  } else if (max_) {
+    max_ = false;
   } else {
     disable_ = true;
   }
+  auto& camera = CameraGameInstance::camera_;
+  auto [w, h] = LoadWh();
+  pos_.x = std::clamp(pos_.x, (float)0, camera.w - w);
+  pos_.y = std::clamp(pos_.y, (float)0, camera.h - h);
   return;
 }
 
@@ -628,6 +639,25 @@ void MinimapUiSystem::EventMax() {
   pos_.x = std::clamp(pos_.x, (float)0, camera.w - w);
   pos_.y = std::clamp(pos_.y, (float)0, camera.h - h);
   return;
+}
+
+void MinimapUiSystem::Cycle() {
+  // 与 095 的三态小地图一致：Max / Min / 关闭标题条。
+  if (disable_) {
+    if (LoadCanvasTexture() == nullptr) {
+      return;
+    }
+    disable_ = false;
+    max_ = true;
+  } else if (max_) {
+    max_ = false;
+  } else {
+    disable_ = true;
+  }
+  auto& camera = CameraGameInstance::camera_;
+  auto [w, h] = LoadWh();
+  pos_.x = std::clamp(pos_.x, (float)0, camera.w - w);
+  pos_.y = std::clamp(pos_.y, (float)0, camera.h - h);
 }
 
 bool MinimapUiSystem::EventUI(SDL_Event* event) {
@@ -668,7 +698,8 @@ SDL_FPoint MinimapUiSystem::LoadWh() {
     auto s2 = MapName.map_name;
     auto s = s1 + u":" + s2;
     Freetype::LoadSize(14);
-    SDL_FPoint r{Freetype::LoadW(s) + 72, 20};
+    // 最小化标题条额外加宽 20 像素，容纳 WorldMap/Min/Max 三个按钮。
+    SDL_FPoint r{Freetype::LoadW(s) + 92, 20};
     return r;
   } else if (max_) {
     return backgrnd_max_wh;

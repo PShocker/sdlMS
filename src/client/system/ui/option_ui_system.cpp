@@ -861,30 +861,43 @@ std::optional<uint8_t> OptionUiSystem::ClickCombo(const Element& element,
   return static_cast<uint8_t>(index);
 }
 
-// 拖动 / 点击滑块，边拖边�?
+// 拖动 / 点击滑块，边拖边更新
 void OptionUiSystem::EventSlider(SDL_Event* event) {
+  const bool down = event->type == SDL_EVENT_MOUSE_BUTTON_DOWN;
   auto mouse = SDL_FPoint{event->motion.x, event->motion.y};
-  if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
+  if (down) {
     mouse = SDL_FPoint{event->button.x, event->button.y};
+    dragging_slider_ = false;
+    dragging_slider_name_ = std::nullopt;
   }
+
   for (const auto& element : LoadElements(active_tab_)) {
     if (element.kind != u"slider") {
+      continue;
+    }
+    // 鼠标移动时只更新按下时捕获的那个滑块，不能按当前悬停位置切换对象。
+    if (!down && (!dragging_slider_name_.has_value() ||
+                  element.name != *dragging_slider_name_)) {
       continue;
     }
     SDL_FRect rect = element.rect;
     rect.x += std::round(pos_.x);
     rect.y += std::round(pos_.y);
-    if (!SDL_PointInRectFloat(&mouse, &rect)) {
+    if (down && !SDL_PointInRectFloat(&mouse, &rect)) {
       continue;
     }
-    // �?Slider �?thumb 纹理行程一致：左侧内缩 2px，右侧留 5px
+    if (down) {
+      dragging_slider_ = true;
+      dragging_slider_name_ = element.name;
+    }
+    // 与 Slider 的 thumb 纹理行程一致：左侧内缩 2px，右侧留 5px
     const float track_x = rect.x + 2.0f;
     const float track_w = std::max(1.0f, rect.w - 7.0f);
     auto percent =
         std::clamp((mouse.x - track_x) / track_w, 0.0f, 1.0f);
-    SetValue(active_tab_, element.name,
-             static_cast<int32_t>(std::round(percent * kSliderMax)));
-    dragging_slider_ = true;
+    const int32_t value =
+        static_cast<int32_t>(std::round(percent * kSliderMax));
+    SetValue(active_tab_, element.name, value);
     return;
   }
 }
@@ -910,6 +923,7 @@ void OptionUiSystem::Open() {
   pos_.y = std::round((camera.h - wh.y) / 2);
   open_combo_ = std::nullopt;
   dragging_slider_ = false;
+  dragging_slider_name_ = std::nullopt;
 
   System::render_systems_.insert(it, Render);
   System::event_systems_.insert(System::event_systems_.begin(), Event);
@@ -920,6 +934,7 @@ void OptionUiSystem::Close() {
   std::erase(System::event_systems_, Event);
   open_combo_ = std::nullopt;
   dragging_slider_ = false;
+  dragging_slider_name_ = std::nullopt;
   // 未按 OK 的改动不生效；下次打开时重新从存档载入
   loaded_ = false;
 }
@@ -999,6 +1014,7 @@ bool OptionUiSystem::Event(SDL_Event* event) {
     case SDL_EVENT_MOUSE_BUTTON_UP: {
       if (event->button.button == SDL_BUTTON_LEFT) {
         dragging_slider_ = false;
+        dragging_slider_name_ = std::nullopt;
         if (CursorGameInstance::cursor_ui_ == Render) {
           r = !EventUI(event);
         }

@@ -394,19 +394,22 @@ bool TextInput::Event(SDL_Event* event) {
           break;
         }
         case SDL_SCANCODE_BACKSPACE: {
-          if (active && !text.empty() && cur > 0) {
+          // 全选时 cur 可能是 0；不能再用 cur > 0 作为前置条件。
+          if (active && !text.empty() &&
+              (cur_next.has_value() || cur > 0)) {
             if (cur_next.has_value()) {
               auto cur_min = std::min(cur, cur_next.value());
               auto cur_max = std::max(cur, cur_next.value());
               text.erase(cur_min, cur_max - cur_min);
-              cur = cur_min + 1;
+              cur = cur_min;
               cur_next = std::nullopt;
             } else if (cur < text.length()) {
               text.erase(cur - 1, 1);
+              cur--;
             } else {
               text.pop_back();
+              cur--;
             }
-            cur--;
           }
           break;
         }
