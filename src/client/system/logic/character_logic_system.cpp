@@ -1807,7 +1807,10 @@ void CharacterLogicSystem::RunRecovery(GameCharacter& g_character) {
   const bool sitting = action == ActionEnum::kSit;
   // 095 is_stand_action 包含绳/梯上的静止动作，绳子上也允许自然恢复。
   const bool climbing = action == ActionEnum::kClimb;
-  if (!standing && !sitting && !climbing) {
+  // 095 Improved HP Recovery：学会后不只在站立/坐下时自然恢复。
+  const bool improved_hp_recovery =
+      JobSkillGameInstance::LoadSkiLevel(u"1000000") > 0;
+  if (!standing && !sitting && !climbing && !improved_hp_recovery) {
     self_recovery_time_ = 0;
     return;
   }

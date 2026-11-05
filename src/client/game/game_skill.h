@@ -23,8 +23,9 @@ struct SkillBuffStat {
   int32_t mad = 0;    // 魔法攻击
   int32_t acc = 0;    // 命中
   int32_t eva = 0;    // 回避
-  int32_t pdd = 0;    // 物理防御
-  int32_t mdd = 0;    // 魔法防御
+  int32_t pdd = 0;       // 物理防御
+  int32_t pdd_rate = 0;  // 物理防御百分比 (Iron Body)
+  int32_t mdd = 0;       // 魔法防御
   int32_t speed = 0;  // 移动速度
   int32_t jump = 0;   // 跳跃力
 };

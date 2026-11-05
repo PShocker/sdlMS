@@ -59,6 +59,9 @@ class CharacterStatGameInstance {
 
   // ============ 技能加成 (ski_) ============
   static inline int64_t ski_hp_ = 0;
+  static inline int64_t ski_hp_rate_ = 0;       // Max HP Increase (%)
+  static inline uint32_t ski_crit_rate_ = 0;    // Precise Strikes
+  static inline uint32_t ski_hp_recovery_ = 0;  // Improved HP Recovery (%)
   static inline int64_t ski_mp_ = 0;
   static inline int64_t ski_str_ = 0;
   static inline int64_t ski_dex_ = 0;
@@ -120,6 +123,7 @@ class CharacterStatGameInstance {
   static inline uint32_t buff_acc_ = 0;    // 命中
   static inline uint32_t buff_avd_ = 0;    // 回避
   static inline int32_t buff_pdd_ = 0;     // 物防
+  static inline int32_t buff_pdd_rate_ = 0;  // 物防百分比
   static inline int32_t buff_mdd_ = 0;     // 魔防
   static inline uint32_t buff_speed_ = 0;  // 移速
   static inline uint32_t buff_jump_ = 0;   // 跳跃
@@ -220,6 +224,12 @@ class CharacterStatGameInstance {
   // 技能加成 setter (ski_)
   // ============================================================
   static void SetSkiHp(int64_t n);
+  // 被动技能在 UpdateSfSkillStat 内调用；不要在这里再触发 Update。
+  static void ApplyPassiveHpRate(int64_t n);
+  static void ApplyPassiveCritRate(uint32_t n);
+  static void ApplyPassiveAcc(uint32_t n);
+  static void ApplyPassiveHpRecovery(uint32_t n);
+  static uint32_t GetHpRecoveryRate();
   static void SetSkiMp(int64_t n);
   static void SetSkiStr(int64_t n);
   static void SetSkiDex(int64_t n);

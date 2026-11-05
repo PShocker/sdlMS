@@ -88,6 +88,7 @@ SkillBuffStat SkillGameInstance::LoadSkiBuffStat(const std::u16string& id,
   stat.acc = read({u"indieAcc", u"acc"});
   stat.eva = read({u"indieEva", u"eva"});
   stat.pdd = read({u"indiePdd", u"pdd", u"wdef"});
+  stat.pdd_rate = read({u"indiePddR", u"pddR"});
   stat.mdd = read({u"indieMdd", u"mdd"});
   stat.speed = read({u"indieSpeed", u"speed"});
   stat.jump = read({u"indieJump", u"jump"});
@@ -229,33 +230,15 @@ SDL_FRect SkillGameInstance::LoadSkiR(const std::u16string& id) {
 }
 
 int SkillGameInstance::LoadSkiBallNum(const std::u16string& id, uint8_t lv) {
-  auto ski_node = LoadSkiLevelNode(id, lv);
-  int r = 0;
-  if (ski_node->get_child(u"bulletCount")) {
-    r = static_cast<wz::Property<int>*>(ski_node->get_child(u"bulletCount"))
-            ->get();
-  }
-  return r;
+  return LoadSkiLevelInt(id, lv, u"bulletCount", 0);
 }
 
 int SkillGameInstance::LoadSkiMobCount(const std::u16string& id, uint8_t lv) {
-  auto ski_node = LoadSkiLevelNode(id, lv);
-  int r = 1;
-  if (ski_node->get_child(u"mobCount")) {
-    r = static_cast<wz::Property<int>*>(ski_node->get_child(u"mobCount"))
-            ->get();
-  }
-  return r;
+  return LoadSkiLevelInt(id, lv, u"mobCount", 1);
 }
 
 int SkillGameInstance::LoadSkiAtkCount(const std::u16string& id, uint8_t lv) {
-  auto ski_node = LoadSkiLevelNode(id, lv);
-  int r = 1;
-  if (ski_node->get_child(u"attackCount")) {
-    r = static_cast<wz::Property<int>*>(ski_node->get_child(u"attackCount"))
-            ->get();
-  }
-  return r;
+  return LoadSkiLevelInt(id, lv, u"attackCount", 1);
 }
 
 int SkillGameInstance::LoadSkiMpCost(const std::u16string& id, uint8_t lv) {

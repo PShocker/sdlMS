@@ -38,6 +38,9 @@ void CharacterStatGameInstance::Load(const CharacterSaveData& cs) {
 
   remain_ap_ = cs.remain_ap;
 
+
+  JobSkillGameInstance::remain_point_ = {100, 100};
+
   Update();
   // MeowDB：总 AP = 25 + 5 × (level - 1)。
   const uint32_t total_ap =
@@ -51,6 +54,9 @@ void CharacterStatGameInstance::Load(const CharacterSaveData& cs) {
   mp_point_ = std::clamp<int32_t>(
       static_cast<int32_t>(std::min<uint32_t>(cs.mp, INT32_MAX)), 1,
       mp_point_max_);
+
+  hp_point_ = 2000;
+  mp_point_ = 2000;
 }
 
 namespace {
@@ -91,8 +97,7 @@ uint32_t CharacterStatGameInstance::GetBaseHpMax() {
   const int base_hp = 50 + 8 * 16;
   const bool second_advance = jobs.size() >= 3 && level >= 30;
   const int advance_mul = 1 + (second_advance ? 1 : 0);
-  return static_cast<uint32_t>(base_hp +
-                               curve.hp_advance * advance_mul +
+  return static_cast<uint32_t>(base_hp + curve.hp_advance * advance_mul +
                                (level - 10) * curve.hp_per_level +
                                hp_ap_ * curve.hp_per_level);
 }
@@ -108,8 +113,7 @@ uint32_t CharacterStatGameInstance::GetBaseMpMax() {
   const int base_mp = 5 + 8 * 12;
   const bool second_advance = jobs.size() >= 3 && level >= 30;
   const int advance_mul = 1 + (second_advance ? 1 : 0);
-  return static_cast<uint32_t>(base_mp +
-                               curve.mp_advance * advance_mul +
+  return static_cast<uint32_t>(base_mp + curve.mp_advance * advance_mul +
                                (level - 10) * curve.mp_per_level +
                                mp_ap_ * curve.mp_per_level);
 }
@@ -160,6 +164,9 @@ int CharacterStatGameInstance::LoadSecondaryStat() {
 
 void CharacterStatGameInstance::UpdateSfSkillStat() {
   ski_hp_ = 0;
+  ski_hp_rate_ = 0;
+  ski_crit_rate_ = 0;
+  ski_hp_recovery_ = 0;
   ski_mp_ = 0;
   ski_str_ = 0;
   ski_dex_ = 0;
@@ -204,6 +211,7 @@ void CharacterStatGameInstance::UpdateSfBuffStat() {
   buff_acc_ = 0;
   buff_avd_ = 0;
   buff_pdd_ = 0;
+  buff_pdd_rate_ = 0;
   buff_mdd_ = 0;
   buff_speed_ = 0;
   buff_jump_ = 0;
@@ -223,6 +231,7 @@ void CharacterStatGameInstance::UpdateSfBuffStat() {
     buff_acc_ += stat.acc;
     buff_avd_ += stat.eva;
     buff_pdd_ += stat.pdd;
+    buff_pdd_rate_ += stat.pdd_rate;
     buff_mdd_ += stat.mdd;
     buff_speed_ += stat.speed;
     buff_jump_ += stat.jump;
@@ -319,10 +328,17 @@ void CharacterStatGameInstance::Update() {
   luk_point_ = luk_ap_ + equip_luk_ + item_luk_ + ski_luk_;
 
   // ---- HP / MP 上限 ----
-  hp_point_max_ = static_cast<int32_t>(
-      std::clamp<int64_t>(static_cast<int64_t>(GetBaseHpMax()) + equip_hp_ +
-                              item_hp_ + ski_hp_ + buff_hp_,
-                          1, INT32_MAX));
+  const int32_t old_hp_max = hp_point_max_;
+  const int64_t base_hp = GetBaseHpMax();
+  const int64_t hp_with_rate =
+      base_hp * (100 + std::max<int64_t>(0, ski_hp_rate_)) / 100;
+  hp_point_max_ = static_cast<int32_t>(std::clamp<int64_t>(
+      hp_with_rate + equip_hp_ + item_hp_ + ski_hp_ + buff_hp_, 1, INT32_MAX));
+  // Max HP Increase 加点后当前 HP 同步增加差额。
+  if (old_hp_max > 0 && old_hp_max != INT32_MAX && hp_point_max_ > old_hp_max &&
+      hp_point_ > 0) {
+    hp_point_ += hp_point_max_ - old_hp_max;
+  }
   mp_point_max_ = static_cast<int32_t>(
       std::clamp<int64_t>(static_cast<int64_t>(GetBaseMpMax()) + equip_mp_ +
                               item_mp_ + ski_mp_ + buff_mp_,
@@ -444,20 +460,24 @@ void CharacterStatGameInstance::Update() {
   avoid_ = ski_avoid_ + equip_avoid_ + item_avoid_ + buff_avd_;
 
   // ---- 防御 ----
-  attack_def_ =
+  const int32_t pdd_base =
       ski_attack_def_ + equip_attack_def_ + item_attack_def_ + buff_pdd_;
+  attack_def_ = pdd_base + pdd_base * std::max(0, buff_pdd_rate_) / 100;
   magic_def_ = ski_magic_def_ + equip_magic_def_ + item_magic_def_ + buff_mdd_;
 
   // ---- 暴击 ----
-  // MeowDB：弓箭手基础 5% 暴击；暴击伤害为额外 20%（即 1.2 倍）。
-  if (crit_rate_ == 0) {
-    auto jobs = JobSkillGameInstance::LoadSkiTree(
-        CharacterGameInstance::self_.job);
+  // MeowDB：弓箭手基础 5% 暴击；Precise Strikes 提供额外暴击率。
+  // crit_rate_ 每次整体重算，不能把上一轮结果继续叠加。
+  uint32_t base_crit_rate = 0;
+  {
+    auto jobs =
+        JobSkillGameInstance::LoadSkiTree(CharacterGameInstance::self_.job);
     if (jobs.size() >= 2 &&
         (jobs[1] == JobType::kBowman || jobs[1] == JobType::kThief)) {
-      crit_rate_ = 5;
+      base_crit_rate = 5;
     }
   }
+  crit_rate_ = base_crit_rate + ski_crit_rate_;
   if (crit_damage_ == 0) {
     crit_damage_ = 120;
   }
@@ -472,8 +492,8 @@ void CharacterStatGameInstance::Update() {
 // 速度 1 点约等于 1.25 px/s (与原 0001002 的换算一致)
 void CharacterStatGameInstance::UpdateMoveLimits() {
   // 移速 = 技能 buff(轻功/极速等) + 道具(药水等)
-  const auto speed = static_cast<float>(
-      GetBuffSpeed() + std::max(GetItemSpeed(), 0));
+  const auto speed =
+      static_cast<float>(GetBuffSpeed() + std::max(GetItemSpeed(), 0));
   const auto jump = static_cast<float>(GetBuffJump());
   hspeed_max_ = 125.0f + 1.25f * speed;
   hspeed_min_ = -125.0f - 1.25f * speed;
@@ -762,6 +782,21 @@ int32_t CharacterStatGameInstance::GetMagic() {
 void CharacterStatGameInstance::SetSkiHp(int64_t n) {
   ski_hp_ = n;
   Update();
+}
+void CharacterStatGameInstance::ApplyPassiveHpRate(int64_t n) {
+  ski_hp_rate_ = std::max<int64_t>(0, n);
+}
+void CharacterStatGameInstance::ApplyPassiveCritRate(uint32_t n) {
+  ski_crit_rate_ = n;
+}
+void CharacterStatGameInstance::ApplyPassiveAcc(uint32_t n) {
+  ski_accuracy_ += n;
+}
+void CharacterStatGameInstance::ApplyPassiveHpRecovery(uint32_t n) {
+  ski_hp_recovery_ = std::max<uint32_t>(0, n);
+}
+uint32_t CharacterStatGameInstance::GetHpRecoveryRate() {
+  return ski_hp_recovery_;
 }
 void CharacterStatGameInstance::SetSkiMp(int64_t n) {
   ski_mp_ = n;
