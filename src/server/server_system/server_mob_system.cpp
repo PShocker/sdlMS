@@ -924,7 +924,41 @@ bool ServerMobSystem::RunHitting(ServerMob& mob) {
   }
   mob.hp -= total_damage;
 
-  // 2) 取首/尾；hits 是有序容器，rbegin 是"最后一次命中"。
+  // 2) 095 的 hit 状态同时是受击冷却：这期间到达的后续攻击只结算伤害，
+  // 不能再触发第二次 hit 动作或击退。
+  if (mob.action.starts_with(u"hit")) {
+    // 特例：最新一次攻击已经致死，且它的攻击 delay 已到，
+    // 不再等当前 hit1 播完，强制转入死亡。
+    const auto& latest = mob.hits.rbegin()->second;
+    if (mob.hp <= 0 && latest.hit_time <= current_time) {
+      const auto killer_id = latest.hit_id;
+      mob.hits.clear();
+      RunDie(mob, killer_id);
+      return true;
+    }
+    for (auto& b : mob.hits | std::views::values) {
+      if (b.hit_time <= current_time) {
+        b.hit_reaction = false;
+        b.hit_push = false;
+        b.knockback = 0.0f;
+      }
+    }
+    return true;
+  }
+
+  // 清除已经错过 hit 反应窗口、只结算过伤害的队列项。
+  while (!mob.hits.empty()) {
+    const auto it = mob.hits.begin();
+    if (it->second.hit_reaction) {
+      break;
+    }
+    mob.hits.erase(it);
+  }
+  if (mob.hits.empty()) {
+    return false;
+  }
+
+  // 3) 取首/尾；hits 是有序容器，rbegin 是"最后一次命中"。
   const auto& first = mob.hits.begin()->second;
   const auto& last = mob.hits.rbegin()->second;
 
@@ -933,7 +967,7 @@ bool ServerMobSystem::RunHitting(ServerMob& mob) {
     return false;
   }
 
-  // 3) 死亡判定：HP 归零且最后一击已过期。
+  // 4) 死亡判定：HP 归零且最后一击已过期。
   if (mob.hp <= 0 && last.hit_time < current_time) {
     const auto killer_id = last.hit_id;  // clear 前保存
     mob.hits.clear();
@@ -941,16 +975,11 @@ bool ServerMobSystem::RunHitting(ServerMob& mob) {
     return true;
   }
 
-  // 4) 受击目标就是攻击者：之后 AI 统一追击 target_id。
+  // 5) 受击目标就是攻击者：之后 AI 统一追击 target_id。
   mob.target_id = last.hit_id;
   mob.chase_end = Window::dt_now_ + kChaseMs;
 
-  // 正在播放受击动作：不能每帧重启 hit1。
-  if (mob.action.starts_with(u"hit")) {
-    return true;
-  }
-
-  // 5) 095：命中进入 hit 状态；hit_push 只决定是否击退。
+  // 6) 095：命中进入 hit 状态；hit_push 只决定是否击退。
   mob.flip = !first.left;
   mob.hspeed = 0.0f;
   mob.hforce = 0.0f;

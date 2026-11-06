@@ -19,6 +19,7 @@ struct MobHit {
   int64_t hit_num;
   bool left;
   float knockback = 0.0f;
+  bool hit_reaction = true;  // false: 命中已处于 hit 状态，只结算伤害
 };
 
 // 对应 v95 CVecCtrlMob 的"被打断位移"状态（UpdateActiveInterrupted）

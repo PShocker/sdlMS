@@ -1,6 +1,7 @@
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_debuff.h"
 #include "src/client/game/game_skill.h"
+#include "src/client/game/game_triangle.h"
 #include "src/client/game_instance/ball_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
@@ -46,6 +47,15 @@ SDL_FRect AttackRect(const GameCharacter& sf, int range) {
   SDL_FPoint lt{static_cast<float>(-range), -100};
   SDL_FPoint rb{0, 0};
   return SkillGameInstance::LoadR(lt, rb, sf.pos, sf.flip);
+}
+
+GameTriangle AttackTriangle(int range) {
+  const float x = static_cast<float>(-range);
+  return GameTriangle{{
+      SDL_FPoint{x, -100},
+      SDL_FPoint{x, 100},
+      SDL_FPoint{0, -28},
+  }};
 }
 
 int RangeWithEye(const char16_t* id, int lv, int fallback) {
@@ -156,7 +166,7 @@ static void ArrowBlow() {
     CharacterLogicSystem::RunAttackAction(sf, true);
     const int range = RangeWithEye(u"3001001", ski_lv, 350);
     auto cm =
-        CharacterLogicSystem::RunAttackCheck(sf, AttackRect(sf, range), 1);
+        CharacterLogicSystem::RunAttackCheck(sf, AttackTriangle(range), 1);
 
     const int32_t damage =
         std::max<int32_t>(0, SkillInt(u"3001001", ski_lv, u"damage", 0));
@@ -171,11 +181,13 @@ static void ArrowBlow() {
     if (!cm.data.empty()) {
       cm.data[0].y = 0;
       cm.data[0].hits = {damage};
-      auto path = BallGameInstance::LoadBallPath((*ball)->id);
-      auto cct = BallGameInstance::CreateBallPayload(cm, pos, goal, delay, page,
-                                                     700, path);
-      ClientRequest::SendToHost(cct);
-      ServerBallInstance::HandleServerB(cct.payload);
+    }
+    auto cct = BallGameInstance::CreateBallPayload(
+        cm, pos, goal, delay, page, 700, u"300.img/skill/3001001/ball");
+    // Arrow Blow 即使没有命中，也要显示箭矢飞行。
+    ClientRequest::SendToHost(cct);
+    ServerBallInstance::HandleServerB(cct.payload);
+    if (!cm.data.empty()) {
       auto d = BallGameInstance::LoadBallTime(cct);
       cat = SkillGameInstance::CreateAttackPayload(cm, sf.pos, d);
       ClientRequest::SendToHost(cat);
@@ -210,7 +222,7 @@ static void DoubleShot() {
     CharacterLogicSystem::RunAttackAction(sf, true);
     const int range = RangeWithEye(u"3001002", ski_lv, 350);
     auto cm =
-        CharacterLogicSystem::RunAttackCheck(sf, AttackRect(sf, range), 1);
+        CharacterLogicSystem::RunAttackCheck(sf, AttackTriangle(range), 1);
 
     const int32_t damage =
         std::max<int32_t>(0, SkillInt(u"3001002", ski_lv, u"damage", 0));
@@ -225,22 +237,25 @@ static void DoubleShot() {
     fbs::ClientCharacterAttackT cat;
     if (!cm.data.empty()) {
       cm.data[0].hits = {damage, damage};
-      auto cct = BallGameInstance::CreateBallPayload(cm, pos, goal, delay, page,
-                                                     750, arrow_path);
-      if (cct.payload->ball->mob_index != UINT32_MAX &&
-          cct.payload->ball->y2 >= -8) {
-        cct.payload->ball->y2 -= 8;
-      }
+    }
+    auto cct = BallGameInstance::CreateBallPayload(cm, pos, goal, delay, page,
+                                                   750, arrow_path);
+    if (!cm.data.empty() && cct.payload->ball->mob_index != UINT32_MAX &&
+        cct.payload->ball->y2 >= -8) {
+      cct.payload->ball->y2 -= 8;
+    }
+    if (!cm.data.empty()) {
       auto d = BallGameInstance::LoadBallTime(cct);
       cat = SkillGameInstance::CreateAttackPayload(cm, sf.pos, d, 120, "", "");
       ClientRequest::SendToHost(cat);
+    }
 
-      for (int i = 0; i < 2; ++i) {
-        cct.payload->ball->y1 = sf.pos.y - 28;
-        cct.payload->ball->y2 += i * 8;
-        ClientRequest::SendToHost(cct);
-        ServerBallInstance::HandleServerB(cct.payload);
-      }
+    // Double Shot 即使没有命中，也要显示两支箭的飞行。
+    for (int i = 0; i < 2; ++i) {
+      cct.payload->ball->y1 = sf.pos.y - 28;
+      cct.payload->ball->y2 += i * 8;
+      ClientRequest::SendToHost(cct);
+      ServerBallInstance::HandleServerB(cct.payload);
     }
     ItemGameInstance::DecItemNum(*ball, 2);
 

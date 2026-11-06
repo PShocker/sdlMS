@@ -30,7 +30,7 @@ std::u16string AfterimageGameInstance::LoadHitType(GameCharacter& g_character) {
           {EquipGameInstance::WeaponType::kWand, u"sword1"},
           {EquipGameInstance::WeaponType::kClaw, u"sword1"},
           {EquipGameInstance::WeaponType::kGun, u"sword1"},
-  };
+      };
   return h.at(WeaponType);
 }
 
@@ -114,7 +114,8 @@ std::optional<AfterimageData> AfterimageGameInstance::LoadData(
 
 std::optional<SDL_FRect> AfterimageGameInstance::LoadRect(
     GameCharacter& g_character) {
-  if (auto data = LoadAtfNode(g_character)) {
+  if (auto data = LoadAtfNode(g_character);
+      data != nullptr && data->get_child(u"lt")) {
     auto lt = WzResource::LoadFpoint(data->get_child(u"lt"));
     auto rb = WzResource::LoadFpoint(data->get_child(u"rb"));
     SDL_FRect rect{
