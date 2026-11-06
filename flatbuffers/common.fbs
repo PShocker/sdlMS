@@ -65,6 +65,7 @@ table Attack{
     x:float;
     y:float;
     type:uint8;
+    knockback:float;
 }
 
 table Die{

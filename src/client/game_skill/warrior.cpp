@@ -57,7 +57,7 @@ static void PowerStrike() {
       return;
     }
     const int32_t damage =
-        std::clamp<int32_t>(LoadDamage(u"1001001", ski_lv), 0, 100000);
+        std::max<int32_t>(0, LoadDamage(u"1001001", ski_lv));
     const int attack_count = std::max(
         1, SkillGameInstance::LoadSkiAtkCount(
                u"1001001", static_cast<uint8_t>(std::max(1, ski_lv))));
@@ -105,7 +105,7 @@ static void SlashBlast() {
     auto cm = CharacterLogicSystem::RunAttackCheck(sf, g_r, kMobCount);
 
     const int32_t damage =
-        std::clamp<int32_t>(LoadDamage(u"1001002", ski_lv), 0, 100000);
+        std::max<int32_t>(0, LoadDamage(u"1001002", ski_lv));
     fbs::ClientCharacterAttackT cat;
     if (!cm.data.empty()) {
       for (auto& mob : cm.data) {

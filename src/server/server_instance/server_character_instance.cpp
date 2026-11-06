@@ -23,6 +23,8 @@
 #include "src/server/server_main.h"
 
 #include <SDL3/SDL_rect.h>
+
+#include <algorithm>
 #include <wz/Property.h>
 
 #include <cstdint>
@@ -296,6 +298,7 @@ void ServerCharacterInstance::HandleAttack(uint64_t client_id,
     mh.hit_time = a->attack->delay;
     mh.hit_num = a->attack->num;
     mh.hit_push = mh.hit_num >= pushed;
+    mh.knockback = a->attack->knockback;
 
     auto [hit_it, inserted] = mob.hits.emplace(mh.hit_time, mh);
     if (!inserted) {
@@ -304,6 +307,8 @@ void ServerCharacterInstance::HandleAttack(uint64_t client_id,
       hit_it->second.hit_push = hit_it->second.hit_push || mh.hit_push;
       hit_it->second.left = mh.left;
       hit_it->second.hit_id = mh.hit_id;
+      hit_it->second.knockback =
+          std::max(hit_it->second.knockback, mh.knockback);
     }
   }
   // 转发

@@ -166,6 +166,8 @@ void CharacterStatGameInstance::UpdateSfSkillStat() {
   ski_hp_ = 0;
   ski_hp_rate_ = 0;
   ski_crit_rate_ = 0;
+  ski_crit_damage_ = 0;
+  ski_attack_range_ = 0;
   ski_hp_recovery_ = 0;
   ski_mp_ = 0;
   ski_str_ = 0;
@@ -478,9 +480,7 @@ void CharacterStatGameInstance::Update() {
     }
   }
   crit_rate_ = base_crit_rate + ski_crit_rate_;
-  if (crit_damage_ == 0) {
-    crit_damage_ = 120;
-  }
+  crit_damage_ = 120 + ski_crit_damage_;
 
   // 速度/跳跃上限只在属性变化时刷新 (技能 buff / 药水 / 装备都会走到这里)
   UpdateMoveLimits();
@@ -789,6 +789,12 @@ void CharacterStatGameInstance::ApplyPassiveHpRate(int64_t n) {
 void CharacterStatGameInstance::ApplyPassiveCritRate(uint32_t n) {
   ski_crit_rate_ = n;
 }
+void CharacterStatGameInstance::ApplyPassiveCritDamage(uint32_t n) {
+  ski_crit_damage_ = n;
+}
+void CharacterStatGameInstance::ApplyPassiveAttackRange(uint32_t n) {
+  ski_attack_range_ = n;
+}
 void CharacterStatGameInstance::ApplyPassiveAcc(uint32_t n) {
   ski_accuracy_ += n;
 }
@@ -797,6 +803,9 @@ void CharacterStatGameInstance::ApplyPassiveHpRecovery(uint32_t n) {
 }
 uint32_t CharacterStatGameInstance::GetHpRecoveryRate() {
   return ski_hp_recovery_;
+}
+uint32_t CharacterStatGameInstance::GetAttackRangeBonus() {
+  return ski_attack_range_;
 }
 void CharacterStatGameInstance::SetSkiMp(int64_t n) {
   ski_mp_ = n;

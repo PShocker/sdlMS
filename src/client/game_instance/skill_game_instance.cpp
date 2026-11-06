@@ -187,6 +187,35 @@ bool SkillGameInstance::LoadSkiActive(const std::u16string& id) {
   if (ski_node->get_child(u"effect")) {
     return true;
   }
+  if (auto* info = ski_node->get_child(u"info")) {
+    if (auto* type = info->get_child(u"type"); type != nullptr) {
+      if (type->type == wz::Type::Int) {
+        const int t = static_cast<wz::Property<int>*>(type)->get();
+        if (t == 2 || t == 10) {
+          return true;
+        }
+      } else if (type->type == wz::Type::String) {
+        auto text =
+            static_cast<wz::Property<std::u16string>*>(type)->get();
+        try {
+          const int t = std::stoi(std::string{text.begin(), text.end()});
+          if (t == 2 || t == 10) {
+            return true;
+          }
+        } catch (...) {
+        }
+      }
+    }
+  }
+  // 部分攻击技能没有 action/effect/hit/info，只在 level 里给出伤害字段。
+  if (auto* level = ski_node->get_child(u"level")) {
+    if (auto* first = level->get_child(u"1"); first != nullptr) {
+      if (first->get_child(u"damage") || first->get_child(u"hpCon") ||
+          first->get_child(u"bulletCount")) {
+        return true;
+      }
+    }
+  }
   return false;
 }
 
@@ -300,7 +329,7 @@ int SkillGameInstance::LoadSkiCooldown(const std::u16string& id,
 
 fbs::ClientCharacterAttackT SkillGameInstance::CreateAttackPayload(
     CheckMobs& cm, SDL_FPoint pos, uint64_t delay, uint32_t interval,
-    std::string effect, std::string sound) {
+    std::string effect, std::string sound, float knockback) {
   fbs::ClientCharacterAttackT attack_payload;
   auto& Mobs = cm.data;
   for (int m = 0; m < Mobs.size(); m++) {
@@ -319,13 +348,14 @@ fbs::ClientCharacterAttackT SkillGameInstance::CreateAttackPayload(
         ct.attack->num = static_cast<uint64_t>(std::max<int64_t>(1, hits[n]));
       } else {
         auto percent = static_cast<uint32_t>(
-            std::clamp<int64_t>(hits[n], 0, 100000));
+            std::max<int64_t>(0, hits[n]));
         ct.attack->num =
             CharacterStatGameInstance::RollAttackDamage(percent);
       }
       ct.attack->delay = delay + n * interval + mob.delay;
       ct.attack->x = mob.x;
       ct.attack->y = mob.y;
+      ct.attack->knockback = knockback;
       ct.left = pos.x < mob.mob.pos.x;
       ct.effect = effect;
       ct.sound = sound;

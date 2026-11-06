@@ -18,6 +18,7 @@ struct MobHit {
   bool hit_push;
   int64_t hit_num;
   bool left;
+  float knockback = 0.0f;
 };
 
 // 对应 v95 CVecCtrlMob 的"被打断位移"状态（UpdateActiveInterrupted）
@@ -33,6 +34,7 @@ struct MobInterrupt {
   float access = 0;    // nAccessLimitRange
   uint64_t end_time = 0;
   bool relocated = false;  // nMoveType 10 的瞬时位移只生效一次
+  bool fixed_distance = false;  // 固定距离击退，到达前不 snap
 };
 
 // Mob.wz/<id>.img/attackN/info 的解析结果，对应 v95 的 MobAttackInfo

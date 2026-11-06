@@ -62,7 +62,7 @@ class SkillGameInstance {
                                                          uint64_t delay);
   static fbs::ClientCharacterAttackT CreateAttackPayload(
       CheckMobs& cm, SDL_FPoint pos, uint64_t delay, uint32_t interval,
-      std::string effect, std::string sound);
+      std::string effect, std::string sound, float knockback = 0.0f);
 
   static fbs::ClientCharacterSkillT CreateSkillPayload(
       const fbs::ClientCharacterAttackT& attack_payload, int ski_id,

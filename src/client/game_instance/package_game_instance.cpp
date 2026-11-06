@@ -8,6 +8,7 @@
 #include "src/client/system/ui/package_ui_system.h"
 
 #include <algorithm>
+#include <bits/indirect.h>
 #include <cstdint>
 #include <format>
 #include <memory>
@@ -25,6 +26,11 @@ void PackageGameInstance::Load(const CharacterSaveData& cs) {
   data_[(int)ItemEnum::kEtc].resize(96);
   data_[(int)ItemEnum::kCash].resize(96);
   data_[(int)ItemEnum::kDeco].resize(96);
+
+  GameConsumeItem i;
+  i.num = 1000;
+  i.id = u"02061000";
+  data_[(int)ItemEnum::kConsume][0] = std::polymorphic<GameItem>(i);
 
   for (auto& pkg : cs.package) {
     auto type = (int)pkg.val->type;

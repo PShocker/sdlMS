@@ -60,7 +60,9 @@ class CharacterStatGameInstance {
   // ============ 技能加成 (ski_) ============
   static inline int64_t ski_hp_ = 0;
   static inline int64_t ski_hp_rate_ = 0;       // Max HP Increase (%)
-  static inline uint32_t ski_crit_rate_ = 0;    // Precise Strikes
+  static inline uint32_t ski_crit_rate_ = 0;    // Precise Strikes / Critical Shot
+  static inline uint32_t ski_crit_damage_ = 0;  // Critical Shot
+  static inline uint32_t ski_attack_range_ = 0; // The Eye of Amazon
   static inline uint32_t ski_hp_recovery_ = 0;  // Improved HP Recovery (%)
   static inline int64_t ski_mp_ = 0;
   static inline int64_t ski_str_ = 0;
@@ -227,9 +229,12 @@ class CharacterStatGameInstance {
   // 被动技能在 UpdateSfSkillStat 内调用；不要在这里再触发 Update。
   static void ApplyPassiveHpRate(int64_t n);
   static void ApplyPassiveCritRate(uint32_t n);
+  static void ApplyPassiveCritDamage(uint32_t n);
+  static void ApplyPassiveAttackRange(uint32_t n);
   static void ApplyPassiveAcc(uint32_t n);
   static void ApplyPassiveHpRecovery(uint32_t n);
   static uint32_t GetHpRecoveryRate();
+  static uint32_t GetAttackRangeBonus();
   static void SetSkiMp(int64_t n);
   static void SetSkiStr(int64_t n);
   static void SetSkiDex(int64_t n);

@@ -83,8 +83,8 @@ SDL_AppResult AppInit(void** appstate, int argc, char* argv[]) {
   SDL_HideCursor();
 
   CharacterGameInstance::LoadSelfCharacter();
-  CharacterGameInstance::self_.job = u"100";
-  CharacterGameInstance::self_.level = 100;
+  CharacterGameInstance::self_.job = u"300";
+  CharacterGameInstance::self_.level = 30;
   CharacterGameInstance::self_.name = u"进击的蓝蘑菇";
   // CharacterGameInstance::self_.morph = u"0001";
   CharacterSaveData cs;

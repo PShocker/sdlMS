@@ -84,7 +84,7 @@ static const std::flat_map<EquipGameInstance::WeaponType,
          {u"stabO1", u"stabO2", u"swingO1", u"swingO2", u"swingO3"}},
         {EquipGameInstance::WeaponType::kSpear, {u"stabT1", u"swingP1"}},
         {EquipGameInstance::WeaponType::kBow, {u"shoot1"}},
-        {EquipGameInstance::WeaponType::kCrossbow, {u"shoot1"}},
+        {EquipGameInstance::WeaponType::kCrossbow, {u"shoot2"}},
         {EquipGameInstance::WeaponType::kS2A2M2,
          {u"stabO1", u"stabO2", u"swingT1", u"swingT2", u"swingT3"}},
         {EquipGameInstance::WeaponType::kWand, {u"swingO1", u"swingO2"}},
@@ -936,6 +936,12 @@ bool CharacterLogicSystem::RunAttack(GameCharacter& g_character) {
   uint64_t delay;
   auto WeaponType = EquipGameInstance::LoadWeaponType(g_character);
   bool shoot_weapon = shoot_weapons.contains(WeaponType);
+  int shoot_range = 350;
+  if (WeaponType == EquipGameInstance::WeaponType::kBow ||
+      WeaponType == EquipGameInstance::WeaponType::kCrossbow) {
+    shoot_range +=
+        static_cast<int>(CharacterStatGameInstance::GetAttackRangeBonus());
+  }
   auto& gen_ = RandomGameInstance::gen_;
   const std::flat_set<std::u16string>* actions;
   if (weapon_attack_action2.contains(WeaponType)) {
@@ -1010,8 +1016,8 @@ bool CharacterLogicSystem::RunAttack(GameCharacter& g_character) {
   if (shoot_weapon) {
     GameTriangle tri = {
         {
-            SDL_FPoint{-350, -100},
-            SDL_FPoint{-350, 100},
+            SDL_FPoint{static_cast<float>(-shoot_range), -100},
+            SDL_FPoint{static_cast<float>(-shoot_range), 100},
             SDL_FPoint{0, -28},
         },
     };
@@ -1033,9 +1039,9 @@ bool CharacterLogicSystem::RunAttack(GameCharacter& g_character) {
     pos.y -= 28;
     SDL_FPoint goal = pos;
     if (g_character.flip) {
-      goal.x += 350;
+      goal.x += shoot_range;
     } else {
-      goal.x -= 350;
+      goal.x -= shoot_range;
     }
     auto cct = BallGameInstance::CreateBallPayload(cm, pos, goal, delay, page,
                                                    700, path);
@@ -1339,6 +1345,7 @@ CharacterLogicSystem::ActionEnum CharacterLogicSystem::LoadActionType(
       {u"swingO1", ActionEnum::kAttack},  {u"swingO2", ActionEnum::kAttack},
       {u"swingO3", ActionEnum::kAttack},  {u"stabT1", ActionEnum::kAttack},
       {u"swingP1", ActionEnum::kAttack},  {u"shoot1", ActionEnum::kAttack},
+      {u"shoot2", ActionEnum::kAttack},   {u"shootF", ActionEnum::kAttack},
       {u"swingT1", ActionEnum::kAttack},  {u"swingT2", ActionEnum::kAttack},
       {u"swingT3", ActionEnum::kAttack},  {u"shot", ActionEnum::kAttack},
       {u"stabT2", ActionEnum::kAttack},   {u"dead", ActionEnum::kDead},

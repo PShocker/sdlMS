@@ -70,6 +70,7 @@ class ServerMobSystem {
   // type 取值与初速/阻力/停止档位的对应关系见 RunInterruptStart。
   static void RunInterrupt(ServerMob& mob, int32_t type, float end_x,
                            float end_y);
+  static void RunInterruptDistance(ServerMob& mob, float distance, bool left);
 
   static bool Run();
 };
