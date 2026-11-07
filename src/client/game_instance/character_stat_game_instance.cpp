@@ -168,7 +168,10 @@ void CharacterStatGameInstance::UpdateSfSkillStat() {
   ski_crit_rate_ = 0;
   ski_crit_damage_ = 0;
   ski_attack_range_ = 0;
+  ski_throw_range_ = 0;
   ski_hp_recovery_ = 0;
+  ski_mp_rate_ = 0;
+  ski_mp_recovery_ = 0;
   ski_mp_ = 0;
   ski_str_ = 0;
   ski_dex_ = 0;
@@ -341,10 +344,19 @@ void CharacterStatGameInstance::Update() {
       hp_point_ > 0) {
     hp_point_ += hp_point_max_ - old_hp_max;
   }
+  const int32_t old_mp_max = mp_point_max_;
+  const int64_t base_mp = GetBaseMpMax();
+  const int64_t mp_with_rate =
+      base_mp * (100 + std::max<int64_t>(0, ski_mp_rate_)) / 100;
   mp_point_max_ = static_cast<int32_t>(
-      std::clamp<int64_t>(static_cast<int64_t>(GetBaseMpMax()) + equip_mp_ +
-                              item_mp_ + ski_mp_ + buff_mp_,
+      std::clamp<int64_t>(mp_with_rate + equip_mp_ + item_mp_ + ski_mp_ +
+                              buff_mp_,
                           1, INT32_MAX));
+  // Max MP Increase 加点后当前 MP 同步增加差额。
+  if (old_mp_max > 0 && old_mp_max != INT32_MAX && mp_point_max_ > old_mp_max &&
+      mp_point_ > 0) {
+    mp_point_ += mp_point_max_ - old_mp_max;
+  }
   hp_point_ = std::min<int32_t>(hp_point_, hp_point_max_);
   mp_point_ = std::min<int32_t>(mp_point_, mp_point_max_);
 
@@ -696,21 +708,67 @@ uint32_t CharacterStatGameInstance::GetMaxAtk() {
   return max_atk_;
 }
 
-uint32_t CharacterStatGameInstance::RollAttackDamage(uint32_t skill_percent) {
+uint32_t CharacterStatGameInstance::RollAttackDamage(uint32_t skill_percent,
+                                                     bool* critical) {
   uint32_t lo = min_atk_;
   uint32_t hi = max_atk_;
   if (hi < lo) {
     std::swap(lo, hi);
   }
   if (hi == 0) {
+    if (critical != nullptr) {
+      *critical = false;
+    }
     return 1;
   }
   std::uniform_int_distribution<uint32_t> dist(lo, hi);
   uint64_t damage = static_cast<uint64_t>(dist(RandomGameInstance::gen_)) *
                     skill_percent / 100;
   std::uniform_int_distribution<uint32_t> crit_roll(0, 99);
-  if (crit_roll(RandomGameInstance::gen_) < crit_rate_) {
+  const bool is_critical = crit_roll(RandomGameInstance::gen_) < crit_rate_;
+  if (is_critical) {
     damage = damage * std::max<uint32_t>(100, crit_damage_) / 100;
+  }
+  if (critical != nullptr) {
+    *critical = is_critical;
+  }
+  return static_cast<uint32_t>(std::max<uint64_t>(1, damage));
+}
+
+uint32_t CharacterStatGameInstance::RollMagicDamage(uint32_t skill_percent,
+                                                    uint32_t mastery,
+                                                    bool* critical) {
+  const uint32_t magic_total = static_cast<uint32_t>(int_point_ / 2) +
+                               equip_magic_ + item_magic_ + buff_mad_;
+  if (magic_total == 0) {
+    if (critical != nullptr) {
+      *critical = false;
+    }
+    return 1;
+  }
+
+  // Skill.wz 的 mastery 是 1..10，越高伤害浮动越小。
+  const uint32_t mastery_lv = std::clamp<uint32_t>(mastery, 1, 10);
+  const float m =
+      (static_cast<float>(mastery_lv) / 10.0f + 0.1f) * 0.7f;
+  const float magic_max =
+      static_cast<float>(magic_total) *
+      (1.0f + static_cast<float>(int_point_) / 125.0f);
+  const float magic_min =
+      static_cast<float>(magic_total) *
+      (1.0f + static_cast<float>(int_point_) * m / 125.0f);
+
+  std::uniform_real_distribution<float> dist(magic_min, magic_max);
+  uint64_t damage = static_cast<uint64_t>(
+      std::max(0.0f, dist(RandomGameInstance::gen_)) * skill_percent / 100.0f);
+
+  std::uniform_int_distribution<uint32_t> crit_roll(0, 99);
+  const bool is_critical = crit_roll(RandomGameInstance::gen_) < crit_rate_;
+  if (is_critical) {
+    damage = damage * std::max<uint32_t>(100, crit_damage_) / 100;
+  }
+  if (critical != nullptr) {
+    *critical = is_critical;
   }
   return static_cast<uint32_t>(std::max<uint64_t>(1, damage));
 }
@@ -786,6 +844,15 @@ void CharacterStatGameInstance::SetSkiHp(int64_t n) {
 void CharacterStatGameInstance::ApplyPassiveHpRate(int64_t n) {
   ski_hp_rate_ = std::max<int64_t>(0, n);
 }
+void CharacterStatGameInstance::ApplyPassiveMpRate(int64_t n) {
+  ski_mp_rate_ = std::max<int64_t>(0, n);
+}
+void CharacterStatGameInstance::ApplyPassiveMpRecovery(uint32_t n) {
+  ski_mp_recovery_ = std::max<uint32_t>(0, n);
+}
+uint32_t CharacterStatGameInstance::GetMpRecoveryRate() {
+  return ski_mp_recovery_;
+}
 void CharacterStatGameInstance::ApplyPassiveCritRate(uint32_t n) {
   ski_crit_rate_ = n;
 }
@@ -795,8 +862,17 @@ void CharacterStatGameInstance::ApplyPassiveCritDamage(uint32_t n) {
 void CharacterStatGameInstance::ApplyPassiveAttackRange(uint32_t n) {
   ski_attack_range_ = n;
 }
+void CharacterStatGameInstance::ApplyPassiveThrowRange(uint32_t n) {
+  ski_throw_range_ = n;
+}
+uint32_t CharacterStatGameInstance::GetThrowRangeBonus() {
+  return ski_throw_range_;
+}
 void CharacterStatGameInstance::ApplyPassiveAcc(uint32_t n) {
   ski_accuracy_ += n;
+}
+void CharacterStatGameInstance::ApplyPassiveAvoid(uint32_t n) {
+  ski_avoid_ += n;
 }
 void CharacterStatGameInstance::ApplyPassiveHpRecovery(uint32_t n) {
   ski_hp_recovery_ = std::max<uint32_t>(0, n);
@@ -1132,10 +1208,10 @@ int32_t CharacterStatGameInstance::GetBuffPdd() {
 int32_t CharacterStatGameInstance::GetBuffMdd() {
   return buff_mdd_;
 }
-uint32_t CharacterStatGameInstance::GetBuffSpeed() {
+int32_t CharacterStatGameInstance::GetBuffSpeed() {
   return buff_speed_;
 }
-uint32_t CharacterStatGameInstance::GetBuffJump() {
+int32_t CharacterStatGameInstance::GetBuffJump() {
   return buff_jump_;
 }
 

@@ -406,6 +406,7 @@ void MobLogicSystem::RunStateMachine(GameMob& g_mob) {
   auto action_type = LoadActionType(g_mob.action);
   if (action_type == ActionEnum::kDie) {
     g_mob.gauge.reset();
+    g_mob.debuffs.clear();
   }
   if (action_type == ActionEnum::kRevive) {
     return;

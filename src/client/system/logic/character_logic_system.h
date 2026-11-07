@@ -26,6 +26,8 @@ struct CheckMobs {
     uint64_t delay = 0;
     // true 表示 hits 是最终伤害（例如金钱炸弹），不再乘技能百分比。
     bool raw_damage = false;
+    // >=0 表示使用法师技能 mastery 计算伤害浮动。
+    int magic_mastery = -1;
   };
   std::vector<Mobs> data;
 };
@@ -170,6 +172,7 @@ class CharacterLogicSystem {
   static inline uint64_t self_flip_cooldown_;
   static inline uint64_t self_attack_cooldown_;
   static inline uint64_t self_recovery_time_;
+  static inline uint64_t self_mp_recovery_time_;
   static inline uint64_t self_invincible_cooldown_;
   static inline uint64_t self_two_jump_cooldown_;
 

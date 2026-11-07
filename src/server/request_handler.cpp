@@ -324,6 +324,13 @@ void RequestHandler::HandleRequest(uint64_t client_id, void* buf,
       ServerMobInstance::HandleServerEvent(r);
       break;
     }
+    case fbs::NetPayload_ServerMobDebuff: {
+      auto payload = packet->payload_as_ServerMobDebuff();
+      fbs::ServerMobDebuffT r;
+      payload->UnPackTo(&r);
+      ServerMobInstance::HandleSDebuff(r);
+      break;
+    }
     case fbs::NetPayload_ServerCharacterAttack: {
       auto payload = packet->payload_as_ServerCharacterAttack();
       fbs::ServerCharacterAttackT r;

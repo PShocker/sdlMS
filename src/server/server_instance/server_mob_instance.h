@@ -68,6 +68,10 @@ class ServerMobInstance {
 
   static void HandleDebuff(uint64_t client_id, fbs::ClientMobDebuffT& r);
   static void HandleSDebuff(fbs::ServerMobDebuffT& r);
+  // 处理攻击 delay 之后才生效的 debuff。
+  static void RunPendingDebuffs();
+  // 怪物死亡时丢弃尚未生效的 debuff。
+  static void ClearPendingDebuffs(uint32_t map_id, uint32_t mob_index);
 };
 
 }  // namespace sdlms

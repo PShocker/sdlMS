@@ -281,10 +281,9 @@ static void PowerKnockback() {
     }
 
     CharacterLogicSystem::RunAttackAction(sf, false);
+    // Power Knockback 是近身范围攻击，不是箭矢弹道，Eye of Amazon 不增加其范围。
     const int wz_range = SkillInt(u"3001003", ski_lv, u"range", 130);
-    const int range =
-        wz_range +
-        static_cast<int>(CharacterStatGameInstance::GetAttackRangeBonus());
+    const int range = wz_range;
     const int mob_count =
         std::clamp(SkillInt(u"3001003", ski_lv, u"mobCount", 1), 1, 4);
     auto cm = CharacterLogicSystem::RunAttackCheck(sf, AttackRect(sf, range),

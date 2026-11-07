@@ -70,7 +70,14 @@ bool EffectLogicSystem::RunEffect(GameEffect& g_effect) {
     }
   }
   auto index = std::to_string(g_effect.index);
-  auto texture_node = node->get_child(index);
+  wz::Node* texture_node = node;
+  const bool single_frame = node->type == wz::Type::Canvas;
+  if (!single_frame) {
+    texture_node = node->get_child(index);
+  }
+  if (texture_node == nullptr) {
+    return true;
+  }
   uint32_t delay = 120;
   if (texture_node->get_child(u"delay")) {
     delay =
@@ -78,10 +85,14 @@ bool EffectLogicSystem::RunEffect(GameEffect& g_effect) {
             ->get();
   }
   if (g_effect.time > delay) {
-    g_effect.index += 1;
-    g_effect.time = 0;
-    if (g_effect.index >= node->children_count()) {
+    if (single_frame) {
       r = true;
+    } else {
+      g_effect.index += 1;
+      g_effect.time = 0;
+      if (g_effect.index >= node->children_count()) {
+        r = true;
+      }
     }
   }
   return r;
@@ -166,6 +177,9 @@ bool EffectLogicSystem::RunSkillHit(GameEffect& g_effect) {
   } else {
     ski_node = SkillGameInstance::LoadSkiLevelNode(g_effect.id, g_effect.lv);
     ski_node = ski_node->find(u"hit/0");
+  }
+  if (ski_node == nullptr) {
+    return true;
   }
   auto index = std::to_string(g_effect.index);
   auto texture_node = ski_node->get_child(index);

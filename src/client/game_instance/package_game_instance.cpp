@@ -29,7 +29,7 @@ void PackageGameInstance::Load(const CharacterSaveData& cs) {
 
   GameConsumeItem i;
   i.num = 1000;
-  i.id = u"02061000";
+  i.id = u"02070000";
   data_[(int)ItemEnum::kConsume][0] = std::polymorphic<GameItem>(i);
 
   for (auto& pkg : cs.package) {

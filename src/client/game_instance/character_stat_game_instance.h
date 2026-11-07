@@ -63,7 +63,10 @@ class CharacterStatGameInstance {
   static inline uint32_t ski_crit_rate_ = 0;    // Precise Strikes / Critical Shot
   static inline uint32_t ski_crit_damage_ = 0;  // Critical Shot
   static inline uint32_t ski_attack_range_ = 0; // The Eye of Amazon
+  static inline uint32_t ski_throw_range_ = 0;  // Keen Eyes
   static inline uint32_t ski_hp_recovery_ = 0;  // Improved HP Recovery (%)
+  static inline int64_t ski_mp_rate_ = 0;        // Max MP Increase (%)
+  static inline uint32_t ski_mp_recovery_ = 0;  // Improved MP Recovery item rate (%)
   static inline int64_t ski_mp_ = 0;
   static inline int64_t ski_str_ = 0;
   static inline int64_t ski_dex_ = 0;
@@ -127,8 +130,8 @@ class CharacterStatGameInstance {
   static inline int32_t buff_pdd_ = 0;     // 物防
   static inline int32_t buff_pdd_rate_ = 0;  // 物防百分比
   static inline int32_t buff_mdd_ = 0;     // 魔防
-  static inline uint32_t buff_speed_ = 0;  // 移速
-  static inline uint32_t buff_jump_ = 0;   // 跳跃
+  static inline int32_t buff_speed_ = 0;  // 移速
+  static inline int32_t buff_jump_ = 0;   // 跳跃
   static inline int32_t item_speed_ = 0;   // 道具(药水等)给的移速
 
   // ============ 移动上限 (由移速 / 跳跃属性推导) ============
@@ -210,7 +213,12 @@ class CharacterStatGameInstance {
   static uint32_t GetMinAtk();
   static uint32_t GetMaxAtk();
   // 按当前面板伤害和技能百分比掷出一次实际伤害。
-  static uint32_t RollAttackDamage(uint32_t skill_percent);
+  // critical 非空时回传本次是否暴击。
+  static uint32_t RollAttackDamage(uint32_t skill_percent,
+                                   bool* critical = nullptr);
+  // 按法师技能自带的 mastery 计算魔法伤害浮动。
+  static uint32_t RollMagicDamage(uint32_t skill_percent, uint32_t mastery,
+                                  bool* critical = nullptr);
   // v95 calc_accr：返回 0..100 的命中率。
   static uint32_t CalcHitChance(uint32_t mob_eva, uint32_t mob_level);
   static uint32_t GetCritRate();
@@ -228,13 +236,19 @@ class CharacterStatGameInstance {
   static void SetSkiHp(int64_t n);
   // 被动技能在 UpdateSfSkillStat 内调用；不要在这里再触发 Update。
   static void ApplyPassiveHpRate(int64_t n);
+  static void ApplyPassiveMpRate(int64_t n);
+  static void ApplyPassiveMpRecovery(uint32_t n);
+  static uint32_t GetMpRecoveryRate();
   static void ApplyPassiveCritRate(uint32_t n);
   static void ApplyPassiveCritDamage(uint32_t n);
   static void ApplyPassiveAttackRange(uint32_t n);
+  static void ApplyPassiveThrowRange(uint32_t n);
   static void ApplyPassiveAcc(uint32_t n);
+  static void ApplyPassiveAvoid(uint32_t n);
   static void ApplyPassiveHpRecovery(uint32_t n);
   static uint32_t GetHpRecoveryRate();
   static uint32_t GetAttackRangeBonus();
+  static uint32_t GetThrowRangeBonus();
   static void SetSkiMp(int64_t n);
   static void SetSkiStr(int64_t n);
   static void SetSkiDex(int64_t n);
@@ -346,8 +360,8 @@ class CharacterStatGameInstance {
   static uint32_t GetBuffAvd();
   static int32_t GetBuffPdd();
   static int32_t GetBuffMdd();
-  static uint32_t GetBuffSpeed();
-  static uint32_t GetBuffJump();
+  static int32_t GetBuffSpeed();
+  static int32_t GetBuffJump();
 
   // ============================================================
   // 移动上限 (随技能 buff / 道具 / 装备刷新)

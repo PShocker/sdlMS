@@ -474,6 +474,8 @@ bool ItemGameInstance::UseConsumeItem(const std::u16string& id) {
   }
   const int64_t hp_boost =
       100 + static_cast<int64_t>(CharacterStatGameInstance::GetHpRecoveryRate());
+  const int64_t mp_boost =
+      100 + static_cast<int64_t>(CharacterStatGameInstance::GetMpRecoveryRate());
   if (info->get_child(u"hp")) {
     auto hp = static_cast<wz::Property<int>*>(info->get_child(u"hp"))->get();
     auto sf_hp = CharacterStatGameInstance::GetHp();
@@ -494,7 +496,8 @@ bool ItemGameInstance::UseConsumeItem(const std::u16string& id) {
   if (info->get_child(u"mp")) {
     auto mp = static_cast<wz::Property<int>*>(info->get_child(u"mp"))->get();
     auto sf_mp = CharacterStatGameInstance::GetMp();
-    CharacterStatGameInstance::SetMp(sf_mp + mp);
+    CharacterStatGameInstance::SetMp(
+        sf_mp + static_cast<int32_t>(mp * mp_boost / 100));
     r = true;
   }
   if (info->get_child(u"mpR")) {
@@ -503,7 +506,7 @@ bool ItemGameInstance::UseConsumeItem(const std::u16string& id) {
     auto sf_mp_max = CharacterStatGameInstance::GetMpMax();
     auto sf_mp = CharacterStatGameInstance::GetMp();
     const int64_t gain =
-        static_cast<int64_t>(sf_mp_max) * mp_ratio / 100;
+        static_cast<int64_t>(sf_mp_max) * mp_ratio / 100 * mp_boost / 100;
     CharacterStatGameInstance::SetMp(sf_mp + static_cast<int32_t>(gain));
     r = true;
   }

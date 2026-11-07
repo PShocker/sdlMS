@@ -19,10 +19,14 @@ bool SkillLogicSystem::Run() {
   for (auto fn : ends) {
     fn();
   }
+  std::vector<std::function<void()>> frames;
   for (const auto& sk : v) {
     if (sk.frame) {
-      sk.frame();
+      frames.push_back(sk.frame);
     }
+  }
+  for (auto& fn : frames) {
+    fn();
   }
   return true;
 }

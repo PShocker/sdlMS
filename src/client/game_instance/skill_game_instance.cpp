@@ -1,5 +1,6 @@
 #include "src/client/game_instance/skill_game_instance.h"
 
+#include "src/client/game/game_effect.h"
 #include "src/client/game/game_gauge.h"
 #include "src/client/game_instance/afterimage_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
@@ -42,6 +43,11 @@ int32_t SkillGameInstance::LoadSkiLevelInt(const std::u16string& id, uint8_t lv,
   if (child->type == wz::Type::Int) {
     return static_cast<wz::Property<int32_t>*>(child)->get();
   }
+  if (child->type == wz::Type::Long) {
+    return static_cast<int32_t>(std::clamp<int64_t>(
+        static_cast<wz::Property<int64_t>*>(child)->get(), INT32_MIN,
+        INT32_MAX));
+  }
   if (child->type == wz::Type::String) {
     auto text = static_cast<wz::Property<std::u16string>*>(child)->get();
     try {
@@ -69,6 +75,11 @@ SkillBuffStat SkillGameInstance::LoadSkiBuffStat(const std::u16string& id,
       }
       if (child->type == wz::Type::Int) {
         return static_cast<wz::Property<int32_t>*>(child)->get();
+      }
+      if (child->type == wz::Type::Long) {
+        return static_cast<int32_t>(std::clamp<int64_t>(
+            static_cast<wz::Property<int64_t>*>(child)->get(), INT32_MIN,
+            INT32_MAX));
       }
       if (child->type == wz::Type::String) {
         auto text = static_cast<wz::Property<std::u16string>*>(child)->get();
@@ -349,8 +360,18 @@ fbs::ClientCharacterAttackT SkillGameInstance::CreateAttackPayload(
       } else {
         auto percent = static_cast<uint32_t>(
             std::max<int64_t>(0, hits[n]));
-        ct.attack->num =
-            CharacterStatGameInstance::RollAttackDamage(percent);
+        bool critical = false;
+        if (mob.magic_mastery >= 0) {
+          ct.attack->num = CharacterStatGameInstance::RollMagicDamage(
+              percent, static_cast<uint32_t>(mob.magic_mastery), &critical);
+        } else {
+          ct.attack->num =
+              CharacterStatGameInstance::RollAttackDamage(percent, &critical);
+        }
+        if (critical) {
+          ct.attack->type =
+              static_cast<uint8_t>(DamageData::DamageColor::kCrit);
+        }
       }
       ct.attack->delay = delay + n * interval + mob.delay;
       ct.attack->x = mob.x;

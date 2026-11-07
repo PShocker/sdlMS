@@ -411,6 +411,11 @@ void ServerMobSystem::RunAttackHit(ServerMob& mob) {
 
   // 只下发怪物攻击力；伤害浮动、WDEF/等级减伤全部由客户端结算。
   int32_t pad = ServerMobInstance::LoadMobInfoInt(mob.id, u"PADamage", 0);
+  for (const auto& [type, debuff] : mob.debuffs) {
+    if (type == GameDebuff::DebuffType::kDisorder) {
+      pad -= static_cast<int32_t>(debuff.db.val);
+    }
+  }
   pad = std::clamp(pad + attack.pad, 0, 29999);
   if (pad <= 0) {
     pad = 1;
@@ -1032,6 +1037,7 @@ void ServerMobSystem::RunDie(ServerMob& mob, uint64_t client_id) {
   events_.payload.push_back(std::move(mu));
 
   mob.debuffs.clear();
+  ServerMobInstance::ClearPendingDebuffs(map_id_, mob.index);
 }
 
 void ServerMobSystem::RunNetworkSyncPos(ServerMob& mob, ServerMob& o_mob) {
@@ -1235,6 +1241,7 @@ bool ServerMobSystem::Run() {
     }
     RunSend();
   }
+  ServerMobInstance::RunPendingDebuffs();
   return true;
 }
 

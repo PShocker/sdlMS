@@ -35,6 +35,8 @@ struct GameSkill {
   std::function<void(uint64_t, int)> use;
   // 释放前的额外条件（道具、状态等）；返回 false 时不扣 MP、不进冷却。
   std::function<bool(int)> can_use;
+  // 返回 true 时本次释放不扣 MP（例如 Magic Guard 关闭）。
+  std::function<bool()> skip_mp;
   std::function<void()> frame;
   std::function<void(int)> passive;
   std::function<void()> end;

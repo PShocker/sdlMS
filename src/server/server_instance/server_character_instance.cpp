@@ -388,9 +388,18 @@ void ServerCharacterInstance::HandleServerAtk(uint64_t client_id,
     auto& ct = v[i];
     auto& mob = Mobs[ct->mob_index].mob;
     if (!ct->effect.empty()) {
+      std::u16string effect_id{ct->effect.begin(), ct->effect.end()};
+      uint32_t effect_index = 0;
+      // 允许 "parent#frame" 指定动画帧，例如 DoubleStab hit#0 / hit#1。
+      if (auto hash = effect_id.rfind(u'#'); hash != std::u16string::npos) {
+        effect_index =
+            static_cast<uint32_t>(std::stoul(std::string{
+                effect_id.begin() + hash + 1, effect_id.end()}));
+        effect_id.resize(hash);
+      }
       GameEffect e = {
-          .id = {ct->effect.begin(), ct->effect.end()},
-          .index = 0,
+          .id = effect_id,
+          .index = effect_index,
           .time = 0,
           .delay = ct->attack->delay,
           .type = GameEffect::EffectType::kEffect,
@@ -412,7 +421,7 @@ void ServerCharacterInstance::HandleServerAtk(uint64_t client_id,
     // 伤害数字
     DamageData data = {
         .num = ct->attack->num,
-        .type = DamageData::DamageColor::kRed,
+        .type = static_cast<DamageData::DamageColor>(ct->attack->type),
     };
     GameEffect d = {
         .id = u"",

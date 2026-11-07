@@ -9,9 +9,11 @@ struct GameDebuff {
   enum class DebuffType {
     kDizz,
     kSlow,
+    kDisorder,
   };
   DebuffType type;
   int64_t val;
+  int64_t val2 = 0;
   uint64_t delay = 0;
   uint64_t destroy = 0;
 };

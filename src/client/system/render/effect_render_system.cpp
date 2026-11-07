@@ -44,7 +44,13 @@ void EffectRenderSystem::RenderEffect(SDL_FPoint pos, GameEffect& g_effect) {
   }
   auto pos2 = g_effect.pos.value();
   auto index = std::to_string(g_effect.index);
-  auto texture_node = node->get_child(index);
+  wz::Node* texture_node = node;
+  if (node->type != wz::Type::Canvas) {
+    texture_node = node->get_child(index);
+  }
+  if (texture_node == nullptr) {
+    return;
+  }
   auto texture = WzResource::LoadTexture(texture_node);
   auto origin = WzResource::LoadFpoint(texture_node->get_child(u"origin"));
   SDL_FRect pos_rect = {
@@ -86,6 +92,7 @@ void EffectRenderSystem::RenderDamage(SDL_FPoint pos, GameEffect& g_effect) {
   static auto red = WzResource::effect_->find(u"BasicEff.img/NoRed0");
   static auto viole = WzResource::effect_->find(u"BasicEff.img/NoViolet0");
   static auto blue = WzResource::effect_->find(u"BasicEff.img/NoBlue0");
+  static auto crit = WzResource::effect_->find(u"BasicEff.img/NoCri0");
 
   const std::vector<std::u16string> damage_vector = {
       u"0", u"1", u"2", u"3", u"4",    u"5",
@@ -107,6 +114,10 @@ void EffectRenderSystem::RenderDamage(SDL_FPoint pos, GameEffect& g_effect) {
     }
     case DamageData::DamageColor::kWhite: {
       node = viole;
+      break;
+    }
+    case DamageData::DamageColor::kCrit: {
+      node = crit != nullptr ? crit : red;
       break;
     }
     default: {

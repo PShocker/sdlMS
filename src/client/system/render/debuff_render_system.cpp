@@ -27,9 +27,43 @@ void DebuffRenderSystem::Render(GameDebuff::DebuffType type, SDL_FPoint pos) {
       n = node;
       break;
     }
-    default: {
-      break;
+    case GameDebuff::DebuffType::kDisorder: {
+      // Disorder 使用技能自带的 mob 动画，循环播放。
+      static auto root =
+          WzResource::skill_->find(u"400.img/skill/4001000/mob");
+      if (root == nullptr) {
+        return;
+      }
+      constexpr uint32_t kFrameCount = 10;
+      constexpr uint64_t kFrameMs = 100;
+      const uint32_t index =
+          static_cast<uint32_t>((Window::dt_now_ / kFrameMs) % kFrameCount);
+      auto* frame = root->get_child(std::to_string(index));
+      if (frame == nullptr) {
+        return;
+      }
+      auto* texture = WzResource::LoadTexture(frame);
+      auto origin = WzResource::LoadFpoint(frame->get_child(u"origin"));
+      SDL_FRect rect = {
+          .x = pos.x - origin.x,
+          .y = pos.y - origin.y,
+          .w = static_cast<float>(texture->w),
+          .h = static_cast<float>(texture->h),
+      };
+      auto& camera = CameraGameInstance::camera_;
+      if (SDL_HasRectIntersectionFloat(&rect, &camera)) {
+        rect.x -= camera.x;
+        rect.y -= camera.y;
+        SDL_RenderTexture(Window::renderer_, texture, nullptr, &rect);
+      }
+      return;
     }
+    default: {
+      return;
+    }
+  }
+  if (n == nullptr) {
+    return;
   }
   auto delays = TrapGameInstance::LoadAnimateDelays(n);
   auto data = TrapGameInstance::LoadAnimateIndex(delays);

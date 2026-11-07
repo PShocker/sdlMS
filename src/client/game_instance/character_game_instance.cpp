@@ -173,7 +173,7 @@ void CharacterGameInstance::LoadSelfCharacter() {
   AddHead(self_, u"00012000");
   AddCoat(self_, u"01040002");
   AddCap(self_, u"01002005");
-  AddWeapon(self_, u"01462000");
+  AddWeapon(self_, u"01332015");
   AddPants(self_, u"01060001");
   AddFace(self_, u"00020000");
   AddHair(self_, u"00030000");

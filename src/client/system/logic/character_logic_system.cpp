@@ -833,7 +833,9 @@ bool CharacterLogicSystem::RunSkill(GameCharacter& g_character,
       if (ski.can_use && !ski.can_use(ski_lv)) {
         return false;
       }
-      const int mp_cost = SkillGameInstance::LoadSkiMpCost(id, ski_lv);
+      const bool free_use = ski.skip_mp && ski.skip_mp();
+      const int mp_cost =
+          free_use ? 0 : SkillGameInstance::LoadSkiMpCost(id, ski_lv);
       if (mp_cost > 0 && CharacterStatGameInstance::GetMp() < mp_cost) {
         return false;
       }
@@ -941,6 +943,9 @@ bool CharacterLogicSystem::RunAttack(GameCharacter& g_character) {
       WeaponType == EquipGameInstance::WeaponType::kCrossbow) {
     shoot_range +=
         static_cast<int>(CharacterStatGameInstance::GetAttackRangeBonus());
+  } else if (WeaponType == EquipGameInstance::WeaponType::kClaw) {
+    shoot_range +=
+        static_cast<int>(CharacterStatGameInstance::GetThrowRangeBonus());
   }
   auto& gen_ = RandomGameInstance::gen_;
   const std::flat_set<std::u16string>* actions;
@@ -1806,8 +1811,43 @@ void CharacterLogicSystem::RunRecovery(GameCharacter& g_character) {
   if (&g_character != &CharacterGameInstance::self_ ||
       g_character.action == u"dead") {
     self_recovery_time_ = 0;
+    self_mp_recovery_time_ = 0;
     return;
   }
+  const uint64_t now = Window::dt_now_;
+
+  // 2000000 Improved MP Recovery：每 10 秒自然恢复 x% Max MP，
+  // 不受站立/移动限制。
+  const int mp_recovery_lv = JobSkillGameInstance::LoadSkiLevel(u"2000000");
+  if (mp_recovery_lv > 0) {
+    const int percent = std::clamp(
+        SkillGameInstance::LoadSkiLevelInt(
+            u"2000000", static_cast<uint8_t>(mp_recovery_lv), u"x", 1),
+        0, 100);
+    if (self_mp_recovery_time_ == 0) {
+      self_mp_recovery_time_ = now + 10000;
+    } else if (now >= self_mp_recovery_time_) {
+      self_mp_recovery_time_ = now + 10000;
+      const auto mp = CharacterStatGameInstance::GetMp();
+      const auto mp_max = CharacterStatGameInstance::GetMpMax();
+      const int32_t gain =
+          std::max<int32_t>(1, static_cast<int32_t>(
+                                  static_cast<int64_t>(mp_max) * percent / 100));
+      const auto new_mp = std::min(mp_max, mp + gain);
+      if (new_mp > mp) {
+        CharacterStatGameInstance::SetMp(new_mp);
+        fbs::AttackT at;
+        at.x = g_character.pos.x - 10;
+        at.y = g_character.pos.y - 50;
+        at.type = static_cast<uint8_t>(DamageData::DamageColor::kBlue);
+        at.num = static_cast<uint64_t>(new_mp - mp);
+        ServerMobInstance::HandleSAttack(0, at);
+      }
+    }
+  } else {
+    self_mp_recovery_time_ = 0;
+  }
+
   auto action = LoadActionType(g_character);
   const bool standing =
       action == ActionEnum::kStand || action == ActionEnum::kAlert;
@@ -1821,7 +1861,6 @@ void CharacterLogicSystem::RunRecovery(GameCharacter& g_character) {
     self_recovery_time_ = 0;
     return;
   }
-  const uint64_t now = Window::dt_now_;
   if (self_recovery_time_ == 0) {
     self_recovery_time_ = now + 10000;
     return;

@@ -33,6 +33,8 @@
 
 #include <algorithm>
 #include <cmath>
+#include <memory>
+#include <vector>
 #include <cstdint>
 #include <flat_map>
 #include <map>
@@ -774,17 +776,37 @@ std::vector<fbs::DropT> ServerMobInstance::CreateMobDts(
   return dts;
 }
 
-void ServerMobInstance::HandleDebuff(uint64_t client_id,
-                                     fbs::ClientMobDebuffT& r) {
-  auto map_id = r.map_id;
+namespace {
+
+struct PendingMobDebuff {
+  uint32_t map_id = 0;
+  uint64_t client_id = 0;
+  std::unique_ptr<fbs::MobDebuffT> payload;
+};
+
+std::vector<PendingMobDebuff> pending_mob_debuffs;
+
+void ApplyMobDebuffPayload(
+    uint32_t map_id, uint64_t client_id,
+    std::vector<std::unique_ptr<fbs::MobDebuffT>>& payload) {
+  if (payload.empty()) {
+    return;
+  }
   auto& scene = ServerSceneInstance::scenes_[map_id];
   auto& Mobs = scene.mobs;
-  for (auto& db : r.payload) {
+  for (auto& db : payload) {
     if (Mobs.contains(db->mob_index)) {
       auto& mb = Mobs.at(db->mob_index);
+      if (mb.hp <= 0) {
+        continue;
+      }
       ServerDebuff sd;
       GameDebuff debuff;
       debuff.type = (GameDebuff::DebuffType)db->payload->val;
+      const uint64_t packed =
+          static_cast<uint64_t>(db->payload->sub_val);
+      debuff.val = static_cast<int64_t>(packed & 0xFFFF);
+      debuff.val2 = static_cast<int64_t>((packed >> 16) & 0xFFFF);
       debuff.delay = db->payload->delay;
       debuff.destroy = db->payload->time;
 
@@ -794,11 +816,51 @@ void ServerMobInstance::HandleDebuff(uint64_t client_id,
     }
   }
   fbs::ServerMobDebuffT smd;
-  smd.payload = std::move(r.payload);
+  smd.payload = std::move(payload);
   for (auto c : scene.clients) {
     ServerResponse::SendToClient(c, smd);
   }
-  return;
+}
+
+}  // namespace
+
+void ServerMobInstance::HandleDebuff(uint64_t client_id,
+                                     fbs::ClientMobDebuffT& r) {
+  const uint64_t now = Window::dt_time_;
+  std::vector<std::unique_ptr<fbs::MobDebuffT>> due;
+  for (auto& db : r.payload) {
+    if (db->payload->delay > now) {
+      pending_mob_debuffs.push_back(
+          PendingMobDebuff{r.map_id, client_id, std::move(db)});
+    } else {
+      due.push_back(std::move(db));
+    }
+  }
+  ApplyMobDebuffPayload(r.map_id, client_id, due);
+}
+
+void ServerMobInstance::RunPendingDebuffs() {
+  const uint64_t now = Window::dt_time_;
+  for (auto it = pending_mob_debuffs.begin();
+       it != pending_mob_debuffs.end();) {
+    if (it->payload->payload->delay <= now) {
+      std::vector<std::unique_ptr<fbs::MobDebuffT>> due;
+      due.push_back(std::move(it->payload));
+      const auto map_id = it->map_id;
+      const auto client_id = it->client_id;
+      it = pending_mob_debuffs.erase(it);
+      ApplyMobDebuffPayload(map_id, client_id, due);
+    } else {
+      ++it;
+    }
+  }
+}
+
+void ServerMobInstance::ClearPendingDebuffs(uint32_t map_id,
+                                            uint32_t mob_index) {
+  std::erase_if(pending_mob_debuffs, [map_id, mob_index](const auto& p) {
+    return p.map_id == map_id && p.payload->mob_index == mob_index;
+  });
 }
 
 void ServerMobInstance::HandleSDebuff(fbs::ServerMobDebuffT& r) {
@@ -811,6 +873,10 @@ void ServerMobInstance::HandleSDebuff(fbs::ServerMobDebuffT& r) {
       auto& mb = Mobs.at(db->mob_index).mob;
       GameDebuff debuff;
       debuff.type = (GameDebuff::DebuffType)db->payload->val;
+      const uint64_t packed =
+          static_cast<uint64_t>(db->payload->sub_val);
+      debuff.val = static_cast<int64_t>(packed & 0xFFFF);
+      debuff.val2 = static_cast<int64_t>((packed >> 16) & 0xFFFF);
       debuff.delay = db->payload->delay;
       debuff.destroy = db->payload->time;
       mb.debuffs[debuff.type] = debuff;
