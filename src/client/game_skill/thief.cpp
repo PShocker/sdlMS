@@ -12,6 +12,7 @@
 #include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
+#include "src/client/game_instance/afterimage_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
@@ -199,7 +200,11 @@ static void Disorder() {
     fbs::ClientCharacterAttackT cat;
     const auto attack_delay = SkillGameInstance::LoadSkiTime(sf);
     if (!cm.data.empty()) {
-      cat = SkillGameInstance::CreateAttackPayload(cm, sf.pos, attack_delay);
+      auto hit_type = AfterimageGameInstance::LoadHitType(sf);
+      std::string effect = "Afterimage/hit.img/" +
+                           std::string(hit_type.begin(), hit_type.end());
+      cat = SkillGameInstance::CreateAttackPayload(cm, sf.pos, attack_delay, 0,
+                                                   effect, "");
       ClientRequest::SendToHost(cat);
     }
 

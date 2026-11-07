@@ -528,7 +528,7 @@ void ServerMobSystem::RunInterrupt(ServerMob& mob, int32_t type, float end_x,
 }
 
 void ServerMobSystem::RunInterruptDistance(ServerMob& mob, float distance,
-                                           bool left) {
+                                           bool left, float speed_scale) {
   if (distance <= 0.0f) {
     return;
   }
@@ -540,8 +540,8 @@ void ServerMobSystem::RunInterruptDistance(ServerMob& mob, float distance,
   RunInterruptStart(mob, 2, mob.pos.x + dir * distance, mob.pos.y,
                     static_cast<uint32_t>(t_elapse));
   // 095 Power Knockback 的固定击退距离：按动作时长均速移动。
-  mob.interrupt.vx =
-      dir * distance / (static_cast<float>(t_elapse) / 1000.0f);
+  mob.interrupt.vx = dir * distance / (static_cast<float>(t_elapse) / 1000.0f) *
+                     std::max(0.1f, speed_scale);
   mob.interrupt.drag = 0.0f;
   mob.interrupt.fixed_distance = true;
 }
@@ -599,8 +599,7 @@ void ServerMobSystem::RunInterruptGround(ServerMob& mob, uint32_t t_elapse) {
 
     // 固定距离击退：匀速走完，接近终点时不能 snap，否则会产生瞬移。
     auto fixed_step = [&]() {
-      const float uv =
-          std::fabs(axis.uvx) > 0.5f ? axis.uvx : axis.uvy;
+      const float uv = std::fabs(axis.uvx) > 0.5f ? axis.uvx : axis.uvy;
       if (std::fabs(uv) > 1e-4f) {
         pos += it.vx * dt / uv;
       }
@@ -990,7 +989,8 @@ bool ServerMobSystem::RunHitting(ServerMob& mob) {
   mob.hforce = 0.0f;
   RunHitAction(mob);
   if (first.knockback > 0.0f && (mob.fh != 0 || mob.move_ability == 4)) {
-    RunInterruptDistance(mob, first.knockback, first.left);
+    RunInterruptDistance(mob, first.knockback, first.left,
+                         first.knockback_speed);
   } else if (first.hit_push && (mob.fh != 0 || mob.move_ability == 4)) {
     // 095 的击退距离由 RunInterrupt 的 nMoveType 0 档负责，不用 hforce。
     const float dir = first.left ? 1.0f : -1.0f;

@@ -1,5 +1,6 @@
 #include "src/client/system/logic/skill_logic_system.h"
 
+#include "src/client/game_skill/fighter_final_attack.h"
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/window/window.h"
 
@@ -28,6 +29,7 @@ bool SkillLogicSystem::Run() {
   for (auto& fn : frames) {
     fn();
   }
+  UpdateFinalAttack();
   return true;
 }
 

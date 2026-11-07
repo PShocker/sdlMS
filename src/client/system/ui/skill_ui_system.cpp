@@ -429,6 +429,7 @@ bool SkillUiSystem::EventUI(SDL_Event* event) {
         AudioGameInstance::PlayNow(u"UI.img/BtMouseClick");
         active_tab_ = *i;
         page_ = 0;
+        return false;
       }
     }
   }

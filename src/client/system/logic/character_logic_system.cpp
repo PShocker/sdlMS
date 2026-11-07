@@ -2,6 +2,7 @@
 
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_tomb.h"
+#include "src/client/game_skill/fighter_final_attack.h"
 #include "src/client/game_instance/afterimage_game_instance.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/ball_game_instance.h"
@@ -1071,6 +1072,7 @@ bool CharacterLogicSystem::RunAttack(GameCharacter& g_character) {
       auto cat = SkillGameInstance::CreateAttackPayload(cm, g_character.pos,
                                                         delay, 0, effect, "");
       ClientRequest::SendToHost(cat);
+      RegisterFinalAttack(g_character, delay);
     }
   }
   for (auto& buff : SkillGameInstance::ski_) {
@@ -1364,7 +1366,7 @@ CharacterLogicSystem::ActionEnum CharacterLogicSystem::LoadActionType(
       {u"prone2", ActionEnum::kSkill},    {u"rope2", ActionEnum::kSkill},
       {u"savage", ActionEnum::kSkill},    {u"shoot6", ActionEnum::kSkill},
       {u"shootDb1", ActionEnum::kSkill},  {u"shotC1", ActionEnum::kSkill},
-      {u"sit", ActionEnum::kSit},
+      {u"sit", ActionEnum::kSit},         {u"rushO", ActionEnum::kSkill},
   };
   auto action = MapName.at(g_character.action);
   if (action == ActionEnum::kDead) {
@@ -1830,9 +1832,9 @@ void CharacterLogicSystem::RunRecovery(GameCharacter& g_character) {
       self_mp_recovery_time_ = now + 10000;
       const auto mp = CharacterStatGameInstance::GetMp();
       const auto mp_max = CharacterStatGameInstance::GetMpMax();
-      const int32_t gain =
-          std::max<int32_t>(1, static_cast<int32_t>(
-                                  static_cast<int64_t>(mp_max) * percent / 100));
+      const int32_t gain = std::max<int32_t>(
+          1,
+          static_cast<int32_t>(static_cast<int64_t>(mp_max) * percent / 100));
       const auto new_mp = std::min(mp_max, mp + gain);
       if (new_mp > mp) {
         CharacterStatGameInstance::SetMp(new_mp);

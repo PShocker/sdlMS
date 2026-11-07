@@ -19,6 +19,7 @@ struct MobHit {
   int64_t hit_num;
   bool left;
   float knockback = 0.0f;
+  float knockback_speed = 1.0f;  // Rush 等技能传 >1 的推进速度倍率
   bool hit_reaction = true;  // false: 命中已处于 hit 状态，只结算伤害
 };
 

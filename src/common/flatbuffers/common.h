@@ -1162,6 +1162,7 @@ struct AttackT : public ::flatbuffers::NativeTable {
   float y = 0.0f;
   uint8_t type = 0;
   float knockback = 0.0f;
+  float knockback_speed = 0.0f;
 };
 
 struct Attack FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -1173,7 +1174,8 @@ struct Attack FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_X = 8,
     VT_Y = 10,
     VT_TYPE = 12,
-    VT_KNOCKBACK = 14
+    VT_KNOCKBACK = 14,
+    VT_KNOCKBACK_SPEED = 16
   };
   uint64_t delay() const {
     return GetField<uint64_t>(VT_DELAY, 0);
@@ -1211,6 +1213,12 @@ struct Attack FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool mutate_knockback(float _knockback = 0.0f) {
     return SetField<float>(VT_KNOCKBACK, _knockback, 0.0f);
   }
+  float knockback_speed() const {
+    return GetField<float>(VT_KNOCKBACK_SPEED, 0.0f);
+  }
+  bool mutate_knockback_speed(float _knockback_speed = 0.0f) {
+    return SetField<float>(VT_KNOCKBACK_SPEED, _knockback_speed, 0.0f);
+  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -1220,6 +1228,7 @@ struct Attack FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyField<float>(verifier, VT_Y, 4) &&
            VerifyField<uint8_t>(verifier, VT_TYPE, 1) &&
            VerifyField<float>(verifier, VT_KNOCKBACK, 4) &&
+           VerifyField<float>(verifier, VT_KNOCKBACK_SPEED, 4) &&
            verifier.EndTable();
   }
   AttackT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -1249,6 +1258,9 @@ struct AttackBuilder {
   void add_knockback(float knockback) {
     fbb_.AddElement<float>(Attack::VT_KNOCKBACK, knockback, 0.0f);
   }
+  void add_knockback_speed(float knockback_speed) {
+    fbb_.AddElement<float>(Attack::VT_KNOCKBACK_SPEED, knockback_speed, 0.0f);
+  }
   explicit AttackBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -1267,10 +1279,12 @@ inline ::flatbuffers::Offset<Attack> CreateAttack(
     float x = 0.0f,
     float y = 0.0f,
     uint8_t type = 0,
-    float knockback = 0.0f) {
+    float knockback = 0.0f,
+    float knockback_speed = 0.0f) {
   AttackBuilder builder_(_fbb);
   builder_.add_num(num);
   builder_.add_delay(delay);
+  builder_.add_knockback_speed(knockback_speed);
   builder_.add_knockback(knockback);
   builder_.add_y(y);
   builder_.add_x(x);
@@ -4764,6 +4778,7 @@ inline void Attack::UnPackTo(AttackT *_o, const ::flatbuffers::resolver_function
   { auto _e = y(); _o->y = _e; }
   { auto _e = type(); _o->type = _e; }
   { auto _e = knockback(); _o->knockback = _e; }
+  { auto _e = knockback_speed(); _o->knockback_speed = _e; }
 }
 
 inline ::flatbuffers::Offset<Attack> CreateAttack(::flatbuffers::FlatBufferBuilder &_fbb, const AttackT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -4780,6 +4795,7 @@ inline ::flatbuffers::Offset<Attack> Attack::Pack(::flatbuffers::FlatBufferBuild
   auto _y = _o->y;
   auto _type = _o->type;
   auto _knockback = _o->knockback;
+  auto _knockback_speed = _o->knockback_speed;
   return fbs::CreateAttack(
       _fbb,
       _delay,
@@ -4787,7 +4803,8 @@ inline ::flatbuffers::Offset<Attack> Attack::Pack(::flatbuffers::FlatBufferBuild
       _x,
       _y,
       _type,
-      _knockback);
+      _knockback,
+      _knockback_speed);
 }
 
 inline DieT *Die::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {

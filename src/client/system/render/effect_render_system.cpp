@@ -44,6 +44,9 @@ void EffectRenderSystem::RenderEffect(SDL_FPoint pos, GameEffect& g_effect) {
   }
   auto pos2 = g_effect.pos.value();
   auto index = std::to_string(g_effect.index);
+  if (node == nullptr) {
+    return;
+  }
   wz::Node* texture_node = node;
   if (node->type != wz::Type::Canvas) {
     texture_node = node->get_child(index);
@@ -53,17 +56,25 @@ void EffectRenderSystem::RenderEffect(SDL_FPoint pos, GameEffect& g_effect) {
   }
   auto texture = WzResource::LoadTexture(texture_node);
   auto origin = WzResource::LoadFpoint(texture_node->get_child(u"origin"));
+  // 095 HITEFFECT 在生成时固定攻击方向，之后不跟随怪物 flip。
+  const bool flip = g_effect.flip.value_or(false);
+  const float effect_x = pos.x + pos2.x;
+  const float effect_y = pos.y + pos2.y;
   SDL_FRect pos_rect = {
-      .x = pos.x - origin.x + pos2.x,
-      .y = pos.y - origin.y + pos2.y,
+      .x = effect_x - origin.x,
+      .y = effect_y - origin.y,
       .w = static_cast<float>(texture->w),
       .h = static_cast<float>(texture->h),
   };
+  if (flip) {
+    pos_rect.x = effect_x - (texture->w - origin.x);
+  }
   auto& camera = CameraGameInstance::camera_;
   if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
     pos_rect.x -= camera.x;
     pos_rect.y -= camera.y;
-    SDL_RenderTexture(Window::renderer_, texture, nullptr, &pos_rect);
+    SDL_RenderTextureRotated(Window::renderer_, texture, nullptr, &pos_rect, 0,
+                             nullptr, flip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
   }
 }
 
@@ -93,6 +104,8 @@ void EffectRenderSystem::RenderDamage(SDL_FPoint pos, GameEffect& g_effect) {
   static auto viole = WzResource::effect_->find(u"BasicEff.img/NoViolet0");
   static auto blue = WzResource::effect_->find(u"BasicEff.img/NoBlue0");
   static auto crit = WzResource::effect_->find(u"BasicEff.img/NoCri0");
+  static auto final_attack =
+      WzResource::effect_->find(u"BasicEff.img/NoRed2");
 
   const std::vector<std::u16string> damage_vector = {
       u"0", u"1", u"2", u"3", u"4",    u"5",
@@ -118,6 +131,10 @@ void EffectRenderSystem::RenderDamage(SDL_FPoint pos, GameEffect& g_effect) {
     }
     case DamageData::DamageColor::kCrit: {
       node = crit != nullptr ? crit : red;
+      break;
+    }
+    case DamageData::DamageColor::kFinalAttack: {
+      node = final_attack != nullptr ? final_attack : red;
       break;
     }
     default: {
@@ -227,10 +244,19 @@ void EffectRenderSystem::RenderSkiHit(SDL_FPoint pos, GameEffect& g_effect,
     ski_node = ski_node->find(u"hit/0");
   } else {
     ski_node = SkillGameInstance::LoadSkiLevelNode(g_effect.id, g_effect.lv);
+    if (ski_node == nullptr) {
+      return;
+    }
     ski_node = ski_node->find(u"hit/0");
+  }
+  if (ski_node == nullptr) {
+    return;
   }
   auto index = std::to_string(g_effect.index);
   auto texture_node = ski_node->get_child(index);
+  if (texture_node == nullptr) {
+    return;
+  }
   auto texture = WzResource::LoadTexture(texture_node);
   if (texture_node->type == wz::Type::UOL) {
     texture_node =

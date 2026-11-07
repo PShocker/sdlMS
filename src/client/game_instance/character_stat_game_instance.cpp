@@ -39,7 +39,7 @@ void CharacterStatGameInstance::Load(const CharacterSaveData& cs) {
   remain_ap_ = cs.remain_ap;
 
 
-  JobSkillGameInstance::remain_point_ = {100, 100};
+  JobSkillGameInstance::remain_point_ = {100, 100, 100};
 
   Update();
   // MeowDB：总 AP = 25 + 5 × (level - 1)。
@@ -348,10 +348,8 @@ void CharacterStatGameInstance::Update() {
   const int64_t base_mp = GetBaseMpMax();
   const int64_t mp_with_rate =
       base_mp * (100 + std::max<int64_t>(0, ski_mp_rate_)) / 100;
-  mp_point_max_ = static_cast<int32_t>(
-      std::clamp<int64_t>(mp_with_rate + equip_mp_ + item_mp_ + ski_mp_ +
-                              buff_mp_,
-                          1, INT32_MAX));
+  mp_point_max_ = static_cast<int32_t>(std::clamp<int64_t>(
+      mp_with_rate + equip_mp_ + item_mp_ + ski_mp_ + buff_mp_, 1, INT32_MAX));
   // Max MP Increase 加点后当前 MP 同步增加差额。
   if (old_mp_max > 0 && old_mp_max != INT32_MAX && mp_point_max_ > old_mp_max &&
       mp_point_ > 0) {
@@ -749,14 +747,11 @@ uint32_t CharacterStatGameInstance::RollMagicDamage(uint32_t skill_percent,
 
   // Skill.wz 的 mastery 是 1..10，越高伤害浮动越小。
   const uint32_t mastery_lv = std::clamp<uint32_t>(mastery, 1, 10);
-  const float m =
-      (static_cast<float>(mastery_lv) / 10.0f + 0.1f) * 0.7f;
-  const float magic_max =
-      static_cast<float>(magic_total) *
-      (1.0f + static_cast<float>(int_point_) / 125.0f);
-  const float magic_min =
-      static_cast<float>(magic_total) *
-      (1.0f + static_cast<float>(int_point_) * m / 125.0f);
+  const float m = (static_cast<float>(mastery_lv) / 10.0f + 0.1f) * 0.7f;
+  const float magic_max = static_cast<float>(magic_total) *
+                          (1.0f + static_cast<float>(int_point_) / 125.0f);
+  const float magic_min = static_cast<float>(magic_total) *
+                          (1.0f + static_cast<float>(int_point_) * m / 125.0f);
 
   std::uniform_real_distribution<float> dist(magic_min, magic_max);
   uint64_t damage = static_cast<uint64_t>(
@@ -905,7 +900,6 @@ void CharacterStatGameInstance::SetSkiLuk(int64_t n) {
 }
 void CharacterStatGameInstance::SetSkiPro(int64_t n) {
   ski_pro_ = n;
-  Update();
 }
 void CharacterStatGameInstance::SetSkiAcc(uint32_t n) {
   ski_accuracy_ = n;
@@ -917,7 +911,6 @@ void CharacterStatGameInstance::SetSkiAvd(uint32_t n) {
 }
 void CharacterStatGameInstance::SetSkiDef(int32_t n) {
   ski_attack_def_ = n;
-  Update();
 }
 void CharacterStatGameInstance::SetSkiMdef(int32_t n) {
   ski_magic_def_ = n;

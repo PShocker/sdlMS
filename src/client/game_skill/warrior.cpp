@@ -1,3 +1,4 @@
+#include "src/client/game_skill/fighter_final_attack.h"
 #include "src/client/game/game_skill.h"
 #include "src/client/game_instance/afterimage_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
@@ -72,6 +73,7 @@ static void PowerStrike() {
       auto delay = SkillGameInstance::LoadSkiTime(sf);
       cat = SkillGameInstance::CreateAttackPayload(cm, sf.pos, delay);
       ClientRequest::SendToHost(cat);
+      RegisterFinalAttack(sf, delay);
     }
     auto ckt = SkillGameInstance::CreateSkillPayload(cat, 1001001, ski_lv);
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
@@ -100,8 +102,8 @@ static void SlashBlast() {
                                      hp_con);
 
     auto g_r = SkillGameInstance::LoadSkiR(u"1001002");
-    // Slash Blast 的 WZ 没有 mobCount 字段，095 固定最多 6 个目标。
-    constexpr int kMobCount = 6;
+    // WZ common/mobCount = 4：Slash Blast 最多攻击 4 个目标。
+    constexpr int kMobCount = 4;
     auto cm = CharacterLogicSystem::RunAttackCheck(sf, g_r, kMobCount);
 
     const int32_t damage =
@@ -114,6 +116,7 @@ static void SlashBlast() {
       auto delay = SkillGameInstance::LoadSkiTime(sf);
       cat = SkillGameInstance::CreateAttackPayload(cm, sf.pos, delay);
       ClientRequest::SendToHost(cat);
+      RegisterFinalAttack(sf, delay);
     }
     auto ckt = SkillGameInstance::CreateSkillPayload(cat, 1001002, ski_lv);
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
@@ -122,11 +125,17 @@ static void SlashBlast() {
   SkillGameInstance::Skis()[g_skill.id] = g_skill;
 }
 
-// 1001000 Iron Body：MP 15，W.DEF +20% -> +40%，300 -> 600 秒。
+// 1001000 Iron Body：WZ indiePddR 5% -> 25%，time 300 -> 600 秒。
 static void IronBody() {
   GameSkill g_skill;
   g_skill.id = u"1001000";
   g_skill.climb = true;
+  g_skill.buff_stat = [](int lv, SkillBuffStat& stat) {
+    stat.pdd_rate = std::max(
+        0, SkillGameInstance::LoadSkiLevelInt(
+               u"1001000", static_cast<uint8_t>(std::max(1, lv)),
+               u"indiePddR", 0));
+  };
 
   // 与 MagicArmor 保持一致的放大透明残影效果。
   g_skill.effect = [](SDL_FPoint p, GameEffect* e, bool f) {

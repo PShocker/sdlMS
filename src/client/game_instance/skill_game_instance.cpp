@@ -189,6 +189,14 @@ int SkillGameInstance::LoadSkiMaxLvl(const std::u16string& id) {
 
 bool SkillGameInstance::LoadSkiActive(const std::u16string& id) {
   auto ski_node = LoadSkiNode(id);
+  // 095 SKILLENTRY::IsFinalAttack：skillType == 3 为 Final Attack，
+  // 由普通攻击自动触发，不能作为主动技能选取。
+  if (auto* skill_type = ski_node->get_child(u"skillType");
+      skill_type != nullptr && skill_type->type == wz::Type::Int) {
+    if (static_cast<wz::Property<int>*>(skill_type)->get() == 3) {
+      return false;
+    }
+  }
   if (ski_node->get_child(u"action")) {
     return true;
   }

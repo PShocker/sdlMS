@@ -238,6 +238,7 @@ bool StorageUiSystem::EventUI(SDL_Event* event) {
     if (auto* tab = std::get_if<Tab>(&component)) {
       if (auto i = tab->Click()) {
         active_tab_ = *i;
+        return false;
       }
     }
   }

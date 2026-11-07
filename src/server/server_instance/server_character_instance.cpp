@@ -23,18 +23,17 @@
 #include "src/server/server_main.h"
 
 #include <SDL3/SDL_rect.h>
-
-#include <algorithm>
 #include <wz/Property.h>
 
-#include <cstdint>
 #include <algorithm>
+#include <cstdint>
 #include <flat_set>
 #include <format>
 #include <memory>
 #include <optional>
 #include <string>
 #include <utility>
+
 
 namespace sdlms {
 
@@ -299,6 +298,8 @@ void ServerCharacterInstance::HandleAttack(uint64_t client_id,
     mh.hit_num = a->attack->num;
     mh.hit_push = mh.hit_num >= pushed;
     mh.knockback = a->attack->knockback;
+    mh.knockback_speed =
+        mh.knockback > 0.0f ? a->attack->knockback_speed : 1.0f;
 
     auto [hit_it, inserted] = mob.hits.emplace(mh.hit_time, mh);
     if (!inserted) {
@@ -309,6 +310,8 @@ void ServerCharacterInstance::HandleAttack(uint64_t client_id,
       hit_it->second.hit_id = mh.hit_id;
       hit_it->second.knockback =
           std::max(hit_it->second.knockback, mh.knockback);
+      hit_it->second.knockback_speed =
+          std::max(hit_it->second.knockback_speed, mh.knockback_speed);
     }
   }
   // 转发
@@ -392,9 +395,8 @@ void ServerCharacterInstance::HandleServerAtk(uint64_t client_id,
       uint32_t effect_index = 0;
       // 允许 "parent#frame" 指定动画帧，例如 DoubleStab hit#0 / hit#1。
       if (auto hash = effect_id.rfind(u'#'); hash != std::u16string::npos) {
-        effect_index =
-            static_cast<uint32_t>(std::stoul(std::string{
-                effect_id.begin() + hash + 1, effect_id.end()}));
+        effect_index = static_cast<uint32_t>(std::stoul(
+            std::string{effect_id.begin() + hash + 1, effect_id.end()}));
         effect_id.resize(hash);
       }
       GameEffect e = {
@@ -405,6 +407,7 @@ void ServerCharacterInstance::HandleServerAtk(uint64_t client_id,
           .type = GameEffect::EffectType::kEffect,
           .pos = SDL_FPoint{ct->attack->x, ct->attack->y},
           .z = false,
+          .flip = ct->left,
       };
       if (WzResource::item_->find(e.id)) {
         e.lv = static_cast<uint8_t>(GameEffect::EffectSubType::kItem);

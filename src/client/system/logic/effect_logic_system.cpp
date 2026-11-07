@@ -176,6 +176,9 @@ bool EffectLogicSystem::RunSkillHit(GameEffect& g_effect) {
     ski_node = ski_node->find(u"hit/0");
   } else {
     ski_node = SkillGameInstance::LoadSkiLevelNode(g_effect.id, g_effect.lv);
+    if (ski_node == nullptr) {
+      return true;
+    }
     ski_node = ski_node->find(u"hit/0");
   }
   if (ski_node == nullptr) {
@@ -183,6 +186,9 @@ bool EffectLogicSystem::RunSkillHit(GameEffect& g_effect) {
   }
   auto index = std::to_string(g_effect.index);
   auto texture_node = ski_node->get_child(index);
+  if (texture_node == nullptr) {
+    return true;
+  }
   auto delay_node = texture_node->get_child(u"delay");
   int delay = 100;
   if (delay_node) {

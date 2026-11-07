@@ -66,6 +66,8 @@ table Attack{
     y:float;
     type:uint8;
     knockback:float;
+    // 0 表示默认速度；Rush 等技能可传 >1 的倍率。
+    knockback_speed:float;
 }
 
 table Die{

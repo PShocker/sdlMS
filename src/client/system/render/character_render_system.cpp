@@ -123,9 +123,10 @@ bool CharacterRenderSystem::RenderCharacter(GameCharacter& g_character) {
   std::u16string action = g_character.action;
   auto action_index = g_character.action_index;
   if (CharacterGameInstance::extern_action_.contains(action)) {
-    action_index =
-        CharacterGameInstance::extern_action_[action][action_index].frame;
     action = CharacterGameInstance::extern_action_[action][action_index].action;
+    action_index =
+        CharacterGameInstance::extern_action_[g_character.action][action_index]
+            .frame;
   }
 
   auto face = CharacterGameInstance::face_data_.at(g_character.face.id)
