@@ -89,6 +89,57 @@ void DebuffRenderSystem::Render(GameDebuff::DebuffType type, SDL_FPoint pos) {
       }
       return;
     }
+    case GameDebuff::DebuffType::kBurn: {
+      static auto root =
+          WzResource::skill_->find(u"210.img/skill/2101003/mob");
+      if (root == nullptr) {
+        return;
+      }
+      constexpr uint32_t kFrameCount = 6;
+      constexpr uint64_t kFrameMs = 100;
+      const uint32_t index =
+          static_cast<uint32_t>((Window::dt_now_ / kFrameMs) % kFrameCount);
+      auto* frame = root->get_child(std::to_string(index));
+      if (frame == nullptr) {
+        return;
+      }
+      auto* texture = WzResource::LoadTexture(frame);
+      auto origin = WzResource::LoadFpoint(frame->get_child(u"origin"));
+      SDL_FRect rect = {
+          .x = pos.x - origin.x,
+          .y = pos.y - origin.y,
+          .w = static_cast<float>(texture->w),
+          .h = static_cast<float>(texture->h),
+      };
+      auto& camera = CameraGameInstance::camera_;
+      if (SDL_HasRectIntersectionFloat(&rect, &camera)) {
+        rect.x -= camera.x;
+        rect.y -= camera.y;
+        SDL_RenderTexture(Window::renderer_, texture, nullptr, &rect);
+      }
+      return;
+    }
+    case GameDebuff::DebuffType::kPoison: {
+      static auto root =
+          WzResource::skill_->find(u"210.img/skill/2101005/mob");
+      if (root == nullptr) {
+        return;
+      }
+      auto* texture = WzResource::LoadTexture(root);
+      SDL_FRect rect = {
+          .x = pos.x - static_cast<float>(texture->w) / 2,
+          .y = pos.y - static_cast<float>(texture->h) / 2,
+          .w = static_cast<float>(texture->w),
+          .h = static_cast<float>(texture->h),
+      };
+      auto& camera = CameraGameInstance::camera_;
+      if (SDL_HasRectIntersectionFloat(&rect, &camera)) {
+        rect.x -= camera.x;
+        rect.y -= camera.y;
+        SDL_RenderTexture(Window::renderer_, texture, nullptr, &rect);
+      }
+      return;
+    }
     default: {
       return;
     }

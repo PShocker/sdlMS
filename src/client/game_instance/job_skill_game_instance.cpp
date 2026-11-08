@@ -4,6 +4,9 @@
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/common/wz/wz_resource.h"
 
+#include <wz/Node.h>
+#include <wz/Property.h>
+
 #include <algorithm>
 #include <cstdint>
 #include <flat_set>
@@ -187,10 +190,15 @@ wz::WzMap JobSkillGameInstance::LoadJobSkis(JobType type) {
   auto skill_node = WzResource::skill_->find(job + u".img");
   skill_node = skill_node->get_child(u"skill");
   r = skill_node->children;
-  // 删除所有长度大于5的key
+  // 删除没有图标或 WZ 标记为 invisible 的隐藏技能。
   for (auto it = r.begin(); it != r.end();) {
     auto n = it->second[0];
-    if (!n->get_child(u"icon")) {
+    bool hidden = false;
+    if (auto* invisible = n->get_child(u"invisible");
+        invisible != nullptr && invisible->type == wz::Type::Int) {
+      hidden = static_cast<wz::Property<int>*>(invisible)->get() != 0;
+    }
+    if (!n->get_child(u"icon") || hidden) {
       it = r.erase(it);
     } else {
       ++it;  // 不删除时手动递增

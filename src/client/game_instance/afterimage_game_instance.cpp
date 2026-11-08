@@ -53,6 +53,9 @@ wz::Node* AfterimageGameInstance::LoadAtfNode(GameCharacter& g_character) {
   auto weapon_level2 = static_cast<wz::Property<int>*>(weapon_level)->get();
   auto aft_type = weapon_info->get_child(u"afterImage");
   auto aft_type2 = static_cast<wz::Property<std::u16string>*>(aft_type)->get();
+  if (action == u"shoot1") {
+    aft_type2 = u"swordTS";
+  }
   auto aft_node = LoadAtfNodeCache(aft_type2);
   auto weapon_level3 = std::to_string(weapon_level2 / 10);
   aft_node = aft_node->get_child(weapon_level3);

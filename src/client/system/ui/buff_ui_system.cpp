@@ -31,7 +31,17 @@ static std::optional<GameItemBuff> mouse_item;
 void BuffUiSystem::RenderUi(GameSkill& sk, float x, float y) {
   auto id = sk.id;
   auto ski_node = SkillGameInstance::LoadSkiNode(id);
-  auto icon = WzResource::LoadTexture(ski_node->get_child(u"icon"));
+  if (ski_node == nullptr) {
+    return;
+  }
+  auto* icon_node = ski_node->get_child(u"icon");
+  if (icon_node == nullptr) {
+    return;
+  }
+  auto icon = WzResource::LoadTexture(icon_node);
+  if (icon == nullptr) {
+    return;
+  }
   SDL_FRect pos_rect{
       x,
       y,

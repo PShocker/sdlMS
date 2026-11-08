@@ -25,9 +25,15 @@ namespace sdlms {
 wz::Node* SkillGameInstance::LoadSkiLevelNode(const std::u16string& id,
                                               uint8_t l) {
   auto skill_node = LoadSkiNode(id);
+  if (skill_node == nullptr) {
+    return nullptr;
+  }
+  auto* level = skill_node->get_child(u"level");
+  if (level == nullptr) {
+    return nullptr;
+  }
   auto l2 = std::to_string(l);
-  auto level_node = skill_node->get_child(u"level")->get_child(l2);
-  return level_node;
+  return level->get_child(l2);
 }
 
 int32_t SkillGameInstance::LoadSkiLevelInt(const std::u16string& id, uint8_t lv,
@@ -166,6 +172,12 @@ SkillGameInstance::SkillName SkillGameInstance::LoadSkiName(
     static auto ski_node = WzResource::string_->find(u"Skill.img");
     auto node = ski_node->get_child(id);
     SkillName ski_name;
+    // 隐藏技能可能在 Skill.wz 有节点但 String.wz 没有文本；避免 UI 空指针。
+    if (node == nullptr) {
+      ski_name.name = id;
+      cache[id] = ski_name;
+      return cache.at(id);
+    }
     ski_name.name =
         static_cast<wz::Property<std::u16string>*>(node->get_child(u"name"))
             ->get();

@@ -1,6 +1,8 @@
 #include "src/server/server_system/server_mob_system.h"
 
 #include "src/client/game/game_debuff.h"
+#include "src/client/game/game_effect.h"
+#include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/map_info_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/random_game_instance.h"
@@ -66,13 +68,20 @@ constexpr float kPlayerHalfWidth = 18.0f;
 constexpr float kPlayerHeight = 60.0f;
 
 float MobSpeedScale(const ServerMob& mob) {
+  float scale = 1.0f;
   auto it = mob.debuffs.find(GameDebuff::DebuffType::kThreaten);
-  if (it == mob.debuffs.end()) {
-    return 1.0f;
+  if (it != mob.debuffs.end()) {
+    const int32_t down =
+        static_cast<int32_t>(std::clamp<int64_t>(it->second.db.val, 0, 100));
+    scale *= std::max(0.1f, (100.0f - static_cast<float>(down)) / 100.0f);
   }
-  const int32_t down =
-      static_cast<int32_t>(std::clamp<int64_t>(it->second.db.val, 0, 100));
-  return std::max(0.1f, (100.0f - static_cast<float>(down)) / 100.0f);
+  auto slow = mob.debuffs.find(GameDebuff::DebuffType::kSlow);
+  if (slow != mob.debuffs.end()) {
+    const int32_t down =
+        static_cast<int32_t>(std::clamp<int64_t>(slow->second.db.val, 0, 100));
+    scale *= std::max(0.1f, (100.0f - static_cast<float>(down)) / 100.0f);
+  }
+  return std::max(0.1f, scale);
 }
 
 int8_t Sign(float value) {
@@ -924,6 +933,47 @@ bool ServerMobSystem::RunHitCheck(ServerMob& mob) {
   return true;
 }
 
+void ServerMobSystem::RunDot(ServerMob& mob) {
+  const auto now = Window::dt_time_;
+  for (auto it = mob.debuffs.begin(); it != mob.debuffs.end(); ++it) {
+    const auto type = it->first;
+    auto& sd = it->second;
+    if (type != GameDebuff::DebuffType::kBurn &&
+        type != GameDebuff::DebuffType::kPoison) {
+      continue;
+    }
+    auto& db = sd.db;
+    const int64_t damage = std::max<int64_t>(0, db.val);
+    const int interval =
+        std::clamp<int>(static_cast<int>(db.val2), 1, 0xFFFF);
+    if (damage <= 0 || now >= db.destroy || now < db.delay) {
+      continue;
+    }
+    // DOT 伤害由客户端按“基础魔法攻击 + WZ dot”计算后传入数据库结算。
+    // 只扣 HP，不进入 hit 队列，因此不会触发受击动作或击退。
+    mob.hp -= damage;
+
+    DamageData data = {
+        .num = static_cast<uint64_t>(damage),
+        .type = DamageData::DamageColor::kRed,
+    };
+    GameEffect d = {
+        .id = u"",
+        .index = 0,
+        .time = mob.index,
+        .delay = Window::dt_time_,
+        .type = GameEffect::EffectType::kDamage,
+        .pos = SDL_FPoint{mob.pos.x, mob.pos.y - 10},
+        .z = true,
+        .flip = false,
+        .data = data,
+    };
+    EffectGameInstance::data_[7].emplace_back(d);
+
+    db.delay = now + static_cast<uint64_t>(interval);
+  }
+}
+
 bool ServerMobSystem::RunHitting(ServerMob& mob) {
   if (mob.hits.empty()) {
     return false;
@@ -1167,6 +1217,8 @@ void ServerMobSystem::RunStateMachine(ServerMob& mob) {
   std::erase_if(mob.debuffs, [](const auto& pair) {
     return pair.second.db.destroy <= Window::dt_time_;
   });
+
+  RunDot(mob);
 
   if (!mob.dead) {
     bool hit_state = mob.action.starts_with(u"hit");

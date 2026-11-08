@@ -11,6 +11,8 @@ struct GameDebuff {
     kSlow,
     kDisorder,
     kThreaten,
+    kBurn,
+    kPoison,
   };
   DebuffType type;
   int64_t val;
