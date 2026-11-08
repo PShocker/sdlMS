@@ -1,18 +1,17 @@
-#include "src/client/game/game_effect.h"
-#include "src/client/game_skill/fighter_final_attack.h"
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_effect.h"
+#include "src/client/game/game_foothold.h"
 #include "src/client/game/game_skill.h"
 #include "src/client/game/game_triangle.h"
-#include "src/client/game/game_foothold.h"
-#include "src/client/game_instance/foothold_game_instance.h"
 #include "src/client/game_instance/afterimage_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
+#include "src/client/game_instance/foothold_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/game_instance/random_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
+#include "src/client/game_skill/fighter_final_attack.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
@@ -36,8 +35,7 @@ namespace {
 
 int SkillInt(const char16_t* id, int lv, const char16_t* key, int fallback) {
   return SkillGameInstance::LoadSkiLevelInt(
-      std::u16string(id), static_cast<uint8_t>(std::max(1, lv)), key,
-      fallback);
+      std::u16string(id), static_cast<uint8_t>(std::max(1, lv)), key, fallback);
 }
 
 std::u16string U16(uint32_t id) {
@@ -78,6 +76,13 @@ void SendBuffState(int ski_id, int sub_val) {
   st.sub_val = sub_val;
   CharacterLogicSystem::ccs_.payload.push_back(
       std::make_unique<fbs::StateT>(st));
+}
+
+// 与 magician 的 SendSkill 一致：本地立即播放技能 effect，并广播给其他玩家。
+void SendSkill(uint32_t id, int lv, const fbs::ClientCharacterAttackT& cat) {
+  auto ckt = SkillGameInstance::CreateSkillPayload(cat, id, lv);
+  ServerCharacterInstance::HandleSki(ckt.ski_id, lv, ckt.payload, 0);
+  ClientRequest::SendToHost(ckt);
 }
 
 void EraseSkill(const std::u16string& id) {
@@ -150,24 +155,24 @@ void Booster(uint32_t id, bool sword) {
       return;
     }
     const int lv = std::clamp(ski_lv, 1, 20);
-    const int hp_con = SkillInt(
-        sword ? u"1101002" : u"1101003", lv, u"hpCon", 0);
+    const int hp_con =
+        SkillInt(sword ? u"1101002" : u"1101003", lv, u"hpCon", 0);
     if (CharacterStatGameInstance::GetHp() <= hp_con) {
       return;
     }
+    CharacterLogicSystem::RunAction(sf, u"alert2");
     // 关闭旧 Booster，避免叠加。
     EndBooster();
     StopSkill(U16(id));
 
-    CharacterStatGameInstance::SetHp(
-        CharacterStatGameInstance::GetHp() - hp_con);
+    CharacterStatGameInstance::SetHp(CharacterStatGameInstance::GetHp() -
+                                     hp_con);
     booster_base_speed = sf.attack_speed;
     booster_active = true;
-    sf.attack_speed += SkillInt(
-        sword ? u"1101002" : u"1101003", lv, u"x", -2);
+    sf.attack_speed += SkillInt(sword ? u"1101002" : u"1101003", lv, u"x", -2);
 
-    const int time_sec = std::max(
-        1, SkillInt(sword ? u"1101002" : u"1101003", lv, u"time", 1));
+    const int time_sec =
+        std::max(1, SkillInt(sword ? u"1101002" : u"1101003", lv, u"time", 1));
     g_skill.lv = static_cast<uint8_t>(lv);
     g_skill.duration = static_cast<uint64_t>(time_sec) * 1000;
     g_skill.destroy = Window::dt_now_ + g_skill.duration;
@@ -179,6 +184,9 @@ void Booster(uint32_t id, bool sword) {
     };
     SkillGameInstance::ski_.push_back(g_skill);
     SendBuffState(static_cast<int>(id), 1);
+    SendSkill(id, lv, fbs::ClientCharacterAttackT{});
+
+    CharacterLogicSystem::RunAction(sf, u"alert2");
   };
   SkillGameInstance::Skis()[g_skill.id] = g_skill;
 }
@@ -197,12 +205,20 @@ void Rage() {
     stat.pad += SkillInt(u"1101004", lv, u"indiePad", 0);
     stat.pdd += SkillInt(u"1101004", lv, u"indiePdd", 0);
   };
+  // 其他玩家收到 Rage buff 状态时只处理结束清理；
+  // 使用瞬间的 effect 由技能包播放一次，避免进入场景重放保存状态时再播放。
+  g_skill.state = [](GameCharacter* c, int index) {
+    if (c == nullptr || index != 0) {
+      return;
+    }
+    auto& eff = c->effect;
+    std::erase_if(eff, [](const GameEffect& e) { return e.id == u"1101004"; });
+  };
   g_skill.use = [g_skill](uint64_t, int ski_lv) mutable {
     const int lv = std::clamp(ski_lv, 1, 20);
     StopSkill(g_skill.id);
     g_skill.lv = static_cast<uint8_t>(lv);
-    const int time_sec =
-        std::max(1, SkillInt(u"1101004", lv, u"time", 1));
+    const int time_sec = std::max(1, SkillInt(u"1101004", lv, u"time", 1));
     g_skill.duration = static_cast<uint64_t>(time_sec) * 1000;
     g_skill.destroy = Window::dt_now_ + g_skill.duration;
     g_skill.end = []() {
@@ -213,6 +229,11 @@ void Rage() {
     SkillGameInstance::ski_.push_back(g_skill);
     SendBuffState(1101004, 1);
     CharacterStatGameInstance::Update();
+    SendSkill(1101004, lv, fbs::ClientCharacterAttackT{});
+    auto& sf = CharacterGameInstance::self_;
+    CharacterLogicSystem::RunAction(sf, u"alert2");
+
+    auto& used = SkillGameInstance::Skis()[u"1101004"];
   };
   SkillGameInstance::Skis()[g_skill.id] = g_skill;
 }
@@ -235,20 +256,17 @@ void Rush() {
         std::max(1, SkillInt(u"1101005", ski_lv, u"mobCount", 4));
     auto g_r = SkillGameInstance::LoadSkiR(u"1101005");
     auto cm = CharacterLogicSystem::RunAttackCheck(sf, g_r, mob_count);
-    const int damage =
-        std::max(0, SkillInt(u"1101005", ski_lv, u"damage", 60));
+    const int damage = std::max(0, SkillInt(u"1101005", ski_lv, u"damage", 60));
     for (auto& mob : cm.data) {
       mob.hits = {damage};
     }
     fbs::ClientCharacterAttackT cat;
-    const int range =
-        std::max(0, SkillInt(u"1101005", ski_lv, u"range", 130));
+    const int range = std::max(0, SkillInt(u"1101005", ski_lv, u"range", 130));
     if (!cm.data.empty()) {
       auto delay = SkillGameInstance::LoadSkiTime(sf);
       auto hit_type = AfterimageGameInstance::LoadHitType(sf);
       std::string effect =
-          "Afterimage/hit.img/" +
-          std::string(hit_type.begin(), hit_type.end());
+          "Afterimage/hit.img/" + std::string(hit_type.begin(), hit_type.end());
       cat = SkillGameInstance::CreateAttackPayload(
           cm, sf.pos, delay, 0, effect, "", static_cast<float>(range));
       for (auto& attack : cat.payload) {
@@ -267,17 +285,16 @@ void Rush() {
     rush->dir = sf.flip ? 1.0f : -1.0f;
     // 095：Rush 突进期间人物不会被怪物攻击打断。
     CharacterLogicSystem::self_invincible_cooldown_ = std::max(
-        CharacterLogicSystem::self_invincible_cooldown_,
-        Window::dt_now_ + 100);
+        CharacterLogicSystem::self_invincible_cooldown_, Window::dt_now_ + 100);
 
     GameSkill move;
     move.id = u"1101005";
     move.destroy = Window::dt_now_ + 1000;
     move.frame = [rush]() {
       if (rush->remaining > 0.0f) {
-        CharacterLogicSystem::self_invincible_cooldown_ = std::max(
-            CharacterLogicSystem::self_invincible_cooldown_,
-            Window::dt_now_ + 100);
+        CharacterLogicSystem::self_invincible_cooldown_ =
+            std::max(CharacterLogicSystem::self_invincible_cooldown_,
+                     Window::dt_now_ + 100);
       }
       auto& sf = CharacterGameInstance::self_;
       // 单帧最多跨越 8 个相连 foothold，避免异常连接导致死循环。
@@ -289,17 +306,14 @@ void Rush() {
           return;
         }
         const auto& fh = fh_it->second;
-        const float min_x =
-            static_cast<float>(std::min(fh.x1, fh.x2));
-        const float max_x =
-            static_cast<float>(std::max(fh.x1, fh.x2));
+        const float min_x = static_cast<float>(std::min(fh.x1, fh.x2));
+        const float max_x = static_cast<float>(std::max(fh.x1, fh.x2));
         const float endpoint = rush->dir > 0.0f ? max_x : min_x;
 
-        const float step = std::min(
-            rush->remaining, 700.0f * Window::delta_time_ / 1000.0f);
+        const float step =
+            std::min(rush->remaining, 700.0f * Window::delta_time_ / 1000.0f);
         const float old_x = sf.pos.x;
-        float target_x = std::clamp(
-            old_x + rush->dir * step, min_x, max_x);
+        float target_x = std::clamp(old_x + rush->dir * step, min_x, max_x);
         const float moved = std::fabs(target_x - old_x);
         if (moved > 0.0f) {
           sf.pos.x = target_x;
@@ -321,8 +335,7 @@ void Rush() {
           return;
         }
 
-        const int32_t next_id =
-            rush->dir > 0.0f ? fh.next : fh.prev;
+        const int32_t next_id = rush->dir > 0.0f ? fh.next : fh.prev;
         if (next_id == 0 || next_id == fh_id) {
           rush->remaining = 0.0f;
           return;
@@ -340,10 +353,8 @@ void Rush() {
             continue;
           }
           const auto& next = next_it->second;
-          const float next_min =
-              static_cast<float>(std::min(next.x1, next.x2));
-          const float next_max =
-              static_cast<float>(std::max(next.x1, next.x2));
+          const float next_min = static_cast<float>(std::min(next.x1, next.x2));
+          const float next_max = static_cast<float>(std::max(next.x1, next.x2));
           if (rush->dir > 0.0f && next_max <= sf.pos.x + 1.0f) {
             continue;
           }
@@ -396,8 +407,7 @@ void SwordMastery() {
     const int lv = std::clamp(ski_lv, 1, 20);
     CharacterStatGameInstance::SetSkiPro(
         SkillInt(u"1100000", lv, u"mastery", 0));
-    CharacterStatGameInstance::SetSkiDef(
-        SkillInt(u"1100000", lv, u"x", 0));
+    CharacterStatGameInstance::SetSkiDef(SkillInt(u"1100000", lv, u"x", 0));
   };
   SkillGameInstance::Skis()[g_skill.id] = g_skill;
 }
@@ -433,8 +443,7 @@ void AxeMastery() {
       if (lv <= 0) {
         return;
       }
-      const int prop =
-          SkillInt(u"1100001", lv, u"prop", 0);
+      const int prop = SkillInt(u"1100001", lv, u"prop", 0);
       std::uniform_int_distribution<int> roll(0, 99);
       if (roll(RandomGameInstance::gen_) >= prop) {
         return;
@@ -485,7 +494,7 @@ void RegisterFinalAttack(GameCharacter& g_character, uint64_t attack_delay) {
   if (lv <= 0) {
     return;
   }
-  const int prop = SkillInt(sword ? u"1101000" : u"1101001", lv, u"prop", 0);
+  const int prop = SkillInt(U16(id).c_str(), lv, u"prop", 0);
   std::uniform_int_distribution<int> roll(0, 99);
   if (roll(RandomGameInstance::gen_) >= prop) {
     return;
@@ -518,14 +527,16 @@ void UpdateFinalAttack() {
   if (cm.data.empty()) {
     return;
   }
-  const int damage = 109 + pending_final_attack.lv;
+  int damage = 109 + pending_final_attack.lv;
+  if (pending_final_attack.lv >= 30) {
+    damage = 140;
+  }
   for (auto& mob : cm.data) {
     mob.hits = {damage};
   }
   auto hit_type = AfterimageGameInstance::LoadHitType(sf);
   std::string effect =
-      "Afterimage/hit.img/" +
-      std::string(hit_type.begin(), hit_type.end());
+      "Afterimage/hit.img/" + std::string(hit_type.begin(), hit_type.end());
   auto cat = SkillGameInstance::CreateAttackPayload(
       cm, sf.pos, Window::dt_time_, 0, effect, "");
   for (auto& attack : cat.payload) {

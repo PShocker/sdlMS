@@ -34,6 +34,27 @@
 namespace sdlms {
 
 namespace {
+
+std::u16string TruncateText(const std::u16string& text, float max_width) {
+  if (Freetype::LoadW(text) <= max_width) {
+    return text;
+  }
+  const std::u16string dots = u"...";
+  const float dots_width = Freetype::LoadW(dots);
+  if (dots_width >= max_width) {
+    return dots;
+  }
+  std::u16string result;
+  for (char16_t c : text) {
+    auto next = result + c;
+    if (Freetype::LoadW(next) + dots_width > max_width) {
+      break;
+    }
+    result = std::move(next);
+  }
+  return result + dots;
+}
+
 bool MeetsSkillRequirements(const std::u16string& id) {
   auto ski_node = SkillGameInstance::LoadSkiNode(id);
   if (ski_node == nullptr) {
@@ -237,7 +258,8 @@ void SkillUiSystem::RenderSkillEntry() {
                         disabled ? 128 : 0, 255);
     Freetype::LoadAligned(true);
     Freetype::LoadSize(12);
-    Freetype::DrawLine(ski_name.name, pos_.x + lt.x + 40, pos_rect.y - 3);
+    Freetype::DrawLine(TruncateText(ski_name.name, 100),
+                       pos_.x + lt.x + 40, pos_rect.y - 3);
     auto ski_level2 = std::to_string(ski_level);
     auto ski_level3 = std::u16string{ski_level2.begin(), ski_level2.end()};
     Freetype::DrawLine(ski_level3, pos_.x + lt.x + 40, pos_rect.y + 15);
@@ -361,7 +383,8 @@ void SkillUiSystem::RenderBook() {
   Freetype::LoadAligned(true);
   Freetype::LoadSize(12);
   Freetype::LoadColor(255, 255, 255, 255);
-  Freetype::DrawLine(book_name, pos_rect.x + 35, pos_rect.y + 6);
+  Freetype::DrawLine(TruncateText(book_name, 120), pos_rect.x + 35,
+                     pos_rect.y + 6);
 }
 
 void SkillUiSystem::RenderPoint() {

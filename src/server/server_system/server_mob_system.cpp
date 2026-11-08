@@ -65,6 +65,16 @@ constexpr float kAccessPad = 40.0f;         // 访问限位外的减速余量
 constexpr float kPlayerHalfWidth = 18.0f;
 constexpr float kPlayerHeight = 60.0f;
 
+float MobSpeedScale(const ServerMob& mob) {
+  auto it = mob.debuffs.find(GameDebuff::DebuffType::kThreaten);
+  if (it == mob.debuffs.end()) {
+    return 1.0f;
+  }
+  const int32_t down =
+      static_cast<int32_t>(std::clamp<int64_t>(it->second.db.val, 0, 100));
+  return std::max(0.1f, (100.0f - static_cast<float>(down)) / 100.0f);
+}
+
 int8_t Sign(float value) {
   if (value > 0) {
     return 1;
@@ -162,7 +172,9 @@ void ServerMobSystem::RunMoveAction(ServerMob& mob) {
       if (mob.input_x != 0) {
         mob.flip = mob.input_x > 0;
         RunSetAction(mob, ServerMobInstance::LoadFineAction(mob.id, u"move"));
-        mob.hspeed = mob.input_x > 0 ? mob.hspeed_max : -mob.hspeed_max;
+        const float speed =
+            mob.hspeed_max * MobSpeedScale(mob);
+        mob.hspeed = mob.input_x > 0 ? speed : -speed;
       } else {
         RunSetAction(mob, ServerMobInstance::LoadFineAction(mob.id, u"stand"));
         mob.hspeed = 0;
@@ -815,7 +827,7 @@ bool ServerMobSystem::RunFall(ServerMob& mob) {
 
 void ServerMobSystem::RunFly(ServerMob& mob) {
   const float dt = static_cast<float>(delta_time_) / 1000.0f;
-  const float speed = mob.fly_speed;
+  const float speed = mob.fly_speed * MobSpeedScale(mob);
 
   auto& clients = ServerClientInstance::clients_;
   if (mob.target_id != 0 && clients.contains(mob.target_id) &&

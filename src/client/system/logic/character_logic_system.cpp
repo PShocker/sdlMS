@@ -3,6 +3,8 @@
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_tomb.h"
 #include "src/client/game_skill/fighter_final_attack.h"
+#include "src/client/game_skill/page_final_attack.h"
+#include "src/client/game_skill/spearman_final_attack.h"
 #include "src/client/game_instance/afterimage_game_instance.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/ball_game_instance.h"
@@ -1073,6 +1075,8 @@ bool CharacterLogicSystem::RunAttack(GameCharacter& g_character) {
                                                         delay, 0, effect, "");
       ClientRequest::SendToHost(cat);
       RegisterFinalAttack(g_character, delay);
+      RegisterPageFinalAttack(g_character, delay);
+      RegisterSpearmanFinalAttack(g_character, delay);
     }
   }
   for (auto& buff : SkillGameInstance::ski_) {

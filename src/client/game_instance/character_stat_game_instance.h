@@ -133,6 +133,7 @@ class CharacterStatGameInstance {
   static inline int32_t buff_speed_ = 0;  // 移速
   static inline int32_t buff_jump_ = 0;   // 跳跃
   static inline int32_t item_speed_ = 0;   // 道具(药水等)给的移速
+  static inline int32_t ski_speed_ = 0;    // 被动技能给的移速
 
   // ============ 移动上限 (由移速 / 跳跃属性推导) ============
   // 水平：基础 125 px/s，每点移速 ±1.25 px/s
@@ -241,6 +242,7 @@ class CharacterStatGameInstance {
   static uint32_t GetMpRecoveryRate();
   static void ApplyPassiveCritRate(uint32_t n);
   static void ApplyPassiveCritDamage(uint32_t n);
+  static void ApplyPassiveSpeed(int32_t n);
   static void ApplyPassiveAttackRange(uint32_t n);
   static void ApplyPassiveThrowRange(uint32_t n);
   static void ApplyPassiveAcc(uint32_t n);

@@ -173,9 +173,22 @@ SkillGameInstance::SkillName SkillGameInstance::LoadSkiName(
     auto child = node->get_children();
     child->erase(u"name");
     child->erase(u"desc");
+    // WZ 的键是 h1、h2、...、h10；flat_map 按字典序会得到 h1,h10,h2…，
+    // 必须按 h 后的数字排序，否则 tooltip 会显示错等级的说明。
+    std::flat_map<int, std::u16string> levels;
     for (auto [k, v] : *child) {
-      auto level = static_cast<wz::Property<std::u16string>*>(v[0])->get();
-      ski_name.level.push_back(level);
+      if (k.size() < 2 || k[0] != u'h' || v.empty()) {
+        continue;
+      }
+      try {
+        const int index = std::stoi(std::string(k.begin() + 1, k.end()));
+        levels[index] =
+            static_cast<wz::Property<std::u16string>*>(v[0])->get();
+      } catch (...) {
+      }
+    }
+    for (const auto& entry : levels) {
+      ski_name.level.push_back(entry.second);
     }
     cache[id] = ski_name;
   }
@@ -194,6 +207,7 @@ bool SkillGameInstance::LoadSkiActive(const std::u16string& id) {
   if (auto* skill_type = ski_node->get_child(u"skillType");
       skill_type != nullptr && skill_type->type == wz::Type::Int) {
     if (static_cast<wz::Property<int>*>(skill_type)->get() == 3) {
+      // Final Attack 由攻击自动触发，不能作为主动技能拖到快捷键。
       return false;
     }
   }

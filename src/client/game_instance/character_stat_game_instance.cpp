@@ -417,7 +417,8 @@ void CharacterStatGameInstance::Update() {
   constexpr float stat_div = 100.0f;
   constexpr float ap_div = 50.0f;
   const float total_watk = static_cast<float>(equip_attack_);
-  const float attack_power = static_cast<float>(item_attack_);
+  const float attack_power =
+      static_cast<float>(item_attack_ + buff_pad_);
   const float phys_max =
       total_watk * (1.0f +
                     (static_cast<float>(primary_ap) * weapon_mult_max +
@@ -503,7 +504,8 @@ void CharacterStatGameInstance::Update() {
 void CharacterStatGameInstance::UpdateMoveLimits() {
   // 移速 = 技能 buff(轻功/极速等) + 道具(药水等)
   const auto speed =
-      static_cast<float>(GetBuffSpeed() + std::max(GetItemSpeed(), 0));
+      static_cast<float>(GetBuffSpeed() + std::max(GetItemSpeed(), 0) +
+                         ski_speed_);
   const auto jump = static_cast<float>(GetBuffJump());
   hspeed_max_ = 125.0f + 1.25f * speed;
   hspeed_min_ = -125.0f - 1.25f * speed;
@@ -850,6 +852,9 @@ uint32_t CharacterStatGameInstance::GetMpRecoveryRate() {
 }
 void CharacterStatGameInstance::ApplyPassiveCritRate(uint32_t n) {
   ski_crit_rate_ = n;
+}
+void CharacterStatGameInstance::ApplyPassiveSpeed(int32_t n) {
+  ski_speed_ = n;
 }
 void CharacterStatGameInstance::ApplyPassiveCritDamage(uint32_t n) {
   ski_crit_damage_ = n;

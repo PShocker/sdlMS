@@ -905,7 +905,10 @@ void ServerCharacterInstance::HandleSState(
         if (ski_id3.length() < 7) {
           ski_id3.insert(0, 7 - ski_id3.length(), u'0');
         }
-        skills.at(ski_id3).state(&g_character, st->sub_val);
+        auto it = skills.find(ski_id3);
+        if (it != skills.end() && it->second.state) {
+          it->second.state(&g_character, st->sub_val);
+        }
         break;
       }
       case fbs::StateEnum_BUFF_ITEM: {

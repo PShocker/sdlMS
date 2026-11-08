@@ -1,4 +1,6 @@
 #include "src/client/game_skill/fighter_final_attack.h"
+#include "src/client/game_skill/page_final_attack.h"
+#include "src/client/game_skill/spearman_final_attack.h"
 #include "src/client/game/game_skill.h"
 #include "src/client/game_instance/afterimage_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
@@ -74,6 +76,8 @@ static void PowerStrike() {
       cat = SkillGameInstance::CreateAttackPayload(cm, sf.pos, delay);
       ClientRequest::SendToHost(cat);
       RegisterFinalAttack(sf, delay);
+      RegisterPageFinalAttack(sf, delay);
+      RegisterSpearmanFinalAttack(sf, delay);
     }
     auto ckt = SkillGameInstance::CreateSkillPayload(cat, 1001001, ski_lv);
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
@@ -117,6 +121,8 @@ static void SlashBlast() {
       cat = SkillGameInstance::CreateAttackPayload(cm, sf.pos, delay);
       ClientRequest::SendToHost(cat);
       RegisterFinalAttack(sf, delay);
+      RegisterPageFinalAttack(sf, delay);
+      RegisterSpearmanFinalAttack(sf, delay);
     }
     auto ckt = SkillGameInstance::CreateSkillPayload(cat, 1001002, ski_lv);
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
