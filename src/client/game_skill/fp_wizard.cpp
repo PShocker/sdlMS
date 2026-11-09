@@ -1,6 +1,7 @@
 #include "src/client/game/game_effect.h"
 #include "src/client/game/game_debuff.h"
 #include "src/client/game/game_skill.h"
+#include "src/client/game_skill/mp_eater.h"
 #include "src/client/game/game_triangle.h"
 #include "src/client/game_instance/ball_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
@@ -127,11 +128,14 @@ void TryMpEater(CheckMobs& cm, int ski_lv) {
       1, it->second.mob.mp * x / 100);
   it->second.mob.mp = std::max<int64_t>(0, it->second.mob.mp - drain);
   target.mob.mp = it->second.mob.mp;
-  auto& self = CharacterGameInstance::self_;
   CharacterStatGameInstance::SetMp(std::min(
       CharacterStatGameInstance::GetMpMax(),
       CharacterStatGameInstance::GetMp() + static_cast<int32_t>(drain)));
   next = Window::dt_now_ + 5000;
+
+  // 通过技能包播放 2100000/effect，服务端会同步给同地图其他玩家。
+  SendSkill(2100000, std::max(1, ski_lv),
+            fbs::ClientCharacterAttackT{});
 }
 
 void MpEaterPassive() {
@@ -175,7 +179,6 @@ void FireArrow() {
       mob.hits = {mad};
       mob.magic_mastery = mastery;
     }
-    TryMpEater(cm, JobSkillGameInstance::LoadSkiLevel(u"2100000"));
 
     auto delay = SkillGameInstance::LoadSkiTime(sf);
     auto pos = sf.pos;
@@ -230,37 +233,54 @@ void PoisonBreath() {
     const int mob_count =
         std::max(1, SkillInt(u"2101005", ski_lv, u"mobCount", 4));
 
-    auto rect = SkillGameInstance::LoadSkiR(u"2101005");
-    auto cm = CharacterLogicSystem::RunAttackCheck(sf, rect, mob_count);
-    for (auto& mob : cm.data) {
-      mob.hits = {mad};
-      mob.magic_mastery = mastery;
+    auto* hidden_level =
+        SkillGameInstance::LoadSkiLevelNode(u"2101005", ski_lv);
+    if (hidden_level == nullptr) {
+      return;
     }
-    TryMpEater(cm, JobSkillGameInstance::LoadSkiLevel(u"2100000"));
+    auto lt = WzResource::LoadFpoint(hidden_level->get_child(u"lt"));
+    auto rb = WzResource::LoadFpoint(hidden_level->get_child(u"rb"));
+    GameTriangle tri = {{
+        SDL_FPoint{-400, -100},
+        SDL_FPoint{-400, 100},
+        SDL_FPoint{0, -30},
+    }};
+    auto hit_cm = CharacterLogicSystem::RunAttackCheck(sf, tri, 1);
 
     auto delay = SkillGameInstance::LoadSkiTime(sf);
     auto pos = sf.pos;
     pos.y -= 30;
     SDL_FPoint goal = pos;
     goal.x += sf.flip ? 400 : -400;
-    CheckMobs ball_cm;
     auto cct = BallGameInstance::CreateBallPayload(
-        ball_cm, pos, goal, delay, sf.page, 700,
+        hit_cm, pos, goal, delay, sf.page, 700,
         u"210.img/skill/2101004/ball");
     ClientRequest::SendToHost(cct);
     ServerBallInstance::HandleServerB(cct.payload);
 
+    auto impact = BallGameInstance::LoadBallTime(cct);
     fbs::ClientCharacterAttackT cat;
-    if (!cm.data.empty()) {
-      cat = SkillGameInstance::CreateAttackPayload(cm, sf.pos, delay);
-      ClientRequest::SendToHost(cat);
-      const int prop =
-          std::clamp(SkillInt(u"2101005", ski_lv, u"prop", 0), 0, 100);
-      std::uniform_int_distribution<int> roll(0, 99);
-      if (roll(RandomGameInstance::gen_) < prop) {
-        ApplyMobDebuff(GameDebuff::DebuffType::kPoison, cm, delay,
-                       static_cast<uint64_t>(dot_time) * 1000, 0, dot_damage,
-                       1000);
+    if (!hit_cm.data.empty()) {
+      const auto impact_pos = hit_cm.data[0].mob.pos;
+      auto area_rect =
+          SkillGameInstance::LoadR(lt, rb, impact_pos, sf.flip);
+      auto cm =
+          CharacterLogicSystem::RunAttackCheck(impact_pos, area_rect, mob_count);
+      for (auto& mob : cm.data) {
+        mob.hits = {mad};
+        mob.magic_mastery = mastery;
+      }
+      if (!cm.data.empty()) {
+        cat = SkillGameInstance::CreateAttackPayload(cm, impact_pos, impact);
+        ClientRequest::SendToHost(cat);
+        const int prop =
+            std::clamp(SkillInt(u"2101005", ski_lv, u"prop", 0), 0, 100);
+        std::uniform_int_distribution<int> roll(0, 99);
+        if (roll(RandomGameInstance::gen_) < prop) {
+          ApplyMobDebuff(GameDebuff::DebuffType::kPoison, cm, impact,
+                         static_cast<uint64_t>(dot_time) * 1000, 0,
+                         dot_damage, 1000);
+        }
       }
     }
     SendSkill(2101004, ski_lv, cat);
@@ -420,6 +440,13 @@ void Slow() {
 }
 
 }  // namespace
+
+void TriggerMpEater(CheckMobs& cm) {
+  const int lv = JobSkillGameInstance::LoadSkiLevel(u"2100000");
+  if (lv > 0) {
+    TryMpEater(cm, lv);
+  }
+}
 
 [[maybe_unused]] static const bool r = [] {
   MpEaterPassive();

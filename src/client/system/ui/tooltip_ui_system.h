@@ -29,10 +29,10 @@ class TooltipUiSystem {
 
   static void RenderSkillBottom(const std::u16string& id, uint8_t level,
                                 float x, float y);
-  static float LoadSkillBottomH(const std::u16string& id);
+  static float LoadSkillBottomH(const std::u16string& id, uint8_t level);
 
   // 提示框尺寸, 用于贴边时翻转/夹住位置
-  static SDL_FPoint LoadSkillWh(const std::u16string& id);
+  static SDL_FPoint LoadSkillWh(const std::u16string& id, uint8_t level);
   static SDL_FPoint LoadItemWh(const GameItem& item);
   static SDL_FPoint LoadStrWh(const std::u16string& str);
 

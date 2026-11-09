@@ -274,7 +274,9 @@ bool SkillUiSystem::RenderInfo() {
       CursorGameInstance::cursor_ui_ == Render) {
     auto& mouse_pos = Window::mouse_pos_;
     SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
-    TooltipUiSystem::RenderSkill(mouse_skill_id, 1, show_pos.x, show_pos.y);
+    TooltipUiSystem::RenderSkill(
+        mouse_skill_id, JobSkillGameInstance::LoadSkiLevel(mouse_skill_id),
+        show_pos.x, show_pos.y);
   }
   return true;
 }

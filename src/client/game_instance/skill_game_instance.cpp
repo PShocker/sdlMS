@@ -8,6 +8,7 @@
 #include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/text_game_instance.h"
+#include "src/client/game_skill/mp_eater.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 
@@ -223,6 +224,25 @@ bool SkillGameInstance::LoadSkiActive(const std::u16string& id) {
       return false;
     }
   }
+  // 095 info/type == 50 是被动技能（例如 MP Eater）。被动技能即使带有
+  // effect 节点也不能被 cursor_hand 选取。
+  if (auto* info = ski_node->get_child(u"info")) {
+    if (auto* type = info->get_child(u"type"); type != nullptr) {
+      int t = -1;
+      if (type->type == wz::Type::Int) {
+        t = static_cast<wz::Property<int>*>(type)->get();
+      } else if (type->type == wz::Type::String) {
+        auto text = static_cast<wz::Property<std::u16string>*>(type)->get();
+        try {
+          t = std::stoi(std::string{text.begin(), text.end()});
+        } catch (...) {
+        }
+      }
+      if (t == 50) {
+        return false;
+      }
+    }
+  }
   if (ski_node->get_child(u"action")) {
     return true;
   }
@@ -268,6 +288,9 @@ SDL_FRect SkillGameInstance::LoadSkiR(const std::u16string& id, SDL_FPoint pos,
                                       bool flip) {
   auto ski_lv = JobSkillGameInstance::LoadSkiLevel(id);
   auto ski_node = LoadSkiLevelNode(id, ski_lv);
+  if (ski_node == nullptr) {
+    return {0, 0, 0, 0};
+  }
   if (ski_node->get_child(u"lt")) {
     auto lt = WzResource::LoadFpoint(ski_node->get_child(u"lt"));
     auto rb = WzResource::LoadFpoint(ski_node->get_child(u"rb"));
@@ -376,6 +399,15 @@ fbs::ClientCharacterAttackT SkillGameInstance::CreateAttackPayload(
     CheckMobs& cm, SDL_FPoint pos, uint64_t delay, uint32_t interval,
     std::string effect, std::string sound, float knockback) {
   fbs::ClientCharacterAttackT attack_payload;
+  // 魔法攻击命中时统一触发 MP Eater（普通攻击的 hits 为空，不触发）。
+  if (CharacterGameInstance::self_.job == u"210") {
+    for (auto& mob : cm.data) {
+      if (!mob.hits.empty()) {
+        TriggerMpEater(cm);
+        break;
+      }
+    }
+  }
   auto& Mobs = cm.data;
   for (int m = 0; m < Mobs.size(); m++) {
     auto& mob = Mobs[m];

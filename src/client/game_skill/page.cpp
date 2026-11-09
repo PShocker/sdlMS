@@ -172,7 +172,7 @@ void FinalAttackPassive(uint32_t id) {
 void Booster(uint32_t id, bool sword) {
   GameSkill g_skill;
   g_skill.id = U16(id);
-  g_skill.fall = true;
+  g_skill.fall = false;
   g_skill.can_use = [sword, id](int ski_lv) {
     const auto& sf = CharacterGameInstance::self_;
     if (sword ? !IsSword(sf) : !IsBlunt(sf)) {
@@ -224,7 +224,7 @@ void Booster(uint32_t id, bool sword) {
 void Threaten() {
   GameSkill g_skill;
   g_skill.id = u"1201004";
-  g_skill.fall = true;
+  g_skill.fall = false;
   g_skill.use = [](uint64_t, int ski_lv) {
     auto& sf = CharacterGameInstance::self_;
     CharacterLogicSystem::RunAction(sf, u"alert2");
@@ -271,7 +271,7 @@ void Threaten() {
 void Rush() {
   GameSkill g_skill;
   g_skill.id = u"1201005";
-  g_skill.fall = true;
+  g_skill.fall = false;
   g_skill.can_use = [](int) {
     return IsPageWeapon(CharacterGameInstance::self_);
   };
@@ -502,15 +502,11 @@ void UpdatePageFinalAttack() {
   for (auto& mob : cm.data) {
     mob.hits = {damage};
   }
-  auto hit_type = AfterimageGameInstance::LoadHitType(sf);
-  std::string effect =
-      "Afterimage/hit.img/" + std::string(hit_type.begin(), hit_type.end());
+  const uint32_t hit_skill =
+      pending_page_final_attack.sword ? 1201006 : 1201007;
+  std::string effect = "120.img/skill/" + std::to_string(hit_skill) + "/hit/0";
   auto cat = SkillGameInstance::CreateAttackPayload(
       cm, sf.pos, Window::dt_time_, 0, effect, "");
-  for (auto& attack : cat.payload) {
-    attack->attack->type =
-        static_cast<uint8_t>(DamageData::DamageColor::kFinalAttack);
-  }
   ClientRequest::SendToHost(cat);
 }
 

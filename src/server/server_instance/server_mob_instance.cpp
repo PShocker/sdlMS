@@ -631,7 +631,8 @@ void ServerMobInstance::HanleServerMob(const std::unique_ptr<fbs::MobT>& m) {
   auto info_node = MobGameInstance::LoadMobInfo(g_mob.id);
   g_mob.max_hp =
       static_cast<wz::Property<int>*>(info_node->get_child(u"maxHP"))->get();
-
+  g_mob.mp =
+      static_cast<wz::Property<int>*>(info_node->get_child(u"maxMP"))->get();
   g_mob.ani_index = 0;
   g_mob.ani_time = 0;
   g_mob.ani_animate = true;

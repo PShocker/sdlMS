@@ -36,6 +36,8 @@ struct GameNpc {
   // 当前状态（站立等待 / 移动 / 一次性动作）的结束时间
   uint64_t duration = 0;
 
+  // 095：说话只由独立计时器控制，与移动/动作状态无关。
+  uint64_t next_chat = 0;
   std::optional<GameChatballoon> chatballoon;
   std::optional<float> hspeed = 100.0f;
   std::optional<float> hforce;

@@ -57,18 +57,30 @@ void NpcRenderSystem::RenderChatballoon(GameNpc& g_npc) {
   if (!g_npc.chatballoon.has_value()) {
     return;
   }
-  auto quests = QuestGameInstance::LoadNpcQuest(g_npc.id);
-  if (!quests.empty()) {
+  // 095：只有实际显示任务图标的 NPC 才隐藏说话气泡。
+  if (NpcGameInstance::LoadQuestNode(g_npc) != nullptr) {
     return;
   }
   auto chatballoon = g_npc.chatballoon.value();
   auto npc_node = NpcGameInstance::LoadLinkNpcNode(g_npc.id);
+  if (npc_node == nullptr) {
+    return;
+  }
   auto action_node = npc_node->get_child(g_npc.action);
+  if (action_node == nullptr) {
+    return;
+  }
 
   auto index = std::to_string(g_npc.ani_index);
   npc_node = action_node->get_child(index);
+  if (npc_node == nullptr) {
+    return;
+  }
   if (npc_node->type == wz::Type::UOL) {
     npc_node = static_cast<wz::Property<wz::WzUOL>*>(npc_node)->get_uol();
+  }
+  if (npc_node == nullptr) {
+    return;
   }
 
   auto texture = WzResource::LoadTexture(npc_node);
@@ -83,12 +95,24 @@ void NpcRenderSystem::RenderChatballoon(GameNpc& g_npc) {
 
 bool NpcRenderSystem::RenderNpc(GameNpc& g_npc) {
   auto npc_node = NpcGameInstance::LoadLinkNpcNode(g_npc.id);
+  if (npc_node == nullptr) {
+    return false;
+  }
   auto action_node = npc_node->get_child(g_npc.action);
+  if (action_node == nullptr) {
+    return false;
+  }
 
   auto index = std::to_string(g_npc.ani_index);
   npc_node = action_node->get_child(index);
+  if (npc_node == nullptr) {
+    return false;
+  }
   if (npc_node->type == wz::Type::UOL) {
     npc_node = static_cast<wz::Property<wz::WzUOL>*>(npc_node)->get_uol();
+  }
+  if (npc_node == nullptr) {
+    return false;
   }
 
   auto texture = WzResource::LoadTexture(npc_node);

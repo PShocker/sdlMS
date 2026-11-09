@@ -242,6 +242,12 @@ void QuestGameInstance::Load(CharacterSaveData& cs) {
   complete_quests_.clear();
   decline_quests_.clear();
   QuestAlarmUiSystem::quests_.clear();
+  for (const auto& qa : cs.quest_alarms) {
+    std::u16string id{qa.id.begin(), qa.id.end()};
+    if (!id.empty()) {
+      QuestAlarmUiSystem::quests_.insert(id);
+    }
+  }
   for (auto& q : cs.quests) {
     switch (q.type) {
       case QuestEnum::kProgress: { 

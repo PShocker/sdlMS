@@ -144,7 +144,7 @@ void EndBooster() {
 void Booster(uint32_t id, bool sword) {
   GameSkill g_skill;
   g_skill.id = U16(id);
-  g_skill.fall = true;
+  g_skill.fall = false;
   g_skill.can_use = [sword](int) {
     const auto& sf = CharacterGameInstance::self_;
     return sword ? IsSword(sf) : IsAxe(sf);
@@ -241,7 +241,7 @@ void Rage() {
 void Rush() {
   GameSkill g_skill;
   g_skill.id = u"1101005";
-  g_skill.fall = true;
+  g_skill.fall = false;
   g_skill.can_use = [](int) {
     const auto& sf = CharacterGameInstance::self_;
     return IsSword(sf) || IsAxe(sf);
@@ -534,15 +534,10 @@ void UpdateFinalAttack() {
   for (auto& mob : cm.data) {
     mob.hits = {damage};
   }
-  auto hit_type = AfterimageGameInstance::LoadHitType(sf);
-  std::string effect =
-      "Afterimage/hit.img/" + std::string(hit_type.begin(), hit_type.end());
+  const uint32_t hit_skill = pending_final_attack.sword ? 1101006 : 1101007;
+  std::string effect = "110.img/skill/" + std::to_string(hit_skill) + "/hit/0";
   auto cat = SkillGameInstance::CreateAttackPayload(
       cm, sf.pos, Window::dt_time_, 0, effect, "");
-  for (auto& attack : cat.payload) {
-    attack->attack->type =
-        static_cast<uint8_t>(DamageData::DamageColor::kFinalAttack);
-  }
   ClientRequest::SendToHost(cat);
 }
 

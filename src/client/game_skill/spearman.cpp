@@ -178,7 +178,7 @@ void FinalAttackPassive(uint32_t id) {
 void Booster(uint32_t id, bool sword) {
   GameSkill g_skill;
   g_skill.id = U16(id);
-  g_skill.fall = true;
+  g_skill.fall = false;
   g_skill.can_use = [sword, id](int ski_lv) {
     const auto& sf = CharacterGameInstance::self_;
     if (sword ? !IsSpear(sf) : !IsPolearm(sf)) {
@@ -230,7 +230,7 @@ void Booster(uint32_t id, bool sword) {
 void IronWill() {
   GameSkill g_skill;
   g_skill.id = u"1301004";
-  g_skill.fall = true;
+  g_skill.fall = false;
   g_skill.buff_stat = [](int lv, SkillBuffStat& stat) {
     stat.pdd += SkillInt(u"1301004", lv, u"indiePdd", 0);
   };
@@ -262,7 +262,7 @@ void IronWill() {
 void Rush() {
   GameSkill g_skill;
   g_skill.id = u"1301005";
-  g_skill.fall = true;
+  g_skill.fall = false;
   g_skill.can_use = [](int) {
     return IsSpearmanWeapon(CharacterGameInstance::self_);
   };
@@ -496,15 +496,11 @@ void UpdateSpearmanFinalAttack() {
   for (auto& mob : cm.data) {
     mob.hits = {damage};
   }
-  auto hit_type = AfterimageGameInstance::LoadHitType(sf);
-  std::string effect =
-      "Afterimage/hit.img/" + std::string(hit_type.begin(), hit_type.end());
+  const uint32_t hit_skill =
+      pending_spearman_final_attack.sword ? 1301006 : 1301007;
+  std::string effect = "130.img/skill/" + std::to_string(hit_skill) + "/hit/0";
   auto cat = SkillGameInstance::CreateAttackPayload(
       cm, sf.pos, Window::dt_time_, 0, effect, "");
-  for (auto& attack : cat.payload) {
-    attack->attack->type =
-        static_cast<uint8_t>(DamageData::DamageColor::kFinalAttack);
-  }
   ClientRequest::SendToHost(cat);
 
   // 1301000/1301001：吸收伤害的一部分作为 HP，最多 25% 最大 HP。

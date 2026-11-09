@@ -27,7 +27,7 @@ namespace sdlms {
 namespace {
 
 constexpr uint64_t kNpcWaitMin = 3000;
-constexpr uint64_t kNpcWaitMax = 8000;
+constexpr uint64_t kNpcWaitMax = 8999;
 constexpr float kMoveForce = 1400.0f;
 
 bool IsFrameKey(const std::u16string& key) {
@@ -102,7 +102,13 @@ std::vector<std::u16string> LoadSpeakKeys(wz::Node* parent) {
   }
   for (const auto& [key, value] : *speak->get_children()) {
     if (!value.empty() && value[0] != nullptr) {
-      keys.push_back(key);
+      // info/speak/0 的值是 "n0"，指向 String.wz/Npc.img/<id>/n0。
+      if (value[0]->type == wz::Type::String) {
+        keys.push_back(
+            static_cast<wz::Property<std::u16string>*>(value[0])->get());
+      } else {
+        keys.push_back(key);
+      }
     }
   }
   return keys;
@@ -172,6 +178,10 @@ uint64_t RandomWait() {
 }
 
 bool SetChat(GameNpc& g_npc, const std::vector<std::u16string>& keys) {
+  // 095：有任务图标的 NPC 不显示说话气泡。
+  if (NpcGameInstance::LoadQuestNode(g_npc) != nullptr) {
+    return false;
+  }
   if (keys.empty()) {
     return false;
   }
@@ -184,22 +194,16 @@ bool SetChat(GameNpc& g_npc, const std::vector<std::u16string>& keys) {
 
   GameChatballoon chatballoon;
   chatballoon.text = std::move(text);
-  chatballoon.path = u"0";
+  // 095: NPC 使用 ChatBalloon.img/npc，而不是玩家气泡 0。
+  chatballoon.path = u"npc";
   chatballoon.pos = {0, 0};
   chatballoon.size = 14;
   chatballoon.color = SDL_Color{156, 91, 97, 255};
-  chatballoon.destroy =
-      Window::dt_now_ + static_cast<uint64_t>(RandomInt(4000, 6000));
+  chatballoon.destroy = Window::dt_now_ + 5000;
   g_npc.chatballoon = std::move(chatballoon);
   return true;
 }
 
-void SetActionChat(GameNpc& g_npc, wz::Node* action) {
-  auto keys = LoadSpeakKeys(action);
-  if (!keys.empty()) {
-    SetChat(g_npc, keys);
-  }
-}
 
 }  // namespace
 
@@ -275,7 +279,6 @@ void NpcLogicSystem::EnterAction(GameNpc& g_npc,
   g_npc.duration =
       Window::dt_now_ +
       std::max<uint64_t>(1000, FrameCycleMs(action_node));
-  SetActionChat(g_npc, action_node);
 }
 
 void NpcLogicSystem::EnterMove(GameNpc& g_npc) {
@@ -309,7 +312,7 @@ void NpcLogicSystem::EnterMove(GameNpc& g_npc) {
   g_npc.hspeed = 0.0f;
   // 与 Mob/Character 一致：flip=true 表示朝右
   g_npc.flip = move_right;
-  g_npc.duration = Window::dt_now_ + static_cast<uint64_t>(RandomInt(3000, 5000));
+  g_npc.duration = Window::dt_now_ + RandomWait();
 }
 
 bool NpcLogicSystem::RunMove(GameNpc& g_npc) {
@@ -347,6 +350,7 @@ bool NpcLogicSystem::RunMove(GameNpc& g_npc) {
 }
 
 void NpcLogicSystem::UpdateChat(GameNpc& g_npc) {
+  // 095：NPC 头顶有任务图标时，隐藏说话气泡。
   if (NpcGameInstance::LoadQuestNode(g_npc) != nullptr) {
     g_npc.chatballoon = std::nullopt;
     return;
@@ -355,51 +359,62 @@ void NpcLogicSystem::UpdateChat(GameNpc& g_npc) {
       g_npc.chatballoon->destroy < Window::dt_now_) {
     g_npc.chatballoon = std::nullopt;
   }
-}
 
-void NpcLogicSystem::ChooseNext(GameNpc& g_npc) {
-  if (g_npc.chatballoon.has_value() &&
-      g_npc.chatballoon->destroy >= Window::dt_now_) {
-    g_npc.duration = Window::dt_now_ + 500;
+  // 095：说话只由独立计时器控制，和移动路径/动作状态无关。
+  if (g_npc.next_chat == 0) {
+    g_npc.next_chat = RandomWait();
+    return;
+  }
+  if (Window::dt_now_ < g_npc.next_chat) {
+    return;
+  }
+  g_npc.next_chat = RandomWait();
+  if (g_npc.chatballoon.has_value()) {
     return;
   }
 
   auto* npc_node = NpcGameInstance::LoadLinkNpcNode(g_npc.id);
-  auto gestures = LoadGestureActions(npc_node);
   auto* info = npc_node == nullptr ? nullptr : npc_node->get_child(u"info");
   auto root_speak = LoadSpeakKeys(info);
+  if (!root_speak.empty()) {
+    SetChat(g_npc, root_speak);
+  }
+}
+
+void NpcLogicSystem::ChooseNext(GameNpc& g_npc) {
+  auto* npc_node = NpcGameInstance::LoadLinkNpcNode(g_npc.id);
+  auto gestures = LoadGestureActions(npc_node);
   const bool can_move =
       HasMoveAction(npc_node) && std::abs(g_npc.rx1 - g_npc.rx0) >= 2;
 
-  const int roll = RandomInt(0, 99);
-  if (can_move && (gestures.empty() || roll < 45)) {
+  // 095: 说话由 UpdateChat 的独立计时器处理，这里只切换移动/动作/站立。
+  if (can_move && RandomInt(0, 1) == 0) {
     EnterMove(g_npc);
     return;
   }
 
   if (!gestures.empty()) {
-    // 多数时候做动作；偶尔只说话
-    if (!root_speak.empty() && RandomInt(0, 99) < 15 &&
-        SetChat(g_npc, root_speak)) {
-      g_npc.state = NpcState::kStand;
-      g_npc.duration = RandomWait();
-      return;
-    }
     const auto& action = gestures[static_cast<size_t>(
         RandomInt(0, static_cast<int>(gestures.size()) - 1))];
     EnterAction(g_npc, action);
     return;
   }
 
-  if (!root_speak.empty() && SetChat(g_npc, root_speak)) {
-    g_npc.state = NpcState::kStand;
-    g_npc.duration = RandomWait();
-    return;
-  }
-
   EnterStand(g_npc);
 }
 
+void NpcLogicSystem::ChooseAfterMove(GameNpc& g_npc) {
+  // 095: move 结束后的下一状态不能继续是 move。
+  auto* npc_node = NpcGameInstance::LoadLinkNpcNode(g_npc.id);
+  auto gestures = LoadGestureActions(npc_node);
+  if (!gestures.empty()) {
+    const auto& action = gestures[static_cast<size_t>(
+        RandomInt(0, static_cast<int>(gestures.size()) - 1))];
+    EnterAction(g_npc, action);
+    return;
+  }
+  EnterStand(g_npc);
+}
 bool NpcLogicSystem::Run() {
   for (auto& page : NpcGameInstance::data_) {
     for (auto& g_npc : page) {
@@ -413,7 +428,8 @@ bool NpcLogicSystem::Run() {
           }
           RunAnimate(g_npc);
           if (Window::dt_now_ >= g_npc.duration) {
-            EnterStand(g_npc);
+            // 095: 移动路径结束后重新抽取动作/说话，没有则继续移动。
+            ChooseAfterMove(g_npc);
           }
           break;
         }

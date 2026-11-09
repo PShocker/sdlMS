@@ -739,9 +739,11 @@ void TooltipUiSystem::RenderBackgrnd(float x, float y, float w, float h) {
   SDL_RenderTextureTiled(Window::renderer_, texture_s, nullptr, 1, &rect);
 }
 
-float TooltipUiSystem::LoadSkillBottomH(const std::u16string& id) {
+float TooltipUiSystem::LoadSkillBottomH(const std::u16string& id,
+                                        uint8_t level) {
   auto ski_name = SkillGameInstance::LoadSkiName(id);
-  auto ski_level = JobSkillGameInstance::LoadSkiLevel(id);
+  auto ski_level = std::clamp<uint8_t>(
+      level, 0, static_cast<uint8_t>(ski_name.level.size()));
   float h = 0;
   const auto w = 390;
   Freetype::LoadSize(12);
@@ -766,7 +768,8 @@ void TooltipUiSystem::RenderSkillBottom(const std::u16string& id, uint8_t level,
                                         float x, float y) {
   const auto w = 390;
   auto ski_name = SkillGameInstance::LoadSkiName(id);
-  auto ski_level = JobSkillGameInstance::LoadSkiLevel(id);
+  auto ski_level = std::clamp<uint8_t>(
+      level, 0, static_cast<uint8_t>(ski_name.level.size()));
   auto ski_level2 = std::to_string(ski_level);
   std::u16string ski_level3{ski_level2.begin(), ski_level2.end()};
 
@@ -833,7 +836,7 @@ void TooltipUiSystem::RenderSkillBottom(const std::u16string& id, uint8_t level,
 void TooltipUiSystem::RenderSkill(const std::u16string& id, uint8_t level,
                                   float x, float y) {
   auto ski_name = SkillGameInstance::LoadSkiName(id);
-  auto [w, h] = LoadSkillWh(id);
+  auto [w, h] = LoadSkillWh(id, level);
   auto p = FitHoverTooltip(x, y, w, h);
   x = p.x;
   y = p.y;
@@ -982,13 +985,14 @@ void TooltipUiSystem::RenderStr(const std::u16string& str, float x, float y) {
   Freetype::DrawLine(str, x + 5, y + 5);
 }
 
-SDL_FPoint TooltipUiSystem::LoadSkillWh(const std::u16string& id) {
+SDL_FPoint TooltipUiSystem::LoadSkillWh(const std::u16string& id,
+                                        uint8_t level) {
   const auto w = 390;
   Freetype::LoadSize(12);
   auto desc = SkillGameInstance::LoadSkiName(id).desc;
   auto rh = Freetype::LoadRh(desc, w - 28, 1.2, SDL_FRect{0, 0, 74, 74});
   auto h = std::max(140.0f, rh + 60);
-  h += LoadSkillBottomH(id);
+  h += LoadSkillBottomH(id, level);
   return {w, h};
 }
 
@@ -1028,7 +1032,7 @@ void TooltipUiSystem::RenderInput(const GameInput& input, float x, float y) {
   if (input.type == "skill") {
     std::u16string id{input.val.begin(), input.val.end()};
     auto level = JobSkillGameInstance::LoadSkiLevel(id);
-    auto [w, h] = LoadSkillWh(id);
+    auto [w, h] = LoadSkillWh(id, level);
     auto p = FitHoverTooltip(x, y, w, h);
     RenderSkill(id, level, p.x, p.y);
   } else if (input.type == "item") {

@@ -3,6 +3,7 @@
 #include "src/client/game/game_quest.h"
 #include "src/client/game_instance/foothold_game_instance.h"
 #include "src/client/game_instance/quest_game_instance.h"
+#include "src/client/game_instance/random_game_instance.h"
 #include "src/client/game_instance/shop_game_instance.h"
 #include "src/client/game_instance/text_game_instance.h"
 #include "src/client/window/window.h"
@@ -15,6 +16,7 @@
 #include <flat_map>
 #include <flat_set>
 #include <optional>
+#include <random>
 #include <ranges>
 #include <string>
 #include <vector>
@@ -28,6 +30,9 @@ std::u16string NpcGameInstance::LoadNpcText(const std::u16string& id,
 
   std::u16string result(view.begin(), view.end());
   auto str_node = WzResource::string_->find(u"Npc.img/" + result);
+  if (str_node == nullptr) {
+    return r;
+  }
 
   if (auto node = str_node->get_child(val)) {
     r = TextGameInstance::LoadRstr(node);
@@ -37,9 +42,14 @@ std::u16string NpcGameInstance::LoadNpcText(const std::u16string& id,
 
 wz::Node* NpcGameInstance::LoadLinkNpcNode(const std::u16string& id) {
   auto npc_node = WzResource::npc_->find(id + u".img");
-  while (npc_node->find(u"info/link")) {
-    auto link_node = npc_node->find(u"info/link");
-    auto link = static_cast<wz::Property<std::u16string>*>(link_node)->get();
+  // 095 的 link 链可能引用另一个 link NPC，限制跳转次数并防止空节点。
+  for (int depth = 0; npc_node != nullptr && depth < 8; ++depth) {
+    auto* link_node = npc_node->find(u"info/link");
+    if (link_node == nullptr || link_node->type != wz::Type::String) {
+      break;
+    }
+    auto link =
+        static_cast<wz::Property<std::u16string>*>(link_node)->get();
     npc_node = WzResource::npc_->find(link + u".img");
   }
   return npc_node;
@@ -165,7 +175,10 @@ void NpcGameInstance::Load(uint32_t map_id) {
     g_npc.state = NpcState::kStand;
     g_npc.ani_index = 0;
     g_npc.ani_time = 0;
-    g_npc.duration = Window::dt_now_ + 1000;
+    // 095 SetActive：首次动作/说话等待 3000~8999ms，避免进场淡入期间说话。
+    std::uniform_int_distribution<int> first_wait(3000, 8999);
+    g_npc.duration =
+        Window::dt_now_ + static_cast<uint64_t>(first_wait(RandomGameInstance::gen_));
     g_npc.hforce = std::nullopt;
     g_npc.hspeed = 0.0f;
 

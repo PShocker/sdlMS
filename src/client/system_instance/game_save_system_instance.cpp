@@ -13,6 +13,7 @@
 #include "src/client/game_instance/quest_game_instance.h"
 #include "src/client/system/ui/character_choose_ui_system.h"
 #include "src/client/system/ui/option_ui_system.h"
+#include "src/client/system/ui/quest_alarm_ui_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/common.h"
@@ -123,6 +124,12 @@ bool GameSaveSystemInstance::LoadSave(const std::string& login) {
         cs.quests.push_back(g_quest);
       }
 
+      for (const auto& qa : c->quest_alarm) {
+        if (qa != nullptr) {
+          cs.quest_alarms.push_back({qa->id});
+        }
+      }
+
       for (const auto& k : c->key) {
         KeySave ks;
         ks.scan_code = k->scan_code;
@@ -229,6 +236,10 @@ bool GameSaveSystemInstance::SaveGame() {
       cs.quests.push_back(v);
     }
 
+    for (auto& id : QuestAlarmUiSystem::quests_) {
+      cs.quest_alarms.push_back({std::string{id.begin(), id.end()}});
+    }
+
     for (auto&& [k, v] : KeyboardGameInstance::data_) {
       cs.keys.push_back({
           .scan_code = static_cast<uint16_t>(k),
@@ -302,6 +313,12 @@ bool GameSaveSystemInstance::SaveGame() {
         qt.mob.push_back(std::make_unique<fbs::QuestMobSaveT>(qmt));
       }
       cst.quest.push_back(std::make_unique<fbs::QuestSaveT>(qt));
+    }
+
+    for (auto& qa : character_s.quest_alarms) {
+      fbs::QuestAlarmSaveT qat;
+      qat.id = qa.id;
+      cst.quest_alarm.push_back(std::make_unique<fbs::QuestAlarmSaveT>(qat));
     }
 
     for (auto& k : character_s.keys) {

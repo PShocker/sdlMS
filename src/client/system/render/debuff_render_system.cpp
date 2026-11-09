@@ -23,15 +23,37 @@ void DebuffRenderSystem::Render(GameDebuff::DebuffType type, SDL_FPoint pos) {
       break;
     }
     case GameDebuff::DebuffType::kSlow: {
-      static auto node =
-          WzResource::skill_->find(u"AttackType.img/1002/level/1");
-      n = node;
-      break;
+      static auto root = WzResource::skill_->find(u"210.img/skill/2101002/mob");
+      if (root == nullptr) {
+        return;
+      }
+      constexpr uint32_t kFrameCount = 5;
+      constexpr uint64_t kFrameMs = 100;
+      const uint32_t index =
+          static_cast<uint32_t>((Window::dt_now_ / kFrameMs) % kFrameCount);
+      auto* frame = root->get_child(std::to_string(index));
+      if (frame == nullptr) {
+        return;
+      }
+      auto* texture = WzResource::LoadTexture(frame);
+      auto origin = WzResource::LoadFpoint(frame->get_child(u"origin"));
+      SDL_FRect rect = {
+          .x = pos.x - origin.x,
+          .y = pos.y - origin.y,
+          .w = static_cast<float>(texture->w),
+          .h = static_cast<float>(texture->h),
+      };
+      auto& camera = CameraGameInstance::camera_;
+      if (SDL_HasRectIntersectionFloat(&rect, &camera)) {
+        rect.x -= camera.x;
+        rect.y -= camera.y;
+        SDL_RenderTexture(Window::renderer_, texture, nullptr, &rect);
+      }
+      return;
     }
     case GameDebuff::DebuffType::kDisorder: {
       // Disorder 使用技能自带的 mob 动画，循环播放。
-      static auto root =
-          WzResource::skill_->find(u"400.img/skill/4001000/mob");
+      static auto root = WzResource::skill_->find(u"400.img/skill/4001000/mob");
       if (root == nullptr) {
         return;
       }
@@ -60,8 +82,7 @@ void DebuffRenderSystem::Render(GameDebuff::DebuffType type, SDL_FPoint pos) {
       return;
     }
     case GameDebuff::DebuffType::kThreaten: {
-      static auto root =
-          WzResource::skill_->find(u"120.img/skill/1201004/mob");
+      static auto root = WzResource::skill_->find(u"120.img/skill/1201004/mob");
       if (root == nullptr) {
         return;
       }
@@ -90,8 +111,7 @@ void DebuffRenderSystem::Render(GameDebuff::DebuffType type, SDL_FPoint pos) {
       return;
     }
     case GameDebuff::DebuffType::kBurn: {
-      static auto root =
-          WzResource::skill_->find(u"210.img/skill/2101003/mob");
+      static auto root = WzResource::skill_->find(u"210.img/skill/2101003/mob");
       if (root == nullptr) {
         return;
       }
@@ -120,15 +140,23 @@ void DebuffRenderSystem::Render(GameDebuff::DebuffType type, SDL_FPoint pos) {
       return;
     }
     case GameDebuff::DebuffType::kPoison: {
-      static auto root =
-          WzResource::skill_->find(u"210.img/skill/2101005/mob");
+      static auto root = WzResource::skill_->find(u"210.img/skill/2101004/mob");
       if (root == nullptr) {
         return;
       }
-      auto* texture = WzResource::LoadTexture(root);
+      constexpr uint32_t kFrameCount = 5;
+      constexpr uint64_t kFrameMs = 100;
+      const uint32_t index =
+          static_cast<uint32_t>((Window::dt_now_ / kFrameMs) % kFrameCount);
+      auto* frame = root->get_child(std::to_string(index));
+      if (frame == nullptr) {
+        return;
+      }
+      auto* texture = WzResource::LoadTexture(frame);
+      auto origin = WzResource::LoadFpoint(frame->get_child(u"origin"));
       SDL_FRect rect = {
-          .x = pos.x - static_cast<float>(texture->w) / 2,
-          .y = pos.y - static_cast<float>(texture->h) / 2,
+          .x = pos.x - origin.x,
+          .y = pos.y - origin.y,
           .w = static_cast<float>(texture->w),
           .h = static_cast<float>(texture->h),
       };
@@ -176,8 +204,10 @@ void DebuffRenderSystem::RenderCharacter(GameCharacter& character) {
 void DebuffRenderSystem::RenderMob(GameMob& mob) {
   for (auto k : mob.debuffs | std::views::keys) {
     SDL_FPoint pos = mob.pos;
-    if (k == GameDebuff::DebuffType::kThreaten) {
-      // Threaten 的 mob 动画定位到怪物 head 节点。
+    if (k == GameDebuff::DebuffType::kThreaten ||
+        k == GameDebuff::DebuffType::kSlow ||
+        k == GameDebuff::DebuffType::kPoison ||
+        k == GameDebuff::DebuffType::kBurn) {
       if (auto head = MobLogicSystem::LoadHead(mob); head.has_value()) {
         pos.x += head->x;
         pos.y += head->y;

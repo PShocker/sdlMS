@@ -104,8 +104,6 @@ void EffectRenderSystem::RenderDamage(SDL_FPoint pos, GameEffect& g_effect) {
   static auto viole = WzResource::effect_->find(u"BasicEff.img/NoViolet0");
   static auto blue = WzResource::effect_->find(u"BasicEff.img/NoBlue0");
   static auto crit = WzResource::effect_->find(u"BasicEff.img/NoCri0");
-  static auto final_attack =
-      WzResource::effect_->find(u"BasicEff.img/NoRed2");
 
   const std::vector<std::u16string> damage_vector = {
       u"0", u"1", u"2", u"3", u"4",    u"5",
@@ -131,10 +129,6 @@ void EffectRenderSystem::RenderDamage(SDL_FPoint pos, GameEffect& g_effect) {
     }
     case DamageData::DamageColor::kCrit: {
       node = crit != nullptr ? crit : red;
-      break;
-    }
-    case DamageData::DamageColor::kFinalAttack: {
-      node = final_attack != nullptr ? final_attack : red;
       break;
     }
     default: {
