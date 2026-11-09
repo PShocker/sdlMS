@@ -37,6 +37,16 @@ struct KeySave {
   std::string sub_val;
 };
 
+struct CraftSave {
+  uint8_t type;
+  uint8_t level;
+  uint32_t exp;
+};
+
+struct QuestAlarmSave {
+  std::string id;
+};
+
 struct CharacterSaveData {
   GameCharacter character;
   ApSave ap;
@@ -54,7 +64,9 @@ struct CharacterSaveData {
   uint64_t exp;
 
   std::vector<GameQuest> quests;
+  std::vector<QuestAlarmSave> quest_alarms;
   std::vector<KeySave> keys;
+  std::vector<CraftSave> craft;
 };
 
 struct GameSaveData {

@@ -5,16 +5,9 @@
 #   scripts/clang-tidy.bat            (whole tree)
 #   clang-tidy -p build src/client/main.cpp
 Checks: >
-  -*,
-  google-*,
-  -google-runtime-int,
-  -google-runtime-references,
-  -google-readability-todo,
-  -google-upgrade-googletest-case,
-  readability-identifier-naming,
-  modernize-use-nullptr,
-  modernize-use-override,
-  modernize-use-using
+  - '-*'
+  - 'modernize-*'
+  - '-google-readability-casting'
 
 WarningsAsErrors: ''
 

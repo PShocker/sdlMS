@@ -263,6 +263,16 @@ table KeyConfigSave{
     sub_val:string;
 }
 
+table CraftSave{
+    type:uint8;
+    level:uint8;
+    exp:uint32;
+}
+
+table QuestAlarmSave{
+    id:string;
+}
+
 table CharacterSave{
     character:Character;
     ap:APSave;
@@ -278,7 +288,9 @@ table CharacterSave{
     mp:uint32;
     exp:uint64;
     quest:[QuestSave];
+    quest_alarm:[QuestAlarmSave];
     key:[KeyConfigSave];
+    craft:[CraftSave];
 }
 
 table PlayerSave{
