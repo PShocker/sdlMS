@@ -84,6 +84,12 @@ bool MobRenderSystem::RenderMob(GameMob& g_mob) {
     pos_rect.x -= camera.x;
     pos_rect.y -= camera.y;
     SDL_SetTextureAlphaMod(texture, g_mob.alpha);
+    // 095：冰冻通过 setcolormod 将怪物染成冰蓝色 0xA9E1FE。
+    if (g_mob.debuffs.contains(GameDebuff::DebuffType::kFreeze)) {
+      SDL_SetTextureColorMod(texture, 169, 225, 254);
+    } else {
+      SDL_SetTextureColorMod(texture, 255, 255, 255);
+    }
     SDL_RenderTextureRotated(Window::renderer_, texture, nullptr, &pos_rect, 0,
                              nullptr, (SDL_FlipMode)g_mob.flip);
   }

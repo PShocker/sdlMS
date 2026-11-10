@@ -13,6 +13,7 @@ struct GameDebuff {
     kThreaten,
     kBurn,
     kPoison,
+    kFreeze,
   };
   DebuffType type;
   int64_t val;

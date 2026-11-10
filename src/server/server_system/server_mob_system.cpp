@@ -81,6 +81,12 @@ float MobSpeedScale(const ServerMob& mob) {
         static_cast<int32_t>(std::clamp<int64_t>(slow->second.db.val, 0, 100));
     scale *= std::max(0.1f, (100.0f - static_cast<float>(down)) / 100.0f);
   }
+  auto freeze = mob.debuffs.find(GameDebuff::DebuffType::kFreeze);
+  if (freeze != mob.debuffs.end()) {
+    const int32_t down =
+        static_cast<int32_t>(std::clamp<int64_t>(freeze->second.db.val, 0, 100));
+    scale *= std::max(0.1f, (100.0f - static_cast<float>(down)) / 100.0f);
+  }
   return std::max(0.1f, scale);
 }
 

@@ -1,7 +1,6 @@
 #include "src/client/game/game_effect.h"
 #include "src/client/game/game_debuff.h"
 #include "src/client/game/game_skill.h"
-#include "src/client/game_skill/mp_eater.h"
 #include "src/client/game/game_triangle.h"
 #include "src/client/game_instance/ball_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
@@ -104,40 +103,6 @@ void ApplyMobDebuff(GameDebuff::DebuffType type, CheckMobs& cm,
 }
 
 // MP Eater：攻击魔法命中后 5 秒一次，按 WZ prop 触发，吸取目标 MP。
-void TryMpEater(CheckMobs& cm, int ski_lv) {
-  static uint64_t next = 0;
-  if (Window::dt_now_ < next || cm.data.empty() || ski_lv <= 0) {
-    return;
-  }
-  const auto& sf = CharacterGameInstance::self_;
-  if (sf.job != u"210") {
-    return;
-  }
-  const int prop = SkillInt(u"2100000", ski_lv, u"prop", 0);
-  std::uniform_int_distribution<int> roll(0, 99);
-  if (roll(RandomGameInstance::gen_) >= prop) {
-    return;
-  }
-  auto& target = cm.data[0];
-  auto it = MobGameInstance::data_.find(target.mob.index);
-  if (it == MobGameInstance::data_.end() || it->second.mob.mp <= 0) {
-    return;
-  }
-  const int x = std::max(0, SkillInt(u"2100000", ski_lv, u"x", 0));
-  const int64_t drain = std::max<int64_t>(
-      1, it->second.mob.mp * x / 100);
-  it->second.mob.mp = std::max<int64_t>(0, it->second.mob.mp - drain);
-  target.mob.mp = it->second.mob.mp;
-  CharacterStatGameInstance::SetMp(std::min(
-      CharacterStatGameInstance::GetMpMax(),
-      CharacterStatGameInstance::GetMp() + static_cast<int32_t>(drain)));
-  next = Window::dt_now_ + 5000;
-
-  // 通过技能包播放 2100000/effect，服务端会同步给同地图其他玩家。
-  SendSkill(2100000, std::max(1, ski_lv),
-            fbs::ClientCharacterAttackT{});
-}
-
 void MpEaterPassive() {
   GameSkill g_skill;
   g_skill.id = u"2100000";
@@ -440,13 +405,6 @@ void Slow() {
 }
 
 }  // namespace
-
-void TriggerMpEater(CheckMobs& cm) {
-  const int lv = JobSkillGameInstance::LoadSkiLevel(u"2100000");
-  if (lv > 0) {
-    TryMpEater(cm, lv);
-  }
-}
 
 [[maybe_unused]] static const bool r = [] {
   MpEaterPassive();

@@ -400,7 +400,9 @@ fbs::ClientCharacterAttackT SkillGameInstance::CreateAttackPayload(
     std::string effect, std::string sound, float knockback) {
   fbs::ClientCharacterAttackT attack_payload;
   // 魔法攻击命中时统一触发 MP Eater（普通攻击的 hits 为空，不触发）。
-  if (CharacterGameInstance::self_.job == u"210") {
+  if (CharacterGameInstance::self_.job == u"210" ||
+      CharacterGameInstance::self_.job == u"220" ||
+      CharacterGameInstance::self_.job == u"230") {
     for (auto& mob : cm.data) {
       if (!mob.hits.empty()) {
         TriggerMpEater(cm);
