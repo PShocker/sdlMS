@@ -2,7 +2,6 @@
 
 #include "src/client/game/game_debuff.h"
 #include "src/client/game/game_effect.h"
-#include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/ladderrope_game_instance.h"
 #include "src/client/game_instance/map_info_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
@@ -1966,22 +1965,24 @@ void ServerMobSystem::RunDot(ServerMob& mob) {
     // 只扣 HP，不进入 hit 队列，因此不会触发受击动作或击退。
     mob.hp -= damage;
 
-    DamageData data = {
-        .num = static_cast<uint64_t>(damage),
-        .type = DamageData::DamageColor::kRed,
-    };
-    GameEffect d = {
-        .id = u"",
-        .index = 0,
-        .time = mob.index,
+    // DoT 伤害数字：广播给同图所有客户端（含 host），由客户端
+    // HandleSAttack 统一画红字。原来直接写本地 EffectGameInstance::data_[7]，
+    // 只有跑服务端 tick 的那台机器能看到。
+    fbs::ServerMobAttackT dot_t;
+    dot_t.client_id = 0;
+    dot_t.payload = std::make_unique<fbs::AttackT>(fbs::AttackT{
         .delay = Window::dt_time_,
-        .type = GameEffect::EffectType::kDamage,
-        .pos = SDL_FPoint{mob.pos.x, mob.pos.y - 10},
-        .z = true,
-        .flip = false,
-        .data = data,
-    };
-    EffectGameInstance::data_[7].emplace_back(d);
+        .num = static_cast<uint64_t>(damage),
+        .x = mob.pos.x,
+        .y = mob.pos.y,
+        .type = static_cast<uint8_t>(DamageData::DamageColor::kRed),
+    });
+    if (auto scene = ServerSceneInstance::scenes_.find(map_id_);
+        scene != ServerSceneInstance::scenes_.end()) {
+      for (auto c : scene->second.clients) {
+        ServerResponse::SendToClient(c, dot_t);
+      }
+    }
 
     db.delay = now + static_cast<uint64_t>(interval);
   }
