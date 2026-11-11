@@ -919,6 +919,22 @@ void ServerCharacterInstance::HandleSState(
         HandleItemUse(g_character, *st);
         break;
       }
+      case fbs::StateEnum_DEBUFF: {
+        // 怪物技能等来源给玩家挂状态：val = DebuffType，sub_val = 数值，
+        // time = 到期时刻（绝对毫秒）
+        if (st->time != 0 && st->time <= Window::dt_time_) {
+          g_character.debuffs.erase(
+              static_cast<GameDebuff::DebuffType>(st->val));
+          break;
+        }
+        GameDebuff db;
+        db.type = static_cast<GameDebuff::DebuffType>(st->val);
+        db.val = st->sub_val;
+        db.delay = st->delay;
+        db.destroy = st->time;
+        g_character.debuffs[db.type] = db;
+        break;
+      }
       default: {
         break;
       }
@@ -928,6 +944,11 @@ void ServerCharacterInstance::HandleSState(
 
 void ServerCharacterInstance::HandleServerState(uint64_t client_id,
                                                 fbs::ServerCharacterStateT& r) {
+  // 目标是本地玩家：状态挂在自己身上（怪物技能给玩家上状态走这里）
+  if (r.client_id == ServerMain::local_addr_) {
+    HandleSState(CharacterGameInstance::self_, r.payload);
+    return;
+  }
   if (CharacterGameInstance::others_.contains(r.client_id)) {
     auto& c = CharacterGameInstance::others_.at(r.client_id).player_t.character;
     for (const auto& st : r.payload) {

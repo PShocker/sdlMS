@@ -46,6 +46,13 @@ class ServerMobInstance {
   static float LoadMobHalfWidth(const std::u16string& mob_id);
   static const std::vector<MobAttack>& LoadMobAttacks(
       const std::u16string& mob_id);
+  // Mob.wz/<id>.img/info/skill/<n>（v95 LoadSkillInfo）
+  static const std::vector<MobSkillRef>& LoadMobSkills(
+      const std::u16string& mob_id);
+  // Skill/MobSkill.img/<id>/level/<slv>（v95 LoadMobSkillLevelData）
+  static MobSkillLevel LoadMobSkillLevel(int32_t skill_id, int32_t slv);
+  // 该技能等级是否带 effect 特效帧（决定要不要下发 ServerMobEffect）
+  static bool HasMobSkillEffect(int32_t skill_id, int32_t slv);
 
   static void HandleCreateMob(fbs::ClientCreateMobT& r);
   static void HandleSCreateMob(fbs::ServerCreateMobT& r);
@@ -64,6 +71,10 @@ class ServerMobInstance {
   static void HandleServerDie(const fbs::ServerMobDieT& m);
   static void HandleServerDrop(const fbs::ServerMobDropT& m);
   static void HandleServerAttackPlayer(const fbs::ServerMobAttackPlayerT& m);
+  // 怪打怪（迷惑互殴）：服务端已结算伤害，客户端只画数字
+  static void HandleServerHitMob(const fbs::ServerMobHitMobT& m);
+  // 怪物特效（sEffect / sHit / areaWarning / MobSkill effect）
+  static void HandleServerEffect(const fbs::ServerMobEffectT& m);
   static void HandleServerEvent(const fbs::ServerMobEventT& m);
 
   static void HandleDebuff(uint64_t client_id, fbs::ClientMobDebuffT& r);

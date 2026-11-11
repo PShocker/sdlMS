@@ -135,6 +135,18 @@ MobLogicSystem::ActionEnum MobLogicSystem::LoadActionType(
       {u"attack5", ActionEnum::kAttack}, {u"attack6", ActionEnum::kAttack},
       {u"attack7", ActionEnum::kAttack}, {u"attack8", ActionEnum::kAttack},
       {u"attackF", ActionEnum::kAttack},
+      // 怪物技能动作 skill1..skill16（v95 动作表 22..37），
+      // 一次性动作播完回落到循环动作
+      {u"skill1", ActionEnum::kAttack},  {u"skill2", ActionEnum::kAttack},
+      {u"skill3", ActionEnum::kAttack},  {u"skill4", ActionEnum::kAttack},
+      {u"skill5", ActionEnum::kAttack},  {u"skill6", ActionEnum::kAttack},
+      {u"skill7", ActionEnum::kAttack},  {u"skill8", ActionEnum::kAttack},
+      {u"skill9", ActionEnum::kAttack},  {u"skill10", ActionEnum::kAttack},
+      {u"skill11", ActionEnum::kAttack}, {u"skill12", ActionEnum::kAttack},
+      {u"skill13", ActionEnum::kAttack}, {u"skill14", ActionEnum::kAttack},
+      {u"skill15", ActionEnum::kAttack}, {u"skill16", ActionEnum::kAttack},
+      // 爬梯 / 爬绳（v95 动作表索引 4）
+      {u"rope", ActionEnum::kMove},
   };
   auto it = MapName.find(action);
   if (it == MapName.end()) {
@@ -435,6 +447,7 @@ void MobLogicSystem::RunStateMachine(GameMob& g_mob) {
 }
 
 bool MobLogicSystem::Run() {
+  MobGameInstance::RunEffect();
   for (auto& m : MobGameInstance::data_ | std::views::values) {
     RunStateMachine(m.mob);
   }

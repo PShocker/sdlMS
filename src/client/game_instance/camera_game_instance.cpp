@@ -1,8 +1,15 @@
 #include "src/client/game_instance/camera_game_instance.h"
 
+#include "src/client/window/window.h"
+
 #include "src/client/game_instance/character_game_instance.h"
 
 namespace sdlms {
+
+void CameraGameInstance::Shake(float power, uint64_t ms) {
+  shake_power_ = power;
+  shake_end_ = Window::dt_now_ + ms;
+}
 
 void CameraGameInstance::Reset() {
   const auto& self = CharacterGameInstance::self_;

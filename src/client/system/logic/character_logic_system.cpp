@@ -1673,6 +1673,15 @@ bool CharacterLogicSystem::Run() {
   RunStateMachine();
   RunRecovery(CharacterGameInstance::self_);
   RunColor();
+  // 角色状态（怪物技能等挂的 debuff）到期清理
+  std::erase_if(CharacterGameInstance::self_.debuffs, [](const auto& kv) {
+    return kv.second.destroy != 0 && kv.second.destroy <= Window::dt_time_;
+  });
+  for (auto& c : CharacterGameInstance::others_ | std::views::values) {
+    std::erase_if(c.g_character.debuffs, [](const auto& kv) {
+      return kv.second.destroy != 0 && kv.second.destroy <= Window::dt_time_;
+    });
+  }
   return true;
 }
 

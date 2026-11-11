@@ -3,6 +3,7 @@
 #include "src/client/game/game_debuff.h"
 #include "src/client/game/game_effect.h"
 #include "src/client/game_instance/effect_game_instance.h"
+#include "src/client/game_instance/ladderrope_game_instance.h"
 #include "src/client/game_instance/map_info_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/random_game_instance.h"
@@ -49,6 +50,34 @@ constexpr float kLoseRange = 900.0f;    // 放弃追击水平距离
 constexpr float kLoseHeight = 400.0f;   // 放弃追击高度差
 constexpr uint32_t kChaseMs = 180'000;  // 追击持续时间（v95: 180~240s）
 constexpr uint32_t kAttackGapMs = 300;  // 动作结束后的攻击间隔
+
+// 区域攻击（v95 IsTargetInAttackRange 的 nType 3/4 分支）
+constexpr uint32_t kAreaCooldownMs = 2500;  // m_tLastAreaAttack 硬冷却
+constexpr float kAreaFootSearch = 100.0f;   // GetFootholdRange 的竖直搜索半径
+constexpr float kBulletAimInset = 10.0f;    // 子弹瞄准点水平/竖直内缩
+
+// 迷惑（Dazzle）：怪打怪
+constexpr uint64_t kDazzleBodyGapMs = 2000;   // v95 Update：身体撞击间隔
+constexpr uint64_t kHitByMobGapMs = 2000;     // v95 SetDamagedByMob：普通怪被怪打间隔
+constexpr uint64_t kHitByMobGapEscortMs = 1500;  // 护送怪的被怪打间隔
+constexpr float kDazzleSearchWidth = 300.0f;     // v95 FindNearestMob 搜索框半宽
+constexpr float kDazzleSearchHeight = 100.0f;    // 搜索框半高
+constexpr float kDazzleRoughGap = 40.0f;         // |dx|/10 + |dy|/3 的粗略近距阈值
+
+// 护送（v95 OnEscortFullPath / CollisionDetectEscortDest）
+constexpr float kEscortWindow = 25.0f;  // 穿越判定窗口（±25）
+// 爬梯 / 绳（v95 WorkUpdateActiveLadderOrRope）
+constexpr float kRopeSnapTolerance = 10.0f;  // GetLadderOrRope 的 x 容差 ±10
+constexpr float kRopeClimbScale = 3.0f;      // 爬速 = walkSpeed × inputY × 3.0
+constexpr float kRopeProbeUp = -20.0f;       // 上梯探针偏移
+constexpr float kRopeProbeDown = 10.0f;      // 下梯探针偏移
+constexpr float kRopeNeedHeight = 100.0f;    // 目标高差超过它才考虑爬梯
+
+// 数字 -> u16string（动作名拼接用）
+std::u16string NumToU16(int32_t value) {
+  std::string narrow = std::to_string(value);
+  return std::u16string(narrow.begin(), narrow.end());
+}
 
 // 死亡后原地复活：6 秒后开始渐显，1 秒渐显完成
 constexpr uint64_t kReviveDelayMs = 6000;
@@ -110,6 +139,24 @@ float DecSpeed(float v, float decel, float dt) {
   }
   return 0.0f;
 }
+
+// v95 adjust_rect(rc, x, y, bFlip)：先按朝向镜像，再平移到 (x, y)
+SDL_FRect AdjustRect(SDL_FRect rect, float x, float y, bool flip) {
+  if (flip) {
+    // 镜像：swap(-left, -right)，宽度不变
+    rect.x = -(rect.x + rect.w);
+  }
+  rect.x += x;
+  rect.y += y;
+  return rect;
+}
+
+bool PointInRect(const SDL_FRect& rect, float x, float y) {
+  return x >= rect.x && x <= rect.x + rect.w && y >= rect.y &&
+         y <= rect.y + rect.h;
+}
+
+float Lerp(float a, float b, float t) { return a + (b - a) * t; }
 
 // foothold 的段长与单位向量；起点统一归一化到左端（v95 要求 m_x1 < m_x2）
 struct FootholdAxis {
@@ -179,7 +226,15 @@ void ServerMobSystem::RunMoveAction(ServerMob& mob) {
       mob.hspeed = 0;
       return;
     }
-    default: {  // 1 / 3 / 6：地面行走
+    case 6: {  // 护送：路线由服务器下发/维护，没有路线就原地不动
+      if (RunEscort(mob)) {
+        return;
+      }
+      RunSetAction(mob, ServerMobInstance::LoadFineAction(mob.id, u"stand"));
+      mob.hspeed = 0;
+      return;
+    }
+    default: {  // 1 / 3：地面行走
       if (mob.fh == 0) {
         RunSetAction(mob, ServerMobInstance::LoadFineAction(mob.id, u"jump"));
         return;
@@ -203,7 +258,9 @@ bool ServerMobSystem::CanAttack(const ServerMob& mob) {
   if (ServerMobInstance::LoadMobInfoInt(mob.id, u"notAttack", 0) != 0) {
     return false;
   }
-  return !ServerMobInstance::LoadMobAttacks(mob.id).empty();
+  // 13/28 技能怪没有 attackN，只要会技能也算"会攻击"
+  return !ServerMobInstance::LoadMobAttacks(mob.id).empty() ||
+         !ServerMobInstance::LoadMobSkills(mob.id).empty();
 }
 
 SDL_FRect ServerMobSystem::LoadTargetRect(uint64_t client_id) {
@@ -222,6 +279,12 @@ SDL_FRect ServerMobSystem::LoadTargetRect(uint64_t client_id) {
 }
 
 void ServerMobSystem::RunTarget(ServerMob& mob) {
+  // 被迷惑的怪不打玩家：目标是"最近的未被迷惑的怪"（v95 TryFirstAttack 分支 A）
+  if (mob.dazzle_owner != 0) {
+    mob.target_id = 0;
+    RunDazzleTarget(mob);
+    return;
+  }
   const auto now = Window::dt_now_;
   auto& clients = ServerClientInstance::clients_;
 
@@ -310,27 +373,21 @@ bool ServerMobSystem::RunAttackRange(const ServerMob& mob,
   // flip == true 表示朝右；素材默认朝左
   const float facing = mob.flip ? 1.0f : -1.0f;
   switch (attack.type) {
-    case MobAttack::RangeType::kRect:
     case MobAttack::RangeType::kArea: {
-      float cell_width = std::fabs(attack.rect.w);
-      float left = attack.rect.x;
-      float right = attack.rect.x + cell_width;
-      if (attack.type == MobAttack::RangeType::kArea && attack.area_count > 0) {
-        // 区域攻击覆盖 [start, start+areaCount) 这一段格子
-        left = attack.rect.x + cell_width * static_cast<float>(attack.start);
-        right =
-            attack.rect.x +
-            cell_width * static_cast<float>(attack.start + attack.area_count);
-      }
+      // 区域攻击不再用"整段区域矩形"近似：候选判定见 RunAreaCandidate，
+      // 命中判定见 RunAttackTimers 里的逐块矩形
+      return false;
+    }
+    case MobAttack::RangeType::kRect: {
       SDL_FRect rect;
-      rect.w = std::fabs(right - left);
+      rect.w = std::fabs(attack.rect.w);
       rect.h = std::fabs(attack.rect.h);
       rect.y =
           mob.pos.y + std::min(attack.rect.y, attack.rect.y + attack.rect.h);
       if (mob.flip) {
-        rect.x = mob.pos.x - right;
+        rect.x = mob.pos.x - (attack.rect.x + attack.rect.w);
       } else {
-        rect.x = mob.pos.x + left;
+        rect.x = mob.pos.x + attack.rect.x;
       }
       return SDL_HasRectIntersectionFloat(&rect, &target);
     }
@@ -374,12 +431,32 @@ bool ServerMobSystem::RunTryAttack(ServerMob& mob) {
 
   auto target = LoadTargetRect(mob.target_id);
   std::vector<size_t> candidates;
+  // 区域攻击的位掩码按候选下标缓存（v95 TARGETINFO.dwTargetInfo）
+  std::vector<uint32_t> area_masks(attacks.size(), 0);
   for (size_t i = 0; i < attacks.size(); ++i) {
     if (attacks[i].inactive) {
       continue;
     }
-    if (!RunAttackRange(mob, attacks[i], target)) {
+    // v95 bSpecialAttack：没有蓄力就绪时该攻击不可用
+    if (attacks[i].special_attack && !mob.attack_ready) {
       continue;
+    }
+    switch (attacks[i].ntype) {
+      case MobAttack::NType::kAreaGround:
+      case MobAttack::NType::kAreaSelf: {
+        uint32_t mask = 0;
+        if (!RunAreaCandidate(mob, attacks[i], target, &mask)) {
+          continue;
+        }
+        area_masks[i] = mask;
+        break;
+      }
+      default: {
+        if (!RunAttackRange(mob, attacks[i], target)) {
+          continue;
+        }
+        break;
+      }
     }
     candidates.push_back(i);
   }
@@ -407,13 +484,119 @@ bool ServerMobSystem::RunTryAttack(ServerMob& mob) {
   mob.one_shot = true;
   // attackAfter 可能晚于动画结束（v95 里两者独立），此处保证动作覆盖到判定时刻
   mob.action_end = now + std::max(delay, hit_after + 100);
-  mob.attack_hit = now + hit_after;
+  // v95 DoAttack：攻击特效层在 t0 + effectAfter 出现（与判定时刻无关）。
+  // 多层规则与 CMob::ProcessAttack 一致：先 effect，再依次试 effect0/effect1…，
+  // 查到不存在为止。
+  {
+    const std::u16string prefix =
+        mob.id + u".img/" + attack.action + u"/info/";
+    for (int32_t layer = -1; layer < 8; ++layer) {
+      const std::u16string name =
+          layer < 0 ? u"effect" : u"effect" + NumToU16(layer);
+      const std::u16string path = prefix + name;
+      auto* node = ServerMobInstance::LoadMobNode(mob.id);
+      if (node == nullptr || node->find(path) == nullptr) {
+        if (layer < 0 && attack.effect_path.empty()) {
+          continue;
+        }
+        break;
+      }
+      RunSendEffect(mob, 0, path, mob.pos.x, mob.pos.y, !mob.flip,
+                attack.effect_after);
+    }
+  }
+  // v95 的攻击条目/子弹是挂在怪物身上、按绝对时刻结算的独立列表，
+  // 发起新攻击时不清空（旧条目自然到期），只在死亡/复活时清理
+  mob.area_mask = 0;
   mob.attack_index = static_cast<int32_t>(index);
+
+  if (attack.ntype == MobAttack::NType::kBullet) {
+    // 远程子弹：判定由 RunUpdateBullets 逐帧做，没有统一的 attack_hit
+    mob.attack_hit = 0;
+    RunBulletEntries(mob, attack, static_cast<int32_t>(index), target);
+  } else if (attack.ntype == MobAttack::NType::kAreaGround ||
+             attack.ntype == MobAttack::NType::kAreaSelf) {
+    // 区域攻击：v95 DoAttack 在此刷新 m_tLastAreaAttack 并逐块生成条目
+    mob.last_area_attack = now;
+    mob.attack_hit = 0;
+    mob.area_mask = area_masks[index];
+    RunAreaEntries(mob, attack, static_cast<int32_t>(index), area_masks[index]);
+  } else {
+    mob.attack_hit = now + hit_after;
+  }
   mob.attack_cd = now + delay + kAttackGapMs;
+  // v95 DoAttack：特殊攻击消耗蓄力
+  if (attack.special_attack) {
+    mob.attack_ready = false;
+  }
   mob.input_x = 0;
   mob.hspeed = 0;
   mob.hforce = 0;
   return true;
+}
+
+// 把"怪物攻击玩家"事件打包下发：只给怪物攻击力，伤害浮动与减伤由客户端结算。
+void ServerMobSystem::RunSendMobDamage(ServerMob& mob, uint64_t client_id,
+                                      const MobAttack& attack) {
+  int32_t pad = ServerMobInstance::LoadMobInfoInt(mob.id, u"PADamage", 0);
+  for (const auto& [type, debuff] : mob.debuffs) {
+    if (type == GameDebuff::DebuffType::kDisorder) {
+      pad -= static_cast<int32_t>(debuff.db.val);
+    }
+  }
+  pad = std::clamp(pad + attack.pad, 0, 29999);
+  if (pad <= 0) {
+    pad = 1;
+  }
+
+  fbs::ServerMobAttackPlayerT event;
+  // v95 SetDamaged：deadlyAttack 把目标打到剩 1 HP，mpBurn 的魔法伤害强制为 1
+  if (attack.deadly) {
+    event.flags |= 1;
+  }
+  if (attack.mp_burn) {
+    event.flags |= 2;
+  }
+  if (attack.tremble) {
+    event.flags |= 4;
+  }
+  event.mob_index = mob.index;
+  event.client_id = client_id;
+  // v95 SetDamaged：deadlyAttack 把目标打到剩 1 HP，mpBurn 的魔法伤害强制为 1
+  if (attack.deadly) {
+    event.flags |= 1;
+  }
+  if (attack.mp_burn) {
+    event.flags |= 2;
+  }
+  if (attack.tremble) {
+    event.flags |= 4;
+  }
+  event.payload = std::make_unique<fbs::AttackT>(fbs::AttackT{
+      .delay = Window::dt_time_,
+      .num = static_cast<uint64_t>(pad),
+      .x = mob.pos.x,
+      .y = mob.pos.y,
+      .type = 0,
+  });
+
+  fbs::MobEventUnionUnion muu;
+  muu.Set(std::move(event));
+  events_.payload.push_back(std::move(muu));
+
+  // v95 SetDamaged 的命中特效 sHit：在受害者身体矩形内随机一点播放
+  if (!attack.hit_path.empty()) {
+    auto target = LoadTargetRect(client_id);
+    float hx = mob.pos.x;
+    float hy = mob.pos.y;
+    if (target.w > 0.0f) {
+      std::uniform_real_distribution<float> rx(target.x, target.x + target.w);
+      std::uniform_real_distribution<float> ry(target.y, target.y + target.h);
+      hx = rx(RandomGameInstance::gen_);
+      hy = ry(RandomGameInstance::gen_);
+    }
+    RunSendEffect(mob, 0, attack.hit_path, hx, hy, !mob.flip, 0);
+  }
 }
 
 void ServerMobSystem::RunAttackHit(ServerMob& mob) {
@@ -436,32 +619,846 @@ void ServerMobSystem::RunAttackHit(ServerMob& mob) {
     return;
   }
 
-  // 只下发怪物攻击力；伤害浮动、WDEF/等级减伤全部由客户端结算。
-  int32_t pad = ServerMobInstance::LoadMobInfoInt(mob.id, u"PADamage", 0);
-  for (const auto& [type, debuff] : mob.debuffs) {
-    if (type == GameDebuff::DebuffType::kDisorder) {
-      pad -= static_cast<int32_t>(debuff.db.val);
+  RunSendMobDamage(mob, mob.target_id, attack);
+
+  // v95 bRush：冲锋攻击命中后沿目标方向继续推进（nMoveType 14）
+  if (attack.rush) {
+    const float dir = target.x + target.w / 2.0f > mob.pos.x ? 1.0f : -1.0f;
+    RunInterruptDistance(mob, 120.0f, dir > 0.0f);
+  }
+}
+
+// 自爆在 RunDie 之后不再重复触发；死亡时重置标记由复活流程负责
+
+// v95 GetFootholdRange(x, top, bottom)：在某列竖直区间内找 foothold 的 y
+bool ServerMobSystem::LoadFootholdY(float x, float top, float bottom,
+                                    float* y) {
+  bool found = false;
+  float best = 0.0f;
+  float best_dy = 0.0f;
+  const float mid = (top + bottom) * 0.5f;
+  for (const auto& [id, fh] : g_fhs_) {
+    (void)id;
+    if (!fh.k.has_value() || !fh.intercept.has_value()) {
+      continue;  // 没有斜率的是墙面，不是可站立的 foothold
+    }
+    if (x < std::min(fh.x1, fh.x2) || x > std::max(fh.x1, fh.x2)) {
+      continue;
+    }
+    const float fy = fh.k.value() * x + fh.intercept.value();
+    if (fy < std::min(top, bottom) || fy > std::max(top, bottom)) {
+      continue;
+    }
+    const float dy = std::fabs(fy - mid);
+    if (!found || dy < best_dy) {
+      found = true;
+      best = fy;
+      best_dy = dy;
     }
   }
-  pad = std::clamp(pad + attack.pad, 0, 29999);
-  if (pad <= 0) {
-    pad = 1;
+  if (found) {
+    *y = best;
+  }
+  return found;
+}
+
+bool ServerMobSystem::RunAreaCandidate(const ServerMob& mob,
+                                       const MobAttack& attack,
+                                       const SDL_FRect& target,
+                                       uint32_t* mask) {
+  if (attack.area_count <= 0) {
+    return false;
+  }
+  // 1) 2500ms 硬冷却（v95 m_tLastAreaAttack）
+  if (mob.last_area_attack != 0 &&
+      Window::dt_now_ - mob.last_area_attack < kAreaCooldownMs) {
+    return false;
   }
 
+  // 2) 整段区域矩形：x 由 start / start+areaCount 铺开，y 用单块矩形的高度
+  const float w = std::fabs(attack.rect.w);  // 单块区域宽度 W = rb.x - lt.x
+  const float dir = mob.flip ? 1.0f : -1.0f;
+  SDL_FRect total;
+  total.h = std::fabs(attack.rect.h);
+  total.y = mob.pos.y + std::min(attack.rect.y, attack.rect.y + attack.rect.h);
+  const float x0 = mob.pos.x + dir * w * static_cast<float>(attack.start);
+  const float x1 =
+      mob.pos.x + dir * w * static_cast<float>(attack.start + attack.area_count);
+  total.x = std::min(x0, x1);
+  total.w = std::fabs(x1 - x0);
+  if (!SDL_HasRectIntersectionFloat(&total, &target)) {
+    return false;
+  }
+
+  // 3) 从 [start, start+areaCount-1] 里不重复随机抽 attackCount 个区域
+  //    （v95 get_random_unique_array）
+  const int32_t count = std::min(attack.attack_count, attack.area_count);
+  std::vector<int32_t> pool(static_cast<size_t>(attack.area_count));
+  for (int32_t i = 0; i < attack.area_count; ++i) {
+    pool[static_cast<size_t>(i)] = attack.start + i;
+  }
+  uint32_t flags = 0;
+  for (int32_t k = 0; k < count && !pool.empty(); ++k) {
+    std::uniform_int_distribution<size_t> pick(0, pool.size() - 1);
+    const size_t at = pick(RandomGameInstance::gen_);
+    const int32_t idx = pool[at];
+    pool.erase(pool.begin() + static_cast<ptrdiff_t>(at));
+
+    // 4) 逐列找地面：type 3 在 my±100 内找 foothold，type 4 直接用自身 y
+    const float x = mob.pos.x + dir * (w / 2.0f + w * static_cast<float>(idx));
+    float y = 0.0f;
+    bool ok = true;
+    if (attack.ntype == MobAttack::NType::kAreaGround) {
+      ok = LoadFootholdY(x, mob.pos.y + kAreaFootSearch,
+                         mob.pos.y - kAreaFootSearch, &y);
+    }
+    if (!ok) {
+      continue;
+    }
+    const int32_t bit = idx - attack.start;
+    if (bit >= 0 && bit < 32) {
+      flags |= 1u << bit;
+    }
+  }
+  if (flags == 0) {
+    return false;
+  }
+  *mask = flags;
+  return true;
+}
+
+void ServerMobSystem::RunAreaEntries(ServerMob& mob, const MobAttack& attack,
+                                     int32_t attack_index, uint32_t mask) {
+  if (attack.area_count <= 0) {
+    return;
+  }
+  const float w = std::fabs(attack.rect.w);
+  const float dir = mob.flip ? 1.0f : -1.0f;
+  const bool left = !mob.flip;
+  const auto now = Window::dt_now_;
+  const int32_t count = std::min(attack.attack_count, attack.area_count);
+
+  // v95 SetRandTimeForAreaAttack：每块区域预填 [0, randDelayAttack) 的随机延迟
+  std::vector<uint64_t> delays(static_cast<size_t>(std::max(count, 0)), 0);
+  if (attack.rand_delay_attack > 0) {
+    std::uniform_int_distribution<int32_t> dist(0, attack.rand_delay_attack - 1);
+    for (auto& d : delays) {
+      d = static_cast<uint64_t>(dist(RandomGameInstance::gen_));
+    }
+  }
+
+  int32_t k = 0;
+  for (int32_t bit = 0; bit < attack.area_count && k < count; ++bit) {
+    if ((mask & (1u << bit)) == 0) {
+      continue;
+    }
+    const int32_t idx = attack.start + bit;
+    const float x = mob.pos.x + dir * (w / 2.0f + w * static_cast<float>(idx));
+    float y = mob.pos.y;
+    if (attack.ntype == MobAttack::NType::kAreaGround) {
+      float fy = 0.0f;
+      if (LoadFootholdY(x, mob.pos.y + kAreaFootSearch,
+                        mob.pos.y - kAreaFootSearch, &fy)) {
+        y = fy;
+      }
+    }
+    MobAttackTimer timer;
+    // 每块各自延迟：tCur + rand + tAttackAfter
+    timer.time = now + delays[static_cast<size_t>(k)] + attack.attack_after;
+    timer.attack_index = attack_index;
+    timer.block = idx;
+    timer.x = x;
+    timer.y = y;
+    timer.left = left;
+    mob.attack_timers.push_back(timer);
+    // v95 DoAttack：每块区域在生成时播放 areaWarning 预警特效
+    if (!attack.area_warning_path.empty()) {
+      // v95 Effect_ApplyStartDelay：预警在攻击开始时播放（先于命中判定）
+      RunSendEffect(mob, 0, attack.area_warning_path, x, y, left, 0);
+    }
+    ++k;
+  }
+}
+
+void ServerMobSystem::RunAttackTimers(ServerMob& mob) {
+  if (mob.attack_timers.empty()) {
+    return;
+  }
+  const auto& attacks = ServerMobInstance::LoadMobAttacks(mob.id);
+  const auto now = Window::dt_now_;
+  auto& clients = ServerClientInstance::clients_;
+
+  for (auto it = mob.attack_timers.begin(); it != mob.attack_timers.end();) {
+    if (now < it->time) {
+      ++it;
+      continue;
+    }
+    const MobAttackTimer timer = *it;
+    it = mob.attack_timers.erase(it);
+    if (timer.attack_index < 0 ||
+        static_cast<size_t>(timer.attack_index) >= attacks.size()) {
+      continue;
+    }
+    if (timer.block < 0) {
+      continue;
+    }
+    const auto& attack = attacks[static_cast<size_t>(timer.attack_index)];
+    // 单块区域的判定矩形：先按朝向镜像，再平移到该列中心/地面高度
+    const SDL_FRect rect =
+        AdjustRect(attack.rect, timer.x, timer.y, timer.left);
+    // v95 ProcessAttack：区域攻击对范围内所有玩家结算（这里遍历同图玩家）
+    for (const auto& [client_id, client] : clients) {
+      if (client.map_id != map_id_ || client.player_t.character == nullptr) {
+        continue;
+      }
+      const auto& state = *client.player_t.character->state;
+      if (state.action == "dead") {
+        continue;
+      }
+      auto target = LoadTargetRect(client_id);
+      if (target.w <= 0) {
+        continue;
+      }
+      if (!SDL_HasRectIntersectionFloat(&rect, &target)) {
+        continue;
+      }
+      RunSendMobDamage(mob, client_id, attack);
+    }
+  }
+}
+
+void ServerMobSystem::RunBulletEntries(ServerMob& mob, const MobAttack& attack,
+                                       int32_t attack_index,
+                                       const SDL_FRect& target) {
+  // v95 DoAttack nType==2：没有 sBall 就不生成子弹
+  if (!attack.has_ball) {
+    return;
+  }
+  const bool left = !mob.flip;
+  const float facing = mob.flip ? 1.0f : -1.0f;
+  // 子弹起点 = 攻击原点
+  const float sx = mob.pos.x + facing * std::fabs(attack.sp.x);
+  const float sy = mob.pos.y + attack.sp.y;
+  // 瞄准点（v95 IsTargetInAttackRange 的 nType 2 分支）
+  float aim_y = sy;
+  if (aim_y < target.y + kBulletAimInset) {
+    aim_y = target.y + kBulletAimInset;
+  } else if (aim_y > target.y + target.h - kBulletAimInset) {
+    aim_y = target.y + target.h - kBulletAimInset;
+  } else {
+    aim_y = target.y + target.h / 2.0f;
+  }
+  const float center_x = target.x + target.w / 2.0f;
+  const float aim_x =
+      left ? std::min(center_x, target.x + target.w - kBulletAimInset)
+           : std::max(center_x, target.x + kBulletAimInset);
+
+  // 飞行时间 = r * 600 / nBulletSpeed（毫秒）
+  const float speed =
+      attack.bullet_speed > 0 ? static_cast<float>(attack.bullet_speed) : 100.0f;
+  const auto flight = static_cast<uint64_t>(
+      std::max(1.0f, static_cast<float>(attack.range) * 600.0f / speed));
+  const auto now = Window::dt_now_;
+
+  MobBullet bullet;
+  bullet.x1 = sx;
+  bullet.y1 = sy;
+  bullet.x2 = aim_x;
+  bullet.y2 = aim_y;
+  bullet.start = now + attack.attack_after;
+  bullet.end = bullet.start + flight;
+  bullet.attack_index = attack_index;
+  bullet.left = left;
+  mob.bullets.push_back(bullet);
+
+  // v95 MobBullet 的 sBall：从攻击原点飞到瞄准点的飞行体特效
+  if (!attack.ball_path.empty()) {
+    fbs::ServerMobEffectT effect_msg;
+    effect_msg.mob_index = mob.index;
+    effect_msg.kind = 0;
+    effect_msg.path = std::string{attack.ball_path.begin(), attack.ball_path.end()};
+    effect_msg.x = sx;
+    effect_msg.y = sy;
+    effect_msg.x2 = aim_x;
+    effect_msg.y2 = aim_y;
+    effect_msg.move_ms = flight;
+    effect_msg.flip = left;
+    effect_msg.delay = attack.attack_after;
+    fbs::MobEventUnionUnion muu;
+    muu.Set(std::move(effect_msg));
+    events_.payload.push_back(std::move(muu));
+  }
+
+  // 多弹：v95 SetMultiBallTarget 会为 bulletNumber-1 个额外目标各生成一颗子弹，
+  // 这里取同图内其他存活玩家作为额外目标（目标不足时不补足）。
+  if (attack.bullet_number <= 1) {
+    return;
+  }
+  int32_t extra = attack.bullet_number - 1;
+  for (const auto& [client_id, client] : ServerClientInstance::clients_) {
+    if (extra <= 0) {
+      break;
+    }
+    if (client_id == mob.target_id || client.map_id != map_id_ ||
+        client.player_t.character == nullptr) {
+      continue;
+    }
+    const auto& state = *client.player_t.character->state;
+    if (state.action == "dead") {
+      continue;
+    }
+    if (std::fabs(state.x - mob.pos.x) > static_cast<float>(attack.range)) {
+      continue;
+    }
+    auto other = LoadTargetRect(client_id);
+    if (other.w <= 0) {
+      continue;
+    }
+    MobBullet b = bullet;
+    b.x2 = other.x + other.w / 2.0f;
+    b.y2 = other.y + other.h / 2.0f;
+    mob.bullets.push_back(b);
+    --extra;
+  }
+}
+
+void ServerMobSystem::RunUpdateBullets(ServerMob& mob) {
+  if (mob.bullets.empty()) {
+    return;
+  }
+  const auto& attacks = ServerMobInstance::LoadMobAttacks(mob.id);
+  const auto now = Window::dt_now_;
+  auto& clients = ServerClientInstance::clients_;
+
+  for (auto it = mob.bullets.begin(); it != mob.bullets.end();) {
+    const MobBullet bullet = *it;
+    if (now < bullet.start) {
+      ++it;
+      continue;
+    }
+    const uint64_t span =
+        bullet.end > bullet.start ? bullet.end - bullet.start : 1;
+    const float t = std::clamp(
+        static_cast<float>(now - bullet.start) / static_cast<float>(span), 0.0f,
+        1.0f);
+    const float px = Lerp(bullet.x1, bullet.x2, t);
+    const float py = Lerp(bullet.y1, bullet.y2, t);
+
+    bool hit = false;
+    if (bullet.attack_index >= 0 &&
+        static_cast<size_t>(bullet.attack_index) < attacks.size()) {
+      const auto& attack = attacks[static_cast<size_t>(bullet.attack_index)];
+      // v95 MobBullet::ProcessAttack：逐帧"点是否在目标身体矩形内"
+      for (const auto& [client_id, client] : clients) {
+        if (client.map_id != map_id_ || client.player_t.character == nullptr) {
+          continue;
+        }
+        const auto& state = *client.player_t.character->state;
+        if (state.action == "dead") {
+          continue;
+        }
+        auto target = LoadTargetRect(client_id);
+        if (target.w <= 0 || !PointInRect(target, px, py)) {
+          continue;
+        }
+        // v95 bJumpAttack：目标不在跳跃状态时该次伤害被丢弃
+        if (attack.jump_attack && state.action != "jump") {
+          continue;
+        }
+        RunSendMobDamage(mob, client_id, attack);
+        hit = true;
+        break;
+      }
+    }
+    if (hit || now >= bullet.end) {
+      it = mob.bullets.erase(it);
+    } else {
+      ++it;
+    }
+  }
+}
+
+// 只下发一次伤害事件（伤害数值已经在服务端算好）
+void ServerMobSystem::RunSendDamageValue(ServerMob& mob, uint64_t client_id,
+                                        int64_t damage, float x, float y) {
   fbs::ServerMobAttackPlayerT event;
   event.mob_index = mob.index;
-  event.client_id = mob.target_id;
+  event.client_id = client_id;
   event.payload = std::make_unique<fbs::AttackT>(fbs::AttackT{
       .delay = Window::dt_time_,
-      .num = static_cast<uint64_t>(pad),
-      .x = mob.pos.x,
-      .y = mob.pos.y,
+      .num = static_cast<uint64_t>(std::max<int64_t>(1, damage)),
+      .x = x,
+      .y = y,
       .type = 0,
   });
 
   fbs::MobEventUnionUnion muu;
   muu.Set(std::move(event));
   events_.payload.push_back(std::move(muu));
+}
+
+bool ServerMobSystem::RunTrySkill(ServerMob& mob) {
+  if (mob.one_shot) {
+    return false;
+  }
+  if (ServerMobInstance::LoadMobInfoInt(mob.id, u"notAttack", 0) != 0) {
+    return false;
+  }
+  // v95 TryDoingSkill 的门禁里没有眩晕判定，但被眩晕的怪不会思考，这里补齐
+  if (mob.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
+    return false;
+  }
+  const auto& skills = ServerMobInstance::LoadMobSkills(mob.id);
+  if (skills.empty() || mob.target_id == 0) {
+    return false;
+  }
+  auto& clients = ServerClientInstance::clients_;
+  if (!clients.contains(mob.target_id) ||
+      clients.at(mob.target_id).player_t.character == nullptr) {
+    return false;
+  }
+  const auto& state = *clients.at(mob.target_id).player_t.character->state;
+  if (state.action == "dead") {
+    return false;
+  }
+  mob.flip = state.x > mob.pos.x;
+
+  const auto now = Window::dt_now_;
+  const int64_t max_hp = std::max<int64_t>(
+      1, ServerMobInstance::LoadMobInfoInt(mob.id, u"maxHP", 1));
+  const int64_t hp_percent = mob.hp * 100 / max_hp;
+
+  std::vector<size_t> candidates;
+  std::vector<MobSkillLevel> levels(skills.size());
+  for (size_t i = 0; i < skills.size(); ++i) {
+    const auto& ref = skills[i];
+    auto level = ServerMobInstance::LoadMobSkillLevel(ref.skill_id, ref.slv);
+    if (!level.valid) {
+      continue;
+    }
+    // 动作缺失（数据里有 10 只怪整条动作节点缺失）直接跳过，避免"播 stand 放技能"
+    const std::u16string action =
+        u"skill" + NumToU16(static_cast<int32_t>(ref.action));
+    if (!ServerMobInstance::HasMobAction(mob.id, action)) {
+      continue;
+    }
+    // v95 服务端语义：HP 阈值、MP、冷却、次数上限、触发概率
+    if (level.hp_below > 0 && hp_percent > level.hp_below) {
+      continue;
+    }
+    if (level.mp_con > mob.mp) {
+      continue;
+    }
+    if (auto it = mob.skill_cd.find(ref.skill_id);
+        it != mob.skill_cd.end() && now < it->second) {
+      continue;
+    }
+    if (level.limit > 0) {
+      auto it = mob.skill_used.find(ref.skill_id);
+      if (it != mob.skill_used.end() && it->second >= level.limit) {
+        continue;
+      }
+    }
+    if (level.prop > 0) {
+      std::uniform_int_distribution<int32_t> roll(1, 100);
+      if (roll(RandomGameInstance::gen_) > level.prop) {
+        continue;
+      }
+    }
+    levels[i] = level;
+    candidates.push_back(i);
+  }
+  if (candidates.empty()) {
+    return false;
+  }
+
+  std::uniform_int_distribution<size_t> dist(0, candidates.size() - 1);
+  const size_t index = candidates[dist(RandomGameInstance::gen_)];
+  const auto& ref = skills[index];
+  const auto& level = levels[index];
+  const std::u16string action =
+      u"skill" + NumToU16(static_cast<int32_t>(ref.action));
+
+  auto delay = ServerMobInstance::LoadActionDelay(mob.id, action);
+  if (delay == 0) {
+    delay = 500;
+  }
+  // 技能没有 attackAfter：按"动作播完才结算"（v95 客户端不做技能判定，
+  // 生效时刻由服务端决定，见 notes/mob-skill-spec.md §8.2）
+  const uint64_t hit_after = delay;
+
+  mob.action = action;
+  mob.one_shot = true;
+  mob.action_end = now + delay + kAttackGapMs;
+  mob.attack_hit = 0;
+  mob.skill_hit = now + hit_after;
+  mob.skill_index = static_cast<int32_t>(index);
+  mob.skill_id = ref.skill_id;
+  mob.skill_slv = ref.slv;
+  mob.mp -= level.mp_con;
+  mob.attack_cd = now + delay + kAttackGapMs;
+  // 冷却：interval（秒×1000）；缺省时退到 afterDelay，再不行给 1 秒
+  uint64_t cooldown = level.interval;
+  if (cooldown == 0) {
+    cooldown = ref.after_delay;
+  }
+  if (cooldown == 0) {
+    cooldown = 1000;
+  }
+  mob.skill_cd[ref.skill_id] = now + cooldown;
+  ++mob.skill_used[ref.skill_id];
+  // MobSkill 的施法特效：Skill/MobSkill.img/<id>/level/<slv>/effect
+  if (ServerMobInstance::HasMobSkillEffect(ref.skill_id, ref.slv)) {
+    RunSendEffect(mob, 1,
+              u"MobSkill/" + NumToU16(ref.skill_id) + u".img/level/" +
+                  NumToU16(ref.slv) + u"/effect",
+              mob.pos.x, mob.pos.y, !mob.flip, ref.effect_after);
+  }
+  mob.input_x = 0;
+  mob.hspeed = 0;
+  mob.hforce = 0;
+  return true;
+}
+
+void ServerMobSystem::RunSkillHit(ServerMob& mob) {
+  mob.skill_hit = 0;
+  const auto& skills = ServerMobInstance::LoadMobSkills(mob.id);
+  if (mob.skill_index < 0 ||
+      static_cast<size_t>(mob.skill_index) >= skills.size()) {
+    return;
+  }
+  const auto& ref = skills[static_cast<size_t>(mob.skill_index)];
+  const auto level = ServerMobInstance::LoadMobSkillLevel(ref.skill_id, ref.slv);
+  if (!level.valid) {
+    return;
+  }
+
+  // 技能的影响矩形（相对怪物原点，朝左镜像）
+  const SDL_FRect area = AdjustRect(level.area, mob.pos.x, mob.pos.y, !mob.flip);
+  const bool has_area = level.area.w != 0 || level.area.h != 0;
+
+  const bool magic = level.mp_con > 0 &&
+                     ServerMobInstance::LoadMobInfoInt(mob.id, u"MADamage", 0) >
+                         ServerMobInstance::LoadMobInfoInt(mob.id,
+                                                           u"PADamage", 0);
+  int64_t base = ServerMobInstance::LoadMobInfoInt(
+      mob.id, magic ? u"MADamage" : u"PADamage", 0);
+  // MobSkill.level.x 是技能数值（伤害%）——这里按百分比放大基础攻击力
+  if (level.x > 0) {
+    base = base * level.x / 100;
+  }
+  if (base <= 0) {
+    base = 1;
+  }
+
+  auto& clients = ServerClientInstance::clients_;
+  std::vector<uint64_t> hits;
+  for (const auto& [client_id, client] : clients) {
+    if (client.map_id != map_id_ || client.player_t.character == nullptr) {
+      continue;
+    }
+    const auto& state = *client.player_t.character->state;
+    if (state.action == "dead") {
+      continue;
+    }
+    if (has_area) {
+      auto target = LoadTargetRect(client_id);
+      if (target.w <= 0 || !SDL_HasRectIntersectionFloat(&area, &target)) {
+        continue;
+      }
+    }
+    hits.push_back(client_id);
+  }
+  if (hits.empty()) {
+    return;
+  }
+  // v95：count 限制命中数（-1 = 不限），randomTarget 决定是否随机挑
+  if (level.count > 0 && hits.size() > static_cast<size_t>(level.count)) {
+    if (level.random_target) {
+      std::shuffle(hits.begin(), hits.end(), RandomGameInstance::gen_);
+    }
+    hits.resize(static_cast<size_t>(level.count));
+  }
+
+  for (auto client_id : hits) {
+    RunSendDamageValue(mob, client_id, base, mob.pos.x, mob.pos.y);
+    // 元素技能给目标挂状态：火=灼烧、冰=冰冻、雷=眩晕、毒=中毒
+    // （time 是持续时间，WZ 单位秒×1000，见 MobSkillLevel.duration）
+    if (level.duration > 0) {
+      GameDebuff::DebuffType type{};
+      bool has = true;
+      switch (level.elem) {
+        case 1:
+          type = GameDebuff::DebuffType::kBurn;
+          break;
+        case 2:
+          type = GameDebuff::DebuffType::kFreeze;
+          break;
+        case 4:
+          type = GameDebuff::DebuffType::kDizz;
+          break;
+        case 8:
+          type = GameDebuff::DebuffType::kPoison;
+          break;
+        default:
+          has = false;
+          break;
+      }
+      if (has) {
+        const int64_t value = std::clamp<int64_t>(level.x, 1, 100);
+        RunSendPlayerDebuff(client_id, type, value, level.duration);
+      }
+    }
+  }
+
+  // 召唤类技能（level 下的 0..N 是召唤模板 id）：延迟到本帧 mob 循环结束后
+  // 再创建，避免在遍历 scene.mobs 的过程中插入导致迭代器失效
+  if (!level.summon_ids.empty()) {
+    PendingSummon summon;
+    summon.map_id = map_id_;
+    summon.x = mob.pos.x;
+    summon.y = mob.pos.y;
+    summon.page = mob.page;
+    summon.fh = mob.fh;
+    summon.mob_ids = level.summon_ids;
+    pending_summons_.push_back(std::move(summon));
+  }
+}
+
+SDL_FRect ServerMobSystem::LoadMobRect(const ServerMob& mob) {
+  const float half = ServerMobInstance::LoadMobHalfWidth(mob.id);
+  return SDL_FRect{
+      .x = mob.pos.x - half,
+      .y = mob.pos.y - half * 2.0f,
+      .w = half * 2.0f,
+      .h = half * 2.0f,
+  };
+}
+
+int64_t ServerMobSystem::MobVsMobDamage(const ServerMob& attacker,
+                                        const ServerMob& victim, bool magic) {
+  // v95 CalcDamage::PDamage(const MobStat*, const MobStat*)：
+  // dmg = max(1, rand[0.85,1] × atk.PAD × (100 - 目标 PDRate) / 100)
+  int32_t atk = std::clamp(
+      ServerMobInstance::LoadMobInfoInt(
+          attacker.id, magic ? u"MADamage" : u"PADamage", 0),
+      0, 29999);
+  int32_t reduce = std::clamp(
+      ServerMobInstance::LoadMobInfoInt(
+          victim.id, magic ? u"MDRate" : u"PDRate", 0),
+      0, 100);
+  std::uniform_real_distribution<float> dist(0.85f, 1.0f);
+  const float scale = dist(RandomGameInstance::gen_);
+  int64_t damage = static_cast<int64_t>(static_cast<float>(atk) * scale *
+                                       static_cast<float>(100 - reduce) / 100.0f);
+  if (damage <= 0 && !magic) {
+    damage = 1;  // 只有 PDamage 有 ≥1 下限
+  }
+  return damage;
+}
+
+void ServerMobSystem::RunSendHitMob(ServerMob& mob, const ServerMob& victim,
+                                    int64_t damage) {
+  fbs::ServerMobHitMobT event;
+  event.mob_index = victim.index;
+  event.from_index = mob.index;
+  event.payload = std::make_unique<fbs::AttackT>(fbs::AttackT{
+      .delay = Window::dt_time_,
+      .num = static_cast<uint64_t>(std::max<int64_t>(1, damage)),
+      .x = victim.pos.x,
+      .y = victim.pos.y,
+      .type = 0,
+  });
+
+  fbs::MobEventUnionUnion muu;
+  muu.Set(std::move(event));
+  events_.payload.push_back(std::move(muu));
+}
+
+void ServerMobSystem::RunSendEffect(ServerMob& mob, uint8_t kind,
+                                    const std::u16string& path, float x,
+                                    float y, bool flip, uint64_t delay) {
+  if (path.empty()) {
+    return;
+  }
+  fbs::ServerMobEffectT effect_msg;
+  effect_msg.mob_index = mob.index;
+  effect_msg.kind = kind;
+  effect_msg.path = std::string{path.begin(), path.end()};
+  effect_msg.x = x;
+  effect_msg.y = y;
+  effect_msg.x2 = x;
+  effect_msg.y2 = y;
+  effect_msg.move_ms = 0;
+  effect_msg.flip = flip;
+  effect_msg.delay = delay;
+
+  fbs::MobEventUnionUnion muu;
+  muu.Set(std::move(effect_msg));
+  events_.payload.push_back(std::move(muu));
+}
+
+void ServerMobSystem::RunSetAttackReady(ServerMob& mob, bool ready) {
+  mob.attack_ready = ready;
+}
+
+// 给玩家挂状态：走既有的角色状态通道（ServerCharacterState + StateEnum_DEBUFF）
+void ServerMobSystem::RunSendPlayerDebuff(uint64_t client_id,
+                                          GameDebuff::DebuffType type,
+                                          int64_t val, uint64_t duration_ms) {
+  auto state = std::make_unique<fbs::StateT>();
+  state->state = fbs::StateEnum_DEBUFF;
+  state->val = static_cast<int64_t>(type);
+  state->sub_val = val;
+  state->time = Window::dt_time_ + duration_ms;
+  state->delay = Window::dt_time_;
+
+  fbs::ServerCharacterStateT t;
+  t.client_id = client_id;
+  t.payload.push_back(std::move(state));
+
+  auto it = ServerSceneInstance::scenes_.find(map_id_);
+  if (it == ServerSceneInstance::scenes_.end()) {
+    return;
+  }
+  for (auto c : it->second.clients) {
+    ServerResponse::SendToClient(c, t);
+  }
+}
+
+// v95 TryFirstSelfDestruction：nType 0 的攻击框与玩家身体矩形相交即自爆
+void ServerMobSystem::RunTrySelfDestruction(ServerMob& mob) {
+  if (mob.self_destroyed || mob.dead || mob.hp <= 0) {
+    return;
+  }
+  if (ServerMobInstance::LoadMobInfoInt(mob.id, u"selfDestruction", 0) == 0) {
+    return;
+  }
+  const auto& attacks = ServerMobInstance::LoadMobAttacks(mob.id);
+  if (attacks.empty()) {
+    return;
+  }
+  auto& clients = ServerClientInstance::clients_;
+  const bool left = !mob.flip;
+  std::vector<uint64_t> victims;
+  const MobAttack* used = nullptr;
+  for (const auto& attack : attacks) {
+    if (attack.ntype != MobAttack::NType::kMelee) {
+      continue;
+    }
+    const SDL_FRect rect =
+        AdjustRect(attack.rect, mob.pos.x, mob.pos.y, left);
+    for (const auto& [client_id, client] : clients) {
+      if (client.map_id != map_id_ || client.player_t.character == nullptr) {
+        continue;
+      }
+      const auto& state = *client.player_t.character->state;
+      if (state.action == "dead") {
+        continue;
+      }
+      auto target = LoadTargetRect(client_id);
+      if (target.w <= 0 || !SDL_HasRectIntersectionFloat(&rect, &target)) {
+        continue;
+      }
+      if (std::find(victims.begin(), victims.end(), client_id) ==
+          victims.end()) {
+        victims.push_back(client_id);
+      }
+    }
+    if (!victims.empty() && used == nullptr) {
+      used = &attack;
+    }
+  }
+  if (victims.empty() || used == nullptr) {
+    return;
+  }
+  mob.self_destroyed = true;
+  for (auto client_id : victims) {
+    RunSendMobDamage(mob, client_id, *used);
+  }
+  // 自爆：直接死亡（不做埋点掉落之外的额外处理，RunDie 里有掉落与事件）
+  RunDie(mob, 0);
+}
+
+void ServerMobSystem::RunDazzleBodyAttack(ServerMob& mob) {
+  if (mob.dazzle_owner == 0 || mob.one_shot) {
+    return;
+  }
+  const auto now = Window::dt_now_;
+  if (now < mob.dazzle_cd) {
+    return;
+  }
+  if (mobs_ == nullptr) {
+    return;
+  }
+  const SDL_FRect self = LoadMobRect(mob);
+  for (auto&& [index, other] : *mobs_) {
+    if (index == mob.index || other.hp <= 0 || other.dead) {
+      continue;
+    }
+    // v95 FindBodyAttackMob：目标必须"未被迷惑"且模板 info/bodyAttack 为真
+    if (other.dazzle_owner != 0) {
+      continue;
+    }
+    if (ServerMobInstance::LoadMobInfoInt(other.id, u"bodyAttack", 0) == 0) {
+      continue;
+    }
+    const SDL_FRect victim = LoadMobRect(other);
+    if (!SDL_HasRectIntersectionFloat(&self, &victim)) {
+      continue;
+    }
+    if (now < other.hit_by_mob) {
+      continue;  // 受方 2000ms 节流
+    }
+    const int64_t damage = MobVsMobDamage(mob, other, false);
+    other.hp -= damage;
+    other.hit_by_mob = now + kHitByMobGapMs;
+    mob.dazzle_cd = now + kDazzleBodyGapMs;
+    RunSendHitMob(mob, other, damage);
+    // 被撞的怪反手追攻击者（v95 SetDamagedByMob 里的 ChaseTarget）
+    if (other.target_id == 0 && other.target_mob == 0) {
+      other.target_mob = mob.index;
+    }
+    break;  // v95 一次只撞一只
+  }
+}
+
+void ServerMobSystem::RunDazzleTarget(ServerMob& mob) {
+  if (mobs_ == nullptr) {
+    return;
+  }
+  // 当前目标失效检查
+  if (mob.target_mob != 0) {
+    auto it = mobs_->find(mob.target_mob);
+    if (it != mobs_->end() && it->second.hp > 0 && !it->second.dead) {
+      return;
+    }
+    mob.target_mob = 0;
+  }
+  // v95 FindNearestMob：搜索框半宽 300 / 半高 100，选最近的怪
+  uint32_t best = 0;
+  float best_dist = std::numeric_limits<float>::max();
+  for (const auto& [index, other] : *mobs_) {
+    if (index == mob.index || other.hp <= 0 || other.dead) {
+      continue;
+    }
+    if (other.dazzle_owner != 0) {
+      continue;  // 只打未被迷惑的怪
+    }
+    if (ServerMobInstance::LoadMobInfoInt(other.id, u"bodyAttack", 0) == 0) {
+      continue;
+    }
+    const float dx = std::fabs(other.pos.x - mob.pos.x);
+    const float dy = std::fabs(other.pos.y - mob.pos.y);
+    if (dx > kDazzleSearchWidth || dy > kDazzleSearchHeight) {
+      continue;
+    }
+    if (dx < best_dist) {
+      best_dist = dx;
+      best = index;
+    }
+  }
+  mob.target_mob = best;
 }
 
 void ServerMobSystem::RunInterruptStart(ServerMob& mob, int32_t type,
@@ -875,6 +1872,12 @@ void ServerMobSystem::RunPhysics(ServerMob& mob) {
     return;
   }
 
+  // 爬梯 / 绳：吸附时 fh 被清 0，必须在 fall 之前拦截（v95 用 m_pLadderOrRope 顶点）
+  if (mob.on_rope) {
+    RunRope(mob);
+    return;
+  }
+
   // 095/main：只要在地上怪的 fh == 0（跳跃/被打飞），就必须执行 fall，
   // 不能被受击 interrupt 提前 return 挡住。
   if (mob.fh == 0 && mob.move_ability != 4) {
@@ -910,6 +1913,10 @@ void ServerMobSystem::RunPhysics(ServerMob& mob) {
   }
   if (mob.fh == 0) {
     RunFall(mob);
+    return;
+  }
+  // 地面怪：目标在高处且附近有梯/绳时吸附上去
+  if (RunTryRope(mob)) {
     return;
   }
   RunWalk(mob);
@@ -1075,6 +2082,10 @@ void ServerMobSystem::RunDie(ServerMob& mob, uint64_t client_id) {
   mob.target_id = 0;
   mob.one_shot = false;
   mob.attack_hit = 0;
+  mob.skill_hit = 0;
+  mob.attack_timers.clear();
+  mob.bullets.clear();
+  mob.target_mob = 0;
   mob.interrupt = MobInterrupt{};
   mob.hspeed = 0;
   mob.vspeed = 0;
@@ -1204,6 +2215,14 @@ void ServerMobSystem::RunStateMachine(ServerMob& mob) {
       mob.one_shot = false;
       mob.action_end = 0;
       mob.attack_hit = 0;
+      mob.skill_hit = 0;
+      mob.attack_timers.clear();
+      mob.bullets.clear();
+      mob.skill_cd.clear();
+      mob.skill_used.clear();
+      mob.self_destroyed = false;
+      mob.dazzle_owner = 0;
+      mob.target_mob = 0;
       mob.debuffs.clear();
       RunNetworkSync(mob, o_mob);
     }
@@ -1225,6 +2244,18 @@ void ServerMobSystem::RunStateMachine(ServerMob& mob) {
   });
 
   RunDot(mob);
+
+  // 迷惑：身体撞击（怪打怪）与到期清理
+  if (mob.dazzle_owner != 0 && Window::dt_now_ >= mob.dazzle_end) {
+    mob.dazzle_owner = 0;
+    mob.target_mob = 0;
+  }
+  RunDazzleBodyAttack(mob);
+
+  // v95 ProcessAttack 每帧都会处理"已生成的攻击条目 + 在飞子弹"，
+  // 与当前是否在播一次性动作无关（区域攻击的条目会活过动作结束）
+  RunAttackTimers(mob);
+  RunUpdateBullets(mob);
 
   if (!mob.dead) {
     bool hit_state = mob.action.starts_with(u"hit");
@@ -1248,6 +2279,9 @@ void ServerMobSystem::RunStateMachine(ServerMob& mob) {
           if (mob.attack_hit != 0 && Window::dt_now_ >= mob.attack_hit) {
             RunAttackHit(mob);
           }
+          if (mob.skill_hit != 0 && Window::dt_now_ >= mob.skill_hit) {
+            RunSkillHit(mob);
+          }
           if (Window::dt_now_ >= mob.action_end) {
             RunSetAction(mob, LoadDefaultAction(mob));
             mob.attack_hit = 0;
@@ -1260,7 +2294,9 @@ void ServerMobSystem::RunStateMachine(ServerMob& mob) {
         } else {
           // 正常思考 / 最后一击等待死亡期间：追击 target_id 的玩家
           RunTarget(mob);
-          if (!RunTryAttack(mob)) {
+          RunTrySelfDestruction(mob);
+          // v95：TryDoingSkill 优先于普通攻击
+          if (!mob.dead && !RunTrySkill(mob) && !RunTryAttack(mob)) {
             RunInput(mob);
             RunMoveAction(mob);
           }
@@ -1306,13 +2342,202 @@ bool ServerMobSystem::Run() {
     for (const auto& [key, value] : sc.fhs) {
       g_fhs_.emplace(key, value.fh);
     }
+    mobs_ = &sc.mobs;
     for (auto& mob : sc.mobs | std::views::values) {
       RunStateMachine(mob);
     }
+    mobs_ = nullptr;
     RunSend();
   }
+  RunPendingSummons();
   ServerMobInstance::RunPendingDebuffs();
   return true;
+}
+
+// 技能召唤：把延迟的召唤请求批量创建（复用客户端创建怪物通道，同图广播）
+void ServerMobSystem::RunPendingSummons() {
+  if (pending_summons_.empty()) {
+    return;
+  }
+  auto summons = std::move(pending_summons_);
+  pending_summons_.clear();
+  for (const auto& summon : summons) {
+    fbs::ClientCreateMobT r;
+    r.map_id = summon.map_id;
+    for (size_t i = 0; i < summon.mob_ids.size(); ++i) {
+      fbs::MobT m;
+      m.mob_id = summon.mob_ids[i];
+      m.state = std::make_unique<fbs::LifeStateT>(fbs::LifeStateT{
+          .x = summon.x + static_cast<float>(i) * 30.0f - 15.0f,
+          .y = summon.y,
+          .action = "",
+          .page = summon.page,
+          .fh = static_cast<int16_t>(summon.fh),
+      });
+      r.mobs.push_back(std::make_unique<fbs::MobT>(std::move(m)));
+    }
+    ServerMobInstance::HandleCreateMob(r);
+  }
+}
+
+// 护送：按航点表推进（v95 ±25 窗口 + 越侧穿越判定，到点后按 nStopDuration 停留）
+bool ServerMobSystem::RunEscort(ServerMob& mob) {
+  if (mob.escort_path.empty()) {
+    return false;
+  }
+  const auto now = Window::dt_now_;
+  if (mob.escort_stop != 0) {
+    if (now < mob.escort_stop) {
+      mob.input_x = 0;
+      mob.hspeed = 0;
+      RunSetAction(mob, ServerMobInstance::LoadFineAction(mob.id, u"stand"));
+      return true;
+    }
+    mob.escort_stop = 0;
+  }
+  if (mob.escort_index >= mob.escort_path.size()) {
+    // v95：走到终点后 RemoveAll，没有路线就不巡游
+    mob.escort_path.clear();
+    mob.escort_index = 0;
+    return false;
+  }
+  const auto& node = mob.escort_path[mob.escort_index];
+  const float dx = node.x - mob.pos.x;
+  mob.input_x = dx > 0.0f ? 1 : (dx < 0.0f ? -1 : 0);
+  if (mob.input_x != 0) {
+    mob.flip = mob.input_x > 0;
+  }
+  mob.input_y = 0;
+  if (std::fabs(dx) <= kEscortWindow) {
+    // 到点：推进航点并在需要时进入停留
+    ++mob.escort_index;
+    if (node.stop_ms > 0) {
+      mob.escort_stop = now + node.stop_ms;
+    }
+    mob.input_x = 0;
+  }
+  RunSetAction(mob, ServerMobInstance::LoadFineAction(
+                        mob.id, mob.input_x != 0 ? u"move" : u"stand"));
+  if (mob.input_x != 0) {
+    const float speed = mob.hspeed_max * MobSpeedScale(mob);
+    mob.hspeed = mob.input_x > 0 ? speed : -speed;
+  } else {
+    mob.hspeed = 0;
+  }
+  return true;
+}
+
+// 爬梯/绳：目标在高处、附近 ±10 内有梯绳且高度覆盖目标时吸附
+bool ServerMobSystem::RunTryRope(ServerMob& mob) {
+  if (mob.on_rope || mob.move_ability == 0 || mob.move_ability == 4) {
+    return false;
+  }
+  if (mob.target_id == 0 || mob.fh == 0) {
+    return false;
+  }
+  auto& clients = ServerClientInstance::clients_;
+  if (!clients.contains(mob.target_id) ||
+      clients.at(mob.target_id).player_t.character == nullptr) {
+    return false;
+  }
+  const auto& state = *clients.at(mob.target_id).player_t.character->state;
+  const float dy = state.y - mob.pos.y;
+  if (std::fabs(dy) < kRopeNeedHeight) {
+    return false;
+  }
+  // v95 GetLadderOrRope：x 容差 ±10，取最近的梯绳
+  const GameLadderrope* best = nullptr;
+  int32_t best_id = 0;
+  float best_dx = kRopeSnapTolerance;
+  for (const auto& [id, lr] : LadderropeGameInstance::data_) {
+    const float dx = std::fabs(static_cast<float>(lr.x) - mob.pos.x);
+    if (dx > best_dx) {
+      continue;
+    }
+    // 梯绳必须朝目标方向延伸：目标在上方要用 y1 探针，下方用 y2 探针
+    const float probe = dy < 0.0f ? lr.y1 + kRopeProbeUp : lr.y2 + kRopeProbeDown;
+    if (dy < 0.0f ? probe < state.y : probe > state.y) {
+      continue;
+    }
+    best = &lr;
+    best_id = id;
+    best_dx = dx;
+  }
+  if (best == nullptr) {
+    return false;
+  }
+  mob.on_rope = true;
+  mob.rope_id = best_id;
+  mob.rope_x = static_cast<float>(best->x);
+  mob.pos.x = mob.rope_x;
+  mob.fh = 0;
+  mob.hspeed = 0;
+  mob.vspeed = 0;
+  mob.interrupt.active = false;
+  RunSetAction(mob, ServerMobInstance::LoadFineAction(mob.id, u"rope"));
+  return true;
+}
+
+// 爬梯推进：每帧按 walkSpeed × inputY × 3（v95 不乘 dt），到端点脱钩
+void ServerMobSystem::RunRope(ServerMob& mob) {
+  auto it = LadderropeGameInstance::data_.find(mob.rope_id);
+  if (it == LadderropeGameInstance::data_.end()) {
+    mob.on_rope = false;
+    return;
+  }
+  const auto& lr = it->second;
+  const float top = static_cast<float>(std::min(lr.y1, lr.y2));
+  const float bottom = static_cast<float>(std::max(lr.y1, lr.y2));
+  mob.pos.x = mob.rope_x;
+
+  float dy = 0.0f;
+  auto& clients = ServerClientInstance::clients_;
+  if (mob.target_id != 0 && clients.contains(mob.target_id) &&
+      clients.at(mob.target_id).player_t.character != nullptr) {
+    dy = clients.at(mob.target_id).player_t.character->state->y - mob.pos.y;
+  }
+  int8_t input_y = 0;
+  if (std::fabs(dy) > 10.0f) {
+    input_y = dy < 0.0f ? -1 : 1;
+  }
+  // v95：爬速每帧乘 3，不乘 dt
+  mob.pos.y += static_cast<float>(input_y) * mob.hspeed_max * kRopeClimbScale;
+
+  bool detach = false;
+  if (mob.pos.y >= bottom) {
+    mob.pos.y = bottom + 1.0f;  // 到底 → 脱钩站到地面
+    detach = true;
+  } else if (mob.pos.y <= top) {
+    mob.pos.y = top;
+    if (input_y < 0) {
+      detach = true;  // 到顶且没有上层地板 → 脱钩（落在梯顶平台上由 RunFall 处理）
+    }
+  }
+  RunSetAction(mob, ServerMobInstance::LoadFineAction(
+                        mob.id, std::fabs(dy) > 10.0f ? u"rope" : u"rope"));
+  if (detach) {
+    mob.on_rope = false;
+    mob.fh = 0;  // 交给 RunFall 重新落地
+    mob.vspeed = 0;
+  }
+}
+
+// 给护送怪设置一条往返路线（本工程由服务端生成，v95 由服务器 0x130 下发）
+void ServerMobSystem::RunSetEscortPath(ServerMob& mob, float x1, float x2,
+                                       float y, uint64_t stop_ms) {
+  mob.escort_path.clear();
+  mob.escort_index = 0;
+  mob.escort_stop = 0;
+  if (x1 == x2) {
+    return;
+  }
+  // 顺序：先近端再远端，形成往返
+  const float near_x = std::fabs(mob.pos.x - x1) <= std::fabs(mob.pos.x - x2)
+                           ? x1
+                           : x2;
+  const float far_x = near_x == x1 ? x2 : x1;
+  mob.escort_path.push_back(MobEscortNode{near_x, y, stop_ms});
+  mob.escort_path.push_back(MobEscortNode{far_x, y, stop_ms});
 }
 
 }  // namespace sdlms

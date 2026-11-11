@@ -15,6 +15,8 @@ class MobRenderSystem {
 
  public:
   static bool Render(GameMob& g_mob);
+  // 怪物攻击 / 技能特效帧
+  static void RenderMobEffect(GameMob& g_mob);
 };
 
 }  // namespace sdlms

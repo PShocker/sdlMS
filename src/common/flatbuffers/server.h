@@ -61,6 +61,14 @@ struct ServerMobAttackPlayer;
 struct ServerMobAttackPlayerBuilder;
 struct ServerMobAttackPlayerT;
 
+struct ServerMobHitMob;
+struct ServerMobHitMobBuilder;
+struct ServerMobHitMobT;
+
+struct ServerMobEffect;
+struct ServerMobEffectBuilder;
+struct ServerMobEffectT;
+
 struct ServerMobEvent;
 struct ServerMobEventBuilder;
 struct ServerMobEventT;
@@ -178,11 +186,13 @@ enum MobEventUnion : uint8_t {
   MobEventUnion_ServerMobDie = 5,
   MobEventUnion_ServerMobDrop = 6,
   MobEventUnion_ServerMobAttackPlayer = 7,
+  MobEventUnion_ServerMobHitMob = 8,
+  MobEventUnion_ServerMobEffect = 9,
   MobEventUnion_MIN = MobEventUnion_NONE,
-  MobEventUnion_MAX = MobEventUnion_ServerMobAttackPlayer
+  MobEventUnion_MAX = MobEventUnion_ServerMobEffect
 };
 
-inline const MobEventUnion (&EnumValuesMobEventUnion())[8] {
+inline const MobEventUnion (&EnumValuesMobEventUnion())[10] {
   static const MobEventUnion values[] = {
     MobEventUnion_NONE,
     MobEventUnion_ServerMobMv,
@@ -191,13 +201,15 @@ inline const MobEventUnion (&EnumValuesMobEventUnion())[8] {
     MobEventUnion_ServerMobState,
     MobEventUnion_ServerMobDie,
     MobEventUnion_ServerMobDrop,
-    MobEventUnion_ServerMobAttackPlayer
+    MobEventUnion_ServerMobAttackPlayer,
+    MobEventUnion_ServerMobHitMob,
+    MobEventUnion_ServerMobEffect
   };
   return values;
 }
 
 inline const char * const *EnumNamesMobEventUnion() {
-  static const char * const names[9] = {
+  static const char * const names[11] = {
     "NONE",
     "ServerMobMv",
     "ServerMobFlip",
@@ -206,13 +218,15 @@ inline const char * const *EnumNamesMobEventUnion() {
     "ServerMobDie",
     "ServerMobDrop",
     "ServerMobAttackPlayer",
+    "ServerMobHitMob",
+    "ServerMobEffect",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameMobEventUnion(MobEventUnion e) {
-  if (::flatbuffers::IsOutRange(e, MobEventUnion_NONE, MobEventUnion_ServerMobAttackPlayer)) return "";
+  if (::flatbuffers::IsOutRange(e, MobEventUnion_NONE, MobEventUnion_ServerMobEffect)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesMobEventUnion()[index];
 }
@@ -249,6 +263,14 @@ template<> struct MobEventUnionTraits<fbs::ServerMobAttackPlayer> {
   static const MobEventUnion enum_value = MobEventUnion_ServerMobAttackPlayer;
 };
 
+template<> struct MobEventUnionTraits<fbs::ServerMobHitMob> {
+  static const MobEventUnion enum_value = MobEventUnion_ServerMobHitMob;
+};
+
+template<> struct MobEventUnionTraits<fbs::ServerMobEffect> {
+  static const MobEventUnion enum_value = MobEventUnion_ServerMobEffect;
+};
+
 template<typename T> struct MobEventUnionUnionTraits {
   static const MobEventUnion enum_value = MobEventUnion_NONE;
 };
@@ -279,6 +301,14 @@ template<> struct MobEventUnionUnionTraits<fbs::ServerMobDropT> {
 
 template<> struct MobEventUnionUnionTraits<fbs::ServerMobAttackPlayerT> {
   static const MobEventUnion enum_value = MobEventUnion_ServerMobAttackPlayer;
+};
+
+template<> struct MobEventUnionUnionTraits<fbs::ServerMobHitMobT> {
+  static const MobEventUnion enum_value = MobEventUnion_ServerMobHitMob;
+};
+
+template<> struct MobEventUnionUnionTraits<fbs::ServerMobEffectT> {
+  static const MobEventUnion enum_value = MobEventUnion_ServerMobEffect;
 };
 
 struct MobEventUnionUnion {
@@ -366,6 +396,22 @@ struct MobEventUnionUnion {
   const fbs::ServerMobAttackPlayerT *AsServerMobAttackPlayer() const {
     return type == MobEventUnion_ServerMobAttackPlayer ?
       reinterpret_cast<const fbs::ServerMobAttackPlayerT *>(value) : nullptr;
+  }
+  fbs::ServerMobHitMobT *AsServerMobHitMob() {
+    return type == MobEventUnion_ServerMobHitMob ?
+      reinterpret_cast<fbs::ServerMobHitMobT *>(value) : nullptr;
+  }
+  const fbs::ServerMobHitMobT *AsServerMobHitMob() const {
+    return type == MobEventUnion_ServerMobHitMob ?
+      reinterpret_cast<const fbs::ServerMobHitMobT *>(value) : nullptr;
+  }
+  fbs::ServerMobEffectT *AsServerMobEffect() {
+    return type == MobEventUnion_ServerMobEffect ?
+      reinterpret_cast<fbs::ServerMobEffectT *>(value) : nullptr;
+  }
+  const fbs::ServerMobEffectT *AsServerMobEffect() const {
+    return type == MobEventUnion_ServerMobEffect ?
+      reinterpret_cast<const fbs::ServerMobEffectT *>(value) : nullptr;
   }
 };
 
@@ -1216,6 +1262,7 @@ struct ServerMobAttackPlayerT : public ::flatbuffers::NativeTable {
   uint32_t mob_index = 0;
   uint64_t client_id = 0;
   std::unique_ptr<fbs::AttackT> payload{};
+  uint8_t flags = 0;
   ServerMobAttackPlayerT() = default;
   ServerMobAttackPlayerT(const ServerMobAttackPlayerT &o);
   ServerMobAttackPlayerT(ServerMobAttackPlayerT&&) FLATBUFFERS_NOEXCEPT = default;
@@ -1228,7 +1275,8 @@ struct ServerMobAttackPlayer FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Ta
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_MOB_INDEX = 4,
     VT_CLIENT_ID = 6,
-    VT_PAYLOAD = 8
+    VT_PAYLOAD = 8,
+    VT_FLAGS = 10
   };
   uint32_t mob_index() const {
     return GetField<uint32_t>(VT_MOB_INDEX, 0);
@@ -1248,6 +1296,12 @@ struct ServerMobAttackPlayer FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Ta
   fbs::Attack *mutable_payload() {
     return GetPointer<fbs::Attack *>(VT_PAYLOAD);
   }
+  uint8_t flags() const {
+    return GetField<uint8_t>(VT_FLAGS, 0);
+  }
+  bool mutate_flags(uint8_t _flags = 0) {
+    return SetField<uint8_t>(VT_FLAGS, _flags, 0);
+  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -1255,6 +1309,7 @@ struct ServerMobAttackPlayer FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Ta
            VerifyField<uint64_t>(verifier, VT_CLIENT_ID, 8) &&
            VerifyOffset(verifier, VT_PAYLOAD) &&
            verifier.VerifyTable(payload()) &&
+           VerifyField<uint8_t>(verifier, VT_FLAGS, 1) &&
            verifier.EndTable();
   }
   ServerMobAttackPlayerT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -1275,6 +1330,9 @@ struct ServerMobAttackPlayerBuilder {
   void add_payload(::flatbuffers::Offset<fbs::Attack> payload) {
     fbb_.AddOffset(ServerMobAttackPlayer::VT_PAYLOAD, payload);
   }
+  void add_flags(uint8_t flags) {
+    fbb_.AddElement<uint8_t>(ServerMobAttackPlayer::VT_FLAGS, flags, 0);
+  }
   explicit ServerMobAttackPlayerBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -1290,15 +1348,316 @@ inline ::flatbuffers::Offset<ServerMobAttackPlayer> CreateServerMobAttackPlayer(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t mob_index = 0,
     uint64_t client_id = 0,
-    ::flatbuffers::Offset<fbs::Attack> payload = 0) {
+    ::flatbuffers::Offset<fbs::Attack> payload = 0,
+    uint8_t flags = 0) {
   ServerMobAttackPlayerBuilder builder_(_fbb);
   builder_.add_client_id(client_id);
   builder_.add_payload(payload);
   builder_.add_mob_index(mob_index);
+  builder_.add_flags(flags);
   return builder_.Finish();
 }
 
 ::flatbuffers::Offset<ServerMobAttackPlayer> CreateServerMobAttackPlayer(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobAttackPlayerT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct ServerMobHitMobT : public ::flatbuffers::NativeTable {
+  typedef ServerMobHitMob TableType;
+  uint32_t mob_index = 0;
+  uint32_t from_index = 0;
+  std::unique_ptr<fbs::AttackT> payload{};
+  ServerMobHitMobT() = default;
+  ServerMobHitMobT(const ServerMobHitMobT &o);
+  ServerMobHitMobT(ServerMobHitMobT&&) FLATBUFFERS_NOEXCEPT = default;
+  ServerMobHitMobT &operator=(ServerMobHitMobT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct ServerMobHitMob FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerMobHitMobT NativeTableType;
+  typedef ServerMobHitMobBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_MOB_INDEX = 4,
+    VT_FROM_INDEX = 6,
+    VT_PAYLOAD = 8
+  };
+  uint32_t mob_index() const {
+    return GetField<uint32_t>(VT_MOB_INDEX, 0);
+  }
+  bool mutate_mob_index(uint32_t _mob_index = 0) {
+    return SetField<uint32_t>(VT_MOB_INDEX, _mob_index, 0);
+  }
+  uint32_t from_index() const {
+    return GetField<uint32_t>(VT_FROM_INDEX, 0);
+  }
+  bool mutate_from_index(uint32_t _from_index = 0) {
+    return SetField<uint32_t>(VT_FROM_INDEX, _from_index, 0);
+  }
+  const fbs::Attack *payload() const {
+    return GetPointer<const fbs::Attack *>(VT_PAYLOAD);
+  }
+  fbs::Attack *mutable_payload() {
+    return GetPointer<fbs::Attack *>(VT_PAYLOAD);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_MOB_INDEX, 4) &&
+           VerifyField<uint32_t>(verifier, VT_FROM_INDEX, 4) &&
+           VerifyOffset(verifier, VT_PAYLOAD) &&
+           verifier.VerifyTable(payload()) &&
+           verifier.EndTable();
+  }
+  ServerMobHitMobT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerMobHitMobT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerMobHitMob> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobHitMobT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ServerMobHitMobBuilder {
+  typedef ServerMobHitMob Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_mob_index(uint32_t mob_index) {
+    fbb_.AddElement<uint32_t>(ServerMobHitMob::VT_MOB_INDEX, mob_index, 0);
+  }
+  void add_from_index(uint32_t from_index) {
+    fbb_.AddElement<uint32_t>(ServerMobHitMob::VT_FROM_INDEX, from_index, 0);
+  }
+  void add_payload(::flatbuffers::Offset<fbs::Attack> payload) {
+    fbb_.AddOffset(ServerMobHitMob::VT_PAYLOAD, payload);
+  }
+  explicit ServerMobHitMobBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ServerMobHitMob> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ServerMobHitMob>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ServerMobHitMob> CreateServerMobHitMob(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t mob_index = 0,
+    uint32_t from_index = 0,
+    ::flatbuffers::Offset<fbs::Attack> payload = 0) {
+  ServerMobHitMobBuilder builder_(_fbb);
+  builder_.add_payload(payload);
+  builder_.add_from_index(from_index);
+  builder_.add_mob_index(mob_index);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<ServerMobHitMob> CreateServerMobHitMob(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobHitMobT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct ServerMobEffectT : public ::flatbuffers::NativeTable {
+  typedef ServerMobEffect TableType;
+  uint32_t mob_index = 0;
+  uint8_t kind = 0;
+  std::string path{};
+  float x = 0.0f;
+  float y = 0.0f;
+  float x2 = 0.0f;
+  float y2 = 0.0f;
+  uint64_t move_ms = 0;
+  bool flip = false;
+  uint64_t delay = 0;
+};
+
+struct ServerMobEffect FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerMobEffectT NativeTableType;
+  typedef ServerMobEffectBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_MOB_INDEX = 4,
+    VT_KIND = 6,
+    VT_PATH = 8,
+    VT_X = 10,
+    VT_Y = 12,
+    VT_X2 = 14,
+    VT_Y2 = 16,
+    VT_MOVE_MS = 18,
+    VT_FLIP = 20,
+    VT_DELAY = 22
+  };
+  uint32_t mob_index() const {
+    return GetField<uint32_t>(VT_MOB_INDEX, 0);
+  }
+  bool mutate_mob_index(uint32_t _mob_index = 0) {
+    return SetField<uint32_t>(VT_MOB_INDEX, _mob_index, 0);
+  }
+  uint8_t kind() const {
+    return GetField<uint8_t>(VT_KIND, 0);
+  }
+  bool mutate_kind(uint8_t _kind = 0) {
+    return SetField<uint8_t>(VT_KIND, _kind, 0);
+  }
+  const ::flatbuffers::String *path() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_PATH);
+  }
+  ::flatbuffers::String *mutable_path() {
+    return GetPointer<::flatbuffers::String *>(VT_PATH);
+  }
+  float x() const {
+    return GetField<float>(VT_X, 0.0f);
+  }
+  bool mutate_x(float _x = 0.0f) {
+    return SetField<float>(VT_X, _x, 0.0f);
+  }
+  float y() const {
+    return GetField<float>(VT_Y, 0.0f);
+  }
+  bool mutate_y(float _y = 0.0f) {
+    return SetField<float>(VT_Y, _y, 0.0f);
+  }
+  float x2() const {
+    return GetField<float>(VT_X2, 0.0f);
+  }
+  bool mutate_x2(float _x2 = 0.0f) {
+    return SetField<float>(VT_X2, _x2, 0.0f);
+  }
+  float y2() const {
+    return GetField<float>(VT_Y2, 0.0f);
+  }
+  bool mutate_y2(float _y2 = 0.0f) {
+    return SetField<float>(VT_Y2, _y2, 0.0f);
+  }
+  uint64_t move_ms() const {
+    return GetField<uint64_t>(VT_MOVE_MS, 0);
+  }
+  bool mutate_move_ms(uint64_t _move_ms = 0) {
+    return SetField<uint64_t>(VT_MOVE_MS, _move_ms, 0);
+  }
+  bool flip() const {
+    return GetField<uint8_t>(VT_FLIP, 0) != 0;
+  }
+  bool mutate_flip(bool _flip = 0) {
+    return SetField<uint8_t>(VT_FLIP, static_cast<uint8_t>(_flip), 0);
+  }
+  uint64_t delay() const {
+    return GetField<uint64_t>(VT_DELAY, 0);
+  }
+  bool mutate_delay(uint64_t _delay = 0) {
+    return SetField<uint64_t>(VT_DELAY, _delay, 0);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_MOB_INDEX, 4) &&
+           VerifyField<uint8_t>(verifier, VT_KIND, 1) &&
+           VerifyOffset(verifier, VT_PATH) &&
+           verifier.VerifyString(path()) &&
+           VerifyField<float>(verifier, VT_X, 4) &&
+           VerifyField<float>(verifier, VT_Y, 4) &&
+           VerifyField<float>(verifier, VT_X2, 4) &&
+           VerifyField<float>(verifier, VT_Y2, 4) &&
+           VerifyField<uint64_t>(verifier, VT_MOVE_MS, 8) &&
+           VerifyField<uint8_t>(verifier, VT_FLIP, 1) &&
+           VerifyField<uint64_t>(verifier, VT_DELAY, 8) &&
+           verifier.EndTable();
+  }
+  ServerMobEffectT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerMobEffectT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerMobEffect> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobEffectT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ServerMobEffectBuilder {
+  typedef ServerMobEffect Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_mob_index(uint32_t mob_index) {
+    fbb_.AddElement<uint32_t>(ServerMobEffect::VT_MOB_INDEX, mob_index, 0);
+  }
+  void add_kind(uint8_t kind) {
+    fbb_.AddElement<uint8_t>(ServerMobEffect::VT_KIND, kind, 0);
+  }
+  void add_path(::flatbuffers::Offset<::flatbuffers::String> path) {
+    fbb_.AddOffset(ServerMobEffect::VT_PATH, path);
+  }
+  void add_x(float x) {
+    fbb_.AddElement<float>(ServerMobEffect::VT_X, x, 0.0f);
+  }
+  void add_y(float y) {
+    fbb_.AddElement<float>(ServerMobEffect::VT_Y, y, 0.0f);
+  }
+  void add_x2(float x2) {
+    fbb_.AddElement<float>(ServerMobEffect::VT_X2, x2, 0.0f);
+  }
+  void add_y2(float y2) {
+    fbb_.AddElement<float>(ServerMobEffect::VT_Y2, y2, 0.0f);
+  }
+  void add_move_ms(uint64_t move_ms) {
+    fbb_.AddElement<uint64_t>(ServerMobEffect::VT_MOVE_MS, move_ms, 0);
+  }
+  void add_flip(bool flip) {
+    fbb_.AddElement<uint8_t>(ServerMobEffect::VT_FLIP, static_cast<uint8_t>(flip), 0);
+  }
+  void add_delay(uint64_t delay) {
+    fbb_.AddElement<uint64_t>(ServerMobEffect::VT_DELAY, delay, 0);
+  }
+  explicit ServerMobEffectBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ServerMobEffect> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ServerMobEffect>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ServerMobEffect> CreateServerMobEffect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t mob_index = 0,
+    uint8_t kind = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> path = 0,
+    float x = 0.0f,
+    float y = 0.0f,
+    float x2 = 0.0f,
+    float y2 = 0.0f,
+    uint64_t move_ms = 0,
+    bool flip = false,
+    uint64_t delay = 0) {
+  ServerMobEffectBuilder builder_(_fbb);
+  builder_.add_delay(delay);
+  builder_.add_move_ms(move_ms);
+  builder_.add_y2(y2);
+  builder_.add_x2(x2);
+  builder_.add_y(y);
+  builder_.add_x(x);
+  builder_.add_path(path);
+  builder_.add_mob_index(mob_index);
+  builder_.add_flip(flip);
+  builder_.add_kind(kind);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<ServerMobEffect> CreateServerMobEffectDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t mob_index = 0,
+    uint8_t kind = 0,
+    const char *path = nullptr,
+    float x = 0.0f,
+    float y = 0.0f,
+    float x2 = 0.0f,
+    float y2 = 0.0f,
+    uint64_t move_ms = 0,
+    bool flip = false,
+    uint64_t delay = 0) {
+  auto path__ = path ? _fbb.CreateString(path) : 0;
+  return fbs::CreateServerMobEffect(
+      _fbb,
+      mob_index,
+      kind,
+      path__,
+      x,
+      y,
+      x2,
+      y2,
+      move_ms,
+      flip,
+      delay);
+}
+
+::flatbuffers::Offset<ServerMobEffect> CreateServerMobEffect(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobEffectT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
 struct ServerMobEventT : public ::flatbuffers::NativeTable {
   typedef ServerMobEvent TableType;
@@ -3913,13 +4272,15 @@ inline ::flatbuffers::Offset<ServerMobDrop> ServerMobDrop::Pack(::flatbuffers::F
 inline ServerMobAttackPlayerT::ServerMobAttackPlayerT(const ServerMobAttackPlayerT &o)
       : mob_index(o.mob_index),
         client_id(o.client_id),
-        payload((o.payload) ? new fbs::AttackT(*o.payload) : nullptr) {
+        payload((o.payload) ? new fbs::AttackT(*o.payload) : nullptr),
+        flags(o.flags) {
 }
 
 inline ServerMobAttackPlayerT &ServerMobAttackPlayerT::operator=(ServerMobAttackPlayerT o) FLATBUFFERS_NOEXCEPT {
   std::swap(mob_index, o.mob_index);
   std::swap(client_id, o.client_id);
   std::swap(payload, o.payload);
+  std::swap(flags, o.flags);
   return *this;
 }
 
@@ -3935,6 +4296,7 @@ inline void ServerMobAttackPlayer::UnPackTo(ServerMobAttackPlayerT *_o, const ::
   { auto _e = mob_index(); _o->mob_index = _e; }
   { auto _e = client_id(); _o->client_id = _e; }
   { auto _e = payload(); if (_e) { if(_o->payload) { _e->UnPackTo(_o->payload.get(), _resolver); } else { _o->payload = std::unique_ptr<fbs::AttackT>(_e->UnPack(_resolver)); } } else if (_o->payload) { _o->payload.reset(); } }
+  { auto _e = flags(); _o->flags = _e; }
 }
 
 inline ::flatbuffers::Offset<ServerMobAttackPlayer> CreateServerMobAttackPlayer(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobAttackPlayerT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -3948,11 +4310,111 @@ inline ::flatbuffers::Offset<ServerMobAttackPlayer> ServerMobAttackPlayer::Pack(
   auto _mob_index = _o->mob_index;
   auto _client_id = _o->client_id;
   auto _payload = _o->payload ? CreateAttack(_fbb, _o->payload.get(), _rehasher) : 0;
+  auto _flags = _o->flags;
   return fbs::CreateServerMobAttackPlayer(
       _fbb,
       _mob_index,
       _client_id,
+      _payload,
+      _flags);
+}
+
+inline ServerMobHitMobT::ServerMobHitMobT(const ServerMobHitMobT &o)
+      : mob_index(o.mob_index),
+        from_index(o.from_index),
+        payload((o.payload) ? new fbs::AttackT(*o.payload) : nullptr) {
+}
+
+inline ServerMobHitMobT &ServerMobHitMobT::operator=(ServerMobHitMobT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(mob_index, o.mob_index);
+  std::swap(from_index, o.from_index);
+  std::swap(payload, o.payload);
+  return *this;
+}
+
+inline ServerMobHitMobT *ServerMobHitMob::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerMobHitMobT>(new ServerMobHitMobT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ServerMobHitMob::UnPackTo(ServerMobHitMobT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = mob_index(); _o->mob_index = _e; }
+  { auto _e = from_index(); _o->from_index = _e; }
+  { auto _e = payload(); if (_e) { if(_o->payload) { _e->UnPackTo(_o->payload.get(), _resolver); } else { _o->payload = std::unique_ptr<fbs::AttackT>(_e->UnPack(_resolver)); } } else if (_o->payload) { _o->payload.reset(); } }
+}
+
+inline ::flatbuffers::Offset<ServerMobHitMob> CreateServerMobHitMob(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobHitMobT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerMobHitMob::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ServerMobHitMob> ServerMobHitMob::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobHitMobT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerMobHitMobT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _mob_index = _o->mob_index;
+  auto _from_index = _o->from_index;
+  auto _payload = _o->payload ? CreateAttack(_fbb, _o->payload.get(), _rehasher) : 0;
+  return fbs::CreateServerMobHitMob(
+      _fbb,
+      _mob_index,
+      _from_index,
       _payload);
+}
+
+inline ServerMobEffectT *ServerMobEffect::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerMobEffectT>(new ServerMobEffectT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ServerMobEffect::UnPackTo(ServerMobEffectT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = mob_index(); _o->mob_index = _e; }
+  { auto _e = kind(); _o->kind = _e; }
+  { auto _e = path(); if (_e) _o->path = _e->str(); }
+  { auto _e = x(); _o->x = _e; }
+  { auto _e = y(); _o->y = _e; }
+  { auto _e = x2(); _o->x2 = _e; }
+  { auto _e = y2(); _o->y2 = _e; }
+  { auto _e = move_ms(); _o->move_ms = _e; }
+  { auto _e = flip(); _o->flip = _e; }
+  { auto _e = delay(); _o->delay = _e; }
+}
+
+inline ::flatbuffers::Offset<ServerMobEffect> CreateServerMobEffect(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobEffectT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerMobEffect::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ServerMobEffect> ServerMobEffect::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobEffectT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerMobEffectT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _mob_index = _o->mob_index;
+  auto _kind = _o->kind;
+  auto _path = _o->path.empty() ? 0 : _fbb.CreateString(_o->path);
+  auto _x = _o->x;
+  auto _y = _o->y;
+  auto _x2 = _o->x2;
+  auto _y2 = _o->y2;
+  auto _move_ms = _o->move_ms;
+  auto _flip = _o->flip;
+  auto _delay = _o->delay;
+  return fbs::CreateServerMobEffect(
+      _fbb,
+      _mob_index,
+      _kind,
+      _path,
+      _x,
+      _y,
+      _x2,
+      _y2,
+      _move_ms,
+      _flip,
+      _delay);
 }
 
 inline ServerMobEventT *ServerMobEvent::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
@@ -5045,6 +5507,14 @@ inline bool VerifyMobEventUnion(::flatbuffers::VerifierTemplate<B> &verifier, co
       auto ptr = reinterpret_cast<const fbs::ServerMobAttackPlayer *>(obj);
       return verifier.VerifyTable(ptr);
     }
+    case MobEventUnion_ServerMobHitMob: {
+      auto ptr = reinterpret_cast<const fbs::ServerMobHitMob *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case MobEventUnion_ServerMobEffect: {
+      auto ptr = reinterpret_cast<const fbs::ServerMobEffect *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
     default: return true;
   }
 }
@@ -5093,6 +5563,14 @@ inline void *MobEventUnionUnion::UnPack(const void *obj, MobEventUnion type, con
       auto ptr = reinterpret_cast<const fbs::ServerMobAttackPlayer *>(obj);
       return ptr->UnPack(resolver);
     }
+    case MobEventUnion_ServerMobHitMob: {
+      auto ptr = reinterpret_cast<const fbs::ServerMobHitMob *>(obj);
+      return ptr->UnPack(resolver);
+    }
+    case MobEventUnion_ServerMobEffect: {
+      auto ptr = reinterpret_cast<const fbs::ServerMobEffect *>(obj);
+      return ptr->UnPack(resolver);
+    }
     default: return nullptr;
   }
 }
@@ -5128,6 +5606,14 @@ inline ::flatbuffers::Offset<void> MobEventUnionUnion::Pack(::flatbuffers::FlatB
       auto ptr = reinterpret_cast<const fbs::ServerMobAttackPlayerT *>(value);
       return CreateServerMobAttackPlayer(_fbb, ptr, _rehasher).Union();
     }
+    case MobEventUnion_ServerMobHitMob: {
+      auto ptr = reinterpret_cast<const fbs::ServerMobHitMobT *>(value);
+      return CreateServerMobHitMob(_fbb, ptr, _rehasher).Union();
+    }
+    case MobEventUnion_ServerMobEffect: {
+      auto ptr = reinterpret_cast<const fbs::ServerMobEffectT *>(value);
+      return CreateServerMobEffect(_fbb, ptr, _rehasher).Union();
+    }
     default: return 0;
   }
 }
@@ -5160,6 +5646,14 @@ inline MobEventUnionUnion::MobEventUnionUnion(const MobEventUnionUnion &u) : typ
     }
     case MobEventUnion_ServerMobAttackPlayer: {
       value = new fbs::ServerMobAttackPlayerT(*reinterpret_cast<fbs::ServerMobAttackPlayerT *>(u.value));
+      break;
+    }
+    case MobEventUnion_ServerMobHitMob: {
+      value = new fbs::ServerMobHitMobT(*reinterpret_cast<fbs::ServerMobHitMobT *>(u.value));
+      break;
+    }
+    case MobEventUnion_ServerMobEffect: {
+      value = new fbs::ServerMobEffectT(*reinterpret_cast<fbs::ServerMobEffectT *>(u.value));
       break;
     }
     default:
@@ -5201,6 +5695,16 @@ inline void MobEventUnionUnion::Reset() {
     }
     case MobEventUnion_ServerMobAttackPlayer: {
       auto ptr = reinterpret_cast<fbs::ServerMobAttackPlayerT *>(value);
+      delete ptr;
+      break;
+    }
+    case MobEventUnion_ServerMobHitMob: {
+      auto ptr = reinterpret_cast<fbs::ServerMobHitMobT *>(value);
+      delete ptr;
+      break;
+    }
+    case MobEventUnion_ServerMobEffect: {
+      auto ptr = reinterpret_cast<fbs::ServerMobEffectT *>(value);
       delete ptr;
       break;
     }

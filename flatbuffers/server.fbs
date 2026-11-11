@@ -57,10 +57,39 @@ table ServerMobDrop {
 }
 
 // 怪物攻击命中玩家：client_id 是被命中的一方
+// flags 位：1 = 固定打掉到 1 HP（deadlyAttack），2 = 魔法伤害强制为 1（mpBurn）
 table ServerMobAttackPlayer {
     mob_index:uint32;
     client_id:uint64;
     payload:Attack;
+    flags:uint8;
+}
+
+// 怪物打怪物（被迷惑的怪互殴）：mob_index 是受害者，from_index 是攻击者。
+// 伤害由服务端结算，payload 只用于客户端飘字表现。
+table ServerMobHitMob {
+    mob_index:uint32;
+    from_index:uint32;
+    payload:Attack;
+}
+
+// 怪物特效（v95 sEffect / sHit / sBall / areaWarning / MobSkill effect）：
+// kind 0 = Mob.wz（path 形如 "<mobid>.img/attack1/info/effect"），
+// kind 1 = Skill.wz（path 形如 "MobSkill/120.img/level/1/effect"）。
+// x/y 是世界坐标，delay 是从收到事件算起的延迟（毫秒）。
+// move_ms > 0 表示飞行体（子弹）：从 (x,y) 匀速移动到 (x2,y2)，
+// 期间帧循环播放，到点后销毁。
+table ServerMobEffect {
+    mob_index:uint32;
+    kind:uint8;
+    path:string;
+    x:float;
+    y:float;
+    x2:float;
+    y2:float;
+    move_ms:uint64;
+    flip:bool;
+    delay:uint64;
 }
 
 union MobEventUnion {
@@ -71,6 +100,8 @@ union MobEventUnion {
     ServerMobDie,
     ServerMobDrop,
     ServerMobAttackPlayer,
+    ServerMobHitMob,
+    ServerMobEffect,
 }
 
 table ServerMobEvent {

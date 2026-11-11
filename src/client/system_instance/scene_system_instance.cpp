@@ -11,6 +11,7 @@
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/drop_game_instance.h"
 #include "src/client/game_instance/effect_game_instance.h"
+
 #include "src/client/game_instance/foothold_game_instance.h"
 #include "src/client/game_instance/ladderrope_game_instance.h"
 #include "src/client/game_instance/map_info_game_instance.h"
@@ -201,6 +202,7 @@ void SceneSystemInstance::Enter(uint32_t map_id) {
   // 这里只按保留下来的 buff 重算属性 (含移速/跳跃上限)。
   CharacterStatGameInstance::Update();
   EffectGameInstance::Reset();
+  MobGameInstance::effect_.clear();
   CameraGameInstance::Reset();
   StatusbarUiSystem::Reset();
   BallGameInstance::Reset();

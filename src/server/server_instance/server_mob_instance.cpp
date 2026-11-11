@@ -5,6 +5,7 @@
 #include "src/client/game/game_mob.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
@@ -117,6 +118,36 @@ std::map<int32_t, uint32_t> ReadFrameDelays(wz::Node* action_node) {
         ReadFrameDelay(value[0]);
   }
   return delays;
+}
+
+// 十进制整数 -> u16string（wz 子节点名、技能 id 拼接用）
+std::u16string ItoS(int32_t value) {
+  std::u16string out;
+  if (value == 0) {
+    return u"0";
+  }
+  bool neg = value < 0;
+  uint32_t v = neg ? static_cast<uint32_t>(-value) : static_cast<uint32_t>(value);
+  while (v > 0) {
+    out.insert(out.begin(), static_cast<char16_t>(u'0' + v % 10));
+    v /= 10;
+  }
+  if (neg) {
+    out.insert(out.begin(), u'-');
+  }
+  return out;
+}
+
+bool IsDigits(const std::u16string& s) {
+  if (s.empty()) {
+    return false;
+  }
+  for (char16_t c : s) {
+    if (c < u'0' || c > u'9') {
+      return false;
+    }
+  }
+  return true;
 }
 
 }  // namespace
@@ -252,23 +283,80 @@ const std::vector<MobAttack>& ServerMobInstance::LoadMobAttacks(
     return attacks;
   }
 
-  for (int32_t i = 1; i <= 8; ++i) {
-    std::u16string action = u"attack" + std::u16string(1, u'0' + i);
+  auto* info_node = mob_node->get_child(u"info");
+  // v95 服务端攻击表（Mob.wz/<id>.img/info/attack/<i>）。客户端版数据里
+  // <actionN>/info 常常没有 type/conMP/magic 等键，这张表是唯一来源。
+  auto* table = info_node == nullptr ? nullptr : info_node->get_child(u"attack");
+
+  // v95 RegisterMob：nAttackCount = 根节点里以 "attack" 开头的子项个数（去重）。
+  // 注意这是"个数"，LoadAttackInfo 再按序号位置取名字（i=0..7 -> attack1..8，
+  // i=8 -> attackF），所以缺少连续前缀时天然会产生"空槽"，这是原版行为。
+  int32_t attack_count = 0;
+  if (auto* children = mob_node->get_children(); children != nullptr) {
+    std::flat_map<std::u16string, int> seen;
+    for (const auto& [name, list] : *children) {
+      (void)list;
+      if (!name.starts_with(u"attack")) {
+        continue;
+      }
+      if (seen.contains(name)) {
+        continue;
+      }
+      seen.emplace(name, 1);
+      ++attack_count;
+    }
+  }
+
+  for (int32_t i = 0; i < attack_count && i <= 8; ++i) {
+    std::u16string action =
+        i < 8 ? u"attack" + std::u16string(1, static_cast<char16_t>(u'1' + i))
+              : u"attackF";
     auto* attack_node = mob_node->get_child(action);
     if (attack_node == nullptr) {
       continue;
     }
     auto* info = attack_node->get_child(u"info");
+    // v95 LoadAttackInfo 在取不到 <actionN>/info 时返回 null，该序号被跳过
     if (info == nullptr) {
       continue;
     }
+    // 服务端攻击表的同序号条目（键是 0 起的序号）
+    auto* entry =
+        table == nullptr
+            ? nullptr
+            : table->get_child(std::u16string(1, static_cast<char16_t>(u'0' + i)));
+
     MobAttack attack;
     attack.action = action;
-    attack.magic = ReadInt(info, u"magic", 0) != 0;
+    attack.index = i;
+    attack.magic = ReadInt(info, u"magic", ReadInt(entry, u"magic", 0)) != 0;
     attack.do_first = ReadInt(info, u"doFirst", 0) != 0;
     attack.inactive = ReadInt(info, u"inactive", 0) != 0;
+    attack.jump_attack =
+        ReadInt(info, u"jumpAttack", ReadInt(entry, u"jumpAttack", 0)) != 0;
+    attack.deadly = ReadInt(info, u"deadlyAttack", 0) != 0;
+    attack.mp_burn = ReadInt(info, u"mpBurn", 0) != 0;
+    attack.knockback = ReadInt(info, u"knockback", 0) != 0;
+    attack.rush = ReadInt(info, u"rush", 0) != 0;
+    attack.tremble = ReadInt(info, u"tremble", 0) != 0;
+    attack.special_attack = ReadInt(info, u"specialAttack", 0) != 0;
+    attack.has_ball = info->get_child(u"ball") != nullptr;
     attack.pad = ReadInt(info, u"PADamage", 0);
+    attack.con_mp = ReadInt(info, u"conMP", ReadInt(entry, u"conMP", 0));
+    attack.rand_delay_attack = ReadInt(info, u"randDelayAttack", 0);
     attack.attack_after = static_cast<uint64_t>(ReadInt(info, u"attackAfter", 0));
+    attack.effect_after = static_cast<uint64_t>(
+        ReadInt(info, u"effectAfter", ReadInt(entry, u"effectAfter", 0)));
+    // v95 nBulletSpeed 缺省 100；wz 里写成 0 的按缺省处理
+    attack.bullet_speed =
+        ReadInt(info, u"bulletSpeed", ReadInt(entry, u"bulletSpeed", 0));
+    if (attack.bullet_speed <= 0) {
+      attack.bullet_speed = 100;
+    }
+    attack.bullet_number = ReadInt(info, u"bulletNumber", 1);
+    if (attack.bullet_number < 1) {
+      attack.bullet_number = 1;
+    }
 
     // v95 LoadAttackInfo 按 type 选择 range 结构；这里按实际存在的键判断，
     // 兼容缺失 info/type 的数据
@@ -295,9 +383,176 @@ const std::vector<MobAttack>& ServerMobInstance::LoadMobAttacks(
           .h = rb.y - lt.y,
       };
     }
+
+    // nType 优先级：<actionN>/info/type -> info/attack/<i>/type -> 按 range 推断
+    int32_t ntype = ReadInt(info, u"type", -1);
+    if (ntype < 0) {
+      ntype = ReadInt(entry, u"type", -1);
+    }
+    if (ntype < 0) {
+      if (attack.type == MobAttack::RangeType::kArea) {
+        ntype = MobAttack::NType::kAreaGround;
+      } else if (attack.type == MobAttack::RangeType::kTrapezoid) {
+        ntype = attack.has_ball ? MobAttack::NType::kBullet
+                                : MobAttack::NType::kRadius;
+      } else {
+        ntype = MobAttack::NType::kMelee;
+      }
+    }
+    attack.ntype = ntype;
+
+    // v95 LoadAttackInfo 的资源 UOL：Mob/%07d.img/<action>/info/<key>
+    const std::u16string prefix = mob_id + u".img/" + action + u"/info/";
+    if (info->get_child(u"effect") != nullptr) {
+      attack.effect_path = prefix + u"effect";
+    }
+    if (info->get_child(u"hit") != nullptr) {
+      attack.hit_path = prefix + u"hit";
+    }
+    if (info->get_child(u"ball") != nullptr) {
+      attack.ball_path = prefix + u"ball";
+    }
+    if (info->get_child(u"areaWarning") != nullptr) {
+      attack.area_warning_path = prefix + u"areaWarning";
+    }
+
     attacks.push_back(std::move(attack));
   }
   return attacks;
+}
+
+const std::vector<MobSkillRef>& ServerMobInstance::LoadMobSkills(
+    const std::u16string& mob_id) {
+  static std::flat_map<std::u16string, std::vector<MobSkillRef>> cache;
+
+  auto [it, inserted] = cache.try_emplace(mob_id);
+  if (!inserted) {
+    return it->second;
+  }
+  auto& skills = it->second;
+  auto* mob_node = LoadMobNode(mob_id);
+  if (mob_node == nullptr) {
+    return skills;
+  }
+  auto* info = mob_node->get_child(u"info");
+  auto* node = info == nullptr ? nullptr : info->get_child(u"skill");
+  if (node == nullptr || node->get_children() == nullptr) {
+    return skills;
+  }
+
+  // v95 LoadSkillInfo：子节点名是 "0","1"…（0 基序号，不是 skill1）
+  std::map<int32_t, MobSkillRef> ordered;
+  for (const auto& [key, list] : *node->get_children()) {
+    if (list.empty() || !IsDigits(key)) {
+      continue;
+    }
+    auto* entry = list[0];
+    MobSkillRef ref;
+    ref.skill_id = ReadInt(entry, u"skill", 0);
+    ref.slv = ReadInt(entry, u"level", 1);
+    // v95：nAction = get(action, 1) - 1，键缺失时落到动作 skill1
+    ref.action = ReadInt(entry, u"action", 1);
+    ref.effect_after = static_cast<uint64_t>(ReadInt(entry, u"effectAfter", 0));
+    ref.after_delay = static_cast<uint64_t>(ReadInt(entry, u"afterDelay", 0));
+    if (ref.skill_id <= 0) {
+      continue;
+    }
+    if (ref.action < 1) {
+      ref.action = 1;
+    }
+    ordered[std::stoi(std::string{key.begin(), key.end()})] = ref;
+  }
+  for (const auto& [index, ref] : ordered) {
+    (void)index;
+    skills.push_back(ref);
+  }
+  return skills;
+}
+
+bool ServerMobInstance::HasMobSkillEffect(int32_t skill_id, int32_t slv) {
+  auto* node =
+      WzResource::skill_->find(u"MobSkill/" + ItoS(skill_id) + u".img");
+  auto* level = node == nullptr ? nullptr : node->get_child(u"level");
+  auto* lv = level == nullptr ? nullptr : level->get_child(ItoS(slv));
+  return lv != nullptr && lv->get_child(u"effect") != nullptr;
+}
+
+MobSkillLevel ServerMobInstance::LoadMobSkillLevel(int32_t skill_id,
+                                                   int32_t slv) {
+  MobSkillLevel out;
+  static std::flat_map<int64_t, MobSkillLevel> cache;
+  const int64_t key = (static_cast<int64_t>(skill_id) << 16) | (slv & 0xFFFF);
+  if (auto it = cache.find(key); it != cache.end()) {
+    return it->second;
+  }
+
+  auto* node =
+      WzResource::skill_->find(u"MobSkill/" + ItoS(skill_id) + u".img");
+  auto* level = node == nullptr ? nullptr : node->get_child(u"level");
+  auto* lv = level == nullptr ? nullptr : level->get_child(ItoS(slv));
+  if (lv == nullptr) {
+    cache.emplace(key, out);
+    return out;
+  }
+
+  out.hp_below = ReadInt(lv, u"hp", 0);
+  out.mp_con = ReadInt(lv, u"mpCon", 0);
+  out.prop = ReadInt(lv, u"prop", 0);
+  out.x = ReadInt(lv, u"x", 0);
+  out.y = ReadInt(lv, u"y", 0);
+  // v95：time / interval 的 WZ 单位是秒，读入后 ×1000 变毫秒
+  out.duration = static_cast<uint64_t>(ReadInt(lv, u"time", 0)) * 1000;
+  out.interval = static_cast<uint64_t>(ReadInt(lv, u"interval", 0)) * 1000;
+  out.count = ReadInt(lv, u"count", -1);
+  out.random_target = ReadInt(lv, u"randomTarget", 0) != 0;
+  out.direction = ReadInt(lv, u"direction", 0);
+  // elemAttr 是单个字符：F 火 / I 冰 / L 雷 / P 毒（v95 char2elem_attr）
+  auto* elem_node = lv->get_child(u"elemAttr");
+  if (elem_node != nullptr && elem_node->type == wz::Type::String) {
+    auto s = static_cast<wz::Property<std::u16string>*>(elem_node)->get();
+    if (!s.empty()) {
+      switch (s[0]) {
+        case u'F':
+          out.elem = 1;
+          break;
+        case u'I':
+          out.elem = 2;
+          break;
+        case u'L':
+          out.elem = 4;
+          break;
+        case u'P':
+          out.elem = 8;
+          break;
+        default:
+          break;
+      }
+    }
+  }
+  out.limit = ReadInt(lv, u"limit", 0);
+  auto lt = ReadPoint(lv, u"lt");
+  auto rb = ReadPoint(lv, u"rb");
+  out.area = SDL_FRect{
+      .x = lt.x,
+      .y = lt.y,
+      .w = rb.x - lt.x,
+      .h = rb.y - lt.y,
+  };
+  if (auto* children = lv->get_children(); children != nullptr) {
+    for (const auto& [name, list] : *children) {
+      if (list.empty() || !IsDigits(name)) {
+        continue;
+      }
+      if (list[0]->type != wz::Type::Int) {
+        continue;
+      }
+      out.summon_ids.push_back(
+          static_cast<wz::Property<int32_t>*>(list[0])->get());
+    }
+  }
+  out.valid = true;
+  cache.emplace(key, out);
+  return out;
 }
 
 void ServerMobInstance::LoadDefaultMob(const std::u16string id,
@@ -310,7 +565,13 @@ void ServerMobInstance::LoadDefaultMob(const std::u16string id,
   bool has_move = mob_node != nullptr && mob_node->get_child(u"move") != nullptr;
   bool has_jump = mob_node != nullptr && mob_node->get_child(u"jump") != nullptr;
   bool has_fly = mob_node != nullptr && mob_node->get_child(u"fly") != nullptr;
-  if (has_fly) {
+  // info/escort 非 0 覆盖 fly/jump/move 推导（v95 RegisterMob 的 nEscortType）
+  mob.escort_type =
+      ReadInt(mob_node == nullptr ? nullptr : mob_node->get_child(u"info"),
+              u"escort", 0);
+  if (mob.escort_type != 0) {
+    mob.move_ability = 6;
+  } else if (has_fly) {
     mob.move_ability = 4;
   } else if (has_jump && has_move) {
     mob.move_ability = 3;
@@ -381,6 +642,55 @@ void ServerMobInstance::LoadMob(ServerSceneState& scene) {
     mob.spawn_fh = mob.fh;
     mob.spawn_page = mob.page;
     LoadDefaultMob(mob.id, mob);
+    // 护送怪：v95 的路线由服务器用 opcode 0x130 下发，本工程没有地图脚本通道，
+    // 因此沿 foothold 链把"站着的整条平台"取成航点（左端 → 右端），
+    // 链太短时退回 life 的 rx0/rx1。
+    if (mob.move_ability == 6) {
+      std::vector<MobEscortNode> left;
+      int32_t cur = fhs.contains(mob.spawn_fh) ? fhs.at(mob.spawn_fh).prev : 0;
+      for (int32_t guard = 0; cur != 0 && guard < 32; ++guard) {
+        auto it = fhs.find(cur);
+        if (it == fhs.end() || !it->second.k.has_value()) {
+          break;
+        }
+        const auto& fh = it->second;
+        const float lx = static_cast<float>(std::min(fh.x1, fh.x2));
+        const float ly = static_cast<float>(fh.x1 <= fh.x2 ? fh.y1 : fh.y2);
+        left.push_back(MobEscortNode{lx, ly, 0});
+        cur = fh.prev;
+        if (cur == mob.spawn_fh) {
+          break;
+        }
+      }
+      std::vector<MobEscortNode> path;
+      for (auto it = left.rbegin(); it != left.rend(); ++it) {
+        path.push_back(*it);
+      }
+      cur = fhs.contains(mob.spawn_fh) ? fhs.at(mob.spawn_fh).next : 0;
+      for (int32_t guard = 0; cur != 0 && guard < 32; ++guard) {
+        auto it = fhs.find(cur);
+        if (it == fhs.end() || !it->second.k.has_value()) {
+          break;
+        }
+        const auto& fh = it->second;
+        const float rx = static_cast<float>(std::max(fh.x1, fh.x2));
+        const float ry = static_cast<float>(fh.x1 >= fh.x2 ? fh.y1 : fh.y2);
+        path.push_back(MobEscortNode{rx, ry, 0});
+        cur = fh.next;
+        if (cur == mob.spawn_fh) {
+          break;
+        }
+      }
+      if (path.size() >= 2) {
+        mob.escort_path = std::move(path);
+        mob.escort_index = 0;
+        mob.escort_stop = 0;
+      } else {
+        ServerMobSystem::RunSetEscortPath(
+            mob, static_cast<float>(mob.rx0) + 20.0f,
+            static_cast<float>(mob.rx1) - 20.0f, mob.pos.y);
+      }
+    }
     data[mob.index] = mob;
   }
   scene.mobs = data;
@@ -531,6 +841,16 @@ void ServerMobInstance::HandleServerEvent(const fbs::ServerMobEventT& m) {
         HandleServerAttackPlayer(*d);
         break;
       }
+      case fbs::MobEventUnion_ServerMobHitMob: {
+        const auto d = ev.AsServerMobHitMob();
+        HandleServerHitMob(*d);
+        break;
+      }
+      case fbs::MobEventUnion_ServerMobEffect: {
+        const auto d = ev.AsServerMobEffect();
+        HandleServerEffect(*d);
+        break;
+      }
       default: {
         break;
       }
@@ -563,6 +883,24 @@ void ServerMobInstance::HandleServerAttack(fbs::ServerMobAttackT& r) {
   HandleSAttack(r.client_id, *r.payload);
 }
 
+// 怪物特效：sEffect / sHit / areaWarning / MobSkill effect
+void ServerMobInstance::HandleServerEffect(const fbs::ServerMobEffectT& m) {
+  if (m.path.empty()) {
+    return;
+  }
+  MobGameInstance::AddEffect(m.mob_index, m.kind,
+                         std::u16string{m.path.begin(), m.path.end()}, m.x, m.y,
+                         m.x2, m.y2, m.move_ms, m.flip, m.delay);
+}
+
+// 怪打怪：伤害已由服务端结算，客户端只画伤害数字（v95 里这条路径纯表现）
+void ServerMobInstance::HandleServerHitMob(const fbs::ServerMobHitMobT& m) {
+  if (m.payload == nullptr) {
+    return;
+  }
+  HandleSAttack(0, *m.payload);
+}
+
 void ServerMobInstance::HandleServerAttackPlayer(
     const fbs::ServerMobAttackPlayerT& m) {
   auto it = MobGameInstance::data_.find(static_cast<int32_t>(m.mob_index));
@@ -592,6 +930,20 @@ void ServerMobInstance::HandleServerAttackPlayer(
        static_cast<double>(CharacterGameInstance::self_.level) / 10.0);
   int64_t final_damage =
       static_cast<int64_t>(std::max(1.0, std::trunc(damage)));
+
+  // v95 bMPBurn：魔法攻击的伤害强制为 1
+  if ((m.flags & 2) != 0) {
+    final_damage = 1;
+  }
+  // v95 bTremble：命中震屏（强度 30.0、1 次，约 300ms）
+  if ((m.flags & 4) != 0) {
+    CameraGameInstance::Shake(30.0f, 300);
+  }
+  // v95 bDeadlyAttack：把目标打到剩 1 HP
+  if ((m.flags & 1) != 0) {
+    final_damage = std::max<int64_t>(
+        1, static_cast<int64_t>(CharacterStatGameInstance::GetHp()) - 1);
+  }
 
   fbs::AttackT at{
       .delay = Window::dt_time_,
@@ -814,6 +1166,14 @@ void ApplyMobDebuffPayload(
       sd.client_id = client_id;
       sd.db = debuff;
       mb.debuffs[debuff.type] = sd;
+
+      // 迷惑：nDazzle_ 存施法者角色 ID，0 表示未被迷惑
+      if (debuff.type == GameDebuff::DebuffType::kDazzle) {
+        mb.dazzle_owner = client_id;
+        mb.dazzle_end = debuff.destroy;
+        // v95 构造函数里 m_tLastHitDazzledMob = 出生时刻 ⇒ 前 2 秒不撞击
+        mb.dazzle_cd = Window::dt_now_ + 2000;  // v95 m_tLastHitDazzledMob 的 2000ms
+      }
     }
   }
   fbs::ServerMobDebuffT smd;

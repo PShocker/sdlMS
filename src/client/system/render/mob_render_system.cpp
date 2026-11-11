@@ -130,8 +130,78 @@ void MobRenderSystem::RenderDebuff(GameMob& g_mob) {
   DebuffRenderSystem::RenderMob(g_mob);
 }
 
+// 怪物特效（v95 sEffect / sHit / areaWarning / MobSkill effect）
+void MobRenderSystem::RenderMobEffect(GameMob& g_mob) {
+  for (const auto& effect : MobGameInstance::effect_) {
+    if (effect.mob_index != g_mob.index || effect.done) {
+      continue;
+    }
+    if (Window::dt_now_ < effect.start) {
+      continue;
+    }
+    auto* frame = MobGameInstance::LoadEffectFrameNode(effect, effect.index);
+    if (frame == nullptr) {
+      continue;
+    }
+    // 帧节点可能是 UOL：先解引用，非 canvas 且没有 _outlink 的直接跳过，
+    // 避免 WzResource::LoadTexture 对非 canvas 节点 abort
+    if (frame->type == wz::Type::UOL) {
+      frame = static_cast<wz::Property<wz::WzUOL>*>(frame)->get_uol();
+    }
+    if (frame == nullptr) {
+      continue;
+    }
+    if (frame->type != wz::Type::Canvas &&
+        frame->get_child(u"_outlink") == nullptr) {
+      continue;
+    }
+    SDL_Texture* texture = WzResource::LoadTexture(frame);
+    if (texture == nullptr) {
+      continue;
+    }
+    // origin 缺失时按 (0,0) 处理（LoadFpoint 不判空）
+    auto* origin_node = frame->get_child(u"origin");
+    if (origin_node != nullptr && origin_node->type == wz::Type::UOL) {
+      origin_node = static_cast<wz::Property<wz::WzUOL>*>(origin_node)->get_uol();
+    }
+    SDL_FPoint origin{0.0f, 0.0f};
+    if (origin_node != nullptr && origin_node->type == wz::Type::Vector2D) {
+      origin = WzResource::LoadFpoint(origin_node);
+    }
+    float x = g_mob.pos.x + effect.ox;
+    float y = g_mob.pos.y + effect.oy;
+    // 飞行体（子弹）：按已飞时间在起点与终点之间插值
+    if (effect.move_ms > 0) {
+      const uint64_t elapsed = Window::dt_now_ - effect.start;
+      const float t = std::clamp(
+          static_cast<float>(elapsed) / static_cast<float>(effect.move_ms), 0.0f,
+          1.0f);
+      x = effect.mx + (effect.mx2 - effect.mx) * t;
+      y = effect.my + (effect.my2 - effect.my) * t;
+    }
+    SDL_FRect pos_rect = {
+        .x = x - origin.x,
+        .y = y - origin.y,
+        .w = static_cast<float>(texture->w),
+        .h = static_cast<float>(texture->h),
+    };
+    if (effect.flip) {
+      pos_rect.x = x - (texture->w - origin.x);
+    }
+    auto& camera = CameraGameInstance::camera_;
+    if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
+      pos_rect.x -= camera.x;
+      pos_rect.y -= camera.y;
+      SDL_RenderTextureRotated(Window::renderer_, texture, nullptr, &pos_rect, 0,
+                               nullptr,
+                               effect.flip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
+    }
+  }
+}
+
 bool MobRenderSystem::Render(GameMob& g_mob) {
   RenderMob(g_mob);
+  RenderMobEffect(g_mob);
   RenderEffectBack(g_mob);
   RenderDebuff(g_mob);
   RenderGauge(g_mob);

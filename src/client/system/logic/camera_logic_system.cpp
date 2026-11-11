@@ -4,8 +4,10 @@
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/map_info_game_instance.h"
 #include "src/client/system_instance/scene_system_instance.h"
+#include "src/client/window/window.h"
 
 #include <cmath>
+
 
 namespace sdlms {
 
@@ -47,6 +49,14 @@ bool CameraLogicSystem::Run() {
   if (b - t < camera.h) {
     // 如果地图高度小于摄像机高度,地图居中显示
     camera.y = t - (camera.h - (b - t)) / 2;
+  }
+  if (Window::dt_now_ < CameraGameInstance::shake_end_ &&
+      CameraGameInstance::shake_power_ > 0.0f) {
+    const float phase = static_cast<float>(Window::dt_now_ % 40) / 40.0f;
+    const float jitter =
+        std::sin(phase * 6.2831853f) * CameraGameInstance::shake_power_;
+    camera.x += jitter;
+    camera.y += jitter * 0.5f;
   }
 
   return true;
