@@ -1559,14 +1559,12 @@ void ServerMobSystem::RunInterruptDistance(ServerMob& mob, float distance,
   if (t_elapse == 0) {
     t_elapse = 300;
   }
+  // 095 CMob::GenerateMovePath case 2：初速 300、drag 20000，
+  // 按 hit 动作时长更新，击退不是匀速直线。
   const float dir = left ? 1.0f : -1.0f;
   RunInterruptStart(mob, 2, mob.pos.x + dir * distance, mob.pos.y,
                     static_cast<uint32_t>(t_elapse));
-  // 095 Power Knockback 的固定击退距离：按动作时长均速移动。
-  mob.interrupt.vx = dir * distance / (static_cast<float>(t_elapse) / 1000.0f) *
-                     std::max(0.1f, speed_scale);
-  mob.interrupt.drag = 0.0f;
-  mob.interrupt.fixed_distance = true;
+  mob.interrupt.fixed_distance = false;
 }
 
 void ServerMobSystem::RunInterruptGround(ServerMob& mob, uint32_t t_elapse) {
@@ -1610,7 +1608,10 @@ void ServerMobSystem::RunInterruptGround(ServerMob& mob, uint32_t t_elapse) {
         it.vx = 0.0f;
       } else if (adx < slow_near) {
         it.vx /= kSlowDiv;
-        snap(adx);
+        // type 2（Power Knockback）不能 snap 剩余距离，否则最后会出现瞬移。
+        if (it.type != 2) {
+          snap(adx);
+        }
       } else {
         // 默认档：按 drag / mass 恒定减速，梯形积分推进
         const float decel = it.drag / kMobMass;

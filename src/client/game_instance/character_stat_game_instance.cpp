@@ -912,7 +912,7 @@ void CharacterStatGameInstance::SetSkiAcc(uint32_t n) {
 }
 void CharacterStatGameInstance::SetSkiAvd(uint32_t n) {
   ski_avoid_ = n;
-  Update();
+  // 被动技能在 Update() 内部调用本函数，不能再递归 Update()。
 }
 void CharacterStatGameInstance::SetSkiDef(int32_t n) {
   ski_attack_def_ = n;

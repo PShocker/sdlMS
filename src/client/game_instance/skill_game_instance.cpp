@@ -8,6 +8,7 @@
 #include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/text_game_instance.h"
+#include "src/client/game_skill/hunter_attack.h"
 #include "src/client/game_skill/mp_eater.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
@@ -215,6 +216,10 @@ int SkillGameInstance::LoadSkiMaxLvl(const std::u16string& id) {
 
 bool SkillGameInstance::LoadSkiActive(const std::u16string& id) {
   auto ski_node = LoadSkiNode(id);
+  // 3101000 Final Attack: Bow 是 toggle 技能。
+  if (id == u"3101000") {
+    return true;
+  }
   // 095 SKILLENTRY::IsFinalAttack：skillType == 3 为 Final Attack，
   // 由普通攻击自动触发，不能作为主动技能选取。
   if (auto* skill_type = ski_node->get_child(u"skillType");
@@ -439,6 +444,7 @@ fbs::ClientCharacterAttackT SkillGameInstance::CreateAttackPayload(
         if (critical) {
           ct.attack->type =
               static_cast<uint8_t>(DamageData::DamageColor::kCrit);
+          ApplyAmazonJudgement(mob.mob, delay + n * interval + mob.delay);
         }
       }
       ct.attack->delay = delay + n * interval + mob.delay;
@@ -458,6 +464,11 @@ fbs::ClientCharacterAttackT SkillGameInstance::CreateAttackPayload(
       g.hp_percent_now = g.hp_percent;
       mb.gauge = g;
     }
+  }
+  // Final Attack 只在普通箭矢攻击后触发；Power Knockback 等带击退的攻击
+  // 不能触发，否则怪物先进入 hit 状态会让后续 Power Knockback 丢失击退。
+  if (knockback == 0.0f) {
+    TriggerBowFinalAttack(cm, delay);
   }
   return attack_payload;
 }
