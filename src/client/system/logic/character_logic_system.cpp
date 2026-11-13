@@ -2,7 +2,9 @@
 
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_tomb.h"
+#include "src/client/game_skill/crossbow_attack.h"
 #include "src/client/game_skill/fighter_final_attack.h"
+#include "src/client/game_skill/hunter_attack.h"
 #include "src/client/game_skill/page_final_attack.h"
 #include "src/client/game_skill/spearman_final_attack.h"
 #include "src/client/game_instance/afterimage_game_instance.h"
@@ -1060,6 +1062,9 @@ bool CharacterLogicSystem::RunAttack(GameCharacter& g_character) {
       auto cat = SkillGameInstance::CreateAttackPayload(cm, pos, d);
       cat.payload[0]->effect = {effect.begin(), effect.end()};
       ClientRequest::SendToHost(cat);
+      // 只有弓/弩的飞行道具攻击才触发 Ultimate。
+      TriggerBowFinalAttack(cm, d);
+      TriggerCrossbowFinalAttack(cm, d);
     }
     ServerBallInstance::HandleServerB(cct.payload);
     ClientRequest::SendToHost(cct);

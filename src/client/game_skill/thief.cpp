@@ -4,6 +4,7 @@
 #include "src/client/game/game_mob.h"
 #include "src/client/game/game_skill.h"
 #include "src/client/game/game_triangle.h"
+#include "src/client/game_skill/assassin_attack.h"
 #include "src/client/game_instance/ball_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
@@ -345,6 +346,8 @@ static void LuckySeven() {
       ServerBallInstance::HandleServerB(cct.payload);
     }
     ItemGameInstance::DecItemNum(*ball, bullet_count);
+    // 4100000 Claw Mastery：投掷攻击有概率回收飞镖。
+    TryClawStarRecovery();
     SendSkill(4001003, ski_lv, cat);
   };
   SkillGameInstance::Skis()[g_skill.id] = g_skill;

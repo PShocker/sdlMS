@@ -2,6 +2,7 @@
 #include "src/client/game/game_debuff.h"
 #include "src/client/game/game_skill.h"
 #include "src/client/game/game_triangle.h"
+#include "src/client/game_skill/hunter_attack.h"
 #include "src/client/game_instance/ball_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
@@ -191,6 +192,7 @@ static void ArrowBlow() {
       auto d = BallGameInstance::LoadBallTime(cct);
       cat = SkillGameInstance::CreateAttackPayload(cm, sf.pos, d);
       ClientRequest::SendToHost(cat);
+      TriggerBowFinalAttack(cm, d);
     }
     ItemGameInstance::DecItemNum(*ball, 1);
 
@@ -248,6 +250,7 @@ static void DoubleShot() {
       auto d = BallGameInstance::LoadBallTime(cct);
       cat = SkillGameInstance::CreateAttackPayload(cm, sf.pos, d, 120, "", "");
       ClientRequest::SendToHost(cat);
+      TriggerBowFinalAttack(cm, d);
     }
 
     // Double Shot 即使没有命中，也要显示两支箭的飞行。

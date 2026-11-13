@@ -1798,9 +1798,8 @@ void ServerMobSystem::RunWalk(ServerMob& mob) {
   if (mob.move_ability == 3) {
     RunTryJump(mob);
   } else if (mob.target_id != 0) {
-    // 追击时被墙挡住：先停下，下一帧继续按玩家位置重新选方向，
-    // 不能保持原方向一直顶墙。
-    mob.input_x = 0;
+    // 追击时被墙/悬崖挡住：保持当前 move 动作，只停止位移，
+    // 不要清空 input_x 切换到 stand。
     mob.hspeed = 0;
   } else {
     mob.input_x = static_cast<int8_t>(-mob.input_x);

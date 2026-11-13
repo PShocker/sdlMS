@@ -2,6 +2,7 @@
 #include "src/client/game/game_debuff.h"
 #include "src/client/game/game_skill.h"
 #include "src/client/game/game_triangle.h"
+#include "src/client/game_skill/hunter_attack.h"
 #include "src/client/game_instance/ball_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
@@ -13,10 +14,12 @@
 #include "src/client/game_instance/random_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
+#include "src/client/system/logic/mob_logic_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
 #include "src/common/request/client_request.h"
+#include "src/common/wz/wz_resource.h"
 #include "src/server/server_instance/server_ball_instance.h"
 #include "src/server/server_instance/server_character_instance.h"
 #include "src/server/server_instance/server_mob_instance.h"
@@ -46,8 +49,15 @@ bool IsBow(const GameCharacter& c) {
          EquipGameInstance::WeaponType::kBow;
 }
 
-void SendBuffState(int ski_id, int sub_val) {
-  fbs::StateT st;
+// 与 BallGameInstance::ClosestPointOnRect 相同的判定：取矩形上离人物最近的点。
+SDL_FPoint ClosestPointOnRect(const SDL_FPoint& pos, const SDL_FRect& rect) {
+  SDL_FPoint closest;
+  closest.x = std::clamp(pos.x, rect.x, rect.x + rect.w);
+  closest.y = std::clamp(pos.y, rect.y, rect.y + rect.h);
+  return closest;
+}
+
+void SendBuffState(int ski_id, int sub_val) {  fbs::StateT st;
   st.state = fbs::StateEnum_BUFF_SKILL;
   st.val = ski_id;
   st.sub_val = sub_val;
@@ -110,32 +120,11 @@ void AmazonJudgement() {
   SkillGameInstance::Skis()[g_skill.id] = g_skill;
 }
 
-// 3101000 Final Attack: Bow toggle
+// 3101000 Final Attack: Bow（被动）
 void FinalAttackBow() {
   GameSkill g_skill;
   g_skill.id = u"3101000";
-  g_skill.can_use = [](int) {
-    return IsBow(CharacterGameInstance::self_) &&
-           JobSkillGameInstance::LoadSkiLevel(u"3100000") >= 3;
-  };
-  g_skill.use = [g_skill](uint64_t, int ski_lv) mutable {
-    auto& ski = SkillGameInstance::ski_;
-    auto it = std::ranges::find_if(
-        ski, [](const GameSkill& s) { return s.id == u"3101000"; });
-    auto& sf = CharacterGameInstance::self_;
-    CharacterLogicSystem::RunAction(sf, u"alert2");
-    if (it != ski.end()) {
-      ski.erase(it);
-      SendBuffState(3101000, 0);
-      return;
-    }
-    g_skill.lv = static_cast<uint8_t>(std::clamp(ski_lv, 1, 30));
-    g_skill.duration = 0;
-    g_skill.destroy = 0;
-    ski.push_back(g_skill);
-    SendBuffState(3101000, 1);
-    SendSkill(3101000, g_skill.lv, fbs::ClientCharacterAttackT{});
-  };
+  g_skill.passive = [](int) {};
   SkillGameInstance::Skis()[g_skill.id] = g_skill;
 }
 
@@ -299,10 +288,8 @@ void ArrowBombBow() {
     const bool hit = !cm.data.empty();
     const auto impact = hit ? BallGameInstance::LoadBallTime(cct) : delay;
     if (hit) {
-      cat = SkillGameInstance::CreateAttackPayload(cm, sf.pos, impact);
-      ClientRequest::SendToHost(cat);
-
       // 3101005: Arrow Bomb explosion, up to 4 targets, 2s stun chance.
+      // 直接命中的箭不再单独结算伤害，爆炸范围只结算 1 段。
       const auto mob_pos = cm.data[0].mob.pos;
       const int explosion_damage =
           std::max(0, SkillInt(u"3101005", ski_lv, u"damage", 0));
@@ -312,15 +299,29 @@ void ArrowBombBow() {
           std::clamp(SkillInt(u"3101005", ski_lv, u"prop", 0), 0, 100);
       const int stun_ms =
           std::max(0, SkillInt(u"3101005", ski_lv, u"time", 0)) * 1000;
-      auto rect = SkillGameInstance::LoadSkiR(u"3101005", mob_pos, sf.flip);
+      auto* lv_node =
+          SkillGameInstance::LoadSkiLevelNode(u"3101005",
+                                             static_cast<uint8_t>(
+                                                 std::clamp(ski_lv, 1, 30)));
+      SDL_FPoint lt = {-130.0f, -100.0f};
+      SDL_FPoint rb = {130.0f, 100.0f};
+      if (lv_node != nullptr) {
+        if (auto* n = lv_node->get_child(u"lt"); n != nullptr) {
+          lt = WzResource::LoadFpoint(n);
+        }
+        if (auto* n = lv_node->get_child(u"rb"); n != nullptr) {
+          rb = WzResource::LoadFpoint(n);
+        }
+      }
+      auto rect = SkillGameInstance::LoadR(lt, rb, mob_pos, sf.flip);
       auto area = CharacterLogicSystem::RunAttackCheck(mob_pos, rect, mob_count);
       for (auto& mob : area.data) {
         mob.hits = {explosion_damage};
       }
       if (!area.data.empty()) {
-        auto explosion =
-            SkillGameInstance::CreateAttackPayload(area, mob_pos, impact);
-        ClientRequest::SendToHost(explosion);
+        cat = SkillGameInstance::CreateAttackPayload(
+            area, mob_pos, impact, 0, "310.img/skill/3101005/hit/0", "");
+        ClientRequest::SendToHost(cat);
         if (stun_ms > 0) {
           std::uniform_int_distribution<int> roll(0, 99);
           if (roll(RandomGameInstance::gen_) < stun_prop) {
@@ -329,6 +330,8 @@ void ArrowBombBow() {
           }
         }
       }
+      // Arrow Bomb 是飞行道具攻击，命中后才检查 Ultimate Bow。
+      TriggerBowFinalAttack(cm, impact);
     }
     SendSkill(3101004, ski_lv, cat);
   };
@@ -381,13 +384,10 @@ void TriggerBowFinalAttack(CheckMobs& cm, uint64_t delay) {
   if (sf.job != u"310" || !IsBow(sf)) {
     return;
   }
-  auto& ski = SkillGameInstance::ski_;
-  auto it = std::ranges::find_if(
-      ski, [](const GameSkill& s) { return s.id == u"3101000"; });
-  if (it == ski.end()) {
+  const int lv = JobSkillGameInstance::LoadSkiLevel(u"3101000");
+  if (lv <= 0 || JobSkillGameInstance::LoadSkiLevel(u"3100000") < 3) {
     return;
   }
-  const int lv = it->lv;
   const int prop = std::clamp(SkillInt(u"3101000", lv, u"prop", 0), 0, 100);
   std::uniform_int_distribution<int> roll(0, 99);
   if (roll(RandomGameInstance::gen_) >= prop) {
@@ -407,13 +407,20 @@ void TriggerBowFinalAttack(CheckMobs& cm, uint64_t delay) {
   auto fa_cm = CharacterLogicSystem::RunAttackCheck(sf, tri, mob_count);
   for (auto& mob : fa_cm.data) {
     mob.hits = {damage};
+    // X 取离人物最近的点，Y 固定为怪物碰撞矩形中心。
+    if (auto rect = MobLogicSystem::LoadRect(mob.mob); rect.has_value()) {
+      auto hit_pos = ClosestPointOnRect(sf.pos, rect.value());
+      mob.x = hit_pos.x - mob.mob.pos.x;
+      mob.y = (rect->y + rect->h * 0.5f) - mob.mob.pos.y;
+    }
   }
   fbs::ClientCharacterAttackT cat;
   if (!fa_cm.data.empty()) {
-    cat = SkillGameInstance::CreateAttackPayload(fa_cm, sf.pos, delay);
+    // 与战士终极攻击一致：伤害包直接带 3101006/hit，不发送隐藏技能包。
+    cat = SkillGameInstance::CreateAttackPayload(
+        fa_cm, sf.pos, delay + 150, 0, "310.img/skill/3101006/hit/0", "");
     ClientRequest::SendToHost(cat);
   }
-  SendSkill(3101006, lv, cat);
   in_progress = false;
 }
 
