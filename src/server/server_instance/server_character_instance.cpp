@@ -504,7 +504,9 @@ void ServerCharacterInstance::HandleSki(
     auto ski_node = SkillGameInstance::LoadSkiNode(ski_id3);
 
     const bool has_position = (x != INT32_MAX || y != INT32_MAX);
-    const bool has_z = static_cast<bool>(ski_node->find(u"effect/z"));
+    const bool has_z =
+        static_cast<bool>(ski_node->find(u"effect/z")) ||
+        ski_id3 == u"4201002";  // Steal 的 effect 在人物背后
 
     if (ski_node->get_child(u"effect")) {
       GameEffect e = {
@@ -541,6 +543,25 @@ void ServerCharacterInstance::HandleSki(
         e.flip = flip;
       }
       g_character->effect.push_back(e);
+    }
+    if (ski_id3 == u"4201002") {
+      // Steal 的 effect0 影子特效：客户端和服务端都通过技能包同步。
+      std::erase_if(g_character->effect, [](const GameEffect& ef) {
+        return ef.id == u"4201002" &&
+               ef.type == GameEffect::EffectType::kSkillUse &&
+               ef.order.has_value() && ef.order.value() == 0;
+      });
+      g_character->effect.push_back(GameEffect{
+          .id = ski_id3,
+          .index = 0,
+          .time = 0,
+          .delay = 0,
+          .type = GameEffect::EffectType::kSkillUse,
+          .pos = std::nullopt,
+          .z = true,
+          .order = 0,
+          .data = g_character,
+      });
     }
   }
 
