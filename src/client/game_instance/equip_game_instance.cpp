@@ -422,7 +422,7 @@ std::flat_set<JobType> EquipGameInstance::LoadEquipJob(
     }
 
     if (req_job & 4) {
-      r.insert(JobType::kMagician);
+      r.insert(JobType::kBowman);
     }
 
     if (req_job & 8) {

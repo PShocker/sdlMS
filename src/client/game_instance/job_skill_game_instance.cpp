@@ -33,7 +33,10 @@ void JobSkillGameInstance::RecalculateRemainSp() {
   // Beginner 初始 1 SP，之后每级 +1，最多 9（三个新手技能各 3 级）。
   total[0] = static_cast<uint32_t>(std::min(9, std::max(1, level)));
   if (jobs.size() >= 2) {
-    total[1] = sp_total(10, 30);
+    // 095 get_job_change_level：法师 8 级一转，其余职业 10 级。
+    const int first_job_level =
+        jobs[1] == JobType::kMagician ? 8 : 10;
+    total[1] = sp_total(first_job_level, 30);
   }
   if (jobs.size() >= 3) {
     total[2] = sp_total(30, 70);

@@ -53,6 +53,8 @@ class SkillUiSystem : public UiComponentHost<SkillUiSystem> {
 
   static void Open();
   static void Close();
+  // 一转完成后切到新职业的技能页。
+  static void SelectFirstJobTab();
   static bool Render();
   static bool Event(SDL_Event* event);
 };

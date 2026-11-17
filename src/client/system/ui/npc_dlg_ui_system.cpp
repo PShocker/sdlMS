@@ -117,44 +117,85 @@ void NpcDlgUiSystem::RenderNpc() {
 UIComponents& NpcDlgUiSystem::GetComponent() {
   components_.clear();
   auto [w, h] = LoadWh();
-  std::vector<wz::Node*> buttons_node = {
-      WzResource::ui_->find(u"UtilDlgEx.img/UtilDlgEx/BtClose"),
-  };
-  std::vector<SDL_FRect> buttons_rect = {
-      SDL_FRect{10, h - 25, 85, 18},  //
-  };
-  std::vector<Button::Callback> callbacks = {
-      EventButtonClose,
-  };
 
-  auto w0 = w - 72;
-  if (index_ < max_index_) {
+  // 脚本对话的确认结果页只有 OK：不显示关闭按钮，也不允许 Esc 退回。
+  const bool script_result =
+      type_ == NpcDlgEnum::kScript && buttons_ == NpcDlgButton::kOk;
+
+  std::vector<wz::Node*> buttons_node;
+  std::vector<SDL_FRect> buttons_rect;
+  std::vector<Button::Callback> callbacks;
+
+  if (!script_result) {
     buttons_node.push_back(
-        WzResource::ui_->find(u"UtilDlgEx.img/UtilDlgEx/BtNext"));
-    buttons_rect.push_back(SDL_FRect{w0, h - 76, 46, 18});
-    callbacks.push_back(EventButtonNext);
-    w0 -= 52;
+        WzResource::ui_->find(u"UtilDlgEx.img/UtilDlgEx/BtClose"));
+    buttons_rect.push_back(SDL_FRect{10, h - 25, 85, 18});
+    callbacks.push_back(EventButtonClose);
   }
-  if (index_ > 0) {
-    buttons_node.push_back(
-        WzResource::ui_->find(u"UtilDlgEx.img/UtilDlgEx/BtPrev"));
-    buttons_rect.push_back(SDL_FRect{w0, h - 76, 46, 18});
-    callbacks.push_back(EventButtonPrev);
-  }
-  if (index_ == max_index_ && cb_ == nullptr &&
-      type_ == NpcDlgEnum::kQuestAvaliable) {
-    buttons_node.push_back(WzResource::ui_->find(u"UIWindow.img/Quest/BtOK"));
-    buttons_rect.push_back(SDL_FRect{w - 128, h - 25, 57, 17});
-    callbacks.push_back(EventButtonQuestYes);
 
-    buttons_node.push_back(WzResource::ui_->find(u"UIWindow.img/Quest/BtNo"));
-    buttons_rect.push_back(SDL_FRect{w - 66, h - 25, 57, 17});
-    callbacks.push_back(EventButtonQuestNo);
+  if (type_ == NpcDlgEnum::kScript) {
+    if (buttons_ == NpcDlgButton::kYesNo) {
+      buttons_node.push_back(
+          WzResource::ui_->find(u"UtilDlgEx.img/UtilDlgEx/BtYes"));
+      buttons_rect.push_back(SDL_FRect{w - 108, h - 25, 46, 18});
+      callbacks.push_back(EventButtonYes);
+
+      buttons_node.push_back(
+          WzResource::ui_->find(u"UtilDlgEx.img/UtilDlgEx/BtNo"));
+      buttons_rect.push_back(SDL_FRect{w - 56, h - 25, 46, 18});
+      callbacks.push_back(EventButtonNo);
+    } else {
+      auto w0 = w - 72;
+      if (buttons_ == NpcDlgButton::kDefault) {
+        if (index_ < max_index_) {
+          buttons_node.push_back(
+              WzResource::ui_->find(u"UtilDlgEx.img/UtilDlgEx/BtNext"));
+          buttons_rect.push_back(SDL_FRect{w0, h - 76, 46, 18});
+          callbacks.push_back(EventButtonNext);
+          w0 -= 52;
+        }
+        if (index_ > 0) {
+          buttons_node.push_back(
+              WzResource::ui_->find(u"UtilDlgEx.img/UtilDlgEx/BtPrev"));
+          buttons_rect.push_back(SDL_FRect{w0, h - 76, 46, 18});
+          callbacks.push_back(EventButtonPrev);
+        }
+      }
+      buttons_node.push_back(
+          WzResource::ui_->find(u"UtilDlgEx.img/UtilDlgEx/BtOK"));
+      buttons_rect.push_back(SDL_FRect{w - 56, h - 25, 46, 18});
+      callbacks.push_back(EventButtonOk);
+    }
   } else {
-    buttons_node.push_back(
-        WzResource::ui_->find(u"UtilDlgEx.img/UtilDlgEx/BtOK"));
-    buttons_rect.push_back(SDL_FRect{w - 56, h - 25, 46, 18});
-    callbacks.push_back(EventButtonOk);
+    auto w0 = w - 72;
+    if (index_ < max_index_) {
+      buttons_node.push_back(
+          WzResource::ui_->find(u"UtilDlgEx.img/UtilDlgEx/BtNext"));
+      buttons_rect.push_back(SDL_FRect{w0, h - 76, 46, 18});
+      callbacks.push_back(EventButtonNext);
+      w0 -= 52;
+    }
+    if (index_ > 0) {
+      buttons_node.push_back(
+          WzResource::ui_->find(u"UtilDlgEx.img/UtilDlgEx/BtPrev"));
+      buttons_rect.push_back(SDL_FRect{w0, h - 76, 46, 18});
+      callbacks.push_back(EventButtonPrev);
+    }
+    if (index_ == max_index_ && cb_ == nullptr &&
+        type_ == NpcDlgEnum::kQuestAvaliable) {
+      buttons_node.push_back(WzResource::ui_->find(u"UIWindow.img/Quest/BtOK"));
+      buttons_rect.push_back(SDL_FRect{w - 128, h - 25, 57, 17});
+      callbacks.push_back(EventButtonQuestYes);
+
+      buttons_node.push_back(WzResource::ui_->find(u"UIWindow.img/Quest/BtNo"));
+      buttons_rect.push_back(SDL_FRect{w - 66, h - 25, 57, 17});
+      callbacks.push_back(EventButtonQuestNo);
+    } else {
+      buttons_node.push_back(
+          WzResource::ui_->find(u"UtilDlgEx.img/UtilDlgEx/BtOK"));
+      buttons_rect.push_back(SDL_FRect{w - 56, h - 25, 46, 18});
+      callbacks.push_back(EventButtonOk);
+    }
   }
 
   for (size_t i = 0; i < buttons_node.size(); ++i) {
@@ -191,6 +232,7 @@ void NpcDlgUiSystem::RenderText() {
     case NpcDlgEnum::kQuestStopMob:
     case NpcDlgEnum::kQuestStopNpc:
     case NpcDlgEnum::kTalk:
+    case NpcDlgEnum::kScript:
     case NpcDlgEnum::kSelect: {
       Freetype::LoadSize(12);
       Freetype::LoadAligned(true);
@@ -519,10 +561,44 @@ void NpcDlgUiSystem::Toggle() {
 }
 
 void NpcDlgUiSystem::EventButtonClose() {
+  // 脚本结果页是不可回退的确认页：只能点 OK 继续。
+  if (type_ == NpcDlgEnum::kScript && buttons_ == NpcDlgButton::kOk) {
+    return;
+  }
   Close();
 }
 
+void NpcDlgUiSystem::EventButtonYes() {
+  if (type_ != NpcDlgEnum::kScript) {
+    return;
+  }
+  if (on_yes_) {
+    on_yes_();
+  } else {
+    Close();
+  }
+}
+
+void NpcDlgUiSystem::EventButtonNo() {
+  if (type_ != NpcDlgEnum::kScript) {
+    return;
+  }
+  if (on_no_) {
+    on_no_();
+  } else {
+    Close();
+  }
+}
+
 void NpcDlgUiSystem::EventButtonOk() {
+  if (type_ == NpcDlgEnum::kScript) {
+    if (on_ok_) {
+      on_ok_();
+    } else {
+      Close();
+    }
+    return;
+  }
   // OK 直接确认/关闭，不再先翻页�?
   if (type_ == NpcDlgEnum::kQuestComplete) {
     auto back_meso = PackageGameInstance::meso_;
@@ -912,6 +988,10 @@ bool NpcDlgUiSystem::Event(SDL_Event* event) {
           break;
         }
         case SDL_SCANCODE_ESCAPE: {
+          if (type_ == NpcDlgEnum::kScript &&
+              buttons_ == NpcDlgButton::kOk) {
+            return false;
+          }
           AudioGameInstance::PlayNow(u"UI.img/BtMouseClick");
 
           EventButtonClose();
@@ -919,6 +999,18 @@ bool NpcDlgUiSystem::Event(SDL_Event* event) {
           break;
         }
         case SDL_SCANCODE_RETURN: {
+          if (type_ == NpcDlgEnum::kScript) {
+            if (buttons_ == NpcDlgButton::kOk) {
+              EventButtonOk();
+            } else if (buttons_ == NpcDlgButton::kYesNo) {
+              EventButtonYes();
+            } else if (index_ < max_index_) {
+              EventButtonNext();
+            } else {
+              EventButtonClose();
+            }
+            return false;
+          }
           if (index_ < max_index_) {
             EventButtonNext();
             return false;

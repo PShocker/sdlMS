@@ -127,6 +127,11 @@ void SkillUiSystem::Close() {
   EventDragEnd();
 }
 
+void SkillUiSystem::SelectFirstJobTab() {
+  active_tab_ = 1;
+  page_ = 0;
+}
+
 void SkillUiSystem::EventTop() {
   std::erase(System::render_systems_, Render);
   std::erase(System::event_systems_, Event);

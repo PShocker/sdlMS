@@ -36,6 +36,9 @@ class NpcDlgUiSystem : public UiComponentHost<NpcDlgUiSystem> {
   static void EventButtonPrev();
   static void EventButtonNext();
 
+  static void EventButtonYes();
+  static void EventButtonNo();
+
   static void EventButtonQuestYes();
   static void EventButtonQuestNo();
 
@@ -66,6 +69,21 @@ class NpcDlgUiSystem : public UiComponentHost<NpcDlgUiSystem> {
   static inline std::u16string quest_index_;
   static inline std::u16string script_id_;
 
+  // 脚本对话底部按钮布局：
+  //   kDefault: 上一页 / 下一页 / OK
+  //   kYesNo:   只有 Yes / No（选择确认页）
+  //   kOk:      只有 OK，且不允许关闭（不可回退的结果页）
+  enum class NpcDlgButton {
+    kDefault,
+    kYesNo,
+    kOk,
+  };
+  static inline NpcDlgButton buttons_ = NpcDlgButton::kDefault;
+
+  static inline std::function<void()> on_yes_;
+  static inline std::function<void()> on_no_;
+  static inline std::function<void()> on_ok_;
+
   static inline int8_t index_;
   static inline int8_t max_index_;
 
@@ -81,6 +99,7 @@ class NpcDlgUiSystem : public UiComponentHost<NpcDlgUiSystem> {
     kQuest,
     kTalk,
     kSelect,
+    kScript,
 
     kQuestAvaliable,
 

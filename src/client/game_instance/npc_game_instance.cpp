@@ -1,6 +1,7 @@
 #include "src/client/game_instance/npc_game_instance.h"
 
 #include "src/client/game/game_quest.h"
+#include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
 #include "src/client/game_instance/quest_game_instance.h"
 #include "src/client/game_instance/random_game_instance.h"
@@ -199,6 +200,14 @@ NpcGameInstance::NpcType NpcGameInstance::LoadNpcType(
     const std::u16string& id) {
   if (ShopGameInstance::LoadNpcShop(id)) {
     return NpcType::kShop;
+  }
+  // 一转教官同时挂着二转任务；初心者点击时优先走一转对话，
+  // 已转职的角色仍显示任务列表。
+  const auto& job = CharacterGameInstance::self_.job;
+  if ((job.empty() || job == u"0" || job == u"000") &&
+      (id == u"0000221" || id == u"0000313" || id == u"0000411" ||
+       id == u"0000511")) {
+    return NpcType::kScript;
   }
   auto npc_node = WzResource::npc_->find(id + u".img");
   if (!QuestGameInstance::LoadNpcQuest(id).empty() ||

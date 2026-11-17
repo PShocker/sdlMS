@@ -48,6 +48,8 @@ class CraftGameInstance {
   };
 
   struct CraftRecipe {
+    CraftType type;
+    uint8_t level;
     uint32_t coolTimeSec;
     uint32_t processTimeMS;
     uint32_t meso;

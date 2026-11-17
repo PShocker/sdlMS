@@ -1,17 +1,27 @@
 #pragma once
 
+#include "src/client/game_instance/craft_game_instance.h"
 #include "src/client/system/ui/component/ui_component.h"
 
 #include <SDL3/SDL_events.h>
+#include <SDL3/SDL_rect.h>
 
 #include <cstdint>
 #include <flat_map>
+#include <optional>
+#include <vector>
 
 namespace sdlms {
 
 class CraftUiSystem : public UiComponentHost<CraftUiSystem> {
  private:
   static void RenderBackgrnd();
+  static void RenderLevel();
+  static void RenderCategory();
+  static void RenderRecipes();
+  static void RenderDetail();
+  static void RenderBottom();
+  static void RenderTooltip();
 
   static bool EventUI(SDL_Event* event);
   static void EventTop();
@@ -19,18 +29,30 @@ class CraftUiSystem : public UiComponentHost<CraftUiSystem> {
   static void EventDragEnd();
   static void EventDragMove(SDL_Event* event);
 
-  static SDL_FPoint LoadWh();
+  static void EventCraft(bool all);
+  static void EventCountDelta(int delta);
 
+  static SDL_FPoint LoadWh();
   static bool Run();
 
-  static inline std::optional<SDL_FPoint> drag_;
+  static std::vector<CraftGameInstance::CraftRecipe> LoadRecipes();
+  static bool LoadRecipeItem(uint32_t item_id, SDL_Texture*& texture,
+                             std::u16string& name, uint32_t& have);
+  static bool CanCraft(const CraftGameInstance::CraftRecipe& recipe, uint32_t count);
 
+  static inline std::optional<SDL_FPoint> drag_;
+  static inline uint32_t selected_recipe_ = 0;
+  static inline uint32_t recipe_scroll_ = 0;
+  static inline uint32_t craft_count_ = 1;
+  static inline bool additive_checked_ = false;
+  static inline int drag_scroll_ = -1;
+  static inline std::optional<size_t> hover_recipe_;
 
  public:
   static UIComponents& GetComponent();
   static inline SDL_FPoint pos_;
 
-  static inline uint8_t selected_tab_;
+  static inline uint8_t selected_tab_ = 5;
 
   static void Open();
   static void Close();

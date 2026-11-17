@@ -66,6 +66,7 @@ void WzResource::InitFiles() {
   string_ = new wz::Files("Data/", "String/String");
 
   item_ = new wz::Files("Data/", "Item/Item");
+  etc_ = new wz::Files("Data/", "Etc/Etc");
 
   sound_ = new wz::Files("Data/", "Sound/Sound");
 
