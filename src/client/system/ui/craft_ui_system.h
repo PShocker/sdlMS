@@ -47,6 +47,7 @@ class CraftUiSystem : public UiComponentHost<CraftUiSystem> {
   static inline bool additive_checked_ = false;
   static inline int drag_scroll_ = -1;
   static inline std::optional<size_t> hover_recipe_;
+  static inline std::optional<uint32_t> hover_ingredient_;
 
  public:
   static UIComponents& GetComponent();
@@ -58,6 +59,7 @@ class CraftUiSystem : public UiComponentHost<CraftUiSystem> {
   static void Close();
 
   static bool Render();
+  static bool RenderInfo();
   static bool Event(SDL_Event* event);
 
   static bool CursorIn();

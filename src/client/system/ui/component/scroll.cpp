@@ -184,8 +184,13 @@ uint32_t Scroll::Click(SDL_FPoint mouse) const {
       static_cast<float>(length - 26),
   };
   if (SDL_PointInRectFloat(&mouse, &pos_rect)) {
-    auto dy = mouse.y - pos_rect.y;
-    float percent = (float)dy / pos_rect.h;
+    // 点击位置对应 thumb 的垂直中心。
+    static auto thumb = WzResource::LoadTexture(
+        WzResource::ui_->find(u"Basic.img/VScr4/enabled/thumb0"));
+    const float thumb_h = thumb != nullptr ? thumb->h : 0.0f;
+    const float travel = std::max(0.0f, pos_rect.h - thumb_h);
+    const float dy = mouse.y - pos_rect.y - thumb_h * 0.5f;
+    float percent = travel > 0.0f ? dy / travel : 0.0f;
     if (percent <= 0.02) {
       percent = 0;
     } else if (percent >= 0.98) {
