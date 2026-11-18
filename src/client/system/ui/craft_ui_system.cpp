@@ -726,6 +726,12 @@ bool CraftUiSystem::Render() {
 }
 
 bool CraftUiSystem::RenderInfo() {
+  if (CursorGameInstance::cursor_ui_ != Render) {
+    return true;
+  }
+  if (CursorGameInstance::modal_overlay_) {
+    return true;
+  }
   RenderTooltip();
   return true;
 }
