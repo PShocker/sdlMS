@@ -22,6 +22,7 @@ class CraftUiSystem : public UiComponentHost<CraftUiSystem> {
   static void RenderDetail();
   static void RenderBottom();
   static void RenderTooltip();
+  static void RenderCraftGauge();
 
   static bool EventUI(SDL_Event* event);
   static void EventTop();
@@ -31,9 +32,19 @@ class CraftUiSystem : public UiComponentHost<CraftUiSystem> {
 
   static void EventCraft(bool all);
   static void EventCountDelta(int delta);
+  static bool Run();
+
+  struct PendingCraft {
+    uint32_t item_id = 0;
+    uint32_t result_count = 0;
+    uint32_t exp = 0;
+    uint32_t count = 0;
+    uint8_t tab = 0;
+  };
+  static inline std::optional<PendingCraft> pending_craft_;
+  static inline uint64_t craft_finish_time_ = 0;
 
   static SDL_FPoint LoadWh();
-  static bool Run();
 
   static std::vector<CraftGameInstance::CraftRecipe> LoadRecipes();
   static bool LoadRecipeItem(uint32_t item_id, SDL_Texture*& texture,
@@ -54,6 +65,9 @@ class CraftUiSystem : public UiComponentHost<CraftUiSystem> {
   static inline SDL_FPoint pos_;
 
   static inline uint8_t selected_tab_ = 5;
+
+  static bool Crafting();
+  static float CraftProgress();
 
   static void Open();
   static void Close();

@@ -36,9 +36,13 @@ void PackageGameInstance::Load(const CharacterSaveData& cs) {
   i.id = u"02060000";
   data_[(int)ItemEnum::kConsume][1] = std::polymorphic<GameItem>(i);
 
-    i.num = 1000;
+  i.num = 1000;
   i.id = u"02061000";
   data_[(int)ItemEnum::kConsume][2] = std::polymorphic<GameItem>(i);
+
+  i.num = 1000;
+  i.id = u"04010000";
+  data_[(int)ItemEnum::kEtc][0] = std::polymorphic<GameItem>(i);
 
   for (auto& pkg : cs.package) {
     auto type = (int)pkg.val->type;
@@ -53,6 +57,7 @@ void PackageGameInstance::Load(const CharacterSaveData& cs) {
     data_[type][pkg.index] = std::move(item);
   }
   meso_ = cs.meso;
+  meso_ = 10000000;
 }
 
 std::vector<int> PackageGameInstance::LoadEmptyIndex(uint32_t tab) {

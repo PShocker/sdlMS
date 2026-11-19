@@ -40,8 +40,9 @@ constexpr float kRecipeX = 9.0f;
 constexpr float kRecipeY = 124.0f;
 constexpr float kRecipeW = 160.0f;
 constexpr float kRecipeH = 34.0f;
-constexpr float kRecipeScroll = 269.0f;  // UI/Crafting.img/scroll:recipeScroll/length
-constexpr float kRecipeSpan = 235.0f;   // kRecipeScroll - kRecipeH
+constexpr float kRecipeScroll =
+    269.0f;  // UI/Crafting.img/scroll:recipeScroll/length
+constexpr float kRecipeSpan = 235.0f;  // kRecipeScroll - kRecipeH
 constexpr float kRecipeRows = 7.0f;
 
 std::u16string Num(uint32_t n) {
@@ -69,9 +70,9 @@ SDL_Texture* GrayIcon(SDL_Texture* source) {
     return source;
   }
 
-  SDL_Texture* target = SDL_CreateTexture(
-      Window::renderer_, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET,
-      w, h);
+  SDL_Texture* target =
+      SDL_CreateTexture(Window::renderer_, SDL_PIXELFORMAT_ARGB8888,
+                        SDL_TEXTUREACCESS_TARGET, w, h);
   if (target == nullptr) {
     return source;
   }
@@ -127,16 +128,17 @@ SDL_Texture* ItemIcon(uint32_t id, std::u16string& name, uint32_t& have) {
   if (ItemGameInstance::CheckItem(sid)) {
     auto* info = ItemGameInstance::LoadItemInfo(sid, 0);
     name = ItemGameInstance::LoadItemText(sid, u"name");
-    return info == nullptr ? nullptr : WzResource::LoadTexture(info->get_child(u"icon"));
+    return info == nullptr ? nullptr
+                           : WzResource::LoadTexture(info->get_child(u"icon"));
   }
   auto* info = EquipGameInstance::LoadEquipInfo(sid);
   name = EquipGameInstance::LoadEquipName(sid);
-  return info == nullptr ? nullptr : WzResource::LoadTexture(info->get_child(u"icon"));
+  return info == nullptr ? nullptr
+                         : WzResource::LoadTexture(info->get_child(u"icon"));
 }
 
 void Text(const std::u16string& s, float x, float y, int size = 12,
-          uint8_t r = 0, uint8_t g = 0, uint8_t b = 0,
-          bool bold = false) {
+          uint8_t r = 0, uint8_t g = 0, uint8_t b = 0, bool bold = false) {
   Freetype::LoadAligned(true);
   Freetype::LoadSize(size);
   Freetype::LoadBold(bold);
@@ -146,21 +148,22 @@ void Text(const std::u16string& s, float x, float y, int size = 12,
 
 std::u16string CraftCategoryName(uint8_t tab) {
   static const std::array<const char16_t*, 6> names = {
-      u"Smithing", u"Weaponcrafting", u"Tailoring",
+      u"Smithing",     u"Weaponcrafting", u"Tailoring",
       u"Woodcrafting", u"Leatherworking", u"Arcanforge"};
   return names[std::min<size_t>(tab, names.size() - 1)];
 }
 
 std::u16string CraftToolName(uint8_t tab) {
   static const std::array<const char16_t*, 6> names = {
-      u"Forge", u"Forge", u"Tailor Bench", u"Saw", u"Tanning Rack",
-      u"Arcane Station"};
+      u"Forge", u"Forge",        u"Tailor Bench",
+      u"Saw",   u"Tanning Rack", u"Arcane Station"};
   return names[std::min<size_t>(tab, names.size() - 1)];
 }
 
 std::u16string CraftHint(uint8_t tab) {
   if (tab == 5) {
-    return u"You can craft them near the Arcane Station in Ellinia and Sleepywood.";
+    return u"You can craft them near the Arcane Station in Ellinia and "
+           u"Sleepywood.";
   }
   return u"Craft items using the materials in your inventory";
 }
@@ -205,9 +208,8 @@ std::vector<CraftGameInstance::CraftRecipe> CraftUiSystem::LoadRecipes() {
     }
   }
   // 按制作等级要求从低到高排序，同等级保持 WZ 原顺序。
-  std::ranges::stable_sort(recipes, [](const auto& a, const auto& b) {
-    return a.level < b.level;
-  });
+  std::ranges::stable_sort(
+      recipes, [](const auto& a, const auto& b) { return a.level < b.level; });
   return recipes;
 }
 
@@ -240,38 +242,36 @@ void CraftUiSystem::RenderLevel() {
     SDL_FRect src{0, 0, static_cast<float>(fill_w),
                   static_cast<float>(gauge1->h)};
     SDL_FRect dst{static_cast<float>(gx), static_cast<float>(gy),
-                  static_cast<float>(fill_w),
-                  static_cast<float>(gauge1->h)};
+                  static_cast<float>(fill_w), static_cast<float>(gauge1->h)};
     SDL_RenderTexture(Window::renderer_, gauge1, &src, &dst);
   }
-  Text(u"LEVEL " + Num(level),
-       pos_.x + 44, pos_.y + 60, 12);
+  Text(u"LEVEL " + Num(level), pos_.x + 44, pos_.y + 60, 12);
   auto pct = std::format("{:.2f}%", percent);
   Text({pct.begin(), pct.end()}, pos_.x + 295, pos_.y + 61, 12);
 }
 
 void CraftUiSystem::RenderCategory() {
   static const std::array<const char16_t*, 6> icons = {
-      u"smithing", u"weaponcrafting", u"tailoring",
+      u"smithing",     u"weaponcrafting", u"tailoring",
       u"woodcrafting", u"leatherworking", u"arcforge"};
   SDL_Texture* texture = nullptr;
   if (selected_tab_ == 5) {
     // Arcanforge 等级图标使用 UI/_Canvas 下的原始素材。
-    if (auto* node = WzResource::ui_->find(
-            u"_Canvas/Crafting.img/Icon/arcforge");
+    if (auto* node =
+            WzResource::ui_->find(u"_Canvas/Crafting.img/Icon/arcforge");
         node != nullptr) {
       texture = WzResource::LoadTexture(node);
     }
-  }  if (texture == nullptr) {
-    auto* node = WzResource::ui_->find(
-        std::u16string(u"Crafting.img/Icon/") + icons[selected_tab_]);
+  }
+  if (texture == nullptr) {
+    auto* node = WzResource::ui_->find(std::u16string(u"Crafting.img/Icon/") +
+                                       icons[selected_tab_]);
     if (node != nullptr) {
       texture = WzResource::LoadTexture(node);
     }
   }
   if (texture != nullptr) {
-    SDL_FRect rect{pos_.x + 19, pos_.y + 57,
-                   static_cast<float>(texture->w),
+    SDL_FRect rect{pos_.x + 19, pos_.y + 57, static_cast<float>(texture->w),
                    static_cast<float>(texture->h)};
     SDL_RenderTexture(Window::renderer_, texture, nullptr, &rect);
   }
@@ -290,24 +290,25 @@ void CraftUiSystem::RenderRecipes() {
       WzResource::ui_->find(u"Crafting.img/ItemEntry/selected"));
   static auto disabled = WzResource::LoadTexture(
       WzResource::ui_->find(u"Crafting.img/ItemEntry/disabled"));
-  static auto unlock =
-      WzResource::LoadTexture(WzResource::ui_->find(u"Crafting.img/Icon/unlock"));
+  static auto unlock = WzResource::LoadTexture(
+      WzResource::ui_->find(u"Crafting.img/Icon/unlock"));
 
   hover_recipe_ = std::nullopt;
   for (uint32_t i = start; i < end; ++i) {
     const auto row = i - start;
     const int x = pos_.x + kRecipeX;
     const int y =
-        pos_.y + kRecipeY +
-        static_cast<float>(static_cast<int>(row) * 235 / 6);
+        pos_.y + kRecipeY + static_cast<float>(static_cast<int>(row) * 235 / 6);
     auto& recipe = recipes[i];
     auto* bg = (i == selected_recipe_) ? selected : enabled;
-    const int craft_level = std::max(1, (int)CraftGameInstance::datas_[selected_tab_].level);
+    const int craft_level =
+        std::max(1, (int)CraftGameInstance::datas_[selected_tab_].level);
     if (recipe.level > craft_level) {
       bg = disabled;
     }
     if (bg != nullptr) {
-      SDL_FRect r{static_cast<float>(x), static_cast<float>(y), (float)bg->w, (float)bg->h};
+      SDL_FRect r{static_cast<float>(x), static_cast<float>(y), (float)bg->w,
+                  (float)bg->h};
       SDL_RenderTexture(Window::renderer_, bg, nullptr, &r);
     }
     std::u16string name;
@@ -319,16 +320,16 @@ void CraftUiSystem::RenderRecipes() {
     const int icon_h = icon != nullptr ? icon->h : 0;
     const int icon_x = static_cast<int>(x) + (34 - icon_w) / 2;
     const int icon_y = static_cast<int>(y) + (34 - icon_h) / 2;
-    SDL_FRect list_icon{static_cast<float>(icon_x),
-                        static_cast<float>(icon_y),
-                        static_cast<float>(icon_w),
-                        static_cast<float>(icon_h)};
+    SDL_FRect list_icon{static_cast<float>(icon_x), static_cast<float>(icon_y),
+                        static_cast<float>(icon_w), static_cast<float>(icon_h)};
     if (icon != nullptr) {
       SDL_Texture* draw_icon = locked ? GrayIcon(icon) : icon;
       SDL_RenderTexture(Window::renderer_, draw_icon, nullptr, &list_icon);
-    }    if (locked && unlock != nullptr) {
+    }
+    if (locked && unlock != nullptr) {
       // 锁以配方格子左上角为基准。
-      SDL_FRect lr{static_cast<float>(x), static_cast<float>(y), static_cast<float>(unlock->w),
+      SDL_FRect lr{static_cast<float>(x), static_cast<float>(y),
+                   static_cast<float>(unlock->w),
                    static_cast<float>(unlock->h)};
       SDL_RenderTexture(Window::renderer_, unlock, nullptr, &lr);
     }
@@ -340,7 +341,8 @@ void CraftUiSystem::RenderRecipes() {
     Text(u"LEVEL " + Num(recipe.level),
          static_cast<float>(static_cast<int>(x) + 42),
          static_cast<float>(static_cast<int>(y) + 19), 11, 80, 80, 80);
-    SDL_FRect hit{static_cast<float>(x), static_cast<float>(y), kRecipeW, kRecipeH};
+    SDL_FRect hit{static_cast<float>(x), static_cast<float>(y), kRecipeW,
+                  kRecipeH};
     if (SDL_PointInRectFloat(&Window::mouse_pos_, &hit)) {
       hover_recipe_ = i;
     }
@@ -368,20 +370,19 @@ void CraftUiSystem::RenderDetail() {
     // resultIcon 是图标中心点，按中心居中绘制。
     const int center_x = static_cast<int>(pos_.x) + 218;
     const int center_y = static_cast<int>(pos_.y) + 132;
-    const int icon_x =
-        center_x + (34 - result_icon->w) / 2;
-    const int icon_y =
-        center_y + (34 - result_icon->h) / 2;
+    const int icon_x = center_x + (34 - result_icon->w) / 2;
+    const int icon_y = center_y + (34 - result_icon->h) / 2;
     SDL_FRect r{static_cast<float>(icon_x), static_cast<float>(icon_y),
                 static_cast<float>(result_icon->w),
                 static_cast<float>(result_icon->h)};
     SDL_RenderTexture(Window::renderer_, result_icon, nullptr, &r);
-    PackageUiSystem::RenderNumber(
-        recipe.result.count, static_cast<int>(pos_.x) + 218,
-        static_cast<int>(pos_.y) + 156);
-  }  Text(result_name, pos_.x + 268, pos_.y + 131, 14, 255, 255, 255, true);
-  Text(u"Craft " + Num(recipe.result.count) + u" " + result_name,
-       pos_.x + 268, pos_.y + 150, 11, 225, 225, 225);
+    PackageUiSystem::RenderNumber(recipe.result.count,
+                                  static_cast<int>(pos_.x) + 218,
+                                  static_cast<int>(pos_.y) + 156);
+  }
+  Text(result_name, pos_.x + 268, pos_.y + 131, 14, 255, 255, 255, true);
+  Text(u"Craft " + Num(recipe.result.count) + u" " + result_name, pos_.x + 268,
+       pos_.y + 150, 11, 225, 225, 225);
 
   Text(CraftToolName(selected_tab_), pos_.x + 207, pos_.y + 210, 12);
 
@@ -400,10 +401,13 @@ void CraftUiSystem::RenderDetail() {
     const int y = pos_.y + kCellY + (s / 2) * kCellH + 2;
     auto* texture = s < filled_slots ? cell_enabled : cell_empty;
     if (texture != nullptr) {
-      SDL_FRect dst{static_cast<float>(x), static_cast<float>(y), static_cast<float>(texture->w), static_cast<float>(texture->h)};
+      SDL_FRect dst{static_cast<float>(x), static_cast<float>(y),
+                    static_cast<float>(texture->w),
+                    static_cast<float>(texture->h)};
       SDL_RenderTexture(Window::renderer_, texture, nullptr, &dst);
     }
-  }  int slot = 0;
+  }
+  int slot = 0;
   auto draw_slot = [&](uint32_t item_id, uint32_t own, uint32_t need,
                        const std::u16string& label) {
     const float x = pos_.x + kCellX + (slot % 2) * kCellW;
@@ -433,15 +437,12 @@ void CraftUiSystem::RenderDetail() {
         static auto shadow_texture = WzResource::LoadTexture(
             WzResource::ui_->find(u"_Canvas/Item.img/canvas:shadow"));
         if (shadow_texture != nullptr) {
-          const int shadow_x =
-              icon_x + (icon->w - shadow_texture->w) / 2;
-          const int shadow_y =
-              icon_y + icon->h - shadow_texture->h + 2;
-          SDL_FRect shadow{
-              static_cast<float>(shadow_x),
-              static_cast<float>(shadow_y),
-              static_cast<float>(shadow_texture->w),
-              static_cast<float>(shadow_texture->h)};
+          const int shadow_x = icon_x + (icon->w - shadow_texture->w) / 2;
+          const int shadow_y = icon_y + icon->h - shadow_texture->h + 2;
+          SDL_FRect shadow{static_cast<float>(shadow_x),
+                           static_cast<float>(shadow_y),
+                           static_cast<float>(shadow_texture->w),
+                           static_cast<float>(shadow_texture->h)};
           SDL_RenderTexture(Window::renderer_, shadow_texture, nullptr,
                             &shadow);
         }
@@ -451,12 +452,12 @@ void CraftUiSystem::RenderDetail() {
     const bool enough = own >= need;
     Text(label.empty() ? name : label,
          static_cast<float>(static_cast<int>(x) + 44),
-         static_cast<float>(static_cast<int>(y) + 2), 11,
-         enough ? 0 : 200, 0, 0);
+         static_cast<float>(static_cast<int>(y) + 2), 11, enough ? 0 : 200, 0,
+         0);
     Text(Num(own) + u"/" + Num(need),
          static_cast<float>(static_cast<int>(x) + 44),
-         static_cast<float>(static_cast<int>(y) + 20), 11,
-         enough ? 0 : 200, 0, 0);
+         static_cast<float>(static_cast<int>(y) + 20), 11, enough ? 0 : 200, 0,
+         0);
     ++slot;
   };
 
@@ -481,19 +482,18 @@ void CraftUiSystem::RenderDetail() {
   }
 }
 void CraftUiSystem::RenderBottom() {
-  SDL_FRect count_box{pos_.x + 358, pos_.y + 380, 33, 14};
-  Text(Num(craft_count_), count_box.x + 11, count_box.y + 1, 11);
+  SDL_FPoint count_box{pos_.x + 369, pos_.y + 378};
+  Text(Num(craft_count_), count_box.x, count_box.y, 11);
 
-  static auto check_unchecked = WzResource::LoadTexture(
-      WzResource::ui_->find(u"Basic.img/CheckBox/0/0"));
-  static auto check_checked = WzResource::LoadTexture(
-      WzResource::ui_->find(u"Basic.img/CheckBox/0/1"));
+  static auto check_unchecked =
+      WzResource::LoadTexture(WzResource::ui_->find(u"Basic.img/CheckBox/0/0"));
+  static auto check_checked =
+      WzResource::LoadTexture(WzResource::ui_->find(u"Basic.img/CheckBox/0/1"));
   auto* check_texture = additive_checked_ ? check_checked : check_unchecked;
   if (check_texture != nullptr) {
-    SDL_FRect check{
-        pos_.x + 368, pos_.y + 178,
-        static_cast<float>(check_texture->w),
-        static_cast<float>(check_texture->h)};
+    SDL_FRect check{pos_.x + 368, pos_.y + 178,
+                    static_cast<float>(check_texture->w),
+                    static_cast<float>(check_texture->h)};
     SDL_RenderTexture(Window::renderer_, check_texture, nullptr, &check);
   }
 }
@@ -536,13 +536,12 @@ void CraftUiSystem::RenderTooltip() {
 
 bool CraftUiSystem::CanCraft(const CraftGameInstance::CraftRecipe& recipe,
                              uint32_t count) {
-  const int craft_level =
-      std::max(1, static_cast<int>(CraftGameInstance::datas_[selected_tab_].level));
+  const int craft_level = std::max(
+      1, static_cast<int>(CraftGameInstance::datas_[selected_tab_].level));
   if (craft_level < recipe.level) {
     return false;
   }
-  if (PackageGameInstance::meso_ <
-      static_cast<uint64_t>(recipe.meso) * count) {
+  if (PackageGameInstance::meso_ < static_cast<uint64_t>(recipe.meso) * count) {
     return false;
   }
   for (const auto& ing : recipe.ingredients) {
@@ -573,6 +572,14 @@ void CraftUiSystem::EventCraft(bool all) {
     return;
   }
 
+  auto result_id = ItemId(recipe.result.item);
+  if (!ItemGameInstance::CheckItem(result_id)) {
+    return;
+  }
+  if (pending_craft_.has_value()) {
+    return;
+  }
+
   PackageGameInstance::meso_ -= static_cast<uint64_t>(recipe.meso) * count;
   for (const auto& ing : recipe.ingredients) {
     auto sid = ItemId(ing.item);
@@ -581,31 +588,102 @@ void CraftUiSystem::EventCraft(bool all) {
     }
   }
 
-  auto result_id = ItemId(recipe.result.item);
-  if (!ItemGameInstance::CheckItem(result_id)) {
-    return;
+  PendingCraft pending;
+  pending.item_id = recipe.result.item;
+  pending.result_count = recipe.result.count;
+  pending.exp = recipe.result.exp;
+  pending.count = count;
+  pending.tab = selected_tab_;
+  pending_craft_ = pending;
+  craft_finish_time_ = Window::dt_now_ + 5000;
+
+  auto& self = CharacterGameInstance::self_;
+  self.action =
+      (CharacterGameInstance::bone_data_.contains(u"craft") ||
+       CharacterGameInstance::extern_action_.contains(u"craft"))
+          ? u"craft"
+          : u"alert";
+  self.action_index = 0;
+  self.action_time = 0;
+  self.action_animate = true;
+  self.skill = std::nullopt;
+
+  if (!std::ranges::contains(System::logic_systems_, &Run)) {
+    System::logic_systems_.push_back(Run);
   }
-  for (uint32_t i = 0; i < count; ++i) {
-    auto item = ItemGameInstance::LoadItem(result_id, recipe.result.count);
-    PackageGameInstance::AddNewItem(item);
+}
+
+bool CraftUiSystem::Run() {
+  if (!pending_craft_.has_value()) {
+    return true;
+  }
+  {
+    auto& self = CharacterGameInstance::self_;
+    const auto craft_action =
+        (CharacterGameInstance::bone_data_.contains(u"craft") ||
+         CharacterGameInstance::extern_action_.contains(u"craft"))
+            ? u"craft"
+            : u"alert";
+    if (self.action != craft_action) {
+      self.action = craft_action;
+      self.action_index = 0;
+      self.action_time = 0;
+      self.action_animate = true;
+      self.skill = std::nullopt;
+    }
+  }  if (Window::dt_now_ < craft_finish_time_) {
+    return true;
   }
 
-  auto& craft = CraftGameInstance::datas_[selected_tab_];
-  craft.exp += recipe.result.exp * count;
+  const PendingCraft pending = *pending_craft_;
+  pending_craft_ = std::nullopt;
+
+  const auto result_id = ItemId(pending.item_id);
+  if (ItemGameInstance::CheckItem(result_id)) {
+    for (uint32_t i = 0; i < pending.count; ++i) {
+      auto item =
+          ItemGameInstance::LoadItem(result_id, pending.result_count);
+      PackageGameInstance::AddNewItem(item);
+    }
+  }
+
+  auto& craft = CraftGameInstance::datas_[pending.tab];
+  craft.exp += static_cast<uint32_t>(pending.exp) * pending.count;
   while (craft.exp >= 10000) {
     craft.exp -= 10000;
     craft.level = static_cast<uint8_t>(std::min<int>(craft.level + 1, 100));
   }
-}
 
+  auto& self = CharacterGameInstance::self_;
+  self.action = u"stand1";
+  self.action_index = 0;
+  self.action_time = 0;
+  self.action_animate = true;
+  return true;
+}
+bool CraftUiSystem::Crafting() {
+  return pending_craft_.has_value();
+}
+float CraftUiSystem::CraftProgress() {
+  if (!pending_craft_.has_value()) {
+    return 0.0f;
+  }
+  if (Window::dt_now_ >= craft_finish_time_) {
+    return 1.0f;
+  }
+  return std::clamp(
+      1.0f - static_cast<float>(craft_finish_time_ - Window::dt_now_) /
+                 5000.0f,
+      0.0f, 1.0f);
+}
 UIComponents& CraftUiSystem::GetComponent() {
   components_.clear();
   const static auto tab_node =
       WzResource::ui_->find(u"Crafting.img/tab:category");
   std::vector<SDL_FRect> rects;
   for (uint8_t i = 0; i <= 5; i++) {
-    rects.push_back(SDL_FRect{pos_.x + 9.0f + i * 88.0f, pos_.y + 23.0f,
-                              88.0f, 21.0f});
+    rects.push_back(
+        SDL_FRect{pos_.x + 9.0f + i * 88.0f, pos_.y + 23.0f, 88.0f, 21.0f});
   }
   components_.push_back(
       Tab{tab_node, u"selected", u"normal", rects, selected_tab_});
@@ -624,10 +702,8 @@ UIComponents& CraftUiSystem::GetComponent() {
   };
   add_button(u"Crafting.img/button:minus", 339, 381,
              [] { EventCountDelta(-1); });
-  add_button(u"Crafting.img/button:plus", 394, 381,
-             [] { EventCountDelta(1); });
-  add_button(u"Crafting.img/button:craft", 414, 379,
-             [] { EventCraft(false); });
+  add_button(u"Crafting.img/button:plus", 394, 381, [] { EventCountDelta(1); });
+  add_button(u"Crafting.img/button:craft", 414, 379, [] { EventCraft(false); });
   add_button(u"Crafting.img/button:craftAll", 482, 379,
              [] { EventCraft(true); });
   add_button(u"Basic.img/BtClose", 531, 5, [] { Close(); });
@@ -651,8 +727,8 @@ bool CraftUiSystem::EventUI(SDL_Event* event) {
         selected_recipe_ = 0;
         recipe_scroll_ = 0;
         const int craft_level = std::max(
-            1, static_cast<int>(
-                   CraftGameInstance::datas_[selected_tab_].level));
+            1,
+            static_cast<int>(CraftGameInstance::datas_[selected_tab_].level));
         const auto recipes = LoadRecipes();
         for (size_t n = 0; n < recipes.size(); ++n) {
           if (recipes[n].level <= craft_level) {
@@ -684,8 +760,7 @@ bool CraftUiSystem::EventUI(SDL_Event* event) {
     return true;
   }
 
-  SDL_FRect list{pos_.x + kRecipeX, pos_.y + kRecipeY, kRecipeW,
-                 kRecipeScroll};
+  SDL_FRect list{pos_.x + kRecipeX, pos_.y + kRecipeY, kRecipeW, kRecipeScroll};
   if (SDL_PointInRectFloat(&mouse, &list)) {
     const int rel = static_cast<int>(mouse.y - list.y);
     for (int r = 0; r < 7; ++r) {
@@ -695,8 +770,8 @@ bool CraftUiSystem::EventUI(SDL_Event* event) {
         const auto recipes = LoadRecipes();
         if (index < recipes.size()) {
           const int craft_level = std::max(
-              1, static_cast<int>(
-                     CraftGameInstance::datas_[selected_tab_].level));
+              1,
+              static_cast<int>(CraftGameInstance::datas_[selected_tab_].level));
           // 不可制作的配方点击无效，右侧不显示其详情。
           if (recipes[index].level > craft_level) {
             return true;
@@ -823,9 +898,8 @@ bool CraftUiSystem::Event(SDL_Event* event) {
           const int max_scroll =
               recipes.size() > 7 ? static_cast<int>(recipes.size()) - 7 : 0;
           const int delta = event->wheel.y > 0 ? -1 : 1;
-          recipe_scroll_ = static_cast<uint32_t>(
-              std::clamp(static_cast<int>(recipe_scroll_) + delta, 0,
-                         max_scroll));
+          recipe_scroll_ = static_cast<uint32_t>(std::clamp(
+              static_cast<int>(recipe_scroll_) + delta, 0, max_scroll));
           return false;
         }
       }
@@ -875,9 +949,8 @@ bool CraftUiSystem::Event(SDL_Event* event) {
             const auto recipes = LoadRecipes();
             const int max_scroll =
                 recipes.size() > 7 ? static_cast<int>(recipes.size()) - 7 : 0;
-            recipe_scroll_ = static_cast<uint32_t>(
-                std::clamp(static_cast<int>(scroll->Drag(mouse)), 0,
-                           max_scroll));
+            recipe_scroll_ = static_cast<uint32_t>(std::clamp(
+                static_cast<int>(scroll->Drag(mouse)), 0, max_scroll));
             break;
           }
         }
@@ -889,11 +962,8 @@ bool CraftUiSystem::Event(SDL_Event* event) {
     default: {
       break;
     }
-  }  return r;
-}
-
-bool CraftUiSystem::Run() {
-  return true;
+  }
+  return r;
 }
 
 }  // namespace sdlms

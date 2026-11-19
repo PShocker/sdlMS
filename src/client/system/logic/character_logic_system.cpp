@@ -1,4 +1,5 @@
 #include "src/client/system/logic/character_logic_system.h"
+#include "src/client/system/ui/craft_ui_system.h"
 
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_tomb.h"
@@ -1437,6 +1438,12 @@ void CharacterLogicSystem::RunAnimateChair(GameCharacter& g_character) {
 
 void CharacterLogicSystem::RunStateMachine() {
   auto& g_character = CharacterGameInstance::self_;
+  if (CraftUiSystem::Crafting()) {
+    for (const char* key : {"left", "right", "up", "down"}) {
+      character_action_input_.erase(key);
+    }
+    self_hspeed_ = 0;
+  }
   auto o_character = g_character;
   RunItem(g_character);
   auto g_action = LoadActionType(g_character);

@@ -7,6 +7,7 @@
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/chatballoon_render_system.h"
 #include "src/client/system/render/effect_render_system.h"
+#include "src/client/system/ui/craft_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
@@ -18,10 +19,12 @@
 #include <wz/Wz.h>
 
 #include <cstdint>
+#include <cstdio>
 #include <flat_map>
 #include <flat_set>
 #include <string>
 #include <vector>
+
 
 namespace sdlms {
 
@@ -469,6 +472,38 @@ void CharacterRenderSystem::RenderMorph(GameCharacter& g_character) {
   }
 }
 
+
+namespace {
+void RenderCraftGauge(GameCharacter& g_character) {
+  auto* graduation_node =
+      WzResource::ui_->find(u"Crafting.img/Guage/1/graduation");
+  auto* gauge_node = WzResource::ui_->find(u"Crafting.img/Guage/1/gauge");
+  if (graduation_node == nullptr || gauge_node == nullptr) {
+    return;
+  }
+  static auto graduation = WzResource::LoadTexture(graduation_node);
+  static auto gauge = WzResource::LoadTexture(gauge_node);
+  if (graduation == nullptr || gauge == nullptr) {
+    return;
+  }
+  const auto& camera = CameraGameInstance::camera_;
+  const float x =
+      g_character.pos.x - camera.x - static_cast<float>(graduation->w) / 2;
+  const float y = g_character.pos.y - camera.y - 80;
+  SDL_FRect bg{x, y, static_cast<float>(graduation->w),
+               static_cast<float>(graduation->h)};
+  SDL_RenderTexture(Window::renderer_, graduation, nullptr, &bg);
+
+  const int fill_w = static_cast<int>(std::lround(
+      36 * CraftUiSystem::CraftProgress()));
+  if (fill_w <= 0) {
+    return;
+  }
+  SDL_FRect fill{x + 3, y + 3, static_cast<float>(fill_w),
+                 static_cast<float>(gauge->h)};
+  SDL_RenderTexture(Window::renderer_, gauge, nullptr, &fill);
+}
+}  // namespace
 bool CharacterRenderSystem::Render(GameCharacter& g_character) {
   if (g_character.morph.empty()) {
     RenderEffectFront(g_character);
@@ -483,6 +518,10 @@ bool CharacterRenderSystem::Render(GameCharacter& g_character) {
     RenderEffectBack(g_character);
   }
   RenderNametag(g_character);
+  if (&g_character == &CharacterGameInstance::self_ &&
+      CraftUiSystem::Crafting()) {
+    RenderCraftGauge(g_character);
+  }
   // 气泡由 SceneSystemInstance 在场景全部绘制完后再统一画一遍，
   // 保证它盖在前景 / 其他角色之上，这里不能再画第二次。
   // auto r = character_logic_system::load_rect(g_character);
