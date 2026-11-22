@@ -478,29 +478,44 @@ void RenderCraftGauge(GameCharacter& g_character) {
   auto* graduation_node =
       WzResource::ui_->find(u"Crafting.img/Guage/1/graduation");
   auto* gauge_node = WzResource::ui_->find(u"Crafting.img/Guage/1/gauge");
+  auto* success_node =
+      WzResource::ui_->find(u"Crafting.img/Guage/2/graduation");
   if (graduation_node == nullptr || gauge_node == nullptr) {
     return;
   }
   static auto graduation = WzResource::LoadTexture(graduation_node);
   static auto gauge = WzResource::LoadTexture(gauge_node);
+  static auto success =
+      success_node != nullptr ? WzResource::LoadTexture(success_node) : nullptr;
   if (graduation == nullptr || gauge == nullptr) {
     return;
   }
+  SDL_Texture* gr = graduation;
   const auto& camera = CameraGameInstance::camera_;
-  const float x =
-      g_character.pos.x - camera.x - static_cast<float>(graduation->w) / 2;
-  const float y = g_character.pos.y - camera.y - 80;
-  SDL_FRect bg{x, y, static_cast<float>(graduation->w),
-               static_cast<float>(graduation->h)};
-  SDL_RenderTexture(Window::renderer_, graduation, nullptr, &bg);
-
-  const int fill_w = static_cast<int>(std::lround(
-      36 * CraftUiSystem::CraftProgress()));
+  float x = g_character.pos.x - camera.x - 21;
+  float y = g_character.pos.y - camera.y - 32 - 45;
+  int fill_w =
+      static_cast<int>(std::lround(36 * CraftUiSystem::CraftProgress()));
+  SDL_FRect fill{x + 3, y + 3, static_cast<float>(fill_w),
+                 static_cast<float>(gauge->h)};
+  if (!CraftUiSystem::Crafting()) {
+    if (success != nullptr) {
+      gr = success;
+      x = g_character.pos.x - camera.x - 30;
+      y = g_character.pos.y - camera.y - 41 - 45;
+      fill = {x + 3, y + 3, static_cast<float>(fill_w),
+              static_cast<float>(gauge->h)};
+      fill.x += 9;
+      fill.y += 9;
+      fill_w = 36;
+      fill.w = 36;
+    }
+  }
+  SDL_FRect bg{x, y, static_cast<float>(gr->w), static_cast<float>(gr->h)};
+  SDL_RenderTexture(Window::renderer_, gr, nullptr, &bg);
   if (fill_w <= 0) {
     return;
   }
-  SDL_FRect fill{x + 3, y + 3, static_cast<float>(fill_w),
-                 static_cast<float>(gauge->h)};
   SDL_RenderTexture(Window::renderer_, gauge, nullptr, &fill);
 }
 }  // namespace
@@ -519,7 +534,7 @@ bool CharacterRenderSystem::Render(GameCharacter& g_character) {
   }
   RenderNametag(g_character);
   if (&g_character == &CharacterGameInstance::self_ &&
-      CraftUiSystem::Crafting()) {
+      (CraftUiSystem::Crafting() || CraftUiSystem::CraftSuccess())) {
     RenderCraftGauge(g_character);
   }
   // 气泡由 SceneSystemInstance 在场景全部绘制完后再统一画一遍，

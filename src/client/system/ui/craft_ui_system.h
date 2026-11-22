@@ -9,6 +9,7 @@
 #include <cstdint>
 #include <flat_map>
 #include <optional>
+#include <utility>
 #include <vector>
 
 namespace sdlms {
@@ -31,6 +32,7 @@ class CraftUiSystem : public UiComponentHost<CraftUiSystem> {
   static void EventDragMove(SDL_Event* event);
 
   static void EventCraft(bool all);
+  static void CancelCraft();
   static void EventCountDelta(int delta);
   static bool Run();
 
@@ -39,10 +41,16 @@ class CraftUiSystem : public UiComponentHost<CraftUiSystem> {
     uint32_t result_count = 0;
     uint32_t exp = 0;
     uint32_t count = 0;
+    uint32_t remaining = 0;
+    uint32_t process_time = 5000;
+    uint32_t meso = 0;
     uint8_t tab = 0;
+    std::vector<std::pair<uint32_t, uint32_t>> ingredients;
   };
   static inline std::optional<PendingCraft> pending_craft_;
   static inline uint64_t craft_finish_time_ = 0;
+  static inline uint64_t craft_next_time_ = 0;
+  static inline uint64_t craft_success_time_ = 0;
 
   static SDL_FPoint LoadWh();
 
@@ -68,6 +76,7 @@ class CraftUiSystem : public UiComponentHost<CraftUiSystem> {
 
   static bool Crafting();
   static float CraftProgress();
+  static bool CraftSuccess();
 
   static void Open();
   static void Close();

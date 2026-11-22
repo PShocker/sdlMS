@@ -79,6 +79,7 @@ class NoticeUiSystem : public UiComponentHost<NoticeUiSystem> {
     kQuestGiveup,
 
     kShopRecharge,
+    kCraftState,
   };
 
   static inline NoticeEnum type_;

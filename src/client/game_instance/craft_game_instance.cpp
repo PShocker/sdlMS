@@ -15,7 +15,7 @@ void CraftGameInstance::Load(const CharacterSaveData& cs) {
   for (uint8_t i = 0; i < static_cast<uint8_t>(CraftType::kLength); ++i) {
     datas_[i].type = static_cast<CraftType>(i);
     datas_[i].level = 1;
-    datas_[i].exp = 200;
+    datas_[i].exp = 0;
   }
   for (auto& c : cs.craft) {
     CraftData d;

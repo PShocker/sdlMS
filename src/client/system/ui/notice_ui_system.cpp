@@ -81,7 +81,8 @@ void NoticeUiSystem::RenderBackgrnd() {
 
     case NoticeEnum::kQuestGiveup:
 
-    case NoticeEnum::kShopRecharge: {
+    case NoticeEnum::kShopRecharge:
+    case NoticeEnum::kCraftState: {
       node = WzResource::ui_->find(u"PopupWindow.img/Notice1");
 
       break;
@@ -207,7 +208,8 @@ UIComponents& NoticeUiSystem::GetComponent() {
 
     case NoticeEnum::kQuestGiveup:
 
-    case NoticeEnum::kShopRecharge: {
+    case NoticeEnum::kShopRecharge:
+    case NoticeEnum::kCraftState: {
       buttons_node = {
 
           WzResource::ui_->find(u"Basic.img/BtOK2"),
@@ -512,6 +514,11 @@ void NoticeUiSystem::RenderText() {
       break;
     }
 
+    case NoticeEnum::kCraftState: {
+      text = u"You cannot craft while not standing.";
+      p = {20, 20};
+      break;
+    }
     case NoticeEnum::kCannotChangeEquip: {
       text = u"You cannot change equipment in alert.";
 
@@ -879,7 +886,8 @@ SDL_FPoint NoticeUiSystem::LoadWh() {
 
     case NoticeEnum::kQuestGiveup:
 
-    case NoticeEnum::kShopRecharge: {
+    case NoticeEnum::kShopRecharge:
+    case NoticeEnum::kCraftState: {
       return {266, 116};
     }
 

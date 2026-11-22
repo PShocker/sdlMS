@@ -1439,10 +1439,30 @@ void CharacterLogicSystem::RunAnimateChair(GameCharacter& g_character) {
 void CharacterLogicSystem::RunStateMachine() {
   auto& g_character = CharacterGameInstance::self_;
   if (CraftUiSystem::Crafting()) {
-    for (const char* key : {"left", "right", "up", "down"}) {
-      character_action_input_.erase(key);
-    }
+    // 制作期间屏蔽移动、跳跃、攻击、技能和使用物品等动作。
+    character_action_input_.clear();
+    character_skill_input_.clear();
+    character_item_input_.clear();
     self_hspeed_ = 0;
+    self_vspeed_ = 0;
+
+    const auto craft_action =
+        (CharacterGameInstance::bone_data_.contains(u"craft") ||
+         CharacterGameInstance::extern_action_.contains(u"craft"))
+            ? u"craft"
+            : u"alert";
+    if (g_character.action != craft_action) {
+      g_character.action = craft_action;
+      g_character.action_index = 0;
+      g_character.action_time = 0;
+      g_character.action_animate = true;
+      g_character.skill = std::nullopt;
+    }
+    RunFace(g_character);
+    RunFaceAnimate(g_character);
+    RunAnimate(g_character);
+    RunNetworkSync();
+    return;
   }
   auto o_character = g_character;
   RunItem(g_character);

@@ -32,14 +32,28 @@ void Button::Render() {
     state =
         (Window::mouse_state_ & SDL_BUTTON_LMASK) ? u"pressed" : u"mouseOver";
   }
-  SDL_Texture* texture = WzResource::LoadTexture(node->find(state + u"/0"));
-  // 贴图是缓存共享的：每次绘制都必须显式设置 alpha，并在结束后恢复。
-  // 否则窗口淡入时某个 state 会被永久设成低 alpha，之后 hover 看起来发黑/发暗。
+  auto* texture_node = node->find(state + u"/0");
+  bool disabled_fallback = false;
+  if (texture_node == nullptr && state == u"disabled") {
+    // 部分按钮没有 disabled/0，用 normal/0 灰度显示。
+    texture_node = node->find(u"normal/0");
+    disabled_fallback = true;
+  }
+  if (texture_node == nullptr) {
+    return;
+  }
+  SDL_Texture* texture = WzResource::LoadTexture(texture_node);
+  if (texture == nullptr) {
+    return;
+  }
+  if (disabled_fallback) {
+    SDL_SetTextureColorMod(texture, 128, 128, 128);
+  }
   SDL_SetTextureAlphaMod(texture, alpha);
   SDL_FRect dst = rect;
   SDL_RenderTexture(Window::renderer_, texture, nullptr, &dst);
-  SDL_SetTextureAlphaMod(texture, 255);
-}
+  SDL_SetTextureColorMod(texture, 255, 255, 255);
+  SDL_SetTextureAlphaMod(texture, 255);}
 
 
 }  // namespace sdlms

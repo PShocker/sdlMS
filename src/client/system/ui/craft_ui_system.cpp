@@ -13,6 +13,7 @@
 #include "src/client/system/system.h"
 #include "src/client/system/ui/component/scroll.h"
 #include "src/client/system/ui/component/tab.h"
+#include "src/client/system/ui/notice_ui_system.h"
 #include "src/client/system/ui/package_ui_system.h"
 #include "src/client/system/ui/tooltip_ui_system.h"
 #include "src/client/window/window.h"
@@ -222,32 +223,56 @@ bool CraftUiSystem::LoadRecipeItem(uint32_t item_id, SDL_Texture*& texture,
 void CraftUiSystem::RenderLevel() {
   auto& craft = CraftGameInstance::datas_[selected_tab_];
   const int level = std::max(1, static_cast<int>(craft.level));
-  const float percent =
-      std::clamp(static_cast<float>(craft.exp) / 100.0f, 0.0f, 100.0f);
+  const float ratio =
+      std::clamp(static_cast<float>(craft.exp) / 100.0f, 0.0f, 1.0f);
 
   static auto gauge0 = WzResource::LoadTexture(
       WzResource::ui_->find(u"Crafting.img/gaugeBar:skill/0"));
   static auto gauge1 = WzResource::LoadTexture(
       WzResource::ui_->find(u"Crafting.img/gaugeBar:skill/1"));
+  static auto gauge2 = WzResource::LoadTexture(
+      WzResource::ui_->find(u"Crafting.img/gaugeBar:skill/2"));
   const int gx = static_cast<int>(pos_.x) + 107;
   const int gy = static_cast<int>(pos_.y) + 60;
-  SDL_FRect bar{static_cast<float>(gx), static_cast<float>(gy),
-                gauge0 ? static_cast<float>(gauge0->w) : 422.0f,
-                gauge0 ? static_cast<float>(gauge0->h) : 14.0f};
-  if (gauge0) {
-    SDL_RenderTexture(Window::renderer_, gauge0, nullptr, &bar);
+  constexpr int kLevelBarW = 422;
+  if (ratio > 0.0f && gauge0 != nullptr && gauge2 != nullptr) {
+    const int fill_w = static_cast<int>(std::lround(kLevelBarW * ratio));
+    const int left_w = gauge0->w;
+    const int right_w = gauge2->w;
+
+    const int draw_left = std::min(fill_w, left_w);
+    if (draw_left > 0) {
+      SDL_FRect src{0, 0, static_cast<float>(draw_left),
+                    static_cast<float>(gauge0->h)};
+      SDL_FRect dst{static_cast<float>(gx), static_cast<float>(gy),
+                    static_cast<float>(draw_left),
+                    static_cast<float>(gauge0->h)};
+      SDL_RenderTexture(Window::renderer_, gauge0, &src, &dst);
+    }
+
+    if (fill_w > left_w) {
+      const int right_x = fill_w - right_w;
+      const int middle_w = std::max(0, right_x - left_w);
+      if (middle_w > 0 && gauge1 != nullptr) {
+        SDL_FRect middle{static_cast<float>(gx + left_w),
+                         static_cast<float>(gy),
+                         static_cast<float>(middle_w),
+                         static_cast<float>(gauge1->h)};
+        SDL_RenderTextureTiled(Window::renderer_, gauge1, nullptr, 1,
+                               &middle);
+      }
+      if (right_x >= left_w) {
+        SDL_FRect dst{static_cast<float>(gx + right_x),
+                      static_cast<float>(gy),
+                      static_cast<float>(right_w),
+                      static_cast<float>(gauge2->h)};
+        SDL_RenderTexture(Window::renderer_, gauge2, nullptr, &dst);
+      }
+    }
   }
-  if (gauge1) {
-    const int fill_w = static_cast<int>(gauge1->w * percent / 100.0f);
-    SDL_FRect src{0, 0, static_cast<float>(fill_w),
-                  static_cast<float>(gauge1->h)};
-    SDL_FRect dst{static_cast<float>(gx), static_cast<float>(gy),
-                  static_cast<float>(fill_w), static_cast<float>(gauge1->h)};
-    SDL_RenderTexture(Window::renderer_, gauge1, &src, &dst);
-  }
-  Text(u"LEVEL " + Num(level), pos_.x + 44, pos_.y + 60, 12);
-  auto pct = std::format("{:.2f}%", percent);
-  Text({pct.begin(), pct.end()}, pos_.x + 295, pos_.y + 61, 12);
+  Text(u"LEVEL " + Num(level), pos_.x + 44, pos_.y + 58, 12);
+  auto pct = std::format("{:.2f}%", ratio * 100.0f);
+  Text({pct.begin(), pct.end()}, pos_.x + 295, pos_.y + 58, 12);
 }
 
 void CraftUiSystem::RenderCategory() {
@@ -477,7 +502,9 @@ void CraftUiSystem::RenderDetail() {
   static auto additive_empty = WzResource::LoadTexture(
       WzResource::ui_->find(u"Crafting.img/ItemEntry/empty"));
   if (additive_empty != nullptr) {
-    SDL_FRect dst{pos_.x + 367, pos_.y + 197, 34, 34};
+    SDL_FRect dst{pos_.x + 371, pos_.y + 197,
+                  static_cast<float>(additive_empty->w),
+                  static_cast<float>(additive_empty->h)};
     SDL_RenderTexture(Window::renderer_, additive_empty, nullptr, &dst);
   }
 }
@@ -553,12 +580,32 @@ bool CraftUiSystem::CanCraft(const CraftGameInstance::CraftRecipe& recipe,
   return true;
 }
 
+void CraftUiSystem::CancelCraft() {
+  if (!pending_craft_.has_value()) {
+    return;
+  }
+  pending_craft_ = std::nullopt;
+  craft_next_time_ = 0;
+  craft_success_time_ = 0;
+
+  auto& self = CharacterGameInstance::self_;
+  self.action = u"stand1";
+  self.action_index = 0;
+  self.action_time = 0;
+  self.action_animate = true;
+}
 void CraftUiSystem::EventCountDelta(int delta) {
   const int v = std::clamp<int>(static_cast<int>(craft_count_) + delta, 1, 999);
   craft_count_ = static_cast<uint32_t>(v);
 }
 
 void CraftUiSystem::EventCraft(bool all) {
+  const auto& action = CharacterGameInstance::self_.action;
+  if (action != u"stand1" && action != u"stand2") {
+    NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kCraftState;
+    NoticeUiSystem::Open();
+    return;
+  }
   const auto recipes = LoadRecipes();
   if (recipes.empty() || selected_recipe_ >= recipes.size()) {
     return;
@@ -580,29 +627,30 @@ void CraftUiSystem::EventCraft(bool all) {
     return;
   }
 
-  PackageGameInstance::meso_ -= static_cast<uint64_t>(recipe.meso) * count;
-  for (const auto& ing : recipe.ingredients) {
-    auto sid = ItemId(ing.item);
-    if (auto* item = PackageGameInstance::LoadItem(sid); item != nullptr) {
-      ItemGameInstance::DecItemNum(*item, static_cast<int>(ing.count) * count);
-    }
-  }
-
   PendingCraft pending;
   pending.item_id = recipe.result.item;
   pending.result_count = recipe.result.count;
   pending.exp = recipe.result.exp;
   pending.count = count;
+  pending.remaining = count;
+  pending.process_time =
+      recipe.processTimeMS > 0 ? recipe.processTimeMS : 5000;
+  pending.meso = recipe.meso;
   pending.tab = selected_tab_;
+  for (const auto& ing : recipe.ingredients) {
+    pending.ingredients.emplace_back(ing.item, ing.count);
+  }
   pending_craft_ = pending;
-  craft_finish_time_ = Window::dt_now_ + 5000;
+  craft_finish_time_ =
+      Window::dt_now_ +
+      static_cast<uint64_t>(pending.process_time) * count;
+  craft_next_time_ = Window::dt_now_ + pending.process_time;
 
   auto& self = CharacterGameInstance::self_;
-  self.action =
-      (CharacterGameInstance::bone_data_.contains(u"craft") ||
-       CharacterGameInstance::extern_action_.contains(u"craft"))
-          ? u"craft"
-          : u"alert";
+  self.action = (CharacterGameInstance::bone_data_.contains(u"craft") ||
+                 CharacterGameInstance::extern_action_.contains(u"craft"))
+                    ? u"craft"
+                    : u"alert";
   self.action_index = 0;
   self.action_time = 0;
   self.action_animate = true;
@@ -631,50 +679,71 @@ bool CraftUiSystem::Run() {
       self.action_animate = true;
       self.skill = std::nullopt;
     }
-  }  if (Window::dt_now_ < craft_finish_time_) {
-    return true;
   }
+  while (pending_craft_.has_value() && Window::dt_now_ >= craft_next_time_) {
+    auto& pending = *pending_craft_;
 
-  const PendingCraft pending = *pending_craft_;
-  pending_craft_ = std::nullopt;
+    // 每完成一个 5 秒血条，消耗一次材料并制作一个物品。
+    PackageGameInstance::meso_ -= pending.meso;
+    for (const auto& [ingredient_id, ingredient_count] : pending.ingredients) {
+      auto sid = ItemId(ingredient_id);
+      if (auto* item = PackageGameInstance::LoadItem(sid); item != nullptr) {
+        ItemGameInstance::DecItemNum(*item, static_cast<int>(ingredient_count));
+      }
+    }
 
-  const auto result_id = ItemId(pending.item_id);
-  if (ItemGameInstance::CheckItem(result_id)) {
-    for (uint32_t i = 0; i < pending.count; ++i) {
-      auto item =
-          ItemGameInstance::LoadItem(result_id, pending.result_count);
+    const auto result_id = ItemId(pending.item_id);
+    if (ItemGameInstance::CheckItem(result_id)) {
+      auto item = ItemGameInstance::LoadItem(result_id, pending.result_count);
       PackageGameInstance::AddNewItem(item);
     }
-  }
 
-  auto& craft = CraftGameInstance::datas_[pending.tab];
-  craft.exp += static_cast<uint32_t>(pending.exp) * pending.count;
-  while (craft.exp >= 10000) {
-    craft.exp -= 10000;
-    craft.level = static_cast<uint8_t>(std::min<int>(craft.level + 1, 100));
-  }
+    auto& craft = CraftGameInstance::datas_[pending.tab];
+    craft.exp += pending.exp;
+    while (craft.exp >= 100) {
+      craft.exp -= 100;
+      craft.level = static_cast<uint8_t>(std::min<int>(craft.level + 1, 100));
+    }
 
-  auto& self = CharacterGameInstance::self_;
-  self.action = u"stand1";
-  self.action_index = 0;
-  self.action_time = 0;
-  self.action_animate = true;
+    if (pending.remaining > 0) {
+      --pending.remaining;
+    }
+    if (pending.remaining == 0) {
+      pending_craft_ = std::nullopt;
+      craft_success_time_ = Window::dt_now_ + 100;
+      auto& self = CharacterGameInstance::self_;
+      self.action = u"stand1";
+      self.action_index = 0;
+      self.action_time = 0;
+      self.action_animate = true;
+      break;
+    }
+    craft_next_time_ += pending.process_time;
+  }
   return true;
 }
 bool CraftUiSystem::Crafting() {
   return pending_craft_.has_value();
 }
+bool CraftUiSystem::CraftSuccess() {
+  return craft_success_time_ != 0 && Window::dt_now_ <= craft_success_time_;
+}
 float CraftUiSystem::CraftProgress() {
   if (!pending_craft_.has_value()) {
     return 0.0f;
   }
-  if (Window::dt_now_ >= craft_finish_time_) {
+  const uint64_t process = pending_craft_->process_time;
+  const uint64_t total = process * pending_craft_->count;
+  const uint64_t remain = craft_finish_time_ > Window::dt_now_
+                              ? craft_finish_time_ - Window::dt_now_
+                              : 0;
+  if (remain == 0) {
     return 1.0f;
   }
-  return std::clamp(
-      1.0f - static_cast<float>(craft_finish_time_ - Window::dt_now_) /
-                 5000.0f,
-      0.0f, 1.0f);
+  const uint64_t elapsed = total > remain ? total - remain : 0;
+  // 血条按当前配方的 ProcessTimeMS 循环播放。
+  return static_cast<float>(elapsed % process) /
+         static_cast<float>(process);
 }
 UIComponents& CraftUiSystem::GetComponent() {
   components_.clear();
@@ -690,23 +759,31 @@ UIComponents& CraftUiSystem::GetComponent() {
 
   const auto focused = CursorGameInstance::cursor_ui_ == Render;
   auto add_button = [&](const char16_t* path, float x, float y,
-                        Button::Callback cb) {
+                        Button::Callback cb, bool enabled = true) {
     auto* node = WzResource::ui_->find(path);
+    const int button_x = static_cast<int>(std::lround(pos_.x + x));
+    const int button_y = static_cast<int>(std::lround(pos_.y + y));
+    const int button_w = static_cast<int>(std::lround(ButtonW(node)));
+    const int button_h = static_cast<int>(std::lround(ButtonH(node)));
     components_.push_back(Button{
         .node = node,
-        .rect = {pos_.x + x, pos_.y + y, ButtonW(node), ButtonH(node)},
+        .rect = {static_cast<float>(button_x), static_cast<float>(button_y),
+                 static_cast<float>(button_w), static_cast<float>(button_h)},
         .callback = std::move(cb),
-        .enable = true,
+        .enable = enabled,
         .focused = focused,
     });
   };
   add_button(u"Crafting.img/button:minus", 339, 381,
              [] { EventCountDelta(-1); });
   add_button(u"Crafting.img/button:plus", 394, 381, [] { EventCountDelta(1); });
-  add_button(u"Crafting.img/button:craft", 414, 379, [] { EventCraft(false); });
-  add_button(u"Crafting.img/button:craftAll", 482, 379,
-             [] { EventCraft(true); });
-  add_button(u"Basic.img/BtClose", 531, 5, [] { Close(); });
+  add_button(
+      u"Crafting.img/button:craft", 414, 379, [] { EventCraft(false); },
+      !Crafting());
+  add_button(
+      u"Crafting.img/button:cancel", 482, 379, [] { CancelCraft(); },
+      Crafting());
+  add_button(u"Basic.img/BtClose", 526, 6, [] { Close(); });
 
   const auto recipes = LoadRecipes();
   const auto visible = static_cast<uint32_t>(kRecipeRows);
