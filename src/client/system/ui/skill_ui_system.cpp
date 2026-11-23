@@ -132,6 +132,18 @@ void SkillUiSystem::SelectFirstJobTab() {
   page_ = 0;
 }
 
+void SkillUiSystem::SelectSecondJobTab() {
+  // 技能树按 [新手, 一转, 二转, ...] 排列，二转就是最后一个职业页。
+  auto ski_tree =
+      JobSkillGameInstance::LoadSkiTree(CharacterGameInstance::self_.job);
+  if (ski_tree.empty()) {
+    active_tab_ = 0;
+  } else {
+    active_tab_ = static_cast<uint8_t>(ski_tree.size() - 1);
+  }
+  page_ = 0;
+}
+
 void SkillUiSystem::EventTop() {
   std::erase(System::render_systems_, Render);
   std::erase(System::event_systems_, Event);

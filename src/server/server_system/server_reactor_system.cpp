@@ -23,7 +23,10 @@ void ServerReactorSystem::RunScript(ServerReactorState& r) {
     auto Script = ServerReactorInstance::LoadScript(r.id);
     if (!Script.empty()) {
       const auto& fns = Script::fns();
-      fns.at(Script)(&r);
+      // 数据里引用了尚未实现的反应堆脚本时直接跳过，避免 std::out_of_range。
+      if (auto it = fns.find(Script); it != fns.end()) {
+        it->second(&r);
+      }
     }
   }
 }

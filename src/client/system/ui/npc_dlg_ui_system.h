@@ -47,6 +47,9 @@ class NpcDlgUiSystem : public UiComponentHost<NpcDlgUiSystem> {
 
   static bool StartNextQuest();
 
+  // 发放 Act/<index> 的奖励。背包不足时会提示并返回 false。
+  static bool SettleAct();
+
 
  public:
   static UIComponents& GetComponent();
@@ -54,6 +57,10 @@ class NpcDlgUiSystem : public UiComponentHost<NpcDlgUiSystem> {
 
   static void Open();
   static void Close();
+
+  // 脚本（startscript / endscript）接管交任务流程时调用：结算当前任务
+  // （quest_id_）的 Act 奖励并标记完成。成功返回 true。
+  static bool FinishQuest();
 
   static bool Event(SDL_Event* event);
 

@@ -93,6 +93,18 @@ struct ServerCharacterChat;
 struct ServerCharacterChatBuilder;
 struct ServerCharacterChatT;
 
+struct ServerCharacterPet;
+struct ServerCharacterPetBuilder;
+struct ServerCharacterPetT;
+
+struct ServerCharacterPetAction;
+struct ServerCharacterPetActionBuilder;
+struct ServerCharacterPetActionT;
+
+struct ServerCharacterPetMove;
+struct ServerCharacterPetMoveBuilder;
+struct ServerCharacterPetMoveT;
+
 struct ServerCharacterDrop;
 struct ServerCharacterDropBuilder;
 struct ServerCharacterDropT;
@@ -2265,6 +2277,343 @@ inline ::flatbuffers::Offset<ServerCharacterChat> CreateServerCharacterChatDirec
 }
 
 ::flatbuffers::Offset<ServerCharacterChat> CreateServerCharacterChat(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterChatT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct ServerCharacterPetT : public ::flatbuffers::NativeTable {
+  typedef ServerCharacterPet TableType;
+  uint64_t client_id = 0;
+  std::unique_ptr<fbs::PetSaveT> pet{};
+  ServerCharacterPetT() = default;
+  ServerCharacterPetT(const ServerCharacterPetT &o);
+  ServerCharacterPetT(ServerCharacterPetT&&) FLATBUFFERS_NOEXCEPT = default;
+  ServerCharacterPetT &operator=(ServerCharacterPetT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct ServerCharacterPet FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerCharacterPetT NativeTableType;
+  typedef ServerCharacterPetBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_CLIENT_ID = 4,
+    VT_PET = 6
+  };
+  uint64_t client_id() const {
+    return GetField<uint64_t>(VT_CLIENT_ID, 0);
+  }
+  bool mutate_client_id(uint64_t _client_id = 0) {
+    return SetField<uint64_t>(VT_CLIENT_ID, _client_id, 0);
+  }
+  const fbs::PetSave *pet() const {
+    return GetPointer<const fbs::PetSave *>(VT_PET);
+  }
+  fbs::PetSave *mutable_pet() {
+    return GetPointer<fbs::PetSave *>(VT_PET);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint64_t>(verifier, VT_CLIENT_ID, 8) &&
+           VerifyOffset(verifier, VT_PET) &&
+           verifier.VerifyTable(pet()) &&
+           verifier.EndTable();
+  }
+  ServerCharacterPetT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerCharacterPetT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerCharacterPet> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterPetT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ServerCharacterPetBuilder {
+  typedef ServerCharacterPet Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_client_id(uint64_t client_id) {
+    fbb_.AddElement<uint64_t>(ServerCharacterPet::VT_CLIENT_ID, client_id, 0);
+  }
+  void add_pet(::flatbuffers::Offset<fbs::PetSave> pet) {
+    fbb_.AddOffset(ServerCharacterPet::VT_PET, pet);
+  }
+  explicit ServerCharacterPetBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ServerCharacterPet> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ServerCharacterPet>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ServerCharacterPet> CreateServerCharacterPet(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t client_id = 0,
+    ::flatbuffers::Offset<fbs::PetSave> pet = 0) {
+  ServerCharacterPetBuilder builder_(_fbb);
+  builder_.add_client_id(client_id);
+  builder_.add_pet(pet);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<ServerCharacterPet> CreateServerCharacterPet(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterPetT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct ServerCharacterPetActionT : public ::flatbuffers::NativeTable {
+  typedef ServerCharacterPetAction TableType;
+  uint64_t client_id = 0;
+  std::string action{};
+  std::vector<uint16_t> chat{};
+};
+
+struct ServerCharacterPetAction FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerCharacterPetActionT NativeTableType;
+  typedef ServerCharacterPetActionBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_CLIENT_ID = 4,
+    VT_ACTION = 6,
+    VT_CHAT = 8
+  };
+  uint64_t client_id() const {
+    return GetField<uint64_t>(VT_CLIENT_ID, 0);
+  }
+  bool mutate_client_id(uint64_t _client_id = 0) {
+    return SetField<uint64_t>(VT_CLIENT_ID, _client_id, 0);
+  }
+  const ::flatbuffers::String *action() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_ACTION);
+  }
+  ::flatbuffers::String *mutable_action() {
+    return GetPointer<::flatbuffers::String *>(VT_ACTION);
+  }
+  const ::flatbuffers::Vector<uint16_t> *chat() const {
+    return GetPointer<const ::flatbuffers::Vector<uint16_t> *>(VT_CHAT);
+  }
+  ::flatbuffers::Vector<uint16_t> *mutable_chat() {
+    return GetPointer<::flatbuffers::Vector<uint16_t> *>(VT_CHAT);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint64_t>(verifier, VT_CLIENT_ID, 8) &&
+           VerifyOffset(verifier, VT_ACTION) &&
+           verifier.VerifyString(action()) &&
+           VerifyOffset(verifier, VT_CHAT) &&
+           verifier.VerifyVector(chat()) &&
+           verifier.EndTable();
+  }
+  ServerCharacterPetActionT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerCharacterPetActionT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerCharacterPetAction> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterPetActionT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ServerCharacterPetActionBuilder {
+  typedef ServerCharacterPetAction Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_client_id(uint64_t client_id) {
+    fbb_.AddElement<uint64_t>(ServerCharacterPetAction::VT_CLIENT_ID, client_id, 0);
+  }
+  void add_action(::flatbuffers::Offset<::flatbuffers::String> action) {
+    fbb_.AddOffset(ServerCharacterPetAction::VT_ACTION, action);
+  }
+  void add_chat(::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> chat) {
+    fbb_.AddOffset(ServerCharacterPetAction::VT_CHAT, chat);
+  }
+  explicit ServerCharacterPetActionBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ServerCharacterPetAction> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ServerCharacterPetAction>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ServerCharacterPetAction> CreateServerCharacterPetAction(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t client_id = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> action = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> chat = 0) {
+  ServerCharacterPetActionBuilder builder_(_fbb);
+  builder_.add_client_id(client_id);
+  builder_.add_chat(chat);
+  builder_.add_action(action);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<ServerCharacterPetAction> CreateServerCharacterPetActionDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t client_id = 0,
+    const char *action = nullptr,
+    const std::vector<uint16_t> *chat = nullptr) {
+  auto action__ = action ? _fbb.CreateString(action) : 0;
+  auto chat__ = chat ? _fbb.CreateVector<uint16_t>(*chat) : 0;
+  return fbs::CreateServerCharacterPetAction(
+      _fbb,
+      client_id,
+      action__,
+      chat__);
+}
+
+::flatbuffers::Offset<ServerCharacterPetAction> CreateServerCharacterPetAction(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterPetActionT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct ServerCharacterPetMoveT : public ::flatbuffers::NativeTable {
+  typedef ServerCharacterPetMove TableType;
+  uint64_t client_id = 0;
+  float x = 0.0f;
+  float y = 0.0f;
+  uint8_t page = 0;
+  bool flip = false;
+  std::string action{};
+  uint32_t ani_index = 0;
+};
+
+struct ServerCharacterPetMove FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerCharacterPetMoveT NativeTableType;
+  typedef ServerCharacterPetMoveBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_CLIENT_ID = 4,
+    VT_X = 6,
+    VT_Y = 8,
+    VT_PAGE = 10,
+    VT_FLIP = 12,
+    VT_ACTION = 14,
+    VT_ANI_INDEX = 16
+  };
+  uint64_t client_id() const {
+    return GetField<uint64_t>(VT_CLIENT_ID, 0);
+  }
+  bool mutate_client_id(uint64_t _client_id = 0) {
+    return SetField<uint64_t>(VT_CLIENT_ID, _client_id, 0);
+  }
+  float x() const {
+    return GetField<float>(VT_X, 0.0f);
+  }
+  bool mutate_x(float _x = 0.0f) {
+    return SetField<float>(VT_X, _x, 0.0f);
+  }
+  float y() const {
+    return GetField<float>(VT_Y, 0.0f);
+  }
+  bool mutate_y(float _y = 0.0f) {
+    return SetField<float>(VT_Y, _y, 0.0f);
+  }
+  uint8_t page() const {
+    return GetField<uint8_t>(VT_PAGE, 0);
+  }
+  bool mutate_page(uint8_t _page = 0) {
+    return SetField<uint8_t>(VT_PAGE, _page, 0);
+  }
+  bool flip() const {
+    return GetField<uint8_t>(VT_FLIP, 0) != 0;
+  }
+  bool mutate_flip(bool _flip = 0) {
+    return SetField<uint8_t>(VT_FLIP, static_cast<uint8_t>(_flip), 0);
+  }
+  const ::flatbuffers::String *action() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_ACTION);
+  }
+  ::flatbuffers::String *mutable_action() {
+    return GetPointer<::flatbuffers::String *>(VT_ACTION);
+  }
+  uint32_t ani_index() const {
+    return GetField<uint32_t>(VT_ANI_INDEX, 0);
+  }
+  bool mutate_ani_index(uint32_t _ani_index = 0) {
+    return SetField<uint32_t>(VT_ANI_INDEX, _ani_index, 0);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint64_t>(verifier, VT_CLIENT_ID, 8) &&
+           VerifyField<float>(verifier, VT_X, 4) &&
+           VerifyField<float>(verifier, VT_Y, 4) &&
+           VerifyField<uint8_t>(verifier, VT_PAGE, 1) &&
+           VerifyField<uint8_t>(verifier, VT_FLIP, 1) &&
+           VerifyOffset(verifier, VT_ACTION) &&
+           verifier.VerifyString(action()) &&
+           VerifyField<uint32_t>(verifier, VT_ANI_INDEX, 4) &&
+           verifier.EndTable();
+  }
+  ServerCharacterPetMoveT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerCharacterPetMoveT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerCharacterPetMove> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterPetMoveT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ServerCharacterPetMoveBuilder {
+  typedef ServerCharacterPetMove Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_client_id(uint64_t client_id) {
+    fbb_.AddElement<uint64_t>(ServerCharacterPetMove::VT_CLIENT_ID, client_id, 0);
+  }
+  void add_x(float x) {
+    fbb_.AddElement<float>(ServerCharacterPetMove::VT_X, x, 0.0f);
+  }
+  void add_y(float y) {
+    fbb_.AddElement<float>(ServerCharacterPetMove::VT_Y, y, 0.0f);
+  }
+  void add_page(uint8_t page) {
+    fbb_.AddElement<uint8_t>(ServerCharacterPetMove::VT_PAGE, page, 0);
+  }
+  void add_flip(bool flip) {
+    fbb_.AddElement<uint8_t>(ServerCharacterPetMove::VT_FLIP, static_cast<uint8_t>(flip), 0);
+  }
+  void add_action(::flatbuffers::Offset<::flatbuffers::String> action) {
+    fbb_.AddOffset(ServerCharacterPetMove::VT_ACTION, action);
+  }
+  void add_ani_index(uint32_t ani_index) {
+    fbb_.AddElement<uint32_t>(ServerCharacterPetMove::VT_ANI_INDEX, ani_index, 0);
+  }
+  explicit ServerCharacterPetMoveBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ServerCharacterPetMove> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ServerCharacterPetMove>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ServerCharacterPetMove> CreateServerCharacterPetMove(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t client_id = 0,
+    float x = 0.0f,
+    float y = 0.0f,
+    uint8_t page = 0,
+    bool flip = false,
+    ::flatbuffers::Offset<::flatbuffers::String> action = 0,
+    uint32_t ani_index = 0) {
+  ServerCharacterPetMoveBuilder builder_(_fbb);
+  builder_.add_client_id(client_id);
+  builder_.add_ani_index(ani_index);
+  builder_.add_action(action);
+  builder_.add_y(y);
+  builder_.add_x(x);
+  builder_.add_flip(flip);
+  builder_.add_page(page);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<ServerCharacterPetMove> CreateServerCharacterPetMoveDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t client_id = 0,
+    float x = 0.0f,
+    float y = 0.0f,
+    uint8_t page = 0,
+    bool flip = false,
+    const char *action = nullptr,
+    uint32_t ani_index = 0) {
+  auto action__ = action ? _fbb.CreateString(action) : 0;
+  return fbs::CreateServerCharacterPetMove(
+      _fbb,
+      client_id,
+      x,
+      y,
+      page,
+      flip,
+      action__,
+      ani_index);
+}
+
+::flatbuffers::Offset<ServerCharacterPetMove> CreateServerCharacterPetMove(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterPetMoveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
 struct ServerCharacterDropT : public ::flatbuffers::NativeTable {
   typedef ServerCharacterDrop TableType;
@@ -4679,6 +5028,122 @@ inline ::flatbuffers::Offset<ServerCharacterChat> ServerCharacterChat::Pack(::fl
       _client_id,
       _name,
       _payload);
+}
+
+inline ServerCharacterPetT::ServerCharacterPetT(const ServerCharacterPetT &o)
+      : client_id(o.client_id),
+        pet((o.pet) ? new fbs::PetSaveT(*o.pet) : nullptr) {
+}
+
+inline ServerCharacterPetT &ServerCharacterPetT::operator=(ServerCharacterPetT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(client_id, o.client_id);
+  std::swap(pet, o.pet);
+  return *this;
+}
+
+inline ServerCharacterPetT *ServerCharacterPet::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerCharacterPetT>(new ServerCharacterPetT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ServerCharacterPet::UnPackTo(ServerCharacterPetT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = client_id(); _o->client_id = _e; }
+  { auto _e = pet(); if (_e) { if(_o->pet) { _e->UnPackTo(_o->pet.get(), _resolver); } else { _o->pet = std::unique_ptr<fbs::PetSaveT>(_e->UnPack(_resolver)); } } else if (_o->pet) { _o->pet.reset(); } }
+}
+
+inline ::flatbuffers::Offset<ServerCharacterPet> CreateServerCharacterPet(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterPetT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerCharacterPet::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ServerCharacterPet> ServerCharacterPet::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterPetT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerCharacterPetT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _client_id = _o->client_id;
+  auto _pet = _o->pet ? CreatePetSave(_fbb, _o->pet.get(), _rehasher) : 0;
+  return fbs::CreateServerCharacterPet(
+      _fbb,
+      _client_id,
+      _pet);
+}
+
+inline ServerCharacterPetActionT *ServerCharacterPetAction::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerCharacterPetActionT>(new ServerCharacterPetActionT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ServerCharacterPetAction::UnPackTo(ServerCharacterPetActionT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = client_id(); _o->client_id = _e; }
+  { auto _e = action(); if (_e) _o->action = _e->str(); }
+  { auto _e = chat(); if (_e) { _o->chat.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->chat[_i] = _e->Get(_i); } } else { _o->chat.resize(0); } }
+}
+
+inline ::flatbuffers::Offset<ServerCharacterPetAction> CreateServerCharacterPetAction(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterPetActionT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerCharacterPetAction::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ServerCharacterPetAction> ServerCharacterPetAction::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterPetActionT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerCharacterPetActionT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _client_id = _o->client_id;
+  auto _action = _o->action.empty() ? 0 : _fbb.CreateString(_o->action);
+  auto _chat = _o->chat.size() ? _fbb.CreateVector(_o->chat) : 0;
+  return fbs::CreateServerCharacterPetAction(
+      _fbb,
+      _client_id,
+      _action,
+      _chat);
+}
+
+inline ServerCharacterPetMoveT *ServerCharacterPetMove::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerCharacterPetMoveT>(new ServerCharacterPetMoveT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ServerCharacterPetMove::UnPackTo(ServerCharacterPetMoveT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = client_id(); _o->client_id = _e; }
+  { auto _e = x(); _o->x = _e; }
+  { auto _e = y(); _o->y = _e; }
+  { auto _e = page(); _o->page = _e; }
+  { auto _e = flip(); _o->flip = _e; }
+  { auto _e = action(); if (_e) _o->action = _e->str(); }
+  { auto _e = ani_index(); _o->ani_index = _e; }
+}
+
+inline ::flatbuffers::Offset<ServerCharacterPetMove> CreateServerCharacterPetMove(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterPetMoveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerCharacterPetMove::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ServerCharacterPetMove> ServerCharacterPetMove::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterPetMoveT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerCharacterPetMoveT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _client_id = _o->client_id;
+  auto _x = _o->x;
+  auto _y = _o->y;
+  auto _page = _o->page;
+  auto _flip = _o->flip;
+  auto _action = _o->action.empty() ? 0 : _fbb.CreateString(_o->action);
+  auto _ani_index = _o->ani_index;
+  return fbs::CreateServerCharacterPetMove(
+      _fbb,
+      _client_id,
+      _x,
+      _y,
+      _page,
+      _flip,
+      _action,
+      _ani_index);
 }
 
 inline ServerCharacterDropT::ServerCharacterDropT(const ServerCharacterDropT &o)

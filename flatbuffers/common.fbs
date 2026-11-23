@@ -273,6 +273,18 @@ table QuestAlarmSave{
     id:string;
 }
 
+// 宠物（095 CPet）：item_id 是宠物道具 id（05000000~），
+// name 是宠物名字（UTF-16），fullness 是饱食度 0~100。
+table PetSave{
+    item_id:uint32;
+    name:[uint16];
+    level:uint8;
+    fullness:uint8;
+    // 亲密度（095 CPet：宠物食品 spec/incTameness 增加，宠物信息窗口显示）
+    closeness:uint8;
+    active:bool;
+}
+
 table CharacterSave{
     character:Character;
     ap:APSave;
@@ -291,6 +303,10 @@ table CharacterSave{
     quest_alarm:[QuestAlarmSave];
     key:[KeyConfigSave];
     craft:[CraftSave];
+    // 旧版单宠物存档（兼容读取，新存档写 pets）
+    pet:PetSave;
+    // 拥有的全部宠物状态（095：每个宠物道具都有独立的等级/饱食度/名字）
+    pets:[PetSave];
 }
 
 table PlayerSave{

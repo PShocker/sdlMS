@@ -39,8 +39,13 @@ class NpcGameInstance {
     kQuest,
     kShop,
     kScript,
+    kStorage,
   };
   static NpcType LoadNpcType(const std::u16string& id);
+
+  // NPCs that own an account storage (仓库) declare the trunk fee in Npc.wz as
+  // info/trunkPut (deposit) or info/trunkGet (withdraw).
+  static bool CheckStorageNpc(const std::u16string& id);
 
   static inline std::array<std::vector<GameNpc>, 8> data_;
 

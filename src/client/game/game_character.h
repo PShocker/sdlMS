@@ -58,6 +58,10 @@ struct GameCharacter {
 
   std::optional<GameEquipItem> accessory;
 
+  // 宠物装备（095 CPet::GetItemSlot / UpdatePetAbility）：挂在角色的宠物装备槽上，
+  // 数据来自 Character.wz/PetEquip/<id>.img/<宠物 id>/<动作>/<帧>。
+  std::optional<GameEquipItem> pet_equip;
+
   std::optional<GameDecoItem> weapon_deco;
   std::optional<GameDecoItem> cap_deco;
   std::optional<GameDecoItem> cape_deco;

@@ -4,6 +4,7 @@
 #include "src/client/game_instance/afterimage_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/drop_game_instance.h"
+#include "src/client/game_instance/pet_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/server/server_main.h"
 
@@ -76,6 +77,12 @@ void DropLogicSystem::RunStateMachine(GameDrop& drop) {
       std::optional<SDL_FPoint> pos;
 
       if (pk->pet_index.has_value()) {
+        // 095：宠物捡到的东西飞向宠物，而不是飞向主人。
+        if (auto* pet = PetGameInstance::FindPet(
+                static_cast<int32_t>(pk->pet_index.value()));
+            pet != nullptr) {
+          pos = pet->pos;
+        }
       } else {
         auto client_id = pk->client_id;
         if (client_id == ServerMain::local_addr_) {
@@ -100,11 +107,14 @@ void DropLogicSystem::RunStateMachine(GameDrop& drop) {
         return c.pos.y - 40.0f;
       };
       SDL_FPoint target{pos->x, pos->y};
-      if (pk->client_id == ServerMain::local_addr_) {
-        target.y = body_center_y(CharacterGameInstance::self_);
-      } else if (CharacterGameInstance::others_.contains(pk->client_id)) {
-        target.y = body_center_y(
-            CharacterGameInstance::others_[pk->client_id].g_character);
+      // 宠物捡取时目标就是宠物本体，不能再按角色的身体中心覆盖 Y。
+      if (!pk->pet_index.has_value()) {
+        if (pk->client_id == ServerMain::local_addr_) {
+          target.y = body_center_y(CharacterGameInstance::self_);
+        } else if (CharacterGameInstance::others_.contains(pk->client_id)) {
+          target.y = body_center_y(
+              CharacterGameInstance::others_[pk->client_id].g_character);
+        }
       }
       const SDL_FPoint start{drop.goal.x, drop.goal.y - drop.icon_h / 2};
 

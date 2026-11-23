@@ -7,6 +7,7 @@
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
+#include "src/client/game_instance/pet_game_instance.h"
 #include "src/client/game_instance/random_game_instance.h"
 #include "src/client/game_instance/text_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
@@ -31,6 +32,19 @@ namespace sdlms {
 
 
 namespace {
+
+// 装备 info 里可能缺 reqJob/reqSTR 之类的字段（宠物装备就只有 reqLevel/tuc），
+// 缺失时按 0 处理，避免解引用空节点。
+int ReadEquipInt(wz::Node* info, const char16_t* key) {
+  if (info == nullptr) {
+    return 0;
+  }
+  auto* node = info->get_child(key);
+  if (node == nullptr || node->type != wz::Type::Int) {
+    return 0;
+  }
+  return static_cast<wz::Property<int>*>(node)->get();
+}
 
 bool IsPetEquipItem(int item_id) {
   return item_id / 100000 == 18;
@@ -399,9 +413,7 @@ std::flat_set<JobType> EquipGameInstance::LoadEquipJob(
 
   auto equip_info = EquipGameInstance::LoadEquipInfo(id);
 
-  auto req_job =
-
-      static_cast<wz::Property<int>*>(equip_info->get_child(u"reqJob"))->get();
+  auto req_job = ReadEquipInt(equip_info, u"reqJob");
 
   if (req_job == 0) {
     r = {
@@ -589,6 +601,9 @@ void EquipGameInstance::AddEquip(GameEquipItem& equip, GameCharacter& character,
     CharacterGameInstance::AddWeapon(character, equip.id);
 
     character.weapon = equip;
+  } else if (type == u"PetEquip") {
+    // 宠物装备：095 里挂在角色的宠物装备槽上，画在宠物身上。
+    character.pet_equip = equip;
   }
 }
 
@@ -598,31 +613,17 @@ bool EquipGameInstance::AddEquipLimit(GameEquipItem& equip,
                                       GameCharacter& character, int slot) {
   auto equip_info = LoadEquipInfo(equip.id);
 
-  auto require_job =
+  auto require_job = ReadEquipInt(equip_info, u"reqJob");
 
-      static_cast<wz::Property<int>*>(equip_info->get_child(u"reqJob"))->get();
+  auto require_lv = ReadEquipInt(equip_info, u"reqLevel");
 
-  auto require_lv =
+  auto require_str = ReadEquipInt(equip_info, u"reqSTR");
 
-      static_cast<wz::Property<int>*>(equip_info->get_child(u"reqLevel"))
+  auto require_dex = ReadEquipInt(equip_info, u"reqDEX");
 
-          ->get();
+  auto require_int = ReadEquipInt(equip_info, u"reqINT");
 
-  auto require_str =
-
-      static_cast<wz::Property<int>*>(equip_info->get_child(u"reqSTR"))->get();
-
-  auto require_dex =
-
-      static_cast<wz::Property<int>*>(equip_info->get_child(u"reqDEX"))->get();
-
-  auto require_int =
-
-      static_cast<wz::Property<int>*>(equip_info->get_child(u"reqINT"))->get();
-
-  auto require_luk =
-
-      static_cast<wz::Property<int>*>(equip_info->get_child(u"reqLUK"))->get();
+  auto require_luk = ReadEquipInt(equip_info, u"reqLUK");
 
 
   auto jobs = EquipGameInstance::LoadEquipJob(equip.id);
@@ -671,6 +672,16 @@ bool EquipGameInstance::AddEquipLimit(GameEquipItem& equip,
 
   if (luk_ap < require_luk) {
     return false;
+  }
+
+  // 095：宠物装备的图片按宠物 id 分目录，只有当前宠物能穿的那件才能装备
+  // （装备说明里也写了限定哪些宠物）。
+  if (LoadEquipType(equip.id) == u"PetEquip" && !PetGameInstance::data_.empty()) {
+    auto pet_key = PetGameInstance::LoadPetImageKey(PetGameInstance::data_.front().id);
+    auto* image = WzResource::character_->find(u"PetEquip/" + equip.id + u".img");
+    if (image == nullptr || pet_key.empty() || image->get_child(pet_key) == nullptr) {
+      return false;
+    }
   }
 
   AddEquip(equip, character, slot);
@@ -843,6 +854,10 @@ std::vector<GameEquipItem> EquipGameInstance::LoadEquipSlot(
     if (character.weapon.has_value()) {
       r.push_back(character.weapon.value());
     }
+  } else if (type == u"PetEquip") {
+    if (character.pet_equip.has_value()) {
+      r.push_back(character.pet_equip.value());
+    }
   }
 
   return r;
@@ -979,6 +994,10 @@ std::vector<GameEquipItem> EquipGameInstance::LoadEquips(
 
   if (c.ring3.has_value()) {
     v.push_back(c.ring3.value());
+  }
+
+  if (c.pet_equip.has_value()) {
+    v.push_back(c.pet_equip.value());
   }
 
   return v;
@@ -1309,6 +1328,12 @@ std::optional<GameEquipItem>* EquipGameInstance::LoadEquip(int index) {
     case EquipMouseIndex::kRing3:
 
       break;
+
+    case EquipMouseIndex::kPetEquip: {
+      equip = &self.pet_equip;
+
+      break;
+    }
   }
 
   return equip;
@@ -1384,6 +1409,14 @@ std::optional<GameDecoItem>* EquipGameInstance::LoadDeco(int index) {
     case EquipMouseIndex::kRing3:
 
       break;
+
+    case EquipMouseIndex::kPetEquip: {
+      // 宠物装备没有对应的点装（deco）槽，返回一个空的占位。
+      static std::optional<GameDecoItem> empty_deco;
+      deco = &empty_deco;
+
+      break;
+    }
   }
 
   return deco;

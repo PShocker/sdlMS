@@ -1,5 +1,6 @@
 #include "src/server/server_instance/server_client_instance.h"
 
+#include "src/server/server_instance/server_character_instance.h"
 #include "src/server/server_instance/server_scene_instance.h"
 
 #include <ranges>
@@ -13,6 +14,8 @@ void ServerClientInstance::ClientExit(uint64_t client_id) {
     map_clients.erase(map_id);
     ServerClientInstance::clients_.erase(client_id);
   }
+  // 断线的玩家不再保留宠物状态。
+  ServerCharacterInstance::pets_.erase(client_id);
   return;
 }
 

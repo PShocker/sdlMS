@@ -9,8 +9,10 @@
 #include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/game_instance/keyboard_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
+#include "src/client/game_instance/pet_game_instance.h"
 #include "src/client/game_instance/portal_game_instance.h"
 #include "src/client/game_instance/quest_game_instance.h"
+#include "src/client/game_instance/storage_game_instance.h"
 #include "src/client/system/ui/character_choose_ui_system.h"
 #include "src/client/system/ui/option_ui_system.h"
 #include "src/client/system/ui/quest_alarm_ui_system.h"
@@ -109,6 +111,32 @@ bool GameSaveSystemInstance::LoadSave(const std::string& login) {
       cs.portal_id = c->portal_id;
       cs.return_map_id = c->return_map_id;
 
+      // 宠物（095 CPet）：每只宠物各自的道具 id / 名字 / 等级 / 饱食度 / 是否激活
+      for (const auto& p : c->pets) {
+        if (p == nullptr) {
+          continue;
+        }
+        PetSaveData state;
+        state.item_id = p->item_id;
+        state.name = {p->name.begin(), p->name.end()};
+        state.level = p->level;
+        state.fullness = p->fullness;
+        state.closeness = p->closeness;
+        state.active = p->active;
+        cs.pets.push_back(std::move(state));
+      }
+      // 旧存档只有单只宠物，读进来迁移成 pets 列表。
+      if (c->pets.empty() && c->pet != nullptr) {
+        PetSaveData state;
+        state.item_id = c->pet->item_id;
+        state.name = {c->pet->name.begin(), c->pet->name.end()};
+        state.level = c->pet->level;
+        state.fullness = c->pet->fullness;
+        state.closeness = c->pet->closeness;
+        state.active = c->pet->active;
+        cs.pets.push_back(std::move(state));
+      }
+
       for (const auto& quest : c->quest) {
         GameQuest g_quest;
         g_quest.quest_id = {quest->id.begin(), quest->id.end()};
@@ -155,11 +183,22 @@ bool GameSaveSystemInstance::LoadSave(const std::string& login) {
           GameEquipItem g_equip;
           auto tmp = std::format("{:08d}", eqp->equip_id);
           g_equip.id = {tmp.begin(), tmp.end()};
+          for (const auto& scroll : eqp->scroll) {
+            tmp = std::format("{:08d}", scroll->scroll_id);
+            std::u16string scroll_id{tmp.begin(), tmp.end()};
+            g_equip.scroll.push_back({scroll_id, scroll->success});
+          }
           auto g_item = std::polymorphic<GameItem>(
               std::in_place_type<GameEquipItem>, g_equip);
+          save_.storage.data.push_back(std::move(g_item));
           break;
         }
         case fbs::ItemUnion_Item: {
+          auto itm = s.AsItem();
+          auto tmp = std::format("{:08d}", itm->item_id);
+          std::u16string item_id{tmp.begin(), tmp.end()};
+          auto item2 = ItemGameInstance::LoadItem(item_id, itm->item_num);
+          save_.storage.data.push_back(std::move(item2));
           break;
         }
         default: {
@@ -258,6 +297,9 @@ bool GameSaveSystemInstance::SaveGame() {
       }
     }
 
+    // 宠物状态（名字/等级/饱食度/是否激活）
+    PetGameInstance::Save(cs);
+
     bool replaced = false;
     for (auto& save_character : save_.characters) {
       if (save_character.character.name == character.name) {
@@ -300,6 +342,21 @@ bool GameSaveSystemInstance::SaveGame() {
     cst.hp = character_s.hp;
     cst.mp = character_s.mp;
     cst.exp = character_s.exp;
+
+    // 宠物（095 CPet）：每只宠物各自的道具 id / 名字 / 等级 / 饱食度 / 是否激活
+    for (const auto& state : character_s.pets) {
+      if (state.item_id == 0) {
+        continue;
+      }
+      fbs::PetSaveT pet;
+      pet.item_id = state.item_id;
+      pet.name = {state.name.begin(), state.name.end()};
+      pet.level = state.level;
+      pet.fullness = state.fullness;
+      pet.closeness = state.closeness;
+      pet.active = state.active;
+      cst.pets.push_back(std::make_unique<fbs::PetSaveT>(pet));
+    }
 
     for (auto& quest : character_s.quests) {
       fbs::QuestSaveT qt;
@@ -399,6 +456,44 @@ bool GameSaveSystemInstance::SaveGame() {
       cst.package.push_back(std::make_unique<fbs::PackageSaveT>(pst));
     }
     pst.data.push_back(std::make_unique<fbs::CharacterSaveT>(cst));
+  }
+  // 仓库是账号级数据，只序列化一次
+  for (auto& slot : StorageGameInstance::storage_.data) {
+    if (slot->id.empty()) {
+      continue;
+    }
+    const uint32_t item_id =
+        std::stoi(std::string{slot->id.begin(), slot->id.end()});
+    uint32_t item_num = 1;
+    fbs::ItemUnionUnion item;
+    switch (slot->type) {
+      case ItemEnum::kEquip:
+      case ItemEnum::kDeco: {
+        fbs::EquipT et;
+        et.equip_id = item_id;
+        if (slot->type == ItemEnum::kEquip) {
+          GameEquipItem& equip = static_cast<GameEquipItem&>(*slot);
+          for (auto& scroll : equip.scroll) {
+            fbs::EquipScrollT est;
+            est.scroll_id =
+                std::stoi(std::string{scroll.id.begin(), scroll.id.end()});
+            est.success = scroll.success;
+            et.scroll.push_back(std::make_unique<fbs::EquipScrollT>(est));
+          }
+        }
+        item.Set(et);
+        break;
+      }
+      default: {
+        item_num = static_cast<uint32_t>(ItemGameInstance::LoadItemNum(slot));
+        fbs::ItemT it;
+        it.item_id = item_id;
+        it.item_num = item_num;
+        item.Set(it);
+        break;
+      }
+    }
+    pst.storage.push_back(std::move(item));
   }
   for (const auto& [key, val] : save_.options) {
     fbs::OptionSaveT ost;

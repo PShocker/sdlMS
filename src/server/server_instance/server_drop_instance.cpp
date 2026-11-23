@@ -98,6 +98,12 @@ void ServerDropInstance::HandlePick(uint64_t client_id,
       fbs::ServerCharacterPickT t;
       t.random_id = r.random_id;
       t.client_id = client_id;
+      // pet_index >= 0 表示这一件是宠物捡的，回包要带上，客户端才能让掉落物
+      // 飞向宠物。
+      if (r.pet_index >= 0) {
+        t.pet = true;
+        t.pet_index = r.pet_index;
+      }
       auto clients = ServerSceneInstance::scenes_[map_id].clients;
       for (const auto c : clients) {
         ServerResponse::SendToClient(c, t);

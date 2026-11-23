@@ -17,7 +17,27 @@ class QuestGameInstance {
  private:
   static std::vector<GameQuest> LoadNpc(const std::u16string& id);
 
+  // 二转试炼：凑齐试炼道具后自动把玩家送回教官所在的城镇。
+  static void CheckJobTestReturn();
+
  public:
+  // 二转试炼场信息：200X2(Test of Qualification) 对应的试炼场地图，
+  // 以及发任务的教官所在的地图。
+  struct JobTestArea {
+    uint32_t arena_map;
+    uint32_t instructor_map;
+  };
+  static std::optional<JobTestArea> LoadJobTestArea(
+      const std::u16string& quest_id);
+
+  // 二转试炼失败（在试炼场里死亡）：运行该任务的 Check/1/failscript。
+  // 当前地图不是试炼场、或没有进行中的试炼时返回 false。
+  static bool RunJobTestFailScript();
+
+  // 二转试炼进行中且还没达标时，把玩家送回试炼场（重新进场）。
+  // 返回 true 表示已处理（调用方不要再显示"任务未完成"对白）。
+  static bool EnterJobTestArena(const std::u16string& quest_id);
+
   static void UpdateCheckMob(const std::u16string& mob_id, int num);
   static void UpdateCheckItem();
   static void UpdateCheckItem(const std::u16string& quest_id);

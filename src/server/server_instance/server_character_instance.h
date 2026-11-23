@@ -6,6 +6,7 @@
 #include "src/common/flatbuffers/server.h"
 
 #include <cstdint>
+#include <flat_map>
 
 namespace sdlms {
 
@@ -35,6 +36,23 @@ class ServerCharacterInstance {
   static void HandleServerChat(uint64_t client_id,
                                fbs::ServerCharacterChatT& r);
   static void HandleCharacter(uint64_t client_id, fbs::ClientCharacterT& r);
+
+  // 宠物状态同步（095 CPet）：服务端记录每个 client 的宠物，广播给同地图其他人；
+  // 新进入的玩家会收到目前同地图其他玩家的宠物。
+  static void HandleCharacterPet(uint64_t client_id,
+                                 fbs::ClientCharacterPetT& r);
+  static void HandleServerPet(uint64_t client_id, fbs::ServerCharacterPetT& r);
+  // 宠物动作/气泡（095 CPet::DoAction）。
+  static void HandleCharacterPetAction(uint64_t client_id,
+                                       fbs::ClientCharacterPetActionT& r);
+  static void HandleServerPetAction(uint64_t client_id,
+                                    fbs::ServerCharacterPetActionT& r);
+  // 宠物位置/动画同步（095 CPet 的移动包）。
+  static void HandleCharacterPetMove(uint64_t client_id,
+                                     fbs::ClientCharacterPetMoveT& r);
+  static void HandleServerPetMove(uint64_t client_id,
+                                  fbs::ServerCharacterPetMoveT& r);
+  static inline std::flat_map<uint64_t, fbs::PetSaveT> pets_;
 
   static void HandleServerAtk(uint64_t client_id,
                               fbs::ServerCharacterAttackT& r);

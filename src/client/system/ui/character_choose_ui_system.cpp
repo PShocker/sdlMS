@@ -8,6 +8,7 @@
 #include "src/client/game_instance/keyboard_game_instance.h"
 #include "src/client/game_instance/craft_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
+#include "src/client/game_instance/pet_game_instance.h"
 #include "src/client/game_instance/popup_tip_game_instance.h"
 #include "src/client/game_instance/quest_game_instance.h"
 #include "src/client/system/ui/quest_ui_system.h"
@@ -268,6 +269,7 @@ void CharacterChooseUiSystem::EventButtonSelect() {
       portal_id = cs.portal_id;
       // load pack,ski,ap,sp
       PackageGameInstance::Load(cs);
+      PetGameInstance::Load(cs);
       CraftGameInstance::Load(cs);
       CharacterStatGameInstance::Load(cs);
       JobSkillGameInstance::Load(cs);

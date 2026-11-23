@@ -67,6 +67,13 @@ union NetPayload {
     ServerRSkill,
     ServerCreateDrop,
     ServerMobDebuff,
+    // 宠物状态同步（追加在末尾，避免已有 union 编号变化）
+    ClientCharacterPet,
+    ServerCharacterPet,
+    ClientCharacterPetAction,
+    ServerCharacterPetAction,
+    ClientCharacterPetMove,
+    ServerCharacterPetMove,
 }
 // 统一的网络包（最外层包装）
 table NetPacket {

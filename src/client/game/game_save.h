@@ -47,6 +47,19 @@ struct QuestAlarmSave {
   std::string id;
 };
 
+// 宠物存档（095 CPet）：item_id 是宠物道具 id（8 位，如 5000000），
+// name 是宠物名字，fullness 是饱食度 0~100。
+// 角色可以拥有多只宠物，用 pets 列表保存，active 只有一只是 true。
+struct PetSaveData {
+  uint32_t item_id = 0;
+  std::u16string name;
+  uint8_t level = 1;
+  uint8_t fullness = 100;
+  // 亲密度（095 CPet m_nCloseness）：宠物食品的 incTameness 增加。
+  uint8_t closeness = 0;
+  bool active = false;
+};
+
 struct CharacterSaveData {
   GameCharacter character;
   ApSave ap;
@@ -54,6 +67,7 @@ struct CharacterSaveData {
   SpSave sp;
   std::vector<uint32_t> remain_sp;
   std::vector<PackageSaveData> package;
+  std::vector<PetSaveData> pets;
   uint64_t meso;
   uint32_t map_id;
   uint32_t return_map_id;

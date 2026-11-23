@@ -38,6 +38,30 @@ table ClientCharacterChat {
     payload:CharacterChat;
 }
 
+// 宠物状态（095 CPet）：进图/切换/喂食后上报，供其他玩家看到自己的宠物。
+table ClientCharacterPet {
+    map_id:uint32;
+    pet:PetSave;
+}
+
+// 宠物动作（095 CPet::DoAction 的 bSend 包）：命令/喂食时播的动作 + 气泡台词。
+table ClientCharacterPetAction {
+    map_id:uint32;
+    action:string;
+    chat:[uint16];
+}
+
+// 宠物位置/动画同步（095 CPet 的移动包）：主人客户端上报宠物的位置和当前帧。
+table ClientCharacterPetMove {
+    map_id:uint32;
+    x:float;
+    y:float;
+    page:uint8;
+    flip:bool;
+    action:string;
+    ani_index:uint32;
+}
+
 table ClientCharacterDrop {
     map_id:uint32;
     payload:Drop;

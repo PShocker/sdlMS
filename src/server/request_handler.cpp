@@ -3,6 +3,7 @@
 #include "src/client/game/game_character.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/pet_game_instance.h"
 #include "src/client/system/ui/character_info_ui_system.h"
 #include "src/client/system_instance/fade_system_instance.h"
 #include "src/client/system_instance/scene_system_instance.h"
@@ -111,6 +112,27 @@ void RequestHandler::HandleRequest(uint64_t client_id, void* buf,
       fbs::ClientCharacterChatT r;
       payload->UnPackTo(&r);
       ServerCharacterInstance::HandleChat(client_id, r);
+      break;
+    }
+    case fbs::NetPayload_ClientCharacterPet: {
+      auto payload = packet->payload_as_ClientCharacterPet();
+      fbs::ClientCharacterPetT r;
+      payload->UnPackTo(&r);
+      ServerCharacterInstance::HandleCharacterPet(client_id, r);
+      break;
+    }
+    case fbs::NetPayload_ClientCharacterPetAction: {
+      auto payload = packet->payload_as_ClientCharacterPetAction();
+      fbs::ClientCharacterPetActionT r;
+      payload->UnPackTo(&r);
+      ServerCharacterInstance::HandleCharacterPetAction(client_id, r);
+      break;
+    }
+    case fbs::NetPayload_ClientCharacterPetMove: {
+      auto payload = packet->payload_as_ClientCharacterPetMove();
+      fbs::ClientCharacterPetMoveT r;
+      payload->UnPackTo(&r);
+      ServerCharacterInstance::HandleCharacterPetMove(client_id, r);
       break;
     }
     case fbs::NetPayload_ClientCharacterDrop: {
@@ -315,6 +337,7 @@ void RequestHandler::HandleRequest(uint64_t client_id, void* buf,
       fbs::ServerCharacterOutT r;
       payload->UnPackTo(&r);
       CharacterGameInstance::others_.erase(r.client_id);
+      PetGameInstance::RemoveRemote(r.client_id);
       break;
     }
     case fbs::NetPayload_ServerMobEvent: {
@@ -357,6 +380,27 @@ void RequestHandler::HandleRequest(uint64_t client_id, void* buf,
       fbs::ServerCharacterChatT r;
       payload->UnPackTo(&r);
       ServerCharacterInstance::HandleServerChat(client_id, r);
+      break;
+    }
+    case fbs::NetPayload_ServerCharacterPet: {
+      auto payload = packet->payload_as_ServerCharacterPet();
+      fbs::ServerCharacterPetT r;
+      payload->UnPackTo(&r);
+      ServerCharacterInstance::HandleServerPet(client_id, r);
+      break;
+    }
+    case fbs::NetPayload_ServerCharacterPetAction: {
+      auto payload = packet->payload_as_ServerCharacterPetAction();
+      fbs::ServerCharacterPetActionT r;
+      payload->UnPackTo(&r);
+      ServerCharacterInstance::HandleServerPetAction(client_id, r);
+      break;
+    }
+    case fbs::NetPayload_ServerCharacterPetMove: {
+      auto payload = packet->payload_as_ServerCharacterPetMove();
+      fbs::ServerCharacterPetMoveT r;
+      payload->UnPackTo(&r);
+      ServerCharacterInstance::HandleServerPetMove(client_id, r);
       break;
     }
     case fbs::NetPayload_ServerCharacterDrop: {

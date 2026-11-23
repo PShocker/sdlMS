@@ -28,6 +28,7 @@
 #include "src/client/system/ui/npc_dlg_ui_system.h"
 #include "src/client/system/ui/package_ui_system.h"
 #include "src/client/system/ui/party_ui_system.h"
+#include "src/client/system/ui/pet_info_ui_system.h"
 #include "src/client/system/ui/quest_alarm_ui_system.h"
 #include "src/client/system/ui/quest_ui_system.h"
 #include "src/client/system/ui/quick_slot_ui_system.h"
@@ -172,6 +173,12 @@ bool CursorLogicSystem::RunDefault() {
       return true;
     }
   }
+  if (CursorGameInstance::cursor_ui_ == StorageUiSystem::Render) {
+    if (RunVscrollMotion()) {
+      RunCursorAction(u"9");
+      return true;
+    }
+  }
   RunCursorAction(u"0");
 
   return true;
@@ -233,6 +240,10 @@ void CursorLogicSystem::RunCursorUi() {
       }
     } else if (fn == StorageUiSystem::Render) {
       if (StorageUiSystem::CursorIn()) {
+        CursorGameInstance::cursor_ui_ = fn;
+      }
+    } else if (fn == PetInfoUiSystem::Render) {
+      if (PetInfoUiSystem::CursorIn()) {
         CursorGameInstance::cursor_ui_ = fn;
       }
     } else if (fn == ContextMenuUiSystem::Render) {
@@ -512,9 +523,18 @@ bool CursorLogicSystem::EventClickNpc(GameNpc npc) {
     case NpcGameInstance::NpcType::kScript: {
       auto node = WzResource::npc_->find(npc_id + u".img");
       auto script_node = node->find(u"info/script/0/script");
+      if (script_node == nullptr) {
+        break;
+      }
       auto script_str =
           static_cast<wz::Property<std::u16string>*>(script_node)->get();
-      Script::fns().at(script_str)(nullptr);
+      // 数据里引用了尚未实现的脚本名时直接忽略，避免 std::out_of_range。
+      auto& fns = Script::fns();
+      auto it = fns.find(script_str);
+      if (it == fns.end()) {
+        break;
+      }
+      it->second(nullptr);
       r = true;
       break;
     }
@@ -529,6 +549,15 @@ bool CursorLogicSystem::EventClickNpc(GameNpc npc) {
       NpcDlgUiSystem::cb_ = {};
       NpcDlgUiSystem::Close();
       NpcDlgUiSystem::Open();
+      r = true;
+      break;
+    }
+    case NpcGameInstance::NpcType::kStorage: {
+      // 仓库 NPC：显示仓库（Trunk）窗口
+      StorageUiSystem::npc_id_ = npc_id;
+      StorageUiSystem::npc_ = npc;
+      StorageUiSystem::Close();
+      StorageUiSystem::Open();
       r = true;
       break;
     }

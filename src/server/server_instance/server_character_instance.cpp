@@ -9,6 +9,7 @@
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
+#include "src/client/game_instance/pet_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/window/window.h"
@@ -364,6 +365,154 @@ void ServerCharacterInstance::HandleServerChat(uint64_t client_id,
   });
 }
 
+void ServerCharacterInstance::HandleCharacterPet(uint64_t client_id,
+                                                 fbs::ClientCharacterPetT& r) {
+  if (r.pet == nullptr) {
+    return;
+  }
+  // 记录这只宠物的状态：玩家进入新地图/切换宠物/喂食后都会上报一次。
+  pets_[client_id] = *r.pet;
+  if (!ServerSceneInstance::scenes_.contains(r.map_id)) {
+    return;
+  }
+  const auto& clients = ServerSceneInstance::scenes_.at(r.map_id).clients;
+  // 1) 广播给同地图其他玩家。
+  {
+    fbs::ServerCharacterPetT t;
+    t.client_id = client_id;
+    t.pet = std::make_unique<fbs::PetSaveT>(*r.pet);
+    for (auto c : clients) {
+      if (c == client_id) {
+        continue;
+      }
+      ServerResponse::SendToClient(c, t);
+    }
+  }
+  // 2) 新进入的玩家要看到同地图其他玩家已经有的宠物。
+  for (auto c : clients) {
+    if (c == client_id) {
+      continue;
+    }
+    if (!pets_.contains(c)) {
+      continue;
+    }
+    fbs::ServerCharacterPetT t;
+    t.client_id = c;
+    t.pet = std::make_unique<fbs::PetSaveT>(pets_.at(c));
+    ServerResponse::SendToClient(client_id, t);
+  }
+}
+
+void ServerCharacterInstance::HandleServerPet(uint64_t client_id,
+                                              fbs::ServerCharacterPetT& r) {
+  if (r.client_id == ServerMain::local_addr_) {
+    return;
+  }
+  if (r.pet == nullptr || r.pet->item_id == 0 || !r.pet->active) {
+    PetGameInstance::RemoveRemote(r.client_id);
+    return;
+  }
+  PetSaveData state;
+  state.item_id = r.pet->item_id;
+  state.name = {r.pet->name.begin(), r.pet->name.end()};
+  state.level = r.pet->level;
+  state.fullness = r.pet->fullness;
+  state.closeness = r.pet->closeness;
+  state.active = r.pet->active;
+  PetGameInstance::HandleRemote(r.client_id, state);
+}
+
+void ServerCharacterInstance::HandleCharacterPetMove(
+    uint64_t client_id, fbs::ClientCharacterPetMoveT& r) {
+  if (!ServerSceneInstance::scenes_.contains(r.map_id)) {
+    return;
+  }
+  const auto& clients = ServerSceneInstance::scenes_.at(r.map_id).clients;
+  fbs::ServerCharacterPetMoveT t;
+  t.client_id = client_id;
+  t.x = r.x;
+  t.y = r.y;
+  t.page = r.page;
+  t.flip = r.flip;
+  t.action = r.action;
+  t.ani_index = r.ani_index;
+  for (auto c : clients) {
+    if (c == client_id) {
+      continue;
+    }
+    ServerResponse::SendToClient(c, t);
+  }
+}
+
+void ServerCharacterInstance::HandleServerPetMove(
+    uint64_t client_id, fbs::ServerCharacterPetMoveT& r) {
+  if (r.client_id == ServerMain::local_addr_) {
+    return;
+  }
+  auto it = PetGameInstance::others_.find(r.client_id);
+  if (it == PetGameInstance::others_.end()) {
+    return;
+  }
+  auto& pet = it->second;
+  pet.pos = {r.x, r.y};
+  pet.page = r.page;
+  pet.flip = r.flip;
+  pet.fall = false;
+  if (!r.action.empty()) {
+    pet.action = {r.action.begin(), r.action.end()};
+    pet.ani_index = r.ani_index;
+    pet.ani_time = 0;
+  }
+}
+void ServerCharacterInstance::HandleCharacterPetAction(
+    uint64_t client_id, fbs::ClientCharacterPetActionT& r) {
+  if (!ServerSceneInstance::scenes_.contains(r.map_id)) {
+    return;
+  }
+  const auto& clients = ServerSceneInstance::scenes_.at(r.map_id).clients;
+  fbs::ServerCharacterPetActionT t;
+  t.client_id = client_id;
+  t.action = r.action;
+  t.chat = r.chat;
+  for (auto c : clients) {
+    if (c == client_id) {
+      continue;
+    }
+    ServerResponse::SendToClient(c, t);
+  }
+}
+
+void ServerCharacterInstance::HandleServerPetAction(
+    uint64_t client_id, fbs::ServerCharacterPetActionT& r) {
+  if (r.client_id == ServerMain::local_addr_) {
+    return;
+  }
+  auto it = PetGameInstance::others_.find(r.client_id);
+  if (it == PetGameInstance::others_.end()) {
+    return;
+  }
+  auto& pet = it->second;
+  std::u16string action{r.action.begin(), r.action.end()};
+  if (!action.empty()) {
+    pet.action = action;
+    pet.ani_index = 0;
+    pet.ani_time = 0;
+    pet.action_end = Window::dt_now_ + 1500;
+    pet.next_idle = Window::dt_now_ + 4000;
+  }
+  if (!r.chat.empty()) {
+    auto idx_text =
+        std::to_string(PetGameInstance::LoadPetChatBalloonIndex(pet.id));
+    GameChatballoon balloon;
+    balloon.text = {r.chat.begin(), r.chat.end()};
+    balloon.path = std::u16string{idx_text.begin(), idx_text.end()};
+    balloon.w = 120.0f;
+    balloon.size = 14;
+    balloon.destroy = Window::dt_now_ + 5000;
+    pet.chatballoon = balloon;
+  }
+}
+
 void ServerCharacterInstance::HandleCharacter(uint64_t client_id,
                                               fbs::ClientCharacterT& r) {
   if (ServerClientInstance::clients_.contains(client_id)) {
@@ -698,6 +847,8 @@ void ServerCharacterInstance::LoadGCharacter(
 
   g_character.accessory = std::nullopt;
   g_character.accessory_deco = std::nullopt;
+
+  g_character.pet_equip = std::nullopt;
 
   for (auto& equip : c->equips) {
     tmp = std::format("{:08d}", equip->equip_id);

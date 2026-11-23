@@ -3,6 +3,7 @@
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
+#include "src/client/game_instance/pet_game_instance.h"
 #include "src/client/game_instance/quest_game_instance.h"
 #include "src/client/game_instance/text_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
@@ -61,6 +62,11 @@ std::u16string ItemGameInstance::LoadItemType(const std::u16string& id) {
   };
   auto r = str.substr(0, 2);
   if (auto it = types.find(r); it != types.end()) {
+    // 宠物道具（05000000~）在现金栏里，但数据放在 Item.wz/Pet/<7 位 id>.img，
+    // 名字在 String.wz/Pet.img 下，这里单独区分，避免按 Cash 找图/文字时崩。
+    if (it->second == u"Cash" && str.starts_with(u"0500")) {
+      return u"Pet";
+    }
     return it->second;
   }
   // 旧存档可能存在无效/未知物品 ID，返回 Etc 避免读档直接抛异常。
@@ -102,6 +108,20 @@ wz::Node* ItemGameInstance::LoadItemInfo(const std::u16string& id,
       if (auto item = image->get_child(id); item != nullptr) {
         node = item->get_child(u"info");
       }
+    }
+  } else if (type == u"Pet") {
+    // 095：宠物道具的影子数据在 Item.wz/Pet/<7 位 id>.img，info 里带
+    // icon/iconRaw/life/pickupItem 等字段。
+    auto view = id | std::views::drop_while([](char16_t c) {
+      return c == u'0';
+    });
+    std::u16string key(view.begin(), view.end());
+    if (key.size() < 7) {
+      key.insert(0, 7 - key.size(), u'0');
+    }
+    if (auto image = WzResource::item_->find(u"Pet/" + key + u".img");
+        image != nullptr) {
+      node = image->get_child(u"info");
     }
   }
   return node;
@@ -472,6 +492,16 @@ bool ItemGameInstance::UseConsumeItem(const std::u16string& id) {
   if (info == nullptr) {
     return false;
   }
+  // 宠物食品（095：spec 里列出可喂的宠物 id + incRepleteness/incTameness）。
+  {
+    auto food_id = id;
+    if (food_id.size() < 8) {
+      food_id.insert(0, 8 - food_id.size(), u'0');
+    }
+    if (PetGameInstance::Feed(food_id)) {
+      r = true;
+    }
+  }
   const int64_t hp_boost =
       100 + static_cast<int64_t>(CharacterStatGameInstance::GetHpRecoveryRate());
   const int64_t mp_boost =
@@ -549,6 +579,12 @@ void ItemGameInstance::UseItem(std::polymorphic<GameItem>& itm) {
   auto item_type = ItemGameInstance::LoadItemType(itm->id);
   auto& g_character = CharacterGameInstance::self_;
   auto self_sit_cooldown = CharacterLogicSystem::self_sit_cooldown_;
+
+  if (item_type == u"Pet") {
+    // 095：使用宠物道具 = 激活/收回宠物，状态写回存档。
+    PetGameInstance::Toggle(itm->id);
+    return;
+  }
 
   if (item_type == u"Ins") {
     if (itm->id.starts_with(u"0301") && self_sit_cooldown < Window::dt_now_) {

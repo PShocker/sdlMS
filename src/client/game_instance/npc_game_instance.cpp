@@ -198,6 +198,9 @@ std::u16string NpcGameInstance::LoadNpcScript(const std::u16string& id) {
 
 NpcGameInstance::NpcType NpcGameInstance::LoadNpcType(
     const std::u16string& id) {
+  if (NpcGameInstance::CheckStorageNpc(id)) {
+    return NpcType::kStorage;
+  }
   if (ShopGameInstance::LoadNpcShop(id)) {
     return NpcType::kShop;
   }
@@ -218,6 +221,17 @@ NpcGameInstance::NpcType NpcGameInstance::LoadNpcType(
     return NpcType::kScript;
   }
   return NpcType::kNone;
+}
+
+bool NpcGameInstance::CheckStorageNpc(const std::u16string& id) {
+  // 仓库 NPC 在 Npc.wz 里用 info/trunkPut（存入费用）/ info/trunkGet
+  // （取出费用）声明，比硬编码 id 列表更可靠。
+  auto npc_node = NpcGameInstance::LoadLinkNpcNode(id);
+  if (npc_node == nullptr) {
+    return false;
+  }
+  return npc_node->find(u"info/trunkPut") != nullptr ||
+         npc_node->find(u"info/trunkGet") != nullptr;
 }
 
 std::vector<std::u16string> NpcGameInstance::LoadAvaliableQuest(

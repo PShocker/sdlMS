@@ -18,6 +18,7 @@
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/npc_game_instance.h"
 #include "src/client/game_instance/obj_game_instance.h"
+#include "src/client/game_instance/pet_game_instance.h"
 #include "src/client/system_instance/game_save_system_instance.h"
 #include "src/client/game_instance/portal_game_instance.h"
 #include "src/client/game_instance/reactor_game_instance.h"
@@ -40,6 +41,7 @@
 #include "src/client/system/logic/mob_logic_system.h"
 #include "src/client/system/logic/npc_logic_system.h"
 #include "src/client/system/logic/obj_logic_system.h"
+#include "src/client/system/logic/pet_logic_system.h"
 #include "src/client/system/logic/portal_logic_system.h"
 #include "src/client/system/logic/reactor_logic_system.h"
 #include "src/client/system/logic/skill_logic_system.h"
@@ -53,6 +55,7 @@
 #include "src/client/system/render/mob_render_system.h"
 #include "src/client/system/render/npc_render_system.h"
 #include "src/client/system/render/obj_render_system.h"
+#include "src/client/system/render/pet_render_system.h"
 #include "src/client/system/render/portal_render_system.h"
 #include "src/client/system/render/reactor_render_system.h"
 #include "src/client/system/render/tile_render_system.h"
@@ -131,9 +134,12 @@ bool SceneSystemInstance::RenderGame() {
     for (auto& ball : BallGameInstance::data_[i]) {
       BallRenderSystem::Render(ball);
     }
+    // 地面跟随的宠物画在角色之前（在主人身后）；挂背上的宠物画在角色之后。
+    PetRenderSystem::Render(static_cast<uint8_t>(i), false);
     for (auto& character : character_array[i]) {
       CharacterRenderSystem::Render(*character);
     }
+    PetRenderSystem::Render(static_cast<uint8_t>(i), true);
     for (auto& drop : drop_array[i]) {
       DropRenderSystem::Render(*drop);
     }
@@ -207,6 +213,9 @@ void SceneSystemInstance::Enter(uint32_t map_id) {
   StatusbarUiSystem::Reset();
   BallGameInstance::Reset();
   DropGameInstance::Reset();
+  // 换图后宠物重新出现在主人身边。
+  PetGameInstance::Clear();
+  PetGameInstance::Refresh();
   auto bgm = MapInfoGameInstance::LoadBgm(map_id);
   AudioGameInstance::LoadBackgrndAudio(bgm);  
 
@@ -227,6 +236,7 @@ void SceneSystemInstance::Enter(uint32_t map_id) {
       CursorLogicSystem::Run,    SkillLogicSystem::Run,
       ReactorLogicSystem::Run,   ItemLogicSystem::Run,
       TrapLogicSystem::Run,
+  PetLogicSystem::Run,
   };
   System::render_systems_ = {
       RenderGame,
@@ -295,6 +305,9 @@ void SceneSystemInstance::EnterFade() {
   client_scene.character = std::make_unique<fbs::CharacterT>(std::move(c));
 
   ClientRequest::SendToHost(client_scene);
+
+  // 进图后把自己的宠物状态同步给服务器（其他玩家才能看到）。
+  PetGameInstance::SendToServer();
 }
 
 void SceneSystemInstance::EnterQuit() {

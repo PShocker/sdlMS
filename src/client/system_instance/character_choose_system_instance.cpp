@@ -4,6 +4,7 @@
 #include "src/client/game_instance/backgrnd_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/obj_game_instance.h"
+#include "src/client/game_instance/storage_game_instance.h"
 #include "src/client/game_instance/tile_game_instance.h"
 #include "src/client/system/logic/audio_logic_system.h"
 #include "src/client/system/logic/backgrnd_logic_system.h"
@@ -26,6 +27,8 @@ namespace sdlms {
 
 void CharacterChooseSystemInstance::EnterPrepare(const std::string& login) {
   GameSaveSystemInstance::LoadSave(login);
+  // 仓库是账号级数据，登录后一次性载入
+  StorageGameInstance::Load(GameSaveSystemInstance::save_);
   // 进入角色选择页时清空上一次的选中状态和卷轴动画。
   CharacterChooseUiSystem::choose_ = std::nullopt;
   CharacterChooseUiSystem::board_ = {};

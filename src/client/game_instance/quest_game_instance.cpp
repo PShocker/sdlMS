@@ -7,6 +7,8 @@
 #include "src/client/game_instance/popup_tip_game_instance.h"
 #include "src/client/system/ui/quest_alarm_ui_system.h"
 #include "src/client/system/ui/quest_ui_system.h"
+#include "src/client/system_instance/scene_system_instance.h"
+#include "src/common/script/script.h"
 #include "src/common/wz/wz_resource.h"
 
 #include <wz/Property.h>
@@ -443,12 +445,100 @@ void QuestGameInstance::UpdateCheckItem(const std::u16string& quest_id) {
   if (pop_tip && quest.item_bool && quest.mob_bool) {
     PopupTipGameInstance::AddQuestTip(quest.quest_id);
   }
+  CheckJobTestReturn();
 }
 
 void QuestGameInstance::UpdateCheckItem() {
   for (auto [k, v] : progress_quests_) {
     UpdateCheckItem(k);
   }
+  CheckJobTestReturn();
+}
+
+std::optional<QuestGameInstance::JobTestArea>
+QuestGameInstance::LoadJobTestArea(const std::u16string& quest_id) {
+  // 二转试炼（Test of Qualification）：每个职业一个试炼场，场里的怪物掉对应的
+  // 试炼道具；场地只有一个出生传送门，进出都靠脚本，所以这里记下往返地图。
+  struct Row {
+    const char16_t* quest_id;
+    JobTestArea area;
+  };
+  constexpr Row kRows[] = {
+      {u"20002.img", {80001300, 10004023}},  // 战士：04031017
+      {u"20102.img", {80001100, 10002070}},  // 法师：04031019
+      {u"20202.img", {80001000, 10001090}},  // 弓手：04031021
+      {u"20302.img", {80001200, 10003080}},  // 飞侠：04031023
+  };
+  for (const auto& row : kRows) {
+    if (quest_id == row.quest_id) {
+      return row.area;
+    }
+  }
+  return std::nullopt;
+}
+
+void QuestGameInstance::CheckJobTestReturn() {
+  for (const auto& [quest_id, quest] : progress_quests_) {
+    const auto area = LoadJobTestArea(quest_id);
+    if (!area.has_value()) {
+      continue;
+    }
+    if (SceneSystemInstance::map_id_ != area->arena_map) {
+      continue;
+    }
+    if (!quest.item_bool || !quest.mob_bool) {
+      continue;
+    }
+    // 试炼道具已凑齐：送玩家回去向教官报告。
+    SceneSystemInstance::EnterPrepare(area->instructor_map, u"sp", 0);
+    return;
+  }
+}
+
+bool QuestGameInstance::EnterJobTestArena(const std::u16string& quest_id) {
+  const auto area = LoadJobTestArea(quest_id);
+  if (!area.has_value()) {
+    return false;
+  }
+  auto it = progress_quests_.find(quest_id);
+  if (it == progress_quests_.end()) {
+    return false;
+  }
+  // 条件已达成的交任务流程不在这里处理。
+  if (it->second.item_bool && it->second.mob_bool) {
+    return false;
+  }
+  SceneSystemInstance::EnterPrepare(area->arena_map, u"sp", 0);
+  return true;
+}
+
+bool QuestGameInstance::RunJobTestFailScript() {
+  for (const auto& [quest_id, quest] : progress_quests_) {
+    const auto area = LoadJobTestArea(quest_id);
+    if (!area.has_value()) {
+      continue;
+    }
+    if (SceneSystemInstance::map_id_ != area->arena_map) {
+      continue;
+    }
+    auto* node = LoadQuestNode(quest_id);
+    if (node == nullptr) {
+      return false;
+    }
+    auto* n = node->find(u"Check/1/failscript");
+    if (n == nullptr || n->type != wz::Type::String) {
+      return false;
+    }
+    const auto name = static_cast<wz::Property<std::u16string>*>(n)->get();
+    auto& fns = Script::fns();
+    auto it = fns.find(name);
+    if (it == fns.end()) {
+      return false;
+    }
+    it->second(nullptr);
+    return true;
+  }
+  return false;
 }
 
 void QuestGameInstance::UpdateCheckMob(const std::u16string& mob_id, int num) {

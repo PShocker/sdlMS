@@ -140,6 +140,30 @@ table ServerCharacterChat {
     payload:CharacterChat;
 }
 
+// 其他玩家的宠物（095 CPet）：item_id=0 且 active=false 表示该玩家没有宠物/已离开。
+table ServerCharacterPet {
+    client_id:uint64;
+    pet:PetSave;
+}
+
+// 其他玩家宠物的动作/气泡（095 CPet::DoAction）。
+table ServerCharacterPetAction {
+    client_id:uint64;
+    action:string;
+    chat:[uint16];
+}
+
+// 其他玩家宠物的位置/动画同步（095 CPet 的移动包）。
+table ServerCharacterPetMove {
+    client_id:uint64;
+    x:float;
+    y:float;
+    page:uint8;
+    flip:bool;
+    action:string;
+    ani_index:uint32;
+}
+
 table ServerCharacterDrop {
     client_id:uint64;
     payload:Drop;

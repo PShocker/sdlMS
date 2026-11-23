@@ -27,6 +27,8 @@ enum class EquipMouseIndex {
   kRing1,
   kRing2,
   kRing3,
+  // 宠物装备槽（095 CPet::GetItemSlot：宠物装备挂在角色身上）
+  kPetEquip,
 };
 
 class EquipUiSystem : public UiComponentHost<EquipUiSystem> {

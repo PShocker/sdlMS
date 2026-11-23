@@ -5,6 +5,7 @@
 #include "src/client/game_instance/keyboard_game_instance.h"
 #include "src/client/game_instance/craft_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
+#include "src/client/game_instance/pet_game_instance.h"
 #include "src/client/game_instance/quest_game_instance.h"
 #include "src/client/game_instance/shader_game_instance.h"
 #include "src/client/system/system.h"
@@ -90,6 +91,7 @@ SDL_AppResult AppInit(void** appstate, int argc, char* argv[]) {
   // CharacterGameInstance::self_.morph = u"0001";
   CharacterSaveData cs;
   PackageGameInstance::Load(cs);
+  PetGameInstance::Load(cs);
   CraftGameInstance::Load(cs);
   CharacterStatGameInstance::Load(cs);
   // QuestGameInstance::Load(cs);

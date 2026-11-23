@@ -27,6 +27,19 @@ namespace sdlms {
 
 static SDL_FPoint FitHoverTooltip(float x, float y, float w, float h);
 
+// 装备 info 里可能缺 reqSTR/reqDEX 之类的字段（宠物装备只有 reqLevel/tuc），
+// 缺失时按 0 处理。
+static int LoadEquipReqInt(wz::Node* info, const char16_t* key) {
+  if (info == nullptr) {
+    return 0;
+  }
+  auto* node = info->get_child(key);
+  if (node == nullptr || node->type != wz::Type::Int) {
+    return 0;
+  }
+  return static_cast<wz::Property<int>*>(node)->get();
+}
+
 int TooltipUiSystem::LoadEquipWidth(const std::u16string& id) {
   Freetype::LoadSize(15);
   auto equip_name = EquipGameInstance::LoadEquipName(id);
@@ -474,28 +487,23 @@ void TooltipUiSystem::RenderDeco(GameDecoItem& deco, float x, float y) {
   };
   SDL_RenderTexture(Window::renderer_, cash_icon, nullptr, &pos_rect);
 
-  auto req = static_cast<wz::Property<int>*>(equip_info->get_child(u"reqLevel"))
-                 ->get();
+  auto req = LoadEquipReqInt(equip_info, u"reqLevel");
   auto val = CharacterGameInstance::self_.level;
   RenderEquipReq(req, val, u"reqLEV", x + base.x + 95, y + base.y + 6);
 
-  req =
-      static_cast<wz::Property<int>*>(equip_info->get_child(u"reqSTR"))->get();
+  req = LoadEquipReqInt(equip_info, u"reqSTR");
   val = CharacterStatGameInstance::GetStrAp();
   RenderEquipReq(req, val, u"reqSTR", x + base.x + 95, y + base.y + 18);
 
-  req =
-      static_cast<wz::Property<int>*>(equip_info->get_child(u"reqDEX"))->get();
+  req = LoadEquipReqInt(equip_info, u"reqDEX");
   val = CharacterStatGameInstance::GetDexAp();
   RenderEquipReq(req, val, u"reqDEX", x + base.x + 95, y + base.y + 30);
 
-  req =
-      static_cast<wz::Property<int>*>(equip_info->get_child(u"reqINT"))->get();
+  req = LoadEquipReqInt(equip_info, u"reqINT");
   val = CharacterStatGameInstance::GetIntAp();
   RenderEquipReq(req, val, u"reqINT", x + base.x + 95, y + base.y + 42);
 
-  req =
-      static_cast<wz::Property<int>*>(equip_info->get_child(u"reqLUK"))->get();
+  req = LoadEquipReqInt(equip_info, u"reqLUK");
   val = CharacterStatGameInstance::GetLukAp();
   RenderEquipReq(req, val, u"reqLUK", x + base.x + 95, y + base.y + 54);
 
@@ -594,28 +602,23 @@ void TooltipUiSystem::RenderEquip(GameEquipItem& equip, float x, float y) {
 
   SDL_RenderTexture(Window::renderer_, eqp_texture, nullptr, &pos_rect);
 
-  auto req = static_cast<wz::Property<int>*>(equip_info->get_child(u"reqLevel"))
-                 ->get();
+  auto req = LoadEquipReqInt(equip_info, u"reqLevel");
   auto val = CharacterGameInstance::self_.level;
   RenderEquipReq(req, val, u"reqLEV", x + base.x + 95, y + base.y + 6);
 
-  req =
-      static_cast<wz::Property<int>*>(equip_info->get_child(u"reqSTR"))->get();
+  req = LoadEquipReqInt(equip_info, u"reqSTR");
   val = CharacterStatGameInstance::GetStrAp();
   RenderEquipReq(req, val, u"reqSTR", x + base.x + 95, y + base.y + 18);
 
-  req =
-      static_cast<wz::Property<int>*>(equip_info->get_child(u"reqDEX"))->get();
+  req = LoadEquipReqInt(equip_info, u"reqDEX");
   val = CharacterStatGameInstance::GetDexAp();
   RenderEquipReq(req, val, u"reqDEX", x + base.x + 95, y + base.y + 30);
 
-  req =
-      static_cast<wz::Property<int>*>(equip_info->get_child(u"reqINT"))->get();
+  req = LoadEquipReqInt(equip_info, u"reqINT");
   val = CharacterStatGameInstance::GetIntAp();
   RenderEquipReq(req, val, u"reqINT", x + base.x + 95, y + base.y + 42);
 
-  req =
-      static_cast<wz::Property<int>*>(equip_info->get_child(u"reqLUK"))->get();
+  req = LoadEquipReqInt(equip_info, u"reqLUK");
   val = CharacterStatGameInstance::GetLukAp();
   RenderEquipReq(req, val, u"reqLUK", x + base.x + 95, y + base.y + 54);
 

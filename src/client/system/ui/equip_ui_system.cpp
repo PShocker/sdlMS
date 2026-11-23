@@ -36,6 +36,8 @@ const static SDL_FPoint gloves_slot{2, 122};
 const static SDL_FPoint cape_slot{2, 89};
 const static SDL_FPoint shield_slot{134, 89};
 const static SDL_FPoint weapon_slot{101, 89};
+// 宠物装备槽（095：宠物装备挂在角色身上的宠物槽里）
+const static SDL_FPoint pet_equip_slot{134, 122};
 
 SDL_FPoint EquipUiSystem::LoadWh() {
   return {175, 289};
@@ -90,6 +92,7 @@ void EquipUiSystem::RenderEquip() {
   RenderEquipTexture(self.cape, cape_slot, EquipMouseIndex::kCape);
   RenderEquipTexture(self.shield, shield_slot, EquipMouseIndex::kShield);
   RenderEquipTexture(self.weapon, weapon_slot, EquipMouseIndex::kWeapon);
+  RenderEquipTexture(self.pet_equip, pet_equip_slot, EquipMouseIndex::kPetEquip);
 }
 
 void EquipUiSystem::RenderDisableTexture(SDL_FPoint slot) {

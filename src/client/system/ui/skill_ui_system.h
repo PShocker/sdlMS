@@ -55,6 +55,8 @@ class SkillUiSystem : public UiComponentHost<SkillUiSystem> {
   static void Close();
   // 一转完成后切到新职业的技能页。
   static void SelectFirstJobTab();
+  // 二转完成后切到新职业的技能页（技能树里最后一个职业页）。
+  static void SelectSecondJobTab();
   static bool Render();
   static bool Event(SDL_Event* event);
 };

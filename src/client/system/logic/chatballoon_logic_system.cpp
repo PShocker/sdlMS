@@ -2,6 +2,7 @@
 
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/npc_game_instance.h"
+#include "src/client/game_instance/pet_game_instance.h"
 #include "src/client/window/window.h"
 
 #include <optional>
@@ -33,6 +34,11 @@ bool ChatballoonLogicSystem::Run() {
     for (auto& npc : v_npc) {
       expire(npc.chatballoon);
     }
+  }
+
+  // pets（095 CPet::DoAction 的命令回应气泡）
+  for (auto& pet : PetGameInstance::data_) {
+    expire(pet.chatballoon);
   }
 
   return true;

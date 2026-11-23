@@ -24,6 +24,8 @@
 
 #include "src/client/system/ui/component/scroll.h"
 
+#include "src/client/system/ui/pet_info_ui_system.h"
+
 #include "src/client/system/ui/tooltip_ui_system.h"
 
 #include "src/client/window/window.h"
@@ -873,7 +875,12 @@ void CharacterInfoUiSystem::EventButtonDowmFame() {}
 
 
 
-void CharacterInfoUiSystem::EventButtonShowPet() {}
+void CharacterInfoUiSystem::EventButtonShowPet() {
+
+  // 095：characterinfo 的 "showPet" 按钮开关宠物信息窗口。
+  PetInfoUiSystem::Toggle();
+
+}
 
 
 

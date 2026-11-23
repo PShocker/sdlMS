@@ -459,6 +459,8 @@ void CharacterLogicSystem::RunPick(GameCharacter& g_character) {
             pos.y == std::clamp(pos.y, v.goal.y - 20, v.goal.y + 20)) {
           ccp_.map_id = SceneSystemInstance::map_id_;
           ccp_.random_id = v.random_id;
+          // pet_index < 0 表示由角色自己捡（宠物捡取时填宠物栏位）。
+          ccp_.pet_index = -1;
           ccp_time_ = Window::dt_now_;
           ClientRequest::SendToHost(ccp_);
           return;
