@@ -11,7 +11,7 @@ namespace sdlms {
 
 struct DamageData {
   uint64_t num;
-  enum class DamageColor { kRed, kBlue, kWhite, kCrit, kFinalAttack };
+  enum class DamageColor { kRed, kBlue, kWhite, kCrit, kFinalAttack, kMiss };
   DamageColor type;
 };
 

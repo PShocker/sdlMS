@@ -30,6 +30,7 @@ struct CheckMobs {
     int magic_mastery = -1;
   };
   std::vector<Mobs> data;
+  std::vector<Mobs> miss;
 };
 
 struct CheckReactors {

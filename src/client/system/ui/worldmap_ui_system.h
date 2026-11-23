@@ -47,6 +47,7 @@ class WorldmapUiSystem : public UiComponentHost<WorldmapUiSystem> {
 
   static void Toggle();
 
+  static void SetMap(uint32_t map_id);
   static void Open();
   static void Close();
   static bool Render();

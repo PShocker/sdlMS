@@ -2,9 +2,9 @@
 
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
+#include "src/client/game_instance/map_info_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
-#include "src/client/game_instance/map_info_game_instance.h"
 #include "src/client/game_instance/npc_game_instance.h"
 #include "src/client/game_instance/portal_game_instance.h"
 #include "src/client/game_instance/text_game_instance.h"
@@ -765,6 +765,8 @@ bool MinimapUiSystem::Event(SDL_Event* event) {
 
 void MinimapUiSystem::Load() {
   auto map_id = SceneSystemInstance::map_id_;
+  WorldmapUiSystem::SetMap(map_id);
+
   auto MapName = LoadMapName(map_id);
   auto m_name = MapName.map_name;
   auto s_name = MapName.street_name;

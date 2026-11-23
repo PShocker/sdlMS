@@ -39,6 +39,10 @@ SDL_FRect MapInfoGameInstance::LoadMrBorder(uint32_t map_id) {
     auto map_info = Load(map_id);
     if (!map_info->get_child(u"MRTop")) {
       auto fhs = FootholdGameInstance::Load(map_id);
+      if (fhs.empty()) {
+        cache[map_id] = SDL_FRect{};
+        return cache.at(map_id);
+      }
       float l = fhs.begin()->second.x1;
       float t = fhs.begin()->second.y1;
       float r = fhs.begin()->second.x2;
@@ -47,7 +51,7 @@ SDL_FRect MapInfoGameInstance::LoadMrBorder(uint32_t map_id) {
         l = std::min({l, (float)fh.x1, (float)fh.x2});
         t = std::min({t, (float)fh.y1, (float)fh.y2});
         r = std::max({r, (float)fh.x1, (float)fh.x2});
-        b = std::max({l, (float)fh.y1, (float)fh.y2});
+        b = std::max({b, (float)fh.y1, (float)fh.y2});
       }
       SDL_FRect rect;
       rect.x = l;

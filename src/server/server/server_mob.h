@@ -214,6 +214,8 @@ struct ServerMob {
   uint64_t attack_hit = 0;  // 本次攻击的判定时刻，0 表示没有待结算攻击
   int32_t attack_index = 0;
   float fly_speed = 0;
+  SDL_FPoint fly_target = {0.0f, 0.0f};
+  uint64_t fly_next = 0;
 
   // 攻击条目的待结算列表（区域攻击每块一条，其余攻击走 attack_hit）
   std::vector<MobAttackTimer> attack_timers;

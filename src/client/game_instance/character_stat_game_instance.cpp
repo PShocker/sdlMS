@@ -417,8 +417,7 @@ void CharacterStatGameInstance::Update() {
   constexpr float stat_div = 100.0f;
   constexpr float ap_div = 50.0f;
   const float total_watk = static_cast<float>(equip_attack_);
-  const float attack_power =
-      static_cast<float>(item_attack_ + buff_pad_);
+  const float attack_power = static_cast<float>(item_attack_ + buff_pad_);
   const float phys_max =
       total_watk * (1.0f +
                     (static_cast<float>(primary_ap) * weapon_mult_max +
@@ -469,7 +468,8 @@ void CharacterStatGameInstance::Update() {
   magic_ = static_cast<int32_t>(mad_power);
 
   // ---- 命中 / 回避 ----
-  accuracy_ = ski_accuracy_ + equip_accuracy_ + item_accuracy_ + buff_acc_;
+  accuracy_ = dex_point_ + luk_point_ + ski_accuracy_ + equip_accuracy_ +
+              item_accuracy_ + buff_acc_;
   avoid_ = ski_avoid_ + equip_avoid_ + item_avoid_ + buff_avd_;
 
   // ---- 防御 ----
@@ -503,9 +503,8 @@ void CharacterStatGameInstance::Update() {
 // 速度 1 点约等于 1.25 px/s (与原 0001002 的换算一致)
 void CharacterStatGameInstance::UpdateMoveLimits() {
   // 移速 = 技能 buff(轻功/极速等) + 道具(药水等)
-  const auto speed =
-      static_cast<float>(GetBuffSpeed() + std::max(GetItemSpeed(), 0) +
-                         ski_speed_);
+  const auto speed = static_cast<float>(
+      GetBuffSpeed() + std::max(GetItemSpeed(), 0) + ski_speed_);
   const auto jump = static_cast<float>(GetBuffJump());
   hspeed_max_ = 125.0f + 1.25f * speed;
   hspeed_min_ = -125.0f - 1.25f * speed;
@@ -802,6 +801,10 @@ uint32_t CharacterStatGameInstance::CalcHitChance(uint32_t mob_eva,
         chance = (1.0 + spread - ratio) / (2.0 * spread);
       }
     }
+  }
+  // 命中最少保底 5%，避免低命中角色对高回避怪物完全无法造成伤害。
+  if (chance < 0.05 && eva > 0.0 && acc > 0.0) {
+    chance = 0.05;
   }
   return static_cast<uint32_t>(std::clamp<int32_t>(
       static_cast<int32_t>(std::lround(chance * 100.0)), 0, 100));

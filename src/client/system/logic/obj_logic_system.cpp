@@ -19,10 +19,19 @@ void ObjLogicSystem::RunAnimate(GameObj& g_obj) {
 
     auto index = std::to_string(g_obj.ani_index);
 
-    auto obj_node = WzResource::map_->find(g_obj.path);
+    auto* obj_node = WzResource::map_->find(g_obj.path);
+    if (obj_node == nullptr) {
+      return;
+    }
     obj_node = obj_node->get_child(index);
+    if (obj_node == nullptr) {
+      return;
+    }
     if (obj_node->type == wz::Type::UOL) {
       obj_node = static_cast<wz::Property<wz::WzUOL>*>(obj_node)->get_uol();
+    }
+    if (obj_node == nullptr) {
+      return;
     }
     int32_t delay = 100;
     auto delay_node = obj_node->get_child(u"delay");
@@ -39,17 +48,30 @@ void ObjLogicSystem::RunAnimate(GameObj& g_obj) {
 }
 
 void ObjLogicSystem::RunAlpha(GameObj& g_obj) {
-  auto obj_node = WzResource::map_->find(g_obj.path);
+  auto* obj_node = WzResource::map_->find(g_obj.path);
+  if (obj_node == nullptr) {
+    return;
+  }
   auto index = std::to_string(g_obj.ani_index);
   obj_node = obj_node->get_child(index);
+  if (obj_node == nullptr) {
+    return;
+  }
   if (obj_node->type == wz::Type::UOL) {
     obj_node = static_cast<wz::Property<wz::WzUOL>*>(obj_node)->get_uol();
   }
+  if (obj_node == nullptr) {
+    return;
+  }
   if (obj_node->get_child(u"a0")) {
-    auto a0 =
-        static_cast<wz::Property<int>*>(obj_node->get_child(u"a0"))->get();
-    auto a1 =
-        static_cast<wz::Property<int>*>(obj_node->get_child(u"a1"))->get();
+    int a0 = 255;
+    int a1 = 255;
+    if (obj_node->get_child(u"a0")) {
+      a0 = static_cast<wz::Property<int>*>(obj_node->get_child(u"a0"))->get();
+    }
+    if (obj_node->get_child(u"a1")) {
+      a1 = static_cast<wz::Property<int>*>(obj_node->get_child(u"a1"))->get();
+    }
     auto delay_node = obj_node->get_child(u"delay");
     auto delay = static_cast<wz::Property<int>*>(delay_node)->get();
 

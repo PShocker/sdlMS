@@ -33,6 +33,7 @@
 #include <wz/Property.h>
 
 #include <algorithm>
+#include <string>
 #include <cmath>
 #include <memory>
 #include <vector>
@@ -48,8 +49,25 @@ namespace sdlms {
 namespace {
 
 constexpr float kWalkSpeedBase = 125.0f;
-constexpr float kFlySpeedBase = 125.0f;
+constexpr float kFlySpeedBase = 300.0f;
 
+double ReadPhysicsDouble(const char16_t* key, double def) {
+  auto* node = WzResource::map_->find(u"Physics.img/" + std::u16string(key));
+  if (node == nullptr) {
+    return def;
+  }
+  if (node->type == wz::Type::Double) {
+    return static_cast<wz::Property<double>*>(node)->get();
+  }
+  if (node->type == wz::Type::Float) {
+    return static_cast<double>(
+        static_cast<wz::Property<float>*>(node)->get());
+  }
+  if (node->type == wz::Type::Int) {
+    return static_cast<double>(static_cast<wz::Property<int>*>(node)->get());
+  }
+  return def;
+}
 int32_t ReadInt(wz::Node* node, const char16_t* key, int32_t def) {
   if (node == nullptr) {
     return def;
@@ -601,8 +619,11 @@ void ServerMobInstance::LoadDefaultMob(const std::u16string id,
   auto speed = std::clamp(ReadInt(info_node, u"speed", 0) + 100, 10, 140);
   mob.hspeed_max = static_cast<float>(speed) / 100.0f * kWalkSpeedBase;
 
-  auto fly_speed = std::clamp(ReadInt(info_node, u"flySpeed", 100), 10, 200);
-  mob.fly_speed = static_cast<float>(fly_speed) / 100.0f * kFlySpeedBase;
+  // 095 CMob::SetShoeAttr: flySpeed 使用 nSpeed（info/speed + 100）作为倍率，
+  // 不是 info/flySpeed。
+  const double physics_fly_speed = ReadPhysicsDouble(u"flySpeed", kFlySpeedBase);
+  mob.fly_speed = static_cast<float>(static_cast<double>(speed) / 100.0 *
+                                   physics_fly_speed);
 }
 
 void ServerMobInstance::LoadMob(ServerSceneState& scene) {

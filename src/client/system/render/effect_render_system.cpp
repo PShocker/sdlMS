@@ -111,6 +111,44 @@ void EffectRenderSystem::RenderDamage(SDL_FPoint pos, GameEffect& g_effect) {
   };
   auto& camera = CameraGameInstance::camera_;
   auto d_data = std::any_cast<DamageData>(g_effect.data);
+  if (d_data.type == DamageData::DamageColor::kMiss) {
+    if (red == nullptr) {
+      return;
+    }
+    auto* miss_node = red->get_child(u"Miss");
+    if (miss_node == nullptr) {
+      return;
+    }
+    auto* texture_node = miss_node;
+    if (texture_node->type != wz::Type::Canvas) {
+      if (auto* frame = texture_node->get_child(u"0"); frame != nullptr) {
+        texture_node = frame;
+      }
+    }
+    auto* texture = WzResource::LoadTexture(texture_node);
+    if (texture == nullptr) {
+      return;
+    }
+    auto* origin_node = texture_node->get_child(u"origin");
+    SDL_FPoint origin{};
+    if (origin_node != nullptr) {
+      origin = WzResource::LoadFpoint(origin_node);
+    }
+    SDL_FRect pos_rect = {
+        .x = pos.x - origin.x,
+        .y = pos.y - origin.y - g_effect.index * texture->h - 32 -
+             (255 - g_effect.alpha) / 5,
+        .w = static_cast<float>(texture->w),
+        .h = static_cast<float>(texture->h),
+    };
+    if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
+      pos_rect.x -= camera.x;
+      pos_rect.y -= camera.y;
+      SDL_SetTextureAlphaMod(texture, g_effect.alpha);
+      SDL_RenderTexture(Window::renderer_, texture, nullptr, &pos_rect);
+    }
+    return;
+  }
   auto num_str = std::to_string(d_data.num);
   uint32_t w = 0;
   wz::Node* node;

@@ -5,6 +5,7 @@
 #include "src/client/game_instance/afterimage_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
+#include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/text_game_instance.h"
@@ -398,6 +399,24 @@ int SkillGameInstance::LoadSkiCooldown(const std::u16string& id,
   return 0;
 }
 
+void SkillGameInstance::AddMissEffect(const CheckMobs::Mobs& mob,
+                                               uint64_t delay) {
+  DamageData data{
+      .num = 0,
+      .type = DamageData::DamageColor::kMiss,
+  };
+  GameEffect effect{};
+  effect.id = u"";
+  effect.time = mob.mob.index;
+  effect.delay = delay;
+  effect.type = GameEffect::EffectType::kDamage;
+  effect.pos = SDL_FPoint{0.0f, -10.0f};
+  effect.z = false;
+  effect.flip = false;
+  effect.data = data;
+  effect.index = 0;
+  EffectGameInstance::data_[7].push_back(std::move(effect));
+}
 fbs::ClientCharacterAttackT SkillGameInstance::CreateAttackPayload(
     CheckMobs& cm, SDL_FPoint pos, uint64_t delay, uint32_t interval,
     std::string effect, std::string sound, float knockback) {
@@ -412,6 +431,9 @@ fbs::ClientCharacterAttackT SkillGameInstance::CreateAttackPayload(
         break;
       }
     }
+  }
+  for (const auto& miss : cm.miss) {
+    AddMissEffect(miss, delay + miss.delay);
   }
   auto& Mobs = cm.data;
   for (int m = 0; m < Mobs.size(); m++) {

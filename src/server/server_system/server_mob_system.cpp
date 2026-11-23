@@ -1839,6 +1839,7 @@ bool ServerMobSystem::RunFall(ServerMob& mob) {
 void ServerMobSystem::RunFly(ServerMob& mob) {
   const float dt = static_cast<float>(delta_time_) / 1000.0f;
   const float speed = mob.fly_speed * MobSpeedScale(mob);
+  const auto now = Window::dt_now_;
 
   auto& clients = ServerClientInstance::clients_;
   if (mob.target_id != 0 && clients.contains(mob.target_id) &&
@@ -1851,19 +1852,46 @@ void ServerMobSystem::RunFly(ServerMob& mob) {
       mob.flip = dx > 0;
     }
     if (std::fabs(dy) >= kFlyDeadZone) {
-      mob.pos.y += (dy > 0 ? speed : -speed) * dt / 2;
+      mob.pos.y += (dy > 0 ? speed : -speed) * dt;
     }
-  } else if (mob.input_x != 0) {
-    mob.pos.x += static_cast<float>(mob.input_x) * speed * dt;
-    mob.flip = mob.input_x > 0;
+  } else {
+    // v95 CtrlUpdateActiveFly：没有追击目标时，在出生点附近随机巡游。
+    auto border = MapInfoGameInstance::LoadMrBorder(map_id_);
+    const bool border_valid = border.w > border.x && border.h > border.y;
+    float dx = mob.fly_target.x - mob.pos.x;
+    float dy = mob.fly_target.y - mob.pos.y;
+    if (mob.fly_next == 0 || now >= mob.fly_next ||
+        (std::fabs(dx) < kFlyDeadZone && std::fabs(dy) < kFlyDeadZone)) {
+      std::uniform_real_distribution<float> rx(-220.0f, 220.0f);
+      std::uniform_real_distribution<float> ry(-110.0f, 110.0f);
+      mob.fly_target = SDL_FPoint{mob.spawn_pos.x + rx(RandomGameInstance::gen_),
+                                  mob.spawn_pos.y + ry(RandomGameInstance::gen_)};
+      if (border_valid) {
+        mob.fly_target.x = std::clamp(mob.fly_target.x, border.x + 10.0f,
+                                      border.w - 10.0f);
+        mob.fly_target.y = std::clamp(mob.fly_target.y, border.y + 10.0f,
+                                      border.h - 10.0f);
+      }
+      mob.fly_next = now + 1800 + RandomGameInstance::gen_() % 2600;
+      dx = mob.fly_target.x - mob.pos.x;
+      dy = mob.fly_target.y - mob.pos.y;
+    }
+    if (std::fabs(dx) >= kFlyDeadZone) {
+      mob.pos.x += (dx > 0 ? speed : -speed) * dt;
+      mob.flip = dx > 0;
+    }
+    if (std::fabs(dy) >= kFlyDeadZone) {
+      mob.pos.y += (dy > 0 ? speed : -speed) * dt;
+    }
   }
 
   // 限制在地图范围内
   auto border = MapInfoGameInstance::LoadMrBorder(map_id_);
-  mob.pos.x = std::clamp(mob.pos.x, border.x + 10.0f, border.w - 10.0f);
-  mob.pos.y = std::clamp(mob.pos.y, border.y + 10.0f, border.h - 10.0f);
+  if (border.w > border.x && border.h > border.y) {
+    mob.pos.x = std::clamp(mob.pos.x, border.x + 10.0f, border.w - 10.0f);
+    mob.pos.y = std::clamp(mob.pos.y, border.y + 10.0f, border.h - 10.0f);
+  }
 }
-
 void ServerMobSystem::RunPhysics(ServerMob& mob) {
   // 死亡动画期间停止物理：只播放 die1，不再让尸体下落。
   // 注意这只排除 dead；HP<=0 但攻击 delay 未到时仍按空中 fall 处理。

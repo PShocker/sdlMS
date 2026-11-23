@@ -19,6 +19,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <cstdio>
 #include <flat_map>
 #include <flat_set>
 #include <optional>
@@ -70,6 +71,64 @@ void WorldmapUiSystem::RenderBackgrnd() {
   SDL_RenderTexture(Window::renderer_, title, nullptr, &pos_rect);
 }
 
+namespace {
+std::u16string FindWorldMapPath(uint32_t map_id) {
+  static std::flat_map<uint32_t, std::u16string> cache;
+  if (auto it = cache.find(map_id); it != cache.end()) {
+    return it->second;
+  }
+
+  auto* root = WzResource::map_->find(u"WorldMap");
+  if (root != nullptr && root->get_children() != nullptr) {
+    for (const auto& [name, nodes] : *root->get_children()) {
+      (void)nodes;
+      auto* image = WzResource::map_->find(u"WorldMap/" + name);
+      if (image == nullptr) {
+        continue;
+      }
+      auto* list = image->find(u"MapList");
+      if (list == nullptr || list->get_children() == nullptr) {
+        continue;
+      }
+      for (const auto& [key, values] : *list->get_children()) {
+        (void)key;
+        if (values.empty() || values[0] == nullptr) {
+          continue;
+        }
+        auto* map_no = values[0]->get_child(u"mapNo");
+        if (map_no == nullptr) {
+          continue;
+        }
+        if (map_no->type == wz::Type::Int) {
+          auto id = static_cast<wz::Property<int>*>(map_no)->get();
+          if (static_cast<uint32_t>(id) == map_id) {
+            cache[map_id] = name;
+            return name;
+          }
+          continue;
+        }
+        if (map_no->get_children() == nullptr) {
+          continue;
+        }
+        for (const auto& [map_key, map_nodes] : *map_no->get_children()) {
+          (void)map_key;
+          if (map_nodes.empty() || map_nodes[0] == nullptr ||
+              map_nodes[0]->type != wz::Type::Int) {
+            continue;
+          }
+          auto id = static_cast<wz::Property<int>*>(map_nodes[0])->get();
+          if (static_cast<uint32_t>(id) == map_id) {
+            cache[map_id] = name;
+            return name;
+          }
+        }
+      }
+    }
+  }
+  cache[map_id] = u"WorldMap000.img";
+  return u"WorldMap000.img";
+}
+}  // namespace
 static const SDL_FPoint map_offset = {6, 30};
 
 static uint32_t spot_info_id;
@@ -83,7 +142,11 @@ void WorldmapUiSystem::RenderSpot() {
   spot_info_id = 0;
   static std::flat_map<std::u16string, std::vector<WorldmapSpot>> spot_cache;
   if (!spot_cache.contains(path_)) {
-    auto spot_node = WzResource::map_->find(u"WorldMap/" + path_ + u"/MapList");
+    auto* spot_node =
+        WzResource::map_->find(u"WorldMap/" + path_ + u"/MapList");
+    if (spot_node == nullptr || spot_node->get_children() == nullptr) {
+      return;
+    }
     for (auto [k, v] : *spot_node->get_children()) {
       WorldmapSpot wsp;
       auto vec =
@@ -101,12 +164,20 @@ void WorldmapUiSystem::RenderSpot() {
   }
   auto spots = spot_cache.at(path_);
   static auto texture_node = WzResource::map_->find("MapHelper.img/worldMap");
-  static std::array map_img_array = {
-      WzResource::LoadTexture(texture_node->find(u"mapImage/0")),
-      WzResource::LoadTexture(texture_node->find(u"mapImage/1")),
-      WzResource::LoadTexture(texture_node->find(u"mapImage/2")),
-  };
-
+  static std::vector<SDL_Texture*> map_img_array;
+  if (map_img_array.empty()) {
+    auto* images = texture_node->find(u"mapImage");
+    if (images != nullptr && images->get_children() != nullptr) {
+      for (const auto& [key, values] : *images->get_children()) {
+        (void)key;
+        if (values.empty() || values[0] == nullptr) {
+          map_img_array.push_back(nullptr);
+          continue;
+        }
+        map_img_array.push_back(WzResource::LoadTexture(values[0]));
+      }
+    }
+  }
   auto wh = LoadWh();
   auto map_ox = (wh.x - 12) / 2;
   auto map_oy = (wh.y - 44) / 2;
@@ -114,7 +185,13 @@ void WorldmapUiSystem::RenderSpot() {
   auto& mouse_pos = Window::mouse_pos_;
   std::optional<SDL_FPoint> spot_point;
   for (auto& spot : spots) {
-    auto texture = map_img_array[spot.type];
+    if (spot.type >= map_img_array.size()) {
+      continue;
+    }
+    auto* texture = map_img_array[spot.type];
+    if (texture == nullptr) {
+      continue;
+    }
     SDL_FRect pos_rect = {
         static_cast<float>(int(pos_.x + map_ox + spot.pos.x + map_offset.x -
                                (float)texture->w / 2)),
@@ -142,8 +219,15 @@ void WorldmapUiSystem::RenderSpot() {
 }
 
 void WorldmapUiSystem::RenderMap() {
-  auto back_node = WzResource::map_->find(u"WorldMap/" + path_ + u"/BaseImg/0");
-  auto texture = WzResource::LoadTexture(back_node);
+  auto* back_node =
+      WzResource::map_->find(u"WorldMap/" + path_ + u"/BaseImg/0");
+  if (back_node == nullptr) {
+    return;
+  }
+  auto* texture = WzResource::LoadTexture(back_node);
+  if (texture == nullptr) {
+    return;
+  }
   SDL_FRect pos_rect = {pos_.x + map_offset.x, pos_.y + map_offset.y,
                         static_cast<float>(texture->w), (float)texture->h};
   SDL_RenderTexture(Window::renderer_, texture, nullptr, &pos_rect);
@@ -151,15 +235,24 @@ void WorldmapUiSystem::RenderMap() {
 
 void WorldmapUiSystem::RenderCurPos(SDL_FPoint point) {
   auto now = Window::dt_now_;
-  static auto point_node =
+  auto* point_node =
       WzResource::map_->find(u"MapHelper.img/worldMap/curPos");
+  if (point_node == nullptr || point_node->children_count() == 0) {
+    return;
+  }
   auto sum = point_node->children_count() * 200;
-  auto offset = now % sum;  // 取余，得到周期内偏移
+  auto offset = now % sum;
   auto i = offset / 200;
   auto index = std::to_string(i);
-  auto node = point_node->get_child(index);
+  auto* node = point_node->get_child(index);
+  if (node == nullptr) {
+    return;
+  }
   auto origin = WzResource::LoadFpoint(node->get_child(u"origin"));
-  auto texture = WzResource::LoadTexture(node);
+  auto* texture = WzResource::LoadTexture(node);
+  if (texture == nullptr) {
+    return;
+  }
   SDL_FRect pos_rect{
       point.x - origin.x,
       point.y - origin.y,
@@ -168,7 +261,6 @@ void WorldmapUiSystem::RenderCurPos(SDL_FPoint point) {
   };
   SDL_RenderTexture(Window::renderer_, texture, nullptr, &pos_rect);
 }
-
 bool WorldmapUiSystem::RenderSpotInfo() {
   if (CursorGameInstance::modal_overlay_ == nullptr &&
       CursorGameInstance::cursor_ui_ == Render && spot_info_id != 0) {
@@ -224,15 +316,23 @@ bool WorldmapUiSystem::Render() {
 SDL_FPoint WorldmapUiSystem::LoadWh() {
   static std::flat_map<std::u16string, SDL_FPoint> whs;
   if (!whs.contains(path_)) {
-    auto back_node =
+    auto* back_node =
         WzResource::map_->find(u"WorldMap/" + path_ + u"/BaseImg/0");
-    auto texture = WzResource::LoadTexture(back_node);
-    whs[path_] = SDL_FPoint{static_cast<float>(texture->w + 12),
-                            static_cast<float>(texture->h + 44)};
+    auto* texture =
+        back_node == nullptr ? nullptr : WzResource::LoadTexture(back_node);
+    if (texture == nullptr) {
+      whs[path_] = SDL_FPoint{800.0f, 600.0f};
+    } else {
+      whs[path_] = SDL_FPoint{static_cast<float>(texture->w + 12),
+                              static_cast<float>(texture->h + 44)};
+    }
   }
   return whs.at(path_);
 }
 
+void WorldmapUiSystem::SetMap(uint32_t map_id) {
+  path_ = FindWorldMapPath(map_id);
+}
 void WorldmapUiSystem::Open() {
   auto it =
       std::ranges::find(System::render_systems_, &CursorRenderSystem::Render);
@@ -243,7 +343,7 @@ void WorldmapUiSystem::Open() {
       NoticeUiSystem::Open();
       return;
     }
-    WorldmapUiSystem::path_ = u"WorldMap000.img";
+    WorldmapUiSystem::path_ = FindWorldMapPath(SceneSystemInstance::map_id_);
 
     auto wh = LoadWh();
     auto& camera = CameraGameInstance::camera_;

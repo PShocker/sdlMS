@@ -57,6 +57,7 @@ class SkillGameInstance {
   // 主动技能冷却（秒，Skill.wz level/<lv>/cooltime）。
   static int LoadSkiCooldown(const std::u16string& id, uint8_t lv);
 
+  static void AddMissEffect(const CheckMobs::Mobs& mob, uint64_t delay);
   static fbs::ClientCharacterAttackT CreateAttackPayload(CheckMobs& cm,
                                                          SDL_FPoint pos,
                                                          uint64_t delay);

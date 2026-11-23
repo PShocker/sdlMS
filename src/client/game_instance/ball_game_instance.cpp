@@ -101,47 +101,59 @@ fbs::ClientCharacterBallT BallGameInstance::CreateBallPayload(
   };
 
   // 3. 主逻辑流
+  CheckMobs::Mobs* target = nullptr;
   if (!cm.data.empty()) {
-    const auto& mob = cm.data[0].mob;
+    target = &cm.data[0];
+  } else if (!cm.miss.empty()) {
+    target = &cm.miss[0];
+  }
+  if (target != nullptr) {
+    const auto& mob = target->mob;
     auto mob_r = MobLogicSystem::LoadRect(mob);
 
     if (mob_r.has_value()) {
       auto closest_pos = ClosestPointOnRect(pos, mob_r.value());
-      auto target = calculate_target(closest_pos);
+      auto target_pos = calculate_target(closest_pos);
 
       // 检查是否命中墙面
-      if (target.x != closest_pos.x || target.y != closest_pos.y) {
+      if (target_pos.x != closest_pos.x || target_pos.y != closest_pos.y) {
         // 命中墙面
         cm.data.clear();
-        ball->x2 = target.x;
-        ball->y2 = target.y;
+        cm.miss.clear();
+        ball->x2 = target_pos.x;
+        ball->y2 = target_pos.y;
       } else {
         // 命中怪物
         ball->mob_index = mob.index;
         ball->x2 = closest_pos.x - mob.pos.x;
         ball->y2 = closest_pos.y - mob.pos.y;
-
-        // 更新cm数据
-        cm.data[0].x = ball->x2;
-        cm.data[0].y = ball->y2;
+        target->x = ball->x2;
+        target->y = ball->y2;
       }
     } else {
       // load_rect失败，回退到goal
-      auto target = calculate_target(goal);
-      ball->x2 = target.x;
-      ball->y2 = target.y;
+      auto target_pos = calculate_target(goal);
+      ball->x2 = target_pos.x;
+      ball->y2 = target_pos.y;
     }
   } else {
-    // 无cm.data
-    auto target = calculate_target(goal);
-    ball->x2 = target.x;
-    ball->y2 = target.y;
+    // 无目标
+    auto target_pos = calculate_target(goal);
+    ball->x2 = target_pos.x;
+    ball->y2 = target_pos.y;
   }
-
   // 4. 构造payload
   ccb.payload = std::make_unique<fbs::CharacterBallT>();
   ccb.payload->path.assign(path.begin(), path.end());
   ccb.payload->ball = std::move(ball);
+
+  if (!cm.miss.empty()) {
+    const auto impact = LoadBallTime(ccb);
+    for (const auto& miss : cm.miss) {
+      SkillGameInstance::AddMissEffect(miss, impact);
+    }
+    cm.miss.clear();
+  }
 
   return ccb;
 }

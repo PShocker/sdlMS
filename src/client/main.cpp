@@ -85,7 +85,7 @@ SDL_AppResult AppInit(void** appstate, int argc, char* argv[]) {
   SDL_HideCursor();
 
   CharacterGameInstance::LoadSelfCharacter();
-  CharacterGameInstance::self_.job = u"420";
+  CharacterGameInstance::self_.job = u"000";
   CharacterGameInstance::self_.level = 30;
   CharacterGameInstance::self_.name = u"进击的蓝蘑菇";
   // CharacterGameInstance::self_.morph = u"0001";
@@ -96,7 +96,7 @@ SDL_AppResult AppInit(void** appstate, int argc, char* argv[]) {
   CharacterStatGameInstance::Load(cs);
   // QuestGameInstance::Load(cs);
 
-  uint32_t start_map = 1;
+  uint32_t start_map = 10003062;
   SceneSystemInstance::EnterPrepare(start_map, u"sp", 0);
   // SceneSystemInstance::prepare_pos = {600, -470};
   // CharacterCreateSystemInstance::Enter();

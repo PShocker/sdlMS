@@ -174,7 +174,9 @@ CheckReactors CharacterLogicSystem::RunReactorCheck(GameCharacter& g,
 CheckMobs CharacterLogicSystem::RunAttackCheck(GameCharacter& g_character,
                                                GameTriangle tri, int num) {
   std::vector<CheckMobs::Mobs> v;
+  std::vector<CheckMobs::Mobs> miss_v;
   std::flat_multimap<float, CheckMobs::Mobs> m;
+  std::flat_multimap<float, CheckMobs::Mobs> miss_m;
   auto& g_pos = g_character.pos;
   auto t =
       TriangleGameInstance::LoadTri(tri, g_character.flip, g_character.pos);
@@ -197,9 +199,6 @@ CheckMobs CharacterLogicSystem::RunAttackCheck(GameCharacter& g_character,
         static_cast<uint32_t>(LoadMobInfoInt(info, u"eva", 0)),
         static_cast<uint32_t>(LoadMobInfoInt(info, u"level", 1)));
     std::uniform_int_distribution<uint32_t> hit_roll(0, 99);
-    if (hit_roll(RandomGameInstance::gen_) >= chance) {
-      continue;
-    }
     auto m_r_opt = MobLogicSystem::LoadRect(mob);
     if (!m_r_opt.has_value()) {
       continue;
@@ -215,14 +214,31 @@ CheckMobs CharacterLogicSystem::RunAttackCheck(GameCharacter& g_character,
           .x = 0,
           .y = 0,
       };
-      m.emplace(dis, cm);
+      if (hit_roll(RandomGameInstance::gen_) >= chance) {
+        miss_m.emplace(dis, cm);
+      } else {
+        m.emplace(dis, cm);
+      }
+    }
+  }
+  if (num == 1) {
+    const bool hit_closer =
+        !m.empty() && (miss_m.empty() || m.begin()->first <= miss_m.begin()->first);
+    if (hit_closer) {
+      miss_m.clear();
+    } else {
+      m.clear();
     }
   }
   if (m.size() > num) {
     m.erase(m.begin() + num, m.end());
   }
+  if (miss_m.size() > num) {
+    miss_m.erase(miss_m.begin() + num, miss_m.end());
+  }
   v.append_range(m.values());
-  return {v};
+  miss_v.append_range(miss_m.values());
+  return {v, miss_v};
 }
 
 CheckMobs CharacterLogicSystem::RunAttackCheck(GameCharacter& g_character,
@@ -233,7 +249,9 @@ CheckMobs CharacterLogicSystem::RunAttackCheck(GameCharacter& g_character,
 CheckMobs CharacterLogicSystem::RunAttackCheck(SDL_FPoint pos, SDL_FRect g_r,
                                                int num) {
   std::vector<CheckMobs::Mobs> v;
+  std::vector<CheckMobs::Mobs> miss_v;
   std::flat_multimap<float, CheckMobs::Mobs> m;
+  std::flat_multimap<float, CheckMobs::Mobs> miss_m;
   auto& g_pos = pos;
   for (const auto& [k, v] : MobGameInstance::data_) {
     auto& mob = v.mob;
@@ -254,9 +272,6 @@ CheckMobs CharacterLogicSystem::RunAttackCheck(SDL_FPoint pos, SDL_FRect g_r,
         static_cast<uint32_t>(LoadMobInfoInt(info, u"eva", 0)),
         static_cast<uint32_t>(LoadMobInfoInt(info, u"level", 1)));
     std::uniform_int_distribution<uint32_t> hit_roll(0, 99);
-    if (hit_roll(RandomGameInstance::gen_) >= chance) {
-      continue;
-    }
     auto m_r_opt = MobLogicSystem::LoadRect(mob);
     if (!m_r_opt.has_value()) {
       continue;
@@ -275,14 +290,31 @@ CheckMobs CharacterLogicSystem::RunAttackCheck(SDL_FPoint pos, SDL_FRect g_r,
           .x = attack_x,
           .y = attack_y,
       };
-      m.emplace(dis, cm);
+      if (hit_roll(RandomGameInstance::gen_) >= chance) {
+        miss_m.emplace(dis, cm);
+      } else {
+        m.emplace(dis, cm);
+      }
+    }
+  }
+  if (num == 1) {
+    const bool hit_closer =
+        !m.empty() && (miss_m.empty() || m.begin()->first <= miss_m.begin()->first);
+    if (hit_closer) {
+      miss_m.clear();
+    } else {
+      m.clear();
     }
   }
   if (m.size() > num) {
     m.erase(m.begin() + num, m.end());
   }
+  if (miss_m.size() > num) {
+    miss_m.erase(miss_m.begin() + num, miss_m.end());
+  }
   v.append_range(m.values());
-  return {v};
+  miss_v.append_range(miss_m.values());
+  return {v, miss_v};
 }
 
 CheckMobs CharacterLogicSystem::RunAttackCheck(GameCharacter& g_character,
@@ -1072,7 +1104,7 @@ bool CharacterLogicSystem::RunAttack(GameCharacter& g_character) {
     ServerBallInstance::HandleServerB(cct.payload);
     ClientRequest::SendToHost(cct);
   } else {
-    auto cm = RunAttackCheck(g_character, g_r);
+    auto cm = RunAttackCheck(g_character, g_r, 1);
     if (!cm.data.empty()) {
       cm.data = {cm.data[0]};
       cm.data[0].hits = {100};
@@ -1085,6 +1117,8 @@ bool CharacterLogicSystem::RunAttack(GameCharacter& g_character) {
       RegisterFinalAttack(g_character, delay);
       RegisterPageFinalAttack(g_character, delay);
       RegisterSpearmanFinalAttack(g_character, delay);
+    } else {
+      SkillGameInstance::CreateAttackPayload(cm, g_character.pos, delay);
     }
   }
   for (auto& buff : SkillGameInstance::ski_) {
@@ -1098,9 +1132,16 @@ bool CharacterLogicSystem::RunAttack(GameCharacter& g_character) {
 bool CharacterLogicSystem::RunPortal(GameCharacter& g_character) {
   // 特殊情况，如果掉到了地图外,直接传送到sp出生点
   auto border = MapInfoGameInstance::LoadMrBorder(SceneSystemInstance::map_id_);
-  if (g_character.pos.y >= border.h) {
+  // MRBottom 是地图底边，角色正常站在底边时不能判定为掉出地图。
+  constexpr float kFallOutMargin = 200.0f;
+  if (border.h > border.y &&
+      g_character.pos.y > border.h + kFallOutMargin) {
     // no change map
-    const auto& tn = PortalGameInstance::data_.find(u"sp")->second;
+    auto sp = PortalGameInstance::data_.find(u"sp");
+    if (sp == PortalGameInstance::data_.end()) {
+      return false;
+    }
+    const auto& tn = sp->second;
     g_character.pos = tn.pos;
     g_character.pos.y -= 5;
     self_hspeed_ = 0;
