@@ -10,7 +10,7 @@ class CashShopUiSystem {
   static void RenderAvatar();
 
  public:
-  // 试穿角色的逻辑：在 CashShopPreview.img/foothold 范围内左右走动。
+  // 试穿角色的逻辑：在试穿窗口的草地上左右走动。
   static bool Run();
   static bool Render();
   static bool Event(SDL_Event* event);

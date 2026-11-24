@@ -373,13 +373,31 @@ std::u16string EquipGameInstance::LoadEquipName(const std::u16string& id) {
 
   auto type = LoadEquipType(id);
 
+  if (str_node == nullptr || type.empty()) {
+    return u"";
+  }
 
   auto view = id | std::views::drop_while([](char16_t c) { return c == u'0'; });
 
   std::u16string result(view.begin(), view.end());
 
+  auto* type_node = str_node->get_child(type);
 
-  auto str = str_node->get_child(type)->get_child(result)->get_child(u"name");
+  if (type_node == nullptr) {
+    return u"";
+  }
+
+  auto* entry = type_node->get_child(result);
+
+  if (entry == nullptr) {
+    return u"";
+  }
+
+  auto* str = entry->get_child(u"name");
+
+  if (str == nullptr || str->type != wz::Type::String) {
+    return u"";
+  }
 
   return static_cast<wz::Property<std::u16string>*>(str)->get();
 }
@@ -390,13 +408,27 @@ std::u16string EquipGameInstance::LoadEquipDesc(const std::u16string& id) {
 
   auto type = LoadEquipType(id);
 
+  if (str_node == nullptr || type.empty()) {
+    return u"";
+  }
 
   auto view = id | std::views::drop_while([](char16_t c) { return c == u'0'; });
 
   std::u16string result(view.begin(), view.end());
 
+  auto* type_node = str_node->get_child(type);
 
-  auto str = str_node->get_child(type)->get_child(result)->get_child(u"desc");
+  if (type_node == nullptr) {
+    return u"";
+  }
+
+  auto* entry = type_node->get_child(result);
+
+  if (entry == nullptr) {
+    return u"";
+  }
+
+  auto str = entry->get_child(u"desc");
 
   if (str == nullptr) {
     return u"";
@@ -531,7 +563,19 @@ std::flat_map<EquipGameInstance::IncType, int> EquipGameInstance::LoadScrollInc(
 uint8_t EquipGameInstance::LoadEquipTuc(const std::u16string& id) {
   auto equip_info = LoadEquipInfo(id);
 
-  return static_cast<wz::Property<int>*>(equip_info->get_child(u"tuc"))->get();
+  // 点装/商城里的装备可能没有 info 或 tuc 字段（不可砸卷），缺失时按 0 处理，
+  // 避免 tooltip 等调用方直接解引用空节点。
+  if (equip_info == nullptr) {
+    return 0;
+  }
+
+  auto* tuc = equip_info->get_child(u"tuc");
+
+  if (tuc == nullptr || tuc->type != wz::Type::Int) {
+    return 0;
+  }
+
+  return static_cast<uint8_t>(static_cast<wz::Property<int>*>(tuc)->get());
 }
 
 

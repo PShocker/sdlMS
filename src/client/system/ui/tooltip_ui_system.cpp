@@ -899,6 +899,9 @@ void TooltipUiSystem::RenderItem(GameItem& item, float x, float y) {
   x = p.x;
   y = p.y;
   RenderBackgrnd(x, y, w, h);
+  // LoadItemWh 内部会切到 13 号非粗体去量说明文字，标题这里显式设定字号/字重。
+  Freetype::LoadBold(true);
+  Freetype::LoadSize(15);
   Freetype::LoadColor(255, 255, 255, 255);
   Freetype::LoadAligned(true);
   Freetype::DrawLine(item_name, x + 20, y + 10);
@@ -1004,7 +1007,20 @@ SDL_FPoint TooltipUiSystem::LoadItemWh(const GameItem& item) {
   Freetype::LoadBold(true);
   Freetype::LoadSize(15);
   auto w = Freetype::LoadW(item_name) + 150;
-  return {std::max(w, 360.0f), 128};
+  w = std::max(w, 360.0f);
+
+  // 说明文字按 RenderItem 里的排版参数（13 号字 / 行高 1.1 / 宽 w-112）先排一遍，
+  // 说明很长时要把提示框背景撑高，否则文字会超出背景底边。
+  auto item_desc = ItemGameInstance::LoadItemText(item.id, u"desc");
+  Freetype::LoadBold(false);
+  Freetype::LoadSize(13);
+  float desc_h = 0.0f;
+  if (!item_desc.empty()) {
+    desc_h = Freetype::LoadRh(item_desc, w - 112, 1.1, std::nullopt);
+  }
+  // 图标区从 y+35 开始（74 高），说明文字从 y+33 往下排；底部再留 14px 边距。
+  const float h = std::max({128.0f, 35.0f + desc_h + 14.0f});
+  return {w, h};
 }
 
 SDL_FPoint TooltipUiSystem::LoadStrWh(const std::u16string& str) {
