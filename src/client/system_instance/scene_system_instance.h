@@ -22,6 +22,9 @@ class SceneSystemInstance {
   static void QuitPrepare();
   static void EnterCashShop();
   static void CashShopPrepare();
+  // 从现金商店返回地图：发 ClientScene{fade=false} 触发正常地图重进握手，
+  // 把客户端重新登记进服务端场景（怪物/其它玩家恢复），并回到指定位置。
+  static void EnterCashShopReturn(uint32_t map_id, SDL_FPoint pos);
 
  private:
   static SDL_FPoint LoadPreparePos(const std::u16string& pn, uint8_t index);

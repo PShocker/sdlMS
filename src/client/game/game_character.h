@@ -91,6 +91,8 @@ struct GameCharacter {
   std::optional<GameTomb> tomb;
 
   // characterinfo
+  // 人物唯一标识：高32位=创建时间戳(秒)，低32位=随机数。
+  uint64_t id = 0;
   std::u16string name;
   std::u16string job = u"100";
   int32_t fame = 0;

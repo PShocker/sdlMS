@@ -86,6 +86,8 @@ table ClientCharacterTrade {
    step:uint8;
    to_id:uint64;
    payload:[ItemUnion];
+   // 交易金币（meso）报价
+   meso:uint64;
 }
 
 table ClientCharacterState {

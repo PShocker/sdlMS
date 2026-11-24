@@ -4,14 +4,14 @@
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
+#include "src/client/game_instance/craft_game_instance.h"
+#include "src/client/game_instance/friend_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/game_instance/keyboard_game_instance.h"
-#include "src/client/game_instance/craft_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/pet_game_instance.h"
 #include "src/client/game_instance/popup_tip_game_instance.h"
 #include "src/client/game_instance/quest_game_instance.h"
-#include "src/client/system/ui/quest_ui_system.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/character_render_system.h"
 #include "src/client/system/render/cursor_render_system.h"
@@ -21,6 +21,7 @@
 #include "src/client/system/ui/login_notice_ui_system.h"
 #include "src/client/system/ui/login_ui_system.h"
 #include "src/client/system/ui/option_ui_system.h"
+#include "src/client/system/ui/quest_ui_system.h"
 #include "src/client/system_instance/character_create_system_instance.h"
 #include "src/client/system_instance/game_save_system_instance.h"
 #include "src/client/system_instance/login_notice_system_instance.h"
@@ -50,7 +51,7 @@ namespace sdlms {
 SDL_FPoint CharacterChooseUiSystem::LoadPos() {
   SDL_FPoint pos;
   const auto w = 1366;
-  const auto h = 768; 
+  const auto h = 768;
   auto& camera = CameraGameInstance::camera_;
   pos.x = (camera.w - w) / 2;
   pos.y = (camera.h - h) / 2;
@@ -90,12 +91,11 @@ UIComponents& CharacterChooseUiSystem::GetComponent() {
     SDL_FRect rect = buttons_rect[i];
     rect.x = (int)rect.x;
     rect.y = (int)rect.y;
-    components_.push_back(
-        Button{.node = buttons_nodes[i],
-               .rect = rect,
-               .callback = callbacks[i],
-               .enable = enable[i],
-               .focused = true});
+    components_.push_back(Button{.node = buttons_nodes[i],
+                                 .rect = rect,
+                                 .callback = callbacks[i],
+                                 .enable = enable[i],
+                                 .focused = true});
   }
   return components_;
 }
@@ -204,11 +204,10 @@ void CharacterChooseUiSystem::RenderCharacterBoard(uint8_t i) {
     };
 
     auto job_node =
-        WzResource::ms_->get_root()->find(u"String.img/" +
-                                         cs.character.job);
+        WzResource::ms_->get_root()->find(u"String.img/" + cs.character.job);
     if (job_node != nullptr) {
-      draw_center(
-          static_cast<wz::Property<std::u16string>*>(job_node)->get(), 0.0f);
+      draw_center(static_cast<wz::Property<std::u16string>*>(job_node)->get(),
+                  0.0f);
     }
     draw_center(to_text(cs.character.level), 24.0f);
     draw_center(to_text(cs.ap.str_ap), 57.0f);
@@ -270,6 +269,7 @@ void CharacterChooseUiSystem::EventButtonSelect() {
       // load pack,ski,ap,sp
       PackageGameInstance::Load(cs);
       PetGameInstance::Load(cs);
+      FriendGameInstance::Load(cs);
       CraftGameInstance::Load(cs);
       CharacterStatGameInstance::Load(cs);
       JobSkillGameInstance::Load(cs);

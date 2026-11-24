@@ -1331,6 +1331,7 @@ struct ClientCharacterTradeT : public ::flatbuffers::NativeTable {
   uint8_t step = 0;
   uint64_t to_id = 0;
   std::vector<fbs::ItemUnionUnion> payload{};
+  uint64_t meso = 0;
 };
 
 struct ClientCharacterTrade FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -1340,7 +1341,8 @@ struct ClientCharacterTrade FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tab
     VT_STEP = 4,
     VT_TO_ID = 6,
     VT_PAYLOAD_TYPE = 8,
-    VT_PAYLOAD = 10
+    VT_PAYLOAD = 10,
+    VT_MESO = 12
   };
   uint8_t step() const {
     return GetField<uint8_t>(VT_STEP, 0);
@@ -1366,6 +1368,12 @@ struct ClientCharacterTrade FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tab
   ::flatbuffers::Vector<::flatbuffers::Offset<void>> *mutable_payload() {
     return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<void>> *>(VT_PAYLOAD);
   }
+  uint64_t meso() const {
+    return GetField<uint64_t>(VT_MESO, 0);
+  }
+  bool mutate_meso(uint64_t _meso = 0) {
+    return SetField<uint64_t>(VT_MESO, _meso, 0);
+  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -1376,6 +1384,7 @@ struct ClientCharacterTrade FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tab
            VerifyOffset(verifier, VT_PAYLOAD) &&
            verifier.VerifyVector(payload()) &&
            VerifyItemUnionVector(verifier, payload(), payload_type()) &&
+           VerifyField<uint64_t>(verifier, VT_MESO, 8) &&
            verifier.EndTable();
   }
   ClientCharacterTradeT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -1399,6 +1408,9 @@ struct ClientCharacterTradeBuilder {
   void add_payload(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<void>>> payload) {
     fbb_.AddOffset(ClientCharacterTrade::VT_PAYLOAD, payload);
   }
+  void add_meso(uint64_t meso) {
+    fbb_.AddElement<uint64_t>(ClientCharacterTrade::VT_MESO, meso, 0);
+  }
   explicit ClientCharacterTradeBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -1415,8 +1427,10 @@ inline ::flatbuffers::Offset<ClientCharacterTrade> CreateClientCharacterTrade(
     uint8_t step = 0,
     uint64_t to_id = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> payload_type = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<void>>> payload = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<void>>> payload = 0,
+    uint64_t meso = 0) {
   ClientCharacterTradeBuilder builder_(_fbb);
+  builder_.add_meso(meso);
   builder_.add_to_id(to_id);
   builder_.add_payload(payload);
   builder_.add_payload_type(payload_type);
@@ -1429,7 +1443,8 @@ inline ::flatbuffers::Offset<ClientCharacterTrade> CreateClientCharacterTradeDir
     uint8_t step = 0,
     uint64_t to_id = 0,
     const std::vector<uint8_t> *payload_type = nullptr,
-    const std::vector<::flatbuffers::Offset<void>> *payload = nullptr) {
+    const std::vector<::flatbuffers::Offset<void>> *payload = nullptr,
+    uint64_t meso = 0) {
   auto payload_type__ = payload_type ? _fbb.CreateVector<uint8_t>(*payload_type) : 0;
   auto payload__ = payload ? _fbb.CreateVector<::flatbuffers::Offset<void>>(*payload) : 0;
   return fbs::CreateClientCharacterTrade(
@@ -1437,7 +1452,8 @@ inline ::flatbuffers::Offset<ClientCharacterTrade> CreateClientCharacterTradeDir
       step,
       to_id,
       payload_type__,
-      payload__);
+      payload__,
+      meso);
 }
 
 ::flatbuffers::Offset<ClientCharacterTrade> CreateClientCharacterTrade(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterTradeT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -3173,6 +3189,7 @@ inline void ClientCharacterTrade::UnPackTo(ClientCharacterTradeT *_o, const ::fl
   { auto _e = to_id(); _o->to_id = _e; }
   { auto _e = payload_type(); if (_e) { _o->payload.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->payload[_i].type = static_cast<fbs::ItemUnion>(_e->Get(_i)); } } else { _o->payload.resize(0); } }
   { auto _e = payload(); if (_e) { _o->payload.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->payload[_i].value = fbs::ItemUnionUnion::UnPack(_e->Get(_i), payload_type()->GetEnum<ItemUnion>(_i), _resolver); } } else { _o->payload.resize(0); } }
+  { auto _e = meso(); _o->meso = _e; }
 }
 
 inline ::flatbuffers::Offset<ClientCharacterTrade> CreateClientCharacterTrade(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterTradeT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -3187,12 +3204,14 @@ inline ::flatbuffers::Offset<ClientCharacterTrade> ClientCharacterTrade::Pack(::
   auto _to_id = _o->to_id;
   auto _payload_type = _o->payload.size() ? _fbb.CreateVector<uint8_t>(_o->payload.size(), [](size_t i, _VectorArgs *__va) { return static_cast<uint8_t>(__va->__o->payload[i].type); }, &_va) : 0;
   auto _payload = _o->payload.size() ? _fbb.CreateVector<::flatbuffers::Offset<void>>(_o->payload.size(), [](size_t i, _VectorArgs *__va) { return __va->__o->payload[i].Pack(*__va->__fbb, __va->__rehasher); }, &_va) : 0;
+  auto _meso = _o->meso;
   return fbs::CreateClientCharacterTrade(
       _fbb,
       _step,
       _to_id,
       _payload_type,
-      _payload);
+      _payload,
+      _meso);
 }
 
 inline ClientCharacterStateT::ClientCharacterStateT(const ClientCharacterStateT &o)

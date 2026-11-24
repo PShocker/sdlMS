@@ -7,11 +7,10 @@
 #include "src/client/game_instance/backgrnd_game_instance.h"
 #include "src/client/game_instance/ball_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
-#include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/drop_game_instance.h"
 #include "src/client/game_instance/effect_game_instance.h"
-
 #include "src/client/game_instance/foothold_game_instance.h"
 #include "src/client/game_instance/ladderrope_game_instance.h"
 #include "src/client/game_instance/map_info_game_instance.h"
@@ -19,7 +18,6 @@
 #include "src/client/game_instance/npc_game_instance.h"
 #include "src/client/game_instance/obj_game_instance.h"
 #include "src/client/game_instance/pet_game_instance.h"
-#include "src/client/system_instance/game_save_system_instance.h"
 #include "src/client/game_instance/portal_game_instance.h"
 #include "src/client/game_instance/reactor_game_instance.h"
 #include "src/client/game_instance/seat_game_instance.h"
@@ -27,7 +25,6 @@
 #include "src/client/game_instance/tooltip_game_instance.h"
 #include "src/client/game_instance/trap_game_instance.h"
 #include "src/client/system/input/keyboard_input_system.h"
-#include "src/server/server_instance/server_heartbeat_instance.h"
 #include "src/client/system/logic/audio_logic_system.h"
 #include "src/client/system/logic/backgrnd_logic_system.h"
 #include "src/client/system/logic/ball_logic_system.h"
@@ -70,11 +67,13 @@
 #include "src/client/system/ui/statusbar_ui_system.h"
 #include "src/client/system_instance/cash_shop_system_instance.h"
 #include "src/client/system_instance/fade_system_instance.h"
+#include "src/client/system_instance/game_save_system_instance.h"
 #include "src/client/system_instance/login_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/request/client_request.h"
 #include "src/server/server_instance/server_character_instance.h"
+#include "src/server/server_instance/server_heartbeat_instance.h"
 
 #include <array>
 #include <cstdint>
@@ -217,13 +216,13 @@ void SceneSystemInstance::Enter(uint32_t map_id) {
   PetGameInstance::Clear();
   PetGameInstance::Refresh();
   auto bgm = MapInfoGameInstance::LoadBgm(map_id);
-  AudioGameInstance::LoadBackgrndAudio(bgm);  
+  AudioGameInstance::LoadBackgrndAudio(bgm);
 
   System::event_systems_ = {
-      QuestAlarmUiSystem::Event,  MinimapUiSystem::Event,
-      QuickSlotUiSystem::Event,   StatusbarUiSystem::Event,
-      BuffUiSystem::Event,        CursorLogicSystem::Event,
-      KeyboardInputSystem::Event,
+      PopupTipUiSystem::Event,    QuestAlarmUiSystem::Event,
+      MinimapUiSystem::Event,     QuickSlotUiSystem::Event,
+      StatusbarUiSystem::Event,   BuffUiSystem::Event,
+      CursorLogicSystem::Event,   KeyboardInputSystem::Event,
   };
 
   System::logic_systems_ = {
@@ -235,8 +234,7 @@ void SceneSystemInstance::Enter(uint32_t map_id) {
       AudioLogicSystem::Run,     ObjLogicSystem::Run,
       CursorLogicSystem::Run,    SkillLogicSystem::Run,
       ReactorLogicSystem::Run,   ItemLogicSystem::Run,
-      TrapLogicSystem::Run,
-  PetLogicSystem::Run,
+      TrapLogicSystem::Run,      PetLogicSystem::Run,
   };
   System::render_systems_ = {
       RenderGame,
@@ -331,6 +329,18 @@ void SceneSystemInstance::EnterCashShop() {
   CashShopSystemInstance::Enter();
   FadeSystemInstance::EnterOut();
   FadeSystemInstance::EnterOut();
+}
+
+void SceneSystemInstance::EnterCashShopReturn(uint32_t map_id, SDL_FPoint pos) {
+  prepare_map_id_ = map_id;
+  prepare_pos_ = pos;
+
+  fbs::ClientSceneT client_scene;
+  client_scene.fade = false;
+  client_scene.map_id = map_id;
+
+  Window::dt_time_start_ = Window::dt_now_;
+  ClientRequest::SendToHost(client_scene);
 }
 
 void SceneSystemInstance::CashShopPrepare() {

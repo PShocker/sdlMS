@@ -60,6 +60,12 @@ struct PetSaveData {
   bool active = false;
 };
 
+// 好友存档：id 为好友的人物唯一标识（高32位创建时间戳+低32位随机数）。
+struct FriendSave {
+  uint64_t id = 0;
+  std::u16string name;
+};
+
 struct CharacterSaveData {
   GameCharacter character;
   ApSave ap;
@@ -68,6 +74,7 @@ struct CharacterSaveData {
   std::vector<uint32_t> remain_sp;
   std::vector<PackageSaveData> package;
   std::vector<PetSaveData> pets;
+  std::vector<FriendSave> friends;
   uint64_t meso;
   uint32_t map_id;
   uint32_t return_map_id;

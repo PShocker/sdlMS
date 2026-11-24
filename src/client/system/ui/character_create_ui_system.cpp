@@ -29,9 +29,11 @@
 #include <SDL3/SDL_render.h>
 #include <wz/Property.h>
 
+#include <chrono>
 #include <cmath>
 #include <cstdint>
 #include <optional>
+#include <random>
 #include <ranges>
 #include <string>
 #include <vector>
@@ -847,6 +849,17 @@ void CharacterCreateUiSystem::EventButtonOk() {
     }
   }
   AudioGameInstance::PlayNow(u"UI.img/ScrollUp");
+
+  // 生成人物唯一标识：高32位=创建时间戳(秒)，低32位=随机数。
+  {
+    auto seconds = static_cast<uint64_t>(
+        std::chrono::duration_cast<std::chrono::seconds>(
+            std::chrono::system_clock::now().time_since_epoch())
+            .count());
+    std::random_device rd;
+    uint64_t rnd = static_cast<uint32_t>(rd());
+    g_character_.id = (seconds << 32) | rnd;
+  }
 
   g_character_.name = name_text;
   characters.push_back(g_character_);

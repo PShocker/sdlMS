@@ -5,6 +5,7 @@
 #include "src/client/game/game_save.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
+#include "src/client/game_instance/friend_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/game_instance/keyboard_game_instance.h"
@@ -111,7 +112,8 @@ bool GameSaveSystemInstance::LoadSave(const std::string& login) {
       cs.portal_id = c->portal_id;
       cs.return_map_id = c->return_map_id;
 
-      // 宠物（095 CPet）：每只宠物各自的道具 id / 名字 / 等级 / 饱食度 / 是否激活
+      // 宠物（095 CPet）：每只宠物各自的道具 id / 名字 / 等级 / 饱食度 /
+      // 是否激活
       for (const auto& p : c->pets) {
         if (p == nullptr) {
           continue;
@@ -135,6 +137,17 @@ bool GameSaveSystemInstance::LoadSave(const std::string& login) {
         state.closeness = c->pet->closeness;
         state.active = c->pet->active;
         cs.pets.push_back(std::move(state));
+      }
+
+      // 好友列表（用人物唯一 id 标识）
+      for (const auto& f : c->friends) {
+        if (f == nullptr) {
+          continue;
+        }
+        FriendSave fs;
+        fs.id = f->id;
+        fs.name = {f->name.begin(), f->name.end()};
+        cs.friends.push_back(std::move(fs));
       }
 
       for (const auto& quest : c->quest) {
@@ -300,6 +313,9 @@ bool GameSaveSystemInstance::SaveGame() {
     // 宠物状态（名字/等级/饱食度/是否激活）
     PetGameInstance::Save(cs);
 
+    // 好友列表
+    FriendGameInstance::Save(cs);
+
     bool replaced = false;
     for (auto& save_character : save_.characters) {
       if (save_character.character.name == character.name) {
@@ -356,6 +372,17 @@ bool GameSaveSystemInstance::SaveGame() {
       pet.closeness = state.closeness;
       pet.active = state.active;
       cst.pets.push_back(std::make_unique<fbs::PetSaveT>(pet));
+    }
+
+    // 好友列表
+    for (const auto& f : character_s.friends) {
+      if (f.id == 0) {
+        continue;
+      }
+      fbs::FriendSaveT fs;
+      fs.id = f.id;
+      fs.name = {f.name.begin(), f.name.end()};
+      cst.friends.push_back(std::make_unique<fbs::FriendSaveT>(fs));
     }
 
     for (auto& quest : character_s.quests) {

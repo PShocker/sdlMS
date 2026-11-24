@@ -36,6 +36,9 @@ table Character{
     decos:[Deco];
 
     states:[State];
+
+    // 人物唯一标识：高32位=创建时间戳(秒)，低32位=随机数。
+    id:uint64;
 }
 
 table Movement{
@@ -307,6 +310,14 @@ table CharacterSave{
     pet:PetSave;
     // 拥有的全部宠物状态（095：每个宠物道具都有独立的等级/饱食度/名字）
     pets:[PetSave];
+    // 好友列表（用人物唯一 id 标识）
+    friends:[FriendSave];
+}
+
+// 好友存档：id 为好友的人物唯一标识（高32位创建时间戳+低32位随机数）
+table FriendSave{
+    id:uint64;
+    name:[uint16];
 }
 
 table PlayerSave{

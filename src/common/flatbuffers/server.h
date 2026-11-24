@@ -2929,6 +2929,7 @@ struct ServerCharacterTradeT : public ::flatbuffers::NativeTable {
   uint8_t step = 0;
   std::unique_ptr<fbs::PlayerT> player{};
   std::vector<fbs::ItemUnionUnion> payload{};
+  uint64_t meso = 0;
   ServerCharacterTradeT() = default;
   ServerCharacterTradeT(const ServerCharacterTradeT &o);
   ServerCharacterTradeT(ServerCharacterTradeT&&) FLATBUFFERS_NOEXCEPT = default;
@@ -2942,7 +2943,8 @@ struct ServerCharacterTrade FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tab
     VT_STEP = 4,
     VT_PLAYER = 6,
     VT_PAYLOAD_TYPE = 8,
-    VT_PAYLOAD = 10
+    VT_PAYLOAD = 10,
+    VT_MESO = 12
   };
   uint8_t step() const {
     return GetField<uint8_t>(VT_STEP, 0);
@@ -2968,6 +2970,12 @@ struct ServerCharacterTrade FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tab
   ::flatbuffers::Vector<::flatbuffers::Offset<void>> *mutable_payload() {
     return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<void>> *>(VT_PAYLOAD);
   }
+  uint64_t meso() const {
+    return GetField<uint64_t>(VT_MESO, 0);
+  }
+  bool mutate_meso(uint64_t _meso = 0) {
+    return SetField<uint64_t>(VT_MESO, _meso, 0);
+  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -2979,6 +2987,7 @@ struct ServerCharacterTrade FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tab
            VerifyOffset(verifier, VT_PAYLOAD) &&
            verifier.VerifyVector(payload()) &&
            VerifyItemUnionVector(verifier, payload(), payload_type()) &&
+           VerifyField<uint64_t>(verifier, VT_MESO, 8) &&
            verifier.EndTable();
   }
   ServerCharacterTradeT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -3002,6 +3011,9 @@ struct ServerCharacterTradeBuilder {
   void add_payload(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<void>>> payload) {
     fbb_.AddOffset(ServerCharacterTrade::VT_PAYLOAD, payload);
   }
+  void add_meso(uint64_t meso) {
+    fbb_.AddElement<uint64_t>(ServerCharacterTrade::VT_MESO, meso, 0);
+  }
   explicit ServerCharacterTradeBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -3018,8 +3030,10 @@ inline ::flatbuffers::Offset<ServerCharacterTrade> CreateServerCharacterTrade(
     uint8_t step = 0,
     ::flatbuffers::Offset<fbs::Player> player = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> payload_type = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<void>>> payload = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<void>>> payload = 0,
+    uint64_t meso = 0) {
   ServerCharacterTradeBuilder builder_(_fbb);
+  builder_.add_meso(meso);
   builder_.add_payload(payload);
   builder_.add_payload_type(payload_type);
   builder_.add_player(player);
@@ -3032,7 +3046,8 @@ inline ::flatbuffers::Offset<ServerCharacterTrade> CreateServerCharacterTradeDir
     uint8_t step = 0,
     ::flatbuffers::Offset<fbs::Player> player = 0,
     const std::vector<uint8_t> *payload_type = nullptr,
-    const std::vector<::flatbuffers::Offset<void>> *payload = nullptr) {
+    const std::vector<::flatbuffers::Offset<void>> *payload = nullptr,
+    uint64_t meso = 0) {
   auto payload_type__ = payload_type ? _fbb.CreateVector<uint8_t>(*payload_type) : 0;
   auto payload__ = payload ? _fbb.CreateVector<::flatbuffers::Offset<void>>(*payload) : 0;
   return fbs::CreateServerCharacterTrade(
@@ -3040,7 +3055,8 @@ inline ::flatbuffers::Offset<ServerCharacterTrade> CreateServerCharacterTradeDir
       step,
       player,
       payload_type__,
-      payload__);
+      payload__,
+      meso);
 }
 
 ::flatbuffers::Offset<ServerCharacterTrade> CreateServerCharacterTrade(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterTradeT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -5299,13 +5315,15 @@ inline ::flatbuffers::Offset<ServerCharacterInfo> ServerCharacterInfo::Pack(::fl
 inline ServerCharacterTradeT::ServerCharacterTradeT(const ServerCharacterTradeT &o)
       : step(o.step),
         player((o.player) ? new fbs::PlayerT(*o.player) : nullptr),
-        payload(o.payload) {
+        payload(o.payload),
+        meso(o.meso) {
 }
 
 inline ServerCharacterTradeT &ServerCharacterTradeT::operator=(ServerCharacterTradeT o) FLATBUFFERS_NOEXCEPT {
   std::swap(step, o.step);
   std::swap(player, o.player);
   std::swap(payload, o.payload);
+  std::swap(meso, o.meso);
   return *this;
 }
 
@@ -5322,6 +5340,7 @@ inline void ServerCharacterTrade::UnPackTo(ServerCharacterTradeT *_o, const ::fl
   { auto _e = player(); if (_e) { if(_o->player) { _e->UnPackTo(_o->player.get(), _resolver); } else { _o->player = std::unique_ptr<fbs::PlayerT>(_e->UnPack(_resolver)); } } else if (_o->player) { _o->player.reset(); } }
   { auto _e = payload_type(); if (_e) { _o->payload.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->payload[_i].type = static_cast<fbs::ItemUnion>(_e->Get(_i)); } } else { _o->payload.resize(0); } }
   { auto _e = payload(); if (_e) { _o->payload.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->payload[_i].value = fbs::ItemUnionUnion::UnPack(_e->Get(_i), payload_type()->GetEnum<ItemUnion>(_i), _resolver); } } else { _o->payload.resize(0); } }
+  { auto _e = meso(); _o->meso = _e; }
 }
 
 inline ::flatbuffers::Offset<ServerCharacterTrade> CreateServerCharacterTrade(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterTradeT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -5336,12 +5355,14 @@ inline ::flatbuffers::Offset<ServerCharacterTrade> ServerCharacterTrade::Pack(::
   auto _player = _o->player ? CreatePlayer(_fbb, _o->player.get(), _rehasher) : 0;
   auto _payload_type = _o->payload.size() ? _fbb.CreateVector<uint8_t>(_o->payload.size(), [](size_t i, _VectorArgs *__va) { return static_cast<uint8_t>(__va->__o->payload[i].type); }, &_va) : 0;
   auto _payload = _o->payload.size() ? _fbb.CreateVector<::flatbuffers::Offset<void>>(_o->payload.size(), [](size_t i, _VectorArgs *__va) { return __va->__o->payload[i].Pack(*__va->__fbb, __va->__rehasher); }, &_va) : 0;
+  auto _meso = _o->meso;
   return fbs::CreateServerCharacterTrade(
       _fbb,
       _step,
       _player,
       _payload_type,
-      _payload);
+      _payload,
+      _meso);
 }
 
 inline ServerCharacterMvT::ServerCharacterMvT(const ServerCharacterMvT &o)

@@ -189,6 +189,8 @@ table ServerCharacterTrade {
    step:uint8;
    player:Player;
    payload:[ItemUnion];
+   // 交易金币（meso）报价
+   meso:uint64;
 }
 
 

@@ -808,6 +808,7 @@ void ServerCharacterInstance::LoadGCharacter(
 
   g_character.fame = c->fame;
   g_character.level = c->level;
+  g_character.id = c->id;
   g_character.job = {c->job.begin(), c->job.end()};
   g_character.face.action = {
       c->face->face_action.begin(),
@@ -931,6 +932,7 @@ fbs::CharacterT ServerCharacterInstance::LoadCharactert(
   c.face->face_action = std::string{g.face.action.begin(), g.face.action.end()};
   c.job = std::string{g.job.begin(), g.job.end()};
   c.level = g.level;
+  c.id = g.id;
 
   return c;
 }

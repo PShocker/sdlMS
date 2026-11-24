@@ -159,6 +159,10 @@ struct CharacterSave;
 struct CharacterSaveBuilder;
 struct CharacterSaveT;
 
+struct FriendSave;
+struct FriendSaveBuilder;
+struct FriendSaveT;
+
 struct PlayerSave;
 struct PlayerSaveBuilder;
 struct PlayerSaveT;
@@ -670,6 +674,7 @@ struct CharacterT : public ::flatbuffers::NativeTable {
   std::vector<std::unique_ptr<fbs::EquipT>> equips{};
   std::vector<std::unique_ptr<fbs::DecoT>> decos{};
   std::vector<std::unique_ptr<fbs::StateT>> states{};
+  uint64_t id = 0;
   CharacterT() = default;
   CharacterT(const CharacterT &o);
   CharacterT(CharacterT&&) FLATBUFFERS_NOEXCEPT = default;
@@ -689,7 +694,8 @@ struct Character FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_FACE = 16,
     VT_EQUIPS = 18,
     VT_DECOS = 20,
-    VT_STATES = 22
+    VT_STATES = 22,
+    VT_ID = 24
   };
   const ::flatbuffers::Vector<uint16_t> *name() const {
     return GetPointer<const ::flatbuffers::Vector<uint16_t> *>(VT_NAME);
@@ -751,6 +757,12 @@ struct Character FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   ::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>> *mutable_states() {
     return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>> *>(VT_STATES);
   }
+  uint64_t id() const {
+    return GetField<uint64_t>(VT_ID, 0);
+  }
+  bool mutate_id(uint64_t _id = 0) {
+    return SetField<uint64_t>(VT_ID, _id, 0);
+  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -775,6 +787,7 @@ struct Character FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyOffset(verifier, VT_STATES) &&
            verifier.VerifyVector(states()) &&
            verifier.VerifyVectorOfTables(states()) &&
+           VerifyField<uint64_t>(verifier, VT_ID, 8) &&
            verifier.EndTable();
   }
   CharacterT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -816,6 +829,9 @@ struct CharacterBuilder {
   void add_states(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>>> states) {
     fbb_.AddOffset(Character::VT_STATES, states);
   }
+  void add_id(uint64_t id) {
+    fbb_.AddElement<uint64_t>(Character::VT_ID, id, 0);
+  }
   explicit CharacterBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -838,8 +854,10 @@ inline ::flatbuffers::Offset<Character> CreateCharacter(
     ::flatbuffers::Offset<fbs::Face> face = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Equip>>> equips = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Deco>>> decos = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>>> states = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>>> states = 0,
+    uint64_t id = 0) {
   CharacterBuilder builder_(_fbb);
+  builder_.add_id(id);
   builder_.add_states(states);
   builder_.add_decos(decos);
   builder_.add_equips(equips);
@@ -864,7 +882,8 @@ inline ::flatbuffers::Offset<Character> CreateCharacterDirect(
     ::flatbuffers::Offset<fbs::Face> face = 0,
     const std::vector<::flatbuffers::Offset<fbs::Equip>> *equips = nullptr,
     const std::vector<::flatbuffers::Offset<fbs::Deco>> *decos = nullptr,
-    const std::vector<::flatbuffers::Offset<fbs::State>> *states = nullptr) {
+    const std::vector<::flatbuffers::Offset<fbs::State>> *states = nullptr,
+    uint64_t id = 0) {
   auto name__ = name ? _fbb.CreateVector<uint16_t>(*name) : 0;
   auto job__ = job ? _fbb.CreateString(job) : 0;
   auto equips__ = equips ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Equip>>(*equips) : 0;
@@ -881,7 +900,8 @@ inline ::flatbuffers::Offset<Character> CreateCharacterDirect(
       face,
       equips__,
       decos__,
-      states__);
+      states__,
+      id);
 }
 
 ::flatbuffers::Offset<Character> CreateCharacter(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -4222,6 +4242,7 @@ struct CharacterSaveT : public ::flatbuffers::NativeTable {
   std::vector<std::unique_ptr<fbs::CraftSaveT>> craft{};
   std::unique_ptr<fbs::PetSaveT> pet{};
   std::vector<std::unique_ptr<fbs::PetSaveT>> pets{};
+  std::vector<std::unique_ptr<fbs::FriendSaveT>> friends{};
   CharacterSaveT() = default;
   CharacterSaveT(const CharacterSaveT &o);
   CharacterSaveT(CharacterSaveT&&) FLATBUFFERS_NOEXCEPT = default;
@@ -4250,7 +4271,8 @@ struct CharacterSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_KEY = 34,
     VT_CRAFT = 36,
     VT_PET = 38,
-    VT_PETS = 40
+    VT_PETS = 40,
+    VT_FRIENDS = 42
   };
   const fbs::Character *character() const {
     return GetPointer<const fbs::Character *>(VT_CHARACTER);
@@ -4366,6 +4388,12 @@ struct CharacterSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   ::flatbuffers::Vector<::flatbuffers::Offset<fbs::PetSave>> *mutable_pets() {
     return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::PetSave>> *>(VT_PETS);
   }
+  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::FriendSave>> *friends() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::FriendSave>> *>(VT_FRIENDS);
+  }
+  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::FriendSave>> *mutable_friends() {
+    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::FriendSave>> *>(VT_FRIENDS);
+  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -4406,6 +4434,9 @@ struct CharacterSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyOffset(verifier, VT_PETS) &&
            verifier.VerifyVector(pets()) &&
            verifier.VerifyVectorOfTables(pets()) &&
+           VerifyOffset(verifier, VT_FRIENDS) &&
+           verifier.VerifyVector(friends()) &&
+           verifier.VerifyVectorOfTables(friends()) &&
            verifier.EndTable();
   }
   CharacterSaveT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -4474,6 +4505,9 @@ struct CharacterSaveBuilder {
   void add_pets(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::PetSave>>> pets) {
     fbb_.AddOffset(CharacterSave::VT_PETS, pets);
   }
+  void add_friends(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::FriendSave>>> friends) {
+    fbb_.AddOffset(CharacterSave::VT_FRIENDS, friends);
+  }
   explicit CharacterSaveBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -4505,10 +4539,12 @@ inline ::flatbuffers::Offset<CharacterSave> CreateCharacterSave(
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::KeyConfigSave>>> key = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::CraftSave>>> craft = 0,
     ::flatbuffers::Offset<fbs::PetSave> pet = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::PetSave>>> pets = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::PetSave>>> pets = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::FriendSave>>> friends = 0) {
   CharacterSaveBuilder builder_(_fbb);
   builder_.add_exp(exp);
   builder_.add_meso(meso);
+  builder_.add_friends(friends);
   builder_.add_pets(pets);
   builder_.add_pet(pet);
   builder_.add_craft(craft);
@@ -4549,7 +4585,8 @@ inline ::flatbuffers::Offset<CharacterSave> CreateCharacterSaveDirect(
     const std::vector<::flatbuffers::Offset<fbs::KeyConfigSave>> *key = nullptr,
     const std::vector<::flatbuffers::Offset<fbs::CraftSave>> *craft = nullptr,
     ::flatbuffers::Offset<fbs::PetSave> pet = 0,
-    const std::vector<::flatbuffers::Offset<fbs::PetSave>> *pets = nullptr) {
+    const std::vector<::flatbuffers::Offset<fbs::PetSave>> *pets = nullptr,
+    const std::vector<::flatbuffers::Offset<fbs::FriendSave>> *friends = nullptr) {
   auto sp__ = sp ? _fbb.CreateVector<::flatbuffers::Offset<fbs::SPSave>>(*sp) : 0;
   auto remain_sp__ = remain_sp ? _fbb.CreateVector<uint32_t>(*remain_sp) : 0;
   auto package__ = package ? _fbb.CreateVector<::flatbuffers::Offset<fbs::PackageSave>>(*package) : 0;
@@ -4558,6 +4595,7 @@ inline ::flatbuffers::Offset<CharacterSave> CreateCharacterSaveDirect(
   auto key__ = key ? _fbb.CreateVector<::flatbuffers::Offset<fbs::KeyConfigSave>>(*key) : 0;
   auto craft__ = craft ? _fbb.CreateVector<::flatbuffers::Offset<fbs::CraftSave>>(*craft) : 0;
   auto pets__ = pets ? _fbb.CreateVector<::flatbuffers::Offset<fbs::PetSave>>(*pets) : 0;
+  auto friends__ = friends ? _fbb.CreateVector<::flatbuffers::Offset<fbs::FriendSave>>(*friends) : 0;
   return fbs::CreateCharacterSave(
       _fbb,
       character,
@@ -4578,10 +4616,93 @@ inline ::flatbuffers::Offset<CharacterSave> CreateCharacterSaveDirect(
       key__,
       craft__,
       pet,
-      pets__);
+      pets__,
+      friends__);
 }
 
 ::flatbuffers::Offset<CharacterSave> CreateCharacterSave(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterSaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct FriendSaveT : public ::flatbuffers::NativeTable {
+  typedef FriendSave TableType;
+  uint64_t id = 0;
+  std::vector<uint16_t> name{};
+};
+
+struct FriendSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef FriendSaveT NativeTableType;
+  typedef FriendSaveBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_ID = 4,
+    VT_NAME = 6
+  };
+  uint64_t id() const {
+    return GetField<uint64_t>(VT_ID, 0);
+  }
+  bool mutate_id(uint64_t _id = 0) {
+    return SetField<uint64_t>(VT_ID, _id, 0);
+  }
+  const ::flatbuffers::Vector<uint16_t> *name() const {
+    return GetPointer<const ::flatbuffers::Vector<uint16_t> *>(VT_NAME);
+  }
+  ::flatbuffers::Vector<uint16_t> *mutable_name() {
+    return GetPointer<::flatbuffers::Vector<uint16_t> *>(VT_NAME);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint64_t>(verifier, VT_ID, 8) &&
+           VerifyOffset(verifier, VT_NAME) &&
+           verifier.VerifyVector(name()) &&
+           verifier.EndTable();
+  }
+  FriendSaveT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(FriendSaveT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<FriendSave> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const FriendSaveT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct FriendSaveBuilder {
+  typedef FriendSave Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_id(uint64_t id) {
+    fbb_.AddElement<uint64_t>(FriendSave::VT_ID, id, 0);
+  }
+  void add_name(::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> name) {
+    fbb_.AddOffset(FriendSave::VT_NAME, name);
+  }
+  explicit FriendSaveBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<FriendSave> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<FriendSave>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<FriendSave> CreateFriendSave(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t id = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> name = 0) {
+  FriendSaveBuilder builder_(_fbb);
+  builder_.add_id(id);
+  builder_.add_name(name);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<FriendSave> CreateFriendSaveDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t id = 0,
+    const std::vector<uint16_t> *name = nullptr) {
+  auto name__ = name ? _fbb.CreateVector<uint16_t>(*name) : 0;
+  return fbs::CreateFriendSave(
+      _fbb,
+      id,
+      name__);
+}
+
+::flatbuffers::Offset<FriendSave> CreateFriendSave(::flatbuffers::FlatBufferBuilder &_fbb, const FriendSaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
 struct PlayerSaveT : public ::flatbuffers::NativeTable {
   typedef PlayerSave TableType;
@@ -4970,7 +5091,8 @@ inline CharacterT::CharacterT(const CharacterT &o)
         level(o.level),
         state((o.state) ? new fbs::LifeStateT(*o.state) : nullptr),
         appearance((o.appearance) ? new fbs::CharacterAppearanceT(*o.appearance) : nullptr),
-        face((o.face) ? new fbs::FaceT(*o.face) : nullptr) {
+        face((o.face) ? new fbs::FaceT(*o.face) : nullptr),
+        id(o.id) {
   equips.reserve(o.equips.size());
   for (const auto &equips_ : o.equips) { equips.emplace_back((equips_) ? new fbs::EquipT(*equips_) : nullptr); }
   decos.reserve(o.decos.size());
@@ -4990,6 +5112,7 @@ inline CharacterT &CharacterT::operator=(CharacterT o) FLATBUFFERS_NOEXCEPT {
   std::swap(equips, o.equips);
   std::swap(decos, o.decos);
   std::swap(states, o.states);
+  std::swap(id, o.id);
   return *this;
 }
 
@@ -5012,6 +5135,7 @@ inline void Character::UnPackTo(CharacterT *_o, const ::flatbuffers::resolver_fu
   { auto _e = equips(); if (_e) { _o->equips.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->equips[_i]) { _e->Get(_i)->UnPackTo(_o->equips[_i].get(), _resolver); } else { _o->equips[_i] = std::unique_ptr<fbs::EquipT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->equips.resize(0); } }
   { auto _e = decos(); if (_e) { _o->decos.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->decos[_i]) { _e->Get(_i)->UnPackTo(_o->decos[_i].get(), _resolver); } else { _o->decos[_i] = std::unique_ptr<fbs::DecoT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->decos.resize(0); } }
   { auto _e = states(); if (_e) { _o->states.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->states[_i]) { _e->Get(_i)->UnPackTo(_o->states[_i].get(), _resolver); } else { _o->states[_i] = std::unique_ptr<fbs::StateT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->states.resize(0); } }
+  { auto _e = id(); _o->id = _e; }
 }
 
 inline ::flatbuffers::Offset<Character> CreateCharacter(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -5032,6 +5156,7 @@ inline ::flatbuffers::Offset<Character> Character::Pack(::flatbuffers::FlatBuffe
   auto _equips = _o->equips.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Equip>> (_o->equips.size(), [](size_t i, _VectorArgs *__va) { return CreateEquip(*__va->__fbb, __va->__o->equips[i].get(), __va->__rehasher); }, &_va ) : 0;
   auto _decos = _o->decos.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Deco>> (_o->decos.size(), [](size_t i, _VectorArgs *__va) { return CreateDeco(*__va->__fbb, __va->__o->decos[i].get(), __va->__rehasher); }, &_va ) : 0;
   auto _states = _o->states.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::State>> (_o->states.size(), [](size_t i, _VectorArgs *__va) { return CreateState(*__va->__fbb, __va->__o->states[i].get(), __va->__rehasher); }, &_va ) : 0;
+  auto _id = _o->id;
   return fbs::CreateCharacter(
       _fbb,
       _name,
@@ -5043,7 +5168,8 @@ inline ::flatbuffers::Offset<Character> Character::Pack(::flatbuffers::FlatBuffe
       _face,
       _equips,
       _decos,
-      _states);
+      _states,
+      _id);
 }
 
 inline MovementT *Movement::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
@@ -6297,6 +6423,8 @@ inline CharacterSaveT::CharacterSaveT(const CharacterSaveT &o)
   for (const auto &craft_ : o.craft) { craft.emplace_back((craft_) ? new fbs::CraftSaveT(*craft_) : nullptr); }
   pets.reserve(o.pets.size());
   for (const auto &pets_ : o.pets) { pets.emplace_back((pets_) ? new fbs::PetSaveT(*pets_) : nullptr); }
+  friends.reserve(o.friends.size());
+  for (const auto &friends_ : o.friends) { friends.emplace_back((friends_) ? new fbs::FriendSaveT(*friends_) : nullptr); }
 }
 
 inline CharacterSaveT &CharacterSaveT::operator=(CharacterSaveT o) FLATBUFFERS_NOEXCEPT {
@@ -6319,6 +6447,7 @@ inline CharacterSaveT &CharacterSaveT::operator=(CharacterSaveT o) FLATBUFFERS_N
   std::swap(craft, o.craft);
   std::swap(pet, o.pet);
   std::swap(pets, o.pets);
+  std::swap(friends, o.friends);
   return *this;
 }
 
@@ -6350,6 +6479,7 @@ inline void CharacterSave::UnPackTo(CharacterSaveT *_o, const ::flatbuffers::res
   { auto _e = craft(); if (_e) { _o->craft.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->craft[_i]) { _e->Get(_i)->UnPackTo(_o->craft[_i].get(), _resolver); } else { _o->craft[_i] = std::unique_ptr<fbs::CraftSaveT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->craft.resize(0); } }
   { auto _e = pet(); if (_e) { if(_o->pet) { _e->UnPackTo(_o->pet.get(), _resolver); } else { _o->pet = std::unique_ptr<fbs::PetSaveT>(_e->UnPack(_resolver)); } } else if (_o->pet) { _o->pet.reset(); } }
   { auto _e = pets(); if (_e) { _o->pets.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->pets[_i]) { _e->Get(_i)->UnPackTo(_o->pets[_i].get(), _resolver); } else { _o->pets[_i] = std::unique_ptr<fbs::PetSaveT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->pets.resize(0); } }
+  { auto _e = friends(); if (_e) { _o->friends.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->friends[_i]) { _e->Get(_i)->UnPackTo(_o->friends[_i].get(), _resolver); } else { _o->friends[_i] = std::unique_ptr<fbs::FriendSaveT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->friends.resize(0); } }
 }
 
 inline ::flatbuffers::Offset<CharacterSave> CreateCharacterSave(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterSaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -6379,6 +6509,7 @@ inline ::flatbuffers::Offset<CharacterSave> CharacterSave::Pack(::flatbuffers::F
   auto _craft = _o->craft.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::CraftSave>> (_o->craft.size(), [](size_t i, _VectorArgs *__va) { return CreateCraftSave(*__va->__fbb, __va->__o->craft[i].get(), __va->__rehasher); }, &_va ) : 0;
   auto _pet = _o->pet ? CreatePetSave(_fbb, _o->pet.get(), _rehasher) : 0;
   auto _pets = _o->pets.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::PetSave>> (_o->pets.size(), [](size_t i, _VectorArgs *__va) { return CreatePetSave(*__va->__fbb, __va->__o->pets[i].get(), __va->__rehasher); }, &_va ) : 0;
+  auto _friends = _o->friends.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::FriendSave>> (_o->friends.size(), [](size_t i, _VectorArgs *__va) { return CreateFriendSave(*__va->__fbb, __va->__o->friends[i].get(), __va->__rehasher); }, &_va ) : 0;
   return fbs::CreateCharacterSave(
       _fbb,
       _character,
@@ -6399,7 +6530,37 @@ inline ::flatbuffers::Offset<CharacterSave> CharacterSave::Pack(::flatbuffers::F
       _key,
       _craft,
       _pet,
-      _pets);
+      _pets,
+      _friends);
+}
+
+inline FriendSaveT *FriendSave::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<FriendSaveT>(new FriendSaveT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void FriendSave::UnPackTo(FriendSaveT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = id(); _o->id = _e; }
+  { auto _e = name(); if (_e) { _o->name.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->name[_i] = _e->Get(_i); } } else { _o->name.resize(0); } }
+}
+
+inline ::flatbuffers::Offset<FriendSave> CreateFriendSave(::flatbuffers::FlatBufferBuilder &_fbb, const FriendSaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return FriendSave::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<FriendSave> FriendSave::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const FriendSaveT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const FriendSaveT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _id = _o->id;
+  auto _name = _o->name.size() ? _fbb.CreateVector(_o->name) : 0;
+  return fbs::CreateFriendSave(
+      _fbb,
+      _id,
+      _name);
 }
 
 inline PlayerSaveT::PlayerSaveT(const PlayerSaveT &o)

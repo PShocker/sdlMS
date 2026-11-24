@@ -10,6 +10,7 @@
 #include "src/client/game_instance/pet_game_instance.h"
 #include "src/client/system/input/keyboard_input_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/cash_shop_ui_system.h"
 #include "src/client/system/ui/character_stat_ui_system.h"
 #include "src/client/system/ui/chat_log_ui_system.h"
 #include "src/client/system/ui/component/text_input.h"
@@ -552,6 +553,8 @@ bool StatusbarUiSystem::CursorIn() {
 }
 
 void StatusbarUiSystem::EventButtonCashshop() {
+  // 打开/关闭现金商店覆盖层（参考 095 CCashShop：ESC 或按钮退出）。
+  CashShopUiSystem::Toggle();
   return;
 }
 
@@ -712,7 +715,8 @@ void StatusbarUiSystem::EventChatSend() {
   if (chat_.text == u"") {
     return;
   }
-  // 095 CPet::ParseCommand：聊天框里输入宠物命令时由宠物响应，不再当作聊天发出。
+  // 095
+  // CPet::ParseCommand：聊天框里输入宠物命令时由宠物响应，不再当作聊天发出。
   if (PetGameInstance::RunCommand(chat_.text)) {
     Reset();
     return;

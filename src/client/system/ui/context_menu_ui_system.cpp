@@ -1,14 +1,16 @@
 #include "src/client/system/ui/context_menu_ui_system.h"
 
-#include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/audio_game_instance.h"
+#include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
+#include "src/client/game_instance/friend_game_instance.h"
 #include "src/client/game_instance/text_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/character_info_ui_system.h"
 #include "src/client/system/ui/component/ui_component.h"
+#include "src/client/system/ui/user_list_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
 #include "src/common/request/client_request.h"
@@ -152,7 +154,27 @@ void ContextMenuUiSystem::EventButtonTrade() {
   ClientRequest::SendToHost(ct);
 }
 
-void ContextMenuUiSystem::EventButtonFriend() {}
+void ContextMenuUiSystem::EventButtonFriend() {
+  // 好友标识使用人物唯一 id（高32位创建时间戳 + 低32位随机数）。
+  uint64_t target_id = 0;
+  std::u16string target_name;
+  if (client_id_ == ServerMain::local_addr_) {
+    target_id = CharacterGameInstance::self_.id;
+    target_name = CharacterGameInstance::self_.name;
+  } else if (CharacterGameInstance::others_.contains(client_id_)) {
+    const auto& g = CharacterGameInstance::others_[client_id_].g_character;
+    target_id = g.id;
+    target_name = g.name;
+  }
+  if (target_id == 0 || target_id == CharacterGameInstance::self_.id) {
+    return;
+  }
+  if (FriendGameInstance::Add(target_id, target_name)) {
+    AudioGameInstance::PlayNow(u"UI.img/ScrollUp");
+    // 加好后直接打开好友列表方便查看。
+    UserListUiSystem::Open();
+  }
+}
 
 void ContextMenuUiSystem::EventButtonChat() {}
 
