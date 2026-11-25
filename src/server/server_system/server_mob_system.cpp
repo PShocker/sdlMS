@@ -1827,8 +1827,9 @@ bool ServerMobSystem::RunFall(ServerMob& mob) {
     // 落地
     mob.vspeed = 0;
     mob.hspeed = 0;
-    // 死亡动作不能因为落地切回 stand，否则尸体会停在死亡帧
-    if (!mob.dead) {
+    // 死亡动作不能因为落地切回 stand，否则尸体会停在死亡帧；
+    // 受击动作（hit1）也不能被落地打断，交给 RunHitCheck 按动画时长结束。
+    if (!mob.dead && !mob.action.starts_with(u"hit")) {
       RunSetAction(mob, LoadDefaultAction(mob));
     }
     return false;
