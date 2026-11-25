@@ -94,6 +94,11 @@ class CharacterLogicSystem {
   static void RunAnimateChair(GameCharacter& g_character);
 
  public:
+  // 让外部（如商城的试穿小人）也能推进脸部表情动画。
+  static void FaceAnimate(GameCharacter& g_character) {
+    RunFaceAnimate(g_character);
+  }
+
   // 095 CAvatar::SetAlertMode：攻击/技能/受击后 5 秒的 alert 状态。
   static bool IsAlert();
   static inline fbs::ClientCharacterStateT ccs_;

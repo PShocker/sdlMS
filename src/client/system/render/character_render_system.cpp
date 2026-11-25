@@ -19,7 +19,6 @@
 #include <wz/Wz.h>
 
 #include <cstdint>
-#include <cstdio>
 #include <flat_map>
 #include <flat_set>
 #include <string>
@@ -32,96 +31,93 @@ bool CharacterRenderSystem::RenderCharacter(GameCharacter& g_character) {
   std::flat_multimap<std::u16string, const CharacterAvatar*> renders;
   std::flat_map<std::u16string, const CharacterAvatarRender*> render_parts;
   auto& camera = CameraGameInstance::camera_;
-  const auto& head = CharacterGameInstance::avatar_data_.at(g_character.head);
-  const auto& body = CharacterGameInstance::avatar_data_.at(g_character.body);
-  const auto& hair = CharacterGameInstance::avatar_data_.at(g_character.hair);
-  render_parts.emplace(head.islot, &head);
-  render_parts.emplace(body.islot, &body);
-  render_parts.emplace(hair.islot, &hair);
-  if (g_character.coat_deco.has_value()) {
-    const auto& coat =
-        CharacterGameInstance::avatar_data_.at(g_character.coat_deco->id);
-    render_parts.emplace(coat.islot, &coat);
-  } else if (g_character.coat.has_value()) {
-    const auto& coat =
-        CharacterGameInstance::avatar_data_.at(g_character.coat->id);
-    render_parts.emplace(coat.islot, &coat);
-  } else if (!(g_character.longcoat.has_value() ||
-               g_character.longcoat_deco.has_value())) {
-    const auto& coat = CharacterGameInstance::avatar_data_.at(u"01040000");
-    render_parts.emplace(coat.islot, &coat);
-  }
+  const auto& avatar_data = CharacterGameInstance::avatar_data_;
 
-  if (g_character.cap_deco.has_value()) {
-    const auto& cap =
-        CharacterGameInstance::avatar_data_.at(g_character.cap_deco->id);
-    render_parts.emplace(cap.islot, &cap);
-  } else if (g_character.cap.has_value()) {
-    const auto& cap =
-        CharacterGameInstance::avatar_data_.at(g_character.cap->id);
-    render_parts.emplace(cap.islot, &cap);
-  }
+  // 把某个部位加进渲染表：avatar 缓存里没有就跳过（避免 .at 抛异常）。
+  auto add_part = [&render_parts, &avatar_data](const std::u16string& id,
+                                                const char16_t* slot = nullptr) {
+    if (id.empty()) {
+      return false;
+    }
+    auto it = avatar_data.find(id);
+    if (it == avatar_data.end() || it->second.data.empty()) {
+      return false;
+    }
+    // 有些装备的 islot 是组合值（如武器 WpSi、长袍 MaPn），要显式指定槽位，
+    // 否则 SplitIslot 可能落到错误的分组上（武器会被盾牌挤掉）。
+    render_parts.emplace(slot ? std::u16string(slot) : it->second.islot,
+                         &it->second);
+    return true;
+  };
 
-  bool weapon_deco = false;
-  if (g_character.weapon_deco.has_value()) {
-    if (g_character.weapon.has_value()) {
-      std::u16string sub = g_character.weapon->id.substr(2, 2);
-      std::u16string deco_val = g_character.weapon_deco->id + u"/" + sub;
-      if (CharacterGameInstance::avatar_data_.contains(deco_val)) {
-        weapon_deco = true;
-      }
+  add_part(g_character.head);
+  add_part(g_character.body);
+  add_part(g_character.hair);
+
+  // 长袍会同时覆盖上衣和裤子；没有长袍才画上衣/裤子（点装优先）。
+  bool longcoat = false;
+  if (g_character.longcoat_deco.has_value()) {
+    longcoat = add_part(g_character.longcoat_deco->id, u"Ma");
+  }
+  if (!longcoat && g_character.longcoat.has_value()) {
+    longcoat = add_part(g_character.longcoat->id, u"Ma");
+  }
+  if (!longcoat) {
+    bool coat = false;
+    if (g_character.coat_deco.has_value()) {
+      coat = add_part(g_character.coat_deco->id);
+    }
+    if (!coat && g_character.coat.has_value()) {
+      coat = add_part(g_character.coat->id);
+    }
+    if (!coat) {
+      add_part(u"01040000");
+    }
+    bool pant = false;
+    if (g_character.pant_deco.has_value()) {
+      pant = add_part(g_character.pant_deco->id);
+    }
+    if (!pant && g_character.pant.has_value()) {
+      pant = add_part(g_character.pant->id);
+    }
+    if (!pant) {
+      add_part(u"01060000");
     }
   }
-  if (weapon_deco) {
-    std::u16string sub = g_character.weapon->id.substr(2, 2);
-    std::u16string deco_val = g_character.weapon_deco->id + u"/" + sub;
-    const auto& weapon = CharacterGameInstance::avatar_data_.at(deco_val);
-    render_parts.emplace(weapon.islot, &weapon);
-  } else if (g_character.weapon.has_value()) {
-    const auto& weapon =
-        CharacterGameInstance::avatar_data_.at(g_character.weapon->id);
-    render_parts.emplace(weapon.islot, &weapon);
+
+  // 帽子 / 披风 / 手套 / 鞋 / 盾牌 / 饰品：点装优先，其次普通装备。
+  auto add_slot = [&add_part](const std::optional<GameDecoItem>& deco,
+                              const std::optional<GameEquipItem>& equip) {
+    if (deco.has_value() && add_part(deco->id)) {
+      return;
+    }
+    if (equip.has_value()) {
+      add_part(equip->id);
+    }
+  };
+
+  add_slot(g_character.cap_deco, g_character.cap);
+  add_slot(g_character.cape_deco, g_character.cape);
+  add_slot(g_character.glove_deco, g_character.glove);
+  add_slot(g_character.shoes_deco, g_character.shoes);
+  add_slot(g_character.shield_deco, g_character.shield);
+  add_slot(g_character.ring0_deco, g_character.ring0);
+  add_slot(g_character.ring1_deco, g_character.ring1);
+  if (g_character.ring2.has_value()) {
+    add_part(g_character.ring2->id);
   }
-  if (g_character.shield_deco.has_value()) {
-    const auto& shield =
-        CharacterGameInstance::avatar_data_.at(g_character.shield_deco->id);
-    render_parts.emplace(shield.islot, &shield);
-  } else if (g_character.shield.has_value()) {
-    const auto& shield =
-        CharacterGameInstance::avatar_data_.at(g_character.shield->id);
-    render_parts.emplace(shield.islot, &shield);
-  }
-  if (g_character.pant_deco.has_value()) {
-    const auto& pant =
-        CharacterGameInstance::avatar_data_.at(g_character.pant_deco->id);
-    render_parts.emplace(pant.islot, &pant);
-  } else if (g_character.pant.has_value()) {
-    const auto& pant =
-        CharacterGameInstance::avatar_data_.at(g_character.pant->id);
-    render_parts.emplace(pant.islot, &pant);
-  } else if (!(g_character.longcoat.has_value() ||
-               g_character.longcoat_deco.has_value())) {
-    const auto& pant = CharacterGameInstance::avatar_data_.at(u"01060000");
-    render_parts.emplace(pant.islot, &pant);
+  if (g_character.ring3.has_value()) {
+    add_part(g_character.ring3->id);
   }
 
-  if (g_character.glove_deco.has_value()) {
-    const auto& glove =
-        CharacterGameInstance::avatar_data_.at(g_character.glove_deco->id);
-    render_parts.emplace(glove.islot, &glove);
-  } else if (g_character.glove.has_value()) {
-    const auto& glove =
-        CharacterGameInstance::avatar_data_.at(g_character.glove->id);
-    render_parts.emplace(glove.islot, &glove);
+  // 武器点装要按当前武器的动作子目录取（<点装id>/<武器子类>）。
+  bool weapon_deco = false;
+  if (g_character.weapon_deco.has_value() && g_character.weapon.has_value()) {
+    std::u16string sub = g_character.weapon->id.substr(2, 2);
+    weapon_deco = add_part(g_character.weapon_deco->id + u"/" + sub, u"Wp");
   }
-  if (g_character.shoes_deco.has_value()) {
-    const auto& shoes =
-        CharacterGameInstance::avatar_data_.at(g_character.shoes_deco->id);
-    render_parts.emplace(shoes.islot, &shoes);
-  } else if (g_character.shoes.has_value()) {
-    const auto& shoes =
-        CharacterGameInstance::avatar_data_.at(g_character.shoes->id);
-    render_parts.emplace(shoes.islot, &shoes);
+  if (!weapon_deco && g_character.weapon.has_value()) {
+    add_part(g_character.weapon->id, u"Wp");
   }
   std::u16string action = g_character.action;
   auto action_index = g_character.action_index;
@@ -141,6 +137,37 @@ bool CharacterRenderSystem::RenderCharacter(GameCharacter& g_character) {
     render_parts.emplace(face.islot, &face);
   }
 
+  // 饰品（Af 脸饰 / Ay 眼饰 / Ae 耳饰 …）的数据由 LoadAccessoryFace 解析，
+  // 这里按当前表情取出来放进 render_parts，和脸一样交给 zmap 顺序渲染。
+  std::optional<CharacterAvatarRender> accessory_part;
+  const std::u16string acc_id =
+      g_character.accessory_deco.has_value()
+          ? g_character.accessory_deco->id
+          : (g_character.accessory.has_value() ? g_character.accessory->id
+                                               : std::u16string{});
+  if (!acc_id.empty() &&
+      CharacterGameInstance::bone_data_.at(action)[action_index].face) {
+    CharacterGameInstance::LoadAccessoryFace(acc_id);
+    auto fit = CharacterGameInstance::face_data_.find(acc_id);
+    if (fit != CharacterGameInstance::face_data_.end()) {
+      auto& emotions = fit->second.data;
+      // 有些脸饰没有 blink / 其它表情帧，用 default 顶上，
+      // 否则人物眨眼的那几帧脸饰会突然消失。
+      std::u16string acc_emotion = g_character.face.action;
+      if (!emotions.contains(acc_emotion)) {
+        acc_emotion = u"default";
+      }
+      if (emotions.contains(acc_emotion)) {
+        const auto& acc = emotions.at(acc_emotion);
+        if (acc.data.contains(action) &&
+            action_index < acc.data.at(action).size()) {
+          accessory_part = acc;
+          render_parts.emplace(accessory_part->islot, &*accessory_part);
+        }
+      }
+    }
+  }
+
   std::flat_set<std::u16string> smaps_cover;
   for (const auto& index : CharacterGameInstance::zmap2_) {
     if (render_parts.contains(index)) {
@@ -152,7 +179,16 @@ bool CharacterRenderSystem::RenderCharacter(GameCharacter& g_character) {
       std::flat_set<std::u16string> smaps_inter;
       for (const auto& pt : pts) {
         // 获取默认的smap
-        const auto& smaps = CharacterGameInstance::smap_.at(pt.z);
+        // 有些点装的 z 不在遮挡表里（例如 pantsOverShoesBelowMailChest），
+        // 查不到就把这件直接排进渲染队列，不能 at() 抛异常。
+        auto smap_it = CharacterGameInstance::smap_.find(pt.z);
+        if (smap_it == CharacterGameInstance::smap_.end()) {
+          if (!g_character.hide_part.contains(pt.name)) {
+            renders.emplace(pt.z, &pt);
+          }
+          continue;
+        }
+        const auto& smaps = smap_it->second;
         // 求交集
         std::flat_set<std::u16string> smaps_inter2;
         std::ranges::set_intersection(

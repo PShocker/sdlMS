@@ -475,6 +475,123 @@ void CharacterGameInstance::AddFace(GameCharacter& g,
   }
 }
 
+// 脸饰（眼镜/眼罩等 islot=Af 的点装）是按表情存的单张 canvas，
+// 需要像脸一样用 brow 锚点定位，渲染时叠在脸上面（z = accessoryFace）。
+void CharacterGameInstance::LoadAccessoryFace(const std::u16string& val) {
+  if (face_data_.contains(val)) {
+    return;
+  }
+  auto* node = WzResource::character_->find(u"Accessory/" + val + u".img");
+  if (node == nullptr) {
+    return;
+  }
+  auto& f = face_data_[val];
+  auto* children = node->get_children();
+  if (children == nullptr) {
+    return;
+  }
+  // 槽位从 WZ 读：Af 脸饰 / Ay 眼饰 / Ae 耳饰 / As …
+  auto islot = std::u16string{};
+  auto vslot = std::u16string{};
+  if (auto* info = node->find(u"info")) {
+    if (auto* in = info->find(u"islot")) {
+      islot = static_cast<wz::Property<std::u16string>*>(in)->get();
+    }
+    if (auto* vn = info->find(u"vslot")) {
+      vslot = static_cast<wz::Property<std::u16string>*>(vn)->get();
+    }
+  }
+  const auto slot = SplitIslot(islot.empty() ? u"Af" : islot);
+  for (const auto& [emo, nodes] : *children) {
+    if (emo == u"info" || nodes.empty()) {
+      continue;
+    }
+    // 表情节点有时包了一层（default/default 才是 canvas），往下找到 canvas。
+    auto* canvas = nodes[0];
+    for (int depth = 0; depth < 3 && canvas != nullptr &&
+                        canvas->type != wz::Type::Canvas;
+         ++depth) {
+      if (canvas->type == wz::Type::UOL) {
+        canvas = static_cast<wz::Property<wz::WzUOL>*>(canvas)->get_uol();
+        continue;
+      }
+      auto* cc = canvas->get_children();
+      canvas = (cc != nullptr && !cc->empty() && !cc->begin()->second.empty())
+                   ? cc->begin()->second[0]
+                   : nullptr;
+    }
+    if (canvas == nullptr || canvas->type != wz::Type::Canvas) {
+      continue;
+    }
+    // 锚点骨骼也从 WZ 的 map 里读（brow / eye / ear / navel …），
+    // 不再只认 brow：Censor 这类面罩用的就是别的锚点。
+    auto* map_node = canvas->find(u"map");
+    auto* origin = canvas->find(u"origin");
+    auto* map_children =
+        map_node == nullptr ? nullptr : map_node->get_children();
+    if (map_children == nullptr || map_children->empty() ||
+        origin == nullptr) {
+      continue;
+    }
+    auto ori = static_cast<wz::Property<wz::WzVec2D>*>(origin)->get();
+    std::u16string z;
+    if (auto* zn = canvas->find(u"z")) {
+      z = static_cast<wz::Property<std::u16string>*>(zn)->get();
+    }
+    // 没有 z 就按槽位在 smap（z -> 槽位）里反查默认图层。
+    if (z.empty() ||
+        std::ranges::find(zmap_, z) == zmap_.end()) {
+      for (const auto& zz : zmap_) {
+        auto it = smap_.find(zz);
+        if (it != smap_.end() && it->second.contains(slot)) {
+          z = zz;
+          break;
+        }
+      }
+      if (z.empty()) {
+        z = u"accessoryFace";
+      }
+    }
+    auto texture = WzResource::LoadTexture(canvas);
+    for (const auto& [bk, bv] : bone_data_) {
+      for (const auto& cbd : bv) {
+        // 该帧上第一个存在的锚点骨骼。
+        const std::u16string* anchor = nullptr;
+        float anchor_x = 0.0f;
+        float anchor_y = 0.0f;
+        for (const auto& [part, part_nodes] : *map_children) {
+          if (part_nodes.empty() || !cbd.bone_pos.contains(part)) {
+            continue;
+          }
+          auto off =
+              static_cast<wz::Property<wz::WzVec2D>*>(part_nodes[0])->get();
+          anchor = &part;
+          anchor_x = static_cast<float>(off.x);
+          anchor_y = static_cast<float>(off.y);
+          break;
+        }
+        if (anchor == nullptr) {
+          continue;
+        }
+        auto bone_pos = cbd.bone_pos.at(*anchor);
+        CharacterAvatar c;
+        c.texture = texture;
+        c.z = z;
+        c.origin = {static_cast<float>(ori.x), static_cast<float>(ori.y)};
+        c.pos = {bone_pos.x - anchor_x, bone_pos.y - anchor_y};
+        std::vector<CharacterAvatar> vc;
+        vc.push_back(c);
+        f.data[emo].data[bk].push_back(vc);
+      }
+    }
+    f.data[emo].islot = slot;
+    f.data[emo].vslot = SplitVslot(vslot.empty() ? islot : vslot);
+    if (f.data[emo].vslot.empty()) {
+      f.data[emo].vslot = {slot};
+    }
+  }
+}
+
 void CharacterGameInstance::AddRing0Deco(GameCharacter& g,
                                          const std::u16string& val) {
   GameDecoItem g_deco;
@@ -505,17 +622,31 @@ void CharacterGameInstance::AddAvatarCache(const std::u16string& val,
     } else {
       node = character_node->find(type + u"/" + val + u".img");
     }
-    r.islot =
-        static_cast<wz::Property<std::u16string>*>(node->find(u"info/islot"))
-            ->get();
-    r.islot = SplitIslot(r.islot);
+    // 商城里有些商品在 Character.wz 里没有资源，或者武器点装没有当前武器
+    // 类型的子目录（例如只有 30/40 没有 45），这里必须判空，否则会崩。
+    auto* info_islot = node == nullptr ? nullptr : node->find(u"info/islot");
+    auto* info_vslot = node == nullptr ? nullptr : node->find(u"info/vslot");
+    if (node == nullptr || info_islot == nullptr || info_vslot == nullptr) {
+      avatar_data_.erase(v);
+      return;
+    }
+    r.islot = SplitIslot(
+        static_cast<wz::Property<std::u16string>*>(info_islot)->get());
     r.vslot = SplitVslot(
-        static_cast<wz::Property<std::u16string>*>(node->find(u"info/vslot"))
-            ->get());
+        static_cast<wz::Property<std::u16string>*>(info_vslot)->get());
     if (!sub.empty()) {
       node = node->get_child(sub);
+      if (node == nullptr) {
+        avatar_data_.erase(v);
+        return;
+      }
     }
-    auto child = *node->get_children();
+    auto* node_children = node->get_children();
+    if (node_children == nullptr) {
+      avatar_data_.erase(v);
+      return;
+    }
+    auto child = *node_children;
     child.erase(u"info");
     if (type == u"Hair" || type == u"Cap" || type == u"Head") {
       child[u"dead"] = {child[u"jump"].at(0)};
@@ -538,29 +669,36 @@ void CharacterGameInstance::AddAvatarCache(const std::u16string& val,
             part_node =
                 static_cast<wz::Property<wz::WzUOL>*>(part_node)->get_uol();
           }
-          if (part_node->type == wz::Type::Canvas) {
-            CharacterAvatar c;
-            c.texture = WzResource::LoadTexture(part_node);
-            c.z = static_cast<wz::Property<std::u16string>*>(
-                      part_node->get_child(u"z"))
-                      ->get();
-            auto ori = static_cast<wz::Property<wz::WzVec2D>*>(
-                           part_node->get_child(u"origin"))
-                           ->get();
-            c.origin = {static_cast<float>(ori.x), static_cast<float>(ori.y)};
-            auto map_node =
-                part_node->get_child(u"map")->get_children()->begin();
-            auto part_name = map_node->first;
-            auto part_val = map_node->second[0];
-            auto part_val_pos =
-                static_cast<wz::Property<wz::WzVec2D>*>(part_val)->get();
-            auto parent_pos = bone_data_[k][frame].bone_pos.at(part_name);
-
-            c.pos = {parent_pos.x - part_val_pos.x,
-                     parent_pos.y - part_val_pos.y};
-            c.name = bk;
-            r.data[k][frame].push_back(c);
+          // 有些点装的帧里 canvas 缺 z/origin/map，或者 map 里的骨骼名
+          // 在身体数据里不存在；这些都要跳过，不能直接解引用/at。
+          auto* z_node = part_node->get_child(u"z");
+          auto* ori_node = part_node->get_child(u"origin");
+          auto* map_node = part_node->get_child(u"map");
+          auto* map_children =
+              map_node == nullptr ? nullptr : map_node->get_children();
+          if (part_node->type != wz::Type::Canvas || z_node == nullptr ||
+              ori_node == nullptr || map_children == nullptr ||
+              map_children->empty()) {
+            continue;
           }
+          auto part_name = map_children->begin()->first;
+          if (map_children->begin()->second.empty() ||
+              !bone_data_[k][frame].bone_pos.contains(part_name)) {
+            continue;
+          }
+          CharacterAvatar c;
+          c.texture = WzResource::LoadTexture(part_node);
+          c.z = static_cast<wz::Property<std::u16string>*>(z_node)->get();
+          auto ori = static_cast<wz::Property<wz::WzVec2D>*>(ori_node)->get();
+          c.origin = {static_cast<float>(ori.x), static_cast<float>(ori.y)};
+          auto part_val = map_children->begin()->second[0];
+          auto part_val_pos =
+              static_cast<wz::Property<wz::WzVec2D>*>(part_val)->get();
+          auto parent_pos = bone_data_[k][frame].bone_pos.at(part_name);
+          c.pos = {parent_pos.x - part_val_pos.x,
+                   parent_pos.y - part_val_pos.y};
+          c.name = bk;
+          r.data[k][frame].push_back(c);
         }
       }
     }

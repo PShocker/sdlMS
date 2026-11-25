@@ -76,6 +76,7 @@ class CharacterGameInstance {
   static void AddHead(GameCharacter& g, const std::u16string& val);
   static void AddEar(GameCharacter& g, const std::u16string& val);
   static void AddFace(GameCharacter& g, const std::u16string& val);
+  static void LoadAccessoryFace(const std::u16string& val);
   static void AddHair(GameCharacter& g, const std::u16string& val);
   static void AddShoes(GameCharacter& g, const std::u16string& val);
   static void AddWeapon(GameCharacter& g, const std::u16string& val);
