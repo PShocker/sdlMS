@@ -108,6 +108,12 @@ class CharacterLogicSystem {
   static void RunSitChair(GameCharacter& g_character, const std::u16string& id);
   static void RunUnsitChair(GameCharacter& g_character);
 
+  // 骑宠（095 TamingMob / SetRidingVehicle）：
+  // mount_id 是坐骑道具 id（0190xxxx），形态取 TamingMob_000.wz 的实际条目。
+  static void RunMount(GameCharacter& g_character,
+                       const std::u16string& mount_id);
+  static void RunUnmount(GameCharacter& g_character);
+
   static bool RunSkill(GameCharacter& g_character, const std::u16string& id);
 
   static std::vector<uint64_t> RunBuffCheck(GameCharacter& g_character,

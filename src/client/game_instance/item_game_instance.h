@@ -40,6 +40,9 @@ class ItemGameInstance {
   // 所有使用物品的入口共用 1 秒冷却。
   static inline uint64_t item_use_cooldown_ = 0;
   static void UseItem(std::polymorphic<GameItem>& itm);
+
+  // 骑宠道具 id（095：Hog/猪猪 01902000），开发便利：背包保底一张。
+  static void EnsureMountItem();
 };
 
 }  // namespace sdlms

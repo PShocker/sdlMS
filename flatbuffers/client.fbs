@@ -121,8 +121,9 @@ table ClientCharacterFc {
 }
 
 table ClientCharacterParty {
-    step:uint8;
-    to_id:uint64;
+    step:uint8;   // 0=邀请入队 1=接受邀请 2=拒绝邀请 3=退队
+                  // 4=踢人（队长） 5=转让队长（队长）
+    to_id:uint64; // 目标 / 邀请人 / 成员
 }
 
 table ClientReactor {
@@ -163,4 +164,30 @@ table ClientCreateDrop {
     map_id:uint32;
     delay:uint64;
     drops:[Drop];
+}
+
+// 小游戏（五子棋）：进入房间/准备/开局/落子/聊天/悔棋/求和/认输/离开
+table ClientCharacterMinigame {
+    step:uint8;          // 0=进入房间 1=准备 2=开始 3=离开 4=落子
+                         // 5=聊天 6=悔棋请求 7=悔棋答复 8=求和请求
+                         // 9=求和答复 10=认输
+    x:uint8;             // 落子列 / 答复值(1=同意 0=拒绝)
+    y:uint8;             // 落子行
+    chat:[uint16];       // 聊天内容
+}
+
+// 摆摊商品 ShopGoods 定义在 common.fbs（client/server 共用）。
+
+table ClientCharacterShop {
+    step:uint8;          // 0=开摊（chat=店名，goods=货架）
+                         // 1=进店浏览（to_id=摊主）
+                         // 2=购买（to_id=摊主，x=货架序号，y=数量）
+                         // 3=关摊（摊主）/离店（顾客）
+                         // 4=调整货架（重发 goods，仅摊主）
+                         // 5=店内聊天（chat=内容，to_id=摊主）
+    to_id:uint64;        // 摊主 client_id
+    x:uint8;             // 货架序号（购买/调整）
+    y:uint32;            // 购买数量
+    chat:[uint16];       // 店名 / 聊天内容
+    goods:[ShopGoods];   // 货架（开摊/调整）
 }

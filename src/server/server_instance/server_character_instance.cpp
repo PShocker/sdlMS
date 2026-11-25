@@ -20,6 +20,7 @@
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server/server_mob.h"
 #include "src/server/server_instance/server_client_instance.h"
+#include "src/server/server_instance/server_party_instance.h"
 #include "src/server/server_instance/server_scene_instance.h"
 #include "src/server/server_main.h"
 
@@ -965,8 +966,14 @@ void ServerCharacterInstance::HandleState(uint64_t client_id,
                                           fbs::ClientCharacterStateT& r) {
   if (ServerClientInstance::clients_.contains(client_id)) {
     auto& c = ServerClientInstance::clients_.at(client_id).player_t.character;
+    // HP 相关变化后需刷新队友窗口（095 PartyHP 实时同步）。
+    bool hp_changed = false;
     for (const auto& st : r.payload) {
       HandleSaveState(*st, *c);
+      if (st->state == fbs::StateEnum_HP ||
+          st->state == fbs::StateEnum_MAX_HP) {
+        hp_changed = true;
+      }
     }
     auto scenes = ServerSceneInstance::scenes_[r.map_id].clients;
     scenes.erase(client_id);
@@ -975,6 +982,9 @@ void ServerCharacterInstance::HandleState(uint64_t client_id,
     t.payload = std::move(r.payload);
     for (auto c : scenes) {
       ServerResponse::SendToClient(c, t);
+    }
+    if (hp_changed) {
+      ServerPartyInstance::SyncClientParty(client_id);
     }
   }
 }
@@ -991,6 +1001,13 @@ void ServerCharacterInstance::HandleBuffItem(GameCharacter& g_character,
       } else {
         CharacterLogicSystem::RunUnsitChair(g_character);
       }
+    }
+  } else if (item_type == u"TamingMob") {
+    // 骑宠（095 SetRidingVehicle）：远程玩家应用上/下骑。
+    if (st.sub_val == 1) {
+      CharacterLogicSystem::RunMount(g_character, itm_id);
+    } else {
+      CharacterLogicSystem::RunUnmount(g_character);
     }
   } else if (item_type == u"Consume") {
     if (itm_id.starts_with(u"0221")) {

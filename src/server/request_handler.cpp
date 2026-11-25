@@ -18,10 +18,12 @@
 #include "src/server/server_instance/server_client_instance.h"
 #include "src/server/server_instance/server_drop_instance.h"
 #include "src/server/server_instance/server_mob_instance.h"
+#include "src/server/server_instance/server_minigame_instance.h"
 #include "src/server/server_instance/server_party_instance.h"
 #include "src/server/server_instance/server_reactor_instance.h"
 #include "src/server/server_instance/server_region_skill_instance.h"
 #include "src/server/server_instance/server_scene_instance.h"
+#include "src/server/server_instance/server_player_shop_instance.h"
 #include "src/server/server_instance/server_trade_instance.h"
 #include "src/server/server_instance/server_trap_instance.h"
 #include "src/server/server_main.h"
@@ -174,6 +176,20 @@ void RequestHandler::HandleRequest(uint64_t client_id, void* buf,
       fbs::ClientCharacterTradeT r;
       payload->UnPackTo(&r);
       ServerTradeInstance::HandleClient(client_id, r);
+      break;
+    }
+    case fbs::NetPayload_ClientCharacterMinigame: {
+      auto payload = packet->payload_as_ClientCharacterMinigame();
+      fbs::ClientCharacterMinigameT r;
+      payload->UnPackTo(&r);
+      ServerMinigameInstance::HandleClient(client_id, r);
+      break;
+    }
+    case fbs::NetPayload_ClientCharacterShop: {
+      auto payload = packet->payload_as_ClientCharacterShop();
+      fbs::ClientCharacterShopT r;
+      payload->UnPackTo(&r);
+      ServerPlayerShopInstance::HandleClient(client_id, r);
       break;
     }
     case fbs::NetPayload_ClientCharacterBall: {
@@ -442,6 +458,20 @@ void RequestHandler::HandleRequest(uint64_t client_id, void* buf,
       fbs::ServerCharacterTradeT r;
       payload->UnPackTo(&r);
       ServerTradeInstance::HandleServer(client_id, r);
+      break;
+    }
+    case fbs::NetPayload_ServerCharacterMinigame: {
+      auto payload = packet->payload_as_ServerCharacterMinigame();
+      fbs::ServerCharacterMinigameT r;
+      payload->UnPackTo(&r);
+      ServerMinigameInstance::HandleServer(client_id, r);
+      break;
+    }
+    case fbs::NetPayload_ServerCharacterShop: {
+      auto payload = packet->payload_as_ServerCharacterShop();
+      fbs::ServerCharacterShopT r;
+      payload->UnPackTo(&r);
+      ServerPlayerShopInstance::HandleServer(client_id, r);
       break;
     }
     case fbs::NetPayload_ServerCharacterBall: {

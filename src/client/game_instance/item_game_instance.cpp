@@ -3,10 +3,13 @@
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
+#include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/pet_game_instance.h"
 #include "src/client/game_instance/quest_game_instance.h"
 #include "src/client/game_instance/text_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
+#include "src/client/system/ui/minigame_card_ui_system.h"
+#include "src/client/system/ui/minigame_omok_ui_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/common.h"
@@ -26,6 +29,39 @@
 
 namespace sdlms {
 
+namespace {
+
+// 小游戏桌（0408）系列：Item.wz/Etc/0408.img 里的安装类桌具
+//（五子棋 04080000 / 卡片配对 04080100，名称在 String.wz/Etc.img/40800xx）。
+bool IsMinigameTable(const std::u16string& id) {
+  return id.starts_with(u"0408");
+}
+
+// 卡片配对桌（04080100~）。
+bool IsMatchCardsTable(const std::u16string& id) {
+  return id.starts_with(u"040801");
+}
+
+// 骑宠（095 TamingMob）：0190/0191/0193 系列坐骑（猪猪 Hog 等）。
+// 名称/图标不在 WZ 里（精简客户端无 TamingMob 图像），代码合成。
+bool IsMountItem(const std::u16string& id) {
+  return id.starts_with(u"0190") || id.starts_with(u"0191") ||
+         id.starts_with(u"0193");
+}
+
+// 骑宠形态 id（095：道具 → 载具形态，本项目用 TamingMob_000.wz 里实际存在的形态）。
+// 01902000/01902001/01902002…：形态取道具后四位。
+std::u16string LoadMountForm(const std::u16string& item_id) {
+  if (item_id.size() < 8) {
+    return u"1000";
+  }
+  // 01902000 → 1000；其余形态（0001~0025）由道具尾号指定。
+  auto form = item_id.substr(4);
+  return form;
+}
+
+}  // namespace
+
 bool ItemGameInstance::CheckItem(const std::u16string& id) {
   auto r = id.substr(0, 2);
   if (r == u"01") {
@@ -35,10 +71,21 @@ bool ItemGameInstance::CheckItem(const std::u16string& id) {
 }
 
 std::u16string ItemGameInstance::LoadItemText(const std::u16string& id,
-                                              const std::u16string& val) {
+                                               const std::u16string& val) {
+  // 骑宠名称代码内置（095：Hog/猪猪等，本项目 String.wz 无此条目）。
+  if (IsMountItem(id)) {
+    if (val == u"name") {
+      return id.starts_with(u"0190") ? u"Hog \u9a91\u5ba0"
+             : id.starts_with(u"0193") ? u"Riding Mount"
+                                       : u"Taming Mob";
+    }
+    return u"\u4f7f\u7528\u540e\u9a91\u4e58\uff1b\u518d\u6b21\u4f7f\u7528\u4e0b\u9a91\u3002";
+  }
   auto item_type = LoadItemType(id);
-  auto str_node = WzResource::string_->find(item_type + u".img");
-  if (item_type == u"Etc") {
+  // 小游戏桌（0408）的使用类型是 Ins，但名称在 String.wz/Etc.img 下。
+  auto str_type = IsMinigameTable(id) ? u"Etc" : item_type;
+  auto str_node = WzResource::string_->find(str_type + u".img");
+  if (str_type == u"Etc") {
     str_node = str_node->get_child("Etc");
   }
   auto view = id | std::views::drop_while([](char16_t c) { return c == u'0'; });
@@ -61,6 +108,14 @@ std::u16string ItemGameInstance::LoadItemType(const std::u16string& id) {
       {u"03", u"Ins"},  {u"50", u"Pet"},     {u"09", u"Special"},
   };
   auto r = str.substr(0, 2);
+  if (IsMinigameTable(str)) {
+    // 095：小游戏桌按安装类（Setup）处理（使用=开房），但数据放在 Item.wz/Etc。
+    return u"Ins";
+  }
+  if (IsMountItem(str)) {
+    // 095：坐骑道具（190xxxxx：Hog/猪猪等），使用=上骑/下骑。
+    return u"TamingMob";
+  }
   if (auto it = types.find(r); it != types.end()) {
     // 宠物道具（05000000~）在现金栏里，但数据放在 Item.wz/Pet/<7 位 id>.img，
     // 名字在 String.wz/Pet.img 下，这里单独区分，避免按 Cash 找图/文字时崩。
@@ -74,8 +129,21 @@ std::u16string ItemGameInstance::LoadItemType(const std::u16string& id) {
 }
 
 wz::Node* ItemGameInstance::LoadItemInfo(const std::u16string& id,
-                                         uint32_t num) {
+                                          uint32_t num) {
   wz::Node* node = nullptr;
+  if (IsMountItem(id)) {
+    // 骑宠（095 TamingMob）：精简客户端无坐骑图像，合成 info 节点
+    //（icon 用现成画布），保证背包/Tooltip 渲染不踩空。
+    static wz::Node* mount_info = [] {
+      auto* n = new wz::Node(wz::Type::SubProperty, nullptr);
+      auto* icon =
+          WzResource::ui_->find(u"Minigame.img/Popup/icon_public");
+      n->appendChild(u"icon", icon);
+      n->appendChild(u"iconRaw", icon);
+      return n;
+    }();
+    return mount_info;
+  }
   if (id == u"00000000") {
     // 金币图标随数量变化：1-50 / 51-100 / 101-1000 / 1001+。
     std::u16string meso_id = u"09000000";
@@ -93,6 +161,10 @@ wz::Node* ItemGameInstance::LoadItemInfo(const std::u16string& id,
   auto type = LoadItemType(id);
   if (type == u"Ins") {
     type = u"Install";
+  }
+  // 小游戏桌：使用类型是 Install，但 item 数据放在 Item.wz/Etc 下。
+  if (IsMinigameTable(id)) {
+    type = u"Etc";
   }
   if (type == u"Consume" || type == u"Etc" || type == u"Install") {
     auto r = id.substr(0, 4) + u".img";
@@ -148,6 +220,11 @@ std::polymorphic<GameItem> ItemGameInstance::LoadItem(const std::u16string& id,
     GameInstallItem install;
     install.id = id;
     return std::polymorphic<GameItem>(install);
+  } else if (item_type == u"TamingMob") {
+    // 骑宠道具进安装栏（与椅子同栏，双击上/下骑）。
+    GameInstallItem install;
+    install.id = id;
+    return std::polymorphic<GameItem>(install);
   } else if (item_type == u"Pet" || item_type == u"Special") {
     GameCashItem cash;
     cash.id = id;
@@ -163,7 +240,7 @@ std::polymorphic<GameItem> ItemGameInstance::LoadItem(const std::u16string& id,
 int ItemGameInstance::LoadSlotMax(const std::u16string& id) {
   int r = 200;
   auto info = LoadItemInfo(id, 0);
-  if (info->get_child(u"slotMax")) {
+  if (info != nullptr && info->get_child(u"slotMax")) {
     r = static_cast<wz::Property<int>*>(info->get_child(u"slotMax"))->get();
   }
   return r;
@@ -275,6 +352,10 @@ void ItemGameInstance::DecItemNum(std::polymorphic<GameItem>& item, int num) {
 
 void ItemGameInstance::UseMorphItem(const std::u16string& id,
                                     GameCharacter& g_character) {
+  // 095：变身与骑乘互斥，骑乘中不能使用变身药水。
+  if (!g_character.mount.empty()) {
+    return;
+  }
   auto info = ItemGameInstance::LoadItemInfo(id, 0);
   info = info->find(u"../spec");
   auto morph =
@@ -586,7 +667,30 @@ void ItemGameInstance::UseItem(std::polymorphic<GameItem>& itm) {
     return;
   }
 
+  if (item_type == u"TamingMob") {
+    // 095：使用坐骑道具 = 上骑 / 再用下骑（SetRidingVehicle 语义）。
+    if (CharacterLogicSystem::IsAlert()) {
+      return;  // 受击/攻击中不能上骑（095 同款限制）
+    }
+    if (!g_character.mount.empty()) {
+      CharacterLogicSystem::RunUnmount(g_character);
+    } else {
+      CharacterLogicSystem::RunMount(g_character, itm->id);
+    }
+    return;
+  }
+
   if (item_type == u"Ins") {
+    if (IsMatchCardsTable(itm->id)) {
+      // 095：使用配对卡桌 = 开房 / 加入同图的卡片房。
+      MinigameCardUiSystem::EnterRoomByItem();
+      return;
+    }
+    if (IsMinigameTable(itm->id)) {
+      // 095：使用五子棋桌 = 开房 / 加入同图的房间。
+      MinigameOmokUiSystem::EnterRoomByItem();
+      return;
+    }
     if (itm->id.starts_with(u"0301") && self_sit_cooldown < Window::dt_now_) {
       // 095：alert 期间不能使用椅子。
       if (CharacterLogicSystem::IsAlert()) {
@@ -623,6 +727,22 @@ void ItemGameInstance::UseItem(std::polymorphic<GameItem>& itm) {
     }
   }
   return;
+}
+
+void ItemGameInstance::EnsureMountItem() {
+  auto& items = PackageGameInstance::data_[(int)ItemEnum::kInstall];
+  for (auto& itm : items) {
+    if (itm->id.starts_with(u"0190") || itm->id.starts_with(u"0191") ||
+        itm->id.starts_with(u"0193")) {
+      return;
+    }
+  }
+  for (auto& slot : items) {
+    if (slot->id.empty()) {
+      slot = LoadItem(u"01902000", 1);
+      return;
+    }
+  }
 }
 
 }  // namespace sdlms

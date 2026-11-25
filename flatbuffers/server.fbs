@@ -219,11 +219,21 @@ table ServerCharacterFc {
     payload:Face;
 }
 
+// 组队状态同步（095 CP 145 / SP 146 PartyResult）。
 table ServerCharacterParty {
-    step:uint8;
+    step:uint8;    // 5=邀请弹窗(to_id=邀请人)
+                   // 7=全量队伍(players 含自己，队长在首位)
+                   // 内部字段复用：x=1 被踢 / 0 主动离队（step12）
+                   // 12=成员变动(x:1=自己被踢 0=离队/解散; player=变动者)
+                   // 15=新成员加入(player=加入者)
+                   // 16=已邀请提示(player=被邀请人)
+                   // 17=已在其它队 18=队伍已满 19=对方拒绝(to_id=拒绝者)
     to_id:uint64;
-    
+    player:Player;
     players:[Player];
+    x:uint8;
+    hp:[uint32];   // 与 players 对齐的当前 HP（全量/变动包）
+    max_hp:[uint32];
 }
 
 table ServerCharacterState {
@@ -266,4 +276,46 @@ table ServerMobDebuff {
 
 table ServerCreateDrop {
     payload:[Drop];
+}
+
+// 小游戏（五子棋）房间状态同步
+table ServerCharacterMinigame {
+    step:uint8;          // 0=房间建立(你是房主) 1=对手进入 2=对手离开/房间解散
+                         // 3=开局 4=落子 5=结果 6=对方就绪状态 7=聊天
+                         // 8=悔棋请求 9=悔棋结果 10=求和请求 11=求和答复
+                         // 12=进入失败提示
+    player:Player;       // 对手 / 或聊天发送者
+    x:uint8;             // 列 / 答复值 / 结果胜者色(2=平局)
+    y:uint8;             // 行 / 悔棋移除数
+    color:uint8;         // 棋色(0=黑 1=白) / 当前行棋方 / 就绪标记
+    chat:[uint16];       // 聊天内容(聊天/失败原因)
+    win:uint32;          // 本方战绩：胜
+    lose:uint32;         // 本方战绩：负
+    draw:uint32;         // 本方战绩：平
+    // MatchCards（卡片配对）专用：
+    // step 3 开局：cards=洗好的牌面数组(0-14成对)，color=本人slot，y=卡数，x=先手slot
+    // step 13 翻开一张：x=卡索引，y=牌面值，color=当前行动者slot
+    // step 14 配对成功：x,y=两张卡索引
+    // step 15 配对失败/换手：x,y=两张卡索引(255=无卡)，color=换手后行动者slot
+    cards:[uint8];
+}
+
+// 人物摆摊状态同步（095 CPersonalShopDlg）。
+table ServerCharacterShop {
+    step:uint8;          // 0=开摊成功（摊位标记，chat=店名）
+                         // 1=进店成功（player=摊主，chat=店名，goods=货架）
+                         // 2=购买结果（x:1成功 0失败；y=失败原因 0=钱不够 1=货架空/无效
+                         //   2=背包满；meso=买家当前金币）
+                         // 3=撤摊/离店（to_id=摊主）
+                         // 4=售出通知（摊主收：x=货架序号 y=卖出数量 meso=本次收入）
+                         // 5=摊位广播（同图玩家：player=摊主，chat=店名，开/撤都发，x:1=开 0=撤）
+                         // 6=提示（chat=文本：对方没摆摊等）
+                         // 7=店内聊天（player=发送者，chat=内容）
+    to_id:uint64;        // 摊主 client_id
+    player:Player;       // 摊主
+    x:uint8;
+    y:uint32;
+    meso:uint64;         // 金币（购买后买家余额 / 摊主收入）
+    chat:[uint16];       // 店名 / 提示文本
+    goods:[ShopGoods];   // 货架（进店时）
 }

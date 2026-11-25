@@ -13,6 +13,8 @@ class PopupTipGameInstance {
  public:
   static void AddTip(PopupTipEnums type, fbs::PlayerT player_t);
   static void AddQuestTip(const std::u16string& id);
+  // 五子棋房间内的悔棋/求和请求（FadeYesNo 确认框）。
+  static void AddOmokTip(uint8_t kind, fbs::PlayerT player_t);
 
   // 登录读档前清理旧提示，并暂时禁止任务完成提示。
   static void Load();

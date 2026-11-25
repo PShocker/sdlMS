@@ -62,6 +62,7 @@
 #include "src/client/system/ui/minimap_ui_system.h"
 #include "src/client/system/ui/notice_ui_system.h"
 #include "src/client/system/ui/popup_tip_ui_system.h"
+#include "src/client/system/ui/player_shop_ui_system.h"
 #include "src/client/system/ui/quest_alarm_ui_system.h"
 #include "src/client/system/ui/quick_slot_ui_system.h"
 #include "src/client/system/ui/statusbar_ui_system.h"
@@ -245,6 +246,7 @@ void SceneSystemInstance::Enter(uint32_t map_id) {
       MinimapUiSystem::Render,
       QuestAlarmUiSystem::Render,
       GainLogUiSystem::Render,
+      PlayerShopUiSystem::RenderStalls,
       CursorRenderSystem::Render,
   };
   FadeSystemInstance::EnterOut();

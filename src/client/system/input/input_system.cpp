@@ -10,6 +10,7 @@
 #include "src/client/system/ui/minimap_ui_system.h"
 #include "src/client/system/ui/option_ui_system.h"
 #include "src/client/system/ui/package_ui_system.h"
+#include "src/client/system/ui/party_ui_system.h"
 #include "src/client/system/ui/quest_ui_system.h"
 #include "src/client/system/ui/skill_ui_system.h"
 #include "src/client/system/ui/statusbar_menu_ui_system.h"
@@ -37,6 +38,8 @@ void InputSystem::HandleUiInput(GameInput& g_input) {
       {"miniMap", MinimapUiSystem::Cycle},
       {"buddy", UserListUiSystem::Toggle},
       {"toBuddy", UserListUiSystem::Toggle},
+      {"party", PartyUiSystem::Toggle},
+      {"toParty", PartyUiSystem::Toggle},
   };
   if (fns.contains(g_input.val)) {
     // 键盘打开 UI 与鼠标点击按钮保持同一种提示音。

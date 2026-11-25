@@ -12,6 +12,14 @@ enum class PopupTipEnums {
   kTrade,
   kParty,
   kQuest,
+  // 五子棋房间内对方的请求（悔棋/求和，FadeYesNo 确认框）。
+  kMinigame,
+};
+
+// 五子棋请求提示：kind 对应 ClientCharacterMinigame 的 6=悔棋 / 8=求和。
+struct GameOmokRequestTip {
+  uint8_t kind = 0;
+  fbs::PlayerT player;
 };
 
 struct GamePopupTip {

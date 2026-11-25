@@ -12,6 +12,7 @@
 #include "src/client/system/ui/equip_ui_system.h"
 #include "src/client/system/ui/option_ui_system.h"
 #include "src/client/system/ui/package_ui_system.h"
+#include "src/client/system/ui/party_ui_system.h"
 #include "src/client/system/ui/quest_ui_system.h"
 #include "src/client/system/ui/skill_ui_system.h"
 #include "src/client/system_instance/login_system_instance.h"
@@ -278,6 +279,8 @@ void StatusbarMenuUiSystem::EventButtonSkill() {
 }
 
 void StatusbarMenuUiSystem::EventButtonParty() {
+  // 095：菜单 Party = 打开/关闭组队信息窗口（CUIPartyHP 开关）。
+  PartyUiSystem::Toggle();
   return;
 }
 

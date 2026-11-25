@@ -47,4 +47,18 @@ void PopupTipGameInstance::AddQuestTip(const std::u16string& id) {
   AudioGameInstance::PlayNow(u"UI.img/Invite");
 }
 
+void PopupTipGameInstance::AddOmokTip(uint8_t kind, fbs::PlayerT player_t) {
+  if (!CheckType(PopupTipEnums::kMinigame)) {
+    return;
+  }
+  GamePopupTip tp;
+  tp.type = PopupTipEnums::kMinigame;
+  GameOmokRequestTip req;
+  req.kind = kind;
+  req.player = std::move(player_t);
+  tp.data = std::move(req);
+  data_.emplace_back(tp);
+  AudioGameInstance::PlayNow(u"UI.img/Invite");
+}
+
 }  // namespace sdlms

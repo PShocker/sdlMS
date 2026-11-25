@@ -82,7 +82,9 @@ void NoticeUiSystem::RenderBackgrnd() {
     case NoticeEnum::kQuestGiveup:
 
     case NoticeEnum::kShopRecharge:
-    case NoticeEnum::kCraftState: {
+    case NoticeEnum::kCraftState:
+    case NoticeEnum::kMinigameRoomFull:
+    case NoticeEnum::kShopNotice: {
       node = WzResource::ui_->find(u"PopupWindow.img/Notice1");
 
       break;
@@ -94,7 +96,9 @@ void NoticeUiSystem::RenderBackgrnd() {
 
     case NoticeEnum::kShopbuyMul:
 
-    case NoticeEnum::kThrowMul: {
+    case NoticeEnum::kThrowMul:
+
+    case NoticeEnum::kShopPrice: {
       node = WzResource::ui_->find(u"PopupWindow.img/Notice2");
 
       break;
@@ -209,7 +213,10 @@ UIComponents& NoticeUiSystem::GetComponent() {
     case NoticeEnum::kQuestGiveup:
 
     case NoticeEnum::kShopRecharge:
-    case NoticeEnum::kCraftState: {
+    case NoticeEnum::kCraftState:
+    case NoticeEnum::kMinigameRoomFull:
+    case NoticeEnum::kShopPrice:
+    case NoticeEnum::kShopNotice: {
       buttons_node = {
 
           WzResource::ui_->find(u"Basic.img/BtOK2"),
@@ -321,6 +328,13 @@ UIComponents& NoticeUiSystem::GetComponent() {
     case NoticeEnum::kCannotChangeEquip: {
       std::get<Button>(components_[0]).callback = EventButtonEquipNoAp;
       std::get<Button>(components_[1]).callback = EventButtonEquipNoAp;
+      break;
+    }
+
+    case NoticeEnum::kShopPrice: {
+      // 上架定价：OK 走 on_confirm_（与充值确认同模式），Cancel 丢弃。
+      std::get<Button>(components_[0]).callback = EventButtonShopRecharge;
+      std::get<Button>(components_[1]).callback = Close;
       break;
     }
 
@@ -519,6 +533,22 @@ void NoticeUiSystem::RenderText() {
       p = {20, 20};
       break;
     }
+    case NoticeEnum::kShopPrice: {
+      // 摆摊上架单价输入（095 PutItem）。
+      text = u"输入上架单价（mesos）：";
+      p = {20, 20};
+      break;
+    }
+    case NoticeEnum::kShopNotice: {
+      text = notice_text_;
+      p = {20, 20};
+      break;
+    }
+    case NoticeEnum::kMinigameRoomFull: {
+      text = u"That minigame room is already in a game.";
+      p = {20, 20};
+      break;
+    }
     case NoticeEnum::kCannotChangeEquip: {
       text = u"You cannot change equipment in alert.";
 
@@ -638,14 +668,11 @@ void NoticeUiSystem::RenderText() {
 void NoticeUiSystem::RenderInput() {
   switch (type_) {
     case NoticeEnum::kApInc:
-
     case NoticeEnum::kShopbuySellMul:
-
     case NoticeEnum::kShopbuyMul:
-
-    case NoticeEnum::kThrowMul: {
+    case NoticeEnum::kThrowMul:
+    case NoticeEnum::kShopPrice: {
       text_.Render();
-
       break;
     }
 
@@ -701,7 +728,9 @@ void NoticeUiSystem::Open() {
 
       case NoticeEnum::kShopbuyMul:
 
-      case NoticeEnum::kThrowMul: {
+      case NoticeEnum::kThrowMul:
+
+      case NoticeEnum::kShopPrice: {
         text_ = {
 
             .max_size = 9,
@@ -760,7 +789,7 @@ void NoticeUiSystem::Open() {
         uint64_t num = 0;
 
         if (std::any_cast<std::nullptr_t>(&NoticeUiSystem::data_) != nullptr) {
-          // 金币：data_ �?nullptr，数量取当前 meso�?
+          // 金币：data_ 是 nullptr，数量取当前 meso。
           num = PackageGameInstance::meso_;
 
         } else {
@@ -771,9 +800,19 @@ void NoticeUiSystem::Open() {
           num = static_cast<uint64_t>(ItemGameInstance::LoadItemNum(*p));
         }
 
+
         auto tmp = std::to_string(num);
 
         text_.text = {tmp.begin(), tmp.end()};
+
+        text_.cur = text_.text.size();
+
+        break;
+      }
+
+      case NoticeEnum::kShopPrice: {
+        // 定价默认 100 mesos。
+        text_.text = u"100";
 
         text_.cur = text_.text.size();
 
@@ -887,7 +926,9 @@ SDL_FPoint NoticeUiSystem::LoadWh() {
     case NoticeEnum::kQuestGiveup:
 
     case NoticeEnum::kShopRecharge:
-    case NoticeEnum::kCraftState: {
+    case NoticeEnum::kCraftState:
+    case NoticeEnum::kMinigameRoomFull:
+    case NoticeEnum::kShopNotice: {
       return {266, 116};
     }
 
@@ -899,6 +940,7 @@ SDL_FPoint NoticeUiSystem::LoadWh() {
 
     case NoticeEnum::kThrowMul:
 
+    case NoticeEnum::kShopPrice:
       return {266, 119};
   }
 
@@ -1352,7 +1394,9 @@ void NoticeUiSystem::EventInput(SDL_Event* event) {
 
     case NoticeEnum::kShopbuyMul:
 
-    case NoticeEnum::kThrowMul: {
+    case NoticeEnum::kThrowMul:
+
+    case NoticeEnum::kShopPrice: {
       text_.Event(event);
     }
 
@@ -1439,6 +1483,13 @@ bool NoticeUiSystem::Event(SDL_Event* event) {
             }
 
             case NoticeEnum::kShopRecharge: {
+              EventButtonShopRecharge();
+
+              break;
+            }
+
+            case NoticeEnum::kShopPrice: {
+              // 上架定价确认：走 on_confirm_（与充值确认同模式）。
               EventButtonShopRecharge();
 
               break;

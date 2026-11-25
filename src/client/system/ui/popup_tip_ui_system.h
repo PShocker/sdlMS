@@ -12,8 +12,11 @@ class PopupTipUiSystem {
   static void RenderText(GamePopupTip& t);
   static void RenderButton(GamePopupTip& t);
 
-  static void EventButtonParty(GamePopupTip& t);
+  // 组队邀请确认框：accept 1=接受 0=拒绝。
+  static void EventButtonParty(GamePopupTip& t, uint8_t accept);
   static void EventButtonTrade(GamePopupTip& t);
+  // 五子棋请求（悔棋/求和）确认框：accept 1=同意 0=拒绝。
+  static void EventButtonOmok(GamePopupTip& t, uint8_t accept);
   static void EventButtonOk(GamePopupTip& t);
   static void EventButtonCancel(GamePopupTip& t);
 

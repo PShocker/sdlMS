@@ -80,6 +80,12 @@ class NoticeUiSystem : public UiComponentHost<NoticeUiSystem> {
 
     kShopRecharge,
     kCraftState,
+
+    kMinigameRoomFull,
+    // 摆摊：上架定价（数字输入，确认走 on_confirm_）。
+    kShopPrice,
+    // 摆摊：通用文本提示（文本放 notice_text_）。
+    kShopNotice,
   };
 
   static inline NoticeEnum type_;
@@ -87,6 +93,8 @@ class NoticeUiSystem : public UiComponentHost<NoticeUiSystem> {
   static inline TextInput text_;
   static inline std::any data_;
   static inline std::function<void()> on_confirm_;
+  // kShopNotice 的提示文本。
+  static inline std::u16string notice_text_;
 
   static bool Render();
 

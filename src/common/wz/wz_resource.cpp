@@ -76,6 +76,7 @@ void WzResource::InitFiles() {
 
   morph_ = new wz::Files("Data/", "Morph/Morph");
 
+  taming_mob_ = new wz::Files("Data/", "TamingMob/TamingMob");
 
   ms_ = new wz::File("Data/sdlMS.wz");
 }

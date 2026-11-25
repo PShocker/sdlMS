@@ -336,3 +336,10 @@ table GameSave{
     username:string;
     data:PlayerSave;
 }
+
+// 摆摊商品（095 CPersonalShopDlg 的 Goods 条目）：client/server 共用。
+table ShopGoods {
+    item_id:uint64;      // 8 位道具 id
+    num:uint32;          // 上架数量
+    price:uint64;        // 单价
+}

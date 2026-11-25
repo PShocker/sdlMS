@@ -1,139 +1,154 @@
 #include "src/client/system/ui/party_ui_system.h"
 
 #include "src/client/game_instance/camera_game_instance.h"
+#include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/party_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
+#include "src/common/flatbuffers/client.h"
+#include "src/common/freetype/freetype.h"
+#include "src/common/request/client_request.h"
 #include "src/common/wz/wz_resource.h"
 
-#include <wz/Property.h>
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
+#include <wz/Node.h>
 
 #include <algorithm>
 
 namespace sdlms {
 
-void PartyUiSystem::RenderBackgrnd(float x, float y, float w, float h) {
-  // backgrnd
-  static auto backgrnd_node =
-      WzResource::ui_->find(u"UIToolTip.img/Skill/Frame");
+namespace {
 
-  auto texture_c = WzResource::LoadTexture(backgrnd_node->get_child(u"c"));
-  auto texture_e = WzResource::LoadTexture(
-      static_cast<wz::Property<wz::WzCanvas>*>(backgrnd_node->get_child(u"e")));
-  auto texture_ne =
-      WzResource::LoadTexture(static_cast<wz::Property<wz::WzCanvas>*>(
-          backgrnd_node->get_child(u"ne")));
-  auto texture_n = WzResource::LoadTexture(
-      static_cast<wz::Property<wz::WzCanvas>*>(backgrnd_node->get_child(u"n")));
-  auto texture_nw =
-      WzResource::LoadTexture(static_cast<wz::Property<wz::WzCanvas>*>(
-          backgrnd_node->get_child(u"nw")));
-  auto texture_w = WzResource::LoadTexture(
-      static_cast<wz::Property<wz::WzCanvas>*>(backgrnd_node->get_child(u"w")));
-  auto texture_sw =
-      WzResource::LoadTexture(static_cast<wz::Property<wz::WzCanvas>*>(
-          backgrnd_node->get_child(u"sw")));
-  auto texture_s = WzResource::LoadTexture(
-      static_cast<wz::Property<wz::WzCanvas>*>(backgrnd_node->get_child(u"s")));
-  auto texture_se =
-      WzResource::LoadTexture(static_cast<wz::Property<wz::WzCanvas>*>(
-          backgrnd_node->get_child(u"se")));
-
-  SDL_FRect rect;
-  rect.x = x;
-  rect.y = y;
-
-  // 左上
-  SDL_FPoint p_nw{x, y};
-  rect.x = (p_nw.x);
-  rect.y = (p_nw.y);
-  rect.w = texture_nw->w;
-  rect.h = texture_nw->h;
-  SDL_RenderTexture(Window::renderer_, texture_nw, nullptr, &rect);
-
-  // 左下
-  SDL_FPoint p_sw{
-      x,
-      y + h - texture_sw->h,
-  };
-  rect.x = (p_sw.x);
-  rect.y = (p_sw.y);
-  rect.w = texture_sw->w;
-  rect.h = texture_sw->h;
-  SDL_RenderTexture(Window::renderer_, texture_sw, nullptr, &rect);
-
-  // 右上
-  SDL_FPoint p_ne{
-      x + w - texture_ne->w,
-      y,
-  };
-  rect.x = (p_ne.x);
-  rect.y = (p_ne.y);
-  rect.w = texture_ne->w;
-  rect.h = texture_ne->h;
-  SDL_RenderTexture(Window::renderer_, texture_ne, nullptr, &rect);
-
-  // 右下
-  SDL_FPoint p_se{
-      x + w - texture_ne->w,
-      y + h - texture_sw->h,
-  };
-  rect.x = (p_se.x);
-  rect.y = (p_se.y);
-  rect.w = texture_se->w;
-  rect.h = texture_se->h;
-  SDL_RenderTexture(Window::renderer_, texture_se, nullptr, &rect);
-
-  rect.x = (x + texture_nw->w);
-  rect.y = (y + texture_nw->h);
-  rect.w = p_ne.x - (p_nw.x + texture_nw->w);
-  rect.h = p_sw.y - (p_nw.y + texture_nw->h);
-  SDL_RenderTextureTiled(Window::renderer_, texture_c, nullptr, 1, &rect);
-
-  // 竖着的两边
-  rect.x = (p_nw.x);
-  rect.y = (p_nw.y + texture_nw->h);
-  rect.w = texture_w->w;
-  rect.h = p_sw.y - (p_nw.y + texture_nw->h);
-  SDL_RenderTextureTiled(Window::renderer_, texture_w, nullptr, 1, &rect);
-
-  rect.x = (p_se.x);
-  rect.y = (p_ne.y + texture_ne->h);
-  rect.w = texture_e->w;
-  rect.h = p_se.y - (p_ne.y + texture_ne->h);
-  SDL_RenderTextureTiled(Window::renderer_, texture_e, nullptr, 1, &rect);
-
-  // 横着的两边
-  rect.x = (p_nw.x + texture_nw->w);
-  rect.y = (p_ne.y);
-  rect.w = p_ne.x - (p_nw.x + texture_nw->w);
-  rect.h = texture_n->h;
-  SDL_RenderTextureTiled(Window::renderer_, texture_n, nullptr, 1, &rect);
-
-  rect.x = (p_nw.x + texture_nw->w);
-  rect.y = (p_sw.y);
-  rect.w = p_ne.x - (p_nw.x + texture_nw->w);
-  rect.h = texture_s->h;
-  SDL_RenderTextureTiled(Window::renderer_, texture_s, nullptr, 1, &rect);
+std::u16string U16FromNum(uint32_t num) {
+  auto s = std::to_string(num);
+  return {s.begin(), s.end()};
 }
 
-void PartyUiSystem::RenderPartyHp() {
-  for (int i = 0; i < PartyGameInstance::data_->clients.size(); i++) {
-    const auto& player = PartyGameInstance::data_->clients[i];
-    static auto texture = WzResource::LoadTexture(WzResource::ui_->find(u""));
+constexpr float kLineH = 16;   // 每名成员一行的行距
+constexpr float kPadding = 4;  // 内容边距
+
+}  // namespace
+
+void PartyUiSystem::RenderBackgrnd(float x, float y, float w, float h) {
+  // 半透明黑底（对齐 CUIPartyHP 默认无贴图窗口的观感）。
+  SDL_SetRenderDrawBlendMode(Window::renderer_, SDL_BLENDMODE_BLEND);
+  SDL_SetRenderDrawColor(Window::renderer_, 20, 20, 20, 180);
+  SDL_FRect rect{x, y, w, h};
+  SDL_RenderFillRect(Window::renderer_, &rect);
+  // 一像素描边。
+  SDL_SetRenderDrawColor(Window::renderer_, 90, 80, 60, 255);
+  SDL_RenderRect(Window::renderer_, &rect);
+}
+
+void PartyUiSystem::RenderMembers() {
+  if (!PartyGameInstance::data_.has_value()) {
+    return;
+  }
+  const auto& party = PartyGameInstance::data_.value();
+
+  Freetype::LoadSize(11);
+  Freetype::LoadAligned(true);
+
+  float y = pos_.y + kPadding + 4;  // 顶部留标题两行
+
+  // 第一行：标题（队长可看"邀请"提示）。
+  {
+    auto is_captain = !party.members.empty() &&
+                      party.members.front().player.client_id ==
+                          ServerMain::local_addr_;
+    std::u16string title = u"PARTY";
+    if (is_captain) {
+      title += u"  (P: 邀请面板)";
+    }
+    Freetype::LoadColor(240, 220, 130, 255);
+    Freetype::DrawLine(title, pos_.x + kPadding, pos_.y + kPadding);
+  }
+
+  // 成员行：名字(队长前★) + 等级 + HP 条 + hp/max。
+  float name_x = pos_.x + kPadding;
+  float row_y = y + 12;
+  for (size_t i = 0; i < party.members.size(); ++i) {
+    const auto& m = party.members[i];
+    std::u16string name;
+    if (m.player.character != nullptr) {
+      name.assign(m.player.character->name.begin(),
+                  m.player.character->name.end());
+    }
+    bool captain = m.player.client_id == party.captain_id;
+    auto level = m.player.character != nullptr ? m.player.character->level : 0;
+
+    // 名字 + 等级（095 PartyHP：名字 + Lv）。
+    Freetype::LoadColor(255, 255, 255, 255);
+    Freetype::DrawLine((captain ? u"[C] " : u"") + name + u"  Lv." +
+                           U16FromNum(level),
+                       name_x, row_y);
+
+    // HP 条（宽 60x6）：底灰 + 绿条 + 数字。
+    float bar_x = pos_.x + LoadWh().x - 118;
+    float bar_w = 60;
+    SDL_FRect bar{bar_x, row_y + 4, bar_w, 6};
+    SDL_SetRenderDrawColor(Window::renderer_, 60, 60, 60, 255);
+    SDL_RenderFillRect(Window::renderer_, &bar);
+    float ratio = m.max_hp > 0
+                      ? static_cast<float>(m.hp) / static_cast<float>(m.max_hp)
+                      : 0.0f;
+    ratio = std::clamp(ratio, 0.0f, 1.0f);
+    SDL_FRect fill{bar.x, bar.y, bar_w * ratio, 6};
+    // HP 颜色按百分比（绿→黄→红）。
+    if (ratio > 0.5f) {
+      SDL_SetRenderDrawColor(Window::renderer_, 60, 200, 80, 255);
+    } else if (ratio > 0.25f) {
+      SDL_SetRenderDrawColor(Window::renderer_, 220, 200, 60, 255);
+    } else {
+      SDL_SetRenderDrawColor(Window::renderer_, 220, 70, 60, 255);
+    }
+    SDL_RenderFillRect(Window::renderer_, &fill);
+
+    // hp/max 数字。
+    Freetype::LoadColor(200, 200, 200, 255);
+    Freetype::DrawLine(U16FromNum(m.hp) + u"/" + U16FromNum(m.max_hp),
+                       bar_x + bar_w + 6, row_y);
+
+    row_y += kLineH;
   }
 }
 
-bool PartyUiSystem::Render() {
-  auto [w, h] = LoadWh();
-  RenderBackgrnd(0, 0, w, h);
-  return true;
+SDL_FPoint PartyUiSystem::LoadWh() {
+  // 095 CUIPartyHP：宽 = max(名字宽 + 100, 150)。
+  float w = 150;
+  if (PartyGameInstance::data_.has_value()) {
+    Freetype::LoadSize(11);
+    for (const auto& m :
+         PartyGameInstance::data_.value().members) {
+      std::u16string name;
+      if (m.player.character != nullptr) {
+        name.assign(m.player.character->name.begin(),
+                    m.player.character->name.end());
+      }
+      auto line_w =
+          static_cast<float>(Freetype::LoadW(name + u"  Lv.000  00/00")) +
+          100.0f;
+      w = std::max(w, line_w);
+    }
+  }
+  size_t count = PartyGameInstance::data_.has_value()
+                     ? PartyGameInstance::data_.value().members.size()
+                     : 0;
+  float h = kPadding * 2 + 14 + kLineH * static_cast<float>(count) + 4;
+  return {w, h};
 }
 
-SDL_FPoint PartyUiSystem::LoadWh() {
-  return {209, 289};
+bool PartyUiSystem::Render() {
+  if (!PartyGameInstance::data_.has_value()) {
+    return true;
+  }
+  auto [w, h] = LoadWh();
+  RenderBackgrnd(pos_.x, pos_.y, w, h);
+  RenderMembers();
+  return true;
 }
 
 void PartyUiSystem::Open() {
@@ -143,11 +158,8 @@ void PartyUiSystem::Open() {
   }
   it = std::ranges::find(System::render_systems_, &CursorRenderSystem::Render);
   if (it != System::render_systems_.end()) {
-    auto wh = LoadWh();
-    auto& camera = CameraGameInstance::camera_;
-    pos_.x = (camera.w - wh.x) / 2;
-    pos_.y = (camera.h - wh.y) / 2;
-
+    // 095 CUIPartyHP：默认停在左上角（聊天框下方）。
+    pos_ = {10, 130};
     System::render_systems_.insert(it, Render);
     System::event_systems_.insert(System::event_systems_.begin(), Event);
   }
@@ -170,8 +182,8 @@ void PartyUiSystem::EventTop() {
 }
 
 void PartyUiSystem::EventDragStart(SDL_Event* event) {
-  auto wh = LoadWh();
-  SDL_FRect pos_rect = {pos_.x, pos_.y, wh.x, 20};
+  auto [w, h] = LoadWh();
+  SDL_FRect pos_rect = {pos_.x, pos_.y, w, 20};
   SDL_FPoint mouse_pos = {event->button.x, event->button.y};
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
     drag_ = {pos_.x - event->button.x, pos_.y - event->button.y};
@@ -193,6 +205,13 @@ void PartyUiSystem::EventDragMove(SDL_Event* event) {
     pos_.y = std::clamp(pos_.y, (float)0, camera.h - h);
   }
   return;
+}
+
+void PartyUiSystem::EventButtonLeave() {
+  // 退队（095 SendWithdrawPartyMsg → CP 145 step2）。
+  fbs::ClientCharacterPartyT cp;
+  cp.step = 3;
+  ClientRequest::SendToHost(cp);
 }
 
 void PartyUiSystem::Toggle() {
@@ -234,6 +253,11 @@ bool PartyUiSystem::Event(SDL_Event* event) {
     }
     case SDL_EVENT_MOUSE_MOTION: {
       EventDragMove(event);
+      break;
+    }
+    case SDL_EVENT_KEY_DOWN: {
+      // 右键成员 / 无队伍时按 P 已由键位系统 Toggle；
+      // 这里处理：在队伍中按 ESC 附近无动作，保持简单。
       break;
     }
     default: {

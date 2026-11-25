@@ -10,6 +10,7 @@
 #include "src/client/system/system.h"
 #include "src/client/system/ui/character_info_ui_system.h"
 #include "src/client/system/ui/component/ui_component.h"
+#include "src/client/system/ui/player_shop_ui_system.h"
 #include "src/client/system/ui/user_list_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
@@ -146,7 +147,16 @@ void ContextMenuUiSystem::EventButtonSave() {
 
 void ContextMenuUiSystem::EventButtonWhisper() {}
 
-void ContextMenuUiSystem::EventButtonParty() {}
+void ContextMenuUiSystem::EventButtonParty() {
+  // 095：右键玩家 Party = 邀请入队（SendJoinPartyMsg，CP 145 step4）。
+  if (client_id_ == ServerMain::local_addr_ || client_id_ == 0) {
+    return;
+  }
+  fbs::ClientCharacterPartyT cp;
+  cp.step = 0;
+  cp.to_id = client_id_;
+  ClientRequest::SendToHost(cp);
+}
 
 void ContextMenuUiSystem::EventButtonTrade() {
   fbs::ClientCharacterTradeT ct;
@@ -176,7 +186,11 @@ void ContextMenuUiSystem::EventButtonFriend() {
   }
 }
 
-void ContextMenuUiSystem::EventButtonChat() {}
+void ContextMenuUiSystem::EventButtonChat() {
+  // 摆摊入口（095：摆摊是 MiniRoom 的一种）：
+  // 对自己 = 打开摆摊设置窗；对别人 = 请求进店浏览。
+  PlayerShopUiSystem::OpenBrowse(client_id_);
+}
 
 bool ContextMenuUiSystem::EventUI(SDL_Event* event) {
   return DispatchButtonClick(GetComponent(), true);

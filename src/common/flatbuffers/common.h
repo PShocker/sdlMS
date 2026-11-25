@@ -175,6 +175,10 @@ struct GameSave;
 struct GameSaveBuilder;
 struct GameSaveT;
 
+struct ShopGoods;
+struct ShopGoodsBuilder;
+struct ShopGoodsT;
+
 enum ChatEnum : int8_t {
   ChatEnum_MAP = 0,
   ChatEnum_MIN = ChatEnum_MAP,
@@ -4999,6 +5003,90 @@ inline ::flatbuffers::Offset<GameSave> CreateGameSaveDirect(
 
 ::flatbuffers::Offset<GameSave> CreateGameSave(::flatbuffers::FlatBufferBuilder &_fbb, const GameSaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct ShopGoodsT : public ::flatbuffers::NativeTable {
+  typedef ShopGoods TableType;
+  uint64_t item_id = 0;
+  uint32_t num = 0;
+  uint64_t price = 0;
+};
+
+struct ShopGoods FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ShopGoodsT NativeTableType;
+  typedef ShopGoodsBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_ITEM_ID = 4,
+    VT_NUM = 6,
+    VT_PRICE = 8
+  };
+  uint64_t item_id() const {
+    return GetField<uint64_t>(VT_ITEM_ID, 0);
+  }
+  bool mutate_item_id(uint64_t _item_id = 0) {
+    return SetField<uint64_t>(VT_ITEM_ID, _item_id, 0);
+  }
+  uint32_t num() const {
+    return GetField<uint32_t>(VT_NUM, 0);
+  }
+  bool mutate_num(uint32_t _num = 0) {
+    return SetField<uint32_t>(VT_NUM, _num, 0);
+  }
+  uint64_t price() const {
+    return GetField<uint64_t>(VT_PRICE, 0);
+  }
+  bool mutate_price(uint64_t _price = 0) {
+    return SetField<uint64_t>(VT_PRICE, _price, 0);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint64_t>(verifier, VT_ITEM_ID, 8) &&
+           VerifyField<uint32_t>(verifier, VT_NUM, 4) &&
+           VerifyField<uint64_t>(verifier, VT_PRICE, 8) &&
+           verifier.EndTable();
+  }
+  ShopGoodsT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ShopGoodsT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ShopGoods> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ShopGoodsT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ShopGoodsBuilder {
+  typedef ShopGoods Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_item_id(uint64_t item_id) {
+    fbb_.AddElement<uint64_t>(ShopGoods::VT_ITEM_ID, item_id, 0);
+  }
+  void add_num(uint32_t num) {
+    fbb_.AddElement<uint32_t>(ShopGoods::VT_NUM, num, 0);
+  }
+  void add_price(uint64_t price) {
+    fbb_.AddElement<uint64_t>(ShopGoods::VT_PRICE, price, 0);
+  }
+  explicit ShopGoodsBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ShopGoods> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ShopGoods>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ShopGoods> CreateShopGoods(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t item_id = 0,
+    uint32_t num = 0,
+    uint64_t price = 0) {
+  ShopGoodsBuilder builder_(_fbb);
+  builder_.add_price(price);
+  builder_.add_item_id(item_id);
+  builder_.add_num(num);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<ShopGoods> CreateShopGoods(::flatbuffers::FlatBufferBuilder &_fbb, const ShopGoodsT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 inline LifeStateT *LifeState::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<LifeStateT>(new LifeStateT());
   UnPackTo(_o.get(), _resolver);
@@ -6680,6 +6768,38 @@ inline ::flatbuffers::Offset<GameSave> GameSave::Pack(::flatbuffers::FlatBufferB
       _fbb,
       _username,
       _data);
+}
+
+inline ShopGoodsT *ShopGoods::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ShopGoodsT>(new ShopGoodsT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ShopGoods::UnPackTo(ShopGoodsT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = item_id(); _o->item_id = _e; }
+  { auto _e = num(); _o->num = _e; }
+  { auto _e = price(); _o->price = _e; }
+}
+
+inline ::flatbuffers::Offset<ShopGoods> CreateShopGoods(::flatbuffers::FlatBufferBuilder &_fbb, const ShopGoodsT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ShopGoods::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ShopGoods> ShopGoods::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ShopGoodsT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ShopGoodsT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _item_id = _o->item_id;
+  auto _num = _o->num;
+  auto _price = _o->price;
+  return fbs::CreateShopGoods(
+      _fbb,
+      _item_id,
+      _num,
+      _price);
 }
 
 template <bool B>

@@ -104,6 +104,12 @@ struct GameCharacter {
   int8_t attack_speed = 0;
 
   std::u16string morph;
+
+  // 骑宠（095 TamingMob / SetRidingVehicle）：mount 是形态 id（如 "1000"），
+  // mount_item 是坐骑道具 id（0190xxxx，状态同步/下骑回执用）。
+  // 骑乘时角色坐在坐骑上，速度/跳跃用形态数据（TamingMob/<id>.img/info）。
+  std::u16string mount;
+  std::u16string mount_item;
 };
 
 }  // namespace sdlms

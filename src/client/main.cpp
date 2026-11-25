@@ -2,23 +2,30 @@
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
+#include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/keyboard_game_instance.h"
+#include "src/client/system/logic/character_logic_system.h"
 #include "src/client/game_instance/craft_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/pet_game_instance.h"
 #include "src/client/game_instance/quest_game_instance.h"
 #include "src/client/game_instance/shader_game_instance.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/minigame_card_ui_system.h"
+#include "src/client/system/ui/minigame_omok_ui_system.h"
 #include "src/client/system_instance/game_save_system_instance.h"
 #include "src/client/system_instance/login_system_instance.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
+#include "src/common/flatbuffers/client.h"
+#include "src/common/request/client_request.h"
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server_main.h"
 #include "src/server/server_system/server_system.h"
 
 #include <cstdint>
+#include <cstdio>
 #include <cstdlib>
 
 #define SDL_MAIN_USE_CALLBACKS
@@ -94,6 +101,10 @@ SDL_AppResult AppInit(void** appstate, int argc, char* argv[]) {
   PetGameInstance::Load(cs);
   CraftGameInstance::Load(cs);
   CharacterStatGameInstance::Load(cs);
+  // 开发便利：确保背包里有小游戏桌（五子棋 + 配对卡）与坐骑，用于进入房间/骑乘。
+  MinigameOmokUiSystem::EnsureTableItem();
+  MinigameCardUiSystem::EnsureItem();
+  ItemGameInstance::EnsureMountItem();
   // QuestGameInstance::Load(cs);
 
   uint32_t start_map = 10003062;

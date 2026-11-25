@@ -1,11 +1,13 @@
 #include "src/client/game_instance/character_stat_game_instance.h"
-
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/game_instance/random_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/system_instance/scene_system_instance.h"
+#include "src/common/wz/wz_resource.h"
+
+#include <wz/Property.h>
 #include "src/common/flatbuffers/client.h"
 #include "src/common/request/client_request.h"
 #include "src/common/wz/wz_resource.h"
@@ -503,9 +505,25 @@ void CharacterStatGameInstance::Update() {
 // 速度 1 点约等于 1.25 px/s (与原 0001002 的换算一致)
 void CharacterStatGameInstance::UpdateMoveLimits() {
   // 移速 = 技能 buff(轻功/极速等) + 道具(药水等)
-  const auto speed = static_cast<float>(
+  auto speed = static_cast<float>(
       GetBuffSpeed() + std::max(GetItemSpeed(), 0) + ski_speed_);
-  const auto jump = static_cast<float>(GetBuffJump());
+  auto jump = static_cast<float>(GetBuffJump());
+  // 骑宠（095 TamingMob info）：speed=200 表示 200% 移动速度，
+  // 即 +100 速度点；jump=120 表示 120% 跳跃力，即 +20 跳跃点。
+  const auto& mount = CharacterGameInstance::self_.mount;
+  if (!mount.empty()) {
+    auto* info = WzResource::taming_mob_->find(mount + u".img/info");
+    if (info != nullptr && info->get_child(u"speed") != nullptr) {
+      auto mount_speed =
+          static_cast<wz::Property<int>*>(info->get_child(u"speed"))->get();
+      speed += std::max(0, mount_speed - 100);
+      if (info->get_child(u"jump") != nullptr) {
+        auto mount_jump =
+            static_cast<wz::Property<int>*>(info->get_child(u"jump"))->get();
+        jump += std::max(0, mount_jump - 100);
+      }
+    }
+  }
   hspeed_max_ = 125.0f + 1.25f * speed;
   hspeed_min_ = -125.0f - 1.25f * speed;
   // 跳跃: 每点约 +1% 初速度

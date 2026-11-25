@@ -92,11 +92,15 @@ enum NetPayload : uint8_t {
   NetPayload_ServerCharacterPetAction = 66,
   NetPayload_ClientCharacterPetMove = 67,
   NetPayload_ServerCharacterPetMove = 68,
+  NetPayload_ClientCharacterMinigame = 69,
+  NetPayload_ServerCharacterMinigame = 70,
+  NetPayload_ClientCharacterShop = 71,
+  NetPayload_ServerCharacterShop = 72,
   NetPayload_MIN = NetPayload_NONE,
-  NetPayload_MAX = NetPayload_ServerCharacterPetMove
+  NetPayload_MAX = NetPayload_ServerCharacterShop
 };
 
-inline const NetPayload (&EnumValuesNetPayload())[69] {
+inline const NetPayload (&EnumValuesNetPayload())[73] {
   static const NetPayload values[] = {
     NetPayload_NONE,
     NetPayload_ClientHeartbeat,
@@ -166,13 +170,17 @@ inline const NetPayload (&EnumValuesNetPayload())[69] {
     NetPayload_ClientCharacterPetAction,
     NetPayload_ServerCharacterPetAction,
     NetPayload_ClientCharacterPetMove,
-    NetPayload_ServerCharacterPetMove
+    NetPayload_ServerCharacterPetMove,
+    NetPayload_ClientCharacterMinigame,
+    NetPayload_ServerCharacterMinigame,
+    NetPayload_ClientCharacterShop,
+    NetPayload_ServerCharacterShop
   };
   return values;
 }
 
 inline const char * const *EnumNamesNetPayload() {
-  static const char * const names[70] = {
+  static const char * const names[74] = {
     "NONE",
     "ClientHeartbeat",
     "ClientScene",
@@ -242,13 +250,17 @@ inline const char * const *EnumNamesNetPayload() {
     "ServerCharacterPetAction",
     "ClientCharacterPetMove",
     "ServerCharacterPetMove",
+    "ClientCharacterMinigame",
+    "ServerCharacterMinigame",
+    "ClientCharacterShop",
+    "ServerCharacterShop",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameNetPayload(NetPayload e) {
-  if (::flatbuffers::IsOutRange(e, NetPayload_NONE, NetPayload_ServerCharacterPetMove)) return "";
+  if (::flatbuffers::IsOutRange(e, NetPayload_NONE, NetPayload_ServerCharacterShop)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesNetPayload()[index];
 }
@@ -529,6 +541,22 @@ template<> struct NetPayloadTraits<fbs::ServerCharacterPetMove> {
   static const NetPayload enum_value = NetPayload_ServerCharacterPetMove;
 };
 
+template<> struct NetPayloadTraits<fbs::ClientCharacterMinigame> {
+  static const NetPayload enum_value = NetPayload_ClientCharacterMinigame;
+};
+
+template<> struct NetPayloadTraits<fbs::ServerCharacterMinigame> {
+  static const NetPayload enum_value = NetPayload_ServerCharacterMinigame;
+};
+
+template<> struct NetPayloadTraits<fbs::ClientCharacterShop> {
+  static const NetPayload enum_value = NetPayload_ClientCharacterShop;
+};
+
+template<> struct NetPayloadTraits<fbs::ServerCharacterShop> {
+  static const NetPayload enum_value = NetPayload_ServerCharacterShop;
+};
+
 template<typename T> struct NetPayloadUnionTraits {
   static const NetPayload enum_value = NetPayload_NONE;
 };
@@ -803,6 +831,22 @@ template<> struct NetPayloadUnionTraits<fbs::ClientCharacterPetMoveT> {
 
 template<> struct NetPayloadUnionTraits<fbs::ServerCharacterPetMoveT> {
   static const NetPayload enum_value = NetPayload_ServerCharacterPetMove;
+};
+
+template<> struct NetPayloadUnionTraits<fbs::ClientCharacterMinigameT> {
+  static const NetPayload enum_value = NetPayload_ClientCharacterMinigame;
+};
+
+template<> struct NetPayloadUnionTraits<fbs::ServerCharacterMinigameT> {
+  static const NetPayload enum_value = NetPayload_ServerCharacterMinigame;
+};
+
+template<> struct NetPayloadUnionTraits<fbs::ClientCharacterShopT> {
+  static const NetPayload enum_value = NetPayload_ClientCharacterShop;
+};
+
+template<> struct NetPayloadUnionTraits<fbs::ServerCharacterShopT> {
+  static const NetPayload enum_value = NetPayload_ServerCharacterShop;
 };
 
 struct NetPayloadUnion {
@@ -1379,6 +1423,38 @@ struct NetPayloadUnion {
     return type == NetPayload_ServerCharacterPetMove ?
       reinterpret_cast<const fbs::ServerCharacterPetMoveT *>(value) : nullptr;
   }
+  fbs::ClientCharacterMinigameT *AsClientCharacterMinigame() {
+    return type == NetPayload_ClientCharacterMinigame ?
+      reinterpret_cast<fbs::ClientCharacterMinigameT *>(value) : nullptr;
+  }
+  const fbs::ClientCharacterMinigameT *AsClientCharacterMinigame() const {
+    return type == NetPayload_ClientCharacterMinigame ?
+      reinterpret_cast<const fbs::ClientCharacterMinigameT *>(value) : nullptr;
+  }
+  fbs::ServerCharacterMinigameT *AsServerCharacterMinigame() {
+    return type == NetPayload_ServerCharacterMinigame ?
+      reinterpret_cast<fbs::ServerCharacterMinigameT *>(value) : nullptr;
+  }
+  const fbs::ServerCharacterMinigameT *AsServerCharacterMinigame() const {
+    return type == NetPayload_ServerCharacterMinigame ?
+      reinterpret_cast<const fbs::ServerCharacterMinigameT *>(value) : nullptr;
+  }
+  fbs::ClientCharacterShopT *AsClientCharacterShop() {
+    return type == NetPayload_ClientCharacterShop ?
+      reinterpret_cast<fbs::ClientCharacterShopT *>(value) : nullptr;
+  }
+  const fbs::ClientCharacterShopT *AsClientCharacterShop() const {
+    return type == NetPayload_ClientCharacterShop ?
+      reinterpret_cast<const fbs::ClientCharacterShopT *>(value) : nullptr;
+  }
+  fbs::ServerCharacterShopT *AsServerCharacterShop() {
+    return type == NetPayload_ServerCharacterShop ?
+      reinterpret_cast<fbs::ServerCharacterShopT *>(value) : nullptr;
+  }
+  const fbs::ServerCharacterShopT *AsServerCharacterShop() const {
+    return type == NetPayload_ServerCharacterShop ?
+      reinterpret_cast<const fbs::ServerCharacterShopT *>(value) : nullptr;
+  }
 };
 
 template <bool B = false>
@@ -1609,6 +1685,18 @@ struct NetPacket FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const fbs::ServerCharacterPetMove *payload_as_ServerCharacterPetMove() const {
     return payload_type() == fbs::NetPayload_ServerCharacterPetMove ? static_cast<const fbs::ServerCharacterPetMove *>(payload()) : nullptr;
   }
+  const fbs::ClientCharacterMinigame *payload_as_ClientCharacterMinigame() const {
+    return payload_type() == fbs::NetPayload_ClientCharacterMinigame ? static_cast<const fbs::ClientCharacterMinigame *>(payload()) : nullptr;
+  }
+  const fbs::ServerCharacterMinigame *payload_as_ServerCharacterMinigame() const {
+    return payload_type() == fbs::NetPayload_ServerCharacterMinigame ? static_cast<const fbs::ServerCharacterMinigame *>(payload()) : nullptr;
+  }
+  const fbs::ClientCharacterShop *payload_as_ClientCharacterShop() const {
+    return payload_type() == fbs::NetPayload_ClientCharacterShop ? static_cast<const fbs::ClientCharacterShop *>(payload()) : nullptr;
+  }
+  const fbs::ServerCharacterShop *payload_as_ServerCharacterShop() const {
+    return payload_type() == fbs::NetPayload_ServerCharacterShop ? static_cast<const fbs::ServerCharacterShop *>(payload()) : nullptr;
+  }
   template<typename T> T *mutable_payload_as();
   fbs::ClientHeartbeat *mutable_payload_as_ClientHeartbeat() {
     return payload_type() == fbs::NetPayload_ClientHeartbeat ? static_cast<fbs::ClientHeartbeat *>(mutable_payload()) : nullptr;
@@ -1813,6 +1901,18 @@ struct NetPacket FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   fbs::ServerCharacterPetMove *mutable_payload_as_ServerCharacterPetMove() {
     return payload_type() == fbs::NetPayload_ServerCharacterPetMove ? static_cast<fbs::ServerCharacterPetMove *>(mutable_payload()) : nullptr;
+  }
+  fbs::ClientCharacterMinigame *mutable_payload_as_ClientCharacterMinigame() {
+    return payload_type() == fbs::NetPayload_ClientCharacterMinigame ? static_cast<fbs::ClientCharacterMinigame *>(mutable_payload()) : nullptr;
+  }
+  fbs::ServerCharacterMinigame *mutable_payload_as_ServerCharacterMinigame() {
+    return payload_type() == fbs::NetPayload_ServerCharacterMinigame ? static_cast<fbs::ServerCharacterMinigame *>(mutable_payload()) : nullptr;
+  }
+  fbs::ClientCharacterShop *mutable_payload_as_ClientCharacterShop() {
+    return payload_type() == fbs::NetPayload_ClientCharacterShop ? static_cast<fbs::ClientCharacterShop *>(mutable_payload()) : nullptr;
+  }
+  fbs::ServerCharacterShop *mutable_payload_as_ServerCharacterShop() {
+    return payload_type() == fbs::NetPayload_ServerCharacterShop ? static_cast<fbs::ServerCharacterShop *>(mutable_payload()) : nullptr;
   }
   void *mutable_payload() {
     return GetPointer<void *>(VT_PAYLOAD);
@@ -2374,6 +2474,38 @@ template<> inline fbs::ServerCharacterPetMove *NetPacket::mutable_payload_as<fbs
   return mutable_payload_as_ServerCharacterPetMove();
 }
 
+template<> inline const fbs::ClientCharacterMinigame *NetPacket::payload_as<fbs::ClientCharacterMinigame>() const {
+  return payload_as_ClientCharacterMinigame();
+}
+
+template<> inline fbs::ClientCharacterMinigame *NetPacket::mutable_payload_as<fbs::ClientCharacterMinigame>() {
+  return mutable_payload_as_ClientCharacterMinigame();
+}
+
+template<> inline const fbs::ServerCharacterMinigame *NetPacket::payload_as<fbs::ServerCharacterMinigame>() const {
+  return payload_as_ServerCharacterMinigame();
+}
+
+template<> inline fbs::ServerCharacterMinigame *NetPacket::mutable_payload_as<fbs::ServerCharacterMinigame>() {
+  return mutable_payload_as_ServerCharacterMinigame();
+}
+
+template<> inline const fbs::ClientCharacterShop *NetPacket::payload_as<fbs::ClientCharacterShop>() const {
+  return payload_as_ClientCharacterShop();
+}
+
+template<> inline fbs::ClientCharacterShop *NetPacket::mutable_payload_as<fbs::ClientCharacterShop>() {
+  return mutable_payload_as_ClientCharacterShop();
+}
+
+template<> inline const fbs::ServerCharacterShop *NetPacket::payload_as<fbs::ServerCharacterShop>() const {
+  return payload_as_ServerCharacterShop();
+}
+
+template<> inline fbs::ServerCharacterShop *NetPacket::mutable_payload_as<fbs::ServerCharacterShop>() {
+  return mutable_payload_as_ServerCharacterShop();
+}
+
 struct NetPacketBuilder {
   typedef NetPacket Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
@@ -2714,6 +2846,22 @@ inline bool VerifyNetPayload(::flatbuffers::VerifierTemplate<B> &verifier, const
       auto ptr = reinterpret_cast<const fbs::ServerCharacterPetMove *>(obj);
       return verifier.VerifyTable(ptr);
     }
+    case NetPayload_ClientCharacterMinigame: {
+      auto ptr = reinterpret_cast<const fbs::ClientCharacterMinigame *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case NetPayload_ServerCharacterMinigame: {
+      auto ptr = reinterpret_cast<const fbs::ServerCharacterMinigame *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case NetPayload_ClientCharacterShop: {
+      auto ptr = reinterpret_cast<const fbs::ClientCharacterShop *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case NetPayload_ServerCharacterShop: {
+      auto ptr = reinterpret_cast<const fbs::ServerCharacterShop *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
     default: return true;
   }
 }
@@ -3006,6 +3154,22 @@ inline void *NetPayloadUnion::UnPack(const void *obj, NetPayload type, const ::f
       auto ptr = reinterpret_cast<const fbs::ServerCharacterPetMove *>(obj);
       return ptr->UnPack(resolver);
     }
+    case NetPayload_ClientCharacterMinigame: {
+      auto ptr = reinterpret_cast<const fbs::ClientCharacterMinigame *>(obj);
+      return ptr->UnPack(resolver);
+    }
+    case NetPayload_ServerCharacterMinigame: {
+      auto ptr = reinterpret_cast<const fbs::ServerCharacterMinigame *>(obj);
+      return ptr->UnPack(resolver);
+    }
+    case NetPayload_ClientCharacterShop: {
+      auto ptr = reinterpret_cast<const fbs::ClientCharacterShop *>(obj);
+      return ptr->UnPack(resolver);
+    }
+    case NetPayload_ServerCharacterShop: {
+      auto ptr = reinterpret_cast<const fbs::ServerCharacterShop *>(obj);
+      return ptr->UnPack(resolver);
+    }
     default: return nullptr;
   }
 }
@@ -3285,6 +3449,22 @@ inline ::flatbuffers::Offset<void> NetPayloadUnion::Pack(::flatbuffers::FlatBuff
       auto ptr = reinterpret_cast<const fbs::ServerCharacterPetMoveT *>(value);
       return CreateServerCharacterPetMove(_fbb, ptr, _rehasher).Union();
     }
+    case NetPayload_ClientCharacterMinigame: {
+      auto ptr = reinterpret_cast<const fbs::ClientCharacterMinigameT *>(value);
+      return CreateClientCharacterMinigame(_fbb, ptr, _rehasher).Union();
+    }
+    case NetPayload_ServerCharacterMinigame: {
+      auto ptr = reinterpret_cast<const fbs::ServerCharacterMinigameT *>(value);
+      return CreateServerCharacterMinigame(_fbb, ptr, _rehasher).Union();
+    }
+    case NetPayload_ClientCharacterShop: {
+      auto ptr = reinterpret_cast<const fbs::ClientCharacterShopT *>(value);
+      return CreateClientCharacterShop(_fbb, ptr, _rehasher).Union();
+    }
+    case NetPayload_ServerCharacterShop: {
+      auto ptr = reinterpret_cast<const fbs::ServerCharacterShopT *>(value);
+      return CreateServerCharacterShop(_fbb, ptr, _rehasher).Union();
+    }
     default: return 0;
   }
 }
@@ -3561,6 +3741,22 @@ inline NetPayloadUnion::NetPayloadUnion(const NetPayloadUnion &u) : type(u.type)
     }
     case NetPayload_ServerCharacterPetMove: {
       value = new fbs::ServerCharacterPetMoveT(*reinterpret_cast<fbs::ServerCharacterPetMoveT *>(u.value));
+      break;
+    }
+    case NetPayload_ClientCharacterMinigame: {
+      value = new fbs::ClientCharacterMinigameT(*reinterpret_cast<fbs::ClientCharacterMinigameT *>(u.value));
+      break;
+    }
+    case NetPayload_ServerCharacterMinigame: {
+      value = new fbs::ServerCharacterMinigameT(*reinterpret_cast<fbs::ServerCharacterMinigameT *>(u.value));
+      break;
+    }
+    case NetPayload_ClientCharacterShop: {
+      value = new fbs::ClientCharacterShopT(*reinterpret_cast<fbs::ClientCharacterShopT *>(u.value));
+      break;
+    }
+    case NetPayload_ServerCharacterShop: {
+      value = new fbs::ServerCharacterShopT(*reinterpret_cast<fbs::ServerCharacterShopT *>(u.value));
       break;
     }
     default:
@@ -3907,6 +4103,26 @@ inline void NetPayloadUnion::Reset() {
     }
     case NetPayload_ServerCharacterPetMove: {
       auto ptr = reinterpret_cast<fbs::ServerCharacterPetMoveT *>(value);
+      delete ptr;
+      break;
+    }
+    case NetPayload_ClientCharacterMinigame: {
+      auto ptr = reinterpret_cast<fbs::ClientCharacterMinigameT *>(value);
+      delete ptr;
+      break;
+    }
+    case NetPayload_ServerCharacterMinigame: {
+      auto ptr = reinterpret_cast<fbs::ServerCharacterMinigameT *>(value);
+      delete ptr;
+      break;
+    }
+    case NetPayload_ClientCharacterShop: {
+      auto ptr = reinterpret_cast<fbs::ClientCharacterShopT *>(value);
+      delete ptr;
+      break;
+    }
+    case NetPayload_ServerCharacterShop: {
+      auto ptr = reinterpret_cast<fbs::ServerCharacterShopT *>(value);
       delete ptr;
       break;
     }

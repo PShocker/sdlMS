@@ -1897,6 +1897,81 @@ void CharacterLogicSystem::RunUnsitChair(GameCharacter& g_character) {
   return;
 }
 
+void CharacterLogicSystem::RunMount(GameCharacter& g_character,
+                                    const std::u16string& mount_id) {
+  // 095：骑乘与椅子/变身互斥（alert 检查在使用入口做，这里服务端
+    // 同步远程玩家时不能再依赖本地 self 的状态）。
+  if (!g_character.morph.empty() || !g_character.mount.empty()) {
+    return;
+  }
+  RunUnsitChair(g_character);
+
+  // 形态 id：坐骑道具 → TamingMob 形态；本项目精简客户端的
+  // TamingMob_000.wz 只有 0001~0025/1000（无 0190xxxx 完整贴图），
+  // 找不到时回退 1000（speed=200 / jump=120 / fatigue=5）。
+  std::u16string form = mount_id.size() >= 8 ? mount_id.substr(4) : u"1000";
+  auto* info = WzResource::taming_mob_->find(form + u".img/info");
+  if (info == nullptr || info->get_child(u"speed") == nullptr) {
+    form = u"1000";
+    info = WzResource::taming_mob_->find(form + u".img/info");
+  }
+  if (info == nullptr || info->get_child(u"speed") == nullptr) {
+    return;  // 形态数据缺失，不上骑。
+  }
+  g_character.mount = form;
+  g_character.mount_item = mount_id;
+  g_character.action_index = 0;
+  g_character.action_time = 0;
+
+  if (&g_character == &CharacterGameInstance::self_) {
+    // 095：骑乘特效（Skill/35001002 的 special/effect）；本项目无该素材，
+    // 用音效代替。状态广播走 BUFF_ITEM（同椅子/变身模式）。
+    AudioGameInstance::PlayNow(u"UI.img/BtMouseClick");
+    CharacterStatGameInstance::Update();
+
+    fbs::StateT st;
+    st.state = fbs::StateEnum_BUFF_ITEM;
+    st.val = std::stoi(std::string{mount_id.begin(), mount_id.end()});
+    st.sub_val = 1;
+    ccs_.payload.push_back(std::make_unique<fbs::StateT>(st));
+
+    st.state = fbs::StateEnum_ITEM_USE;
+    st.sub_val = 1;
+    ccs_.payload.push_back(std::make_unique<fbs::StateT>(st));
+  }
+  return;
+}
+
+void CharacterLogicSystem::RunUnmount(GameCharacter& g_character) {
+  if (g_character.mount.empty()) {
+    return;
+  }
+  // 先保存坐骑道具 id 再清（下骑回执要用）。
+  std::u16string mount_id = g_character.mount_item;
+  g_character.mount = u"";
+  g_character.mount_item = u"";
+  g_character.action_index = 0;
+  g_character.action_time = 0;
+
+  if (&g_character == &CharacterGameInstance::self_) {
+    AudioGameInstance::PlayNow(u"UI.img/BtMouseClick");
+    CharacterStatGameInstance::Update();
+
+    // 下骑状态：回执坐骑道具 id + sub_val=0（同椅子解除模式），
+    // 远程端才能正确走 TamingMob 分支清除。
+    fbs::StateT st;
+    st.state = fbs::StateEnum_BUFF_ITEM;
+    st.val = std::stoi(std::string{mount_id.begin(), mount_id.end()});
+    st.sub_val = 0;
+    ccs_.payload.push_back(std::make_unique<fbs::StateT>(st));
+
+    st.state = fbs::StateEnum_ITEM_USE;
+    st.sub_val = 0;
+    ccs_.payload.push_back(std::make_unique<fbs::StateT>(st));
+  }
+  return;
+}
+
 void CharacterLogicSystem::RunRecovery(GameCharacter& g_character) {
   if (&g_character != &CharacterGameInstance::self_ ||
       g_character.action == u"dead") {

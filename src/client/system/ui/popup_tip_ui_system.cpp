@@ -37,17 +37,18 @@ namespace sdlms {
 namespace {
 
 // FadeYesNo 确认框（173x44）位于状态栏上方居中，坐标沿用 095 CUIFadeYesNo。
-SDL_FPoint TradeBoxPos() {
+// 交易邀请与五子棋请求（悔棋/求和）共用。
+SDL_FPoint FadeYesBoxPos() {
   auto& camera = CameraGameInstance::camera_;
   return {static_cast<float>((camera.w - 173) / 2),
           static_cast<float>(camera.h - 73 - 33 - 44)};
 }
 
-SDL_FRect TradeOkRect(SDL_FPoint p) {
+SDL_FRect FadeYesOkRect(SDL_FPoint p) {
   return {p.x + 136, p.y + 7, 12, 12};
 }
 
-SDL_FRect TradeCancelRect(SDL_FPoint p) {
+SDL_FRect FadeYesCancelRect(SDL_FPoint p) {
   return {p.x + 136, p.y + 20, 12, 12};
 }
 
@@ -62,8 +63,10 @@ void PopupTipUiSystem::RenderBackgrnd(GamePopupTip& t) {
   SDL_FPoint icon_pos{0, 0};
 
   switch (t.type) {
-    case PopupTipEnums::kTrade: {
-      auto p = TradeBoxPos();
+    case PopupTipEnums::kTrade:
+    case PopupTipEnums::kMinigame:
+    case PopupTipEnums::kParty: {
+      auto p = FadeYesBoxPos();
       static auto bg = WzResource::LoadTexture(
           WzResource::ui_->find(u"FadeYesNo.img/FadeYesNo/backgrnd3"));
       SDL_FRect r{p.x, p.y, static_cast<float>(bg->w),
@@ -71,16 +74,6 @@ void PopupTipUiSystem::RenderBackgrnd(GamePopupTip& t) {
       SDL_SetTextureAlphaMod(bg, static_cast<uint8_t>(t.alpha));
       SDL_RenderTexture(Window::renderer_, bg, nullptr, &r);
       return;
-    }
-
-    case PopupTipEnums::kParty: {
-      static auto texture = WzResource::LoadTexture(
-
-          WzResource::ui_->find(u"StatusBar.img/submenu/backgrnd/1"));
-
-      te = texture;
-
-      break;
     }
 
     case PopupTipEnums::kQuest: {
@@ -185,7 +178,7 @@ void PopupTipUiSystem::RenderText(GamePopupTip& t) {
     }
 
     case PopupTipEnums::kTrade: {
-      auto p = TradeBoxPos();
+      auto p = FadeYesBoxPos();
       auto* player = std::any_cast<fbs::PlayerT>(&t.data);
       if (player != nullptr && player->character != nullptr) {
         std::u16string name{player->character->name.begin(),
@@ -193,11 +186,40 @@ void PopupTipUiSystem::RenderText(GamePopupTip& t) {
         Freetype::LoadSize(11);
         Freetype::LoadColor(255, 255, 255, t.alpha);
         Freetype::LoadAligned(true);
-        Freetype::DrawLine(name + u" wants to trade?", p.x + 24, p.y + 6);
+        Freetype::DrawLine(name + u" wants to trade?", p.x + 14, p.y + 16);
       }
       break;
     }
+
+    // 五子棋请求（095 OnRetreatRequest / OnTieRequest）。
+    case PopupTipEnums::kMinigame: {
+      auto p = FadeYesBoxPos();
+      auto* req = std::any_cast<GameOmokRequestTip>(&t.data);
+      if (req != nullptr && req->player.character != nullptr) {
+        std::u16string name{req->player.character->name.begin(),
+                            req->player.character->name.end()};
+        auto text = name + (req->kind == 6 ? u" asks for an undo."
+                                           : u" asks for a draw.");
+        Freetype::LoadSize(11);
+        Freetype::LoadColor(255, 255, 255, t.alpha);
+        Freetype::LoadAligned(true);
+        Freetype::DrawLine(text, p.x + 14, p.y + 16);
+      }
+      break;
+    }
+    // 组队邀请（095 CUIFadeYesNo CreatePartyInvite）。
     case PopupTipEnums::kParty: {
+      auto p = FadeYesBoxPos();
+      auto* player = std::any_cast<fbs::PlayerT>(&t.data);
+      if (player != nullptr && player->character != nullptr) {
+        std::u16string name{player->character->name.begin(),
+                            player->character->name.end()};
+        Freetype::LoadSize(11);
+        Freetype::LoadColor(255, 255, 255, t.alpha);
+        Freetype::LoadAligned(true);
+        Freetype::DrawLine(name + u" invites you to the party.", p.x + 14,
+                           p.y + 16);
+      }
       break;
     }
   }
@@ -212,8 +234,10 @@ void PopupTipUiSystem::RenderButton(GamePopupTip& t) {
   std::vector<SDL_FRect> rects = {};
 
   switch (t.type) {
-    case PopupTipEnums::kTrade: {
-      auto p = TradeBoxPos();
+    case PopupTipEnums::kTrade:
+    case PopupTipEnums::kMinigame:
+    case PopupTipEnums::kParty: {
+      auto p = FadeYesBoxPos();
       auto draw_btn = [&](const char16_t* base, SDL_FRect r) {
         bool hover = SDL_PointInRectFloat(&Window::mouse_pos_, &r);
         std::u16string path =
@@ -228,17 +252,9 @@ void PopupTipUiSystem::RenderButton(GamePopupTip& t) {
                      static_cast<float>(tex->h)};
         SDL_RenderTexture(Window::renderer_, tex, nullptr, &rr);
       };
-      draw_btn(u"FadeYesNo.img/FadeYesNo/BtOK", TradeOkRect(p));
-      draw_btn(u"FadeYesNo.img/FadeYesNo/BtCancel", TradeCancelRect(p));
+      draw_btn(u"FadeYesNo.img/FadeYesNo/BtOK", FadeYesOkRect(p));
+      draw_btn(u"FadeYesNo.img/FadeYesNo/BtCancel", FadeYesCancelRect(p));
       return;
-    }
-
-    case PopupTipEnums::kParty: {
-      nodes = {};
-
-      rects = {};
-
-      break;
     }
 
     case PopupTipEnums::kQuest: {
@@ -320,14 +336,17 @@ bool PopupTipUiSystem::Render() {
 }
 
 
-void PopupTipUiSystem::EventButtonParty(GamePopupTip& t) {
-  fbs::ClientCharacterPartyT ccp;
-
-  ccp.step = 1;
-
-  ClientRequest::SendToHost(ccp);
-
-  return;
+void PopupTipUiSystem::EventButtonParty(GamePopupTip& t, uint8_t accept) {
+  // 接受/拒绝组队邀请（095 CP 145 step 3；拒绝本地忽略，这里回执邀请人）。
+  auto* player = std::any_cast<fbs::PlayerT>(&t.data);
+  if (player != nullptr && player->client_id != 0) {
+    fbs::ClientCharacterPartyT cp;
+    cp.step = accept ? 1 : 2;
+    cp.to_id = player->client_id;
+    ClientRequest::SendToHost(cp);
+  }
+  std::erase_if(PopupTipGameInstance::data_,
+                [&t](const auto& tip) { return &t == &tip; });
 }
 
 
@@ -344,6 +363,19 @@ void PopupTipUiSystem::EventButtonTrade(GamePopupTip& t) {
 }
 
 
+// 五子棋请求答复：OK 同意（095 OnRetreatResult / OnTieResult）。
+void PopupTipUiSystem::EventButtonOmok(GamePopupTip& t, uint8_t accept) {
+  auto* req = std::any_cast<GameOmokRequestTip>(&t.data);
+  if (req != nullptr && req->player.client_id != 0) {
+    fbs::ClientCharacterMinigameT m;
+    m.step = static_cast<uint8_t>(req->kind + 1);  // 7=悔棋答复 / 9=求和答复
+    m.x = accept;
+    ClientRequest::SendToHost(m);
+  }
+  std::erase_if(PopupTipGameInstance::data_,
+                [&t](const auto& tip) { return &t == &tip; });
+}
+
 void PopupTipUiSystem::EventButtonOk(GamePopupTip& t) {
   switch (t.type) {
     case PopupTipEnums::kTrade: {
@@ -352,8 +384,14 @@ void PopupTipUiSystem::EventButtonOk(GamePopupTip& t) {
       break;
     }
 
+    case PopupTipEnums::kMinigame: {
+      EventButtonOmok(t, 1);
+
+      break;
+    }
+
     case PopupTipEnums::kParty: {
-      EventButtonParty(t);
+      EventButtonParty(t, 1);
 
       break;
     }
@@ -398,9 +436,9 @@ bool PopupTipUiSystem::EventUI(SDL_Event* event) {
 
     switch (t.type) {
       case PopupTipEnums::kTrade: {
-        auto p = TradeBoxPos();
-        SDL_FRect ok = TradeOkRect(p);
-        SDL_FRect cancel = TradeCancelRect(p);
+        auto p = FadeYesBoxPos();
+        SDL_FRect ok = FadeYesOkRect(p);
+        SDL_FRect cancel = FadeYesCancelRect(p);
         if (SDL_PointInRectFloat(&Window::mouse_pos_, &ok)) {
           EventButtonTrade(t);  // 接受
           return true;
@@ -411,7 +449,32 @@ bool PopupTipUiSystem::EventUI(SDL_Event* event) {
         }
         break;
       }
+      case PopupTipEnums::kMinigame: {
+        auto p = FadeYesBoxPos();
+        SDL_FRect ok = FadeYesOkRect(p);
+        SDL_FRect cancel = FadeYesCancelRect(p);
+        if (SDL_PointInRectFloat(&Window::mouse_pos_, &ok)) {
+          EventButtonOmok(t, 1);  // 同意
+          return true;
+        }
+        if (SDL_PointInRectFloat(&Window::mouse_pos_, &cancel)) {
+          EventButtonOmok(t, 0);  // 拒绝
+          return true;
+        }
+        break;
+      }
       case PopupTipEnums::kParty: {
+        auto p = FadeYesBoxPos();
+        SDL_FRect ok = FadeYesOkRect(p);
+        SDL_FRect cancel = FadeYesCancelRect(p);
+        if (SDL_PointInRectFloat(&Window::mouse_pos_, &ok)) {
+          EventButtonParty(t, 1);  // 接受
+          return true;
+        }
+        if (SDL_PointInRectFloat(&Window::mouse_pos_, &cancel)) {
+          EventButtonParty(t, 0);  // 拒绝
+          return true;
+        }
         break;
       }
 
