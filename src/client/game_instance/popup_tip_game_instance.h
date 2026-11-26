@@ -15,6 +15,8 @@ class PopupTipGameInstance {
   static void AddQuestTip(const std::u16string& id);
   // 五子棋房间内的悔棋/求和请求（FadeYesNo 确认框）。
   static void AddOmokTip(uint8_t kind, fbs::PlayerT player_t);
+  // MapleChat 聊天邀请（095 CUIFadeYesNo CreateMSMInvite）。
+  static void AddMapleChatTip(uint64_t sn, fbs::PlayerT player_t);
 
   // 登录读档前清理旧提示，并暂时禁止任务完成提示。
   static void Load();

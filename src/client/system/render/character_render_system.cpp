@@ -306,17 +306,11 @@ void CharacterRenderSystem::RenderNametag(GameCharacter& g_character) {
   auto y = g_character.pos.y;
 
   std::u16string nametag = u"";
-  for (auto r : {g_character.ring0_deco, g_character.ring1_deco}) {
-    if (r.has_value()) {
-      auto info = EquipGameInstance::LoadEquipInfo(r->id);
-      if (info->get_child(u"nameTag")) {
-        auto tmp =
-            static_cast<wz::Property<int>*>(info->get_child(u"nameTag"))->get();
-        auto tmp2 = std::to_string(tmp);
-        nametag = {tmp2.begin(), tmp2.end()};
-        break;
-      }
-    }
+  // 095 CUser::SetAbilityEquip + MakeNameTag：点装戒指的 info/nameTag。
+  auto style = EquipGameInstance::LoadRingStyle(g_character, u"nameTag", 0);
+  if (style != 0) {
+    auto tmp2 = std::to_string(style);
+    nametag = {tmp2.begin(), tmp2.end()};
   }
   if (nametag.empty()) {
     SDL_FRect rect;

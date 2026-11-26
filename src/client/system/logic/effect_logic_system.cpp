@@ -5,6 +5,7 @@
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
+#include "src/client/game_instance/pet_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/window/window.h"
@@ -262,6 +263,14 @@ bool EffectLogicSystem::Run() {
   }
   for (auto& m : MobGameInstance::data_ | std::views::values) {
     RunAnimate(m.mob.effect);
+  }
+  // 宠物特效（095 CPet::ShowEffect：跟丢拉回的 PetEff warp 等），
+  // 与角色特效同一套推进。
+  for (auto& pet : PetGameInstance::data_) {
+    RunAnimate(pet.effect);
+  }
+  for (auto& pet : PetGameInstance::others_ | std::views::values) {
+    RunAnimate(pet.effect);
   }
   for (auto& de : EffectGameInstance::data_) {
     RunAnimate(de);

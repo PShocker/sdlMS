@@ -80,6 +80,9 @@ union NetPayload {
     // 人物摆摊（追加在末尾）
     ClientCharacterShop,
     ServerCharacterShop,
+    // MapleChat 聊天室（追加在末尾）
+    ClientCharacterMessenger,
+    ServerCharacterMessenger,
 }
 // 统一的网络包（最外层包装）
 table NetPacket {

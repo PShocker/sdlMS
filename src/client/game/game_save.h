@@ -58,6 +58,9 @@ struct PetSaveData {
   // 亲密度（095 CPet m_nCloseness）：宠物食品的 incTameness 增加。
   uint8_t closeness = 0;
   bool active = false;
+  // 宠物装备道具 id（如 05010000）；0 = 没有穿戴。穿戴时随宠物消息
+  // 同步给其他玩家（远端据此画宠物装备层并计算能力位）。
+  uint32_t equip_id = 0;
 };
 
 // 好友存档：id 为好友的人物唯一标识（高32位创建时间戳+低32位随机数）。

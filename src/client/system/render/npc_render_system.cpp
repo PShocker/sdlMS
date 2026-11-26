@@ -43,6 +43,10 @@ void NpcRenderSystem::RenderNametag(const std::u16string& text, SDL_FPoint p) {
 }
 
 void NpcRenderSystem::RenderNametag(GameNpc& g_npc) {
+  // 095 hideName（MapleTV info/hideName=1）：摆设不显示名字/功能行。
+  if (g_npc.maple_tv) {
+    return;
+  }
   auto npc_name = NpcGameInstance::LoadNpcText(g_npc.id, u"name");
   if (npc_name != u"") {
     RenderNametag(npc_name, {g_npc.pos.x, g_npc.pos.y});
@@ -93,7 +97,58 @@ void NpcRenderSystem::RenderChatballoon(GameNpc& g_npc) {
   ChatballoonRenderSystem::Render(chatballoon, pos);
 }
 
+// 095 CNpc::Init 的 bMapleTV 分支：模板立绘是 1x1 占位，外观全部由
+// UI/MapleTV.img 绘制——机身循环 TVon 动画（240x90，origin=(0,89)），
+// 广告 TVmedia/<段>/<帧>（240x180 大屏）画在 pos+(adX,adY)，两路独立
+// 计时（帧推进在 NpcLogicSystem::RunTvAnimate）。
+bool RenderMapleTV(GameNpc& g_npc) {
+  auto& camera = CameraGameInstance::camera_;
+  auto draw_frame = [&camera, &g_npc](wz::Node* frame, SDL_FPoint at) {
+    if (frame == nullptr || frame->get_child(u"origin") == nullptr) {
+      return;
+    }
+    auto texture = WzResource::LoadTexture(frame);
+    auto origin = WzResource::LoadFpoint(frame->get_child(u"origin"));
+    SDL_FRect pos_rect{
+        at.x - origin.x,
+        at.y - origin.y,
+        static_cast<float>(texture->w),
+        static_cast<float>(texture->h),
+    };
+    if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
+      pos_rect.x -= camera.x;
+      pos_rect.y -= camera.y;
+      SDL_RenderTextureRotated(Window::renderer_, texture, nullptr,
+                               &pos_rect, 0, nullptr,
+                               (SDL_FlipMode)g_npc.flip);
+    }
+  };
+  // 机身：TVon 动画帧索引沿用 g_npc.ani_index（与普通 NPC 相同的推进
+  // 节奏，由 RunTvAnimate 维护）。
+  if (auto* tv_on = NpcGameInstance::LoadMapleTVNode(u"TVon");
+      tv_on != nullptr) {
+    auto index = std::to_string(g_npc.ani_index);
+    draw_frame(tv_on->get_child(index), g_npc.pos);
+  }
+  // 广告：TVmedia/<段>/<帧> 于 (pos + adX, adY)。
+  std::u16string media = u"TVmedia/" + [&] {
+    auto s = std::to_string(g_npc.tv_media);
+    return std::u16string{s.begin(), s.end()};
+  }();
+  if (auto* seg = NpcGameInstance::LoadMapleTVNode(media); seg != nullptr) {
+    auto index = std::to_string(g_npc.tv_ani_index);
+    draw_frame(seg->get_child(index),
+               {g_npc.pos.x + static_cast<float>(g_npc.tv_ad_x),
+                g_npc.pos.y + static_cast<float>(g_npc.tv_ad_y)});
+  }
+  return true;
+}
+
 bool NpcRenderSystem::RenderNpc(GameNpc& g_npc) {
+  // MapleTV 摆设：不画 1x1 立绘，改画机身 + 广告。
+  if (g_npc.maple_tv) {
+    return RenderMapleTV(g_npc);
+  }
   auto npc_node = NpcGameInstance::LoadLinkNpcNode(g_npc.id);
   if (npc_node == nullptr) {
     return false;

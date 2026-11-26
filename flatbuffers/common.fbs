@@ -286,6 +286,9 @@ table PetSave{
     // 亲密度（095 CPet：宠物食品 spec/incTameness 增加，宠物信息窗口显示）
     closeness:uint8;
     active:bool;
+    // 宠物装备道具 id（如 05010000）；0 = 没有穿戴。装备外观随
+    // 宠物消息同步（不走角色帧），远端渲染宠物时用它画装备层。
+    equip_id:uint32;
 }
 
 table CharacterSave{

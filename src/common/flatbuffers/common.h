@@ -4087,6 +4087,7 @@ struct PetSaveT : public ::flatbuffers::NativeTable {
   uint8_t fullness = 0;
   uint8_t closeness = 0;
   bool active = false;
+  uint32_t equip_id = 0;
 };
 
 struct PetSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -4098,7 +4099,8 @@ struct PetSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_LEVEL = 8,
     VT_FULLNESS = 10,
     VT_CLOSENESS = 12,
-    VT_ACTIVE = 14
+    VT_ACTIVE = 14,
+    VT_EQUIP_ID = 16
   };
   uint32_t item_id() const {
     return GetField<uint32_t>(VT_ITEM_ID, 0);
@@ -4136,6 +4138,12 @@ struct PetSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool mutate_active(bool _active = 0) {
     return SetField<uint8_t>(VT_ACTIVE, static_cast<uint8_t>(_active), 0);
   }
+  uint32_t equip_id() const {
+    return GetField<uint32_t>(VT_EQUIP_ID, 0);
+  }
+  bool mutate_equip_id(uint32_t _equip_id = 0) {
+    return SetField<uint32_t>(VT_EQUIP_ID, _equip_id, 0);
+  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -4146,6 +4154,7 @@ struct PetSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyField<uint8_t>(verifier, VT_FULLNESS, 1) &&
            VerifyField<uint8_t>(verifier, VT_CLOSENESS, 1) &&
            VerifyField<uint8_t>(verifier, VT_ACTIVE, 1) &&
+           VerifyField<uint32_t>(verifier, VT_EQUIP_ID, 4) &&
            verifier.EndTable();
   }
   PetSaveT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -4175,6 +4184,9 @@ struct PetSaveBuilder {
   void add_active(bool active) {
     fbb_.AddElement<uint8_t>(PetSave::VT_ACTIVE, static_cast<uint8_t>(active), 0);
   }
+  void add_equip_id(uint32_t equip_id) {
+    fbb_.AddElement<uint32_t>(PetSave::VT_EQUIP_ID, equip_id, 0);
+  }
   explicit PetSaveBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -4193,8 +4205,10 @@ inline ::flatbuffers::Offset<PetSave> CreatePetSave(
     uint8_t level = 0,
     uint8_t fullness = 0,
     uint8_t closeness = 0,
-    bool active = false) {
+    bool active = false,
+    uint32_t equip_id = 0) {
   PetSaveBuilder builder_(_fbb);
+  builder_.add_equip_id(equip_id);
   builder_.add_name(name);
   builder_.add_item_id(item_id);
   builder_.add_active(active);
@@ -4211,7 +4225,8 @@ inline ::flatbuffers::Offset<PetSave> CreatePetSaveDirect(
     uint8_t level = 0,
     uint8_t fullness = 0,
     uint8_t closeness = 0,
-    bool active = false) {
+    bool active = false,
+    uint32_t equip_id = 0) {
   auto name__ = name ? _fbb.CreateVector<uint16_t>(*name) : 0;
   return fbs::CreatePetSave(
       _fbb,
@@ -4220,7 +4235,8 @@ inline ::flatbuffers::Offset<PetSave> CreatePetSaveDirect(
       level,
       fullness,
       closeness,
-      active);
+      active,
+      equip_id);
 }
 
 ::flatbuffers::Offset<PetSave> CreatePetSave(::flatbuffers::FlatBufferBuilder &_fbb, const PetSaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -6458,6 +6474,7 @@ inline void PetSave::UnPackTo(PetSaveT *_o, const ::flatbuffers::resolver_functi
   { auto _e = fullness(); _o->fullness = _e; }
   { auto _e = closeness(); _o->closeness = _e; }
   { auto _e = active(); _o->active = _e; }
+  { auto _e = equip_id(); _o->equip_id = _e; }
 }
 
 inline ::flatbuffers::Offset<PetSave> CreatePetSave(::flatbuffers::FlatBufferBuilder &_fbb, const PetSaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -6474,6 +6491,7 @@ inline ::flatbuffers::Offset<PetSave> PetSave::Pack(::flatbuffers::FlatBufferBui
   auto _fullness = _o->fullness;
   auto _closeness = _o->closeness;
   auto _active = _o->active;
+  auto _equip_id = _o->equip_id;
   return fbs::CreatePetSave(
       _fbb,
       _item_id,
@@ -6481,7 +6499,8 @@ inline ::flatbuffers::Offset<PetSave> PetSave::Pack(::flatbuffers::FlatBufferBui
       _level,
       _fullness,
       _closeness,
-      _active);
+      _active,
+      _equip_id);
 }
 
 inline CharacterSaveT::CharacterSaveT(const CharacterSaveT &o)

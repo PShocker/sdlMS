@@ -23,6 +23,9 @@ class ContextMenuUiSystem : public UiComponentHost<ContextMenuUiSystem> {
   static void EventButtonParty();
   static void EventButtonTrade();
   static void EventButtonFriend();
+  // MapleChat 聊天邀请（BtMapleChat 图形即 INVITE TO CHAT）。
+  static void EventButtonMapleChat();
+  // 摆摊入口（无对应按钮贴图，自绘 SHOP 行）。
   static void EventButtonChat();
 
   static bool EventUI(SDL_Event* event);

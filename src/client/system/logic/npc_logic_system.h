@@ -21,6 +21,8 @@ class NpcLogicSystem {
   static void ChooseNext(GameNpc& g_npc);
   static void ChooseAfterMove(GameNpc& g_npc);
   static void ResetAnimate(GameNpc& g_npc);
+  // MapleTV（info/MapleTV）：机身/广告双路循环动画（不走状态机）。
+  static void RunTvAnimate(GameNpc& g_npc);
 
  public:
   static bool Run();

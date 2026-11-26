@@ -1,6 +1,7 @@
 #include "src/server/server_system_instance/server_system_instance.h"
 
 #include "src/server/server_instance/server_minigame_instance.h"
+#include "src/server/server_instance/server_messenger_instance.h"
 #include "src/server/server_instance/server_party_instance.h"
 #include "src/server/server_instance/server_player_shop_instance.h"
 #include "src/server/server_main.h"
@@ -26,6 +27,7 @@ void ServerSystemInstance::Enter(bool host) {
         ServerMinigameInstance::Run,
         ServerPartyInstance::Run,
         ServerPlayerShopInstance::Run,
+        ServerMessengerInstance::Run,
     };
   } else {
     ServerSystem::server_systems_ = {

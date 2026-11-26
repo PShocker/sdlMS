@@ -9,6 +9,7 @@
 #include "src/common/wz/wz_resource.h"
 
 #include <format>
+#include <cstdlib>
 #include <string>
 
 namespace sdlms {
@@ -56,6 +57,15 @@ void GainLogUiSystem::RenderText() {
         text = WzResource::LoadMSString(u"gainExp",
                                         u"You received EXP (+") +
                exp_str2 + u")";
+        break;
+      }
+      case GainEnum::kCloseness: {
+        // 095 CPet::OnValidateStat：亲密度变化时屏幕提示
+        // （String[394] "亲密度增加 (+%d)" / String[395] "亲密度下降 (%d)"）。
+        auto num_str = std::to_string(std::abs(g_log.num));
+        auto num2 = std::u16string{num_str.begin(), num_str.end()};
+        text = g_log.num >= 0 ? u"亲密度增加 (+" + num2 + u")"
+                              : u"亲密度下降 (" + num2 + u")";
         break;
       }
     }

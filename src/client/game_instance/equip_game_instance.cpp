@@ -332,6 +332,60 @@ wz::Node* EquipGameInstance::LoadEquipInfo(const std::u16string& id) {
   return cache[id];
 }
 
+// 095 CUser::SetAbilityEquip：戒指槽 info 的 nameTag/chatBalloon。
+// 点装戒指是 Item.wz/Cash 下的道具（本数据包 050107xx 等），没有
+// Character.wz 资源——必须从 Item.wz 读，否则点装名片/气泡永远取不到。
+int32_t EquipGameInstance::LoadRingStyle(const std::u16string& id,
+                                         const char16_t* field) {
+  static std::flat_map<std::u16string, int32_t> cache;
+  auto key = id + u"/" + field;
+  if (!cache.contains(key)) {
+    int32_t result = 0;
+    auto read = [&field](wz::Node* info) -> int32_t {
+      if (info == nullptr) {
+        return 0;
+      }
+      auto* v = info->get_child(field);
+      if (v == nullptr || v->type != wz::Type::Int) {
+        return 0;
+      }
+      return static_cast<wz::Property<int32_t>*>(v)->get();
+    };
+    // 1) 点装：Item.wz/Cash/<段>.img/<id>/info。
+    if (id.size() >= 8) {
+      auto seg = id.substr(0, 4) + u".img";
+      if (auto* image = WzResource::item_->find(u"Cash/" + seg);
+          image != nullptr) {
+        if (auto* item = image->get_child(id); item != nullptr) {
+          result = read(item->get_child(u"info"));
+        }
+      }
+    }
+    // 2) 普通戒指（带同名字段的普通装备）：Character.wz/Ring。
+    if (result == 0) {
+      result = read(LoadEquipInfo(id));
+    }
+    cache[key] = result;
+  }
+  return cache.at(key);
+}
+
+int32_t EquipGameInstance::LoadRingStyle(const GameCharacter& g,
+                                         const char16_t* field, int32_t def) {
+  // 095 SetAbilityEquip 遍历 g_anRingBodyPart 的顺序语义：后扫到的非零
+  // 值覆盖前面的；这里 ring0 先查、非零立即返回。
+  for (auto r : {g.ring0_deco, g.ring1_deco}) {
+    if (!r.has_value()) {
+      continue;
+    }
+    auto style = LoadRingStyle(r->id, field);
+    if (style != 0) {
+      return style;
+    }
+  }
+  return def;
+}
+
 
 EquipGameInstance::WeaponType EquipGameInstance::LoadWeaponType(
 
@@ -400,6 +454,20 @@ std::u16string EquipGameInstance::LoadEquipName(const std::u16string& id) {
   }
 
   return static_cast<wz::Property<std::u16string>*>(str)->get();
+}
+
+// 095 GW_ItemSlotEquip::GetItemGrade（option & 3）：
+//   0=未强化 1=卷轴成功（蓝名 #5CA1FF）2=诅咒卷成功（紫名 #C261FF）
+// 3=特级（橙 #FFCC00，DrawGradeFrame 同款）。由装备的强化记录推导。
+int EquipGameInstance::LoadEquipGrade(const GameEquipItem& equip) {
+  int grade = 0;
+  for (const auto& scroll : equip.scroll) {
+    if (!scroll.success) {
+      continue;
+    }
+    grade = std::max(grade, scroll.cursed ? 2 : 1);
+  }
+  return grade;
 }
 
 
@@ -1154,7 +1222,7 @@ int EquipGameInstance::UseEquipScroll(GameEquipItem& eqp, GameConsumeItem& s) {
 
     const bool scroll_success = dist(RandomGameInstance::gen_) < success;
 
-    eqp.scroll.push_back({s.id, scroll_success});
+    eqp.scroll.push_back({s.id, scroll_success, cursed > 0});
 
 
     auto& sf = CharacterGameInstance::self_;

@@ -147,10 +147,13 @@ table ServerCharacterPet {
 }
 
 // 其他玩家宠物的动作/气泡（095 CPet::DoAction）。
+// action="warp" 表示跟丢拉回特效：x/y 是旧位置（特效在旧位置播放）。
 table ServerCharacterPetAction {
     client_id:uint64;
     action:string;
     chat:[uint16];
+    x:float;
+    y:float;
 }
 
 // 其他玩家宠物的位置/动画同步（095 CPet 的移动包）。
@@ -318,4 +321,23 @@ table ServerCharacterShop {
     meso:uint64;         // 金币（购买后买家余额 / 摊主收入）
     chat:[uint16];       // 店名 / 提示文本
     goods:[ShopGoods];   // 货架（进店时）
+}
+
+// MapleChat 聊天室同步（095 CUIMessenger，SP 143 子码 0-8）。
+table ServerCharacterMessenger {
+    step:uint8;          // 0=成员进入（player=进入者，x=slot；095 OnEnter）
+                         // 1=自己进入结果（x=自己slot；players=全员快照按下标=slot；
+                         //   x=255=进入失败"不能参与受招待的聊天房"；095 OnSelfEnterResult）
+                         // 2=成员离开（player=离开者，to_id=离开者id，x=slot；095 OnLeave）
+                         // 3=邀请弹窗（player=邀请人，to_id=房间SN；095 OnInvite）
+                         // 4=邀请回执（player=目标：x:1=已发出邀请 0=找不到玩家
+                         //   2=已在聊天室 3=聊天室已满；095 OnInviteResult）
+                         // 5=对方拒绝（player=拒绝者：x:0=拒绝邀请 1=拒绝聊天状态；095 OnBlocked）
+                         // 6=聊天（player=发送者，chat=文本）/
+                         //   打字状态（chat空，x:1=正在输入 0=停止；095 OnChat）
+    to_id:uint64;
+    player:Player;
+    players:[Player];
+    x:uint8;
+    chat:[uint16];
 }

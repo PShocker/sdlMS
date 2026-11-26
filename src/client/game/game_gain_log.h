@@ -5,7 +5,7 @@
 
 namespace sdlms {
 
-enum class GainEnum { kItem, kExperience };
+enum class GainEnum { kItem, kExperience, kCloseness };
 
 struct GameGainLog {
   std::u16string id;

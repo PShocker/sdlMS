@@ -107,7 +107,7 @@ SDL_AppResult AppInit(void** appstate, int argc, char* argv[]) {
   ItemGameInstance::EnsureMountItem();
   // QuestGameInstance::Load(cs);
 
-  uint32_t start_map = 10003062;
+  uint32_t start_map = 10003000;
   SceneSystemInstance::EnterPrepare(start_map, u"sp", 0);
   // SceneSystemInstance::prepare_pos = {600, -470};
   // CharacterCreateSystemInstance::Enter();

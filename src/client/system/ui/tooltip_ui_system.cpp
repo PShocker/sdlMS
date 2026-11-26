@@ -575,7 +575,23 @@ void TooltipUiSystem::RenderEquip(GameEquipItem& equip, float x, float y) {
     equip_name =
         equip_name + u"(+" + std::u16string{tmp.begin(), tmp.end()} + u")";
   }
+  // 095：强化过的装备名字变色（CItemInfo::DrawGradeFrame 同款配色）——
+  // 卷轴成功=蓝(#5CA1FF)，诅咒卷成功=紫(#C261FF)，未强化=白。
+  switch (EquipGameInstance::LoadEquipGrade(equip)) {
+    case 2: {
+      Freetype::LoadColor(0xC2, 0x61, 0xFF, 255);
+      break;
+    }
+    case 1: {
+      Freetype::LoadColor(0x5C, 0xA1, 0xFF, 255);
+      break;
+    }
+    default: {
+      break;
+    }
+  }
   Freetype::DrawLine(equip_name, x + 20, y + 10);
+  Freetype::LoadColor(255, 255, 255, 255);
   Freetype::LoadBold(false);
 
   static auto item_base = WzResource::LoadTexture(

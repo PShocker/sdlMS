@@ -1,4 +1,5 @@
 #include "src/client/system/render/chatballoon_render_system.h"
+#include "src/client/system/render/effect_render_system.h"
 #include "src/client/system/render/pet_render_system.h"
 
 #include "src/client/game_instance/camera_game_instance.h"
@@ -16,6 +17,7 @@
 #include <cmath>
 #include <cstdint>
 #include <flat_map>
+#include <format>
 #include <string>
 
 namespace sdlms {
@@ -24,13 +26,15 @@ namespace {
 
 // 宠物装备：Character.wz/PetEquip/<装备 id>.img/<宠物 id>/<动作>/<帧>。
 // 装备图里每个动作/帧和宠物本体一一对应，用同一个 origin 叠在宠物身上画
-// （095 CPet::GetItemSlot / LoadLayer 的宠物装备层）。owner 是宠物主人
-// （自己或其他玩家），装备槽在角色身上。
+// （095 CPet::GetItemSlot / LoadLayer 的宠物装备层）。装备 id 随宠物
+// 消息同步（pet.equip_id）：自己的来自穿戴上报，其他玩家的来自
+// ServerCharacterPet，不再读主人角色的装备槽。
 void DrawPetEquip(const GamePet& pet, const GameCharacter& owner) {
-  if (!owner.pet_equip.has_value()) {
+  if (pet.equip_id == 0) {
     return;
   }
-  auto& equip_id = owner.pet_equip->id;
+  auto equip_text = std::format("{:08d}", pet.equip_id);
+  auto equip_id = std::u16string{equip_text.begin(), equip_text.end()};
   static std::flat_map<std::u16string, wz::Node*> cache;
   wz::Node* image = nullptr;
   if (auto it = cache.find(equip_id); it != cache.end()) {
@@ -174,9 +178,14 @@ bool RenderPet(GamePet& pet, const GameCharacter& owner, bool hanging) {
   pos_rect.x -= camera.x;
   pos_rect.y -= camera.y;
   SDL_RenderTextureRotated(Window::renderer_, texture, nullptr, &pos_rect, 0,
-                           nullptr,
-                           pet.flip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
+                            nullptr,
+                            pet.flip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
   DrawPetEquip(pet, owner);
+  // 095 CPet::ShowEffect：地图特效（跟丢拉回的 PetEff warp 等）。
+  // 动画推进/生命周期在 PetLogicSystem::Run 里，这里只画。
+  for (auto& e : pet.effect) {
+    EffectRenderSystem::Render(pet.pos, e, pet.flip);
+  }
   if (pet.chatballoon.has_value()) {
     // 095 CChatBalloon::MakeBalloon：尾巴尖端贴在宠物头顶上。
     SDL_FPoint balloon_base{

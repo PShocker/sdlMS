@@ -3,6 +3,7 @@
 #include "src/client/game/game_item.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
+#include "src/client/game_instance/gain_log_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/random_game_instance.h"
@@ -164,17 +165,35 @@ void PetGameInstance::Clear() {
 
 void PetGameInstance::SendToServer() {
   SyncActiveState();
+  // 宠物装备 id 从角色装备槽带上（穿上/脱下后随宠物消息同步，095 同款：
+  // MiniRoom 之外的宠物外观并不走角色帧）。
+  uint32_t equip_id = 0;
+  if (const auto& self = CharacterGameInstance::self_;
+      self.pet_equip.has_value()) {
+    try {
+      equip_id = static_cast<uint32_t>(
+          std::stoi(std::string{self.pet_equip->id.begin(),
+                                self.pet_equip->id.end()}));
+    } catch (...) {
+      equip_id = 0;
+    }
+  }
   fbs::ClientCharacterPetT packet;
   packet.map_id = SceneSystemInstance::map_id_;
   packet.pet = std::make_unique<fbs::PetSaveT>();
   if (active_ && !pet_id_.empty()) {
-    if (const auto* state = ActivePet(); state != nullptr) {
+    if (auto* state = ActivePet(); state != nullptr) {
       packet.pet->item_id = state->item_id;
       packet.pet->name = {state->name.begin(), state->name.end()};
       packet.pet->level = state->level;
       packet.pet->fullness = state->fullness;
       packet.pet->closeness = state->closeness;
       packet.pet->active = true;
+      packet.pet->equip_id = equip_id;
+      state->equip_id = equip_id;
+      if (auto* pet = FindPet(0); pet != nullptr) {
+        pet->equip_id = equip_id;
+      }
     }
   } else {
     packet.pet->item_id = 0;
@@ -246,10 +265,18 @@ uint32_t PetGameInstance::ParsePetAbility(wz::Node* info) {
 }
 
 uint32_t PetGameInstance::LoadPetAbility(const std::u16string& pet_id) {
-  const auto& self = CharacterGameInstance::self_;
+  // 宠物装备的能力位（095 CItemInfo::dwPetAbilityFlag）。装备 id 随宠物
+  // 状态走（pet.equip_id / 存档 state.equip_id），不再读角色装备槽——
+  // 捡取范围由各客户端对"自己的宠物"本地判定，无需服务端权威。
+  uint32_t equip_id = 0;
+  if (const auto* state = ActivePet(); state != nullptr) {
+    equip_id = state->equip_id;
+  }
   uint32_t flags = 0;
-  if (self.pet_equip.has_value()) {
-    flags = ParsePetAbility(EquipGameInstance::LoadEquipInfo(self.pet_equip->id));
+  if (equip_id != 0) {
+    auto equip_text = std::format("{:08d}", equip_id);
+    flags = ParsePetAbility(EquipGameInstance::LoadEquipInfo(
+        std::u16string{equip_text.begin(), equip_text.end()}));
   }
   if (flags == 0) {
     // 没有宠物装备能力时退回模板 info/pickupItem 的默认（捡道具）；金币默认允许。
@@ -305,7 +332,7 @@ bool PetGameInstance::UseAutoPotion(bool need_hp, bool need_mp) {
 
 
 void PetGameInstance::HandleRemote(uint64_t client_id,
-                                   const PetSaveData& state) {
+                                    const PetSaveData& state) {
   if (state.item_id == 0 || !state.active) {
     RemoveRemote(client_id);
     return;
@@ -317,6 +344,8 @@ void PetGameInstance::HandleRemote(uint64_t client_id,
   pet.level = state.level == 0 ? 1 : state.level;
   pet.fullness = state.fullness;
   pet.closeness = state.closeness;
+  // 宠物装备 id：远端渲染装备层/能力判定用（随宠物消息同步，不走角色帧）。
+  pet.equip_id = state.equip_id;
   pet.index = -1;
   if (auto old = others_.find(client_id);
       old != others_.end() && old->second.id == pet.id) {
@@ -326,6 +355,7 @@ void PetGameInstance::HandleRemote(uint64_t client_id,
     pet.level = state.level == 0 ? 1 : state.level;
     pet.fullness = state.fullness;
     pet.closeness = state.closeness;
+    pet.equip_id = state.equip_id;
   } else {
     if (auto it = CharacterGameInstance::others_.find(client_id);
         it != CharacterGameInstance::others_.end()) {
@@ -514,25 +544,69 @@ bool PetGameInstance::Feed(const std::u16string& food_id) {
   if (state == nullptr) {
     return false;
   }
+  auto* pet = FindPet(0);
+
+  // 095 RegisterPet m_aFoodReaction：饱食度已满时宠物播 fail 分支
+  //（抱怨吃不下，fN_f 台词），不加数值、不消耗道具；否则播 success
+  // 分支（fN_s 台词）并正常进食。反应按宠物等级匹配 food/<i> 的 [l0,l1]。
+  const bool full = state->fullness >= 100;
+  std::u16string act;
+  std::u16string dialog;
+  const bool has_reaction =
+      pet != nullptr && LoadFoodReaction(*pet, full, act, dialog);
+  if (full) {
+    if (has_reaction) {
+      MakeChatBalloon(*pet, dialog);
+      SendActionToServer(act, dialog);
+    }
+    return false;
+  }
+
+  const auto old_closeness = state->closeness;
   state->fullness = static_cast<uint8_t>(
       std::min<uint32_t>(100, static_cast<uint32_t>(state->fullness) +
                                   static_cast<uint32_t>(repleteness)));
   state->closeness = static_cast<uint8_t>(
       std::min<uint32_t>(100, static_cast<uint32_t>(state->closeness) +
                                   static_cast<uint32_t>(tameness)));
-  // 吃食物的小动作（宠物图片里的 food/0..3）。
-  if (auto* pet = FindPet(0); pet != nullptr) {
+  // 095 CPet::OnValidateStat：亲密度变化时屏幕提示（String[394]）。
+  const int gained =
+      static_cast<int>(state->closeness) - static_cast<int>(old_closeness);
+  if (gained > 0) {
+    GainLogGameInstance::Add(u"", gained, GainEnum::kCloseness);
+  }
+  if (pet != nullptr) {
     pet->fullness = state->fullness;
     pet->closeness = state->closeness;
-    pet->action = u"food";
-    pet->ani_index = 0;
-    pet->ani_time = 0;
-    pet->action_end = Window::dt_now_ + 2000;
-    pet->next_idle = Window::dt_now_ + 4000;
+    if (!act.empty() && LoadPetNode(pet_id_)->get_child(act) != nullptr) {
+      pet->action = act;
+      pet->ani_index = 0;
+      pet->ani_time = 0;
+      pet->action_end = Window::dt_now_ + 2000;
+      pet->next_idle = Window::dt_now_ + 4000;
+    }
+    if (!dialog.empty()) {
+      MakeChatBalloon(*pet, dialog);
+    }
   }
-  SendActionToServer(u"food", u"");
+  SendActionToServer(act, dialog);
   SendToServer();
   return true;
+}
+
+// 095 CPet::DoAction 的冒泡部分：台词冒在宠物头顶（chatBalloon 样式取
+// 模板 info/chatBalloon）。
+void PetGameInstance::MakeChatBalloon(GamePet& pet,
+                                      const std::u16string& dialog,
+                                      uint64_t life) {
+  auto idx_text = std::to_string(LoadPetChatBalloonIndex(pet.id));
+  GameChatballoon balloon;
+  balloon.text = dialog;
+  balloon.path = std::u16string{idx_text.begin(), idx_text.end()};
+  balloon.w = 120.0f;
+  balloon.size = 14;
+  balloon.destroy = Window::dt_now_ + life;
+  pet.chatballoon = balloon;
 }
 
 void PetGameInstance::Refresh() {
@@ -794,24 +868,24 @@ bool PetGameInstance::RunCommand(const std::u16string& raw) {
         pet->next_idle = Window::dt_now_ + 4000;
       }
       if (!dialog.empty()) {
-        auto idx_text = std::to_string(LoadPetChatBalloonIndex(pet_id_));
-        GameChatballoon balloon;
-        balloon.text = dialog;
-        balloon.path = std::u16string{idx_text.begin(), idx_text.end()};
-        balloon.w = 120.0f;
-        balloon.size = 14;
-        balloon.destroy = Window::dt_now_ + 5000;
-        pet->chatballoon = balloon;
+        MakeChatBalloon(*pet, dialog);
       }
       if (!act.empty() || !dialog.empty()) {
         SendActionToServer(act, dialog);
       }
-      // 成功时按 inc 增加亲密度。
+      // 成功时按 inc 增加亲密度（095 OnValidateStat：变化时屏幕提示）。
       if (success && inc > 0) {
         if (auto* state = ActivePet(); state != nullptr) {
+          const auto old_closeness = state->closeness;
           state->closeness = static_cast<uint8_t>(
               std::min<uint32_t>(100, static_cast<uint32_t>(state->closeness) +
                                           static_cast<uint32_t>(inc)));
+          const int gained =
+              static_cast<int>(state->closeness) -
+              static_cast<int>(old_closeness);
+          if (gained > 0) {
+            GainLogGameInstance::Add(u"", gained, GainEnum::kCloseness);
+          }
           if (auto* self_pet = FindPet(0); self_pet != nullptr) {
             self_pet->closeness = state->closeness;
           }
@@ -821,6 +895,139 @@ bool PetGameInstance::RunCommand(const std::u16string& raw) {
     return true;
   }
   return false;
+}
+
+// 095 RegisterPet 的 m_aFoodReaction：food/<i> 按宠物等级 [l0,l1] 匹配，
+// 每条带 success/fail 分支（分支下标 0 的节点里有 act + 台词键列表，
+// 台词经 String.wz/PetDialog.img/<宠物 id>/<键> 解析）。
+bool PetGameInstance::LoadFoodReaction(const GamePet& pet, bool full,
+                                        std::u16string& act,
+                                        std::u16string& dialog) {
+  act.clear();
+  dialog.clear();
+  auto* pet_node = LoadPetNode(pet.id);
+  auto* food = pet_node == nullptr ? nullptr : pet_node->get_child(u"food");
+  if (food == nullptr || food->get_children() == nullptr) {
+    return false;
+  }
+  wz::Node* entry = nullptr;
+  for (auto&& [key, value] : *food->get_children()) {
+    if (value.empty() || value[0] == nullptr) {
+      continue;
+    }
+    auto* l0 = value[0]->get_child(u"l0");
+    auto* l1 = value[0]->get_child(u"l1");
+    if (l0 == nullptr || l1 == nullptr || l0->type != wz::Type::Int ||
+        l1->type != wz::Type::Int) {
+      continue;
+    }
+    const int lo = static_cast<wz::Property<int32_t>*>(l0)->get();
+    const int hi = static_cast<wz::Property<int32_t>*>(l1)->get();
+    if (pet.level >= lo && pet.level <= hi) {
+      entry = value[0];
+      break;
+    }
+  }
+  if (entry == nullptr) {
+    return false;
+  }
+  auto* branch = entry->get_child(full ? u"fail" : u"success");
+  auto* action = branch == nullptr ? nullptr : branch->get_child(u"0");
+  if (action == nullptr || action->get_children() == nullptr) {
+    return false;
+  }
+  std::vector<std::u16string> dialog_keys;
+  for (auto&& [key, value] : *action->get_children()) {
+    if (value.empty() || value[0] == nullptr) {
+      continue;
+    }
+    if (key == u"act") {
+      act = ReadNodeString(value[0]);
+    } else if (IsAllDigits(key)) {
+      auto dialog_key = ReadNodeString(value[0]);
+      if (!dialog_key.empty()) {
+        dialog_keys.push_back(std::move(dialog_key));
+      }
+    }
+  }
+  if (!dialog_keys.empty()) {
+    std::uniform_int_distribution<size_t> pick(0, dialog_keys.size() - 1);
+    auto pet_key = LoadPetImageKey(pet.id);
+    dialog = ReadNodeString(WzResource::string_->find(
+        u"PetDialog.img/" + pet_key + u"/" +
+        dialog_keys[pick(RandomGameInstance::gen_)]));
+  }
+  return !act.empty() || !dialog.empty();
+}
+
+// 095 CPet::AutoSpeakingByEvent：事件台词（asAutoSpeaking_21 的 6 个标签）。
+// 事件号：0=golevelup(升级) 1=goprelevelup(EXP≥90%催升级) 2=gorest(久玩提醒)
+//         3=noHPAlert(自动喝HP药) 4=noNOHPpotion(没HP药) 5=noNOMPpotion(没MP药)
+// 095 还需宠物道具 usPetSkill 位 0x100（说话升级卡），本服无宠物技能位，
+// 直接允许；数据包没有该事件键时静默（095 客户端同样不显示）。
+void PetGameInstance::AutoSpeakEvent(int event) {
+  static const char16_t* const kLabels[] = {
+      u"golevelup",  u"goprelevelup", u"gorest",
+      u"noHPAlert", u"noNOHPpotion", u"noNOMPpotion",
+  };
+  if (event < 0 || event >= 6 || !active_ || data_.empty() ||
+      pet_id_.empty()) {
+    return;
+  }
+  auto* pet = FindPet(0);
+  if (pet == nullptr || pet->action_end != 0) {
+    // 095：正在播一次性动作时不插嘴。
+    return;
+  }
+  auto key = LoadPetImageKey(pet_id_);
+  if (key.empty()) {
+    return;
+  }
+  auto dialog = ReadNodeString(WzResource::string_->find(
+      u"PetDialog.img/" + key + u"/" + kLabels[event]));
+  if (dialog.empty()) {
+    return;
+  }
+  MakeChatBalloon(*pet, dialog);
+  SendActionToServer(u"", dialog);
+}
+
+// 095 CPet::AutoSpeakingByRandom：随机台词（PetDialog/<id>/autoSpekaing，
+// 键名拼写沿用 095 原始数据）。本数据包没有时静默。
+void PetGameInstance::AutoSpeakRandom() {
+  if (!active_ || data_.empty() || pet_id_.empty()) {
+    return;
+  }
+  auto* pet = FindPet(0);
+  if (pet == nullptr) {
+    return;
+  }
+  auto key = LoadPetImageKey(pet_id_);
+  if (key.empty()) {
+    return;
+  }
+  auto* node =
+      WzResource::string_->find(u"PetDialog.img/" + key + u"/autoSpekaing");
+  if (node == nullptr || node->get_children() == nullptr) {
+    return;
+  }
+  std::vector<std::u16string> lines;
+  for (auto&& [k, value] : *node->get_children()) {
+    if (value.empty() || value[0] == nullptr) {
+      continue;
+    }
+    auto line = ReadNodeString(value[0]);
+    if (!line.empty()) {
+      lines.push_back(std::move(line));
+    }
+  }
+  if (lines.empty()) {
+    return;
+  }
+  std::uniform_int_distribution<size_t> pick(0, lines.size() - 1);
+  const auto& dialog = lines[pick(RandomGameInstance::gen_)];
+  MakeChatBalloon(*pet, dialog);
+  SendActionToServer(u"", dialog);
 }
 
 }  // namespace sdlms

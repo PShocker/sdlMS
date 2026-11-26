@@ -248,6 +248,44 @@ void NpcLogicSystem::ResetAnimate(GameNpc& g_npc) {
   g_npc.ani_index = FirstFrameIndex(action_node);
 }
 
+// 095 CNpc::Init 的 bMapleTV 分支：电视不走普通 NPC 状态机（不移动、
+// 不做手势、不闲聊），两路独立动画循环播放：
+//   机身 UI/MapleTV.img/TVon（帧推进走 g_npc.ani_index/ani_time）；
+//   广告 UI/MapleTV.img/TVmedia/<段>（tv_ani_index/tv_ani_time）。
+void NpcLogicSystem::RunTvAnimate(GameNpc& g_npc) {
+  auto advance = [](wz::Node* action, uint32_t& index, uint32_t& time) {
+    if (action == nullptr) {
+      return;
+    }
+    auto keys = LoadFrameKeys(action);
+    if (keys.empty()) {
+      return;
+    }
+    auto current_key = std::to_string(index);
+    auto it = std::ranges::find(
+        keys, std::u16string{current_key.begin(), current_key.end()});
+    if (it == keys.end()) {
+      index = FrameNumber(keys.front());
+      it = keys.begin();
+    }
+    time += Window::delta_time_;
+    if (time < FrameDelay(action, *it)) {
+      return;
+    }
+    time = 0;
+    ++it;
+    index = it == keys.end() ? FrameNumber(keys.front()) : FrameNumber(*it);
+  };
+  advance(NpcGameInstance::LoadMapleTVNode(u"TVon"), g_npc.ani_index,
+          g_npc.ani_time);
+  std::u16string media = u"TVmedia/" + [&] {
+    auto s = std::to_string(g_npc.tv_media);
+    return std::u16string{s.begin(), s.end()};
+  }();
+  advance(NpcGameInstance::LoadMapleTVNode(media), g_npc.tv_ani_index,
+          g_npc.tv_ani_time);
+}
+
 void NpcLogicSystem::EnterStand(GameNpc& g_npc) {
   auto* npc_node = NpcGameInstance::LoadLinkNpcNode(g_npc.id);
   auto idle = LoadIdleAction(npc_node);
@@ -350,6 +388,10 @@ bool NpcLogicSystem::RunMove(GameNpc& g_npc) {
 }
 
 void NpcLogicSystem::UpdateChat(GameNpc& g_npc) {
+  // 095：MapleTV 摆设不闲聊（留言由 CMapleTVMan 服务器推送，本服无）。
+  if (g_npc.maple_tv) {
+    return;
+  }
   // 095：NPC 头顶有任务图标时，隐藏说话气泡。
   if (NpcGameInstance::LoadQuestNode(g_npc) != nullptr) {
     g_npc.chatballoon = std::nullopt;
@@ -418,6 +460,11 @@ void NpcLogicSystem::ChooseAfterMove(GameNpc& g_npc) {
 bool NpcLogicSystem::Run() {
   for (auto& page : NpcGameInstance::data_) {
     for (auto& g_npc : page) {
+      // 095 bMapleTV：电视旁路普通状态机，只播机身 + 广告双路动画。
+      if (g_npc.maple_tv) {
+        RunTvAnimate(g_npc);
+        continue;
+      }
       UpdateChat(g_npc);
 
       switch (g_npc.state) {

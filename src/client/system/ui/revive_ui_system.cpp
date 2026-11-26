@@ -7,7 +7,6 @@
 #include "src/client/game_instance/map_info_game_instance.h"
 #include "src/client/game_instance/quest_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
-#include "src/client/system/input/keyboard_input_system.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
@@ -115,22 +114,14 @@ void ReviveUiSystem::EventMotionBtAudio(SDL_Event* event) {
 }
 
 bool ReviveUiSystem::Event(SDL_Event* event) {
-  KeyboardInputSystem::Event(event);
-  bool r = false;
+  // 095：CUIRevive 是模态对话框（CWvsContext::OnDie 创建的 modal 窗口），
+  // 打开期间吞掉所有输入：下层界面不响应鼠标（点击不穿透）、键盘
+  //（移动/快捷键/聊天）全部屏蔽，只有本窗口的 OK 按钮可以点击。
   switch (event->type) {
-    case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-      if (event->button.button == SDL_BUTTON_LEFT) {
-        if (CursorGameInstance::cursor_ui_ == Render) {
-          r = false;
-        }
-      }
-      break;
-    }
     case SDL_EVENT_MOUSE_BUTTON_UP: {
-      if (event->button.button == SDL_BUTTON_LEFT) {
-        if (CursorGameInstance::cursor_ui_ == Render) {
-          r = !EventUI(event);
-        }
+      if (event->button.button == SDL_BUTTON_LEFT &&
+          CursorGameInstance::cursor_ui_ == Render) {
+        EventUI(event);
       }
       break;
     }
@@ -142,8 +133,7 @@ bool ReviveUiSystem::Event(SDL_Event* event) {
       break;
     }
   }
-
-  return r;
+  return false;
 }
 
 void ReviveUiSystem::EventButtonOk() {

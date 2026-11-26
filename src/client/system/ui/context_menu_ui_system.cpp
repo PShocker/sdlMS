@@ -10,10 +10,12 @@
 #include "src/client/system/system.h"
 #include "src/client/system/ui/character_info_ui_system.h"
 #include "src/client/system/ui/component/ui_component.h"
+#include "src/client/system/ui/maple_chat_ui_system.h"
 #include "src/client/system/ui/player_shop_ui_system.h"
 #include "src/client/system/ui/user_list_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
+#include "src/common/freetype/freetype.h"
 #include "src/common/request/client_request.h"
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server_main.h"
@@ -25,7 +27,8 @@
 namespace sdlms {
 
 SDL_FPoint ContextMenuUiSystem::LoadWh() {
-  return {100, 122};
+  // 8 行：Info/Save/Whisper/Party/Trade/Friend/聊天邀请/摆摊。
+  return {100, 138};
 }
 
 bool ContextMenuUiSystem::CursorIn() {
@@ -71,9 +74,10 @@ void ContextMenuUiSystem::RenderBackgrnd() {
 
 
 UIComponents& ContextMenuUiSystem::GetComponent() {
-  const static std::array<Button::Callback, 7> kCallbacks = {
-      EventButtonInfo,  EventButtonSave,   EventButtonWhisper, EventButtonParty,
-      EventButtonTrade, EventButtonFriend, EventButtonChat,
+  const static std::array<Button::Callback, 8> kCallbacks = {
+      EventButtonInfo,     EventButtonSave,   EventButtonWhisper,
+      EventButtonParty,     EventButtonTrade,  EventButtonFriend,
+      EventButtonMapleChat, EventButtonChat,
   };
 
   components_.clear();
@@ -85,6 +89,8 @@ UIComponents& ContextMenuUiSystem::GetComponent() {
       WzResource::ui_->find(u"ContextMenu.img/ContextMenu/BtTrade"),
       WzResource::ui_->find(u"ContextMenu.img/ContextMenu/BtFriend"),
       WzResource::ui_->find(u"ContextMenu.img/ContextMenu/BtMapleChat"),
+      // 摆摊行无专用贴图（BtMapleChat 已归位聊天邀请），自绘文字。
+      static_cast<wz::Node*>(nullptr),
   };
   std::array buttons_rect = {
       SDL_FRect{pos_.x + 9, pos_.y + 6, 85, 14},
@@ -94,9 +100,10 @@ UIComponents& ContextMenuUiSystem::GetComponent() {
       SDL_FRect{pos_.x + 9, pos_.y + 70, 85, 14},
       SDL_FRect{pos_.x + 9, pos_.y + 86, 85, 14},
       SDL_FRect{pos_.x + 9, pos_.y + 102, 85, 14},
+      SDL_FRect{pos_.x + 9, pos_.y + 118, 85, 14},
   };
   std::vector<bool> disable = {
-      false, false, false, false, false, false, false,
+      false, false, false, false, false, false, false, false,
   };
   for (size_t i = 0; i < buttons_nodes.size(); ++i) {
     SDL_FRect rect = buttons_rect[i];
@@ -118,6 +125,22 @@ UIComponents& ContextMenuUiSystem::GetComponent() {
 bool ContextMenuUiSystem::Render() {
   RenderBackgrnd();
   RenderUI();
+  // 摆摊行（无贴图）：自绘 SHOP 文字，悬停高亮。
+  {
+    auto& comps = GetComponent();
+    if (!comps.empty()) {
+      auto* shop = std::get_if<Button>(&comps.back());
+      if (shop != nullptr && shop->Hover()) {
+        SDL_SetRenderDrawBlendMode(Window::renderer_, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(Window::renderer_, 70, 110, 180, 160);
+        SDL_RenderFillRect(Window::renderer_, &shop->rect);
+      }
+      Freetype::LoadSize(10);
+      Freetype::LoadAligned(true);
+      Freetype::LoadColor(40, 40, 40, 255);
+      Freetype::DrawLine(u"SHOP", pos_.x + 42, pos_.y + 121);
+    }
+  }
   return true;
 }
 
@@ -184,6 +207,14 @@ void ContextMenuUiSystem::EventButtonFriend() {
     // 加好后直接打开好友列表方便查看。
     UserListUiSystem::Open();
   }
+}
+
+void ContextMenuUiSystem::EventButtonMapleChat() {
+  // 095：右键玩家 MapleChat = 邀请进入自己的聊天室（TryNew(0)+SendInviteMsg）。
+  if (client_id_ == ServerMain::local_addr_ || client_id_ == 0) {
+    return;
+  }
+  MapleChatUiSystem::InviteClient(client_id_);
 }
 
 void ContextMenuUiSystem::EventButtonChat() {

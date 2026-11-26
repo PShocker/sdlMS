@@ -3,16 +3,19 @@
 #include "src/client/game/game_quest.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
+#include "src/client/game_instance/map_info_game_instance.h"
 #include "src/client/game_instance/quest_game_instance.h"
 #include "src/client/game_instance/random_game_instance.h"
 #include "src/client/game_instance/shop_game_instance.h"
 #include "src/client/game_instance/text_game_instance.h"
 #include "src/client/window/window.h"
+#include "src/common/physic/physic.h"
 #include "src/common/wz/wz_resource.h"
 
 #include <wz/Node.h>
 #include <wz/Property.h>
 
+#include <algorithm>
 #include <array>
 #include <flat_map>
 #include <flat_set>
@@ -120,6 +123,40 @@ std::optional<SDL_FRect> NpcGameInstance::LoadQuestRect(const GameNpc& g_npc) {
   return std::nullopt;
 }
 
+bool NpcGameInstance::LoadIsMapleTV(const std::u16string& id) {
+  auto* npc_node = LoadLinkNpcNode(id);
+  if (npc_node == nullptr) {
+    return false;
+  }
+  auto* info = npc_node->get_child(u"info");
+  if (info == nullptr) {
+    return false;
+  }
+  auto* tv = info->get_child(u"MapleTV");
+  if (tv == nullptr || tv->type != wz::Type::Int) {
+    return false;
+  }
+  return static_cast<wz::Property<int32_t>*>(tv)->get() != 0;
+}
+
+int NpcGameInstance::LoadMapleTVMediaNum() {
+  auto* media = LoadMapleTVNode(u"TVmedia");
+  if (media == nullptr || media->get_children() == nullptr) {
+    return 0;
+  }
+  return media->children_count();
+}
+
+wz::Node* NpcGameInstance::LoadMapleTVNode(const std::u16string& sub) {
+  static std::flat_map<std::u16string, wz::Node*> cache;
+  if (auto it = cache.find(sub); it != cache.end()) {
+    return it->second;
+  }
+  auto* node = WzResource::ui_->find(u"MapleTV.img/" + sub);
+  cache.emplace(sub, node);
+  return node;
+}
+
 void NpcGameInstance::Load(uint32_t map_id) {
   data_ = {};
 
@@ -176,6 +213,31 @@ void NpcGameInstance::Load(uint32_t map_id) {
     g_npc.state = NpcState::kStand;
     g_npc.ani_index = 0;
     g_npc.ani_time = 0;
+    // 095 CNpc::Init 的 bMapleTV 分支：MapleTV 摆设随机取一段默认广告
+    //（TVmedia/<rand % 段数>）循环播放，外观由 UI/MapleTV.img 绘制。
+    if (LoadIsMapleTV(g_npc.id)) {
+      g_npc.maple_tv = true;
+      const int media_num = LoadMapleTVMediaNum();
+      if (media_num > 0) {
+        std::uniform_int_distribution<int> pick(0, media_num - 1);
+        g_npc.tv_media = static_cast<uint8_t>(pick(RandomGameInstance::gen_));
+      }
+      g_npc.tv_ani_index = 0;
+      g_npc.tv_ani_time = 0;
+      // 广告/留言画面偏移（095 SetFlashAbsLocation：npc.pos + ad 偏移）。
+      if (auto* info = npc_template->get_child(u"info");
+          info != nullptr) {
+        auto read = [&info](const char16_t* key) -> int32_t {
+          auto* v = info->get_child(key);
+          if (v != nullptr && v->type == wz::Type::Int) {
+            return static_cast<wz::Property<int32_t>*>(v)->get();
+          }
+          return 0;
+        };
+        g_npc.tv_ad_x = read(u"MapleTVadX");
+        g_npc.tv_ad_y = read(u"MapleTVadY");
+      }
+    }
     // 095 SetActive：首次动作/说话等待 3000~8999ms，避免进场淡入期间说话。
     std::uniform_int_distribution<int> first_wait(3000, 8999);
     g_npc.duration =
@@ -186,6 +248,137 @@ void NpcGameInstance::Load(uint32_t map_id) {
     auto page = FootholdGameInstance::data_.at(g_npc.fh).page;
     data_[page].push_back(g_npc);
   }
+
+  // 本数据包（精简客户端）的地图 life 层没有摆任何 MapleTV：城镇地图
+  // 自动补一台 Free Market Maple TV（NPC 0800007），摆位取出生点旁的
+  // 地面。若将来 WZ 地图数据自带 TV 摆设则不重复添加。
+  EnsureMapleTV(map_id);
+}
+
+void NpcGameInstance::EnsureMapleTV(uint32_t map_id) {
+  if (!LoadIsMapleTV(u"0800007")) {
+    return;
+  }
+  bool has_tv = false;
+  for (const auto& page : data_) {
+    for (const auto& g_npc : page) {
+      if (g_npc.maple_tv) {
+        has_tv = true;
+        break;
+      }
+    }
+    if (has_tv) {
+      break;
+    }
+  }
+  if (has_tv) {
+    return;
+  }
+  // info/town=1 才是城镇（095 is_town_field_id）。
+  auto* map_node = WzResource::LoadMapNode(map_id);
+  auto* info = map_node == nullptr ? nullptr : map_node->get_child(u"info");
+  auto* town = info == nullptr ? nullptr : info->get_child(u"town");
+  if (town == nullptr || town->type != wz::Type::Int ||
+      static_cast<wz::Property<int32_t>*>(town)->get() == 0) {
+    return;
+  }
+  // 摆在出生点（portal sp）右侧 160 像素的地面上。
+  float spawn_x = 0.0f;
+  float spawn_y = 0.0f;
+  if (auto* portals = map_node->get_child(u"portal");
+      portals != nullptr && portals->get_children() != nullptr) {
+    for (const auto& [pk, pv] : *portals->get_children()) {
+      if (pv.empty() || pv[0] == nullptr) {
+        continue;
+      }
+      auto* pn = pv[0]->get_child(u"pn");
+      auto* x = pv[0]->get_child(u"x");
+      auto* y = pv[0]->get_child(u"y");
+      if (pn == nullptr || x == nullptr || y == nullptr) {
+        continue;
+      }
+      if (pn->type != wz::Type::String ||
+          static_cast<wz::Property<std::u16string>*>(pn)->get() != u"sp") {
+        continue;
+      }
+      if (x->type == wz::Type::Int && y->type == wz::Type::Int) {
+        spawn_x = static_cast<float>(
+            static_cast<wz::Property<int32_t>*>(x)->get());
+        spawn_y = static_cast<float>(
+            static_cast<wz::Property<int32_t>*>(y)->get());
+        break;
+      }
+    }
+  }
+  if (spawn_x == 0.0f && spawn_y == 0.0f) {
+    // 没有 sp 出口的地图不做 Ensure。
+    return;
+  }
+  auto border = MapInfoGameInstance::LoadMrBorder(map_id);
+  float x = std::clamp(spawn_x + 160.0f, border.x + 8.0f,
+                       std::max(border.x + 8.0f, border.w - 8.0f));
+  auto& fhs = FootholdGameInstance::data_;
+  if (fhs.empty()) {
+    return;
+  }
+  const SDL_FPoint from{x, spawn_y - 4.0f};
+  const SDL_FPoint to{x, spawn_y + 400.0f};
+  auto inter = Physic::FallIntersectPos(from, to, fhs);
+  int32_t fh = 0;
+  uint8_t page = 0;
+  SDL_FPoint pos{x, spawn_y};
+  bool hit = false;
+  for (const auto& [y, p] : inter) {
+    (void)y;
+    if (!p.fh.k.has_value()) {
+      continue;
+    }
+    fh = p.fh.id;
+    page = p.fh.page;
+    pos = p.pos;
+    hit = true;
+    break;
+  }
+  if (!hit) {
+    return;
+  }
+
+  GameNpc g_npc;
+  g_npc.id = u"0800007";
+  g_npc.fh = fh;
+  g_npc.rx0 = static_cast<int32_t>(pos.x) - 1;
+  g_npc.rx1 = static_cast<int32_t>(pos.x) + 1;
+  g_npc.pos = {pos.x, pos.y};
+  g_npc.action = u"stand";
+  g_npc.state = NpcState::kStand;
+  g_npc.ani_index = 0;
+  g_npc.ani_time = 0;
+  g_npc.maple_tv = true;
+  const int media_num = LoadMapleTVMediaNum();
+  if (media_num > 0) {
+    std::uniform_int_distribution<int> pick(0, media_num - 1);
+    g_npc.tv_media = static_cast<uint8_t>(pick(RandomGameInstance::gen_));
+  }
+  g_npc.tv_ani_index = 0;
+  g_npc.tv_ani_time = 0;
+  if (auto* npc_template = LoadLinkNpcNode(g_npc.id);
+      npc_template != nullptr) {
+    if (auto* ninfo = npc_template->get_child(u"info"); ninfo != nullptr) {
+      auto read = [&ninfo](const char16_t* key) -> int32_t {
+        auto* v = ninfo->get_child(key);
+        if (v != nullptr && v->type == wz::Type::Int) {
+          return static_cast<wz::Property<int32_t>*>(v)->get();
+        }
+        return 0;
+      };
+      g_npc.tv_ad_x = read(u"MapleTVadX");
+      g_npc.tv_ad_y = read(u"MapleTVadY");
+    }
+  }
+  g_npc.duration = Window::dt_now_ + 60000;
+  g_npc.hforce = std::nullopt;
+  g_npc.hspeed = 0.0f;
+  data_[page].push_back(g_npc);
 }
 
 std::u16string NpcGameInstance::LoadNpcScript(const std::u16string& id) {

@@ -19,7 +19,7 @@
 #include <wz/Property.h>
 
 #include <algorithm>
-#include <cstdint>
+#include <format>
 #include <string>
 
 namespace sdlms {
@@ -137,10 +137,14 @@ void PetInfoUiSystem::RenderPet() {
 void PetInfoUiSystem::RenderEquip() {
   GamePet pet;
   const GameCharacter* owner = nullptr;
-  if (!LoadViewedPet(pet, &owner) || !owner->pet_equip.has_value()) {
+  // 装备 id 随宠物消息同步（pet.equip_id），不再读主人角色的装备槽。
+  (void)owner;
+  if (!LoadViewedPet(pet, &owner) || pet.equip_id == 0) {
     return;
   }
-  auto* info = EquipGameInstance::LoadEquipInfo(owner->pet_equip->id);
+  auto equip_text = std::format("{:08d}", pet.equip_id);
+  auto* info = EquipGameInstance::LoadEquipInfo(
+      std::u16string{equip_text.begin(), equip_text.end()});
   if (info == nullptr || info->get_child(u"icon") == nullptr) {
     return;
   }

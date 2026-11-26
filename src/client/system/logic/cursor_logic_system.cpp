@@ -33,6 +33,7 @@
 #include "src/client/system/ui/quest_ui_system.h"
 #include "src/client/system/ui/quick_slot_ui_system.h"
 #include "src/client/system/ui/revive_ui_system.h"
+#include "src/client/system/ui/minigame_setup_ui_system.h"
 #include "src/client/system/ui/shop_ui_system.h"
 #include "src/client/system/ui/skill_ui_system.h"
 #include "src/client/system/ui/statusbar_menu_ui_system.h"
@@ -188,7 +189,14 @@ void CursorLogicSystem::RunCursorUi() {
   CursorGameInstance::cursor_ui_ = nullptr;
   CursorGameInstance::cursor_vscr_ = false;
   CursorGameInstance::modal_overlay_ = nullptr;
+  // 095 CUIRevive 是模态框：死亡复活窗打开期间下层界面不接受输入、
+  // 按钮不接受 hover（光标命中只允许复活窗自己）。先探测它是否存在。
+  const bool revive_modal =
+      std::ranges::contains(System::render_systems_, &ReviveUiSystem::Render);
   for (auto& fn : System::render_systems_ | std::views::reverse) {
+    if (revive_modal && fn != ReviveUiSystem::Render) {
+      continue;
+    }
     if (fn == MinimapUiSystem::Render) {
       if (MinimapUiSystem::CursorIn()) {
         CursorGameInstance::cursor_ui_ = fn;
@@ -227,6 +235,12 @@ void CursorLogicSystem::RunCursorUi() {
       }
     } else if (fn == CraftUiSystem::Render) {
       if (CraftUiSystem::CursorIn()) {
+        CursorGameInstance::cursor_ui_ = fn;
+      }
+    } else if (fn == MinigameSetupUiSystem::Render) {
+      // 095 开房设置弹窗是模态的：打开期间下层不接受输入/hover。
+      CursorGameInstance::modal_overlay_ = fn;
+      if (MinigameSetupUiSystem::CursorIn()) {
         CursorGameInstance::cursor_ui_ = fn;
       }
     } else if (fn == ReviveUiSystem::Render) {

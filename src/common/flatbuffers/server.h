@@ -197,6 +197,10 @@ struct ServerCharacterShop;
 struct ServerCharacterShopBuilder;
 struct ServerCharacterShopT;
 
+struct ServerCharacterMessenger;
+struct ServerCharacterMessengerBuilder;
+struct ServerCharacterMessengerT;
+
 enum MobEventUnion : uint8_t {
   MobEventUnion_NONE = 0,
   MobEventUnion_ServerMobMv = 1,
@@ -2366,6 +2370,8 @@ struct ServerCharacterPetActionT : public ::flatbuffers::NativeTable {
   uint64_t client_id = 0;
   std::string action{};
   std::vector<uint16_t> chat{};
+  float x = 0.0f;
+  float y = 0.0f;
 };
 
 struct ServerCharacterPetAction FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -2374,7 +2380,9 @@ struct ServerCharacterPetAction FLATBUFFERS_FINAL_CLASS : private ::flatbuffers:
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_CLIENT_ID = 4,
     VT_ACTION = 6,
-    VT_CHAT = 8
+    VT_CHAT = 8,
+    VT_X = 10,
+    VT_Y = 12
   };
   uint64_t client_id() const {
     return GetField<uint64_t>(VT_CLIENT_ID, 0);
@@ -2394,6 +2402,18 @@ struct ServerCharacterPetAction FLATBUFFERS_FINAL_CLASS : private ::flatbuffers:
   ::flatbuffers::Vector<uint16_t> *mutable_chat() {
     return GetPointer<::flatbuffers::Vector<uint16_t> *>(VT_CHAT);
   }
+  float x() const {
+    return GetField<float>(VT_X, 0.0f);
+  }
+  bool mutate_x(float _x = 0.0f) {
+    return SetField<float>(VT_X, _x, 0.0f);
+  }
+  float y() const {
+    return GetField<float>(VT_Y, 0.0f);
+  }
+  bool mutate_y(float _y = 0.0f) {
+    return SetField<float>(VT_Y, _y, 0.0f);
+  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -2402,6 +2422,8 @@ struct ServerCharacterPetAction FLATBUFFERS_FINAL_CLASS : private ::flatbuffers:
            verifier.VerifyString(action()) &&
            VerifyOffset(verifier, VT_CHAT) &&
            verifier.VerifyVector(chat()) &&
+           VerifyField<float>(verifier, VT_X, 4) &&
+           VerifyField<float>(verifier, VT_Y, 4) &&
            verifier.EndTable();
   }
   ServerCharacterPetActionT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -2422,6 +2444,12 @@ struct ServerCharacterPetActionBuilder {
   void add_chat(::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> chat) {
     fbb_.AddOffset(ServerCharacterPetAction::VT_CHAT, chat);
   }
+  void add_x(float x) {
+    fbb_.AddElement<float>(ServerCharacterPetAction::VT_X, x, 0.0f);
+  }
+  void add_y(float y) {
+    fbb_.AddElement<float>(ServerCharacterPetAction::VT_Y, y, 0.0f);
+  }
   explicit ServerCharacterPetActionBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -2437,9 +2465,13 @@ inline ::flatbuffers::Offset<ServerCharacterPetAction> CreateServerCharacterPetA
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t client_id = 0,
     ::flatbuffers::Offset<::flatbuffers::String> action = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> chat = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> chat = 0,
+    float x = 0.0f,
+    float y = 0.0f) {
   ServerCharacterPetActionBuilder builder_(_fbb);
   builder_.add_client_id(client_id);
+  builder_.add_y(y);
+  builder_.add_x(x);
   builder_.add_chat(chat);
   builder_.add_action(action);
   return builder_.Finish();
@@ -2449,14 +2481,18 @@ inline ::flatbuffers::Offset<ServerCharacterPetAction> CreateServerCharacterPetA
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t client_id = 0,
     const char *action = nullptr,
-    const std::vector<uint16_t> *chat = nullptr) {
+    const std::vector<uint16_t> *chat = nullptr,
+    float x = 0.0f,
+    float y = 0.0f) {
   auto action__ = action ? _fbb.CreateString(action) : 0;
   auto chat__ = chat ? _fbb.CreateVector<uint16_t>(*chat) : 0;
   return fbs::CreateServerCharacterPetAction(
       _fbb,
       client_id,
       action__,
-      chat__);
+      chat__,
+      x,
+      y);
 }
 
 ::flatbuffers::Offset<ServerCharacterPetAction> CreateServerCharacterPetAction(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterPetActionT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -4719,6 +4755,160 @@ inline ::flatbuffers::Offset<ServerCharacterShop> CreateServerCharacterShopDirec
 
 ::flatbuffers::Offset<ServerCharacterShop> CreateServerCharacterShop(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterShopT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct ServerCharacterMessengerT : public ::flatbuffers::NativeTable {
+  typedef ServerCharacterMessenger TableType;
+  uint8_t step = 0;
+  uint64_t to_id = 0;
+  std::unique_ptr<fbs::PlayerT> player{};
+  std::vector<std::unique_ptr<fbs::PlayerT>> players{};
+  uint8_t x = 0;
+  std::vector<uint16_t> chat{};
+  ServerCharacterMessengerT() = default;
+  ServerCharacterMessengerT(const ServerCharacterMessengerT &o);
+  ServerCharacterMessengerT(ServerCharacterMessengerT&&) FLATBUFFERS_NOEXCEPT = default;
+  ServerCharacterMessengerT &operator=(ServerCharacterMessengerT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct ServerCharacterMessenger FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerCharacterMessengerT NativeTableType;
+  typedef ServerCharacterMessengerBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_STEP = 4,
+    VT_TO_ID = 6,
+    VT_PLAYER = 8,
+    VT_PLAYERS = 10,
+    VT_X = 12,
+    VT_CHAT = 14
+  };
+  uint8_t step() const {
+    return GetField<uint8_t>(VT_STEP, 0);
+  }
+  bool mutate_step(uint8_t _step = 0) {
+    return SetField<uint8_t>(VT_STEP, _step, 0);
+  }
+  uint64_t to_id() const {
+    return GetField<uint64_t>(VT_TO_ID, 0);
+  }
+  bool mutate_to_id(uint64_t _to_id = 0) {
+    return SetField<uint64_t>(VT_TO_ID, _to_id, 0);
+  }
+  const fbs::Player *player() const {
+    return GetPointer<const fbs::Player *>(VT_PLAYER);
+  }
+  fbs::Player *mutable_player() {
+    return GetPointer<fbs::Player *>(VT_PLAYER);
+  }
+  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Player>> *players() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Player>> *>(VT_PLAYERS);
+  }
+  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Player>> *mutable_players() {
+    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Player>> *>(VT_PLAYERS);
+  }
+  uint8_t x() const {
+    return GetField<uint8_t>(VT_X, 0);
+  }
+  bool mutate_x(uint8_t _x = 0) {
+    return SetField<uint8_t>(VT_X, _x, 0);
+  }
+  const ::flatbuffers::Vector<uint16_t> *chat() const {
+    return GetPointer<const ::flatbuffers::Vector<uint16_t> *>(VT_CHAT);
+  }
+  ::flatbuffers::Vector<uint16_t> *mutable_chat() {
+    return GetPointer<::flatbuffers::Vector<uint16_t> *>(VT_CHAT);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint8_t>(verifier, VT_STEP, 1) &&
+           VerifyField<uint64_t>(verifier, VT_TO_ID, 8) &&
+           VerifyOffset(verifier, VT_PLAYER) &&
+           verifier.VerifyTable(player()) &&
+           VerifyOffset(verifier, VT_PLAYERS) &&
+           verifier.VerifyVector(players()) &&
+           verifier.VerifyVectorOfTables(players()) &&
+           VerifyField<uint8_t>(verifier, VT_X, 1) &&
+           VerifyOffset(verifier, VT_CHAT) &&
+           verifier.VerifyVector(chat()) &&
+           verifier.EndTable();
+  }
+  ServerCharacterMessengerT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerCharacterMessengerT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerCharacterMessenger> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterMessengerT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ServerCharacterMessengerBuilder {
+  typedef ServerCharacterMessenger Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_step(uint8_t step) {
+    fbb_.AddElement<uint8_t>(ServerCharacterMessenger::VT_STEP, step, 0);
+  }
+  void add_to_id(uint64_t to_id) {
+    fbb_.AddElement<uint64_t>(ServerCharacterMessenger::VT_TO_ID, to_id, 0);
+  }
+  void add_player(::flatbuffers::Offset<fbs::Player> player) {
+    fbb_.AddOffset(ServerCharacterMessenger::VT_PLAYER, player);
+  }
+  void add_players(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Player>>> players) {
+    fbb_.AddOffset(ServerCharacterMessenger::VT_PLAYERS, players);
+  }
+  void add_x(uint8_t x) {
+    fbb_.AddElement<uint8_t>(ServerCharacterMessenger::VT_X, x, 0);
+  }
+  void add_chat(::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> chat) {
+    fbb_.AddOffset(ServerCharacterMessenger::VT_CHAT, chat);
+  }
+  explicit ServerCharacterMessengerBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ServerCharacterMessenger> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ServerCharacterMessenger>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ServerCharacterMessenger> CreateServerCharacterMessenger(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint8_t step = 0,
+    uint64_t to_id = 0,
+    ::flatbuffers::Offset<fbs::Player> player = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Player>>> players = 0,
+    uint8_t x = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> chat = 0) {
+  ServerCharacterMessengerBuilder builder_(_fbb);
+  builder_.add_to_id(to_id);
+  builder_.add_chat(chat);
+  builder_.add_players(players);
+  builder_.add_player(player);
+  builder_.add_x(x);
+  builder_.add_step(step);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<ServerCharacterMessenger> CreateServerCharacterMessengerDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint8_t step = 0,
+    uint64_t to_id = 0,
+    ::flatbuffers::Offset<fbs::Player> player = 0,
+    const std::vector<::flatbuffers::Offset<fbs::Player>> *players = nullptr,
+    uint8_t x = 0,
+    const std::vector<uint16_t> *chat = nullptr) {
+  auto players__ = players ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Player>>(*players) : 0;
+  auto chat__ = chat ? _fbb.CreateVector<uint16_t>(*chat) : 0;
+  return fbs::CreateServerCharacterMessenger(
+      _fbb,
+      step,
+      to_id,
+      player,
+      players__,
+      x,
+      chat__);
+}
+
+::flatbuffers::Offset<ServerCharacterMessenger> CreateServerCharacterMessenger(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterMessengerT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 inline ServerHeartbeatT *ServerHeartbeat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ServerHeartbeatT>(new ServerHeartbeatT());
   UnPackTo(_o.get(), _resolver);
@@ -5578,6 +5768,8 @@ inline void ServerCharacterPetAction::UnPackTo(ServerCharacterPetActionT *_o, co
   { auto _e = client_id(); _o->client_id = _e; }
   { auto _e = action(); if (_e) _o->action = _e->str(); }
   { auto _e = chat(); if (_e) { _o->chat.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->chat[_i] = _e->Get(_i); } } else { _o->chat.resize(0); } }
+  { auto _e = x(); _o->x = _e; }
+  { auto _e = y(); _o->y = _e; }
 }
 
 inline ::flatbuffers::Offset<ServerCharacterPetAction> CreateServerCharacterPetAction(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterPetActionT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -5591,11 +5783,15 @@ inline ::flatbuffers::Offset<ServerCharacterPetAction> ServerCharacterPetAction:
   auto _client_id = _o->client_id;
   auto _action = _o->action.empty() ? 0 : _fbb.CreateString(_o->action);
   auto _chat = _o->chat.size() ? _fbb.CreateVector(_o->chat) : 0;
+  auto _x = _o->x;
+  auto _y = _o->y;
   return fbs::CreateServerCharacterPetAction(
       _fbb,
       _client_id,
       _action,
-      _chat);
+      _chat,
+      _x,
+      _y);
 }
 
 inline ServerCharacterPetMoveT *ServerCharacterPetMove::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
@@ -6608,6 +6804,67 @@ inline ::flatbuffers::Offset<ServerCharacterShop> ServerCharacterShop::Pack(::fl
       _meso,
       _chat,
       _goods);
+}
+
+inline ServerCharacterMessengerT::ServerCharacterMessengerT(const ServerCharacterMessengerT &o)
+      : step(o.step),
+        to_id(o.to_id),
+        player((o.player) ? new fbs::PlayerT(*o.player) : nullptr),
+        x(o.x),
+        chat(o.chat) {
+  players.reserve(o.players.size());
+  for (const auto &players_ : o.players) { players.emplace_back((players_) ? new fbs::PlayerT(*players_) : nullptr); }
+}
+
+inline ServerCharacterMessengerT &ServerCharacterMessengerT::operator=(ServerCharacterMessengerT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(step, o.step);
+  std::swap(to_id, o.to_id);
+  std::swap(player, o.player);
+  std::swap(players, o.players);
+  std::swap(x, o.x);
+  std::swap(chat, o.chat);
+  return *this;
+}
+
+inline ServerCharacterMessengerT *ServerCharacterMessenger::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerCharacterMessengerT>(new ServerCharacterMessengerT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ServerCharacterMessenger::UnPackTo(ServerCharacterMessengerT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = step(); _o->step = _e; }
+  { auto _e = to_id(); _o->to_id = _e; }
+  { auto _e = player(); if (_e) { if(_o->player) { _e->UnPackTo(_o->player.get(), _resolver); } else { _o->player = std::unique_ptr<fbs::PlayerT>(_e->UnPack(_resolver)); } } else if (_o->player) { _o->player.reset(); } }
+  { auto _e = players(); if (_e) { _o->players.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->players[_i]) { _e->Get(_i)->UnPackTo(_o->players[_i].get(), _resolver); } else { _o->players[_i] = std::unique_ptr<fbs::PlayerT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->players.resize(0); } }
+  { auto _e = x(); _o->x = _e; }
+  { auto _e = chat(); if (_e) { _o->chat.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->chat[_i] = _e->Get(_i); } } else { _o->chat.resize(0); } }
+}
+
+inline ::flatbuffers::Offset<ServerCharacterMessenger> CreateServerCharacterMessenger(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterMessengerT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerCharacterMessenger::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ServerCharacterMessenger> ServerCharacterMessenger::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterMessengerT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerCharacterMessengerT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _step = _o->step;
+  auto _to_id = _o->to_id;
+  auto _player = _o->player ? CreatePlayer(_fbb, _o->player.get(), _rehasher) : 0;
+  auto _players = _o->players.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Player>> (_o->players.size(), [](size_t i, _VectorArgs *__va) { return CreatePlayer(*__va->__fbb, __va->__o->players[i].get(), __va->__rehasher); }, &_va ) : 0;
+  auto _x = _o->x;
+  auto _chat = _o->chat.size() ? _fbb.CreateVector(_o->chat) : 0;
+  return fbs::CreateServerCharacterMessenger(
+      _fbb,
+      _step,
+      _to_id,
+      _player,
+      _players,
+      _x,
+      _chat);
 }
 
 template <bool B>

@@ -125,6 +125,7 @@ bool GameSaveSystemInstance::LoadSave(const std::string& login) {
         state.fullness = p->fullness;
         state.closeness = p->closeness;
         state.active = p->active;
+        state.equip_id = p->equip_id;
         cs.pets.push_back(std::move(state));
       }
       // 旧存档只有单只宠物，读进来迁移成 pets 列表。
@@ -136,6 +137,7 @@ bool GameSaveSystemInstance::LoadSave(const std::string& login) {
         state.fullness = c->pet->fullness;
         state.closeness = c->pet->closeness;
         state.active = c->pet->active;
+        state.equip_id = c->pet->equip_id;
         cs.pets.push_back(std::move(state));
       }
 
@@ -371,6 +373,7 @@ bool GameSaveSystemInstance::SaveGame() {
       pet.fullness = state.fullness;
       pet.closeness = state.closeness;
       pet.active = state.active;
+      pet.equip_id = state.equip_id;
       cst.pets.push_back(std::make_unique<fbs::PetSaveT>(pet));
     }
 

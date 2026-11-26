@@ -10,6 +10,7 @@
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/ui/minigame_card_ui_system.h"
 #include "src/client/system/ui/minigame_omok_ui_system.h"
+#include "src/client/system/ui/minigame_setup_ui_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/common.h"
@@ -682,13 +683,13 @@ void ItemGameInstance::UseItem(std::polymorphic<GameItem>& itm) {
 
   if (item_type == u"Ins") {
     if (IsMatchCardsTable(itm->id)) {
-      // 095：使用配对卡桌 = 开房 / 加入同图的卡片房。
-      MinigameCardUiSystem::EnterRoomByItem();
+      // 095 CMiniRoomBaseDlg：开房前先弹房间设置（公开/密码），确认后
+      // 进入/创建房间，无同图空房时自己成为房主。
+      MinigameSetupUiSystem::Open(1);
       return;
     }
     if (IsMinigameTable(itm->id)) {
-      // 095：使用五子棋桌 = 开房 / 加入同图的房间。
-      MinigameOmokUiSystem::EnterRoomByItem();
+      MinigameSetupUiSystem::Open(0);
       return;
     }
     if (itm->id.starts_with(u"0301") && self_sit_cooldown < Window::dt_now_) {

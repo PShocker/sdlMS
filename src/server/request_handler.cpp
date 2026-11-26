@@ -19,6 +19,7 @@
 #include "src/server/server_instance/server_drop_instance.h"
 #include "src/server/server_instance/server_mob_instance.h"
 #include "src/server/server_instance/server_minigame_instance.h"
+#include "src/server/server_instance/server_messenger_instance.h"
 #include "src/server/server_instance/server_party_instance.h"
 #include "src/server/server_instance/server_reactor_instance.h"
 #include "src/server/server_instance/server_region_skill_instance.h"
@@ -190,6 +191,13 @@ void RequestHandler::HandleRequest(uint64_t client_id, void* buf,
       fbs::ClientCharacterShopT r;
       payload->UnPackTo(&r);
       ServerPlayerShopInstance::HandleClient(client_id, r);
+      break;
+    }
+    case fbs::NetPayload_ClientCharacterMessenger: {
+      auto payload = packet->payload_as_ClientCharacterMessenger();
+      fbs::ClientCharacterMessengerT r;
+      payload->UnPackTo(&r);
+      ServerMessengerInstance::HandleMessenger(client_id, r);
       break;
     }
     case fbs::NetPayload_ClientCharacterBall: {
@@ -472,6 +480,13 @@ void RequestHandler::HandleRequest(uint64_t client_id, void* buf,
       fbs::ServerCharacterShopT r;
       payload->UnPackTo(&r);
       ServerPlayerShopInstance::HandleServer(client_id, r);
+      break;
+    }
+    case fbs::NetPayload_ServerCharacterMessenger: {
+      auto payload = packet->payload_as_ServerCharacterMessenger();
+      fbs::ServerCharacterMessengerT r;
+      payload->UnPackTo(&r);
+      ServerMessengerInstance::HandleServer(client_id, r);
       break;
     }
     case fbs::NetPayload_ServerCharacterBall: {

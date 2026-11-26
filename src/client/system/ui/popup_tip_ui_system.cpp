@@ -9,6 +9,8 @@
 
 #include "src/client/game_instance/quest_game_instance.h"
 
+#include "src/client/system/ui/maple_chat_ui_system.h"
+
 #include "src/client/window/window.h"
 
 #include "src/common/flatbuffers/client.h"
@@ -65,7 +67,8 @@ void PopupTipUiSystem::RenderBackgrnd(GamePopupTip& t) {
   switch (t.type) {
     case PopupTipEnums::kTrade:
     case PopupTipEnums::kMinigame:
-    case PopupTipEnums::kParty: {
+    case PopupTipEnums::kParty:
+    case PopupTipEnums::kMapleChat: {
       auto p = FadeYesBoxPos();
       static auto bg = WzResource::LoadTexture(
           WzResource::ui_->find(u"FadeYesNo.img/FadeYesNo/backgrnd3"));
@@ -222,6 +225,21 @@ void PopupTipUiSystem::RenderText(GamePopupTip& t) {
       }
       break;
     }
+    // MapleChat 聊天邀请（095 String[797]：'%s'玩家邀请你聊天。是否同意？）。
+    case PopupTipEnums::kMapleChat: {
+      auto p = FadeYesBoxPos();
+      auto* inv = std::any_cast<GameMapleChatInviteTip>(&t.data);
+      if (inv != nullptr && inv->player.character != nullptr) {
+        std::u16string name{inv->player.character->name.begin(),
+                            inv->player.character->name.end()};
+        Freetype::LoadSize(11);
+        Freetype::LoadColor(255, 255, 255, t.alpha);
+        Freetype::LoadAligned(true);
+        Freetype::DrawLine(name + u" invites you to chat.", p.x + 14,
+                           p.y + 16);
+      }
+      break;
+    }
   }
 }
 
@@ -236,7 +254,8 @@ void PopupTipUiSystem::RenderButton(GamePopupTip& t) {
   switch (t.type) {
     case PopupTipEnums::kTrade:
     case PopupTipEnums::kMinigame:
-    case PopupTipEnums::kParty: {
+    case PopupTipEnums::kParty:
+    case PopupTipEnums::kMapleChat: {
       auto p = FadeYesBoxPos();
       auto draw_btn = [&](const char16_t* base, SDL_FRect r) {
         bool hover = SDL_PointInRectFloat(&Window::mouse_pos_, &r);
@@ -376,6 +395,23 @@ void PopupTipUiSystem::EventButtonOmok(GamePopupTip& t, uint8_t accept) {
                 [&t](const auto& tip) { return &t == &tip; });
 }
 
+// MapleChat 聊天邀请答复（095 FadeYesNo → TryNew(SN) / CP 143 step5）。
+void PopupTipUiSystem::EventButtonMapleChat(GamePopupTip& t, uint8_t accept) {
+  auto* inv = std::any_cast<GameMapleChatInviteTip>(&t.data);
+  if (inv != nullptr && inv->player.client_id != 0) {
+    if (accept) {
+      MapleChatUiSystem::JoinRoom(inv->sn);
+    } else {
+      fbs::ClientCharacterMessengerT m;
+      m.step = 5;
+      m.to_id = inv->player.client_id;
+      ClientRequest::SendToHost(m);
+    }
+  }
+  std::erase_if(PopupTipGameInstance::data_,
+                [&t](const auto& tip) { return &t == &tip; });
+}
+
 void PopupTipUiSystem::EventButtonOk(GamePopupTip& t) {
   switch (t.type) {
     case PopupTipEnums::kTrade: {
@@ -392,6 +428,12 @@ void PopupTipUiSystem::EventButtonOk(GamePopupTip& t) {
 
     case PopupTipEnums::kParty: {
       EventButtonParty(t, 1);
+
+      break;
+    }
+
+    case PopupTipEnums::kMapleChat: {
+      EventButtonMapleChat(t, 1);
 
       break;
     }
@@ -473,6 +515,20 @@ bool PopupTipUiSystem::EventUI(SDL_Event* event) {
         }
         if (SDL_PointInRectFloat(&Window::mouse_pos_, &cancel)) {
           EventButtonParty(t, 0);  // 拒绝
+          return true;
+        }
+        break;
+      }
+      case PopupTipEnums::kMapleChat: {
+        auto p = FadeYesBoxPos();
+        SDL_FRect ok = FadeYesOkRect(p);
+        SDL_FRect cancel = FadeYesCancelRect(p);
+        if (SDL_PointInRectFloat(&Window::mouse_pos_, &ok)) {
+          EventButtonMapleChat(t, 1);  // 进房
+          return true;
+        }
+        if (SDL_PointInRectFloat(&Window::mouse_pos_, &cancel)) {
+          EventButtonMapleChat(t, 0);  // 拒绝
           return true;
         }
         break;

@@ -43,7 +43,7 @@ wz::Node* SkillGameInstance::LoadSkiLevelNode(const std::u16string& id,
 
 int32_t SkillGameInstance::LoadSkiLevelInt(const std::u16string& id, uint8_t lv,
                                            const char16_t* key, int32_t def) {
-  auto node = LoadSkiLevelNode(id, lv);
+  auto node = LoadSkiLevelNode(id, lv); 
   if (node == nullptr) {
     return def;
   }

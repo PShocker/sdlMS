@@ -75,11 +75,24 @@ class EquipGameInstance {
   // 大类码 = id / 10000 后取低两位（130 → SWORD_1H），供伤害公式选倍率
   static WeaponEnum LoadWeaponEnum(const std::u16string& id);
   static wz::Node* LoadEquipInfo(const std::u16string& id);
+  // 095 CUser::SetAbilityEquip：戒指槽装备 info 的 nameTag / chatBalloon
+  // 字段（点装效果）。点装道具在 Item.wz/Cash/<段>.img/<id>/info，
+  // 普通戒指在 Character.wz/Ring/<id>.img/info。返回 0 = 无效果。
+  static int32_t LoadRingStyle(const std::u16string& id,
+                               const char16_t* field);
+  // 按佩戴的一对点装戒指（ring0/ring1 deco）解析效果样式，
+  // ring0 优先；都没有时返回 def。
+  static int32_t LoadRingStyle(const GameCharacter& g, const char16_t* field,
+                               int32_t def);
   static std::u16string LoadEquipName(const std::u16string& id);
   static std::u16string LoadEquipDesc(const std::u16string& id);
   static std::flat_set<JobType> LoadEquipJob(const std::u16string& id);
   static std::u16string LoadEquipType(const std::u16string& id);
   static uint8_t LoadEquipTuc(const std::u16string& id);
+  // 095 GW_ItemSlotEquip::GetItemGrade（option & 3）：
+  //   0=未强化（白名）1=卷轴成功（蓝名）2=诅咒卷成功（紫名）。
+  // 从装备的 scroll 记录推导（任一成功诅咒卷 → 2；否则任一成功 → 1）。
+  static int LoadEquipGrade(const GameEquipItem& equip);
 
   static void AddEquip(GameEquipItem& equip, GameCharacter& character,
                        int slot);

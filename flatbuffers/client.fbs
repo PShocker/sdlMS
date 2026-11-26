@@ -45,10 +45,14 @@ table ClientCharacterPet {
 }
 
 // 宠物动作（095 CPet::DoAction 的 bSend 包）：命令/喂食时播的动作 + 气泡台词。
+// action="warp" 表示跟丢拉回特效（095 CPet::ShowEffect(2)）：x/y 是
+// 旧位置（特效在旧位置播放），远端在旧位置播 Effect/PetEff.img/<id>/warp。
 table ClientCharacterPetAction {
     map_id:uint32;
     action:string;
     chat:[uint16];
+    x:float;
+    y:float;
 }
 
 // 宠物位置/动画同步（095 CPet 的移动包）：主人客户端上报宠物的位置和当前帧。
@@ -190,4 +194,17 @@ table ClientCharacterShop {
     y:uint32;            // 购买数量
     chat:[uint16];       // 店名 / 聊天内容
     goods:[ShopGoods];   // 货架（开摊/调整）
+}
+
+// MapleChat 聊天室（095 CUIMessenger，CP 143）。
+table ClientCharacterMessenger {
+    step:uint8;          // 0=进入/创建房间（to_id=房间SN，0=新建；095 OnCreate）
+                         // 2=离开房间（095 OnDestroy）
+                         // 3=邀请聊天（to_id=目标 client_id；chat=目标名字，按名邀请备用）
+                         // 5=拒绝邀请（to_id=邀请人 client_id；095 OnInvite 自动拒绝分支）
+                         // 6=聊天（chat=文本，095 "name : text"）
+                         //   打字状态（chat 为空：x:1=正在输入 0=停止，095 "name0/1"）
+    to_id:uint64;
+    x:uint8;
+    chat:[uint16];
 }

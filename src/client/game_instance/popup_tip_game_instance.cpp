@@ -61,4 +61,18 @@ void PopupTipGameInstance::AddOmokTip(uint8_t kind, fbs::PlayerT player_t) {
   AudioGameInstance::PlayNow(u"UI.img/Invite");
 }
 
+void PopupTipGameInstance::AddMapleChatTip(uint64_t sn, fbs::PlayerT player_t) {
+  if (!CheckType(PopupTipEnums::kMapleChat)) {
+    return;
+  }
+  GamePopupTip tp;
+  tp.type = PopupTipEnums::kMapleChat;
+  GameMapleChatInviteTip inv;
+  inv.sn = sn;
+  inv.player = std::move(player_t);
+  tp.data = std::move(inv);
+  data_.emplace_back(tp);
+  AudioGameInstance::PlayNow(u"UI.img/Invite");
+}
+
 }  // namespace sdlms

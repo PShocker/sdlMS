@@ -2,9 +2,11 @@
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
+#include "src/client/game_instance/pet_game_instance.h"
 #include "src/client/game_instance/random_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/system_instance/scene_system_instance.h"
+#include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 
 #include <wz/Property.h>
@@ -564,6 +566,8 @@ bool CharacterStatGameInstance::Upgrade() {
     // 升级后按 MeowDB 的新 HP/MP 上限回满。
     hp_point_ = hp_point_max_;
     mp_point_ = mp_point_max_;
+    // 095 CWvsContext::OnStatChanged：升级时宠物说话祝贺（golevelup）。
+    PetGameInstance::AutoSpeakEvent(0);
     return true;
   }
   return false;
@@ -575,6 +579,15 @@ void CharacterStatGameInstance::AddExp(uint32_t num) {
   exp_point_ += num;
   Upgrade();
   Update();
+  // 095 CWvsContext::OnStatChanged：EXP 达 90% 后宠物催升级（goprelevelup），
+  // 7 分钟最多提醒一次（m_tNextUrgingForLevelUp）。台词数据缺失时静默。
+  static uint64_t next_urge = 0;
+  const auto exp_max = GetExpMax();
+  if (exp_max > 0 && exp_point_ * 10 >= exp_max * 9 &&
+      Window::dt_now_ >= next_urge) {
+    next_urge = Window::dt_now_ + 420000;
+    PetGameInstance::AutoSpeakEvent(1);
+  }
 }
 
 // ============================================================

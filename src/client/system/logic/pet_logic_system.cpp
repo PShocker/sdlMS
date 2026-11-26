@@ -4,6 +4,7 @@
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/drop_game_instance.h"
+#include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
 #include "src/client/game_instance/map_info_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
@@ -48,9 +49,13 @@ constexpr uint64_t kPickCooldown = 500;
 constexpr float kPickRangeX = 25.0f;
 constexpr float kPickRangeYUp = 50.0f;
 constexpr float kPickRangeYDown = 10.0f;
-// 饱食度下降间隔（毫秒）与饥饿阈值（095 CPet::OnValidateStat）
+// 095 饱食度下降间隔（毫秒）与饥饿阈值（CPet::OnValidateStat）
 constexpr uint64_t kFullnessInterval = 30000;
 constexpr uint8_t kHungryFullness = 20;
+// 095 CVecCtrlPet：宠物与主人距离过远（跟不上，如主人跳下高台/
+// 传送门瞬移）时拉回主人身边，并在旧位置播 warp 特效掩饰跳变。
+constexpr float kWarpDistX = 220.0f;
+constexpr float kWarpDistY = 160.0f;
 
 bool IsFrameKey(const std::u16string& key) {
   return !key.empty() && std::ranges::all_of(key, [](char16_t c) {
@@ -205,6 +210,46 @@ bool SnapToGround(GamePet& pet) {
   return false;
 }
 
+// 095 CPet::ShowEffect(2)：跟丢拉回时在旧位置播 Effect/PetEff.img/
+// <7位宠物id>/warp（一个由星星组成的消散动画），随后宠物瞬移到主人
+// 身边落地。数据包没有该宠物的 warp 贴图时只瞬移不播特效。
+// warp 会广播给同地图其他玩家（远端在旧位置播同款特效）。
+void WarpToOwner(GamePet& pet, const GameCharacter& owner) {
+  const SDL_FPoint old_pos = pet.pos;
+  auto key = PetGameInstance::LoadPetImageKey(pet.id);
+  if (!key.empty()) {
+    auto path = u"PetEff.img/" + key + u"/warp";
+    // 找不到节点时 effect_->find 返回 nullptr，判空避免后续解引用。
+    if (WzResource::effect_->find(path) != nullptr) {
+      GameEffect e{};
+      e.id = path;
+      e.type = GameEffect::EffectType::kEffect;
+      e.lv = static_cast<uint8_t>(GameEffect::EffectSubType::kEffect);
+      // 渲染以 pet.pos（拉回后的新位置）为基准，旧位置 = 新位置 + 偏移。
+      e.pos = SDL_FPoint{old_pos.x - owner.pos.x,
+                         old_pos.y - owner.pos.y - 10.0f};
+      e.z = false;
+      e.flip = pet.flip;
+      e.delay = 0;
+      pet.effect.push_back(std::move(e));
+    }
+  }
+  pet.pos = owner.pos;
+  pet.hspeed = 0.0f;
+  pet.vspeed = 0.0f;
+  pet.fh = 0;
+  if (!SnapToGround(pet)) {
+    pet.fall = true;
+  }
+  // 广播 warp：action="warp"，x/y = 旧位置（远端在旧位置播特效）。
+  fbs::ClientCharacterPetActionT packet;
+  packet.map_id = SceneSystemInstance::map_id_;
+  packet.action = "warp";
+  packet.x = old_pos.x;
+  packet.y = old_pos.y;
+  ClientRequest::SendToHost(packet);
+}
+
 std::optional<SDL_FRect> LoadBorder() {
   auto map_id = SceneSystemInstance::map_id_;
   auto border = MapInfoGameInstance::LoadMrBorder(map_id);
@@ -247,6 +292,15 @@ void PetLogicSystem::RunAnimate(GamePet& pet) {
 void PetLogicSystem::RunFollow(GamePet& pet, const GameCharacter& owner,
                                bool is_self) {
   const float delta_time = Window::delta_time_ / 1000.0f;
+
+  // 095 CVecCtrlPet 跟丢拉回：距离过远时瞬移到主人身边并播 warp。
+  // 挂背（上绳）不算跟丢；只在正常跟随阶段检测。
+  if (!pet.hang_back &&
+      (std::abs(pet.pos.x - owner.pos.x) > kWarpDistX ||
+       std::abs(pet.pos.y - owner.pos.y) > kWarpDistY)) {
+    WarpToOwner(pet, owner);
+    return;
+  }
 
   // 095 HangOnBack：主人爬上绳子/梯子时，宠物挂在主人背上，跟着一起升降。
   const bool owner_on_rope =
@@ -302,15 +356,10 @@ void PetLogicSystem::RunFollow(GamePet& pet, const GameCharacter& owner,
       pet.vspeed = 0.0f;
       return;
     }
-    // 掉出地图底边（例如主人从绳子上跳下去）：回到主人身边重新落地。
+    // 掉出地图底边（例如主人从绳子上跳下去）：拉回主人身边，
+    // 旧位置播 warp（095 ShowEffect(2)）。
     if (border.has_value() && pet.pos.y > border->h) {
-      pet.pos = owner.pos;
-      pet.vspeed = 0.0f;
-      pet.hspeed = 0.0f;
-      if (!SnapToGround(pet)) {
-        pet.fh = 0;
-        pet.fall = true;
-      }
+      WarpToOwner(pet, owner);
     }
     return;
   }
@@ -466,9 +515,30 @@ void PetLogicSystem::RunStateMachine(GamePet& pet,
 bool PetLogicSystem::Run() {
   // 背包里的宠物道具可能变化（捡到/丢掉），定期刷新列表。
   static uint64_t next_refresh = 0;
+  // 宠物装备穿/脱后要把新 equip_id 重新上报（随宠物消息同步）。
+  static uint32_t last_equip_id = 0;
   if (PetGameInstance::data_.empty() || Window::dt_now_ >= next_refresh) {
     PetGameInstance::Refresh();
     next_refresh = Window::dt_now_ + 1000;
+  }
+  if (!PetGameInstance::data_.empty()) {
+    uint32_t equip_id = 0;
+    if (const auto& self = CharacterGameInstance::self_;
+        self.pet_equip.has_value()) {
+      try {
+        equip_id = static_cast<uint32_t>(std::stoi(
+            std::string{self.pet_equip->id.begin(),
+                        self.pet_equip->id.end()}));
+      } catch (...) {
+        equip_id = 0;
+      }
+    }
+    if (equip_id != last_equip_id) {
+      last_equip_id = equip_id;
+      PetGameInstance::SendToServer();
+    }
+  } else {
+    last_equip_id = 0;
   }
 
   // 095 CPet::OnValidateStat：饱食度随时间下降，0 时宠物不再捡取。
@@ -497,8 +567,38 @@ bool PetLogicSystem::Run() {
     const bool need_mp =
         (ability & PetGameInstance::kAbilityConsumeMP) != 0 && mp > 0 &&
         mp_max > 0 && mp * 2 < mp_max;
-    if ((need_hp || need_mp) && PetGameInstance::UseAutoPotion(need_hp, need_mp)) {
+    const bool used =
+        (need_hp || need_mp) &&
+        PetGameInstance::UseAutoPotion(need_hp, need_mp);
+    if (used) {
       next_potion = Window::dt_now_ + 2000;
+      if (need_hp) {
+        // 095 CUserLocal::TryConsumePetHP：自动喝下 HP 药时宠物提醒
+        //（noHPAlert）。
+        PetGameInstance::AutoSpeakEvent(3);
+      }
+    } else if (need_hp || need_mp) {
+      // 无药可喝：对应 095 的 noNOHPpotion/noNOMPpotion 事件，
+      // 30 秒提醒一次避免刷屏。
+      next_potion = Window::dt_now_ + 30000;
+      if (need_hp) {
+        PetGameInstance::AutoSpeakEvent(4);
+      }
+      if (need_mp) {
+        PetGameInstance::AutoSpeakEvent(5);
+      }
+    }
+  }
+
+  // 095 CPet::Update：宠物在场每 30 分钟随机说一句（m_tAutoSpeakingTimer
+  // 累计 1800000ms；台词数据缺失时静默）。
+  static uint64_t next_auto_speak = 0;
+  if (!PetGameInstance::data_.empty()) {
+    if (next_auto_speak == 0) {
+      next_auto_speak = Window::dt_now_ + 1800000;
+    } else if (Window::dt_now_ >= next_auto_speak) {
+      PetGameInstance::AutoSpeakRandom();
+      next_auto_speak = Window::dt_now_ + 1800000;
     }
   }
 

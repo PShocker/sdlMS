@@ -71,14 +71,30 @@ class PetGameInstance {
   // 095 CPet::OnValidateStat：更新当前宠物的饱食度。
   static void SetFullness(uint8_t fullness);
 
-  // 喂宠物食品（095：Item.wz/Consume/0212.img/02120000/spec 里列出可喂的宠物 id
+  // 喂宠物食品（095：Item.wz/Consume/0212.img/0212xxxx/spec 里列出可喂的宠物 id
   // + incRepleteness/incTameness）。成功返回 true，调用方负责扣道具。
+  // 反应按 095 RegisterPet m_aFoodReaction：Item.wz/Pet/<id>.img/food/<i> 的
+  // [l0,l1] 等级区间匹配，吃下后播 success 分支（act + PetDialog.img 台词），
+  // 饱食度已满时播 fail 分支（宠物抱怨吃不下，不消耗道具）。
   static bool Feed(const std::u16string& food_id);
 
   // 095 CPet::ParseCommand：聊天框里输入宠物命令（String.wz/PetCommand.img 的别名，
   // 如 sit/talk/iloveyou），按 Item.wz/Pet/<id>.img/interact 里的 l0/l1/prob/success/fail
   // 播放一次性动作并用 PetDialog 的台词冒泡。命中命令返回 true。
   static bool RunCommand(const std::u16string& text);
+
+  // 095 CPet::AutoSpeakingByEvent（事件索引与 095 客户端一致）：
+  //   0=golevelup(角色升级)   1=goprelevelup(EXP≥90%催升级)
+  //   2=gorest(长时间未动)    3=noHPAlert(自动喝HP药)
+  //   4=noNOHPpotion(没有HP药) 5=noNOMPpotion(没有MP药)
+  // 台词在 String.wz/PetDialog.img/<宠物id>/<事件标签>，数据缺失时静默
+  // （095 客户端同样静默）。气泡只做本地+广播，不带动作。
+  static void AutoSpeakEvent(int event);
+
+  // 095 CPet::AutoSpeakingByRandom：宠物在场每 30 分钟随机说一句，
+  // 台词列表在 String.wz/PetDialog.img/<宠物id>/autoSpekaing/0..N
+  // （键名 autoSpekaing 是 095 原始拼写）。数据缺失时静默。
+  static void AutoSpeakRandom();
 
   // 095 CPetTemplate::nChatBalloon：模板 info/chatBalloon（ChatBalloon.img 的样式号）。
   static int32_t LoadPetChatBalloonIndex(const std::u16string& id);
@@ -105,6 +121,13 @@ class PetGameInstance {
  private:
   // 把在场宠物的名字/等级/饱食度同步回 pets_。
   static void SyncActiveState();
+  // 095 CPet::DoAction 的冒泡部分：台词气泡 + 广播给同地图其他玩家。
+  static void MakeChatBalloon(GamePet& pet, const std::u16string& dialog,
+                              uint64_t life = 5000);
+  // 095 RegisterPet 的 m_aFoodReaction：按宠物等级匹配 food/<i> 的 [l0,l1]，
+  // 取 success/fail 分支的 act 与随机一句台词。命中返回 true。
+  static bool LoadFoodReaction(const GamePet& pet, bool full,
+                                std::u16string& act, std::u16string& dialog);
 };
 
 }  // namespace sdlms

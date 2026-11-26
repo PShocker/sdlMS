@@ -32,6 +32,8 @@ struct OmokRoom {
   uint32_t map_id = 0;
   // 房间类型：0=五子棋（0408 道具），1=卡片配对（040801 道具）。
   uint8_t game_type = 0;
+  // 095 MiniRoom 私房密码；空 = 公开房（开房设置弹窗里不勾密码）。
+  std::u16string password;
   uint64_t slot[2] = {0, 0};  // client_id，0 = 空位；slot0 = 房主(黑)
   bool guest_ready = false;
   bool playing = false;
@@ -220,6 +222,16 @@ void ServerMinigameInstance::HandleClient(uint64_t client_id,
           SendTo(client_id, m);
           return;
         }
+        // 私房：密码不匹配则拒绝进入。
+        std::u16string input{r.chat.begin(), r.chat.end()};
+        if (!room.password.empty() && input != room.password) {
+          fbs::ServerCharacterMinigameT m = MakeStep(12);
+          m.x = r.x;
+          std::u16string text = u"密码不正确。";
+          m.chat = {text.begin(), text.end()};
+          SendTo(client_id, m);
+          return;
+        }
         // 进房：客方坐 slot1。
         room.slot[1] = client_id;
         room.guest_ready = false;
@@ -235,10 +247,11 @@ void ServerMinigameInstance::HandleClient(uint64_t client_id,
         SendTo(client_id, to_guest);
         return;
       }
-      // 建房：房主坐 slot0。
+      // 建房：房主坐 slot0；chat 带入开房设置的密码（空 = 公开房）。
       OmokRoom room;
       room.map_id = map_id;
       room.game_type = r.x;
+      room.password = {r.chat.begin(), r.chat.end()};
       room.slot[0] = client_id;
       rooms.push_back(room);
       fbs::ServerCharacterMinigameT m = MakeStep(0);
@@ -907,9 +920,14 @@ void ServerMinigameInstance::HandleServer(uint64_t client_id,
       }
       return;
     }
-    // 进入失败提示。
+    // 进入失败提示（chat 带服务器文本，如"密码不正确。"）。
     case 12: {
-      NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kMinigameRoomFull;
+      if (!r.chat.empty()) {
+        NoticeUiSystem::notice_text_ = {r.chat.begin(), r.chat.end()};
+        NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kShopNotice;
+      } else {
+        NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kMinigameRoomFull;
+      }
       NoticeUiSystem::Open();
       return;
     }

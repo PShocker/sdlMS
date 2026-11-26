@@ -17,6 +17,8 @@ class PopupTipUiSystem {
   static void EventButtonTrade(GamePopupTip& t);
   // 五子棋请求（悔棋/求和）确认框：accept 1=同意 0=拒绝。
   static void EventButtonOmok(GamePopupTip& t, uint8_t accept);
+  // MapleChat 聊天邀请确认框：accept 1=进房 0=拒绝并回执邀请人。
+  static void EventButtonMapleChat(GamePopupTip& t, uint8_t accept);
   static void EventButtonOk(GamePopupTip& t);
   static void EventButtonCancel(GamePopupTip& t);
 

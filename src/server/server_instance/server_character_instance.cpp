@@ -2,6 +2,7 @@
 
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_chat.h"
+#include "src/client/game/game_effect.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/chat_game_instance.h"
@@ -350,12 +351,17 @@ void ServerCharacterInstance::HandleServerChat(uint64_t client_id,
     g_character = &CharacterGameInstance::others_[r.client_id].g_character;
   }
   if (g_character) {
+    // 095 CUser::OnChat：气泡样式 = 佩戴戒指的 info/chatBalloon
+    //（SetAbilityEquip 维护的 m_nChatBalloonType），没有点装时为 0 号。
+    auto balloon_style =
+        EquipGameInstance::LoadRingStyle(*g_character, u"chatBalloon", 1);
+    auto path_text = std::to_string(std::max(1, static_cast<int>(balloon_style)));
     GameChatballoon c;
     c.w = 100;
     c.destroy = Window::dt_now_ + 5000;
     c.text = {r.payload->payload.begin(), r.payload->payload.end()};
     c.size = 13;
-    c.path = u"0";
+    c.path = {path_text.begin(), path_text.end()};
     g_character->chatballoon = c;
   }
 
@@ -420,6 +426,7 @@ void ServerCharacterInstance::HandleServerPet(uint64_t client_id,
   state.fullness = r.pet->fullness;
   state.closeness = r.pet->closeness;
   state.active = r.pet->active;
+  state.equip_id = r.pet->equip_id;
   PetGameInstance::HandleRemote(r.client_id, state);
 }
 
@@ -475,6 +482,8 @@ void ServerCharacterInstance::HandleCharacterPetAction(
   t.client_id = client_id;
   t.action = r.action;
   t.chat = r.chat;
+  t.x = r.x;
+  t.y = r.y;
   for (auto c : clients) {
     if (c == client_id) {
       continue;
@@ -494,6 +503,27 @@ void ServerCharacterInstance::HandleServerPetAction(
   }
   auto& pet = it->second;
   std::u16string action{r.action.begin(), r.action.end()};
+  // warp（095 CPet::ShowEffect(2)）：跟丢拉回，在广播携带的旧位置播
+  // Effect/PetEff.img/<id>/warp 特效，宠物已经瞬移（下一个移动帧对齐）。
+  if (action == u"warp") {
+    auto key = PetGameInstance::LoadPetImageKey(pet.id);
+    if (!key.empty()) {
+      auto path = u"PetEff.img/" + key + u"/warp";
+      if (WzResource::effect_->find(path) != nullptr) {
+        GameEffect e{};
+        e.id = path;
+        e.type = GameEffect::EffectType::kEffect;
+        e.lv = static_cast<uint8_t>(GameEffect::EffectSubType::kEffect);
+        // 渲染以 pet.pos（拉回后的新位置）为基准，旧位置 = 新位置 + 偏移。
+        e.pos = SDL_FPoint{r.x - pet.pos.x, r.y - pet.pos.y - 10.0f};
+        e.z = false;
+        e.flip = pet.flip;
+        e.delay = 0;
+        pet.effect.push_back(std::move(e));
+      }
+    }
+    return;
+  }
   if (!action.empty()) {
     pet.action = action;
     pet.ani_index = 0;

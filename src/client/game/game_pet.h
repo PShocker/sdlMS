@@ -1,12 +1,14 @@
 #pragma once
 
 #include "src/client/game/game_chatballoon.h"
+#include "src/client/game/game_effect.h"
 
 #include <SDL3/SDL_rect.h>
 
 #include <cstdint>
 #include <optional>
 #include <string>
+#include <vector>
 
 namespace sdlms {
 
@@ -40,6 +42,14 @@ struct GamePet {
 
   // 095 CPet::DoAction -> CChatBalloon::MakeBalloon：宠物说话/回应命令的气泡。
   std::optional<GameChatballoon> chatballoon;
+
+  // 宠物装备道具 id（05010000~；0=无）。主人穿戴/脱下时随宠物消息同步，
+  // 远端渲染装备层与能力位判定都从这里取（不走角色帧）。
+  uint32_t equip_id = 0;
+
+  // 095 CPet::ShowEffect：地图特效（如跟丢拉回时旧位置的
+  // Effect/PetEff.img/<id>/warp）。
+  std::vector<GameEffect> effect;
 
   // 宠物栏位，捡取请求里回传给服务器
   int8_t index = 0;
