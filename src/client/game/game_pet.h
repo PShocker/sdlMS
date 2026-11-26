@@ -42,6 +42,8 @@ struct GamePet {
 
   // 095 CPet::DoAction -> CChatBalloon::MakeBalloon：宠物说话/回应命令的气泡。
   std::optional<GameChatballoon> chatballoon;
+  // true = 名签用默认黑底样式（商城试用宠物用），忽略模板 info/nameTag。
+  bool default_nametag = false;
 
   // 宠物装备道具 id（05010000~；0=无）。主人穿戴/脱下时随宠物消息同步，
   // 远端渲染装备层与能力位判定都从这里取（不走角色帧）。

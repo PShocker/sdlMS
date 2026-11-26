@@ -15,8 +15,6 @@ namespace sdlms {
 class NpcGameInstance {
  public:
   static void Load(uint32_t map_id);
-  // 城镇地图没有 WZ 摆设时补一台 MapleTV（本数据包 life 层无 TV）。
-  static void EnsureMapleTV(uint32_t map_id);
   static wz::Node* LoadLinkNpcNode(const std::u16string& id);
 
   static SDL_FRect LoadRect(const GameNpc& g_npc);

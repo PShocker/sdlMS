@@ -46,6 +46,9 @@ void Window::Tick() {
 }
 
 void Window::Clear() {
+  // SDL 的绘制颜色是全局状态：清屏前先恢复默认黑色，避免上一帧留下的
+  // 自定义颜色（武器/特效/地图等）泄到下一帧的底色上。
+  SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
   SDL_RenderClear(renderer_);
 }
 

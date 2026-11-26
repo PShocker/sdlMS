@@ -181,6 +181,14 @@ void SceneSystemInstance::EnterPrepare() {
   self.action_animate = true;
   self.tomb = std::nullopt;
   self.skill = std::nullopt;
+
+  // 场景就位后执行一次性回调（商城退出时用来还原进店前的外观，
+  // 此时画面还在黑屏/加载，看不到回滚瞬间）。
+  if (on_prepare_cb_) {
+    auto cb = std::move(on_prepare_cb_);
+    on_prepare_cb_ = nullptr;
+    cb();
+  }
 }
 
 void SceneSystemInstance::Enter(uint32_t map_id) {

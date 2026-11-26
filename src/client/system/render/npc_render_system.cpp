@@ -103,43 +103,70 @@ void NpcRenderSystem::RenderChatballoon(GameNpc& g_npc) {
 // 计时（帧推进在 NpcLogicSystem::RunTvAnimate）。
 bool RenderMapleTV(GameNpc& g_npc) {
   auto& camera = CameraGameInstance::camera_;
-  auto draw_frame = [&camera, &g_npc](wz::Node* frame, SDL_FPoint at) {
-    if (frame == nullptr || frame->get_child(u"origin") == nullptr) {
+  // 以「左上角」为基准画一帧（内部不做 origin 处理）。
+  auto draw_at = [&camera, &g_npc](wz::Node* node, SDL_FPoint left_top) {
+    if (node == nullptr) {
       return;
     }
-    auto texture = WzResource::LoadTexture(frame);
-    auto origin = WzResource::LoadFpoint(frame->get_child(u"origin"));
+    auto* texture = WzResource::LoadTexture(node);
+    if (texture == nullptr) {
+      return;
+    }
     SDL_FRect pos_rect{
-        at.x - origin.x,
-        at.y - origin.y,
+        left_top.x,
+        left_top.y,
         static_cast<float>(texture->w),
         static_cast<float>(texture->h),
     };
-    if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
-      pos_rect.x -= camera.x;
-      pos_rect.y -= camera.y;
-      SDL_RenderTextureRotated(Window::renderer_, texture, nullptr,
-                               &pos_rect, 0, nullptr,
-                               (SDL_FlipMode)g_npc.flip);
+    if (!SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
+      return;
     }
+    pos_rect.x -= camera.x;
+    pos_rect.y -= camera.y;
+    SDL_RenderTextureRotated(Window::renderer_, texture, nullptr, &pos_rect, 0,
+                             nullptr, (SDL_FlipMode)g_npc.flip);
   };
-  // 机身：TVon 动画帧索引沿用 g_npc.ani_index（与普通 NPC 相同的推进
-  // 节奏，由 RunTvAnimate 维护）。
+
+  // 1) 机身：直接用 NPC 自己的立绘（0800007 stand 240x570? 实际 442x570，
+  //    origin=(321,569)），不再用 MapleTV.img 里的 TVon 冒充机身。
+  auto* npc_node = NpcGameInstance::LoadLinkNpcNode(g_npc.id);
+  auto* action_node =
+      npc_node == nullptr
+          ? nullptr
+          : npc_node->get_child(g_npc.action.empty() ? u"stand"
+                                                     : g_npc.action);
+  auto* casing = action_node == nullptr ? nullptr : action_node->get_child(u"0");
+  SDL_FPoint casing_origin{0.0f, 0.0f};
+  if (casing != nullptr) {
+    if (auto* origin_node = casing->get_child(u"origin")) {
+      casing_origin = WzResource::LoadFpoint(origin_node);
+    }
+    draw_at(casing, {g_npc.pos.x - casing_origin.x,
+                     g_npc.pos.y - casing_origin.y});
+  }
+  const SDL_FPoint casing_lt{g_npc.pos.x - casing_origin.x,
+                             g_npc.pos.y - casing_origin.y};
+
+  // 2) 上层小屏（240x90）：MapleTV.img/TVon 动画。
+  //    屏幕在机身里的位置是 (89,190)（按 0800007 立绘量得）。
   if (auto* tv_on = NpcGameInstance::LoadMapleTVNode(u"TVon");
       tv_on != nullptr) {
     auto index = std::to_string(g_npc.ani_index);
-    draw_frame(tv_on->get_child(index), g_npc.pos);
+    draw_at(tv_on->get_child(index),
+            {casing_lt.x + 89.0f, casing_lt.y + 190.0f});
   }
-  // 广告：TVmedia/<段>/<帧> 于 (pos + adX, adY)。
+
+  // 3) 下层大屏（240x180）：MapleTV.img/TVmedia/<段> 广告，
+  //    位置就是模板里的 MapleTVadX/MapleTVadY（= 机身左上 + (84,308)）。
   std::u16string media = u"TVmedia/" + [&] {
     auto s = std::to_string(g_npc.tv_media);
     return std::u16string{s.begin(), s.end()};
   }();
   if (auto* seg = NpcGameInstance::LoadMapleTVNode(media); seg != nullptr) {
     auto index = std::to_string(g_npc.tv_ani_index);
-    draw_frame(seg->get_child(index),
-               {g_npc.pos.x + static_cast<float>(g_npc.tv_ad_x),
-                g_npc.pos.y + static_cast<float>(g_npc.tv_ad_y)});
+    draw_at(seg->get_child(index),
+            {g_npc.pos.x + static_cast<float>(g_npc.tv_ad_x),
+             g_npc.pos.y + static_cast<float>(g_npc.tv_ad_y)});
   }
   return true;
 }

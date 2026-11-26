@@ -60,16 +60,33 @@ wz::Node* NpcGameInstance::LoadLinkNpcNode(const std::u16string& id) {
 }
 
 SDL_FRect NpcGameInstance::LoadRect(const GameNpc& g_npc) {
+  // NPC 数据缺失（没有 img / 没有该动作 / 没有该帧）时不能解引用空指针，
+  // 返回空矩形，调用方（光标命中、任务图标定位）会自然跳过。
   auto npc_node = NpcGameInstance::LoadLinkNpcNode(g_npc.id);
+  if (npc_node == nullptr) {
+    return SDL_FRect{};
+  }
   auto action_node = npc_node->get_child(g_npc.action);
+  if (action_node == nullptr) {
+    return SDL_FRect{};
+  }
 
   auto index = std::to_string(g_npc.ani_index);
   npc_node = action_node->get_child(index);
+  if (npc_node == nullptr) {
+    return SDL_FRect{};
+  }
   // uol
   if (npc_node->type == wz::Type::UOL) {
     npc_node = static_cast<wz::Property<wz::WzUOL>*>(npc_node)->get_uol();
   }
+  if (npc_node == nullptr) {
+    return SDL_FRect{};
+  }
   auto texture = WzResource::LoadTexture(npc_node);
+  if (texture == nullptr) {
+    return SDL_FRect{};
+  }
   auto origin = WzResource::LoadFpoint(npc_node->get_child(u"origin"));
   SDL_FRect pos_rect = {
       .x = g_npc.pos.x - origin.x,
@@ -112,6 +129,9 @@ std::optional<SDL_FRect> NpcGameInstance::LoadQuestRect(const GameNpc& g_npc) {
     auto npc_rect = NpcGameInstance::LoadRect(g_npc);
     auto origin = WzResource::LoadFpoint(node->get_child(u"origin"));
     auto texture = WzResource::LoadTexture(node);
+    if (texture == nullptr) {
+      return std::nullopt;
+    }
     SDL_FRect pos_rect{
         g_npc.pos.x - origin.x + (npc_rect.w / 2) + 5,
         g_npc.pos.y - origin.y - npc_rect.h - 10,
@@ -249,136 +269,7 @@ void NpcGameInstance::Load(uint32_t map_id) {
     data_[page].push_back(g_npc);
   }
 
-  // 本数据包（精简客户端）的地图 life 层没有摆任何 MapleTV：城镇地图
-  // 自动补一台 Free Market Maple TV（NPC 0800007），摆位取出生点旁的
-  // 地面。若将来 WZ 地图数据自带 TV 摆设则不重复添加。
-  EnsureMapleTV(map_id);
-}
-
-void NpcGameInstance::EnsureMapleTV(uint32_t map_id) {
-  if (!LoadIsMapleTV(u"0800007")) {
-    return;
-  }
-  bool has_tv = false;
-  for (const auto& page : data_) {
-    for (const auto& g_npc : page) {
-      if (g_npc.maple_tv) {
-        has_tv = true;
-        break;
-      }
-    }
-    if (has_tv) {
-      break;
-    }
-  }
-  if (has_tv) {
-    return;
-  }
-  // info/town=1 才是城镇（095 is_town_field_id）。
-  auto* map_node = WzResource::LoadMapNode(map_id);
-  auto* info = map_node == nullptr ? nullptr : map_node->get_child(u"info");
-  auto* town = info == nullptr ? nullptr : info->get_child(u"town");
-  if (town == nullptr || town->type != wz::Type::Int ||
-      static_cast<wz::Property<int32_t>*>(town)->get() == 0) {
-    return;
-  }
-  // 摆在出生点（portal sp）右侧 160 像素的地面上。
-  float spawn_x = 0.0f;
-  float spawn_y = 0.0f;
-  if (auto* portals = map_node->get_child(u"portal");
-      portals != nullptr && portals->get_children() != nullptr) {
-    for (const auto& [pk, pv] : *portals->get_children()) {
-      if (pv.empty() || pv[0] == nullptr) {
-        continue;
-      }
-      auto* pn = pv[0]->get_child(u"pn");
-      auto* x = pv[0]->get_child(u"x");
-      auto* y = pv[0]->get_child(u"y");
-      if (pn == nullptr || x == nullptr || y == nullptr) {
-        continue;
-      }
-      if (pn->type != wz::Type::String ||
-          static_cast<wz::Property<std::u16string>*>(pn)->get() != u"sp") {
-        continue;
-      }
-      if (x->type == wz::Type::Int && y->type == wz::Type::Int) {
-        spawn_x = static_cast<float>(
-            static_cast<wz::Property<int32_t>*>(x)->get());
-        spawn_y = static_cast<float>(
-            static_cast<wz::Property<int32_t>*>(y)->get());
-        break;
-      }
-    }
-  }
-  if (spawn_x == 0.0f && spawn_y == 0.0f) {
-    // 没有 sp 出口的地图不做 Ensure。
-    return;
-  }
-  auto border = MapInfoGameInstance::LoadMrBorder(map_id);
-  float x = std::clamp(spawn_x + 160.0f, border.x + 8.0f,
-                       std::max(border.x + 8.0f, border.w - 8.0f));
-  auto& fhs = FootholdGameInstance::data_;
-  if (fhs.empty()) {
-    return;
-  }
-  const SDL_FPoint from{x, spawn_y - 4.0f};
-  const SDL_FPoint to{x, spawn_y + 400.0f};
-  auto inter = Physic::FallIntersectPos(from, to, fhs);
-  int32_t fh = 0;
-  uint8_t page = 0;
-  SDL_FPoint pos{x, spawn_y};
-  bool hit = false;
-  for (const auto& [y, p] : inter) {
-    (void)y;
-    if (!p.fh.k.has_value()) {
-      continue;
-    }
-    fh = p.fh.id;
-    page = p.fh.page;
-    pos = p.pos;
-    hit = true;
-    break;
-  }
-  if (!hit) {
-    return;
-  }
-
-  GameNpc g_npc;
-  g_npc.id = u"0800007";
-  g_npc.fh = fh;
-  g_npc.rx0 = static_cast<int32_t>(pos.x) - 1;
-  g_npc.rx1 = static_cast<int32_t>(pos.x) + 1;
-  g_npc.pos = {pos.x, pos.y};
-  g_npc.action = u"stand";
-  g_npc.state = NpcState::kStand;
-  g_npc.ani_index = 0;
-  g_npc.ani_time = 0;
-  g_npc.maple_tv = true;
-  const int media_num = LoadMapleTVMediaNum();
-  if (media_num > 0) {
-    std::uniform_int_distribution<int> pick(0, media_num - 1);
-    g_npc.tv_media = static_cast<uint8_t>(pick(RandomGameInstance::gen_));
-  }
-  g_npc.tv_ani_index = 0;
-  g_npc.tv_ani_time = 0;
-  if (auto* npc_template = LoadLinkNpcNode(g_npc.id);
-      npc_template != nullptr) {
-    if (auto* ninfo = npc_template->get_child(u"info"); ninfo != nullptr) {
-      auto read = [&ninfo](const char16_t* key) -> int32_t {
-        auto* v = ninfo->get_child(key);
-        if (v != nullptr && v->type == wz::Type::Int) {
-          return static_cast<wz::Property<int32_t>*>(v)->get();
-        }
-        return 0;
-      };
-      g_npc.tv_ad_x = read(u"MapleTVadX");
-      g_npc.tv_ad_y = read(u"MapleTVadY");
-    }
-  }
-  g_npc.duration = Window::dt_now_ + 60000;
-  g_npc.hforce = std::nullopt;
-  g_npc.hspeed = 0.0f;
-  data_[page].push_back(g_npc);
+  // MapleTV（NPC 0800007）和其它 NPC 一样，完全由地图 life 层的 WZ 数据生成。
 }
 
 std::u16string NpcGameInstance::LoadNpcScript(const std::u16string& id) {

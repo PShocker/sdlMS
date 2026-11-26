@@ -8,12 +8,17 @@
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/keyboard_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
+#include "src/client/game_instance/pet_game_instance.h"
 #include "src/client/game_instance/portal_game_instance.h"
 #include "src/client/system/input/keyboard_input_system.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/logic/cursor_logic_system.h"
+#include "src/client/game/game_chatballoon.h"
 #include "src/client/system/render/character_render_system.h"
+#include "src/client/system/render/chatballoon_render_system.h"
+#include "src/client/system/logic/pet_logic_system.h"
 #include "src/client/system/render/cursor_render_system.h"
+#include "src/client/system/render/pet_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/component/scroll.h"
 #include "src/client/system/ui/tooltip_ui_system.h"
@@ -97,10 +102,15 @@ constexpr float kNameBoxR = 433.0f;
 constexpr float kNameBoxT = 87.0f;
 constexpr float kNameBoxB = 108.0f;
 
-constexpr float kSlotW = 45.0f;
-constexpr int kItemInvenCols = 5;
+// 两个背包面板的格子一致：35px 格、38px 间距、6 列。
+constexpr float kSlotW = 35.0f;
+constexpr float kSlotStride = 38.0f;
+constexpr float kLockerItemX = 189.0f;
+constexpr float kLockerItemY = 459.0f;
+constexpr int kLockerSlotCount = 12;  // 6 列 × 2 行
+constexpr int kItemInvenCols = 6;
 constexpr int kItemInvenRows = 3;
-constexpr int kLockerCols = 5;
+constexpr int kLockerCols = 6;
 constexpr int kLockerRows = 2;
 
 constexpr float kLockerScrollX = 418.0f;
@@ -115,7 +125,20 @@ constexpr float kTabX = 466.0f;
 constexpr float kTabY = 86.0f;
 constexpr float kTabRight = 1174.0f;
 constexpr int kTabCount = 8;
-constexpr float kTabStride = (kTabRight - kTabX) / kTabCount;
+constexpr float kTabW = 83.0f;   // tab 素材宽度
+constexpr float kTabGap = 5.0f;  // 相邻 tab 的间距（参考图里排得很紧）
+
+// 参考图布局：MAIN..UTILITY 从左往右紧凑排，CART 单独靠右留出空档。
+std::array<float, kTabCount> LoadTabX() {
+  std::array<float, kTabCount> pos{};
+  float x = kTabX;
+  for (int i = 0; i < kTabCount - 1; ++i) {
+    pos[i] = x;
+    x += kTabW + kTabGap;
+  }
+  pos[kTabCount - 1] = kTabRight - kTabW;
+  return pos;
+}
 
 constexpr float kGridX = 463.0f;
 constexpr float kGridY = 181.0f;
@@ -168,6 +191,21 @@ std::optional<SDL_FRect> PreviewBorder() {
 
 // 试穿：进商城时记下角色身上所有点装槽位，退出商城时还原。
 struct DecoSnapshot {
+  // 装备（REMOVE ALL 会脱光，REVERT 要能还原）
+  std::optional<GameEquipItem> eq_weapon;
+  std::optional<GameEquipItem> eq_cap;
+  std::optional<GameEquipItem> eq_cape;
+  std::optional<GameEquipItem> eq_coat;
+  std::optional<GameEquipItem> eq_glove;
+  std::optional<GameEquipItem> eq_pant;
+  std::optional<GameEquipItem> eq_ring0;
+  std::optional<GameEquipItem> eq_ring1;
+  std::optional<GameEquipItem> eq_ring2;
+  std::optional<GameEquipItem> eq_ring3;
+  std::optional<GameEquipItem> eq_shield;
+  std::optional<GameEquipItem> eq_longcoat;
+  std::optional<GameEquipItem> eq_shoes;
+  std::optional<GameEquipItem> eq_accessory;
   std::optional<GameDecoItem> weapon;
   std::optional<GameDecoItem> cap;
   std::optional<GameDecoItem> cape;
@@ -185,24 +223,194 @@ struct DecoSnapshot {
 DecoSnapshot g_deco_snapshot;
 
 // 试穿中的点装：按点击先后顺序从左往右填进 preview 面板下方的格子。
+// 页签下的二级分类：标签文字 -> 装备类型。
+// type_a 为空表示「非装备（现金道具）」；type_b 非空表示第二种可匹配类型。
+struct SubCategory {
+  const char16_t* label;
+  const char16_t* type_a;
+  const char16_t* type_b = nullptr;
+};
+constexpr SubCategory kFashionSubCategories[] = {
+    {u"Weapon", u"Weapon"},   {u"Hat", u"Cap"},
+    {u"Outfits", u"Longcoat"}, {u"Tops", u"Coat"},
+    {u"Bottoms", u"Pants"},   {u"Cape", u"Cape"},
+    {u"Shoes", u"Shoes"},     {u"Gloves", u"Glove"},
+    {u"Accessories", u"Accessory"}, {u"Rings", u"Ring"},
+    {u"Effect", nullptr},  // 非装备（现金道具）
+};
+constexpr int kFashionSubCount =
+    static_cast<int>(std::size(kFashionSubCategories));
+
+// MAIN / SEASONAL / SPECIAL：只有一个标签，等价于「全部」。
+// type_a = u"All" 是「不过滤」的哨兵值（nullptr 专指非装备道具）。
+constexpr SubCategory kMainSubCategories[] = {{u"Main", u"All"}};
+constexpr SubCategory kSeasonalSubCategories[] = {{u"Seasonal", u"All"}};
+constexpr SubCategory kSpecialSubCategories[] = {{u"Special", u"All"}};
+
+// BEAUTY 页签：Hair Styles / Faces / Misc
+constexpr SubCategory kBeautySubCategories[] = {
+    {u"Hair Styles", u"Hair"},
+    {u"Faces", u"Face"},
+    {u"Misc", u"Skin", u"Body"},
+};
+constexpr int kBeautySubCount =
+    static_cast<int>(std::size(kBeautySubCategories));
+
+// PETS 页签：Pets / Pet Equip / Pet Care
+constexpr SubCategory kPetsSubCategories[] = {
+    {u"Pets", u"Pet"},
+    {u"Pet Equip", u"PetEquip"},
+    {u"Pet Care", u"PetCare"},
+};
+constexpr int kPetsSubCount = static_cast<int>(std::size(kPetsSubCategories));
+
+// UTILITY 页签：Convenience / Social
+constexpr SubCategory kUtilitySubCategories[] = {
+    {u"Convenience", u"UtilityConvenience"},
+    {u"Social", u"UtilitySocial"},
+};
+constexpr int kUtilitySubCount =
+    static_cast<int>(std::size(kUtilitySubCategories));
+
+// 二级分类条（context/categoryBar/<tab>，726x33）
+constexpr float kCategoryBarX = 457.0f;
+constexpr float kCategoryBarY = 116.0f;
+constexpr float kCategoryBarW = 726.0f;
+constexpr float kCategoryBarH = 33.0f;
+
+// 当前 tab 的二级分类表（没有就返回空）
+const SubCategory* LoadSubCategories(int tab, int& count) {
+  if (tab == 0) {
+    count = 1;
+    return kMainSubCategories;
+  }
+  if (tab == 1) {
+    count = 1;
+    return kSeasonalSubCategories;
+  }
+  if (tab == 2) {
+    count = 1;
+    return kSpecialSubCategories;
+  }
+  if (tab == 3) {
+    count = kFashionSubCount;
+    return kFashionSubCategories;
+  }
+  if (tab == 4) {
+    count = kBeautySubCount;
+    return kBeautySubCategories;
+  }
+  if (tab == 5) {
+    count = kPetsSubCount;
+    return kPetsSubCategories;
+  }
+  if (tab == 6) {
+    count = kUtilitySubCount;
+    return kUtilitySubCategories;
+  }
+  count = 0;
+  return nullptr;
+}
+
+bool HasSubCategory(int tab) {
+  int count = 0;
+  LoadSubCategories(tab, count);
+  return count > 0;
+}
+
+// Cash Inventory 暂存区：购买后先进这里，再点一次才移进 Item Inventory。
+std::vector<std::u16string> g_locker_items;
+int g_locker_selected = -1;
+// Item Inventory 里选中的格子（下标对应当前页签的 PackageGameInstance::data_）。
+int g_item_inven_selected = -1;
+
 std::vector<std::u16string> g_preview_items;
+// 预览场景里试用的宠物（点宠物商品后出现在人物旁边）。
+std::optional<GamePet> g_preview_pet;
+
+// preview 聊天输入框：打字 + ENTER 在人物头顶出聊天气泡。
+std::u16string g_chat_input;
+bool g_chat_focus = false;
+
+constexpr float kChatBoxL = 189.0f;
+constexpr float kChatBoxT = 299.0f;
+constexpr float kChatBoxW = 203.0f;
+constexpr float kChatBoxH = 16.0f;
+constexpr float kChatEnterL = 396.0f;
+constexpr float kChatEnterT = 297.0f;
+constexpr float kChatEnterW = 38.0f;
+constexpr float kChatEnterH = 21.0f;
+
+// 提交聊天输入：和普通地图完全一致——写 self_.chatballoon，
+// 由 CharacterRenderSystem::RenderChatballoon 负责画（带 "名字:" 前缀）。
+void SubmitChatMessage() {
+  if (g_chat_input.empty()) {
+    return;
+  }
+  auto& self = CharacterGameInstance::self_;
+  auto balloon_style =
+      EquipGameInstance::LoadRingStyle(self, u"chatBalloon", 1);
+  auto path_text = std::to_string(std::max(1, static_cast<int>(balloon_style)));
+  GameChatballoon balloon;
+  balloon.w = 100;
+  balloon.destroy = Window::dt_now_ + 5000;
+  balloon.text = g_chat_input;
+  balloon.size = 13;
+  balloon.path = std::u16string(path_text.begin(), path_text.end());
+  self.chatballoon = std::move(balloon);
+  g_chat_input.clear();
+}
 
 // Check Out 弹窗状态。
 bool g_checkout_open = false;
+// Check Out 里的商品行（BUY ALL 可以一次放多件）。
+struct CheckoutEntry {
+  int commodity_index = -1;
+  int count = 1;
+};
+std::vector<CheckoutEntry> g_checkout_entries;
 // Check Out 打开时屏蔽下层商城的 hover（tooltip、按钮高亮等）。
 bool g_hover_blocked = false;
-int g_checkout_index = -1;
-int g_checkout_count = 1;
 bool g_checkout_leaf = false;
 
 // Check Out 弹窗布局常量（442 宽，上 80 + 下 180）。
 constexpr float kCheckoutW = 442.0f;
 constexpr float kCheckoutTopH = 80.0f;
+// 单行 41px 是 entity 模板高度，但图标底 43px（+3 偏移）会顶到下一行，
+// 多行时行距放大到 50，分隔线放中间留白处。
+constexpr float kCheckoutRowH = 56.0f;
 constexpr float kCheckoutBotH = 180.0f;
-constexpr float kCheckoutX = (1366.0f - kCheckoutW) / 2.0f;
-constexpr float kCheckoutY =
-    (768.0f - (kCheckoutTopH + kCheckoutBotH)) / 2.0f;
-constexpr float kCheckoutBtnY = kCheckoutY + kCheckoutTopH + 154.0f;
+
+// 弹窗布局：1 行 = top(80) + bottom(180)，每多一行再加 41。
+struct CheckoutLayout {
+  float x = 0.0f;
+  float y = 0.0f;
+  int rows = 1;
+  float bottom_y() const {
+    return y + kCheckoutTopH +
+           static_cast<float>(rows - 1) * kCheckoutRowH;
+  }
+  // 第一行在 backgrnd_t 里的 entity_lt=(2,34)；后续行每条背景条内再留 3px
+  // 上边距，让图标和上下行之间有空隙。
+  float row_y(int i) const {
+    return (i == 0) ? y + 34.0f
+                    : y + kCheckoutTopH +
+                          static_cast<float>(i - 1) * kCheckoutRowH + 8.0f;
+  }
+  float bottom_center_offset() const { return 154.0f; }
+};
+
+CheckoutLayout LoadCheckoutLayout() {
+  CheckoutLayout l;
+  l.rows = std::max(1, static_cast<int>(g_checkout_entries.size()));
+  const float h = kCheckoutTopH +
+                  static_cast<float>(l.rows - 1) * kCheckoutRowH +
+                  kCheckoutBotH;
+  // 取整，避免按钮/文字落在半个像素上发虚。
+  l.x = std::floor((1366.0f - kCheckoutW) / 2.0f);
+  l.y = std::floor((768.0f - h) / 2.0f);
+  return l;
+}
 // 这批格子一页 6 个，左右箭头一次只挪一格（列表滚动，而不是整页替换）。
 int g_preview_offset = 0;
 
@@ -219,7 +427,12 @@ constexpr float kPreviewArrowH = 39.0f;
 
 void SaveDecoSnapshot() {
   const auto& s = CharacterGameInstance::self_;
-  g_deco_snapshot = {s.weapon_deco,  s.cap_deco,      s.cape_deco,
+  g_deco_snapshot = {s.weapon,   s.cap,      s.cape,
+                     s.coat,     s.glove,    s.pant,
+                     s.ring0,    s.ring1,    s.ring2,
+                     s.ring3,    s.shield,   s.longcoat,
+                     s.shoes,    s.accessory,
+                     s.weapon_deco,  s.cap_deco,      s.cape_deco,
                      s.coat_deco,    s.glove_deco,    s.pant_deco,
                      s.ring0_deco,   s.ring1_deco,    s.shield_deco,
                      s.longcoat_deco, s.shoes_deco,   s.accessory_deco};
@@ -227,6 +440,20 @@ void SaveDecoSnapshot() {
 
 void RestoreDecoSnapshot() {
   auto& s = CharacterGameInstance::self_;
+  s.weapon = g_deco_snapshot.eq_weapon;
+  s.cap = g_deco_snapshot.eq_cap;
+  s.cape = g_deco_snapshot.eq_cape;
+  s.coat = g_deco_snapshot.eq_coat;
+  s.glove = g_deco_snapshot.eq_glove;
+  s.pant = g_deco_snapshot.eq_pant;
+  s.ring0 = g_deco_snapshot.eq_ring0;
+  s.ring1 = g_deco_snapshot.eq_ring1;
+  s.ring2 = g_deco_snapshot.eq_ring2;
+  s.ring3 = g_deco_snapshot.eq_ring3;
+  s.shield = g_deco_snapshot.eq_shield;
+  s.longcoat = g_deco_snapshot.eq_longcoat;
+  s.shoes = g_deco_snapshot.eq_shoes;
+  s.accessory = g_deco_snapshot.eq_accessory;
   s.weapon_deco = g_deco_snapshot.weapon;
   s.cap_deco = g_deco_snapshot.cap;
   s.cape_deco = g_deco_snapshot.cape;
@@ -406,8 +633,22 @@ void TryOnItem(const std::u16string& id) {
     toggle(s.shield_deco, g_deco_snapshot.shield,
            &CharacterGameInstance::AddShieldDeco);
   } else if (type == u"Ring") {
-    toggle(s.ring0_deco, g_deco_snapshot.ring0,
-           &CharacterGameInstance::AddRing0Deco);
+    // 戒指分三类，按 WZ 的 info 字段区分：
+    //   info/chatBalloon -> 聊天戒指（改聊天气泡样式）
+    //   info/nameTag     -> 名片/标签戒指（改人物名牌样式）
+    //   两者都没有       -> 普通外观戒指
+    // 聊天戒指放 ring0、名片戒指放 ring1，这样两枚可以同时试穿、互不覆盖。
+    const bool chat_ring =
+        EquipGameInstance::LoadRingStyle(id, u"chatBalloon") != 0;
+    const bool label_ring =
+        EquipGameInstance::LoadRingStyle(id, u"nameTag") != 0;
+    if (label_ring && !chat_ring) {
+      toggle(s.ring1_deco, g_deco_snapshot.ring1,
+             &CharacterGameInstance::AddRing1Deco);
+    } else {
+      toggle(s.ring0_deco, g_deco_snapshot.ring0,
+             &CharacterGameInstance::AddRing0Deco);
+    }
   } else if (type == u"Accessory") {
     // 饰品按 vslot 落到对应的身体槽位：帽子(Cp)、披风(Sr)、鞋(So)……
     if (vslot_has(u"Cp")) {
@@ -544,6 +785,11 @@ void DrawTextureAt(const std::u16string& path, float x, float y) {
   DrawTextureAt(WzResource::LoadTexture(node), x, y);
 }
 
+// 鼠标左键当前是否按下（画按钮时用来取 pressed 图）。
+bool MouseDown() {
+  return (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON_LMASK) != 0;
+}
+
 void RenderButton(const std::u16string& base) {
   auto* normal = FindUi(base + u"/normal/0");
   if (normal == nullptr) {
@@ -557,7 +803,19 @@ void RenderButton(const std::u16string& base) {
   bool hover =
       MouseIn(g_cash_shop_pos.x + npos.x, g_cash_shop_pos.y + npos.y,
               static_cast<float>(ntex->w), static_cast<float>(ntex->h));
-  auto* node = hover ? FindUi(base + u"/mouseOver/0") : normal;
+  // 按钮三种状态：normal / mouseOver / pressed（WZ 里都有对应素材）。
+  auto* node = normal;
+  if (hover) {
+    if (MouseDown()) {
+      node = FindUi(base + u"/pressed/0");
+    }
+    if (node == nullptr || node == normal) {
+      auto* over = FindUi(base + u"/mouseOver/0");
+      if (over != nullptr) {
+        node = over;
+      }
+    }
+  }
   if (node == nullptr) {
     node = normal;
   }
@@ -566,7 +824,9 @@ void RenderButton(const std::u16string& base) {
     t = ntex;
   }
   auto pos = LoadOrigin(node);
-  SDL_FRect pos_rect{g_cash_shop_pos.x + pos.x, g_cash_shop_pos.y + pos.y,
+  // 按钮位置取整，避免落在半像素上模糊。
+  SDL_FRect pos_rect{std::floor(g_cash_shop_pos.x + pos.x),
+                     std::floor(g_cash_shop_pos.y + pos.y),
                      static_cast<float>(t->w), static_cast<float>(t->h)};
   SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
 }
@@ -690,6 +950,8 @@ std::vector<SDL_Texture*> g_commodity_icons;
 bool g_commodities_loaded = false;
 
 int g_active_tab = 0;
+// 当前 tab 下的二级分类（-1 = 全部）。目前只有 FASHION 有二级分类数据。
+int g_sub_category = -1;
 int g_page = 0;
 // 搜索栏：输入的文字与是否聚焦。
 std::u16string g_search_text;
@@ -762,13 +1024,20 @@ std::u16string LoadItemName(const std::u16string& id8) {
 
 CsCategory CategorizeCommodity(int item_id, const std::u16string& id8,
                                int cls) {
+  // 0515xxxx 是美容券（发型/脸型/皮肤），归 BEAUTY。
+  if (id8.rfind(u"0515", 0) == 0) {
+    return CsCategory::kBeauty;
+  }
   if (cls == 0) {
     return CsCategory::kSeasonal;
   }
   if (cls == 2) {
     return CsCategory::kSpecial;
   }
-  if (item_id >= 5000000 && item_id < 5020000) {
+  // 0500 = 宠物，0503 = 宠物护理，0517/0518/0519 = 宠物名签/复活药/技能。
+  if ((item_id >= 5000000 && item_id < 5020000) ||
+      (item_id >= 5030000 && item_id < 5040000) ||
+      (item_id >= 5170000 && item_id < 5200000)) {
     return CsCategory::kPets;
   }
   auto etype = EquipGameInstance::LoadEquipType(id8);
@@ -852,6 +1121,69 @@ void LoadCommodities() {
   }
 }
 
+bool MatchSubCategory(int tab, int sub, const std::u16string& id) {
+  // PETS：0500=宠物、0180=宠物装备、0503=宠物护理。
+  if (tab == 5) {
+    if (sub < 0 || sub > 2 || id.size() < 4) {
+      return true;
+    }
+    const auto prefix = id.substr(0, 4);
+    if (sub == 0) {
+      return prefix == u"0500";
+    }
+    if (sub == 1) {
+      return prefix == u"0180";
+    }
+    // Pet Care：0503 宠物护理/道具、0517 宠物名签、0518 复活药、0519 宠物技能
+    return prefix == u"0503" || prefix == u"0517" || prefix == u"0518" ||
+           prefix == u"0519";
+  }
+  // UTILITY：Convenience = 便利道具；Social = 喇叭/特效/表情。
+  if (tab == 6) {
+    if (sub < 0 || sub > 1 || id.size() < 4) {
+      return true;
+    }
+    const auto prefix = id.substr(0, 4);
+    if (sub == 0) {
+      return prefix == u"0505" || prefix == u"0513" || prefix == u"0514" ||
+             prefix == u"0568";
+    }
+    return prefix == u"0507" || prefix == u"0512" || prefix == u"0516";
+  }
+  // BEAUTY：0515 之后一位区分 0/1=发型、2=脸型、3=皮肤（Misc）。
+  if (tab == 4) {
+    if (sub < 0 || sub > 2 || id.size() < 5 || id.rfind(u"0515", 0) != 0) {
+      return true;
+    }
+    const char16_t kind = id[4];
+    if (sub == 0) {
+      return kind == u'0' || kind == u'1';
+    }
+    if (sub == 1) {
+      return kind == u'2';
+    }
+    return kind == u'3';
+  }
+  int count = 0;
+  const SubCategory* subs = LoadSubCategories(tab, count);
+  if (subs == nullptr || sub < 0 || sub >= count) {
+    return true;
+  }
+  const auto& entry = subs[sub];
+  if (entry.type_a != nullptr && std::u16string(entry.type_a) == u"All") {
+    return true;
+  }
+  const auto item_type = EquipGameInstance::LoadEquipType(id);
+  if (entry.type_a == nullptr) {
+    // Effect：非装备的现金道具
+    return item_type.empty();
+  }
+  if (item_type == entry.type_a) {
+    return true;
+  }
+  return entry.type_b != nullptr && item_type == entry.type_b;
+}
+
 std::vector<int> FilterCommodities() {
   std::vector<int> result;
   for (int i = 0; i < static_cast<int>(g_commodities.size()); ++i) {
@@ -882,6 +1214,10 @@ std::vector<int> FilterCommodities() {
       default:
         keep = false;
         break;
+    }
+    // FASHION 二级分类过滤
+    if (keep && !MatchSubCategory(g_active_tab, g_sub_category, c.id)) {
+      keep = false;
     }
     if (keep && !g_search_text.empty()) {
       auto lower = [](std::u16string str) {
@@ -987,16 +1323,6 @@ std::u16string LoadJobName() {
   return static_cast<wz::Property<std::u16string>*>(node)->get();
 }
 
-std::u16string LoadSubCategoryText() {
-  switch (g_active_tab) {
-    case 5:
-      return u"Pets     |     Pet Equip     |     Pet Care";
-    default:
-      return {};
-  }
-}
-
-
 void RenderSceneBackdrop() {
   auto* node = FindUi(u"preview/layer:preview_back0");
   if (node == nullptr) {
@@ -1014,6 +1340,25 @@ void RenderSceneBackdrop() {
                 kSceneW, kSceneH};
   SDL_RenderTexture(Window::renderer_, texture, nullptr, &dst);
   SDL_SetRenderClipRect(Window::renderer_, nullptr);
+}
+
+// 在格子右下角叠一个 UI.img/CashItem（现金道具标记），和背包里一致。
+// cell_x/cell_y 是格子左上角，cell_w/cell_h 是格子尺寸。
+void RenderCashMark(float cell_x, float cell_y, float cell_w, float cell_h) {
+  auto* node = WzResource::ms_->get_root()->find(u"UI.img/CashItem");
+  if (node == nullptr) {
+    return;
+  }
+  auto* texture = WzResource::LoadTexture(node);
+  if (texture == nullptr) {
+    return;
+  }
+  // 紧紧贴着格子右下角，不留内边距。
+  SDL_FRect dst{cell_x + cell_w - static_cast<float>(texture->w),
+                cell_y + cell_h - static_cast<float>(texture->h),
+                static_cast<float>(texture->w),
+                static_cast<float>(texture->h)};
+  SDL_RenderTexture(Window::renderer_, texture, nullptr, &dst);
 }
 
 void RenderPreviewPanel() {
@@ -1038,6 +1383,26 @@ void RenderPreviewPanel() {
   RenderButton(u"preview/button:takeoff");
   RenderButton(u"preview/button:buyall");
 
+  // preview 聊天输入框里的文字和光标（两者都按行高在框内垂直居中）。
+  Freetype::LoadAligned(true);
+  Freetype::LoadSize(12);
+  const float line_h = Freetype::LoadLh();
+  const float box_top = g_cash_shop_pos.y + kChatBoxT;
+  // DrawChar 的 y 是行框顶部，字面比行框低 (line_h - bearing) 约 1.5px，
+  // 这里补掉这段偏移，让字形本身在框内垂直居中。
+  const float text_y = box_top + (kChatBoxH - line_h) / 2.0f - 2.5f;
+  TextLeft(g_chat_input, g_cash_shop_pos.x + kChatBoxL + 3.0f, text_y, 12,
+           SDL_Color{0, 0, 0, 255});
+  if (g_chat_focus && (Window::dt_now_ / 500) % 2 == 0) {
+    const float caret_x = g_cash_shop_pos.x + kChatBoxL + 3.0f +
+                          Freetype::LoadW(g_chat_input);
+    const float caret_h = line_h - 4.0f;
+    SDL_SetRenderDrawColor(Window::renderer_, 0, 0, 0, 255);
+    SDL_FRect caret{caret_x, box_top + (kChatBoxH - caret_h) / 2.0f, 1.0f,
+                    caret_h};
+    SDL_RenderFillRect(Window::renderer_, &caret);
+  }
+
   // 试穿中的点装图标显示在 preview 下方那排格子里。
   const int preview_start = g_preview_offset;
   for (int i = 0; i < kPreviewSlotCount; ++i) {
@@ -1059,6 +1424,7 @@ void RenderPreviewPanel() {
         cell_y + (kPreviewSlotSize - static_cast<float>(icon->h)) / 2.0f,
         static_cast<float>(icon->w), static_cast<float>(icon->h)};
     SDL_RenderTexture(Window::renderer_, icon, nullptr, &dst);
+    RenderCashMark(cell_x, cell_y, kPreviewSlotSize, kPreviewSlotSize);
   }
 }
 
@@ -1155,7 +1521,8 @@ SDL_FRect CheckoutButtonRect(const char16_t* name) {
       h = static_cast<float>(texture->h);
     }
   }
-  float x = kCheckoutX;
+  const auto layout = LoadCheckoutLayout();
+  float x = layout.x;
   if (std::u16string(name) == u"buy") {
     x += 233.0f;
   } else if (std::u16string(name) == u"gift") {
@@ -1163,64 +1530,39 @@ SDL_FRect CheckoutButtonRect(const char16_t* name) {
   } else {
     x += 369.0f;
   }
-  return SDL_FRect{x, kCheckoutBtnY, w, h};
+  return SDL_FRect{std::floor(x), std::floor(layout.bottom_y() + 154.0f), w, h};
 }
 
-void RenderCheckout() {
-  if (!g_checkout_open) {
+// 画一行商品（图标 / 名称 / 单价 / 数量 / -+），row_top 是该行左上角。
+void RenderCheckoutRow(const CheckoutEntry& entry, float row_x, float row_top) {
+  if (entry.commodity_index < 0 ||
+      entry.commodity_index >= static_cast<int>(g_commodities.size())) {
     return;
   }
-  if (g_checkout_index < 0 ||
-      g_checkout_index >= static_cast<int>(g_commodities.size())) {
-    return;
-  }
-  const auto& commodity = g_commodities[g_checkout_index];
-  const int64_t total = commodity.price * g_checkout_count;
-  const std::u16string total_text = Money(total) + u" NX";
+  const auto& commodity = g_commodities[entry.commodity_index];
 
-  // 背景遮罩
-  SDL_SetRenderDrawBlendMode(Window::renderer_, SDL_BLENDMODE_BLEND);
-  SDL_SetRenderDrawColor(Window::renderer_, 0, 0, 0, 90);
-  SDL_FRect full{0.0f, 0.0f, 1366.0f, 768.0f};
-  SDL_RenderFillRect(Window::renderer_, &full);
-
-  const float x0 = kCheckoutX;
-  const float y0 = kCheckoutY;
-  const float bx = x0;
-  const float by = y0 + kCheckoutTopH;
-  const float rx = x0 + 2.0f;   // vector:entity_lt
-  const float ry = y0 + 34.0f;
-
-  DrawUiAt(u"checkOut/backgrnd_t", x0, y0);
-  DrawUiAt(u"checkOut/backgrnd_b", bx, by);
-
-  // ---- 商品行 ----
-  // 勾选（chkSelect lt=10,14 rb=23,29）
-  DrawUiAt(u"saleEntry/chkBuy/checked", rx + 10.0f, ry + 14.0f);
-  // 图标底（iconBackgrnd origin=-29,-3 -> 左上角 = 行 + (29,3)）
-  DrawUiAt(u"checkOut/entity/iconBackgrnd", rx + 29.0f, ry + 3.0f);
+  DrawUiAt(u"saleEntry/chkBuy/checked", row_x + 10.0f, row_top + 14.0f);
+  DrawUiAt(u"checkOut/entity/iconBackgrnd", row_x + 29.0f, row_top + 3.0f);
   auto* icon = LoadCommodityIcon(commodity.id);
   if (icon != nullptr) {
-    SDL_FRect dst{rx + 50.5f - icon->w / 2.0f, ry + 24.5f - icon->h / 2.0f,
+    SDL_FRect dst{row_x + 50.5f - icon->w / 2.0f,
+                  row_top + 24.5f - icon->h / 2.0f,
                   static_cast<float>(icon->w), static_cast<float>(icon->h)};
     SDL_RenderTexture(Window::renderer_, icon, nullptr, &dst);
   }
-  // 名称 posName(81,3)
-  TextLeft(commodity.name, rx + 81.0f, ry + 3.0f, kFontSize, kTextWhite);
-  // 单价 posPrice(429,35)，右对齐
-  TextRight(Money(commodity.price) + u" NX", rx + 429.0f, ry + 35.0f,
+  TextLeft(commodity.name, row_x + 81.0f, row_top + 3.0f, kFontSize,
+           kTextWhite);
+  TextRight(Money(commodity.price) + u" NX", row_x + 429.0f, row_top + 35.0f,
             kFontSize, kTextWhite);
 
-  // 数量框 editCount lt(93,31) rb(128,46)
   SDL_SetRenderDrawColor(Window::renderer_, 255, 255, 255, 255);
-  SDL_FRect count_box{rx + 93.0f, ry + 31.0f, 35.0f, 15.0f};
+  SDL_FRect count_box{row_x + 93.0f, row_top + 31.0f, 35.0f, 15.0f};
   SDL_RenderFillRect(Window::renderer_, &count_box);
   SDL_SetRenderDrawColor(Window::renderer_, 90, 90, 90, 255);
   SDL_RenderRect(Window::renderer_, &count_box);
-  TextCenterRect(Num(g_checkout_count), rx + 93.0f, ry + 30.0f, 35.0f, 16.0f,
-                 kFontSize, SDL_Color{0, 0, 0, 255});
+  TextCenterRect(Num(entry.count), row_x + 93.0f, row_top + 30.0f, 35.0f,
+                 16.0f, kFontSize, SDL_Color{0, 0, 0, 255});
 
-  // - / + 按钮 origin(-79,-33) / (-131,-33)
   auto draw_state_btn = [](const char16_t* base, float left, float top) {
     auto* node = FindUi(std::u16string(base) + u"/normal/0");
     if (node == nullptr) {
@@ -1232,7 +1574,8 @@ void RenderCheckout() {
     }
     if (MouseIn(left, top, static_cast<float>(tex->w),
                 static_cast<float>(tex->h))) {
-      if (auto* over = FindUi(std::u16string(base) + u"/mouseOver/0")) {
+      const char16_t* state = MouseDown() ? u"/pressed/0" : u"/mouseOver/0";
+      if (auto* over = FindUi(std::u16string(base) + state)) {
         if (auto* t2 = WzResource::LoadTexture(over)) {
           tex = t2;
         }
@@ -1242,12 +1585,66 @@ void RenderCheckout() {
                   static_cast<float>(tex->h)};
     SDL_RenderTexture(Window::renderer_, tex, nullptr, &dst);
   };
-  draw_state_btn(u"checkOut/entity/btMinus", rx + 79.0f, ry + 33.0f);
-  draw_state_btn(u"checkOut/entity/btPlus", rx + 131.0f, ry + 33.0f);
+  draw_state_btn(u"checkOut/entity/btMinus", row_x + 79.0f, row_top + 33.0f);
+  draw_state_btn(u"checkOut/entity/btPlus", row_x + 131.0f, row_top + 33.0f);
+}
 
-  // ---- Final Cost 条 ----
+void RenderCheckout() {
+  if (!g_checkout_open || g_checkout_entries.empty()) {
+    return;
+  }
+  const auto layout = LoadCheckoutLayout();
+  const float bx = layout.x;
+  const float by = layout.bottom_y();
+
+  int64_t total = 0;
+  for (const auto& entry : g_checkout_entries) {
+    if (entry.commodity_index >= 0 &&
+        entry.commodity_index < static_cast<int>(g_commodities.size())) {
+      total += g_commodities[entry.commodity_index].price *
+               std::max(1, entry.count);
+    }
+  }
+
+  // 背景遮罩
+  SDL_SetRenderDrawBlendMode(Window::renderer_, SDL_BLENDMODE_BLEND);
+  SDL_SetRenderDrawColor(Window::renderer_, 0, 0, 0, 90);
+  SDL_FRect full{0.0f, 0.0f, 1366.0f, 768.0f};
+  SDL_RenderFillRect(Window::renderer_, &full);
+
+  DrawUiAt(u"checkOut/backgrnd_t", bx, layout.y);
+  // 多出来的行：把 backgrnd_c（442x5 蓝色条）拉成 41px 当行背景。
+  if (layout.rows > 1) {
+    auto* strip_node = FindUi(u"checkOut/backgrnd_c");
+    auto* strip = strip_node == nullptr ? nullptr
+                                        : WzResource::LoadTexture(strip_node);
+    if (strip != nullptr) {
+      for (int i = 1; i < layout.rows; ++i) {
+        SDL_FRect dst{bx,
+                      layout.y + kCheckoutTopH +
+                          static_cast<float>(i - 1) * kCheckoutRowH,
+                      kCheckoutW, kCheckoutRowH};
+        SDL_RenderTexture(Window::renderer_, strip, nullptr, &dst);
+      }
+    }
+  }
+  DrawUiAt(u"checkOut/backgrnd_b", bx, by);
+
+  for (int i = 0; i < layout.rows; ++i) {
+    RenderCheckoutRow(g_checkout_entries[i], bx + 2.0f,
+                      std::floor(layout.row_y(i)));
+    // 多行时用 backgrnd_line（424x2 分隔线）隔开相邻两行：
+    // 放在上一行内容下沿与下一行内容之间的留白中心。
+    if (i > 0) {
+      DrawUiAt(u"checkOut/backgrnd_line", bx + 9.0f,
+               std::floor(layout.row_y(i) - 4.0f));
+    }
+  }
+
+  // Final Cost 条
   TextLeft(u"Final Cost", bx + 14.0f, by + 20.0f, kFontSize, kTextWhite);
-  TextRight(total_text, bx + 429.0f, by + 20.0f, kFontSize, kTextWhite);
+  TextRight(Money(total) + u" NX", bx + 429.0f, by + 20.0f, kFontSize,
+            kTextWhite);
   DrawUiAt(u"checkOut/tail/canvas:leafPointBackgrnd", bx + 78.0f, by + 18.0f);
   // Leaf Point 勾选框：参考图是一个白底浅灰边的方框（不在 WZ 素材里）。
   SDL_FRect leaf_box{bx + 80.0f, by + 21.0f, 13.0f, 14.0f};
@@ -1262,7 +1659,7 @@ void RenderCheckout() {
   }
   TextLeft(u"Leaf Point", bx + 105.0f, by + 21.0f, kFontSize, kTextWhite);
 
-  // ---- 说明 ----
+  // 说明
   const SDL_Color gray{90, 90, 90, 255};
   TextLeft(u"Attention", bx + 8.0f, by + 43.0f, kFontSize, gray);
   TextWrap(
@@ -1274,18 +1671,72 @@ void RenderCheckout() {
   TextLeft(u"Are you sure you want to complete the purchase?", bx + 9.0f,
            by + 127.0f, kFontSize, gray);
 
-  // ---- 按钮 ----
+  // 按钮
   for (const char16_t* name : {u"buy", u"gift", u"cancel"}) {
     auto rect = CheckoutButtonRect(name);
     const bool is_gift = std::u16string(name) == u"gift";
     std::u16string state = u"/normal/0";
-    if (MouseIn(rect.x, rect.y, rect.w, rect.h) && !is_gift) {
-      state = u"/mouseOver/0";
-    } else if (is_gift) {
+    if (is_gift) {
       state = u"/disabled/0";
+    } else if (MouseIn(rect.x, rect.y, rect.w, rect.h)) {
+      state = MouseDown() ? u"/pressed/0" : u"/mouseOver/0";
     }
     DrawUiAt(u"checkOut/tail/button:" + std::u16string(name) + state, rect.x,
              rect.y);
+  }
+}
+
+// Cash Inventory 暂存区：画所有暂存道具，选中的格子叠 slotEntity/selected。
+void RenderLockerItems(int scroll) {
+  for (int i = 0; i < kLockerSlotCount; ++i) {
+    const int idx = scroll + i;
+    if (idx < 0 || idx >= static_cast<int>(g_locker_items.size())) {
+      continue;
+    }
+    const auto& id = g_locker_items[idx];
+    const int col = i % kLockerCols;
+    const int row = i / kLockerCols;
+    const float cell_x =
+        g_cash_shop_pos.x + kLockerItemX + static_cast<float>(col) * kSlotStride;
+    const float cell_y =
+        g_cash_shop_pos.y + kLockerItemY + static_cast<float>(row) * kSlotStride;
+
+    if (idx == g_locker_selected) {
+      auto* sel_node = FindUi(u"slotEntity/selected");
+      if (sel_node != nullptr) {
+        auto* sel_tex = WzResource::LoadTexture(sel_node);
+        if (sel_tex != nullptr) {
+          SDL_FRect sel{cell_x - 2.0f, cell_y - 2.0f,
+                        static_cast<float>(sel_tex->w),
+                        static_cast<float>(sel_tex->h)};
+          SDL_RenderTexture(Window::renderer_, sel_tex, nullptr, &sel);
+        }
+      }
+    }
+
+    wz::Node* info = nullptr;
+    if (!EquipGameInstance::LoadEquipType(id).empty()) {
+      info = EquipGameInstance::LoadEquipInfo(id);
+    } else {
+      info = ItemGameInstance::LoadItemInfo(id, 0);
+    }
+    if (info == nullptr) {
+      continue;
+    }
+    auto* canvas = info->get_child(u"icon");
+    if (canvas == nullptr) {
+      continue;
+    }
+    auto* icon = WzResource::LoadTexture(canvas);
+    if (icon == nullptr) {
+      continue;
+    }
+    SDL_FRect dst{
+        std::floor(cell_x + (kSlotW - static_cast<float>(icon->w)) / 2.0f),
+        std::floor(cell_y + (kSlotW - static_cast<float>(icon->h)) / 2.0f),
+        static_cast<float>(icon->w), static_cast<float>(icon->h)};
+    SDL_RenderTexture(Window::renderer_, icon, nullptr, &dst);
+    RenderCashMark(cell_x, cell_y, kSlotW, kSlotW);
   }
 }
 
@@ -1295,8 +1746,10 @@ void RenderCashLocker() {
   RenderButton(u"cashLocker/button:moveToInven");
   RenderButton(u"cashLocker/button:destroy");
   DrawUi(u"cashLocker/canvas:itemSlot");
-  MakeScroll(g_locker_scroll, kInvenSlotCount, kLockerCols * kLockerRows,
-             kLockerScrollX, kLockerScrollY, kLockerScrollLength)
+  RenderLockerItems(g_locker_scroll);
+  MakeScroll(g_locker_scroll, static_cast<int>(g_locker_items.size()),
+             kLockerCols * kLockerRows, kLockerScrollX, kLockerScrollY,
+             kLockerScrollLength)
       .Render();
 }
 
@@ -1333,14 +1786,28 @@ void RenderInventoryItems(float origin_x, float origin_y, int col_count,
     }
     int col = i % col_count;
     int row = i / col_count;
-    float cell_x =
-        g_cash_shop_pos.x + origin_x + static_cast<float>(col) * kSlotW;
-    float cell_y =
-        g_cash_shop_pos.y + origin_y + static_cast<float>(row) * kSlotW;
+    float cell_x = g_cash_shop_pos.x + origin_x +
+                   static_cast<float>(col) * kSlotStride;
+    float cell_y = g_cash_shop_pos.y + origin_y +
+                   static_cast<float>(row) * kSlotStride;
     SDL_FRect dst{std::floor(cell_x + (kSlotW - icon->w) / 2.0f),
                   std::floor(cell_y + (kSlotW - icon->h) / 2.0f),
                   static_cast<float>(icon->w), static_cast<float>(icon->h)};
     SDL_RenderTexture(Window::renderer_, icon, nullptr, &dst);
+    RenderCashMark(cell_x, cell_y, kSlotW, kSlotW);
+    // 选中的格子叠 slotEntity/selected（只对当前页签生效）。
+    if (tab_index == g_item_inven_tab &&
+        slot_index == g_item_inven_selected) {
+      auto* sel_node = FindUi(u"slotEntity/selected");
+      auto* sel_tex = sel_node == nullptr ? nullptr
+                                          : WzResource::LoadTexture(sel_node);
+      if (sel_tex != nullptr) {
+        SDL_FRect sel{cell_x - 2.0f, cell_y - 2.0f,
+                      static_cast<float>(sel_tex->w),
+                      static_cast<float>(sel_tex->h)};
+        SDL_RenderTexture(Window::renderer_, sel_tex, nullptr, &sel);
+      }
+    }
   }
 }
 
@@ -1376,6 +1843,64 @@ void RenderItemInvenPanel() {
 }
 
 
+// 计算二级分类条上每个标签的命中矩形（不绘制）。
+std::vector<SDL_FRect> LoadCategoryRects() {
+  std::vector<SDL_FRect> rects;
+  int sub_count = 0;
+  const SubCategory* subs = LoadSubCategories(g_active_tab, sub_count);
+  if (subs == nullptr || sub_count == 0) {
+    return rects;
+  }
+  Freetype::LoadAligned(true);
+  Freetype::LoadSize(12);
+  float x = g_cash_shop_pos.x + kCategoryBarX + 16.0f;
+  for (int i = 0; i < sub_count; ++i) {
+    if (i > 0) {
+      x += 10.0f;
+    }
+    const std::u16string label = subs[i].label;
+    const float w = Freetype::LoadW(label);
+    rects.push_back(SDL_FRect{x - 4.0f,
+                              g_cash_shop_pos.y + kCategoryBarY + 4.0f,
+                              w + 8.0f, kCategoryBarH - 8.0f});
+    x += w + 6.0f;
+  }
+  return rects;
+}
+
+// 画二级分类条和标签（位置与 LoadCategoryRects 一致）。
+void RenderCategoryBar() {
+  int sub_count = 0;
+  const SubCategory* subs = LoadSubCategories(g_active_tab, sub_count);
+  if (subs == nullptr || sub_count == 0) {
+    return;
+  }
+  std::u16string suffix(1, static_cast<char16_t>(u'0' + g_active_tab));
+  DrawUiAt(u"context/categoryBar/" + suffix, g_cash_shop_pos.x + kCategoryBarX,
+           g_cash_shop_pos.y + kCategoryBarY);
+
+  Freetype::LoadAligned(true);
+  Freetype::LoadSize(12);
+  float x = g_cash_shop_pos.x + kCategoryBarX + 16.0f;
+  const float y = g_cash_shop_pos.y + kCategoryBarY + 9.0f;
+  for (int i = 0; i < sub_count; ++i) {
+    if (i > 0) {
+      Freetype::LoadColor(60, 90, 120, 255);
+      Freetype::DrawLine(u"|", x, y);
+      x += 10.0f;
+    }
+    const bool active = (g_sub_category == i);
+    Freetype::LoadBold(active);
+    Freetype::LoadColor(active ? 20 : 60, active ? 20 : 60, active ? 40 : 80,
+                        255);
+    const std::u16string label = subs[i].label;
+    const float w = Freetype::LoadW(label);
+    Freetype::DrawLine(label, x, y);
+    x += w + 6.0f;
+  }
+  Freetype::LoadBold(false);
+}
+
 void RenderTabs() {
   for (int i = 0; i < kTabCount; ++i) {
     std::u16string suffix(1, static_cast<char16_t>(u'0' + i));
@@ -1389,9 +1914,14 @@ void RenderTabs() {
     if (texture == nullptr) {
       continue;
     }
+    const auto tab_x = LoadTabX();
+    // 参考图里选中的 tab 更高，且底边和其他 tab 对齐（多出来的高度向上长）。
+    constexpr float kTabNormalH = 34.0f;
+    const float overlap =
+        static_cast<float>(texture->h) - kTabNormalH;
     SDL_FRect pos_rect = {
-        g_cash_shop_pos.x + kTabX + static_cast<float>(i) * kTabStride,
-        g_cash_shop_pos.y + kTabY,
+        g_cash_shop_pos.x + tab_x[i],
+        g_cash_shop_pos.y + kTabY - std::max(0.0f, overlap),
         static_cast<float>(texture->w),
         static_cast<float>(texture->h),
     };
@@ -1435,7 +1965,18 @@ void RenderSaleCard(float x, float y, int index) {
     if (ntex != nullptr) {
       bool hover = MouseIn(x + 90.0f, y + 55.0f, static_cast<float>(ntex->w),
                            static_cast<float>(ntex->h));
-      auto* node = hover ? FindUi(u"saleEntry/btBuy/mouseOver/0") : normal;
+      auto* node = normal;
+      if (hover) {
+        if (MouseDown()) {
+          node = FindUi(u"saleEntry/btBuy/pressed/0");
+        }
+        if (node == nullptr || node == normal) {
+          auto* over = FindUi(u"saleEntry/btBuy/mouseOver/0");
+          if (over != nullptr) {
+            node = over;
+          }
+        }
+      }
       if (node == nullptr) {
         node = normal;
       }
@@ -1447,7 +1988,13 @@ void RenderSaleCard(float x, float y, int index) {
                   static_cast<float>(t->h)};
       SDL_RenderTexture(Window::renderer_, t, nullptr, &r);
     }
-    std::u16string price = Money(commodity.price) + u" NX";
+    // BEAUTY（发型/脸型券）用 LP 计价，其余用 NX。
+    std::u16string price =
+        Money(commodity.price) +
+        (commodity.cat == CsCategory::kBeauty ||
+                 commodity.cat == CsCategory::kUtility
+             ? u" LP"
+             : u" NX");
     TextCenterRect(price, x + 90.0f, y + 55.0f, 134.0f, 21.0f, kFontSize,
                    kTextDark);
   }
@@ -1475,12 +2022,14 @@ void RenderPageBar(int page, int pages) {
   const bool can_next = page + 1 < pages;
   const bool hover_prev = MouseIn(left, top, 30.0f, 25.0f);
   const bool hover_next = MouseIn(left + 129.0f, top, 30.0f, 25.0f);
-  auto color = [](bool enabled, bool hover) {
+  const bool down = MouseDown();
+  auto color = [down](bool enabled, bool hover) {
     if (!enabled) {
       return SDL_Color{112, 132, 152, 255};
     }
     if (hover) {
-      return SDL_Color{255, 176, 214, 255};
+      return down ? SDL_Color{214, 132, 176, 255}
+                  : SDL_Color{255, 176, 214, 255};
     }
     return SDL_Color{255, 255, 255, 255};
   };
@@ -1531,10 +2080,8 @@ void RenderWallet() {
 
 void RenderContextPanel() {
   RenderPanel(u"context/backgrnd");
-  RenderPanel(u"context/categoryBar/" + Num(std::clamp(g_active_tab, 0, 7)));
   RenderTabs();
-  TextLeft(LoadSubCategoryText(), g_cash_shop_pos.x + 477.0f,
-           g_cash_shop_pos.y + 130.0f, kFontSize, kTextWhite);
+  RenderCategoryBar();
   LoadCommodities();
   if (!FilterCommodities().empty() || !g_search_text.empty()) {
     RenderPanel(u"context/layer:searchBackgrnd");
@@ -1571,45 +2118,305 @@ void RenderContextPanel() {
 }
 
 
+// 真正放进背包：装备类进 Deco 页，其余进 Cash 页
+// （Item Inventory 的两个页签分别读 PackageGameInstance::data_[kCash/kDeco]）。
+void AddPurchasedItem(const std::u16string& id) {
+  if (EquipGameInstance::LoadEquipType(id).empty()) {
+    GameCashItem cash;
+    cash.id = id;
+    std::polymorphic<GameItem> item(cash);
+    PackageGameInstance::AddNewItem(item);
+  } else {
+    GameDecoItem deco;
+    deco.id = id;
+    std::polymorphic<GameItem> item(deco);
+    PackageGameInstance::AddNewItem(item);
+  }
+}
+
+// 把暂存区第 idx 件移进 Item Inventory，并把 Item Inventory 切到对应页签
+// （装备进 Deco 页，其余进 Cash 页）。
+void MoveLockerItemToInventory(int idx) {
+  if (idx < 0 || idx >= static_cast<int>(g_locker_items.size())) {
+    return;
+  }
+  const auto id = g_locker_items[idx];
+  const bool is_equip = !EquipGameInstance::LoadEquipType(id).empty();
+  AddPurchasedItem(id);
+  g_locker_items.erase(g_locker_items.begin() + idx);
+  g_locker_selected = -1;
+  g_item_inven_tab = is_equip ? 1 : 0;
+  g_item_inven_selected = -1;
+  g_item_inven_scroll = 0;
+  const int max_scroll =
+      std::max(0, static_cast<int>(g_locker_items.size()) - kLockerSlotCount);
+  g_locker_scroll = std::clamp(g_locker_scroll, 0, max_scroll);
+}
+
+// 把 Item Inventory 当前页签第 idx 件移回 Cash Inventory 暂存区。
+void MoveInventoryItemToLocker(int idx) {
+  const int bucket = (g_item_inven_tab == 0) ? static_cast<int>(ItemEnum::kCash)
+                                             : static_cast<int>(ItemEnum::kDeco);
+  auto& items = PackageGameInstance::data_[bucket];
+  if (idx < 0 || idx >= static_cast<int>(items.size()) ||
+      items[idx]->id.empty()) {
+    return;
+  }
+  g_locker_items.push_back(items[idx]->id);
+  items[idx]->id.clear();
+  g_item_inven_selected = -1;
+  g_locker_selected = -1;
+}
+
+// 按钮的绘制区域（和 RenderButton 一致，用于命中判定）。
+SDL_FRect PreviewButtonRect(const std::u16string& base) {
+  auto* normal = FindUi(base + u"/normal/0");
+  if (normal == nullptr) {
+    return SDL_FRect{};
+  }
+  auto origin = LoadOrigin(normal);
+  auto* texture = WzResource::LoadTexture(normal);
+  if (texture == nullptr) {
+    return SDL_FRect{};
+  }
+  return SDL_FRect{g_cash_shop_pos.x + origin.x,
+                   g_cash_shop_pos.y + origin.y,
+                   static_cast<float>(texture->w),
+                   static_cast<float>(texture->h)};
+}
+
+// REVERT：回到刚进 Cash Shop 时的样子（装备 + 点装全部还原）。
+void PreviewRevert() {
+  RestoreDecoSnapshot();
+  g_preview_items.clear();
+  g_preview_offset = 0;
+  g_preview_pet = std::nullopt;
+}
+
+// REMOVE ALL：脱掉所有装备和点装。
+void PreviewRemoveAll() {
+  auto& s = CharacterGameInstance::self_;
+  s.weapon = std::nullopt;
+  s.cap = std::nullopt;
+  s.cape = std::nullopt;
+  s.coat = std::nullopt;
+  s.glove = std::nullopt;
+  s.pant = std::nullopt;
+  s.ring0 = std::nullopt;
+  s.ring1 = std::nullopt;
+  s.ring2 = std::nullopt;
+  s.ring3 = std::nullopt;
+  s.shield = std::nullopt;
+  s.longcoat = std::nullopt;
+  s.shoes = std::nullopt;
+  s.accessory = std::nullopt;
+  s.weapon_deco = std::nullopt;
+  s.cap_deco = std::nullopt;
+  s.cape_deco = std::nullopt;
+  s.coat_deco = std::nullopt;
+  s.glove_deco = std::nullopt;
+  s.pant_deco = std::nullopt;
+  s.ring0_deco = std::nullopt;
+  s.ring1_deco = std::nullopt;
+  s.shield_deco = std::nullopt;
+  s.longcoat_deco = std::nullopt;
+  s.shoes_deco = std::nullopt;
+  s.accessory_deco = std::nullopt;
+  g_preview_items.clear();
+  g_preview_offset = 0;
+  g_preview_pet = std::nullopt;
+}
+
+// BUY ALL：把 preview 里选中的装扮一起放进 Check Out。
+void PreviewBuyAll() {
+  std::vector<CheckoutEntry> entries;
+  for (const auto& id : g_preview_items) {
+    for (int i = 0; i < static_cast<int>(g_commodities.size()); ++i) {
+      if (g_commodities[i].id == id) {
+        entries.push_back(CheckoutEntry{i, 1});
+        break;
+      }
+    }
+  }
+  if (entries.empty()) {
+    return;
+  }
+  g_checkout_entries = std::move(entries);
+  g_checkout_leaf = false;
+  g_checkout_open = true;
+}
+
 void HandleCashShopClick(float mx, float my) {
   SDL_FPoint p{mx, my};
+
+  // Cash Inventory 暂存区格子：第一次点选中，再点一次移进 Item Inventory。
+  {
+    const float grid_left = g_cash_shop_pos.x + kLockerItemX;
+    const float grid_top = g_cash_shop_pos.y + kLockerItemY;
+    const float grid_w = static_cast<float>(kLockerCols) * kSlotStride;
+    const float grid_h = static_cast<float>(kLockerRows) * kSlotStride;
+    if (mx >= grid_left && mx < grid_left + grid_w && my >= grid_top &&
+        my < grid_top + grid_h) {
+      const int col = static_cast<int>((mx - grid_left) / kSlotStride);
+      const int row = static_cast<int>((my - grid_top) / kSlotStride);
+      const int cell = row * kLockerCols + col;
+      const int idx = g_locker_scroll + cell;
+      if (idx >= 0 && idx < static_cast<int>(g_locker_items.size())) {
+        if (g_locker_selected == idx) {
+          MoveLockerItemToInventory(idx);
+        } else {
+          g_locker_selected = idx;
+        }
+      } else {
+        g_locker_selected = -1;
+      }
+      return;
+    }
+    g_locker_selected = -1;
+  }
+
+  // Item Inventory 格子：第一次点选中，再点一次移回 Cash Inventory。
+  {
+    const float grid_left = g_cash_shop_pos.x + 189.0f;
+    const float grid_top = g_cash_shop_pos.y + 640.0f;
+    const float grid_w = static_cast<float>(kItemInvenCols) * kSlotStride;
+    const float grid_h = static_cast<float>(kItemInvenRows) * kSlotStride;
+    if (mx >= grid_left && mx < grid_left + grid_w && my >= grid_top &&
+        my < grid_top + grid_h) {
+      const int col = static_cast<int>((mx - grid_left) / kSlotStride);
+      const int row = static_cast<int>((my - grid_top) / kSlotStride);
+      const int cell = row * kItemInvenCols + col;
+      const int idx = g_item_inven_scroll + cell;
+      const int bucket =
+          (g_item_inven_tab == 0) ? static_cast<int>(ItemEnum::kCash)
+                                  : static_cast<int>(ItemEnum::kDeco);
+      auto& items = PackageGameInstance::data_[bucket];
+      if (idx >= 0 && idx < static_cast<int>(items.size()) &&
+          !items[idx]->id.empty()) {
+        if (g_item_inven_selected == idx) {
+          MoveInventoryItemToLocker(idx);
+        } else {
+          g_item_inven_selected = idx;
+        }
+      } else {
+        g_item_inven_selected = -1;
+      }
+      return;
+    }
+    g_item_inven_selected = -1;
+  }
+
+  // 面板上的两个转移按钮：>> 移入背包、<< 移回暂存区。
+  {
+    auto to_inven = PreviewButtonRect(u"cashLocker/button:moveToInven");
+    if (to_inven.w > 0.0f && SDL_PointInRectFloat(&p, &to_inven)) {
+      MoveLockerItemToInventory(g_locker_selected);
+      return;
+    }
+    auto to_locker = PreviewButtonRect(u"itemInven/button:moveToLocker");
+    if (to_locker.w > 0.0f && SDL_PointInRectFloat(&p, &to_locker)) {
+      MoveInventoryItemToLocker(g_item_inven_selected);
+      return;
+    }
+  }
+
+  // preview 面板底部三个按钮：REVERT / REMOVE ALL / BUY ALL。
+  {
+    auto revert = PreviewButtonRect(u"preview/button:default");
+    auto remove_all = PreviewButtonRect(u"preview/button:takeoff");
+    auto buy_all = PreviewButtonRect(u"preview/button:buyall");
+    if (revert.w > 0.0f && SDL_PointInRectFloat(&p, &revert)) {
+      PreviewRevert();
+      return;
+    }
+    if (remove_all.w > 0.0f && SDL_PointInRectFloat(&p, &remove_all)) {
+      PreviewRemoveAll();
+      return;
+    }
+    if (buy_all.w > 0.0f && SDL_PointInRectFloat(&p, &buy_all)) {
+      PreviewBuyAll();
+      return;
+    }
+  }
+
+  // preview 聊天输入框和 ENTER 按钮。
+  if (MouseIn(g_cash_shop_pos.x + kChatBoxL, g_cash_shop_pos.y + kChatBoxT,
+              kChatBoxW, kChatBoxH)) {
+    g_chat_focus = true;
+    g_search_focus = false;
+    SDL_StartTextInput(Window::win_);
+    return;
+  }
+  if (MouseIn(g_cash_shop_pos.x + kChatEnterL, g_cash_shop_pos.y + kChatEnterT,
+              kChatEnterW, kChatEnterH)) {
+    SubmitChatMessage();
+    return;
+  }
+  // 点其它地方取消聊天输入焦点。
+  g_chat_focus = false;
 
   // Check Out 弹窗是模态的：先处理它自己的按钮。
   if (g_checkout_open) {
     auto buy = CheckoutButtonRect(u"buy");
     auto gift = CheckoutButtonRect(u"gift");
     auto cancel = CheckoutButtonRect(u"cancel");
+    const auto layout = LoadCheckoutLayout();
     if (SDL_PointInRectFloat(&p, &cancel)) {
       g_checkout_open = false;
-      g_checkout_index = -1;
+      g_checkout_entries.clear();
       return;
     }
-    if (SDL_PointInRectFloat(&p, &buy) ||
-        SDL_PointInRectFloat(&p, &gift)) {
+    if (SDL_PointInRectFloat(&p, &buy)) {
+      for (const auto& entry : g_checkout_entries) {
+        if (entry.commodity_index < 0 ||
+            entry.commodity_index >= static_cast<int>(g_commodities.size())) {
+          continue;
+        }
+        const auto id = g_commodities[entry.commodity_index].id;
+        for (int i = 0; i < std::max(1, entry.count); ++i) {
+          g_locker_items.push_back(id);
+        }
+      }
+      g_locker_selected = -1;
       g_checkout_open = false;
-      g_checkout_index = -1;
+      g_checkout_entries.clear();
       return;
     }
-    const float bx = kCheckoutX;
-    const float by = kCheckoutY + kCheckoutTopH;
+    if (SDL_PointInRectFloat(&p, &gift)) {
+      g_checkout_open = false;
+      g_checkout_entries.clear();
+      return;
+    }
+    const float bx = layout.x;
+    const float by = layout.bottom_y();
     if (MouseIn(bx + 80.0f, by + 21.0f, 82.0f, 14.0f)) {
       g_checkout_leaf = !g_checkout_leaf;
       return;
     }
-    const float rx = kCheckoutX + 2.0f;
-    const float ry = kCheckoutY + 34.0f;
-    if (MouseIn(rx + 79.0f, ry + 33.0f, 19.0f, 19.0f)) {
-      g_checkout_count = std::max(1, g_checkout_count - 1);
-      return;
-    }
-    if (MouseIn(rx + 131.0f, ry + 33.0f, 19.0f, 19.0f)) {
-      g_checkout_count = std::min(99, g_checkout_count + 1);
+    for (int i = 0; i < layout.rows; ++i) {
+      const float row_x = bx + 2.0f;
+      const float row_top = layout.row_y(i);
+      if (my < row_top || my >= row_top + kCheckoutRowH) {
+        continue;
+      }
+      if (i >= static_cast<int>(g_checkout_entries.size())) {
+        return;
+      }
+      if (MouseIn(row_x + 79.0f, row_top + 33.0f, 19.0f, 19.0f)) {
+        g_checkout_entries[i].count =
+            std::max(1, g_checkout_entries[i].count - 1);
+        return;
+      }
+      if (MouseIn(row_x + 131.0f, row_top + 33.0f, 19.0f, 19.0f)) {
+        g_checkout_entries[i].count =
+            std::min(99, g_checkout_entries[i].count + 1);
+        return;
+      }
       return;
     }
     return;
   }
 
-  // 点搜索框：进入输入状态；点别处：退出输入状态。
   auto search_bar = SearchBarRect();
   if (search_bar.w > 0.0f && SDL_PointInRectFloat(&p, &search_bar)) {
     if (!g_search_focus) {
@@ -1630,9 +2437,22 @@ void HandleCashShopClick(float mx, float my) {
     return;
   }
 
+  // FASHION 二级分类：命中哪个标签就按它过滤。
+  if (HasSubCategory(g_active_tab)) {
+    auto rects = LoadCategoryRects();
+    for (int i = 0; i < static_cast<int>(rects.size()); ++i) {
+      if (SDL_PointInRectFloat(&p, &rects[i])) {
+        g_sub_category = i;
+        g_page = 0;
+        return;
+      }
+    }
+  }
+
   for (int i = 0; i < kTabCount; ++i) {
-    SDL_FRect r{g_cash_shop_pos.x + kTabX + static_cast<float>(i) * kTabStride,
-                g_cash_shop_pos.y + kTabY, kTabStride, 47.0f};
+    const auto tab_x = LoadTabX();
+    SDL_FRect r{g_cash_shop_pos.x + tab_x[i], g_cash_shop_pos.y + kTabY, kTabW,
+                30.0f};
     if (SDL_PointInRectFloat(&p, &r)) {
       if (g_active_tab != i) {
         // 切换分类时清空搜索栏并退出输入状态。
@@ -1643,6 +2463,7 @@ void HandleCashShopClick(float mx, float my) {
         }
       }
       g_active_tab = i;
+      g_sub_category = -1;
       g_page = 0;
       return;
     }
@@ -1692,6 +2513,7 @@ void HandleCashShopClick(float mx, float my) {
                 g_cash_shop_pos.y + 586.0f, 37.0f, 22.0f};
     if (SDL_PointInRectFloat(&p, &r)) {
       g_item_inven_tab = i;
+      g_item_inven_selected = -1;
       return;
     }
   }
@@ -1735,13 +2557,35 @@ void HandleCashShopClick(float mx, float my) {
       }
       if (MouseIn(pos.x + 90.0f, pos.y + 55.0f, buy_w, buy_h)) {
         g_checkout_open = true;
-        g_checkout_index = filtered[idx];
-        g_checkout_count = 1;
+        g_checkout_entries = {CheckoutEntry{filtered[idx], 1}};
         g_checkout_leaf = false;
         return;
       }
       // 表情商品：做一次表情，不换装。
       if (PlayCommodityEmotion(commodity.id, commodity.name)) {
+        return;
+      }
+      // 宠物商品：在预览场景里放一只宠物跟着人物（不换装）。
+      if (PetGameInstance::IsPetItem(commodity.id)) {
+        auto& self = CharacterGameInstance::self_;
+        GamePet pet;
+        pet.id = commodity.id;
+        pet.name = PetGameInstance::LoadPetName(commodity.id);
+        pet.action = u"stand0";
+        pet.ani_index = 0;
+        pet.ani_time = 0;
+        pet.page = self.page;
+        pet.flip = self.flip == 1;
+        pet.default_nametag = true;
+        pet.pos = {self.pos.x + (self.flip == 1 ? -34.0f : 34.0f),
+                   self.pos.y};
+        g_preview_pet = pet;
+        if (std::ranges::find(g_preview_items, commodity.id) ==
+            g_preview_items.end()) {
+          g_preview_items.push_back(commodity.id);
+          g_preview_offset = std::max(
+              0, static_cast<int>(g_preview_items.size()) - kPreviewSlotCount);
+        }
         return;
       }
       TryOnItem(commodity.id);
@@ -1794,15 +2638,20 @@ void OpenImmediate() {
   SaveDecoSnapshot();
 
   g_active_tab = 0;
+  g_sub_category = -1;
   g_page = 0;
   g_search_text.clear();
   g_search_focus = false;
   g_preview_items.clear();
   g_preview_offset = 0;
   g_checkout_open = false;
-  g_checkout_index = -1;
-  g_checkout_count = 1;
+  g_checkout_entries.clear();
   g_checkout_leaf = false;
+  g_chat_input.clear();
+  g_chat_focus = false;
+  g_locker_selected = -1;
+  g_item_inven_selected = -1;
+  CharacterGameInstance::self_.chatballoon = std::nullopt;
   g_item_inven_tab = 0;
   g_locker_scroll = 0;
   g_item_inven_scroll = 0;
@@ -1896,6 +2745,36 @@ void RenderHoverTooltip() {
   }
 
 
+  // Cash Inventory 暂存区格子：悬浮显示道具 tooltip。
+  for (int i = 0; i < kLockerSlotCount; ++i) {
+    const int idx = g_locker_scroll + i;
+    if (idx < 0 || idx >= static_cast<int>(g_locker_items.size())) {
+      continue;
+    }
+    const float cell_x = g_cash_shop_pos.x + kLockerItemX +
+                         static_cast<float>(i % kLockerCols) * kSlotStride;
+    const float cell_y = g_cash_shop_pos.y + kLockerItemY +
+                         static_cast<float>(i / kLockerCols) * kSlotStride;
+    if (!MouseIn(cell_x, cell_y, kSlotW, kSlotW)) {
+      continue;
+    }
+    const SDL_FPoint tip{Window::mouse_pos_.x + 15.0f,
+                         Window::mouse_pos_.y + 15.0f};
+    const auto& id = g_locker_items[idx];
+    if (EquipGameInstance::LoadEquipType(id).empty()) {
+      GameCashItem cash;
+      cash.id = id;
+      if (HasItemString(id)) {
+        TooltipUiSystem::RenderItem(cash, tip.x, tip.y);
+      }
+    } else {
+      GameDecoItem deco;
+      deco.id = id;
+      TooltipUiSystem::RenderDeco(deco, tip.x, tip.y);
+    }
+    return;
+  }
+
   auto filtered = FilterCommodities();
   int total = static_cast<int>(filtered.size());
   int start = g_page * kPageSize;
@@ -1912,9 +2791,9 @@ void RenderHoverTooltip() {
   auto& items = PackageGameInstance::data_[data_index];
   for (int i = 0; i < kItemInvenCols * kItemInvenRows; ++i) {
     float cell_x = g_cash_shop_pos.x + 189.0f +
-                   static_cast<float>(i % kItemInvenCols) * kSlotW;
+                   static_cast<float>(i % kItemInvenCols) * kSlotStride;
     float cell_y = g_cash_shop_pos.y + 640.0f +
-                   static_cast<float>(i / kItemInvenCols) * kSlotW;
+                   static_cast<float>(i / kItemInvenCols) * kSlotStride;
     if (!MouseIn(cell_x, cell_y, kSlotW, kSlotW)) {
       continue;
     }
@@ -1942,7 +2821,19 @@ bool CashShopUiSystem::Run() {
   const float dt = static_cast<float>(Window::delta_time_) / 1000.0f;
   // Physic 内部会除以 delta_time，dt 为 0 会算出 NaN（人物会整个消失）。
   if (dt <= 0.0f) {
-    CharacterLogicSystem::RunAnimate(self);
+    // 预览里的试用宠物：跟着人物走并播放站立/移动动画。
+  if (g_preview_pet.has_value()) {
+    auto& pet = *g_preview_pet;
+    pet.page = self.page;
+    pet.flip = self.flip == 1;
+    const float target_x =
+        self.pos.x + (self.flip == 1 ? -34.0f : 34.0f);
+    pet.pos.x += (target_x - pet.pos.x) * 0.2f;
+    pet.pos.y = self.pos.y;
+    PetLogicSystem::AnimatePreview(pet);
+  }
+
+  CharacterLogicSystem::RunAnimate(self);
     return true;
   }
   // 试穿窗口里的角色始终按默认颜色/透明度（255）绘制。
@@ -2100,6 +2991,11 @@ bool CashShopUiSystem::Run() {
   CharacterLogicSystem::RunAnimate(self);
   // 表情商品（0516xxxx）需要在商城里自己推进脸部动画，播完自动回 default。
   CharacterLogicSystem::FaceAnimate(self);
+  // 聊天气泡到期消失（普通地图里由 ChatballoonLogicSystem 做同样的事）。
+  if (self.chatballoon.has_value() &&
+      self.chatballoon->destroy <= Window::dt_now_) {
+    self.chatballoon = std::nullopt;
+  }
   return true;
 }
 
@@ -2123,7 +3019,22 @@ void CashShopUiSystem::RenderAvatar() {
                 static_cast<int>(g_cash_shop_pos.y + kSceneY),
                 static_cast<int>(kSceneW), static_cast<int>(kSceneH)};
   SDL_SetRenderClipRect(Window::renderer_, &clip);
-  CharacterRenderSystem::RenderCharacter(CharacterGameInstance::self_);
+  auto& self = CharacterGameInstance::self_;
+  // 试用宠物：临时把 PetGameInstance 的列表换成这一只，复用地图的宠物渲染。
+  if (g_preview_pet.has_value()) {
+    auto saved = std::move(PetGameInstance::data_);
+    auto saved_others = std::move(PetGameInstance::others_);
+    PetGameInstance::data_.clear();
+    PetGameInstance::others_.clear();
+    PetGameInstance::data_.push_back(*g_preview_pet);
+    PetRenderSystem::Render(self.page, false);
+    PetGameInstance::data_ = std::move(saved);
+    PetGameInstance::others_ = std::move(saved_others);
+  }
+  CharacterRenderSystem::RenderCharacter(self);
+  // 名片和聊天气泡直接用普通地图的渲染函数，保证样式/位置一致。
+  CharacterRenderSystem::RenderNametag(self);
+  CharacterRenderSystem::RenderChatballoon(self);
   SDL_SetRenderClipRect(Window::renderer_, nullptr);
 }
 
@@ -2159,6 +3070,12 @@ bool CashShopUiSystem::Event(SDL_Event* event) {
   };
   switch (event->type) {
     case SDL_EVENT_TEXT_INPUT: {
+      if (g_chat_focus) {
+        if (g_chat_input.size() < 40) {
+          g_chat_input += Utf8ToU16(event->text.text);
+        }
+        return false;
+      }
       if (!g_search_focus) {
         return true;
       }
@@ -2170,10 +3087,15 @@ bool CashShopUiSystem::Event(SDL_Event* event) {
       if (event->key.scancode == SDL_SCANCODE_ESCAPE) {
         if (g_checkout_open) {
           g_checkout_open = false;
-          g_checkout_index = -1;
+          g_checkout_entries.clear();
           return false;
         }
         // 输入状态下先退出输入，再按一次才关商城。
+        if (g_chat_focus) {
+          g_chat_focus = false;
+          SDL_StopTextInput(Window::win_);
+          return false;
+        }
         if (g_search_focus) {
           g_search_focus = false;
           SDL_StopTextInput(Window::win_);
@@ -2181,6 +3103,19 @@ bool CashShopUiSystem::Event(SDL_Event* event) {
         }
         Close();
         return false;
+      }
+      if (g_chat_focus) {
+        if (event->key.scancode == SDL_SCANCODE_BACKSPACE) {
+          if (!g_chat_input.empty()) {
+            g_chat_input.pop_back();
+          }
+          return false;
+        }
+        if (event->key.scancode == SDL_SCANCODE_RETURN ||
+            event->key.scancode == SDL_SCANCODE_KP_ENTER) {
+          SubmitChatMessage();
+          return false;
+        }
       }
       if (g_search_focus) {
         if (event->key.scancode == SDL_SCANCODE_BACKSPACE) {
@@ -2268,12 +3203,19 @@ void CashShopUiSystem::Close() {
     return;
   }
   g_cash_shop_visible = false;
+  // 淡出期间保持当前外观（含试用宠物），等回到地图场景（黑屏加载时）
+  // 再一起还原：外观回到进店前，试用宠物不带到地图上。
+  SceneSystemInstance::on_prepare_cb_ = [] {
+    RestoreDecoSnapshot();
+    g_preview_pet = std::nullopt;
+    g_preview_items.clear();
+    g_preview_offset = 0;
+  };
   if (g_search_focus) {
     g_search_focus = false;
     SDL_StopTextInput(Window::win_);
   }
-  // 退出商城前把试穿的点装还原，地图上的角色恢复原样。
-  RestoreDecoSnapshot();
+
   SceneSystemInstance::EnterCashShopReturn(SceneSystemInstance::map_id_,
                                            g_return_pos);
 }

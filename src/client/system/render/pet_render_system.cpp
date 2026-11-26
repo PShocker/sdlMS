@@ -239,7 +239,9 @@ void PetRenderSystem::RenderNametag(const GamePet& pet) {
   auto y = pet.pos.y + 4.0f;
 
   // 095 CPetTemplate::nNameTag：模板 info/nameTag 是 UI/NameTag.img 的配色号。
-  auto index = PetGameInstance::LoadPetNameTagIndex(pet.id);
+  auto index = pet.default_nametag
+                   ? -1
+                   : PetGameInstance::LoadPetNameTagIndex(pet.id);
   if (index >= 0) {
     auto key_text = std::to_string(index);
     std::u16string key{key_text.begin(), key_text.end()};

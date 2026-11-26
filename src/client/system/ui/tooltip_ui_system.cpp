@@ -990,6 +990,9 @@ void TooltipUiSystem::RenderWorldMapInfo(uint32_t id, float x, float y) {
     SDL_SetRenderDrawColor(Window::renderer_, 240, 224, 104, 255);
     sh += 25;
     SDL_RenderLine(Window::renderer_, x, sh, x + w, sh);
+    // 画完立刻把绘制色恢复成黑色：SDL 的绘制色是全局状态，不恢复的话
+    // 同一帧后面那些没设颜色的绘制（例如左下角那块矩形）会继承成黄色。
+    SDL_SetRenderDrawColor(Window::renderer_, 0, 0, 0, 255);
 
     auto s3 = map_desc;
     Freetype::DrawCstr(s3, x + 10, sh + 5, w - 20, 1.1);
