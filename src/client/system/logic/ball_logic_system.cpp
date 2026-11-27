@@ -12,32 +12,59 @@
 #include <algorithm>
 #include <cmath>
 #include <numbers>
+#include <ranges>
 
 namespace sdlms {
 
+
 void BallLogicSystem::RunAnimate(GameBall& b) {
-  wz::Node* n = WzResource::skill_->find(b.path);
-  if (!n) {
+  // 攻击弹道贴图可能在 Skill.wz 或 Item.wz，两者都没有时直接跳过动画，
+  // 否则下面的 get_child 会解引用空节点直接崩溃（攻击闪退）。
+  wz::Node* n = nullptr;
+  if (WzResource::skill_ != nullptr) {
+    n = WzResource::skill_->find(b.path);
+  }
+  if (n == nullptr && WzResource::item_ != nullptr) {
     n = WzResource::item_->find(b.path);
   }
-  b.ani_time += Window::delta_time_;
-  auto index = std::to_string(b.ani_index);
-  auto texture_node = n->get_child(index);
-  int delay = 100;
-  if (texture_node->get_child(u"delay")) {
-    delay = static_cast<wz::Property<int>*>(texture_node->get_child(u"delay"))
-                ->get();
+  if (n == nullptr) {
+    return;
   }
+  // 只把数字子节点当帧，避免 rotatePeriod/z 之类混进来算错帧数。
+  std::vector<std::u16string> frames;
+  for (const auto& [key, value] : n->children) {
+    if (!key.empty() && std::ranges::all_of(key, [](char16_t c) {
+          return c >= u'0' && c <= u'9';
+        })) {
+      frames.push_back(key);
+    }
+  }
+  if (frames.empty()) {
+    return;
+  }
+  if (b.ani_index >= frames.size()) {
+    b.ani_index = 0;
+  }
+  auto index = std::to_string(b.ani_index);
+  auto* texture_node = n->get_child(index);
+  if (texture_node == nullptr) {
+    b.ani_index = 0;
+    texture_node = n->get_child(std::to_string(b.ani_index));
+  }
+  int delay = 100;
+  if (texture_node != nullptr) {
+    if (auto* d = texture_node->get_child(u"delay")) {
+      delay = static_cast<wz::Property<int>*>(d)->get();
+    }
+  }
+  b.ani_time += Window::delta_time_;
   if (b.ani_time >= delay) {
     b.ani_time = 0;
     b.ani_index += 1;
-    auto m = n->children;
-    if (m.contains(u"rotatePeriod")) {
-      auto r = static_cast<wz::Property<int>*>(m.at(u"rotatePeriod")[0])->get();
-      b.rotate += r;
-      m.erase(u"rotatePeriod");
+    if (auto* rp = n->get_child(u"rotatePeriod")) {
+      b.rotate += static_cast<wz::Property<int>*>(rp)->get();
     }
-    b.ani_index = b.ani_index % m.size();
+    b.ani_index = b.ani_index % frames.size();
   }
   // 095 的子弹 origin 挂在目标 Vector2D 上，但发射时的始/终点偏移固定。
   // 因此这里用固定的相对弹道，不能在每帧朝怪物当前位置重新瞄准。

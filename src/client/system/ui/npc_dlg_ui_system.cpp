@@ -55,6 +55,27 @@ static std::u16string selected;
 namespace {
 
 
+// 任务列表里那一行的完整文本："(Lv.10) 任务名 (Available)"
+std::u16string QuestLabel(const std::u16string& quest_id,
+                          const std::u16string& type) {
+  auto* quest_node = QuestGameInstance::LoadQuestNode(quest_id);
+  if (quest_node == nullptr) {
+    return {};
+  }
+  auto* name_node = quest_node->find(u"QuestInfo/name");
+  if (name_node == nullptr || name_node->type != wz::Type::String) {
+    return {};
+  }
+  auto name = static_cast<wz::Property<std::u16string>*>(name_node)->get();
+  auto lv = 0;
+  if (auto* lv_node = quest_node->find(u"Check/0/lvmin")) {
+    lv = static_cast<wz::Property<int>*>(lv_node)->get();
+  }
+  auto lv2 = std::to_string(lv);
+  std::u16string lv3{lv2.begin(), lv2.end()};
+  return u"(Lv." + lv3 + u") " + name + u" (" + type + u")";
+}
+
 // 运行 WZ 数据里指定名字的任务脚本。数据中引用了尚未实现的脚本名时返回 false，
 
 // 让调用方退回普通的接任务／交任务流程，而不是抛 std::out_of_range 崩掉。
@@ -92,59 +113,55 @@ void NpcDlgUiSystem::RenderBackgrnd() {
   auto [w, h] = LoadWh();
 
   static auto t = WzResource::LoadTexture(
-
       WzResource::ui_->find(u"UtilDlgEx.img/UtilDlgEx/t"));
 
-  SDL_FRect pos_rect{
-
-      pos_.x,
-
-      pos_.y,
-
-      static_cast<float>(t->w),
-
-      static_cast<float>(t->h),
-
-  };
-
-  SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
-
   static auto c = WzResource::LoadTexture(
-
       WzResource::ui_->find(u"UtilDlgEx.img/UtilDlgEx/c"));
 
   static auto s = WzResource::LoadTexture(
-
       WzResource::ui_->find(u"UtilDlgEx.img/UtilDlgEx/s"));
 
-  pos_rect = {
+  // 素材（UtilDlgEx.img 的 t / c / s，均 529 宽）水平方向是均匀的：
+  //   x 0..7    外框圆角
+  //   x 8..151  NPC 头像区
+  //   x 152..507 白色文本面板
+  //   x 508..528 右侧外框
+  // 所以加宽时只拉伸白色面板内部的纯净区域 [200, 470)，
+  // 左边的头像区和右边的面板圆角/外框保持原样，否则会把面板边缘重复平铺。
+  const auto draw9 = [](SDL_Texture* tex, float dx, float dy, float dw,
+                        float dh) {
+    constexpr float kLeftKeep = 200.0f;
+    constexpr float kRightKeep = 470.0f;
+    const float tw = static_cast<float>(tex->w);
+    const float th = static_cast<float>(tex->h);
+    const float left = std::min(kLeftKeep, tw);
+    const float right = std::min(kRightKeep, tw);
+    const float mid_src_w = std::max(0.0f, right - left);
+    const float right_w = std::max(0.0f, tw - right);
+    const float delta = std::max(0.0f, dw - tw);
 
-      pos_.x,
+    SDL_FRect src_l{0, 0, left, th};
+    SDL_FRect dst_l{dx, dy, left, dh};
+    SDL_RenderTexture(Window::renderer_, tex, &src_l, &dst_l);
 
-      pos_.y + t->h,
+    if (mid_src_w > 0.0f) {
+      SDL_FRect src_m{left, 0, mid_src_w, th};
+      SDL_FRect dst_m{dx + left, dy, mid_src_w + delta, dh};
+      SDL_RenderTextureTiled(Window::renderer_, tex, &src_m, 1, &dst_m);
+    }
 
-      static_cast<float>(c->w),
-
-      static_cast<float>(h - t->h - s->h),
-
+    if (right_w > 0.0f) {
+      SDL_FRect src_r{tw - right_w, 0, right_w, th};
+      SDL_FRect dst_r{dx + dw - right_w, dy, right_w, dh};
+      SDL_RenderTexture(Window::renderer_, tex, &src_r, &dst_r);
+    }
   };
 
-  SDL_RenderTextureTiled(Window::renderer_, c, nullptr, 1, &pos_rect);
+  draw9(t, pos_.x, pos_.y, w, static_cast<float>(t->h));
 
+  draw9(c, pos_.x, pos_.y + t->h, w, h - t->h - s->h);
 
-  pos_rect = {
-
-      pos_.x,
-
-      pos_.y + h - s->h,
-
-      static_cast<float>(s->w),
-
-      static_cast<float>(s->h),
-
-  };
-
-  SDL_RenderTexture(Window::renderer_, s, nullptr, &pos_rect);
+  draw9(s, pos_.x, pos_.y + h - s->h, w, static_cast<float>(s->h));
 }
 
 
@@ -514,33 +531,16 @@ void NpcDlgUiSystem::RenderList() {
     y += 20;
 
     for (int i = 0; i < q.size(); i++) {
-      auto quest_node = QuestGameInstance::LoadQuestNode(q[i]);
+      auto name = QuestLabel(q[i], type);
 
-      auto name_node = quest_node->find(u"QuestInfo/name");
+      const auto text_x = pos_rect.x + 12;
 
-      auto name = static_cast<wz::Property<std::u16string>*>(name_node)->get();
+      const float text_y = pos_.y + y;
 
-      auto lv_node = quest_node->find(u"Check/0/lvmin");
-
-      auto lv = 0;
-
-      if (lv_node) {
-        lv = static_cast<wz::Property<int>*>(lv_node)->get();
-      }
-
-      auto lv2 = std::to_string(lv);
-
-      std::u16string lv3{lv2.begin(), lv2.end()};
-
-      name = u"(Lv." + lv3 + u") " + name + u" (" + type + u")";
-
-      auto text_x = pos_rect.x + 12;
-
-      auto text_y = pos_.y + y;
-
+      // 单行绘制：对话框会按最长的一行自动加宽，不再折行。
       Freetype::DrawLine(name, text_x, text_y);
 
-      auto text_w = Freetype::LoadW(name);
+      const float text_w = Freetype::LoadW(name);
 
       SDL_FRect r{
 
@@ -626,7 +626,7 @@ void NpcDlgUiSystem::RenderList() {
 
     Freetype::DrawLine(str, text_x, text_y);
 
-    auto text_w = Freetype::LoadW(str);
+    const float text_w = Freetype::LoadW(str);
 
     SDL_FRect r{
 
@@ -842,6 +842,9 @@ bool NpcDlgUiSystem::Render() {
 SDL_FPoint NpcDlgUiSystem::LoadWh() {
   Freetype::LoadSize(12);
 
+  // 对话/任务/脚本文字放不下时把对话框加宽（最宽 900）。
+  float need_w = 529.0f;
+
   auto h = Freetype::LoadRh(text_, 330, 1.3, std::nullopt);
 
   h = h + 130;
@@ -873,8 +876,32 @@ SDL_FPoint NpcDlgUiSystem::LoadWh() {
 
     auto lh = Freetype::LoadLh();
 
-    for (const auto& v :
+    // 文本列从对话框左边 177px 开始，逐行取最长的一行算出需要的宽度。
+    // 文本起点 165 + 12 缩进；白色面板右边缘在对话框右边 - 22px，
+    // 所以需要：width >= 177 + 文字宽 + 22 + 10（内边距）。
+    constexpr float kTextLeft = 177.0f;
+    constexpr float kTextPad = 32.0f;
 
+    const auto quest_w = [&](const std::vector<std::u16string>& v,
+                             const char16_t* type) {
+      for (const auto& id : v) {
+        need_w = std::max(
+            need_w, kTextLeft + Freetype::LoadW(QuestLabel(id, type)) + kTextPad);
+      }
+    };
+
+    const auto available_text =
+        WzResource::LoadMSString(u"questStatusAvailable", u"Avaliable");
+    const auto progress_text =
+        WzResource::LoadMSString(u"questStatusProgress", u"Progress");
+    const auto complete_text =
+        WzResource::LoadMSString(u"questStatusComplete", u"Complete");
+
+    quest_w(avaliable_quest, available_text.c_str());
+    quest_w(progress_quest, progress_text.c_str());
+    quest_w(progress_complete_quest, complete_text.c_str());
+
+    for (const auto& v :
          {avaliable_quest, progress_quest, progress_complete_quest}) {
       if (!v.empty()) {
         h += v.size() * lh;
@@ -887,6 +914,13 @@ SDL_FPoint NpcDlgUiSystem::LoadWh() {
 
     if (!scp_id.empty()) {
       h += 36;
+
+      std::u16string str =
+          u"(" + scp_id + u")" +
+          WzResource::LoadMSString(u"talkTo", u"  Talk to ") +
+          NpcGameInstance::LoadNpcText(npc_id_, u"name");
+      need_w =
+          std::max(need_w, kTextLeft + Freetype::LoadW(str) + kTextPad);
     }
 
   } else if (type_ == NpcDlgEnum::kQuestComplete && index_ == max_index_) {
@@ -912,7 +946,7 @@ SDL_FPoint NpcDlgUiSystem::LoadWh() {
   h = std::max((int)h, 190);
 
 
-  return {529, h};
+  return {std::min(need_w, 900.0f), h};
 }
 
 

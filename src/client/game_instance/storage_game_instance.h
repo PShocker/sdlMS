@@ -20,6 +20,9 @@ class StorageGameInstance {
 
   // 把空格子补齐到 kSlotCount，保证窗口有可放入的槽位。
   static void EnsureSlots();
+
+  // 修正历史数据里残留成 Etc 类型的可叠加道具（按 id 前缀判断真实类型）。
+  static void NormalizeTypes();
 };
 
 }  // namespace sdlms

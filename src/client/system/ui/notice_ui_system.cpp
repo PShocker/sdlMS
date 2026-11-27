@@ -98,7 +98,9 @@ void NoticeUiSystem::RenderBackgrnd() {
 
     case NoticeEnum::kThrowMul:
 
-    case NoticeEnum::kShopPrice: {
+    case NoticeEnum::kShopPrice:
+
+    case NoticeEnum::kStorageCount: {
       node = WzResource::ui_->find(u"PopupWindow.img/Notice2");
 
       break;
@@ -216,7 +218,8 @@ UIComponents& NoticeUiSystem::GetComponent() {
     case NoticeEnum::kCraftState:
     case NoticeEnum::kMinigameRoomFull:
     case NoticeEnum::kShopPrice:
-    case NoticeEnum::kShopNotice: {
+    case NoticeEnum::kShopNotice:
+    case NoticeEnum::kStorageCount: {
       buttons_node = {
 
           WzResource::ui_->find(u"Basic.img/BtOK2"),
@@ -331,8 +334,10 @@ UIComponents& NoticeUiSystem::GetComponent() {
       break;
     }
 
-    case NoticeEnum::kShopPrice: {
-      // 上架定价：OK 走 on_confirm_（与充值确认同模式），Cancel 丢弃。
+    case NoticeEnum::kShopPrice:
+
+    case NoticeEnum::kStorageCount: {
+      // 数字输入：OK 走 on_confirm_（与充值确认同模式），Cancel 丢弃。
       std::get<Button>(components_[0]).callback = EventButtonShopRecharge;
       std::get<Button>(components_[1]).callback = Close;
       break;
@@ -539,7 +544,9 @@ void NoticeUiSystem::RenderText() {
       p = {20, 20};
       break;
     }
-    case NoticeEnum::kShopNotice: {
+    case NoticeEnum::kShopNotice:
+
+    case NoticeEnum::kStorageCount: {
       text = notice_text_;
       p = {20, 20};
       break;
@@ -671,7 +678,8 @@ void NoticeUiSystem::RenderInput() {
     case NoticeEnum::kShopbuySellMul:
     case NoticeEnum::kShopbuyMul:
     case NoticeEnum::kThrowMul:
-    case NoticeEnum::kShopPrice: {
+    case NoticeEnum::kShopPrice:
+    case NoticeEnum::kStorageCount: {
       text_.Render();
       break;
     }
@@ -730,7 +738,9 @@ void NoticeUiSystem::Open() {
 
       case NoticeEnum::kThrowMul:
 
-      case NoticeEnum::kShopPrice: {
+      case NoticeEnum::kShopPrice:
+
+      case NoticeEnum::kStorageCount: {
         text_ = {
 
             .max_size = 9,
@@ -819,6 +829,13 @@ void NoticeUiSystem::Open() {
         break;
       }
 
+      case NoticeEnum::kStorageCount: {
+        auto tmp = std::to_string(number_value_);
+        text_.text = {tmp.begin(), tmp.end()};
+        text_.cur = text_.text.size();
+        break;
+      }
+
       default: {
         break;
       }
@@ -877,6 +894,21 @@ void NoticeUiSystem::OpenNoSpace(ItemEnum type) {
   }
 }
 
+
+uint64_t NoticeUiSystem::LoadInputNumber() {
+  uint64_t value = 0;
+  for (char16_t c : text_.text) {
+    if (c < u'0' || c > u'9') {
+      continue;
+    }
+    const uint64_t digit = static_cast<uint64_t>(c - u'0');
+    if (value > (UINT64_MAX - digit) / 10) {
+      return UINT64_MAX;
+    }
+    value = value * 10 + digit;
+  }
+  return value;
+}
 
 void NoticeUiSystem::Close() {
   std::erase(System::render_systems_, Render);
@@ -941,6 +973,8 @@ SDL_FPoint NoticeUiSystem::LoadWh() {
     case NoticeEnum::kThrowMul:
 
     case NoticeEnum::kShopPrice:
+
+    case NoticeEnum::kStorageCount:
       return {266, 119};
   }
 
@@ -1396,7 +1430,9 @@ void NoticeUiSystem::EventInput(SDL_Event* event) {
 
     case NoticeEnum::kThrowMul:
 
-    case NoticeEnum::kShopPrice: {
+    case NoticeEnum::kShopPrice:
+
+    case NoticeEnum::kStorageCount: {
       text_.Event(event);
     }
 
@@ -1488,8 +1524,10 @@ bool NoticeUiSystem::Event(SDL_Event* event) {
               break;
             }
 
-            case NoticeEnum::kShopPrice: {
-              // 上架定价确认：走 on_confirm_（与充值确认同模式）。
+            case NoticeEnum::kShopPrice:
+
+            case NoticeEnum::kStorageCount: {
+              // 数字输入确认：走 on_confirm_（与充值确认同模式）。
               EventButtonShopRecharge();
 
               break;

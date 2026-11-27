@@ -9,6 +9,7 @@
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
+#include "src/client/game_instance/pet_game_instance.h"
 #include "src/client/game_instance/text_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/cursor_render_system.h"
@@ -173,6 +174,15 @@ void PackageUiSystem::RenderItems() {
   constexpr int slot_space_x = 4;
   constexpr int slot_space_y = 2;
   constexpr int slot_size = 32;
+  // 格子贴图实际是 33x33（item.img/canvas:disabled），现金标记要按格子
+  // 的真实大小贴右下角，否则会偏进格子里面 1px。
+  float cell_w = static_cast<float>(slot_size) + 1.0f;
+  float cell_h = static_cast<float>(slot_size) + 1.0f;
+  if (auto* slot_tex = WzResource::LoadTexture(
+          WzResource::ui_->find(u"Item.img/canvas:disabled"))) {
+    cell_w = static_cast<float>(slot_tex->w);
+    cell_h = static_cast<float>(slot_tex->h);
+  }
   constexpr int slots_per_row = 5;
   constexpr int max_rows = 6;
   constexpr int items_per_page = slots_per_row * max_rows;
@@ -234,18 +244,44 @@ void PackageUiSystem::RenderItems() {
         static_cast<float>(icon->h),
     };
 
+    // 当前激活（跟着人物）的宠物：在 Cash 页签的格子上叠一层
+    // UI/Item.img/canvas:activeIcon2 作为「使用中」标识，垫在图标下面。
+    const float cell_x =
+        pos_.x + slot_pos.x + col * (slot_size + slot_space_x);
+    const float cell_y =
+        pos_.y + slot_pos.y + row * (slot_size + slot_space_y);
+    if (active_tab_ == (int)ItemEnum::kCash && PetGameInstance::active_ &&
+        PetGameInstance::pet_id_ == item->id) {
+      if (auto* active_icon = WzResource::LoadTexture(
+              WzResource::ui_->find(u"Item.img/canvas:activeIcon2"))) {
+        SDL_FRect badge{
+            std::floor(cell_x + (cell_w - active_icon->w) * 0.5f),
+            std::floor(cell_y + (cell_h - active_icon->h) * 0.5f),
+            static_cast<float>(active_icon->w),
+            static_cast<float>(active_icon->h),
+        };
+        SDL_RenderTexture(Window::renderer_, active_icon, nullptr, &badge);
+      }
+    }
+
     SDL_RenderTexture(Window::renderer_, icon, nullptr, &pos_rect);
 
-    if (active_tab_ == (int)ItemEnum::kDeco) {
-      icon = WzResource::LoadTexture(
+    // 现金道具标记：Cash / Deco 页签都贴一个 UI.img/CashItem 到格子右下角。
+    if (active_tab_ == (int)ItemEnum::kCash ||
+        active_tab_ == (int)ItemEnum::kDeco) {
+      auto* mark = WzResource::LoadTexture(
           WzResource::ms_->get_root()->find(u"UI.img/CashItem"));
-      pos_rect.x =
-          (int)pos_.x + slot_pos.x + col * (slot_size + slot_space_x) + 19;
-      pos_rect.y =
-          (int)pos_.y + slot_pos.y + row * (slot_size + slot_space_y) + 19;
-      pos_rect.w = icon->w;
-      pos_rect.h = icon->h;
-      SDL_RenderTexture(Window::renderer_, icon, nullptr, &pos_rect);
+      if (mark != nullptr) {
+        pos_rect.x = std::floor(pos_.x + slot_pos.x +
+                                col * (slot_size + slot_space_x) + cell_w -
+                                static_cast<float>(mark->w));
+        pos_rect.y = std::floor(pos_.y + slot_pos.y +
+                                row * (slot_size + slot_space_y) + cell_h -
+                                static_cast<float>(mark->h));
+        pos_rect.w = static_cast<float>(mark->w);
+        pos_rect.h = static_cast<float>(mark->h);
+        SDL_RenderTexture(Window::renderer_, mark, nullptr, &pos_rect);
+      }
     }
 
     // render new item

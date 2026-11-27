@@ -1,11 +1,13 @@
 #include "src/client/game_instance/package_game_instance.h"
 
 #include "src/client/game/game_item.h"
+#include "src/client/game_instance/ball_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/quest_game_instance.h"
 #include "src/client/system/ui/package_ui_system.h"
+#include "src/common/wz/wz_resource.h"
 
 #include <algorithm>
 #include <bits/indirect.h>
@@ -180,11 +182,13 @@ std::u16string PackageGameInstance::LoadActiveCashBall() {
   std::u16string pre;
   auto WeaponType = EquipGameInstance::LoadWeaponType(sf);
   switch (WeaponType) {
-    case EquipGameInstance::WeaponType::kBow: {
-      break;
-    }
+    case EquipGameInstance::WeaponType::kBow:
     case EquipGameInstance::WeaponType::kCrossbow: {
-      break;
+      // 弓/弩没有现金子弹，一律用 Consume 里的箭。
+      // 之前这里 pre 为空、下面的 starts_with("") 恒真，会返回现金栏里的
+      // 第一件道具（比如宠物 05000008），导致攻击飞出去的弹道
+      // Cash/0500.img/.../bullet 在 WZ 里不存在 → 箭和攻击特效都不见了。
+      return u"";
     }
     case EquipGameInstance::WeaponType::kClaw: {
       pre = u"0502";
@@ -197,8 +201,15 @@ std::u16string PackageGameInstance::LoadActiveCashBall() {
   }
   auto& r = PackageGameInstance::data_[(int)ItemEnum::kCash];
   for (auto& itm : r) {
-    if (itm->id.starts_with(pre)) {
-      return itm->id;
+    if (!itm->id.starts_with(pre)) {
+      continue;
+    }
+    // 只有 WZ 里真的有这条弹道才认，避免把同前缀的其它现金道具当成子弹。
+    if (WzResource::item_ != nullptr) {
+      auto path = BallGameInstance::LoadCashBallPath(itm->id);
+      if (!path.empty() && WzResource::item_->find(path) != nullptr) {
+        return itm->id;
+      }
     }
   }
   return u"";

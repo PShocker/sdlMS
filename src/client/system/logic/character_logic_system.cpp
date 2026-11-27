@@ -67,6 +67,8 @@
 
 namespace sdlms {
 
+
+
 namespace {
 
 int32_t LoadMobInfoInt(wz::Node* node, const char16_t* key, int32_t def) {
@@ -1136,7 +1138,7 @@ bool CharacterLogicSystem::RunAttack(GameCharacter& g_character) {
     if (!cash_ball.empty()) {
       path = BallGameInstance::LoadCashBallPath(cash_ball);
       effect = BallGameInstance::LoadCashBallEffect(cash_ball);
-    } else {
+    } else if (ball != nullptr) {
       path = BallGameInstance::LoadBallPath((*ball)->id);
       effect = u"Afterimage/hit.img/maceF";
     }

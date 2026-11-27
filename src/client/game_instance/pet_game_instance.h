@@ -99,6 +99,7 @@ class PetGameInstance {
   // 095 CPetTemplate::nChatBalloon：模板 info/chatBalloon（ChatBalloon.img 的样式号）。
   static int32_t LoadPetChatBalloonIndex(const std::u16string& id);
 
+
   // 按当前激活状态重建宠物列表；在场宠物保留位置/动作状态。
   static void Refresh();
   static void Clear();

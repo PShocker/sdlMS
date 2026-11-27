@@ -196,9 +196,22 @@ void CursorLogicSystem::RunCursorUi() {
   // 按钮不接受 hover（光标命中只允许复活窗自己）。先探测它是否存在。
   const bool revive_modal =
       std::ranges::contains(System::render_systems_, &ReviveUiSystem::Render);
-  for (auto& fn : System::render_systems_ | std::views::reverse) {
+  // 仓库是模态窗口：它下面的窗口一律不参与命中（上面新开的弹窗仍然可用）。
+  const auto storage_it = std::ranges::find(
+      System::render_systems_, &StorageUiSystem::Render);
+  const bool storage_modal = storage_it != System::render_systems_.end();
+  const auto storage_index = storage_modal
+                                 ? storage_it - System::render_systems_.begin()
+                                 : 0;
+  for (auto it = System::render_systems_.rbegin();
+       it != System::render_systems_.rend(); ++it) {
+    auto fn = *it;
     if (revive_modal && fn != ReviveUiSystem::Render) {
       continue;
+    }
+    if (storage_modal &&
+        (System::render_systems_.rend() - it - 1) < storage_index) {
+      continue;  // 在仓库窗口下层
     }
     if (fn == MinimapUiSystem::Render) {
       if (MinimapUiSystem::CursorIn()) {
@@ -262,6 +275,8 @@ void CursorLogicSystem::RunCursorUi() {
         CursorGameInstance::cursor_ui_ = fn;
       }
     } else if (fn == StorageUiSystem::Render) {
+      // 仓库窗口是模态的：打开期间下层界面不接收输入/hover。
+      CursorGameInstance::modal_overlay_ = fn;
       if (StorageUiSystem::CursorIn()) {
         CursorGameInstance::cursor_ui_ = fn;
       }

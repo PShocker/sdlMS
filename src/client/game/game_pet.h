@@ -30,6 +30,11 @@ struct GamePet {
 
   SDL_FPoint pos = {0.0f, 0.0f};
   float hspeed = 0.0f;
+  // 095 CVecCtrlPet：是否处于「追主人」状态。用滞回（80 起 / 40 停）避免
+  // 在阈值附近来回切 move/stand 造成抽搐。
+  bool following = false;
+  // 追主人时起跳的冷却，避免主人在够不到的高台上时宠物一直原地弹跳。
+  uint64_t next_jump = 0;
   float vspeed = 0.0f;
   float hforce = 0.0f;
   int32_t fh = 0;
@@ -42,8 +47,6 @@ struct GamePet {
 
   // 095 CPet::DoAction -> CChatBalloon::MakeBalloon：宠物说话/回应命令的气泡。
   std::optional<GameChatballoon> chatballoon;
-  // true = 名签用默认黑底样式（商城试用宠物用），忽略模板 info/nameTag。
-  bool default_nametag = false;
 
   // 宠物装备道具 id（05010000~；0=无）。主人穿戴/脱下时随宠物消息同步，
   // 远端渲染装备层与能力位判定都从这里取（不走角色帧）。
@@ -57,6 +60,14 @@ struct GamePet {
   int8_t index = 0;
   uint64_t next_pick = 0;
   uint64_t next_idle = 0;
+  // 095 CPet::m_tStand / m_bRandomAction：主人静止累计时长（毫秒）与本轮
+  // 5 秒窗口是否已经掷过随机动作。
+  uint32_t t_stand = 0;
+  bool random_action_done = false;
+  // 095 CPet::Update 用 GetPos/GetPosPrev 判断主人是否移动过。
+  float owner_prev_x = 0.0f;
+  float owner_prev_y = 0.0f;
+  bool owner_prev_valid = false;
 };
 
 }  // namespace sdlms

@@ -14,8 +14,9 @@ class PetLogicSystem {
 
  public:
   static bool Run();
-  // 商城预览用：只推进一只宠物的动作帧（跟随/物理由调用方处理）。
-  static void AnimatePreview(GamePet& pet) { RunAnimate(pet); }
+  // 商城预览用：宠物在人物身后来回跟随（无地形物理），并播放
+  // move / stand 动作。owner 是预览场景里的角色。
+  static void RunPreview(GamePet& pet, const GameCharacter& owner);
 };
 
 }  // namespace sdlms

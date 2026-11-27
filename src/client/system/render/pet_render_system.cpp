@@ -88,60 +88,6 @@ void DrawPetEquip(const GamePet& pet, const GameCharacter& owner) {
                            pet.flip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
 }
 
-// 和 CharacterRenderSystem::RenderNametag 一样：UI/NameTag.img 里每个配色是
-// w（左端）/c（可平铺的中间段）/e（右端）三张图拼出来的名签。
-void RenderNameTagTexture(wz::Node* texture_node,
-                          const std::u16string& text,
-                          float text_w,
-                          float x,
-                          float y,
-                          const SDL_FRect& camera) {
-  auto* texture_w = WzResource::LoadTexture(texture_node->get_child(u"w"));
-  auto* texture_c = WzResource::LoadTexture(texture_node->get_child(u"c"));
-  auto* texture_e = WzResource::LoadTexture(texture_node->get_child(u"e"));
-  if (texture_w == nullptr || texture_c == nullptr || texture_e == nullptr) {
-    return;
-  }
-  auto ow = WzResource::LoadFpoint(texture_node->find(u"w/origin"));
-  auto oc = WzResource::LoadFpoint(texture_node->find(u"c/origin"));
-
-  auto a = static_cast<float>(texture_c->w);
-  // 中间段长度取 c 宽度的整数倍，和原客户端一致。
-  auto result = a * std::ceil(text_w / a);
-
-  SDL_FRect rect;
-  rect.w = result + texture_w->w + texture_e->w;
-  rect.h = texture_c->h;
-  rect.x = x - rect.w / 2;
-  rect.y = y;
-  if (!SDL_HasRectIntersectionFloat(&rect, &camera)) {
-    return;
-  }
-  rect.x = static_cast<float>(static_cast<int>(rect.x - camera.x));
-  rect.y = static_cast<float>(static_cast<int>(rect.y - camera.y));
-  rect.w = static_cast<float>(texture_w->w);
-  rect.h = static_cast<float>(texture_w->h);
-  SDL_RenderTexture(Window::renderer_, texture_w, nullptr, &rect);
-  rect.x += texture_w->w;
-  rect.y = static_cast<float>(static_cast<int>(y - camera.y));
-  rect.w = result;
-  rect.h = static_cast<float>(texture_c->h);
-  SDL_RenderTextureTiled(Window::renderer_, texture_c, nullptr, 1, &rect);
-  rect.x += result;
-  rect.w = static_cast<float>(texture_e->w);
-  SDL_RenderTexture(Window::renderer_, texture_e, nullptr, &rect);
-
-  auto clr =
-      static_cast<wz::Property<int32_t>*>(texture_node->get_child(u"clr"))
-          ->get();
-  auto ca = (clr >> 24) & 0xFF;
-  auto cr = (clr >> 16) & 0xFF;
-  auto cg = (clr >> 8) & 0xFF;
-  auto cb = clr & 0xFF;
-  Freetype::LoadColor(cr, cg, cb, ca);
-  Freetype::DrawLine(text, rect.x - result, y - camera.y);
-}
-
 // 画一只宠物：本体 + 宠物装备 + 说话气泡（+ 地面名签）。
 bool RenderPet(GamePet& pet, const GameCharacter& owner, bool hanging) {
   auto* pet_node = PetGameInstance::LoadPetNode(pet.id);
@@ -238,20 +184,6 @@ void PetRenderSystem::RenderNametag(const GamePet& pet) {
   auto x = pet.pos.x;
   auto y = pet.pos.y + 4.0f;
 
-  // 095 CPetTemplate::nNameTag：模板 info/nameTag 是 UI/NameTag.img 的配色号。
-  auto index = pet.default_nametag
-                   ? -1
-                   : PetGameInstance::LoadPetNameTagIndex(pet.id);
-  if (index >= 0) {
-    auto key_text = std::to_string(index);
-    std::u16string key{key_text.begin(), key_text.end()};
-    static wz::Node* nametag_node = WzResource::ui_->find(u"NameTag.img");
-    auto* texture_node = nametag_node->get_child(key);
-    if (texture_node != nullptr) {
-      RenderNameTagTexture(texture_node, pet.name, w, x, y, camera);
-      return;
-    }
-  }
 
   // 没有配色信息时用普通黑底白字（和怪物/NPC 名签一致）。
   SDL_FRect rect;

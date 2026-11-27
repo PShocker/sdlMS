@@ -35,16 +35,21 @@ namespace sdlms {
 
 namespace {
 
-// 095 CPet::Update：宠物跟着主人跑，落后主人一小段距离。
-constexpr float kFollowGap = 30.0f;  // 与主人保持的水平距离
-constexpr float kFollowDead = 8.0f;  // 小于这个距离就停下
+// 095 CVecCtrlPet::WorkUpdateActive：
+//   目标点就是主人坐标（m_nPositionContext = 0 时不偏移），
+//   水平差 >= nZMassa(80) 才开始追；远距离宠物（longRange）用 170。
+//   速度取主人的移动速度（GetShoeAttr().walkSpeed）。
+constexpr float kFollowStart = 80.0f;      // nZMassa
+constexpr float kFollowStartLong = 170.0f;  // v48 + 20（longRange）
+// 追的时候略快于主人，否则同速永远追不上（095 用随机双倍速度弥补）。
+constexpr float kFollowSpeedScale = 1.25f;
 constexpr float kMoveForce = 1400.0f;
 constexpr float kMaxSpeed = 220.0f;
 constexpr float kFriction = 800.0f;
 constexpr float kGravity = 2000.0f;
 constexpr float kJumpSpeed = -620.0f;  // 起跳速度
-constexpr float kJumpHeight = 40.0f;   // 主人在上方多少像素时起跳
-constexpr uint64_t kPickCooldown = 500;
+constexpr float kJumpHeight = 50.0f;   // 095 rcIn: ±50，主人高出这个距离就起跳
+constexpr uint64_t kPickCooldown = 100;   // 连续捡取的间隔 0.1s
 // 095 CDropPool::TryPickUpDropByPet 的捡取框：x±25、y-50..y+10。
 constexpr float kPickRangeX = 25.0f;
 constexpr float kPickRangeYUp = 50.0f;
@@ -54,8 +59,8 @@ constexpr uint64_t kFullnessInterval = 30000;
 constexpr uint8_t kHungryFullness = 20;
 // 095 CVecCtrlPet：宠物与主人距离过远（跟不上，如主人跳下高台/
 // 传送门瞬移）时拉回主人身边，并在旧位置播 warp 特效掩饰跳变。
-constexpr float kWarpDistX = 220.0f;
-constexpr float kWarpDistY = 160.0f;
+constexpr float kWarpDistX = 300.0f;  // 095 rcOut: ±300 / ±200
+constexpr float kWarpDistY = 200.0f;
 
 bool IsFrameKey(const std::u16string& key) {
   return !key.empty() && std::ranges::all_of(key, [](char16_t c) {
@@ -130,7 +135,9 @@ std::u16string PickAction(const GamePet& pet,
 
 void EnterAction(GamePet& pet, const std::u16string& action, bool loop) {
   auto* node = LoadActionNode(pet, action);
-  if (pet.action == action && pet.ani_index != 0) {
+  // 循环动作已经在播就不要重来：以前用 ani_index != 0 判断，而 move 的
+  // 第一帧索引正好是 0，导致每帧都重置 ani_time，走路动画卡在第一帧。
+  if (loop && pet.action == action) {
     return;
   }
   pet.action = action;
@@ -156,7 +163,6 @@ bool RandomIdleAction(GamePet& pet) {
       auto action = PickAction(pet, {u"hungry", u"cry", u"angry"});
       if (!action.empty()) {
         EnterAction(pet, action, false);
-        pet.next_idle = Window::dt_now_ + 4000;
         return true;
       }
     }
@@ -182,7 +188,6 @@ bool RandomIdleAction(GamePet& pet) {
   }
   std::uniform_int_distribution<size_t> pick(0, candidates.size() - 1);
   EnterAction(pet, candidates[pick(RandomGameInstance::gen_)], false);
-  pet.next_idle = Window::dt_now_ + 4000;
   return true;
 }
 
@@ -235,9 +240,12 @@ void WarpToOwner(GamePet& pet, const GameCharacter& owner) {
     }
   }
   pet.pos = owner.pos;
+  // 拉回到主人身后一点，避免直接叠在人物身上。
+  pet.pos.x = owner.pos.x + (owner.flip == 1 ? -34.0f : 34.0f);
   pet.hspeed = 0.0f;
   pet.vspeed = 0.0f;
   pet.fh = 0;
+  pet.following = false;
   if (!SnapToGround(pet)) {
     pet.fall = true;
   }
@@ -260,6 +268,60 @@ std::optional<SDL_FRect> LoadBorder() {
 }
 
 }  // namespace
+
+// 095：远距离宠物（info/longRange）的起步距离更远。
+float FollowStartDist(const GamePet& pet) {
+  const auto ability = PetGameInstance::LoadPetAbility(pet.id);
+  return (ability & PetGameInstance::kAbilityLongRange) != 0
+             ? kFollowStartLong
+             : kFollowStart;
+}
+
+// 跟随速度系数：离得远全速，接近停止距离时减速，避免冲过头再急停。
+float FollowSpeedScale(const GamePet& pet, float dx) {
+  const float start = FollowStartDist(pet);
+  const float stop = start * 0.5f;
+  const float dist = std::abs(dx);
+  if (dist >= start) {
+    return 1.0f;
+  }
+  const float t = (dist - stop) / std::max(1.0f, start - stop);
+  return 0.45f + 0.55f * std::clamp(t, 0.0f, 1.0f);
+}
+
+// 095 CVecCtrlPet 的跟随开关 + 滞回：超过起步距离开始追，走到停止距离
+// 的一半以内才停，避免在阈值上逐帧抖动。
+void UpdateFollowing(GamePet& pet, float dx) {
+  const float start = FollowStartDist(pet);
+  const float stop = start * 0.5f;
+  const float dist = std::abs(dx);
+  if (pet.following) {
+    if (dist <= stop) {
+      pet.following = false;
+    }
+  } else if (dist >= start) {
+    pet.following = true;
+  }
+}
+
+// 095 CVecCtrlPet::WorkUpdateActive 里贴身时的分离输入：宠物和主人重叠时
+// 朝主人朝向的反方向（身后）挪开，避免挂绳/拉回后一直贴在一起。
+float SeparateSpeed(const GameCharacter& owner, float dx) {
+  constexpr float kBehind = 34.0f;   // 目标：站在主人身后 34px
+  constexpr float kTooClose = 60.0f;  // 只在贴身范围内生效
+  constexpr float kDead = 6.0f;
+  if (std::abs(dx) >= kTooClose) {
+    return 0.0f;
+  }
+  const float desired = owner.flip == 1 ? kBehind : -kBehind;
+  const float gap = desired - dx;   // >0 需要往左挪（dx 变大）
+  if (std::abs(gap) <= kDead) {
+    return 0.0f;
+  }
+  const float speed = std::max(
+      CharacterStatGameInstance::GetHspeedMax() * kFollowSpeedScale, 150.0f);
+  return (gap > 0.0f ? -1.0f : 1.0f) * speed * 0.45f;
+}
 
 void PetLogicSystem::RunAnimate(GamePet& pet) {
   auto* action_node = LoadActionNode(pet, pet.action);
@@ -289,6 +351,43 @@ void PetLogicSystem::RunAnimate(GamePet& pet) {
   pet.ani_index = FrameNumber(*it);
 }
 
+void PetLogicSystem::RunPreview(GamePet& pet, const GameCharacter& owner) {
+  const float delta_time = Window::delta_time_ / 1000.0f;
+  // 095 CVecCtrlPet::WorkUpdateActive 的横向跟随：目标就是主人 x，
+  // 距离超过 nZMassa(80)（longRange 170）才起步，速度取主人移速。
+  const float dx = owner.pos.x - pet.pos.x;
+  const float follow_speed = std::max(
+      CharacterStatGameInstance::GetHspeedMax() * kFollowSpeedScale, 150.0f);
+
+  UpdateFollowing(pet, dx);
+  if (pet.following) {
+    const float speed = follow_speed * FollowSpeedScale(pet, dx);
+    pet.flip = dx > 0.0f;
+    pet.hspeed = (dx > 0.0f ? 1.0f : -1.0f) * speed;
+  } else {
+    pet.hspeed = SeparateSpeed(owner, dx);
+    if (pet.hspeed != 0.0f) {
+      pet.flip = pet.hspeed > 0.0f;
+    }
+  }
+  // 这一帧的位移不要越过停止距离，避免「冲过头再倒回来」的抖动。
+  float step = pet.hspeed * delta_time;
+  if (std::abs(step) > std::abs(dx)) {
+    step = dx;
+  }
+  pet.pos.x += step;
+  // 预览场景没有地形数据，直接贴着主人的脚底站。
+  pet.pos.y = owner.pos.y;
+  pet.fall = false;
+  pet.fh = 1;
+  pet.hang_back = false;
+  pet.vspeed = 0.0f;
+
+  // 动作选择和地图宠物完全一致（095 预览宠物也走 CPet::Update）。
+  RunStateMachine(pet, owner);
+  RunAnimate(pet);
+}
+
 void PetLogicSystem::RunFollow(GamePet& pet, const GameCharacter& owner,
                                bool is_self) {
   const float delta_time = Window::delta_time_ / 1000.0f;
@@ -313,39 +412,89 @@ void PetLogicSystem::RunFollow(GamePet& pet, const GameCharacter& owner,
     pet.hspeed = 0.0f;
     pet.vspeed = 0.0f;
     pet.flip = owner.flip == 1;
+    // 095 HangOnBack：宠物图层 origin 直接对齐主人的 body origin（同一个
+    // 角色锚点）。WZ 里 hang 帧的 origin 是 (13,60)、stand0 只有 (19,39)，
+    // 也就是说换算到我们「pet.pos = 脚下锚点」的坐标系里，pos 直接用
+    // 主人坐标即可，60 的 origin 会把贴图抬到背上。
     pet.pos = owner.pos;
+    // 多图层地图：和主人同页，否则会被本页的物件/前景盖住（看起来消失）。
+    pet.page = owner.page;
     return;
   }
   if (pet.hang_back) {
-    // 主人离开绳子：从主人身上松手，落到地面后继续跟随。
+    // 人物离开绳子：宠物立刻跟着一起动作（不再延迟 200ms，和人物同时跳）。
     pet.hang_back = false;
-    pet.pos = owner.pos;
+    pet.page = owner.page;
+    pet.fall = false;
+    pet.fh = 0;
     pet.hspeed = 0.0f;
     pet.vspeed = 0.0f;
-    if (!SnapToGround(pet)) {
-      pet.fh = 0;
+
+    const auto& input = CharacterLogicSystem::character_action_input_;
+    const int jump_dir = input.contains("left")    ? -1
+                         : input.contains("right") ? 1
+                         : (owner.flip == 1 ? 1 : -1);
+    const bool owner_air =
+        owner.action == u"jump" || owner.action == u"fly" ||
+        owner.action == u"fall" ||
+        (is_self && CharacterLogicSystem::self_fh_ == 0);
+    if (owner_air) {
+      // 095 m_bJumpNext：和人物同时蹬离绳子，带向上的初速 + 人物方向初速。
       pet.fall = true;
+      pet.vspeed = kJumpSpeed;
+      pet.hspeed = static_cast<float>(jump_dir) *
+                   std::max(CharacterStatGameInstance::GetHspeedMax(), 100.0f);
+      pet.flip = jump_dir > 0;
+      return;
     }
+    // 人物已经踩到平台上：直接贴到身后的落脚点。
+    pet.pos = owner.pos;
+    pet.pos.x = owner.pos.x + (owner.flip == 1 ? -34.0f : 34.0f);
+    if (is_self) {
+      pet.fh = CharacterLogicSystem::self_fh_;
+    }
+    pet.fall = pet.fh == 0;
+    pet.following = false;
     return;
   }
 
-  const bool owner_right = owner.flip == 1;
-  // 主人朝右时宠物在左侧（身后），反之亦然。
-  const float target_x = owner.pos.x + (owner_right ? -kFollowGap : kFollowGap);
-  const float dx = target_x - pet.pos.x;
-  const bool owner_above = owner.pos.y < pet.pos.y - kJumpHeight;
+  // 095：目标点 = 主人 x；超过阈值才起步，速度用主人的移动速度。
+  // 起步/停止用滞回，否则在阈值附近会一帧 move 一帧 stand，看起来抽搐。
+  const float dx = owner.pos.x - pet.pos.x;
+  // 主人在上方且水平距离不远才跳（否则主人在够不到的高台上时宠物会原地弹）。
+  const bool owner_above =
+      owner.pos.y < pet.pos.y - kJumpHeight &&
+      std::abs(owner.pos.x - pet.pos.x) < 120.0f;
+  const float follow_speed = std::max(
+      CharacterStatGameInstance::GetHspeedMax() * kFollowSpeedScale, 150.0f);
 
+  UpdateFollowing(pet, dx);
   float hspeed = 0.0f;
-  if (std::abs(dx) > kFollowDead) {
-    hspeed = dx > 0.0f ? kMaxSpeed : -kMaxSpeed;
+  if (pet.following) {
+    const float speed = follow_speed * FollowSpeedScale(pet, dx);
+    hspeed = dx > 0.0f ? speed : -speed;
     pet.flip = dx > 0.0f;
+  } else {
+    // 贴在一起时往主人身后退开（095 的 SetInput 分离）。
+    hspeed = SeparateSpeed(owner, dx);
+    if (hspeed != 0.0f) {
+      pet.flip = hspeed > 0.0f;
+    }
   }
 
   auto border = LoadBorder();
 
   // 空中：主人在上方时用跳跃追上，其余时间保持重力下落。
   if (pet.fh == 0 || pet.fall) {
-    pet.hspeed = hspeed;
+    // 095 CVecCtrl 空中：保留起跳时的水平初速度（跳离绳子/跳台阶），
+    // 输入只做很弱的修正（CUserLocal::RunFall 的 0.1 px/ms² 量级），
+    // 之前每帧直接把 hspeed 覆盖成跟随速度，起跳的横向速度会被瞬间清掉。
+    const float air_input =
+        hspeed > 0.0f ? 1.0f : (hspeed < 0.0f ? -1.0f : 0.0f);
+    pet.hspeed += air_input * 0.1f * Window::delta_time_;
+    const float air_max = std::max(
+        CharacterStatGameInstance::GetHspeedMax() * kFollowSpeedScale, 150.0f);
+    pet.hspeed = std::clamp(pet.hspeed, -air_max, air_max);
     pet.vspeed += kGravity * delta_time;
     auto& fhs = FootholdGameInstance::data_;
     const bool airborne =
@@ -364,11 +513,12 @@ void PetLogicSystem::RunFollow(GamePet& pet, const GameCharacter& owner,
     return;
   }
 
-  // 地面：主人跳上更高的台阶时宠物也跳一下。
-  if (owner_above) {
+  // 地面：主人跳上更高的台阶时宠物也跳一下（带冷却，避免连续弹跳）。
+  if (owner_above && Window::dt_now_ >= pet.next_jump) {
     pet.fall = true;
     pet.vspeed = kJumpSpeed;
     pet.fh = 0;
+    pet.next_jump = Window::dt_now_ + 800;
     return;
   }
 
@@ -408,12 +558,13 @@ void PetLogicSystem::RunPick(GamePet& pet) {
   if (!allow_item && !allow_meso) {
     return;
   }
-  const bool long_range = (ability & PetGameInstance::kAbilityLongRange) != 0;
-  const float range_x = long_range ? 75.0f : kPickRangeX;
-  const float range_up = long_range ? 90.0f : kPickRangeYUp;
-  const float range_down = long_range ? 30.0f : kPickRangeYDown;
+  // 095 CDropPool::TryPickUpDropByPet：矩形固定 x±25、y-50..y+10，
+  // 和 longRange 无关（longRange 只影响跟随时起步距离）。
+  constexpr float range_x = kPickRangeX;
+  constexpr float range_up = kPickRangeYUp;
+  constexpr float range_down = kPickRangeYDown;
   const uint64_t cooldown = (ability & PetGameInstance::kAbilitySweepForDrop) != 0
-                                ? 250
+                                ? 80
                                 : kPickCooldown;
   for (auto& drop : DropGameInstance::data_ | std::views::values) {
     if (drop.type != GameDrop::DropEnum::kLand) {
@@ -439,11 +590,26 @@ void PetLogicSystem::RunPick(GamePet& pet) {
     ClientRequest::SendToHost(pick);
     return;
   }
-  pet.next_pick = Window::dt_now_ + 100;
+  pet.next_pick = Window::dt_now_ + 40;
 }
 
 void PetLogicSystem::RunStateMachine(GamePet& pet,
                                      const GameCharacter& owner) {
+  // 095 CPet::Update：用主人的 GetPos/GetPosPrev 判断主人有没有动，
+  // 这一步和宠物当前动作无关，每帧都要更新。
+  const bool owner_moved =
+      !pet.owner_prev_valid || owner.pos.x != pet.owner_prev_x ||
+      owner.pos.y != pet.owner_prev_y;
+  pet.owner_prev_x = owner.pos.x;
+  pet.owner_prev_y = owner.pos.y;
+  pet.owner_prev_valid = true;
+  if (owner_moved) {
+    pet.t_stand = 0;
+    pet.random_action_done = false;
+  } else {
+    pet.t_stand += static_cast<uint32_t>(Window::delta_time_);
+  }
+
   // 095 HangOnBack：挂在主人背上时只播 hang。
   if (pet.hang_back) {
     auto action = PickAction(pet, {u"hang", u"prone", u"stand0"});
@@ -469,9 +635,8 @@ void PetLogicSystem::RunStateMachine(GamePet& pet,
 
   const bool airborne = pet.fh == 0 || pet.fall;
   const bool moving = std::abs(pet.hspeed) > 1.0f;
-  const float target_x =
-      owner.pos.x + (owner.flip == 1 ? -kFollowGap : kFollowGap);
-  const bool needs_move = std::abs(target_x - pet.pos.x) > kFollowDead;
+  // 095：还没走到跟随范围内（>= nZMassa）就继续播放 move。
+  const bool needs_move = pet.following;
 
   if (airborne) {
     // 095：上升用 jump，下落用 fly（有 fly 动作的宠物）。
@@ -496,19 +661,29 @@ void PetLogicSystem::RunStateMachine(GamePet& pet,
     if (!action.empty()) {
       EnterAction(pet, action, true);
     }
-    pet.next_idle = Window::dt_now_ + 4000;
     return;
   }
-  if (Window::dt_now_ >= pet.next_idle && pet.next_idle != 0) {
-    if (RandomIdleAction(pet)) {
+
+  // 095：m_tStand > 120000（2 分钟）→ DoActionByUserAction(6) = sleep。
+  if (pet.t_stand > 120000) {
+    auto action = PickAction(pet, {u"sleep", u"rest0", u"stand0"});
+    if (!action.empty() && action != pet.action) {
+      EnterAction(pet, action, false);
+      pet.t_stand = 0;
       return;
     }
-    const std::u16string other =
-        pet.action == u"stand0" ? u"stand1" : u"stand0";
-    if (!PickAction(pet, {other.c_str()}).empty()) {
-      EnterAction(pet, other, true);
+  }
+  // 095：m_tStand > 5000 后每 5000ms 窗口掷一次（50% 概率）播随机动作。
+  if (pet.t_stand > 5000 && pet.t_stand % 5000 < 30) {
+    if (!pet.random_action_done) {
+      pet.random_action_done = true;
+      std::uniform_int_distribution<int> coin(0, 1);
+      if (coin(RandomGameInstance::gen_) == 1 && RandomIdleAction(pet)) {
+        return;
+      }
     }
-    pet.next_idle = Window::dt_now_ + 4000;
+  } else if (pet.t_stand % 5000 >= 30) {
+    pet.random_action_done = false;
   }
 }
 

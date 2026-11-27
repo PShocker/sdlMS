@@ -18,29 +18,40 @@
 
 namespace sdlms {
 
+
 void EffectRenderSystem::RenderEffect(SDL_FPoint pos, GameEffect& g_effect) {
   auto current_time = Window::dt_time_;
   if (current_time <= g_effect.delay) {
     return;
   }
-  wz::Node* node;
+  wz::Node* node = nullptr;
   switch ((GameEffect::EffectSubType)g_effect.lv) {
     case GameEffect::EffectSubType::kCharacter: {
-      node = WzResource::character_->find(g_effect.id);
+      if (WzResource::character_ != nullptr) {
+        node = WzResource::character_->find(g_effect.id);
+      }
       break;
     }
     case GameEffect::EffectSubType::kEffect: {
-      node = WzResource::effect_->find(g_effect.id);
+      if (WzResource::effect_ != nullptr) {
+        node = WzResource::effect_->find(g_effect.id);
+      }
       break;
     }
     case GameEffect::EffectSubType::kItem: {
-      node = WzResource::item_->find(g_effect.id);
+      if (WzResource::item_ != nullptr) {
+        node = WzResource::item_->find(g_effect.id);
+      }
       break;
     }
     case GameEffect::EffectSubType::kSkill: {
-      node = WzResource::skill_->find(g_effect.id);
+      if (WzResource::skill_ != nullptr) {
+        node = WzResource::skill_->find(g_effect.id);
+      }
       break;
     }
+    default:
+      return;
   }
   auto pos2 = g_effect.pos.value();
   auto index = std::to_string(g_effect.index);
@@ -55,6 +66,9 @@ void EffectRenderSystem::RenderEffect(SDL_FPoint pos, GameEffect& g_effect) {
     return;
   }
   auto texture = WzResource::LoadTexture(texture_node);
+  if (texture == nullptr) {
+    return;
+  }
   auto origin = WzResource::LoadFpoint(texture_node->get_child(u"origin"));
   // 095 HITEFFECT 在生成时固定攻击方向，之后不跟随怪物 flip。
   const bool flip = g_effect.flip.value_or(false);

@@ -86,6 +86,8 @@ class NoticeUiSystem : public UiComponentHost<NoticeUiSystem> {
     kShopPrice,
     // 摆摊：通用文本提示（文本放 notice_text_）。
     kShopNotice,
+    // 仓库：数字输入（提示文本放 notice_text_，默认值放 number_value_）。
+    kStorageCount,
   };
 
   static inline NoticeEnum type_;
@@ -95,10 +97,14 @@ class NoticeUiSystem : public UiComponentHost<NoticeUiSystem> {
   static inline std::function<void()> on_confirm_;
   // kShopNotice 的提示文本。
   static inline std::u16string notice_text_;
+  // kStorageCount 输入框的初始值。
+  static inline uint64_t number_value_ = 0;
 
   static bool Render();
 
   static void Open();
+  // 读取当前输入框里的数字（无输入时返回 0）。
+  static uint64_t LoadInputNumber();
   static void OpenNoSpace(ItemEnum type);
   static void Close();
 

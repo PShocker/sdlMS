@@ -20,6 +20,7 @@
 
 namespace sdlms {
 
+
 bool EffectLogicSystem::RunDamage(GameEffect& g_effect) {
   bool r = false;
   auto current_time = Window::dt_time_;
@@ -51,24 +52,39 @@ bool EffectLogicSystem::RunEffect(GameEffect& g_effect) {
     return r;
   }
   g_effect.time += Window::delta_time_;
-  wz::Node* node;
+  // 攻击/受击特效的 id 可能在该 WZ 里根本不存在，或者 lv 是非法枚举；
+  // 之前 node 未初始化会直接 node->type 崩溃（攻击闪退）。
+  wz::Node* node = nullptr;
   switch ((GameEffect::EffectSubType)g_effect.lv) {
     case GameEffect::EffectSubType::kCharacter: {
-      node = WzResource::character_->find(g_effect.id);
+      if (WzResource::character_ != nullptr) {
+        node = WzResource::character_->find(g_effect.id);
+      }
       break;
     }
     case GameEffect::EffectSubType::kEffect: {
-      node = WzResource::effect_->find(g_effect.id);
+      if (WzResource::effect_ != nullptr) {
+        node = WzResource::effect_->find(g_effect.id);
+      }
       break;
     }
     case GameEffect::EffectSubType::kItem: {
-      node = WzResource::item_->find(g_effect.id);
+      if (WzResource::item_ != nullptr) {
+        node = WzResource::item_->find(g_effect.id);
+      }
       break;
     }
     case GameEffect::EffectSubType::kSkill: {
-      node = WzResource::skill_->find(g_effect.id);
+      if (WzResource::skill_ != nullptr) {
+        node = WzResource::skill_->find(g_effect.id);
+      }
       break;
     }
+    default:
+      return true;  // 未知类型，直接结束
+  }
+  if (node == nullptr) {
+    return true;  // 资源缺失：结束这个特效，交给渲染端跳过
   }
   auto index = std::to_string(g_effect.index);
   wz::Node* texture_node = node;

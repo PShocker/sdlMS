@@ -17,9 +17,11 @@ void Tab::Render() const {
     const auto& state = selected == i ? on_state : off_state;
     SDL_Texture* texture = WzResource::LoadTexture(
         node->get_child(state)->get_child(std::to_string(i)));
+    // WZ 里选中态比普通态高 1px（19 vs 18），两者底边对齐在同一行，
+    // 所以这里按 rect 底边对齐绘制，避免切换页签时整体上下跳 1px。
     SDL_FRect pos_rect{
         static_cast<float>((int)rects[i].x),
-        static_cast<float>((int)rects[i].y),
+        static_cast<float>((int)(rects[i].y + rects[i].h - texture->h)),
         static_cast<float>(texture->w),
         static_cast<float>(texture->h),
     };

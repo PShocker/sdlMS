@@ -2576,7 +2576,6 @@ void HandleCashShopClick(float mx, float my) {
         pet.ani_time = 0;
         pet.page = self.page;
         pet.flip = self.flip == 1;
-        pet.default_nametag = true;
         pet.pos = {self.pos.x + (self.flip == 1 ? -34.0f : 34.0f),
                    self.pos.y};
         g_preview_pet = pet;
@@ -2821,19 +2820,6 @@ bool CashShopUiSystem::Run() {
   const float dt = static_cast<float>(Window::delta_time_) / 1000.0f;
   // Physic 内部会除以 delta_time，dt 为 0 会算出 NaN（人物会整个消失）。
   if (dt <= 0.0f) {
-    // 预览里的试用宠物：跟着人物走并播放站立/移动动画。
-  if (g_preview_pet.has_value()) {
-    auto& pet = *g_preview_pet;
-    pet.page = self.page;
-    pet.flip = self.flip == 1;
-    const float target_x =
-        self.pos.x + (self.flip == 1 ? -34.0f : 34.0f);
-    pet.pos.x += (target_x - pet.pos.x) * 0.2f;
-    pet.pos.y = self.pos.y;
-    PetLogicSystem::AnimatePreview(pet);
-  }
-
-  CharacterLogicSystem::RunAnimate(self);
     return true;
   }
   // 试穿窗口里的角色始终按默认颜色/透明度（255）绘制。
@@ -2986,6 +2972,15 @@ bool CashShopUiSystem::Run() {
       }
       self.action_animate = true;
     }
+  }
+
+  // 预览里的试用宠物：跟随人物并播放 move/stand 动画。
+  if (g_preview_pet.has_value()) {
+    g_preview_pet->page = self.page;
+    PetLogicSystem::RunPreview(*g_preview_pet, self);
+    // 预览宠物和人物一样限制在场景内，走到边缘时不会被裁掉（看不见）。
+    g_preview_pet->pos.x = std::clamp(g_preview_pet->pos.x, kSceneX + 4.0f,
+                                      kSceneX + kSceneW - 4.0f);
   }
 
   CharacterLogicSystem::RunAnimate(self);
