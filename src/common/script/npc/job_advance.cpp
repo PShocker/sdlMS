@@ -16,26 +16,19 @@ namespace sdlms {
 
 namespace {
 
-enum class StatKind {
-  kStr,
-  kDex,
-  kInt,
-};
-
 struct FirstJob {
   const char16_t* job_id;
   const char16_t* name;
   const char16_t* npc_id;
   uint32_t level;
-  StatKind stat;
-  uint32_t stat_requirement;
 };
 
 // 095 get_job_change_level：法师 8 级，其余职业 10 级。
-constexpr FirstJob kWarrior{u"100", u"战士", u"0000511", 10, StatKind::kStr, 35};
-constexpr FirstJob kMagician{u"200", u"法师", u"0000313", 8, StatKind::kInt, 20};
-constexpr FirstJob kBowman{u"300", u"弓箭手", u"0000221", 10, StatKind::kDex, 25};
-constexpr FirstJob kThief{u"400", u"飞侠", u"0000411", 10, StatKind::kDex, 25};
+// 一转不要求能力值（只要等级达标）。
+constexpr FirstJob kWarrior{u"100", u"战士", u"0000511", 10};
+constexpr FirstJob kMagician{u"200", u"法师", u"0000313", 8};
+constexpr FirstJob kBowman{u"300", u"弓箭手", u"0000221", 10};
+constexpr FirstJob kThief{u"400", u"飞侠", u"0000411", 10};
 
 const FirstJob* current_job = nullptr;
 
@@ -49,30 +42,6 @@ bool IsBeginner() {
   return job.empty() || job == u"0" || job == u"000";
 }
 
-uint32_t LoadStat(StatKind kind) {
-  switch (kind) {
-    case StatKind::kStr:
-      return CharacterStatGameInstance::GetStrAp();
-    case StatKind::kDex:
-      return CharacterStatGameInstance::GetDexAp();
-    case StatKind::kInt:
-      return CharacterStatGameInstance::GetIntAp();
-  }
-  return 0;
-}
-
-const char16_t* StatName(StatKind kind) {
-  switch (kind) {
-    case StatKind::kStr:
-      return u"力量";
-    case StatKind::kDex:
-      return u"敏捷";
-    case StatKind::kInt:
-      return u"智力";
-  }
-  return u"";
-}
-
 void CloseDialog() { NpcDlgUiSystem::Close(); }
 
 void AdvanceJob() {
@@ -83,14 +52,16 @@ void AdvanceJob() {
   self.job = current_job->job_id;
 
   JobSkillGameInstance::RecalculateRemainSp();
-  CharacterStatGameInstance::Update();
+  // 一转成功后重置 AP：已加的能力点全部返还，由玩家按新职业重新分配。
+  CharacterStatGameInstance::ResetAp();
   SkillUiSystem::SelectFirstJobTab();
   // 下一帧把新职业同步给服务器和同地图玩家。
   CharacterLogicSystem::cct_.map_id = SceneSystemInstance::map_id_;
   AudioGameInstance::PlayNow(u"Game.img/LevelUp");
 
   NpcDlgUiSystem::text_ =
-      u"恭喜你成为" + std::u16string(current_job->name) + u"！";
+      u"恭喜你成为" + std::u16string(current_job->name) +
+      u"！能力点（AP）已重置，请重新分配。";
   NpcDlgUiSystem::buttons_ = NpcDlgUiSystem::NpcDlgButton::kOk;
   NpcDlgUiSystem::on_ok_ = CloseDialog;
   NpcDlgUiSystem::time_ = Window::dt_now_;
@@ -125,11 +96,6 @@ void Start(const FirstJob& job) {
   } else if (self.level < job.level) {
     NpcDlgUiSystem::text_ = u"等级不够。需要达到" + ToU16(job.level) +
                             u"级才能转职为" + name + u"。";
-  } else if (LoadStat(job.stat) < job.stat_requirement) {
-    NpcDlgUiSystem::text_ = u"属性不够。需要" +
-                            ToU16(job.stat_requirement) + u"点" +
-                            std::u16string(StatName(job.stat)) +
-                            u"才能转职为" + name + u"。";
   } else {
     NpcDlgUiSystem::text_ =
         u"你已达到转职条件。是否愿意成为" + name + u"？";

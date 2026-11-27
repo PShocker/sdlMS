@@ -39,6 +39,10 @@ table Character{
 
     // 人物唯一标识：高32位=创建时间戳(秒)，低32位=随机数。
     id:uint64;
+
+    // 攻击速度（095 CharacterData::nAttackSpeed）：影响远程玩家看到
+    // 你的攻击/技能动作播放速度，缺省 0 表示按标准速度。
+    attack_speed:int8;
 }
 
 table Movement{
@@ -132,11 +136,17 @@ table Face{
 
 enum ChatEnum : int8 {
     MAP,
+    WHISPER,  // 私聊：to_name=目标名字
+    PARTY,
+    GUILD,
 }
 
 table CharacterChat{
     type:ChatEnum;
     payload:[uint16];
+    // 私聊目标（客户端按名字填 to_name，服务端解析后回填 to_id）
+    to_id:uint64;
+    to_name:[uint16];
 }
 
 table EquipScroll{

@@ -28,6 +28,7 @@
 #include "src/client/system/ui/npc_dlg_ui_system.h"
 #include "src/client/system/ui/package_ui_system.h"
 #include "src/client/system/ui/party_ui_system.h"
+#include "src/client/system/ui/player_shop_ui_system.h"
 #include "src/client/system/ui/pet_info_ui_system.h"
 #include "src/client/system/ui/quest_alarm_ui_system.h"
 #include "src/client/system/ui/quest_ui_system.h"
@@ -40,6 +41,7 @@
 #include "src/client/system/ui/statusbar_ui_system.h"
 #include "src/client/system/ui/storage_ui_system.h"
 #include "src/client/system/ui/trade_ui_system.h"
+#include "src/client/system/ui/weather_dlg_ui_system.h"
 #include "src/client/system/ui/worldmap_ui_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
@@ -49,6 +51,7 @@
 #include "src/common/request/client_request.h"
 #include "src/common/script/script.h"
 #include "src/common/wz/wz_resource.h"
+#include "src/server/server_main.h"
 
 #include <SDL3/SDL_mouse.h>
 #include <SDL3/SDL_rect.h>
@@ -241,6 +244,12 @@ void CursorLogicSystem::RunCursorUi() {
       // 095 开房设置弹窗是模态的：打开期间下层不接受输入/hover。
       CursorGameInstance::modal_overlay_ = fn;
       if (MinigameSetupUiSystem::CursorIn()) {
+        CursorGameInstance::cursor_ui_ = fn;
+      }
+    } else if (fn == WeatherDlgUiSystem::Render) {
+      // 095 CUtilDlgEx 天气留言框：模态，下层不接受输入/hover。
+      CursorGameInstance::modal_overlay_ = fn;
+      if (WeatherDlgUiSystem::CursorIn()) {
         CursorGameInstance::cursor_ui_ = fn;
       }
     } else if (fn == ReviveUiSystem::Render) {
@@ -582,6 +591,37 @@ bool CursorLogicSystem::EventClickNpc(GameNpc npc) {
   return r;
 }
 
+bool CursorLogicSystem::EventHiredShop(SDL_Event* event) {
+  // 095 HiredShop：双击地图上的雇员物件进入雇佣商店。
+  if (event->type != SDL_EVENT_MOUSE_BUTTON_UP ||
+      event->button.button != SDL_BUTTON_LEFT ||
+      event->button.clicks < 2) {
+    return false;
+  }
+  if (CursorGameInstance::cursor_ui_ != nullptr) {
+    return false;
+  }
+  auto& camera = CameraGameInstance::camera_;
+  for (const auto& [owner, stall] : PlayerShopUiSystem::hired_stalls_) {
+    SDL_FRect r{
+        stall.pos.x - camera.x - 40,
+        stall.pos.y - camera.y - 110,
+        80,
+        120,
+    };
+    if (SDL_PointInRectFloat(&Window::mouse_pos_, &r)) {
+      if (owner == ServerMain::local_addr_) {
+        // 摊主本人：远程管理货架（同时结算离线收入）。
+        PlayerShopUiSystem::ManageHired(owner);
+      } else {
+        PlayerShopUiSystem::OpenBrowse(owner);
+      }
+      return true;
+    }
+  }
+  return false;
+}
+
 bool CursorLogicSystem::EventNpc(SDL_Event* event) {
   if (CursorGameInstance::cursor_hand_net_.has_value()) {
     return false;
@@ -615,6 +655,9 @@ bool CursorLogicSystem::Event(SDL_Event* event) {
     return false;
   }
   if (EventNpc(event)) {
+    return false;
+  }
+  if (EventHiredShop(event)) {
     return false;
   }
 

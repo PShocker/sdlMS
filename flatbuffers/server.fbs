@@ -321,6 +321,10 @@ table ServerCharacterShop {
     meso:uint64;         // 金币（购买后买家余额 / 摊主收入）
     chat:[uint16];       // 店名 / 提示文本
     goods:[ShopGoods];   // 货架（进店时）
+    // 雇佣商店（095 HiredShop）：执照道具 0503000x + 固定摆位；0=普通摆摊。
+    hired_item:uint32;
+    pos_x:int32;
+    pos_y:int32;
 }
 
 // MapleChat 聊天室同步（095 CUIMessenger，SP 143 子码 0-8）。
@@ -340,4 +344,21 @@ table ServerCharacterMessenger {
     players:[Player];
     x:uint8;
     chat:[uint16];
+}
+
+// 天气道具广播（095 CField::OnBlowWeather -> BlowWeather）：
+// 同图所有玩家按 item 的 info/floatType 显示 FloatNotice，duration 毫秒后消失。
+table ServerCharacterWeather {
+    client_id:uint64;    // 使用者
+    item_id:uint32;
+    duration:uint32;
+    message:[uint16];
+}
+
+// 好友上线/下线通知：服务端在某角色登录进图或断线时广播给所有客户端，
+// 客户端按自己的好友列表（人物唯一 id）过滤后弹出 poptip。
+table ServerFriendOnline {
+    id:uint64;       // 人物唯一 id：高32位=创建时间戳(秒)，低32位=随机数
+    name:[uint16];   // 当前名字（好友改名时顺带刷新本地显示）
+    online:bool;     // true=上线 false=下线
 }

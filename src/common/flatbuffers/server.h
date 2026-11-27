@@ -201,6 +201,14 @@ struct ServerCharacterMessenger;
 struct ServerCharacterMessengerBuilder;
 struct ServerCharacterMessengerT;
 
+struct ServerCharacterWeather;
+struct ServerCharacterWeatherBuilder;
+struct ServerCharacterWeatherT;
+
+struct ServerFriendOnline;
+struct ServerFriendOnlineBuilder;
+struct ServerFriendOnlineT;
+
 enum MobEventUnion : uint8_t {
   MobEventUnion_NONE = 0,
   MobEventUnion_ServerMobMv = 1,
@@ -4579,6 +4587,9 @@ struct ServerCharacterShopT : public ::flatbuffers::NativeTable {
   uint64_t meso = 0;
   std::vector<uint16_t> chat{};
   std::vector<std::unique_ptr<fbs::ShopGoodsT>> goods{};
+  uint32_t hired_item = 0;
+  int32_t pos_x = 0;
+  int32_t pos_y = 0;
   ServerCharacterShopT() = default;
   ServerCharacterShopT(const ServerCharacterShopT &o);
   ServerCharacterShopT(ServerCharacterShopT&&) FLATBUFFERS_NOEXCEPT = default;
@@ -4596,7 +4607,10 @@ struct ServerCharacterShop FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
     VT_Y = 12,
     VT_MESO = 14,
     VT_CHAT = 16,
-    VT_GOODS = 18
+    VT_GOODS = 18,
+    VT_HIRED_ITEM = 20,
+    VT_POS_X = 22,
+    VT_POS_Y = 24
   };
   uint8_t step() const {
     return GetField<uint8_t>(VT_STEP, 0);
@@ -4646,6 +4660,24 @@ struct ServerCharacterShop FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
   ::flatbuffers::Vector<::flatbuffers::Offset<fbs::ShopGoods>> *mutable_goods() {
     return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::ShopGoods>> *>(VT_GOODS);
   }
+  uint32_t hired_item() const {
+    return GetField<uint32_t>(VT_HIRED_ITEM, 0);
+  }
+  bool mutate_hired_item(uint32_t _hired_item = 0) {
+    return SetField<uint32_t>(VT_HIRED_ITEM, _hired_item, 0);
+  }
+  int32_t pos_x() const {
+    return GetField<int32_t>(VT_POS_X, 0);
+  }
+  bool mutate_pos_x(int32_t _pos_x = 0) {
+    return SetField<int32_t>(VT_POS_X, _pos_x, 0);
+  }
+  int32_t pos_y() const {
+    return GetField<int32_t>(VT_POS_Y, 0);
+  }
+  bool mutate_pos_y(int32_t _pos_y = 0) {
+    return SetField<int32_t>(VT_POS_Y, _pos_y, 0);
+  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -4661,6 +4693,9 @@ struct ServerCharacterShop FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
            VerifyOffset(verifier, VT_GOODS) &&
            verifier.VerifyVector(goods()) &&
            verifier.VerifyVectorOfTables(goods()) &&
+           VerifyField<uint32_t>(verifier, VT_HIRED_ITEM, 4) &&
+           VerifyField<int32_t>(verifier, VT_POS_X, 4) &&
+           VerifyField<int32_t>(verifier, VT_POS_Y, 4) &&
            verifier.EndTable();
   }
   ServerCharacterShopT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -4696,6 +4731,15 @@ struct ServerCharacterShopBuilder {
   void add_goods(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::ShopGoods>>> goods) {
     fbb_.AddOffset(ServerCharacterShop::VT_GOODS, goods);
   }
+  void add_hired_item(uint32_t hired_item) {
+    fbb_.AddElement<uint32_t>(ServerCharacterShop::VT_HIRED_ITEM, hired_item, 0);
+  }
+  void add_pos_x(int32_t pos_x) {
+    fbb_.AddElement<int32_t>(ServerCharacterShop::VT_POS_X, pos_x, 0);
+  }
+  void add_pos_y(int32_t pos_y) {
+    fbb_.AddElement<int32_t>(ServerCharacterShop::VT_POS_Y, pos_y, 0);
+  }
   explicit ServerCharacterShopBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -4716,10 +4760,16 @@ inline ::flatbuffers::Offset<ServerCharacterShop> CreateServerCharacterShop(
     uint32_t y = 0,
     uint64_t meso = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> chat = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::ShopGoods>>> goods = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::ShopGoods>>> goods = 0,
+    uint32_t hired_item = 0,
+    int32_t pos_x = 0,
+    int32_t pos_y = 0) {
   ServerCharacterShopBuilder builder_(_fbb);
   builder_.add_meso(meso);
   builder_.add_to_id(to_id);
+  builder_.add_pos_y(pos_y);
+  builder_.add_pos_x(pos_x);
+  builder_.add_hired_item(hired_item);
   builder_.add_goods(goods);
   builder_.add_chat(chat);
   builder_.add_y(y);
@@ -4738,7 +4788,10 @@ inline ::flatbuffers::Offset<ServerCharacterShop> CreateServerCharacterShopDirec
     uint32_t y = 0,
     uint64_t meso = 0,
     const std::vector<uint16_t> *chat = nullptr,
-    const std::vector<::flatbuffers::Offset<fbs::ShopGoods>> *goods = nullptr) {
+    const std::vector<::flatbuffers::Offset<fbs::ShopGoods>> *goods = nullptr,
+    uint32_t hired_item = 0,
+    int32_t pos_x = 0,
+    int32_t pos_y = 0) {
   auto chat__ = chat ? _fbb.CreateVector<uint16_t>(*chat) : 0;
   auto goods__ = goods ? _fbb.CreateVector<::flatbuffers::Offset<fbs::ShopGoods>>(*goods) : 0;
   return fbs::CreateServerCharacterShop(
@@ -4750,7 +4803,10 @@ inline ::flatbuffers::Offset<ServerCharacterShop> CreateServerCharacterShopDirec
       y,
       meso,
       chat__,
-      goods__);
+      goods__,
+      hired_item,
+      pos_x,
+      pos_y);
 }
 
 ::flatbuffers::Offset<ServerCharacterShop> CreateServerCharacterShop(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterShopT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -4908,6 +4964,218 @@ inline ::flatbuffers::Offset<ServerCharacterMessenger> CreateServerCharacterMess
 }
 
 ::flatbuffers::Offset<ServerCharacterMessenger> CreateServerCharacterMessenger(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterMessengerT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct ServerCharacterWeatherT : public ::flatbuffers::NativeTable {
+  typedef ServerCharacterWeather TableType;
+  uint64_t client_id = 0;
+  uint32_t item_id = 0;
+  uint32_t duration = 0;
+  std::vector<uint16_t> message{};
+};
+
+struct ServerCharacterWeather FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerCharacterWeatherT NativeTableType;
+  typedef ServerCharacterWeatherBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_CLIENT_ID = 4,
+    VT_ITEM_ID = 6,
+    VT_DURATION = 8,
+    VT_MESSAGE = 10
+  };
+  uint64_t client_id() const {
+    return GetField<uint64_t>(VT_CLIENT_ID, 0);
+  }
+  bool mutate_client_id(uint64_t _client_id = 0) {
+    return SetField<uint64_t>(VT_CLIENT_ID, _client_id, 0);
+  }
+  uint32_t item_id() const {
+    return GetField<uint32_t>(VT_ITEM_ID, 0);
+  }
+  bool mutate_item_id(uint32_t _item_id = 0) {
+    return SetField<uint32_t>(VT_ITEM_ID, _item_id, 0);
+  }
+  uint32_t duration() const {
+    return GetField<uint32_t>(VT_DURATION, 0);
+  }
+  bool mutate_duration(uint32_t _duration = 0) {
+    return SetField<uint32_t>(VT_DURATION, _duration, 0);
+  }
+  const ::flatbuffers::Vector<uint16_t> *message() const {
+    return GetPointer<const ::flatbuffers::Vector<uint16_t> *>(VT_MESSAGE);
+  }
+  ::flatbuffers::Vector<uint16_t> *mutable_message() {
+    return GetPointer<::flatbuffers::Vector<uint16_t> *>(VT_MESSAGE);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint64_t>(verifier, VT_CLIENT_ID, 8) &&
+           VerifyField<uint32_t>(verifier, VT_ITEM_ID, 4) &&
+           VerifyField<uint32_t>(verifier, VT_DURATION, 4) &&
+           VerifyOffset(verifier, VT_MESSAGE) &&
+           verifier.VerifyVector(message()) &&
+           verifier.EndTable();
+  }
+  ServerCharacterWeatherT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerCharacterWeatherT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerCharacterWeather> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterWeatherT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ServerCharacterWeatherBuilder {
+  typedef ServerCharacterWeather Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_client_id(uint64_t client_id) {
+    fbb_.AddElement<uint64_t>(ServerCharacterWeather::VT_CLIENT_ID, client_id, 0);
+  }
+  void add_item_id(uint32_t item_id) {
+    fbb_.AddElement<uint32_t>(ServerCharacterWeather::VT_ITEM_ID, item_id, 0);
+  }
+  void add_duration(uint32_t duration) {
+    fbb_.AddElement<uint32_t>(ServerCharacterWeather::VT_DURATION, duration, 0);
+  }
+  void add_message(::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> message) {
+    fbb_.AddOffset(ServerCharacterWeather::VT_MESSAGE, message);
+  }
+  explicit ServerCharacterWeatherBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ServerCharacterWeather> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ServerCharacterWeather>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ServerCharacterWeather> CreateServerCharacterWeather(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t client_id = 0,
+    uint32_t item_id = 0,
+    uint32_t duration = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> message = 0) {
+  ServerCharacterWeatherBuilder builder_(_fbb);
+  builder_.add_client_id(client_id);
+  builder_.add_message(message);
+  builder_.add_duration(duration);
+  builder_.add_item_id(item_id);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<ServerCharacterWeather> CreateServerCharacterWeatherDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t client_id = 0,
+    uint32_t item_id = 0,
+    uint32_t duration = 0,
+    const std::vector<uint16_t> *message = nullptr) {
+  auto message__ = message ? _fbb.CreateVector<uint16_t>(*message) : 0;
+  return fbs::CreateServerCharacterWeather(
+      _fbb,
+      client_id,
+      item_id,
+      duration,
+      message__);
+}
+
+::flatbuffers::Offset<ServerCharacterWeather> CreateServerCharacterWeather(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterWeatherT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct ServerFriendOnlineT : public ::flatbuffers::NativeTable {
+  typedef ServerFriendOnline TableType;
+  uint64_t id = 0;
+  std::vector<uint16_t> name{};
+  bool online = false;
+};
+
+struct ServerFriendOnline FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerFriendOnlineT NativeTableType;
+  typedef ServerFriendOnlineBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_ID = 4,
+    VT_NAME = 6,
+    VT_ONLINE = 8
+  };
+  uint64_t id() const {
+    return GetField<uint64_t>(VT_ID, 0);
+  }
+  bool mutate_id(uint64_t _id = 0) {
+    return SetField<uint64_t>(VT_ID, _id, 0);
+  }
+  const ::flatbuffers::Vector<uint16_t> *name() const {
+    return GetPointer<const ::flatbuffers::Vector<uint16_t> *>(VT_NAME);
+  }
+  ::flatbuffers::Vector<uint16_t> *mutable_name() {
+    return GetPointer<::flatbuffers::Vector<uint16_t> *>(VT_NAME);
+  }
+  bool online() const {
+    return GetField<uint8_t>(VT_ONLINE, 0) != 0;
+  }
+  bool mutate_online(bool _online = 0) {
+    return SetField<uint8_t>(VT_ONLINE, static_cast<uint8_t>(_online), 0);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint64_t>(verifier, VT_ID, 8) &&
+           VerifyOffset(verifier, VT_NAME) &&
+           verifier.VerifyVector(name()) &&
+           VerifyField<uint8_t>(verifier, VT_ONLINE, 1) &&
+           verifier.EndTable();
+  }
+  ServerFriendOnlineT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerFriendOnlineT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerFriendOnline> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerFriendOnlineT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ServerFriendOnlineBuilder {
+  typedef ServerFriendOnline Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_id(uint64_t id) {
+    fbb_.AddElement<uint64_t>(ServerFriendOnline::VT_ID, id, 0);
+  }
+  void add_name(::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> name) {
+    fbb_.AddOffset(ServerFriendOnline::VT_NAME, name);
+  }
+  void add_online(bool online) {
+    fbb_.AddElement<uint8_t>(ServerFriendOnline::VT_ONLINE, static_cast<uint8_t>(online), 0);
+  }
+  explicit ServerFriendOnlineBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ServerFriendOnline> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ServerFriendOnline>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ServerFriendOnline> CreateServerFriendOnline(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t id = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> name = 0,
+    bool online = false) {
+  ServerFriendOnlineBuilder builder_(_fbb);
+  builder_.add_id(id);
+  builder_.add_name(name);
+  builder_.add_online(online);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<ServerFriendOnline> CreateServerFriendOnlineDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t id = 0,
+    const std::vector<uint16_t> *name = nullptr,
+    bool online = false) {
+  auto name__ = name ? _fbb.CreateVector<uint16_t>(*name) : 0;
+  return fbs::CreateServerFriendOnline(
+      _fbb,
+      id,
+      name__,
+      online);
+}
+
+::flatbuffers::Offset<ServerFriendOnline> CreateServerFriendOnline(::flatbuffers::FlatBufferBuilder &_fbb, const ServerFriendOnlineT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
 inline ServerHeartbeatT *ServerHeartbeat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ServerHeartbeatT>(new ServerHeartbeatT());
@@ -6742,7 +7010,10 @@ inline ServerCharacterShopT::ServerCharacterShopT(const ServerCharacterShopT &o)
         x(o.x),
         y(o.y),
         meso(o.meso),
-        chat(o.chat) {
+        chat(o.chat),
+        hired_item(o.hired_item),
+        pos_x(o.pos_x),
+        pos_y(o.pos_y) {
   goods.reserve(o.goods.size());
   for (const auto &goods_ : o.goods) { goods.emplace_back((goods_) ? new fbs::ShopGoodsT(*goods_) : nullptr); }
 }
@@ -6756,6 +7027,9 @@ inline ServerCharacterShopT &ServerCharacterShopT::operator=(ServerCharacterShop
   std::swap(meso, o.meso);
   std::swap(chat, o.chat);
   std::swap(goods, o.goods);
+  std::swap(hired_item, o.hired_item);
+  std::swap(pos_x, o.pos_x);
+  std::swap(pos_y, o.pos_y);
   return *this;
 }
 
@@ -6776,6 +7050,9 @@ inline void ServerCharacterShop::UnPackTo(ServerCharacterShopT *_o, const ::flat
   { auto _e = meso(); _o->meso = _e; }
   { auto _e = chat(); if (_e) { _o->chat.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->chat[_i] = _e->Get(_i); } } else { _o->chat.resize(0); } }
   { auto _e = goods(); if (_e) { _o->goods.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->goods[_i]) { _e->Get(_i)->UnPackTo(_o->goods[_i].get(), _resolver); } else { _o->goods[_i] = std::unique_ptr<fbs::ShopGoodsT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->goods.resize(0); } }
+  { auto _e = hired_item(); _o->hired_item = _e; }
+  { auto _e = pos_x(); _o->pos_x = _e; }
+  { auto _e = pos_y(); _o->pos_y = _e; }
 }
 
 inline ::flatbuffers::Offset<ServerCharacterShop> CreateServerCharacterShop(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterShopT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -6794,6 +7071,9 @@ inline ::flatbuffers::Offset<ServerCharacterShop> ServerCharacterShop::Pack(::fl
   auto _meso = _o->meso;
   auto _chat = _o->chat.size() ? _fbb.CreateVector(_o->chat) : 0;
   auto _goods = _o->goods.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::ShopGoods>> (_o->goods.size(), [](size_t i, _VectorArgs *__va) { return CreateShopGoods(*__va->__fbb, __va->__o->goods[i].get(), __va->__rehasher); }, &_va ) : 0;
+  auto _hired_item = _o->hired_item;
+  auto _pos_x = _o->pos_x;
+  auto _pos_y = _o->pos_y;
   return fbs::CreateServerCharacterShop(
       _fbb,
       _step,
@@ -6803,7 +7083,10 @@ inline ::flatbuffers::Offset<ServerCharacterShop> ServerCharacterShop::Pack(::fl
       _y,
       _meso,
       _chat,
-      _goods);
+      _goods,
+      _hired_item,
+      _pos_x,
+      _pos_y);
 }
 
 inline ServerCharacterMessengerT::ServerCharacterMessengerT(const ServerCharacterMessengerT &o)
@@ -6865,6 +7148,73 @@ inline ::flatbuffers::Offset<ServerCharacterMessenger> ServerCharacterMessenger:
       _players,
       _x,
       _chat);
+}
+
+inline ServerCharacterWeatherT *ServerCharacterWeather::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerCharacterWeatherT>(new ServerCharacterWeatherT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ServerCharacterWeather::UnPackTo(ServerCharacterWeatherT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = client_id(); _o->client_id = _e; }
+  { auto _e = item_id(); _o->item_id = _e; }
+  { auto _e = duration(); _o->duration = _e; }
+  { auto _e = message(); if (_e) { _o->message.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->message[_i] = _e->Get(_i); } } else { _o->message.resize(0); } }
+}
+
+inline ::flatbuffers::Offset<ServerCharacterWeather> CreateServerCharacterWeather(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterWeatherT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerCharacterWeather::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ServerCharacterWeather> ServerCharacterWeather::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterWeatherT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerCharacterWeatherT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _client_id = _o->client_id;
+  auto _item_id = _o->item_id;
+  auto _duration = _o->duration;
+  auto _message = _o->message.size() ? _fbb.CreateVector(_o->message) : 0;
+  return fbs::CreateServerCharacterWeather(
+      _fbb,
+      _client_id,
+      _item_id,
+      _duration,
+      _message);
+}
+
+inline ServerFriendOnlineT *ServerFriendOnline::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerFriendOnlineT>(new ServerFriendOnlineT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ServerFriendOnline::UnPackTo(ServerFriendOnlineT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = id(); _o->id = _e; }
+  { auto _e = name(); if (_e) { _o->name.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->name[_i] = _e->Get(_i); } } else { _o->name.resize(0); } }
+  { auto _e = online(); _o->online = _e; }
+}
+
+inline ::flatbuffers::Offset<ServerFriendOnline> CreateServerFriendOnline(::flatbuffers::FlatBufferBuilder &_fbb, const ServerFriendOnlineT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerFriendOnline::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ServerFriendOnline> ServerFriendOnline::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerFriendOnlineT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerFriendOnlineT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _id = _o->id;
+  auto _name = _o->name.size() ? _fbb.CreateVector(_o->name) : 0;
+  auto _online = _o->online;
+  return fbs::CreateServerFriendOnline(
+      _fbb,
+      _id,
+      _name,
+      _online);
 }
 
 template <bool B>

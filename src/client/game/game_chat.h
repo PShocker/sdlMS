@@ -7,6 +7,9 @@ namespace sdlms {
 
 enum class GameChatEnum {
   kMap,
+  kWhisper,
+  kParty,
+  kGuild,
 };
 
 struct GameChat {

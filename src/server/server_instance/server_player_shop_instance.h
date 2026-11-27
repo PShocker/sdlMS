@@ -25,6 +25,13 @@ struct ServerPlayerShop {
   std::vector<Goods> goods;
   std::vector<uint64_t> visitors; // 店内顾客（095：店内可见其它顾客）
 
+  // 095 HiredShop：执照道具 0503000x + 固定摆位；0=普通摆摊。
+  uint32_t hired_item = 0;
+  int32_t x = 0;
+  int32_t y = 0;
+  // 雇佣商店离线期间累计的销售收入（摊主回来后可领取）。
+  uint64_t income = 0;
+
   static constexpr size_t kMaxGoods = 16;   // 上限 16 种
   static constexpr uint32_t kMaxBuyNum = 200;
 };
@@ -37,6 +44,8 @@ class ServerPlayerShopInstance {
   static void HandleClient(uint64_t client_id, fbs::ClientCharacterShopT& r);
   // 客户端收到的状态同步。
   static void HandleServer(uint64_t client_id, fbs::ServerCharacterShopT& r);
+  // 进图时补发本图已有摄位的开摄广播（step 5）。
+  static void SendStallsTo(uint64_t client_id, uint32_t map_id);
   // 帧循环：清理掉线摊主。
   static bool Run();
 };

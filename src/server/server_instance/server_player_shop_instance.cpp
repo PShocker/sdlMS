@@ -60,10 +60,13 @@ void BroadcastStall(uint64_t owner, bool open,
       m.to_id = owner;
       m.x = open ? 1 : 0;
       if (ServerClientInstance::clients_.contains(owner)) {
-        m.player = std::make_unique<fbs::PlayerT>(
-            ServerClientInstance::clients_.at(owner).player_t);
+      m.player = std::make_unique<fbs::PlayerT>(
+          ServerClientInstance::clients_.at(owner).player_t);
       }
       m.chat = {title.begin(), title.end()};
+      m.hired_item = shop.hired_item;
+      m.pos_x = shop.x;
+      m.pos_y = shop.y;
       SendTo(c_id, m);
     }
   }
@@ -98,6 +101,9 @@ void ServerPlayerShopInstance::HandleClient(uint64_t client_id,
       shop.owner = client_id;
       shop.map_id = map_id;
       shop.title = {r.chat.begin(), r.chat.end()};
+      shop.hired_item = r.hired_item;
+      shop.x = r.pos_x;
+      shop.y = r.pos_y;
       if (shop.title.empty()) {
         shop.title = u"商店";
       }
@@ -190,6 +196,8 @@ void ServerPlayerShopInstance::HandleClient(uint64_t client_id,
       }
       goods.num -= buy;
       goods.sold += buy;
+      // 095 HiredShop：摊主离线时收入存在摊位里，回来领取。
+      shop.income += goods.price * buy;
 
       // 回买家成功（095 OnBuyResult）。
       {
@@ -207,6 +215,38 @@ void ServerPlayerShopInstance::HandleClient(uint64_t client_id,
         m.y = 0;
         SendTo(shop.owner, m);
       }
+      return;
+    }
+    // 管理雇佣商店（仅摊主）：返回货架快照 + 离线收入。
+    case 9: {
+      auto it = data_.find(r.to_id);
+      if (it == data_.end() || it->second.owner != client_id) {
+        return;
+      }
+      auto& shop = it->second;
+      fbs::ServerCharacterShopT m = MakeStep(9);
+      m.to_id = client_id;
+      m.chat = {shop.title.begin(), shop.title.end()};
+      FillGoods(m, shop);
+      m.meso = shop.income;
+      shop.income = 0;
+      m.hired_item = shop.hired_item;
+      m.pos_x = shop.x;
+      m.pos_y = shop.y;
+      SendTo(client_id, m);
+      return;
+    }
+    // 领取雇佣商店离线收入（仅摊主本人）。
+    case 8: {
+      auto it = data_.find(r.to_id);
+      if (it == data_.end() || it->second.owner != client_id) {
+        return;
+      }
+      fbs::ServerCharacterShopT m = MakeStep(8);
+      m.to_id = client_id;
+      m.meso = it->second.income;
+      it->second.income = 0;
+      SendTo(client_id, m);
       return;
     }
     // 关摊（摊主）/ 离店（顾客）。
@@ -299,6 +339,11 @@ bool ServerPlayerShopInstance::Run() {
   // 摊主掉线 → 撤摊；顾客掉线 → 移出店内名单。
   for (auto it = data_.begin(); it != data_.end();) {
     if (!ClientAlive(it->first)) {
+      // 095 HiredShop：雇佣商店在摊主离线后仍保留在地图上，直到服务器关闭。
+      if (it->second.hired_item != 0) {
+        ++it;
+        continue;
+      }
       const uint64_t owner = it->first;
       const uint32_t map_id = it->second.map_id;
       // 店内顾客先收到关店通知。
@@ -334,6 +379,27 @@ bool ServerPlayerShopInstance::Run() {
     ++it;
   }
   return true;
+}
+
+void ServerPlayerShopInstance::SendStallsTo(uint64_t client_id,
+                                           uint32_t map_id) {
+  for (const auto& [owner, shop] : data_) {
+    if (shop.map_id != map_id) {
+      continue;
+    }
+    fbs::ServerCharacterShopT m = MakeStep(5);
+    m.to_id = owner;
+    m.x = 1;
+    if (ServerClientInstance::clients_.contains(owner)) {
+      m.player = std::make_unique<fbs::PlayerT>(
+          ServerClientInstance::clients_.at(owner).player_t);
+    }
+    m.chat = {shop.title.begin(), shop.title.end()};
+    m.hired_item = shop.hired_item;
+    m.pos_x = shop.x;
+    m.pos_y = shop.y;
+    SendTo(client_id, m);
+  }
 }
 
 void ServerPlayerShopInstance::HandleServer(uint64_t client_id,

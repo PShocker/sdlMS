@@ -3,6 +3,7 @@
 #include "src/client/game/game_quest.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/popup_tip_game_instance.h"
 #include "src/client/system/ui/quest_alarm_ui_system.h"
@@ -13,6 +14,7 @@
 
 #include <wz/Property.h>
 
+#include <algorithm>
 #include <cstdint>
 #include <flat_map>
 #include <flat_set>
@@ -22,7 +24,89 @@
 
 namespace sdlms {
 
+namespace {
+
+// wzlib 的三参构造在 -Werror=reorder 下会报警，这里改用 set() 构造属性。
+template <typename T>
+wz::Property<T>* MakeProp(wz::Type type, T value) {
+  auto* prop = new wz::Property<T>(type, nullptr);
+  prop->set(std::move(value));
+  return prop;
+}
+
+// 本数据包没有一转任务数据：在 QuestData 里补一份虚拟任务，
+// 让一转教官出现在 QuestInfo 面板（含 NPC 头像与任务说明），
+// 仅对初心者（job=0）且等级达标时可见。
+void EnsureJobIntroQuests() {
+  static bool done = false;
+  if (done) {
+    return;
+  }
+  done = true;
+
+  auto* data = WzResource::quest_->find(u"QuestData");
+  if (data == nullptr) {
+    return;
+  }
+
+  struct JobQuest {
+    const char16_t* id;
+    const char16_t* name;
+    const char16_t* desc;
+    int category;
+    int level;
+    int npc;
+  };
+  const JobQuest quests[] = {
+      {u"job100", u"Warrior's Path",
+       u"Dances with Balrog in Perion can grant you the power of a Warrior.",
+       100, 10, 511},
+      {u"job200", u"Magician's Path",
+       u"Grendel in Ellinia can grant you the power of a Magician.", 101, 8,
+       313},
+      {u"job300", u"Bowman's Path",
+       u"Athena Pierce in Henesys can grant you the power of a Bowman.", 102,
+       10, 221},
+      {u"job400", u"Thief's Path",
+       u"The Dark Lord in Kerning City can grant you the power of a Thief.",
+       103, 10, 411},
+  };
+
+  for (const auto& quest : quests) {
+    if (data->find(quest.id) != nullptr) {
+      continue;
+    }
+    auto* node = new wz::Node(wz::Type::SubProperty, nullptr);
+
+    auto* info = new wz::Node(wz::Type::SubProperty, nullptr);
+    info->appendChild(u"name", MakeProp<std::u16string>(wz::Type::String,
+                                                       quest.name));
+    info->appendChild(u"area",
+                      MakeProp<int32_t>(wz::Type::Int, quest.category));
+    info->appendChild(u"0", MakeProp<std::u16string>(wz::Type::String,
+                                                    quest.desc));
+    node->appendChild(u"QuestInfo", info);
+
+    auto* check = new wz::Node(wz::Type::SubProperty, nullptr);
+    auto* check0 = new wz::Node(wz::Type::SubProperty, nullptr);
+    check0->appendChild(u"lvmin",
+                        MakeProp<int32_t>(wz::Type::Int, quest.level));
+    check0->appendChild(u"npc", MakeProp<int32_t>(wz::Type::Int, quest.npc));
+    auto* job = new wz::Node(wz::Type::SubProperty, nullptr);
+    job->appendChild(u"0", MakeProp<int32_t>(wz::Type::Int, 0));
+    check0->appendChild(u"job", job);
+    check->appendChild(u"0", check0);
+    node->appendChild(u"Check", check);
+    node->appendChild(u"Act", new wz::Node(wz::Type::SubProperty, nullptr));
+
+    data->appendChild(quest.id, node);
+  }
+}
+
+}  // namespace
+
 std::vector<GameQuest> QuestGameInstance::LoadNpc(const std::u16string& id) {
+  EnsureJobIntroQuests();
   std::vector<GameQuest> q;
   auto node = WzResource::quest_->find(u"QuestData");
   for (auto [k, v] : *node) {
@@ -73,7 +157,14 @@ std::optional<GameQuest> QuestGameInstance::LoadAvaliableQuest(
       }
     }
     if (auto n = node->find(u"Check/0/job"); n != nullptr) {
-      auto sf_job = std::stoi(std::string{sf.job.begin(), sf.job.end()});
+      int sf_job = 0;
+      if (!sf.job.empty()) {
+        try {
+          sf_job = std::stoi(std::string{sf.job.begin(), sf.job.end()});
+        } catch (...) {
+          sf_job = 0;
+        }
+      }
       bool r = false;
       for (auto [k, v] : *n->get_children()) {
         auto job = static_cast<wz::Property<int>*>(v[0])->get();
@@ -92,6 +183,30 @@ std::optional<GameQuest> QuestGameInstance::LoadAvaliableQuest(
   auto q = cache.at(kc);
   if (!q.has_value()) {
     return std::nullopt;
+  }
+  // Check/0/skill（12 个任务）：要求指定技能达到某等级。
+  // 技能等级会随游戏进程变化，不走上面的缓存，每次实时校验。
+  if (auto n = node->find(u"Check/0/skill"); n != nullptr) {
+    for (auto [k, v] : *n->get_children()) {
+      if (v.empty() || v[0] == nullptr) {
+        continue;
+      }
+      auto* id_node = v[0]->get_child(u"id");
+      if (id_node == nullptr || id_node->type != wz::Type::Int) {
+        continue;
+      }
+      auto ski_id = static_cast<wz::Property<int>*>(id_node)->get();
+      int need = 1;
+      if (auto* lv_node = v[0]->get_child(u"level");
+          lv_node != nullptr && lv_node->type == wz::Type::Int) {
+        need = static_cast<wz::Property<int>*>(lv_node)->get();
+      }
+      auto tmp = std::to_string(ski_id);
+      std::u16string ski_str{tmp.begin(), tmp.end()};
+      if (JobSkillGameInstance::LoadSkiLevel(ski_str) < need) {
+        return std::nullopt;
+      }
+    }
   }
   struct QuestCache {
     std::u16string id;
@@ -114,16 +229,22 @@ std::optional<GameQuest> QuestGameInstance::LoadAvaliableQuest(
     }
   }
   auto quest_check = cache2.at(id);
+  // Check/0/quest 的 state 是 095 的 QuestInfo.state 语义：
+  //   2 = 前置任务必须已完成（本包 215 条前置需求全部是 2）；
+  //   1 = 进行中或已完成；
+  //   0 = 只要记录存在。
+  // 放弃记录（decline_quests_）不算完成，避免放弃前置任务后解锁后续。
   for (auto& qc : quest_check) {
     bool r = false;
-    for (auto& qs : {progress_quests_, complete_quests_, decline_quests_}) {
-      if (qs.contains(qc.id)) {
-        auto q_state = qs.at(qc.id).index;
-        if (q_state >= qc.state) {
-          r = true;
-          break;
-        }
-      }
+    if (qc.state >= 2) {
+      r = complete_quests_.contains(qc.id);
+    } else if (qc.state == 1) {
+      r = progress_quests_.contains(qc.id) ||
+          complete_quests_.contains(qc.id);
+    } else {
+      r = progress_quests_.contains(qc.id) ||
+          complete_quests_.contains(qc.id) ||
+          decline_quests_.contains(qc.id);
     }
     if (!r) {
       return std::nullopt;
@@ -140,6 +261,7 @@ std::optional<GameQuest> QuestGameInstance::LoadAvaliableQuest(
 }
 
 std::vector<GameQuest> QuestGameInstance::LoadAvaliableQuest() {
+  EnsureJobIntroQuests();
   static auto node = WzResource::quest_->find(u"QuestData");
   std::vector<GameQuest> q;
   for (auto k : *node->get_children() | std::views::keys) {
@@ -235,6 +357,7 @@ std::u16string QuestGameInstance::LoadAreaName(int area) {
 }
 
 wz::Node* QuestGameInstance::LoadQuestNode(const std::u16string& id) {
+  EnsureJobIntroQuests();
   auto node = WzResource::quest_->find(u"QuestData/" + id);
   return node;
 }
@@ -678,6 +801,95 @@ int32_t QuestGameInstance::LoadQuestActMeso(const std::u16string& id) {
     }
   }
   return 0;
+}
+
+// Act/<idx>/pop：095 CQuest::LoadReward 的人气奖励。
+int32_t QuestGameInstance::LoadQuestActPop(const std::u16string& id) {
+  uint8_t index = 0;
+  if (progress_quests_.contains(id)) {
+    index = progress_quests_.at(id).index;
+  }
+  auto* node = LoadQuestNode(id);
+  if (node == nullptr) {
+    return 0;
+  }
+  auto* pop = node->find("Act/" + std::to_string(index) + "/pop");
+  if (pop == nullptr || pop->type != wz::Type::Int) {
+    return 0;
+  }
+  return static_cast<wz::Property<int>*>(pop)->get();
+}
+
+// Act/<idx>/skill：授予技能。数据形如 skill/0/{id, exp}，
+// exp 为授予的等级（095 CQuest::LoadReward 的 learnSkill）。
+std::flat_map<uint32_t, uint8_t> QuestGameInstance::LoadQuestActSkill(
+    const std::u16string& id) {
+  std::flat_map<uint32_t, uint8_t> r;
+  uint8_t index = 0;
+  if (progress_quests_.contains(id)) {
+    index = progress_quests_.at(id).index;
+  }
+  auto* node = LoadQuestNode(id);
+  if (node == nullptr) {
+    return r;
+  }
+  auto* skills = node->find("Act/" + std::to_string(index) + "/skill");
+  if (skills == nullptr) {
+    return r;
+  }
+  for (auto [k, v] : *skills->get_children()) {
+    if (v.empty() || v[0] == nullptr) {
+      continue;
+    }
+    auto* id_node = v[0]->get_child(u"id");
+    if (id_node == nullptr || id_node->type != wz::Type::Int) {
+      continue;
+    }
+    auto ski_id = static_cast<wz::Property<int>*>(id_node)->get();
+    int level = 1;
+    if (auto* lv = v[0]->get_child(u"exp");
+        lv != nullptr && lv->type == wz::Type::Int) {
+      level = static_cast<wz::Property<int>*>(lv)->get();
+    }
+    r[static_cast<uint32_t>(ski_id)] =
+        static_cast<uint8_t>(std::clamp(level, 0, 255));
+  }
+  return r;
+}
+
+// 095 CQuestMan::CheckCompleteDemand 的客户端等价实现：
+// 交任务时按 level → item → mob 的顺序返回第一个不满足的原因。
+// 物品"完全丢失"（全部持有量为 0）时由调用方优先改用 Say/<idx>/lost 对白。
+std::u16string QuestGameInstance::CheckCompleteDemand(
+    const std::u16string& id) {
+  auto it = progress_quests_.find(id);
+  if (it == progress_quests_.end()) {
+    return u"";
+  }
+  const auto& quest = it->second;
+  auto* node = LoadQuestNode(id);
+  if (node == nullptr) {
+    return u"";
+  }
+  auto* check = node->find("Check/" + std::to_string(quest.index));
+  if (check == nullptr) {
+    return u"";
+  }
+  // 等级：Check/1/lvmin，数据中 89 个任务使用，对应 Say/<idx>/stop/level。
+  if (auto* n = check->get_child(u"lvmin");
+      n != nullptr && n->type == wz::Type::Int) {
+    auto lv = static_cast<wz::Property<int>*>(n)->get();
+    if (CharacterGameInstance::self_.level < lv) {
+      return u"level";
+    }
+  }
+  if (!quest.item_bool) {
+    return u"item";
+  }
+  if (!quest.mob_bool) {
+    return u"mob";
+  }
+  return u"";
 }
 
 }  // namespace sdlms

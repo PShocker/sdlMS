@@ -137,12 +137,13 @@ void TrapLogicSystem::RunCollision() {
             .num = hit_num,
             .x = self.pos.x,
             .y = self.pos.y - 30,
-            .type = static_cast<uint8_t>(DamageData::DamageColor::kWhite),
+            // 人物受伤统一用紫色数字。
+            .type = static_cast<uint8_t>(DamageData::DamageColor::kPurple),
         };
         ServerTrapInstance::HandleSAttack(0, at);
         fbs::ClientTrapAttackT cta;
         cta.map_id = SceneSystemInstance::map_id_;
-        cta.payload = std::make_unique<fbs::AttackT>(std::move(at));
+        cta.payload = std::make_unique<fbs::AttackT>(at);
         ClientRequest::SendToHost(cta);
         return;
       }

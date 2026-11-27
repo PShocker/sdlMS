@@ -3,8 +3,13 @@
 #include "src/client/game/game_character.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/friend_game_instance.h"
+#include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/pet_game_instance.h"
+#include "src/client/game_instance/popup_tip_game_instance.h"
+#include "src/client/game_instance/weather_game_instance.h"
 #include "src/client/system/ui/character_info_ui_system.h"
+#include "src/client/system/ui/screen_notice_ui_system.h"
 #include "src/client/system_instance/fade_system_instance.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
@@ -31,7 +36,9 @@
 #include "src/server/server_system/server_heartbeat_system.h"
 
 #include <cstdio>
+#include <format>
 #include <memory>
+#include <string>
 
 namespace sdlms {
 
@@ -198,6 +205,13 @@ void RequestHandler::HandleRequest(uint64_t client_id, void* buf,
       fbs::ClientCharacterMessengerT r;
       payload->UnPackTo(&r);
       ServerMessengerInstance::HandleMessenger(client_id, r);
+      break;
+    }
+    case fbs::NetPayload_ClientCharacterWeather: {
+      auto payload = packet->payload_as_ClientCharacterWeather();
+      fbs::ClientCharacterWeatherT r;
+      payload->UnPackTo(&r);
+      ServerCharacterInstance::HandleCharacterWeather(client_id, r);
       break;
     }
     case fbs::NetPayload_ClientCharacterBall: {
@@ -487,6 +501,47 @@ void RequestHandler::HandleRequest(uint64_t client_id, void* buf,
       fbs::ServerCharacterMessengerT r;
       payload->UnPackTo(&r);
       ServerMessengerInstance::HandleServer(client_id, r);
+      break;
+    }
+    case fbs::NetPayload_ServerCharacterWeather: {
+      auto payload = packet->payload_as_ServerCharacterWeather();
+      fbs::ServerCharacterWeatherT r;
+      payload->UnPackTo(&r);
+      // 095 CField::BlowWeather：空留言只跳过浮动公告，特效与音频照常生效。
+      auto tmp = std::format("{:08d}", r.item_id);
+      std::u16string itm_id{tmp.begin(), tmp.end()};
+      ItemGameInstance::ItemWeatherInfo weather;
+      if (ItemGameInstance::LoadItemWeather(itm_id, weather)) {
+        if (!r.message.empty()) {
+          ScreenNoticeUiSystem::FloatNotice(
+              std::u16string{r.message.begin(), r.message.end()},
+              weather.float_type, r.duration);
+        }
+        if (weather.type == 2 && !weather.path.empty()) {
+          WeatherGameInstance::Start(weather.path, weather.direction,
+                                     weather.speed, r.duration);
+        } else if (weather.type == 3 && !weather.path.empty()) {
+          // 095 TransientLayer_FireCracker：爆竹。
+          WeatherGameInstance::StartFireCracker(weather.path);
+        } else if (weather.type == 4 && !weather.path.empty()) {
+          // 095 TransientLayer_NewYear：新年烟花。
+          WeatherGameInstance::StartNewYear(weather.path);
+        }
+        // 095 BlowWeather 的 BGM/音效（isBgmOrEffect 1=BGM 0=音效）。
+        WeatherGameInstance::StartAudio(weather.bgm, weather.is_bgm,
+                                        weather.repeat);
+      }
+      break;
+    }
+    // 好友上线/下线通知：维护在线集合，好友首次上线弹 poptip。
+    case fbs::NetPayload_ServerFriendOnline: {
+      auto payload = packet->payload_as_ServerFriendOnline();
+      fbs::ServerFriendOnlineT r;
+      payload->UnPackTo(&r);
+      std::u16string name{r.name.begin(), r.name.end()};
+      if (FriendGameInstance::SetOnlineState(r.id, name, r.online)) {
+        PopupTipGameInstance::AddFriendOnlineTip(name);
+      }
       break;
     }
     case fbs::NetPayload_ServerCharacterBall: {

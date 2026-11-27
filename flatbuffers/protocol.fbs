@@ -83,6 +83,11 @@ union NetPayload {
     // MapleChat 聊天室（追加在末尾）
     ClientCharacterMessenger,
     ServerCharacterMessenger,
+    // 天气道具（追加在末尾）
+    ClientCharacterWeather,
+    ServerCharacterWeather,
+    // 好友上线/下线通知（追加在末尾）
+    ServerFriendOnline,
 }
 // 统一的网络包（最外层包装）
 table NetPacket {

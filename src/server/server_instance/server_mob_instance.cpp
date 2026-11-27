@@ -722,9 +722,13 @@ void ServerMobInstance::HandleAttack(uint64_t client_id,
   if (!ServerClientInstance::clients_.contains(client_id)) {
     return;
   }
-  // 转发
+  // 转发给同地图其他客户端（旁观者按 payload.type 显示人物受伤数字）。
   auto map_id = r.map_id;
-  auto clients = ServerSceneInstance::scenes_.at(map_id).clients;
+  auto it = ServerSceneInstance::scenes_.find(map_id);
+  if (it == ServerSceneInstance::scenes_.end()) {
+    return;
+  }
+  auto clients = it->second.clients;
   clients.erase(client_id);
   fbs::ServerMobAttackT t;
   t.client_id = client_id;
@@ -966,22 +970,24 @@ void ServerMobInstance::HandleServerAttackPlayer(
         1, static_cast<int64_t>(CharacterStatGameInstance::GetHp()) - 1);
   }
 
+  // 人物受伤：095 玩家受伤数字为紫色（BasicEff.img/NoViolet0）。
   fbs::AttackT at{
       .delay = Window::dt_time_,
       .num = static_cast<uint64_t>(final_damage),
       .x = target_pos.x,
       .y = target_pos.y - 30,
-      .type = static_cast<uint8_t>(DamageData::DamageColor::kWhite),
+      .type = static_cast<uint8_t>(DamageData::DamageColor::kPurple),
   };
   HandleSAttack(0, at);
 
   CharacterLogicSystem::RunBeingHit(g_mob.pos.x,
                                     static_cast<uint64_t>(final_damage));
 
-  // 把真正的伤害数字广播出去，其他客户端才能看到
+  // 把真正的伤害数字广播出去：服务端 HandleAttack 会转发给同地图其他客户端，
+  // 旁观者按 payload.type 显示同样的紫色数字。
   fbs::ClientMobAttackT cma;
   cma.map_id = SceneSystemInstance::map_id_;
-  cma.payload = std::make_unique<fbs::AttackT>(std::move(at));
+  cma.payload = std::make_unique<fbs::AttackT>(at);
   ClientRequest::SendToHost(cma);
 }
 

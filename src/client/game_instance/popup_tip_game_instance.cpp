@@ -75,4 +75,17 @@ void PopupTipGameInstance::AddMapleChatTip(uint64_t sn, fbs::PlayerT player_t) {
   AudioGameInstance::PlayNow(u"UI.img/Invite");
 }
 
+void PopupTipGameInstance::AddFriendOnlineTip(const std::u16string& name) {
+  // 纯通知：不占用确认框，和任务提示一样自动消失。
+  if (!CheckType(PopupTipEnums::kFriendOnline)) {
+    return;
+  }
+  GamePopupTip tp;
+  tp.type = PopupTipEnums::kFriendOnline;
+  tp.data = name;
+  tp.destroy = Window::dt_now_ + 6 * 1000;
+  data_.emplace_back(tp);
+  AudioGameInstance::PlayNow(u"UI.img/Invite");
+}
+
 }  // namespace sdlms

@@ -214,7 +214,7 @@ void Rage() {
     auto& eff = c->effect;
     std::erase_if(eff, [](const GameEffect& e) { return e.id == u"1101004"; });
   };
-  g_skill.use = [g_skill](uint64_t, int ski_lv) mutable {
+  g_skill.use = [g_skill](uint64_t client_id, int ski_lv) mutable {
     const int lv = std::clamp(ski_lv, 1, 20);
     StopSkill(g_skill.id);
     g_skill.lv = static_cast<uint8_t>(lv);
@@ -229,11 +229,24 @@ void Rage() {
     SkillGameInstance::ski_.push_back(g_skill);
     SendBuffState(1101004, 1);
     CharacterStatGameInstance::Update();
+
+    // 队友收到这条 buff 时只应用加成，不播动作、不再二次分发。
+    if (client_id != 0) {
+      return;
+    }
+
     SendSkill(1101004, lv, fbs::ClientCharacterAttackT{});
     auto& sf = CharacterGameInstance::self_;
     CharacterLogicSystem::RunAction(sf, u"alert2");
 
-    auto& used = SkillGameInstance::Skis()[u"1101004"];
+    // 本地数据 1101004 带 lt/rb 范围 + indiePad/indiePdd：
+    // 095 的组队增益，范围内队友一起获得攻击力加成。
+    auto g_r = SkillGameInstance::LoadSkiR(u"1101004");
+    auto players = CharacterLogicSystem::RunBuffCheck(sf, g_r);
+    auto ckt =
+        SkillGameInstance::CreateSkillPayload(players, 1101004, g_skill.lv);
+    ServerCharacterInstance::HandleSki(ckt.ski_id, g_skill.lv, ckt.payload, 0);
+    ClientRequest::SendToHost(ckt);
   };
   SkillGameInstance::Skis()[g_skill.id] = g_skill;
 }
@@ -487,6 +500,13 @@ void RegisterFinalAttack(GameCharacter& g_character, uint64_t attack_delay) {
   const bool sword = IsSword(g_character);
   const bool axe = IsAxe(g_character);
   if (!sword && !axe) {
+    return;
+  }
+  // 095：终极攻击需要对应武器精通达到 3 级才会触发。
+  // Page / Spearman 的同类实现都有这个前置，剑客这边之前漏了。
+  const int mastery =
+      JobSkillGameInstance::LoadSkiLevel(sword ? u"1100000" : u"1100001");
+  if (mastery < 3) {
     return;
   }
   const uint32_t id = sword ? 1101000 : 1101001;

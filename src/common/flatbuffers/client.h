@@ -149,6 +149,10 @@ struct ClientCharacterMessenger;
 struct ClientCharacterMessengerBuilder;
 struct ClientCharacterMessengerT;
 
+struct ClientCharacterWeather;
+struct ClientCharacterWeatherBuilder;
+struct ClientCharacterWeatherT;
+
 struct ClientHeartbeatT : public ::flatbuffers::NativeTable {
   typedef ClientHeartbeat TableType;
 };
@@ -2808,6 +2812,9 @@ struct ClientCharacterShopT : public ::flatbuffers::NativeTable {
   uint32_t y = 0;
   std::vector<uint16_t> chat{};
   std::vector<std::unique_ptr<fbs::ShopGoodsT>> goods{};
+  uint32_t hired_item = 0;
+  int32_t pos_x = 0;
+  int32_t pos_y = 0;
   ClientCharacterShopT() = default;
   ClientCharacterShopT(const ClientCharacterShopT &o);
   ClientCharacterShopT(ClientCharacterShopT&&) FLATBUFFERS_NOEXCEPT = default;
@@ -2823,7 +2830,10 @@ struct ClientCharacterShop FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
     VT_X = 8,
     VT_Y = 10,
     VT_CHAT = 12,
-    VT_GOODS = 14
+    VT_GOODS = 14,
+    VT_HIRED_ITEM = 16,
+    VT_POS_X = 18,
+    VT_POS_Y = 20
   };
   uint8_t step() const {
     return GetField<uint8_t>(VT_STEP, 0);
@@ -2861,6 +2871,24 @@ struct ClientCharacterShop FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
   ::flatbuffers::Vector<::flatbuffers::Offset<fbs::ShopGoods>> *mutable_goods() {
     return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::ShopGoods>> *>(VT_GOODS);
   }
+  uint32_t hired_item() const {
+    return GetField<uint32_t>(VT_HIRED_ITEM, 0);
+  }
+  bool mutate_hired_item(uint32_t _hired_item = 0) {
+    return SetField<uint32_t>(VT_HIRED_ITEM, _hired_item, 0);
+  }
+  int32_t pos_x() const {
+    return GetField<int32_t>(VT_POS_X, 0);
+  }
+  bool mutate_pos_x(int32_t _pos_x = 0) {
+    return SetField<int32_t>(VT_POS_X, _pos_x, 0);
+  }
+  int32_t pos_y() const {
+    return GetField<int32_t>(VT_POS_Y, 0);
+  }
+  bool mutate_pos_y(int32_t _pos_y = 0) {
+    return SetField<int32_t>(VT_POS_Y, _pos_y, 0);
+  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -2873,6 +2901,9 @@ struct ClientCharacterShop FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
            VerifyOffset(verifier, VT_GOODS) &&
            verifier.VerifyVector(goods()) &&
            verifier.VerifyVectorOfTables(goods()) &&
+           VerifyField<uint32_t>(verifier, VT_HIRED_ITEM, 4) &&
+           VerifyField<int32_t>(verifier, VT_POS_X, 4) &&
+           VerifyField<int32_t>(verifier, VT_POS_Y, 4) &&
            verifier.EndTable();
   }
   ClientCharacterShopT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -2902,6 +2933,15 @@ struct ClientCharacterShopBuilder {
   void add_goods(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::ShopGoods>>> goods) {
     fbb_.AddOffset(ClientCharacterShop::VT_GOODS, goods);
   }
+  void add_hired_item(uint32_t hired_item) {
+    fbb_.AddElement<uint32_t>(ClientCharacterShop::VT_HIRED_ITEM, hired_item, 0);
+  }
+  void add_pos_x(int32_t pos_x) {
+    fbb_.AddElement<int32_t>(ClientCharacterShop::VT_POS_X, pos_x, 0);
+  }
+  void add_pos_y(int32_t pos_y) {
+    fbb_.AddElement<int32_t>(ClientCharacterShop::VT_POS_Y, pos_y, 0);
+  }
   explicit ClientCharacterShopBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -2920,9 +2960,15 @@ inline ::flatbuffers::Offset<ClientCharacterShop> CreateClientCharacterShop(
     uint8_t x = 0,
     uint32_t y = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> chat = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::ShopGoods>>> goods = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::ShopGoods>>> goods = 0,
+    uint32_t hired_item = 0,
+    int32_t pos_x = 0,
+    int32_t pos_y = 0) {
   ClientCharacterShopBuilder builder_(_fbb);
   builder_.add_to_id(to_id);
+  builder_.add_pos_y(pos_y);
+  builder_.add_pos_x(pos_x);
+  builder_.add_hired_item(hired_item);
   builder_.add_goods(goods);
   builder_.add_chat(chat);
   builder_.add_y(y);
@@ -2938,7 +2984,10 @@ inline ::flatbuffers::Offset<ClientCharacterShop> CreateClientCharacterShopDirec
     uint8_t x = 0,
     uint32_t y = 0,
     const std::vector<uint16_t> *chat = nullptr,
-    const std::vector<::flatbuffers::Offset<fbs::ShopGoods>> *goods = nullptr) {
+    const std::vector<::flatbuffers::Offset<fbs::ShopGoods>> *goods = nullptr,
+    uint32_t hired_item = 0,
+    int32_t pos_x = 0,
+    int32_t pos_y = 0) {
   auto chat__ = chat ? _fbb.CreateVector<uint16_t>(*chat) : 0;
   auto goods__ = goods ? _fbb.CreateVector<::flatbuffers::Offset<fbs::ShopGoods>>(*goods) : 0;
   return fbs::CreateClientCharacterShop(
@@ -2948,7 +2997,10 @@ inline ::flatbuffers::Offset<ClientCharacterShop> CreateClientCharacterShopDirec
       x,
       y,
       chat__,
-      goods__);
+      goods__,
+      hired_item,
+      pos_x,
+      pos_y);
 }
 
 ::flatbuffers::Offset<ClientCharacterShop> CreateClientCharacterShop(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterShopT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -3066,6 +3118,104 @@ inline ::flatbuffers::Offset<ClientCharacterMessenger> CreateClientCharacterMess
 }
 
 ::flatbuffers::Offset<ClientCharacterMessenger> CreateClientCharacterMessenger(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterMessengerT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct ClientCharacterWeatherT : public ::flatbuffers::NativeTable {
+  typedef ClientCharacterWeather TableType;
+  uint32_t map_id = 0;
+  uint32_t item_id = 0;
+  std::vector<uint16_t> message{};
+};
+
+struct ClientCharacterWeather FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ClientCharacterWeatherT NativeTableType;
+  typedef ClientCharacterWeatherBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_MAP_ID = 4,
+    VT_ITEM_ID = 6,
+    VT_MESSAGE = 8
+  };
+  uint32_t map_id() const {
+    return GetField<uint32_t>(VT_MAP_ID, 0);
+  }
+  bool mutate_map_id(uint32_t _map_id = 0) {
+    return SetField<uint32_t>(VT_MAP_ID, _map_id, 0);
+  }
+  uint32_t item_id() const {
+    return GetField<uint32_t>(VT_ITEM_ID, 0);
+  }
+  bool mutate_item_id(uint32_t _item_id = 0) {
+    return SetField<uint32_t>(VT_ITEM_ID, _item_id, 0);
+  }
+  const ::flatbuffers::Vector<uint16_t> *message() const {
+    return GetPointer<const ::flatbuffers::Vector<uint16_t> *>(VT_MESSAGE);
+  }
+  ::flatbuffers::Vector<uint16_t> *mutable_message() {
+    return GetPointer<::flatbuffers::Vector<uint16_t> *>(VT_MESSAGE);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_MAP_ID, 4) &&
+           VerifyField<uint32_t>(verifier, VT_ITEM_ID, 4) &&
+           VerifyOffset(verifier, VT_MESSAGE) &&
+           verifier.VerifyVector(message()) &&
+           verifier.EndTable();
+  }
+  ClientCharacterWeatherT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ClientCharacterWeatherT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ClientCharacterWeather> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterWeatherT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ClientCharacterWeatherBuilder {
+  typedef ClientCharacterWeather Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_map_id(uint32_t map_id) {
+    fbb_.AddElement<uint32_t>(ClientCharacterWeather::VT_MAP_ID, map_id, 0);
+  }
+  void add_item_id(uint32_t item_id) {
+    fbb_.AddElement<uint32_t>(ClientCharacterWeather::VT_ITEM_ID, item_id, 0);
+  }
+  void add_message(::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> message) {
+    fbb_.AddOffset(ClientCharacterWeather::VT_MESSAGE, message);
+  }
+  explicit ClientCharacterWeatherBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ClientCharacterWeather> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ClientCharacterWeather>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ClientCharacterWeather> CreateClientCharacterWeather(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t map_id = 0,
+    uint32_t item_id = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> message = 0) {
+  ClientCharacterWeatherBuilder builder_(_fbb);
+  builder_.add_message(message);
+  builder_.add_item_id(item_id);
+  builder_.add_map_id(map_id);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<ClientCharacterWeather> CreateClientCharacterWeatherDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t map_id = 0,
+    uint32_t item_id = 0,
+    const std::vector<uint16_t> *message = nullptr) {
+  auto message__ = message ? _fbb.CreateVector<uint16_t>(*message) : 0;
+  return fbs::CreateClientCharacterWeather(
+      _fbb,
+      map_id,
+      item_id,
+      message__);
+}
+
+::flatbuffers::Offset<ClientCharacterWeather> CreateClientCharacterWeather(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterWeatherT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
 inline ClientHeartbeatT *ClientHeartbeat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ClientHeartbeatT>(new ClientHeartbeatT());
@@ -4259,7 +4409,10 @@ inline ClientCharacterShopT::ClientCharacterShopT(const ClientCharacterShopT &o)
         to_id(o.to_id),
         x(o.x),
         y(o.y),
-        chat(o.chat) {
+        chat(o.chat),
+        hired_item(o.hired_item),
+        pos_x(o.pos_x),
+        pos_y(o.pos_y) {
   goods.reserve(o.goods.size());
   for (const auto &goods_ : o.goods) { goods.emplace_back((goods_) ? new fbs::ShopGoodsT(*goods_) : nullptr); }
 }
@@ -4271,6 +4424,9 @@ inline ClientCharacterShopT &ClientCharacterShopT::operator=(ClientCharacterShop
   std::swap(y, o.y);
   std::swap(chat, o.chat);
   std::swap(goods, o.goods);
+  std::swap(hired_item, o.hired_item);
+  std::swap(pos_x, o.pos_x);
+  std::swap(pos_y, o.pos_y);
   return *this;
 }
 
@@ -4289,6 +4445,9 @@ inline void ClientCharacterShop::UnPackTo(ClientCharacterShopT *_o, const ::flat
   { auto _e = y(); _o->y = _e; }
   { auto _e = chat(); if (_e) { _o->chat.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->chat[_i] = _e->Get(_i); } } else { _o->chat.resize(0); } }
   { auto _e = goods(); if (_e) { _o->goods.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->goods[_i]) { _e->Get(_i)->UnPackTo(_o->goods[_i].get(), _resolver); } else { _o->goods[_i] = std::unique_ptr<fbs::ShopGoodsT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->goods.resize(0); } }
+  { auto _e = hired_item(); _o->hired_item = _e; }
+  { auto _e = pos_x(); _o->pos_x = _e; }
+  { auto _e = pos_y(); _o->pos_y = _e; }
 }
 
 inline ::flatbuffers::Offset<ClientCharacterShop> CreateClientCharacterShop(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterShopT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -4305,6 +4464,9 @@ inline ::flatbuffers::Offset<ClientCharacterShop> ClientCharacterShop::Pack(::fl
   auto _y = _o->y;
   auto _chat = _o->chat.size() ? _fbb.CreateVector(_o->chat) : 0;
   auto _goods = _o->goods.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::ShopGoods>> (_o->goods.size(), [](size_t i, _VectorArgs *__va) { return CreateShopGoods(*__va->__fbb, __va->__o->goods[i].get(), __va->__rehasher); }, &_va ) : 0;
+  auto _hired_item = _o->hired_item;
+  auto _pos_x = _o->pos_x;
+  auto _pos_y = _o->pos_y;
   return fbs::CreateClientCharacterShop(
       _fbb,
       _step,
@@ -4312,7 +4474,10 @@ inline ::flatbuffers::Offset<ClientCharacterShop> ClientCharacterShop::Pack(::fl
       _x,
       _y,
       _chat,
-      _goods);
+      _goods,
+      _hired_item,
+      _pos_x,
+      _pos_y);
 }
 
 inline ClientCharacterMessengerT *ClientCharacterMessenger::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
@@ -4348,6 +4513,38 @@ inline ::flatbuffers::Offset<ClientCharacterMessenger> ClientCharacterMessenger:
       _to_id,
       _x,
       _chat);
+}
+
+inline ClientCharacterWeatherT *ClientCharacterWeather::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ClientCharacterWeatherT>(new ClientCharacterWeatherT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ClientCharacterWeather::UnPackTo(ClientCharacterWeatherT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = map_id(); _o->map_id = _e; }
+  { auto _e = item_id(); _o->item_id = _e; }
+  { auto _e = message(); if (_e) { _o->message.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->message[_i] = _e->Get(_i); } } else { _o->message.resize(0); } }
+}
+
+inline ::flatbuffers::Offset<ClientCharacterWeather> CreateClientCharacterWeather(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterWeatherT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ClientCharacterWeather::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ClientCharacterWeather> ClientCharacterWeather::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterWeatherT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ClientCharacterWeatherT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _map_id = _o->map_id;
+  auto _item_id = _o->item_id;
+  auto _message = _o->message.size() ? _fbb.CreateVector(_o->message) : 0;
+  return fbs::CreateClientCharacterWeather(
+      _fbb,
+      _map_id,
+      _item_id,
+      _message);
 }
 
 }  // namespace fbs

@@ -17,6 +17,8 @@ class PopupTipGameInstance {
   static void AddOmokTip(uint8_t kind, fbs::PlayerT player_t);
   // MapleChat 聊天邀请（095 CUIFadeYesNo CreateMSMInvite）。
   static void AddMapleChatTip(uint64_t sn, fbs::PlayerT player_t);
+  // 好友上线通知（纯提示，无按钮，自动消失）。
+  static void AddFriendOnlineTip(const std::u16string& name);
 
   // 登录读档前清理旧提示，并暂时禁止任务完成提示。
   static void Load();

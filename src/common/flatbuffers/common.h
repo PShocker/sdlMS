@@ -181,27 +181,36 @@ struct ShopGoodsT;
 
 enum ChatEnum : int8_t {
   ChatEnum_MAP = 0,
+  ChatEnum_WHISPER = 1,
+  ChatEnum_PARTY = 2,
+  ChatEnum_GUILD = 3,
   ChatEnum_MIN = ChatEnum_MAP,
-  ChatEnum_MAX = ChatEnum_MAP
+  ChatEnum_MAX = ChatEnum_GUILD
 };
 
-inline const ChatEnum (&EnumValuesChatEnum())[1] {
+inline const ChatEnum (&EnumValuesChatEnum())[4] {
   static const ChatEnum values[] = {
-    ChatEnum_MAP
+    ChatEnum_MAP,
+    ChatEnum_WHISPER,
+    ChatEnum_PARTY,
+    ChatEnum_GUILD
   };
   return values;
 }
 
 inline const char * const *EnumNamesChatEnum() {
-  static const char * const names[2] = {
+  static const char * const names[5] = {
     "MAP",
+    "WHISPER",
+    "PARTY",
+    "GUILD",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameChatEnum(ChatEnum e) {
-  if (::flatbuffers::IsOutRange(e, ChatEnum_MAP, ChatEnum_MAP)) return "";
+  if (::flatbuffers::IsOutRange(e, ChatEnum_MAP, ChatEnum_GUILD)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesChatEnum()[index];
 }
@@ -679,6 +688,7 @@ struct CharacterT : public ::flatbuffers::NativeTable {
   std::vector<std::unique_ptr<fbs::DecoT>> decos{};
   std::vector<std::unique_ptr<fbs::StateT>> states{};
   uint64_t id = 0;
+  int8_t attack_speed = 0;
   CharacterT() = default;
   CharacterT(const CharacterT &o);
   CharacterT(CharacterT&&) FLATBUFFERS_NOEXCEPT = default;
@@ -699,7 +709,8 @@ struct Character FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_EQUIPS = 18,
     VT_DECOS = 20,
     VT_STATES = 22,
-    VT_ID = 24
+    VT_ID = 24,
+    VT_ATTACK_SPEED = 26
   };
   const ::flatbuffers::Vector<uint16_t> *name() const {
     return GetPointer<const ::flatbuffers::Vector<uint16_t> *>(VT_NAME);
@@ -767,6 +778,12 @@ struct Character FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool mutate_id(uint64_t _id = 0) {
     return SetField<uint64_t>(VT_ID, _id, 0);
   }
+  int8_t attack_speed() const {
+    return GetField<int8_t>(VT_ATTACK_SPEED, 0);
+  }
+  bool mutate_attack_speed(int8_t _attack_speed = 0) {
+    return SetField<int8_t>(VT_ATTACK_SPEED, _attack_speed, 0);
+  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -792,6 +809,7 @@ struct Character FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            verifier.VerifyVector(states()) &&
            verifier.VerifyVectorOfTables(states()) &&
            VerifyField<uint64_t>(verifier, VT_ID, 8) &&
+           VerifyField<int8_t>(verifier, VT_ATTACK_SPEED, 1) &&
            verifier.EndTable();
   }
   CharacterT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -836,6 +854,9 @@ struct CharacterBuilder {
   void add_id(uint64_t id) {
     fbb_.AddElement<uint64_t>(Character::VT_ID, id, 0);
   }
+  void add_attack_speed(int8_t attack_speed) {
+    fbb_.AddElement<int8_t>(Character::VT_ATTACK_SPEED, attack_speed, 0);
+  }
   explicit CharacterBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -859,7 +880,8 @@ inline ::flatbuffers::Offset<Character> CreateCharacter(
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Equip>>> equips = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Deco>>> decos = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>>> states = 0,
-    uint64_t id = 0) {
+    uint64_t id = 0,
+    int8_t attack_speed = 0) {
   CharacterBuilder builder_(_fbb);
   builder_.add_id(id);
   builder_.add_states(states);
@@ -872,6 +894,7 @@ inline ::flatbuffers::Offset<Character> CreateCharacter(
   builder_.add_job(job);
   builder_.add_fame(fame);
   builder_.add_name(name);
+  builder_.add_attack_speed(attack_speed);
   return builder_.Finish();
 }
 
@@ -887,7 +910,8 @@ inline ::flatbuffers::Offset<Character> CreateCharacterDirect(
     const std::vector<::flatbuffers::Offset<fbs::Equip>> *equips = nullptr,
     const std::vector<::flatbuffers::Offset<fbs::Deco>> *decos = nullptr,
     const std::vector<::flatbuffers::Offset<fbs::State>> *states = nullptr,
-    uint64_t id = 0) {
+    uint64_t id = 0,
+    int8_t attack_speed = 0) {
   auto name__ = name ? _fbb.CreateVector<uint16_t>(*name) : 0;
   auto job__ = job ? _fbb.CreateString(job) : 0;
   auto equips__ = equips ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Equip>>(*equips) : 0;
@@ -905,7 +929,8 @@ inline ::flatbuffers::Offset<Character> CreateCharacterDirect(
       equips__,
       decos__,
       states__,
-      id);
+      id,
+      attack_speed);
 }
 
 ::flatbuffers::Offset<Character> CreateCharacter(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -2171,6 +2196,8 @@ struct CharacterChatT : public ::flatbuffers::NativeTable {
   typedef CharacterChat TableType;
   fbs::ChatEnum type = fbs::ChatEnum_MAP;
   std::vector<uint16_t> payload{};
+  uint64_t to_id = 0;
+  std::vector<uint16_t> to_name{};
 };
 
 struct CharacterChat FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -2178,7 +2205,9 @@ struct CharacterChat FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef CharacterChatBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TYPE = 4,
-    VT_PAYLOAD = 6
+    VT_PAYLOAD = 6,
+    VT_TO_ID = 8,
+    VT_TO_NAME = 10
   };
   fbs::ChatEnum type() const {
     return static_cast<fbs::ChatEnum>(GetField<int8_t>(VT_TYPE, 0));
@@ -2192,12 +2221,27 @@ struct CharacterChat FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   ::flatbuffers::Vector<uint16_t> *mutable_payload() {
     return GetPointer<::flatbuffers::Vector<uint16_t> *>(VT_PAYLOAD);
   }
+  uint64_t to_id() const {
+    return GetField<uint64_t>(VT_TO_ID, 0);
+  }
+  bool mutate_to_id(uint64_t _to_id = 0) {
+    return SetField<uint64_t>(VT_TO_ID, _to_id, 0);
+  }
+  const ::flatbuffers::Vector<uint16_t> *to_name() const {
+    return GetPointer<const ::flatbuffers::Vector<uint16_t> *>(VT_TO_NAME);
+  }
+  ::flatbuffers::Vector<uint16_t> *mutable_to_name() {
+    return GetPointer<::flatbuffers::Vector<uint16_t> *>(VT_TO_NAME);
+  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<int8_t>(verifier, VT_TYPE, 1) &&
            VerifyOffset(verifier, VT_PAYLOAD) &&
            verifier.VerifyVector(payload()) &&
+           VerifyField<uint64_t>(verifier, VT_TO_ID, 8) &&
+           VerifyOffset(verifier, VT_TO_NAME) &&
+           verifier.VerifyVector(to_name()) &&
            verifier.EndTable();
   }
   CharacterChatT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -2215,6 +2259,12 @@ struct CharacterChatBuilder {
   void add_payload(::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> payload) {
     fbb_.AddOffset(CharacterChat::VT_PAYLOAD, payload);
   }
+  void add_to_id(uint64_t to_id) {
+    fbb_.AddElement<uint64_t>(CharacterChat::VT_TO_ID, to_id, 0);
+  }
+  void add_to_name(::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> to_name) {
+    fbb_.AddOffset(CharacterChat::VT_TO_NAME, to_name);
+  }
   explicit CharacterChatBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -2229,8 +2279,12 @@ struct CharacterChatBuilder {
 inline ::flatbuffers::Offset<CharacterChat> CreateCharacterChat(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     fbs::ChatEnum type = fbs::ChatEnum_MAP,
-    ::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> payload = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> payload = 0,
+    uint64_t to_id = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> to_name = 0) {
   CharacterChatBuilder builder_(_fbb);
+  builder_.add_to_id(to_id);
+  builder_.add_to_name(to_name);
   builder_.add_payload(payload);
   builder_.add_type(type);
   return builder_.Finish();
@@ -2239,12 +2293,17 @@ inline ::flatbuffers::Offset<CharacterChat> CreateCharacterChat(
 inline ::flatbuffers::Offset<CharacterChat> CreateCharacterChatDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     fbs::ChatEnum type = fbs::ChatEnum_MAP,
-    const std::vector<uint16_t> *payload = nullptr) {
+    const std::vector<uint16_t> *payload = nullptr,
+    uint64_t to_id = 0,
+    const std::vector<uint16_t> *to_name = nullptr) {
   auto payload__ = payload ? _fbb.CreateVector<uint16_t>(*payload) : 0;
+  auto to_name__ = to_name ? _fbb.CreateVector<uint16_t>(*to_name) : 0;
   return fbs::CreateCharacterChat(
       _fbb,
       type,
-      payload__);
+      payload__,
+      to_id,
+      to_name__);
 }
 
 ::flatbuffers::Offset<CharacterChat> CreateCharacterChat(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterChatT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -5196,7 +5255,8 @@ inline CharacterT::CharacterT(const CharacterT &o)
         state((o.state) ? new fbs::LifeStateT(*o.state) : nullptr),
         appearance((o.appearance) ? new fbs::CharacterAppearanceT(*o.appearance) : nullptr),
         face((o.face) ? new fbs::FaceT(*o.face) : nullptr),
-        id(o.id) {
+        id(o.id),
+        attack_speed(o.attack_speed) {
   equips.reserve(o.equips.size());
   for (const auto &equips_ : o.equips) { equips.emplace_back((equips_) ? new fbs::EquipT(*equips_) : nullptr); }
   decos.reserve(o.decos.size());
@@ -5217,6 +5277,7 @@ inline CharacterT &CharacterT::operator=(CharacterT o) FLATBUFFERS_NOEXCEPT {
   std::swap(decos, o.decos);
   std::swap(states, o.states);
   std::swap(id, o.id);
+  std::swap(attack_speed, o.attack_speed);
   return *this;
 }
 
@@ -5240,6 +5301,7 @@ inline void Character::UnPackTo(CharacterT *_o, const ::flatbuffers::resolver_fu
   { auto _e = decos(); if (_e) { _o->decos.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->decos[_i]) { _e->Get(_i)->UnPackTo(_o->decos[_i].get(), _resolver); } else { _o->decos[_i] = std::unique_ptr<fbs::DecoT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->decos.resize(0); } }
   { auto _e = states(); if (_e) { _o->states.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->states[_i]) { _e->Get(_i)->UnPackTo(_o->states[_i].get(), _resolver); } else { _o->states[_i] = std::unique_ptr<fbs::StateT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->states.resize(0); } }
   { auto _e = id(); _o->id = _e; }
+  { auto _e = attack_speed(); _o->attack_speed = _e; }
 }
 
 inline ::flatbuffers::Offset<Character> CreateCharacter(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -5261,6 +5323,7 @@ inline ::flatbuffers::Offset<Character> Character::Pack(::flatbuffers::FlatBuffe
   auto _decos = _o->decos.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Deco>> (_o->decos.size(), [](size_t i, _VectorArgs *__va) { return CreateDeco(*__va->__fbb, __va->__o->decos[i].get(), __va->__rehasher); }, &_va ) : 0;
   auto _states = _o->states.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::State>> (_o->states.size(), [](size_t i, _VectorArgs *__va) { return CreateState(*__va->__fbb, __va->__o->states[i].get(), __va->__rehasher); }, &_va ) : 0;
   auto _id = _o->id;
+  auto _attack_speed = _o->attack_speed;
   return fbs::CreateCharacter(
       _fbb,
       _name,
@@ -5273,7 +5336,8 @@ inline ::flatbuffers::Offset<Character> Character::Pack(::flatbuffers::FlatBuffe
       _equips,
       _decos,
       _states,
-      _id);
+      _id,
+      _attack_speed);
 }
 
 inline MovementT *Movement::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
@@ -5761,6 +5825,8 @@ inline void CharacterChat::UnPackTo(CharacterChatT *_o, const ::flatbuffers::res
   (void)_resolver;
   { auto _e = type(); _o->type = _e; }
   { auto _e = payload(); if (_e) { _o->payload.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->payload[_i] = _e->Get(_i); } } else { _o->payload.resize(0); } }
+  { auto _e = to_id(); _o->to_id = _e; }
+  { auto _e = to_name(); if (_e) { _o->to_name.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->to_name[_i] = _e->Get(_i); } } else { _o->to_name.resize(0); } }
 }
 
 inline ::flatbuffers::Offset<CharacterChat> CreateCharacterChat(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterChatT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -5773,10 +5839,14 @@ inline ::flatbuffers::Offset<CharacterChat> CharacterChat::Pack(::flatbuffers::F
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const CharacterChatT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _type = _o->type;
   auto _payload = _o->payload.size() ? _fbb.CreateVector(_o->payload) : 0;
+  auto _to_id = _o->to_id;
+  auto _to_name = _o->to_name.size() ? _fbb.CreateVector(_o->to_name) : 0;
   return fbs::CreateCharacterChat(
       _fbb,
       _type,
-      _payload);
+      _payload,
+      _to_id,
+      _to_name);
 }
 
 inline EquipScrollT *EquipScroll::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {

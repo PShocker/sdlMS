@@ -293,12 +293,13 @@ void MobLogicSystem::RunCollision() {
         .num = hit_num,
         .x = self.pos.x,
         .y = self.pos.y - 30,
-        .type = static_cast<uint8_t>(DamageData::DamageColor::kWhite),
+        // 人物受伤统一用紫色数字。
+        .type = static_cast<uint8_t>(DamageData::DamageColor::kPurple),
     };
     ServerMobInstance::HandleSAttack(0, at);
     fbs::ClientMobAttackT cma;
     cma.map_id = SceneSystemInstance::map_id_;
-    cma.payload = std::make_unique<fbs::AttackT>(std::move(at));
+    cma.payload = std::make_unique<fbs::AttackT>(at);
     ClientRequest::SendToHost(cma);
   }
 }

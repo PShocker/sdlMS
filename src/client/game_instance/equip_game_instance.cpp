@@ -594,6 +594,11 @@ std::flat_map<EquipGameInstance::IncType, int> EquipGameInstance::LoadScrollInc(
 
   auto scroll_info = ItemGameInstance::LoadItemInfo(id, 0);
 
+  // 存档里可能存在已删除/未知卷轴 id，缺失时按无加成处理，避免统计属性崩溃。
+  if (scroll_info == nullptr) {
+    return r;
+  }
+
   static const std::flat_map<std::u16string, IncType> incs = {
 
       {u"incWAT", EquipGameInstance::IncType::kWeaponPad},
@@ -723,6 +728,16 @@ void EquipGameInstance::AddEquip(GameEquipItem& equip, GameCharacter& character,
 bool EquipGameInstance::AddEquipLimit(GameEquipItem& equip,
 
                                       GameCharacter& character, int slot) {
+  auto show = [](const std::u16string& text) {
+    NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kShopNotice;
+    NoticeUiSystem::notice_text_ = text;
+    NoticeUiSystem::Open();
+  };
+  auto num = [](int v) {
+    auto s = std::to_string(v);
+    return std::u16string{s.begin(), s.end()};
+  };
+
   auto equip_info = LoadEquipInfo(equip.id);
 
   auto require_job = ReadEquipInt(equip_info, u"reqJob");
@@ -753,36 +768,43 @@ bool EquipGameInstance::AddEquipLimit(GameEquipItem& equip,
   }
 
   if (!job_r) {
+    show(u"Your job cannot equip this item.");
     return false;
   }
 
   auto lv = character.level;
 
   if (lv < require_lv) {
+    show(u"Your level is too low. Required: Lv." + num(require_lv) + u".");
     return false;
   }
 
-  auto str_ap = CharacterStatGameInstance::GetStrAp();
+  // 095：能力值要求比较的是总属性（含装备/增益），不是 AP 加点。
+  auto str_ap = CharacterStatGameInstance::GetStrPoint();
 
-  if (str_ap < require_str) {
+  if (static_cast<int>(str_ap) < require_str) {
+    show(u"Not enough STR. Required: " + num(require_str) + u".");
     return false;
   }
 
-  auto dex_ap = CharacterStatGameInstance::GetDexAp();
+  auto dex_ap = CharacterStatGameInstance::GetDexPoint();
 
-  if (dex_ap < require_dex) {
+  if (static_cast<int>(dex_ap) < require_dex) {
+    show(u"Not enough DEX. Required: " + num(require_dex) + u".");
     return false;
   }
 
-  auto int_ap = CharacterStatGameInstance::GetIntAp();
+  auto int_ap = CharacterStatGameInstance::GetIntPoint();
 
-  if (int_ap < require_int) {
+  if (static_cast<int>(int_ap) < require_int) {
+    show(u"Not enough INT. Required: " + num(require_int) + u".");
     return false;
   }
 
-  auto luk_ap = CharacterStatGameInstance::GetLukAp();
+  auto luk_ap = CharacterStatGameInstance::GetLukPoint();
 
-  if (luk_ap < require_luk) {
+  if (static_cast<int>(luk_ap) < require_luk) {
+    show(u"Not enough LUK. Required: " + num(require_luk) + u".");
     return false;
   }
 
@@ -792,6 +814,7 @@ bool EquipGameInstance::AddEquipLimit(GameEquipItem& equip,
     auto pet_key = PetGameInstance::LoadPetImageKey(PetGameInstance::data_.front().id);
     auto* image = WzResource::character_->find(u"PetEquip/" + equip.id + u".img");
     if (image == nullptr || pet_key.empty() || image->get_child(pet_key) == nullptr) {
+      show(u"This pet cannot equip this item.");
       return false;
     }
   }
@@ -859,18 +882,32 @@ bool EquipGameInstance::AddEquipDeco(GameDecoItem& deco,
 bool EquipGameInstance::AddEquipDecoLimit(GameDecoItem& deco,
 
                                           GameCharacter& character, int slot) {
+  auto show = [](const std::u16string& text) {
+    NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kShopNotice;
+    NoticeUiSystem::notice_text_ = text;
+    NoticeUiSystem::Open();
+  };
   auto type = LoadEquipType(deco.id);
 
   if (type == u"Weapon") {
     if (!character.weapon.has_value()) {
+      show(u"Equip a weapon first.");
       return false;
     }
 
     auto equip_info = LoadEquipInfo(deco.id);
+    if (equip_info == nullptr) {
+      show(u"This cash weapon does not match your equipped weapon.");
+      return false;
+    }
 
     std::u16string sub = character.weapon->id.substr(2, 2);
 
-    return equip_info->find(u"../" + sub);
+    if (!equip_info->find(u"../" + sub)) {
+      show(u"This cash weapon does not match your equipped weapon.");
+      return false;
+    }
+    return true;
   }
 
   return true;
@@ -1197,62 +1234,88 @@ int EquipGameInstance::UseEquipScroll(GameEquipItem& eqp, GameConsumeItem& s) {
 
   auto tuc = EquipGameInstance::LoadEquipTuc(eqp.id);
 
-  if (eqp.scroll.size() < tuc) {
-    auto item_info = ItemGameInstance::LoadItemInfo(s.id, 0);
+  // 095：强化次数用尽（或装备本身不可砸卷）时不再消耗卷轴。
+  if (tuc == 0 || eqp.scroll.size() >= tuc) {
+    NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kShopNotice;
+    NoticeUiSystem::notice_text_ = u"This item cannot be upgraded further.";
+    NoticeUiSystem::Open();
+    return false;
+  }
 
-    int success = 100;
+  auto item_info = ItemGameInstance::LoadItemInfo(s.id, 0);
+  if (item_info == nullptr) {
+    CursorGameInstance::cursor_hand_ = std::nullopt;
+    return false;
+  }
 
-    if (item_info->get_child(u"success")) {
-      success =
+  int success = 100;
+  if (item_info->get_child(u"success")) {
+    success =
+        static_cast<wz::Property<int>*>(item_info->get_child(u"success"))
+            ->get();
+  }
 
-          static_cast<wz::Property<int>*>(item_info->get_child(u"success"))
+  int cursed = 0;
+  if (item_info->get_child(u"cursed")) {
+    cursed = static_cast<wz::Property<int>*>(item_info->get_child(u"cursed"))
+                 ->get();
+  }
 
-              ->get();
+  std::uniform_int_distribution<int> dist(0, 99);
+  const bool scroll_success = dist(RandomGameInstance::gen_) < success;
+
+  // 095：cursed 是失败时的破坏概率（百分数），不是布尔值。
+  bool destroyed = false;
+  if (!scroll_success && cursed > 0) {
+    std::uniform_int_distribution<int> cursed_dist(1, 100);
+    destroyed = cursed_dist(RandomGameInstance::gen_) <= cursed;
+  }
+
+  // 诅咒卷只有成功时才把装备标记为诅咒（名字变色）。
+  eqp.scroll.push_back({s.id, scroll_success, cursed > 0 && scroll_success});
+
+  // 卷轴记录属于角色装备数据：同步给服务端，
+  // 否则 ClientCharacterInfo 查询和新进图玩家拿到的是砸卷前的属性。
+  CharacterLogicSystem::cct_.map_id = SceneSystemInstance::map_id_;
+
+  auto& sf = CharacterGameInstance::self_;
+
+  if (destroyed) {
+    // 卷轴失败且触发诅咒：装备被破坏（穿戴中则直接卸下）。
+    bool was_equipped = false;
+    for (auto* opt :
+         {&sf.weapon, &sf.cap, &sf.cape, &sf.coat, &sf.glove, &sf.longcoat,
+          &sf.pant, &sf.shoes, &sf.shield, &sf.ring0, &sf.ring1, &sf.ring2,
+          &sf.ring3, &sf.accessory}) {
+      if (opt->has_value() && &opt->value() == &eqp) {
+        opt->reset();
+        was_equipped = true;
+        break;
+      }
     }
-
-    int cursed = 0;
-
-    if (item_info->get_child(u"cursed")) {
-      cursed = static_cast<wz::Property<int>*>(item_info->get_child(u"cursed"))
-
-                   ->get();
+    if (!was_equipped) {
+      // 背包里的装备：清空该格与卷轴记录。
+      eqp.id = u"";
+      eqp.scroll.clear();
     }
-
-    std::uniform_int_distribution<int> dist(0, 99);
-
-    const bool scroll_success = dist(RandomGameInstance::gen_) < success;
-
-    eqp.scroll.push_back({s.id, scroll_success, cursed > 0});
-
-
-    auto& sf = CharacterGameInstance::self_;
-
+    AudioGameInstance::PlayNow(u"Game.img/EnchantFailure");
+    CharacterLogicSystem::cct_.map_id = SceneSystemInstance::map_id_;
+  } else {
     ServerCharacterInstance::HandleScrollUse(sf, scroll_success);
-
-
     AudioGameInstance::PlayNow(scroll_success ? u"Game.img/EnchantSuccess"
-
                                               : u"Game.img/EnchantFailure");
+  }
 
+  fbs::StateT st;
+  st.state = fbs::StateEnum_ITEM_USE;
+  st.val = scroll_id;
+  st.sub_val = 1;
+  CharacterLogicSystem::ccs_.payload.push_back(
+      std::make_unique<fbs::StateT>(st));
 
-    fbs::StateT st;
-
-    st.state = fbs::StateEnum_ITEM_USE;
-
-    st.val = scroll_id;
-
-    st.sub_val = 1;
-
-    CharacterLogicSystem::ccs_.payload.push_back(
-
-        std::make_unique<fbs::StateT>(st));
-
-
-    s.num -= 1;
-
-    if (s.num == 0) {
-      s.id = u"";
-    }
+  s.num -= 1;
+  if (s.num == 0) {
+    s.id = u"";
   }
 
   CharacterStatGameInstance::Update();
@@ -1292,10 +1355,6 @@ int EquipGameInstance::UseEquip(int i, int slot) {
   }
 
   if (!EquipGameInstance::AddEquipLimit(eq, sf, slot)) {
-    NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kEquipNoAbility;
-
-    NoticeUiSystem::Open();
-
     return 0;
   }
 
@@ -1347,10 +1406,6 @@ int EquipGameInstance::UseDeco(int i, int slot) {
   }
 
   if (!EquipGameInstance::AddEquipDeco(de, sf, 0)) {
-    NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kEquipNoAbility;
-
-    NoticeUiSystem::Open();
-
     return 0;
   }
 

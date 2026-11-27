@@ -133,6 +133,8 @@ class CharacterStatGameInstance {
   static inline int32_t buff_speed_ = 0;  // 移速
   static inline int32_t buff_jump_ = 0;   // 跳跃
   static inline int32_t item_speed_ = 0;   // 道具(药水等)给的移速
+  static inline int32_t item_jump_ = 0;    // 道具(药水等)给的跳跃
+  static inline int32_t item_damage_ = 0;  // 道具给的伤害百分比
   static inline int32_t ski_speed_ = 0;    // 被动技能给的移速
 
   // ============ 移动上限 (由移速 / 跳跃属性推导) ============
@@ -180,6 +182,8 @@ class CharacterStatGameInstance {
   // 剩余 AP
   // ============================================================
   static uint32_t GetRemainAp();
+  // 一转成功后重置 AP：已分配的能力点（含 HP/MP）全部返还。
+  static void ResetAp();
 
   // ============================================================
   // AP 加点 setter / getter
@@ -349,7 +353,11 @@ class CharacterStatGameInstance {
   static int32_t GetItemDef();
   static int32_t GetItemMdef();
   static void SetItemSpeed(int32_t n);
+  static void SetItemJump(int32_t n);
+  static void SetItemDamage(int32_t n);
   static int32_t GetItemSpeed();
+  static int32_t GetItemJump();
+  static int32_t GetItemDamage();
 
   // ============================================================
   // buff 加成 getter (buff_)

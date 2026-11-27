@@ -47,6 +47,20 @@ std::flat_map<int32_t, GameFoothold> FootholdGameInstance::Load(
         g_foothold.t = std::min(g_foothold.y1, g_foothold.y2);
         g_foothold.b = std::max(g_foothold.y1, g_foothold.y2);
 
+        // 095 CAttrFoothold：drag/force 在 WZ 中是百分数，除以 100 后使用。
+        auto load_int = [foothold_node](const char16_t* name, int fallback) {
+          auto* child = foothold_node->get_child(name);
+          if (child == nullptr || child->type != wz::Type::Int) {
+            return fallback;
+          }
+          return static_cast<wz::Property<int>*>(child)->get();
+        };
+        g_foothold.forbid_fall_down = load_int(u"forbidFallDown", 0) != 0;
+        g_foothold.cant_through = load_int(u"cantThrough", 0) != 0;
+        g_foothold.walk = static_cast<float>(load_int(u"walk", 100)) / 100.0f;
+        g_foothold.drag = static_cast<float>(load_int(u"drag", 100)) / 100.0f;
+        g_foothold.force = static_cast<float>(load_int(u"force", 0)) / 100.0f;
+
         if (g_foothold.x1 != g_foothold.x2) {
           // 斜线
           g_foothold.k = ((float)g_foothold.y2 - (float)g_foothold.y1) /

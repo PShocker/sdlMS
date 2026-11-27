@@ -14,6 +14,8 @@
 #include "src/client/game_instance/foothold_game_instance.h"
 #include "src/client/game_instance/ladderrope_game_instance.h"
 #include "src/client/game_instance/map_info_game_instance.h"
+#include "src/client/game_instance/map_clock_game_instance.h"
+#include "src/client/game_instance/map_ship_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/npc_game_instance.h"
 #include "src/client/game_instance/obj_game_instance.h"
@@ -24,6 +26,7 @@
 #include "src/client/game_instance/tile_game_instance.h"
 #include "src/client/game_instance/tooltip_game_instance.h"
 #include "src/client/game_instance/trap_game_instance.h"
+#include "src/client/game_instance/weather_game_instance.h"
 #include "src/client/system/input/keyboard_input_system.h"
 #include "src/client/system/logic/audio_logic_system.h"
 #include "src/client/system/logic/backgrnd_logic_system.h"
@@ -61,10 +64,12 @@
 #include "src/client/system/ui/gain_log_ui_system.h"
 #include "src/client/system/ui/minimap_ui_system.h"
 #include "src/client/system/ui/notice_ui_system.h"
+#include "src/client/system/ui/party_hp_ui_system.h"
 #include "src/client/system/ui/popup_tip_ui_system.h"
 #include "src/client/system/ui/player_shop_ui_system.h"
 #include "src/client/system/ui/quest_alarm_ui_system.h"
 #include "src/client/system/ui/quick_slot_ui_system.h"
+#include "src/client/system/ui/screen_notice_ui_system.h"
 #include "src/client/system/ui/statusbar_ui_system.h"
 #include "src/client/system_instance/cash_shop_system_instance.h"
 #include "src/client/system_instance/fade_system_instance.h"
@@ -73,9 +78,13 @@
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/request/client_request.h"
+#include "src/common/script/script.h"
 #include "src/server/server_instance/server_character_instance.h"
 #include "src/server/server_instance/server_heartbeat_instance.h"
 
+#include <wz/Property.h>
+
+#include <any>
 #include <array>
 #include <cstdint>
 #include <cstdlib>
@@ -152,6 +161,11 @@ bool SceneSystemInstance::RenderGame() {
   for (auto& f_backgrnd : BackgrndGameInstance::front_ | std::views::values) {
     BackgrndRenderSystem::Render(f_backgrnd);
   }
+  // 095 CShip / CField::RestoreClock：地图内船与时钟画在前景之后。
+  MapShipGameInstance::Render();
+  MapClockGameInstance::Render();
+  // 095 CMapLoadable::TransientLayer_Weather：画在地图之上、聊天气泡与 UI 之下。
+  WeatherGameInstance::Render();
   for (auto& npcs : NpcGameInstance::data_) {
     for (auto& npc : npcs) {
       NpcRenderSystem::RenderChatballoon(npc);
@@ -176,6 +190,11 @@ void SceneSystemInstance::EnterPrepare() {
   CharacterLogicSystem::self_lr_ = 0;
   CharacterLogicSystem::self_hspeed_ = 0;
   CharacterLogicSystem::self_vspeed_ = 0;
+  CharacterLogicSystem::self_swim_ = false;
+  CharacterLogicSystem::self_fly_ = false;
+  CharacterLogicSystem::self_seat_.reset();
+  CharacterLogicSystem::self_recovery_pos_ = {-1.0f, -1.0f};
+  CharacterLogicSystem::self_recovery_time_ = 0;
   CharacterLogicSystem::RunUnsitChair(self);
 
   self.action_animate = true;
@@ -206,6 +225,10 @@ void SceneSystemInstance::Enter(uint32_t map_id) {
   ObjGameInstance::Load(map_id);
   TrapGameInstance::Load(map_id);
   PortalGameInstance::data_ = PortalGameInstance::Load(map_id);
+  // 095 CField::RestoreClock / CShip::Init：地图时钟与船物件。
+  MapClockGameInstance::Load(map_id);
+  MapClockGameInstance::Enter(map_id);
+  MapShipGameInstance::Load(map_id);
   ReactorGameInstance::Load(map_id);
   TileGameInstance::Load(map_id);
   TooltipGameInstance::Load(map_id);
@@ -219,6 +242,11 @@ void SceneSystemInstance::Enter(uint32_t map_id) {
   MobGameInstance::effect_.clear();
   CameraGameInstance::Reset();
   StatusbarUiSystem::Reset();
+  // 095 CWvsContext::OnEnterField：切图时清掉残留的浮动公告。
+  ScreenNoticeUiSystem::Clear();
+  // 095 CMapLoadable::TransientLayer_Clear：天气粒子随切图清除。
+  // 新地图 BGM 在本函数末尾统一加载，这里不恢复旧 BGM。
+  WeatherGameInstance::Clear(false);
   BallGameInstance::Reset();
   DropGameInstance::Reset();
   // 换图后宠物重新出现在主人身边。
@@ -226,6 +254,23 @@ void SceneSystemInstance::Enter(uint32_t map_id) {
   PetGameInstance::Refresh();
   auto bgm = MapInfoGameInstance::LoadBgm(map_id);
   AudioGameInstance::LoadBackgrndAudio(bgm);
+
+  // 095 CField：地图脚本入口（onFirstUserEnter / onUserEnter / fieldScript）。
+  // 未注册的脚本静默跳过，保证数据驱动。
+  if (auto* info = MapInfoGameInstance::Load(map_id); info != nullptr) {
+    for (const char16_t* key :
+         {u"onFirstUserEnter", u"onUserEnter", u"fieldScript"}) {
+      auto* node = info->get_child(key);
+      if (node == nullptr || node->type != wz::Type::String) {
+        continue;
+      }
+      auto name = static_cast<wz::Property<std::u16string>*>(node)->get();
+      auto& fns = Script::fns();
+      if (auto it = fns.find(name); it != fns.end()) {
+        it->second(std::any{});
+      }
+    }
+  }
 
   System::event_systems_ = {
       PopupTipUiSystem::Event,    QuestAlarmUiSystem::Event,
@@ -244,6 +289,8 @@ void SceneSystemInstance::Enter(uint32_t map_id) {
       CursorLogicSystem::Run,    SkillLogicSystem::Run,
       ReactorLogicSystem::Run,   ItemLogicSystem::Run,
       TrapLogicSystem::Run,      PetLogicSystem::Run,
+      MapShipGameInstance::Run,
+      WeatherGameInstance::Run,
   };
   System::render_systems_ = {
       RenderGame,
@@ -252,9 +299,13 @@ void SceneSystemInstance::Enter(uint32_t map_id) {
       QuickSlotUiSystem::Render,
       PopupTipUiSystem::Render,
       MinimapUiSystem::Render,
+      PartyHpUiSystem::Render,
+      MapClockGameInstance::RenderTimer,
       QuestAlarmUiSystem::Render,
       GainLogUiSystem::Render,
       PlayerShopUiSystem::RenderStalls,
+      ScreenNoticeUiSystem::Render,
+      TooltipGameInstance::Render,
       CursorRenderSystem::Render,
   };
   FadeSystemInstance::EnterOut();

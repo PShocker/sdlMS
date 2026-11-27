@@ -26,6 +26,7 @@ class CursorLogicSystem {
   static bool EventCursorHand(SDL_Event* event);
   static bool EventCharacter(SDL_Event* event);
   static bool EventNpc(SDL_Event* event);
+  static bool EventHiredShop(SDL_Event* event);
 
  public:
   static bool Run();

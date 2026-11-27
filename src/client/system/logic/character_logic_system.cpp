@@ -24,6 +24,7 @@
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/npc_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
+#include "src/client/game_instance/party_game_instance.h"
 #include "src/client/game_instance/portal_game_instance.h"
 #include "src/client/game_instance/random_game_instance.h"
 #include "src/client/game_instance/reactor_game_instance.h"
@@ -39,15 +40,19 @@
 #include "src/common/flatbuffers/common.h"
 #include "src/common/physic/physic.h"
 #include "src/common/request/client_request.h"
+#include "src/common/script/script.h"
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server_instance/server_ball_instance.h"
 #include "src/server/server_instance/server_character_instance.h"
 #include "src/server/server_instance/server_mob_instance.h"
+#include "src/server/server_main.h"
 
 #include <SDL3/SDL_rect.h>
 #include <wz/Property.h>
 
 #include <algorithm>
+#include <any>
+#include <cmath>
 #include <cstdint>
 #include <cstdlib>
 #include <flat_map>
@@ -451,6 +456,10 @@ bool CharacterLogicSystem::RunFlip(GameCharacter& g_character) {
   if (g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
     return false;
   }
+  // 095 nFreeze：冰冻期间不能转向。
+  if (g_character.debuffs.contains(GameDebuff::DebuffType::kFreeze)) {
+    return false;
+  }
   if (self_flip_cooldown_ > Window::dt_now_) {
     return false;
   }
@@ -533,10 +542,47 @@ bool CharacterLogicSystem::RunWalk(GameCharacter& g_character) {
   if (g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
     return r;
   }
-  if (character_action_input_.contains("left")) {
+  // 095 SecondaryStat nFreeze：冰冻期间不能移动（攻击/技能不受限）。
+  const bool frozen =
+      g_character.debuffs.contains(GameDebuff::DebuffType::kFreeze);
+  // 095 SecondaryStat nSlow：移动速度按百分比下降。
+  float slow = 1.0f;
+  if (auto it = g_character.debuffs.find(GameDebuff::DebuffType::kSlow);
+      it != g_character.debuffs.end()) {
+    slow = std::clamp(1.0f - static_cast<float>(it->second.val) / 100.0f, 0.1f,
+                      1.0f);
+  }
+  // 095 SecondaryStat nDisorder：左右输入反转。
+  const bool reverse =
+      g_character.debuffs.contains(GameDebuff::DebuffType::kDisorder);
+
+  // 095 CAttrFoothold：当前落脚点的 walk/drag/force 影响行走。
+  float walk = 1.0f;
+  float drag = 1.0f;
+  float force = 0.0f;
+  if (self_fh_ != 0) {
+    auto it = FootholdGameInstance::data_.find(self_fh_);
+    if (it != FootholdGameInstance::data_.end()) {
+      walk = it->second.walk;
+      drag = it->second.drag;
+      force = it->second.force;
+    }
+  }
+
+  bool input_left = character_action_input_.contains("left");
+  bool input_right = character_action_input_.contains("right");
+  if (reverse) {
+    std::swap(input_left, input_right);
+  }
+  if (frozen) {
+    input_left = false;
+    input_right = false;
+  }
+
+  if (input_left) {
     self_hforce_ = -1400;
     RunWalkAction(g_character);
-  } else if (character_action_input_.contains("right")) {
+  } else if (input_right) {
     self_hforce_ = 1400;
     RunWalkAction(g_character);
   } else {
@@ -547,7 +593,7 @@ bool CharacterLogicSystem::RunWalk(GameCharacter& g_character) {
       RunStandAction(g_character);
     }
     self_hforce_ = 0;
-    if (self_hspeed_ == 0) {
+    if (self_hspeed_ == 0 && force == 0) {
       return r;
     }
   }
@@ -557,10 +603,37 @@ bool CharacterLogicSystem::RunWalk(GameCharacter& g_character) {
   auto map_id = SceneSystemInstance::map_id_;
   auto border = MapInfoGameInstance::LoadMrBorder(map_id);
 
+  auto hforce = self_hforce_;
+  if (drag != 1.0f) {
+    hforce *= drag;
+  }
+  auto hspeed_min = CharacterStatGameInstance::GetHspeedMin();
+  auto hspeed_max = CharacterStatGameInstance::GetHspeedMax();
+  if (walk != 1.0f) {
+    hspeed_min *= walk;
+    hspeed_max *= walk;
+  }
+  // 095 nSlow：速度上限按百分比下降（下限保留 10%）。
+  if (slow != 1.0f) {
+    hspeed_min *= slow;
+    hspeed_max *= slow;
+  }
+  if (force != 0.0f) {
+    // 095 CVecCtrl::CalcWalk：force 为传送带恒力（WZ 百分数 /100）。
+    auto input = input_left ? -1 : input_right ? 1 : 0;
+    auto magnitude = std::abs(force);
+    if (input == 0) {
+      hforce += force * 1400.0f;
+    } else if (input * force > 0) {
+      hforce *= std::clamp(2.0f * magnitude, 0.1f, 4.0f);
+    } else {
+      hforce *= std::clamp(0.2f / magnitude, 0.1f, 4.0f);
+    }
+  }
+
   r = Physic::Walk(g_character.pos, delta_time, self_hspeed_, self_vspeed_,
-                   self_hforce_, CharacterStatGameInstance::GetHspeedMin(),
-                   CharacterStatGameInstance::GetHspeedMax(), 800, true,
-                   self_fh_, border, FootholdGameInstance::data_);
+                   hforce, hspeed_min, hspeed_max, 800, true, self_fh_,
+                   border, FootholdGameInstance::data_);
   return r;
 }
 
@@ -568,7 +641,11 @@ bool CharacterLogicSystem::RunFall(GameCharacter& g_character) {
   if (self_fh_ != 0) {
     return false;
   }
-  if (!g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
+  // 095 nFreeze：冰冻期间不能改变水平速度（相当于定身在空中）。
+  const bool frozen =
+      g_character.debuffs.contains(GameDebuff::DebuffType::kFreeze);
+  if (!frozen &&
+      !g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
     if (character_action_input_.contains("left")) {
       self_hspeed_ -= 0.1 * Window::delta_time_;
     } else if (character_action_input_.contains("right")) {
@@ -795,28 +872,10 @@ bool CharacterLogicSystem::RunClimbing(GameCharacter& g_character) {
   return true;
 }
 
-bool CharacterLogicSystem::RunSit(GameCharacter& g_character) {
-  if (!g_character.morph.empty() || IsAlert()) {
-    return false;
-  }
-  if (character_action_input_.contains("sit")) {
-    if (self_sit_cooldown_ >= Window::dt_now_) {
-      for (const auto& [seat_pos] : SeatGameInstance::data_) {
-        if (std::abs(g_character.pos.x - seat_pos.x) <= 20 &&
-            std::abs(g_character.pos.y - seat_pos.y) <= 20) {
-          RunAction(g_character, u"sit");
-          self_sit_cooldown_ = Window::dt_now_ + 120;
-          return true;
-        }
-      }
-    }
-  }
-  return false;
-}
-
 bool CharacterLogicSystem::RunSitting(GameCharacter& g_character) {
   if (!character_action_input_.empty()) {
     if (self_sit_cooldown_ <= Window::dt_now_) {
+      self_sit_cooldown_ = Window::dt_now_ + 300;
       RunUnsitChair(g_character);
       return false;
     }
@@ -835,6 +894,10 @@ bool CharacterLogicSystem::IsAlert() {
 bool CharacterLogicSystem::RunSkill(GameCharacter& g_character,
                                     const std::u16string& id) {
   if (g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
+    return false;
+  }
+  // 095 CField::IsUnableToUseSkill：fieldLimit bit1 禁止使用技能。
+  if (MapInfoGameInstance::IsSkillDisabled(SceneSystemInstance::map_id_)) {
     return false;
   }
   if (!g_character.morph.empty()) {
@@ -1129,6 +1192,138 @@ bool CharacterLogicSystem::RunAttack(GameCharacter& g_character) {
   return true;
 }
 
+bool CharacterLogicSystem::RunSeat(GameCharacter& g_character) {
+  if (self_seat_.has_value()) {
+    // 095 CField seat：坐着时再按坐下键/方向键/跳跃起身。
+    bool stand = character_action_input_.contains("sit") ||
+                 character_action_input_.contains("up") ||
+                 character_action_input_.contains("left") ||
+                 character_action_input_.contains("right") ||
+                 character_action_input_.contains("jump");
+    if (stand && self_sit_cooldown_ <= Window::dt_now_) {
+      self_seat_.reset();
+      self_fh_ = 0;
+      self_hspeed_ = 0;
+      self_vspeed_ = 0;
+      self_sit_cooldown_ = Window::dt_now_ + 300;
+      RunAction(g_character, u"jump");
+      return true;
+    }
+    g_character.pos = *self_seat_;
+    self_hspeed_ = 0;
+    self_vspeed_ = 0;
+    RunAction(g_character, u"sit");
+    return true;
+  }
+
+  // 095 CField seat：站在座位附近按坐下键（默认 X）坐下。
+  if (!character_action_input_.contains("sit") || self_fh_ == 0 ||
+      self_sit_cooldown_ > Window::dt_now_) {
+    return false;
+  }
+  for (const auto& seat : SeatGameInstance::data_) {
+    if (std::abs(seat.pos.x - g_character.pos.x) <= 25.0f &&
+        std::abs(seat.pos.y - g_character.pos.y) <= 30.0f) {
+      self_seat_ = seat.pos;
+      g_character.pos = seat.pos;
+      self_fh_ = 0;
+      self_hspeed_ = 0;
+      self_vspeed_ = 0;
+      self_sit_cooldown_ = Window::dt_now_ + 300;
+      RunAction(g_character, u"sit");
+      return true;
+    }
+  }
+return false;
+}
+
+bool CharacterLogicSystem::RunFly(GameCharacter& g_character) {
+  // 095：飞行地图 + 坐骑时进入飞行姿态（fly 动作），不受重力和落脚点约束。
+  self_fly_ = true;
+  self_fh_ = 0;
+  self_lr_ = 0;
+  RunAction(g_character, u"fly");
+
+  auto dt = Window::delta_time_ / 1000.0f;
+  auto max_h = CharacterStatGameInstance::GetHspeedMax();
+
+  if (character_action_input_.contains("left")) {
+    self_hspeed_ -= 1400.0f * dt;
+  } else if (character_action_input_.contains("right")) {
+    self_hspeed_ += 1400.0f * dt;
+  } else {
+    self_hspeed_ *= std::max(0.0f, 1.0f - 4.0f * dt);
+  }
+  self_hspeed_ = std::clamp(self_hspeed_, -max_h, max_h);
+
+  if (character_action_input_.contains("up")) {
+    self_vspeed_ -= 1200.0f * dt;
+  } else if (character_action_input_.contains("down")) {
+    self_vspeed_ += 1000.0f * dt;
+  } else {
+    self_vspeed_ *= std::max(0.0f, 1.0f - 4.0f * dt);
+  }
+  self_vspeed_ = std::clamp(self_vspeed_, -400.0f, 400.0f);
+
+  g_character.pos.x += self_hspeed_ * dt;
+  g_character.pos.y += self_vspeed_ * dt;
+
+  auto border = MapInfoGameInstance::LoadMrBorder(
+      SceneSystemInstance::map_id_);
+  if (border.w > border.x && border.h > border.y) {
+    g_character.pos.x = std::clamp(g_character.pos.x, border.x + 10, border.w - 10);
+    g_character.pos.y = std::clamp(g_character.pos.y, border.y + 10, border.h - 10);
+  }
+
+  RunFlip(g_character);
+  return true;
+}
+
+bool CharacterLogicSystem::RunSwim(GameCharacter& g_character) {
+  // 095 CVecCtrl::IsSwimming 的水中运动：低重力、可上下控制、水平阻尼。
+  self_swim_ = true;
+  self_fh_ = 0;
+  self_lr_ = 0;
+  RunAction(g_character, u"fly");
+
+  auto dt = Window::delta_time_ / 1000.0f;
+  auto max_h = CharacterStatGameInstance::GetHspeedMax() * 0.6f;
+
+  if (character_action_input_.contains("left")) {
+    self_hspeed_ -= 900.0f * dt;
+  } else if (character_action_input_.contains("right")) {
+    self_hspeed_ += 900.0f * dt;
+  } else {
+    self_hspeed_ *= std::max(0.0f, 1.0f - 3.0f * dt);
+  }
+  self_hspeed_ = std::clamp(self_hspeed_, -max_h, max_h);
+
+  if (character_action_input_.contains("up")) {
+    self_vspeed_ -= 900.0f * dt;
+  } else if (character_action_input_.contains("down")) {
+    self_vspeed_ += 700.0f * dt;
+  } else {
+    // 轻微下沉，保持浮在水面附近。
+    self_vspeed_ += 120.0f * dt;
+  }
+  self_vspeed_ = std::clamp(self_vspeed_, -220.0f, 200.0f);
+
+  g_character.pos.x += self_hspeed_ * dt;
+  g_character.pos.y += self_vspeed_ * dt;
+
+  if (auto rect = MapInfoGameInstance::LoadSwimRect(
+          SceneSystemInstance::map_id_);
+      rect.has_value()) {
+    g_character.pos.x =
+        std::clamp(g_character.pos.x, rect->x + 10, rect->x + rect->w - 10);
+    g_character.pos.y =
+        std::clamp(g_character.pos.y, rect->y + 4, rect->y + rect->h - 4);
+  }
+
+  RunFlip(g_character);
+  return true;
+}
+
 bool CharacterLogicSystem::RunPortal(GameCharacter& g_character) {
   // 特殊情况，如果掉到了地图外,直接传送到sp出生点
   auto border = MapInfoGameInstance::LoadMrBorder(SceneSystemInstance::map_id_);
@@ -1160,11 +1355,24 @@ bool CharacterLogicSystem::RunPortal(GameCharacter& g_character) {
       if (por.tm == 999999999) {
         continue;
       }
+      const auto& g_pos = g_character.pos;
+      const auto& p_pos = por.pos;
+      bool is_near =
+          g_pos.x == std::clamp(g_pos.x, p_pos.x - 40, p_pos.x + 40) &&
+          g_pos.y == std::clamp(g_pos.y, p_pos.y - 50, p_pos.y + 50);
+
+      // 095 脚本传送门（pt 6=ps / 9=pcs）：执行已注册的同名脚本。
+      if (is_near && (por.pt == 6 || por.pt == 9)) {
+        auto& fns = Script::fns();
+        if (auto it = fns.find(por.pn); it != fns.end()) {
+          it->second(std::any{});
+          self_portal_cooldown_ = Window::dt_now_ + 1000;
+          return true;
+        }
+      }
+
       if (((por.pt == 1 || por.pt == 2) && up) || por.pt == 3) {
-        const auto& g_pos = g_character.pos;
-        const auto& p_pos = por.pos;
-        if (g_pos.x == std::clamp(g_pos.x, p_pos.x - 40, p_pos.x + 40) &&
-            g_pos.y == std::clamp(g_pos.y, p_pos.y - 50, p_pos.y + 50)) {
+        if (is_near) {
           if (por.tm != SceneSystemInstance::map_id_) {
             // need to change map
             SceneSystemInstance::EnterPrepare(por.tm, por.tn, 0);
@@ -1332,8 +1540,20 @@ void CharacterLogicSystem::RunNetworkSyncFace() {
 }
 
 void CharacterLogicSystem::RunNetworkSyncSelf() {
+  const auto& sf = CharacterGameInstance::self_;
+  // 攻速（Booster 等）属于角色数据的一部分：变化时自动触发 CharacterT 同步，
+  // 否则远程玩家按旧攻速播放你的攻击动画。
+  static uint64_t last_id = 0;
+  static int8_t last_attack_speed = 0;
+  if (last_id != sf.id) {
+    last_id = sf.id;
+    last_attack_speed = sf.attack_speed;
+  } else if (last_attack_speed != sf.attack_speed) {
+    last_attack_speed = sf.attack_speed;
+    cct_.map_id = SceneSystemInstance::map_id_;
+  }
+
   if (cct_.map_id != 0) {
-    const auto& sf = CharacterGameInstance::self_;
     auto c = ServerCharacterInstance::LoadCharactert(sf);
     cct_.payload = std::make_unique<fbs::CharacterT>(std::move(c));
     ClientRequest::SendToHost(cct_);
@@ -1419,7 +1639,8 @@ CharacterLogicSystem::ActionEnum CharacterLogicSystem::LoadActionType(
       {u"prone2", ActionEnum::kSkill},    {u"rope2", ActionEnum::kSkill},
       {u"savage", ActionEnum::kSkill},    {u"shoot6", ActionEnum::kSkill},
       {u"shootDb1", ActionEnum::kSkill},  {u"shotC1", ActionEnum::kSkill},
-      {u"sit", ActionEnum::kSit},         {u"rushO", ActionEnum::kSkill},
+      {u"sit", ActionEnum::kSit},         {u"fly", ActionEnum::kSkill},
+      {u"rushO", ActionEnum::kSkill},
   };
   auto action = MapName.at(g_character.action);
   if (action == ActionEnum::kDead) {
@@ -1508,6 +1729,43 @@ void CharacterLogicSystem::RunStateMachine() {
     return;
   }
   auto o_character = g_character;
+
+  // 095 CVecCtrl::IsSwimming：在游泳地图的水域内切换到游泳状态，
+  // 不参与落脚点碰撞，离开水面后恢复普通下落。
+  // 角色骨骼没有 swim 动作，095/本数据包都用 fly 动作表现水中/飞行姿态。
+  if (MapInfoGameInstance::IsSwimming(SceneSystemInstance::map_id_,
+                                      g_character.pos)) {
+    RunFace(g_character);
+    RunFaceAnimate(g_character);
+    RunSwim(g_character);
+    RunAnimate(g_character);
+    RunNetworkSync();
+    return;
+  }
+
+  // 095 飞行状态：仅在飞行地图且骑乘时启用（数据驱动的飞行技能可复用）。
+  if (MapInfoGameInstance::IsFlyingMap(SceneSystemInstance::map_id_) &&
+      !g_character.mount.empty()) {
+    RunFace(g_character);
+    RunFaceAnimate(g_character);
+    RunFly(g_character);
+    RunAnimate(g_character);
+    RunNetworkSync();
+    return;
+  }
+  if (self_fly_) {
+    self_fly_ = false;
+    self_fh_ = 0;
+    self_vspeed_ = 0;
+    RunAction(g_character, u"jump");
+  }
+  if (self_swim_) {
+    self_swim_ = false;
+    self_fh_ = 0;
+    self_vspeed_ = 0;
+    RunAction(g_character, u"jump");
+  }
+
   RunItem(g_character);
   auto g_action = LoadActionType(g_character);
   RunFace(g_character);
@@ -1523,6 +1781,9 @@ void CharacterLogicSystem::RunStateMachine() {
         break;
       }
       if (RunClimb(g_character)) {
+        break;
+      }
+      if (RunSeat(g_character)) {
         break;
       }
       if (RunProne(g_character)) {
@@ -1610,6 +1871,11 @@ void CharacterLogicSystem::RunStateMachine() {
       break;
     }
     case ActionEnum::kSit: {
+      // 地图座位（SeatGameInstance）：坐着时由 RunSeat 处理起身。
+      if (self_seat_.has_value()) {
+        RunSeat(g_character);
+        break;
+      }
       if (!RunSitting(g_character)) {
         RunStateMachine();
       }
@@ -1747,7 +2013,64 @@ bool CharacterLogicSystem::Run() {
   RunOthers();
   RunStateMachine();
   RunRecovery(CharacterGameInstance::self_);
+
+  // 地图附加规则（095 服务端字段，本地数据驱动）：
+  // decHP 每 10 秒扣血；timeLimit 到期后强制返回 forcedReturn/returnMap。
+  const auto map_id = SceneSystemInstance::map_id_;
+  const auto now = Window::dt_now_;
+  static uint32_t dec_hp_map = 0;
+  static uint64_t dec_hp_time = 0;
+  if (map_id != dec_hp_map) {
+    dec_hp_map = map_id;
+    dec_hp_time = now + 10000;
+  }
+  if (auto dec_hp = MapInfoGameInstance::LoadDecHP(map_id);
+      dec_hp > 0 && now >= dec_hp_time) {
+    dec_hp_time = now + 10000;
+    auto hp = CharacterStatGameInstance::GetHp();
+    auto new_hp = std::max(0, hp - dec_hp);
+    if (new_hp < hp) {
+      CharacterStatGameInstance::SetHp(new_hp);
+      auto& self = CharacterGameInstance::self_;
+      fbs::AttackT at;
+      at.x = self.pos.x;
+      at.y = self.pos.y - 30;
+      // 人物受伤统一用紫色数字。
+      at.type = static_cast<uint8_t>(DamageData::DamageColor::kPurple);
+      at.num = static_cast<uint64_t>(hp - new_hp);
+      ServerMobInstance::HandleSAttack(0, at);
+      // 广播给同地图其他玩家。
+      fbs::ClientMobAttackT cma;
+      cma.map_id = SceneSystemInstance::map_id_;
+      cma.payload = std::make_unique<fbs::AttackT>(at);
+      ClientRequest::SendToHost(cma);
+      if (new_hp == 0) {
+        RunDieAction(self);
+      }
+    }
+  }
+
+  static uint32_t tl_map = 0;
+  static uint64_t tl_end = 0;
+  if (map_id != tl_map) {
+    tl_map = map_id;
+    auto limit = MapInfoGameInstance::LoadTimeLimit(map_id);
+    tl_end = limit != 0 ? now + static_cast<uint64_t>(limit) * 1000 : 0;
+  }
+  if (tl_end != 0 && now >= tl_end) {
+    tl_end = 0;
+    auto target = MapInfoGameInstance::LoadForcedReturn(map_id);
+    if (target == 0) {
+      target = MapInfoGameInstance::LoadReturnMap(map_id);
+    }
+    if (target != 0 && target != map_id) {
+      SceneSystemInstance::EnterPrepare(target, u"sp", 0);
+    }
+  }
+
   RunColor();
+  // 怪物/技能挂的 debuff：持续伤害（中毒/灼烧）。
+  RunDebuffDamage();
   // 角色状态（怪物技能等挂的 debuff）到期清理
   std::erase_if(CharacterGameInstance::self_.debuffs, [](const auto& kv) {
     return kv.second.destroy != 0 && kv.second.destroy <= Window::dt_time_;
@@ -1758,6 +2081,70 @@ bool CharacterLogicSystem::Run() {
     });
   }
   return true;
+}
+
+void CharacterLogicSystem::RunDebuffDamage() {
+  auto& sf = CharacterGameInstance::self_;
+  if (sf.action == u"dead") {
+    self_poison_next_ = 0;
+    self_burn_next_ = 0;
+    return;
+  }
+  const auto now = Window::dt_now_;
+  const auto now_ms = Window::dt_time_;
+
+  // 095 CMob::Update：中毒每 1000ms 扣一次 nPoison；灼烧按 2000ms 结算。
+  // 持续伤害不吃受击无敌期，也不触发受击动作/击退。
+  const auto tick = [&](GameDebuff::DebuffType type, uint64_t interval,
+                        uint64_t& next) {
+    auto it = sf.debuffs.find(type);
+    if (it == sf.debuffs.end()) {
+      next = 0;
+      return;
+    }
+    const auto& db = it->second;
+    if (db.destroy != 0 && db.destroy <= now_ms) {
+      next = 0;
+      return;
+    }
+    if (next == 0) {
+      next = now + interval;
+      return;
+    }
+    if (now < next) {
+      return;
+    }
+    next = now + interval;
+
+    const auto damage = std::max<int32_t>(1, static_cast<int32_t>(db.val));
+    const auto hp = CharacterStatGameInstance::GetHp();
+    const auto new_hp = std::max<int32_t>(0, hp - damage);
+    if (new_hp >= hp) {
+      return;
+    }
+    CharacterStatGameInstance::SetHp(new_hp);
+
+    fbs::AttackT at;
+    at.x = sf.pos.x;
+    at.y = sf.pos.y - 30;
+    // 人物受伤统一用紫色数字。
+    at.type = static_cast<uint8_t>(DamageData::DamageColor::kPurple);
+    at.num = static_cast<uint64_t>(hp - new_hp);
+    ServerMobInstance::HandleSAttack(0, at);
+
+    // 广播给同地图其他玩家（服务端 HandleAttack 转发）。
+    fbs::ClientMobAttackT cma;
+    cma.map_id = SceneSystemInstance::map_id_;
+    cma.payload = std::make_unique<fbs::AttackT>(at);
+    ClientRequest::SendToHost(cma);
+
+    if (new_hp == 0) {
+      RunDieAction(sf);
+    }
+  };
+
+  tick(GameDebuff::DebuffType::kPoison, 1000, self_poison_next_);
+  tick(GameDebuff::DebuffType::kBurn, 2000, self_burn_next_);
 }
 
 void CharacterLogicSystem::RunDieAction(GameCharacter& g_character) {
@@ -1950,6 +2337,7 @@ void CharacterLogicSystem::RunUnmount(GameCharacter& g_character) {
   std::u16string mount_id = g_character.mount_item;
   g_character.mount = u"";
   g_character.mount_item = u"";
+  self_fly_ = false;
   g_character.action_index = 0;
   g_character.action_time = 0;
 
@@ -2024,6 +2412,13 @@ void CharacterLogicSystem::RunRecovery(GameCharacter& g_character) {
       JobSkillGameInstance::LoadSkiLevel(u"1000000") > 0;
   if (!standing && !sitting && !climbing && !improved_hp_recovery) {
     self_recovery_time_ = 0;
+    return;
+  }
+  // 095 TryRecovery：位置变化的帧不恢复，重新累计 10 秒。
+  if (self_recovery_pos_.x != g_character.pos.x ||
+      self_recovery_pos_.y != g_character.pos.y) {
+    self_recovery_pos_ = g_character.pos;
+    self_recovery_time_ = now + 10000;
     return;
   }
   if (self_recovery_time_ == 0) {
@@ -2211,12 +2606,36 @@ void CharacterLogicSystem::RunBeingHit(float x, uint64_t num) {
 
 std::vector<uint64_t> CharacterLogicSystem::RunBuffCheck(
     GameCharacter& g_character, SDL_FRect g_r) {
+  // 095 组队增益技能：作用对象是"队伍成员"，不是同地图所有玩家。
+  //   - 施放者自己始终受益（party buff 对施放者本人也生效）；
+  //   - 队友在技能范围内才生效；技能没有范围数据（LoadSkiR 返回空矩形）
+  //     时按全队生效，避免精简包缺 Skill.wz 时组队技能完全失效。
   std::vector<uint64_t> r;
-  auto& g_pos = g_character.pos;
-  for (const auto& [k, v] : CharacterGameInstance::others_) {
-    auto c_r = LoadRect(v.g_character);
+  const uint64_t self_id = ServerMain::local_addr_;
+  const bool has_range = g_r.w > 0.0f && g_r.h > 0.0f;
+
+  r.push_back(self_id);
+
+  if (!PartyGameInstance::data_.has_value()) {
+    return r;
+  }
+  for (const auto& m : PartyGameInstance::data_->members) {
+    const uint64_t cid = m.player.client_id;
+    if (cid == 0 || cid == self_id) {
+      continue;
+    }
+    // 不在当前地图的队友拿不到 buff（095 队伍跨地图不共享范围增益）。
+    auto it = CharacterGameInstance::others_.find(cid);
+    if (it == CharacterGameInstance::others_.end()) {
+      continue;
+    }
+    if (!has_range) {
+      r.push_back(cid);
+      continue;
+    }
+    auto c_r = LoadRect(it->second.g_character);
     if (SDL_HasRectIntersectionFloat(&c_r, &g_r)) {
-      r.push_back(k);
+      r.push_back(cid);
     }
   }
   return r;

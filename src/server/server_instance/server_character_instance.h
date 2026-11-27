@@ -90,6 +90,10 @@ class ServerCharacterInstance {
   static void HandleMorphUse(GameCharacter& g_character, bool success);
   static void HandleScrollUse(GameCharacter& g_character, bool success);
   static void HandleItemUse(GameCharacter& g_character, const fbs::StateT& st);
+
+  // 095 CField::OnBlowWeather：校验天气道具后向同图（含自己）广播。
+  static void HandleCharacterWeather(uint64_t client_id,
+                                     fbs::ClientCharacterWeatherT& r);
 };
 
 }  // namespace sdlms

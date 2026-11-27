@@ -509,7 +509,7 @@ void CharacterStatGameInstance::UpdateMoveLimits() {
   // 移速 = 技能 buff(轻功/极速等) + 道具(药水等)
   auto speed = static_cast<float>(
       GetBuffSpeed() + std::max(GetItemSpeed(), 0) + ski_speed_);
-  auto jump = static_cast<float>(GetBuffJump());
+  auto jump = static_cast<float>(GetBuffJump() + std::max(GetItemJump(), 0));
   // 骑宠（095 TamingMob info）：speed=200 表示 200% 移动速度，
   // 即 +100 速度点；jump=120 表示 120% 跳跃力，即 +20 跳跃点。
   const auto& mount = CharacterGameInstance::self_.mount;
@@ -661,6 +661,21 @@ void CharacterStatGameInstance::SetRemainAp(uint32_t n) {
   remain_ap_ = n;
 }
 
+// 一转成功后重置 AP：已分配的 STR/DEX/INT/LUK 与 HP/MP 加点全部返还，
+// 剩余 AP 按等级重算（与 Load 的总 AP 公式保持一致）。
+void CharacterStatGameInstance::ResetAp() {
+  hp_ap_ = 0;
+  mp_ap_ = 0;
+  str_ap_ = 0;
+  dex_ap_ = 0;
+  int_ap_ = 0;
+  luk_ap_ = 0;
+  const uint32_t total_ap =
+      25 + 5 * (std::max<uint32_t>(1, CharacterGameInstance::self_.level) - 1);
+  remain_ap_ = total_ap;
+  Update();
+}
+
 // ============================================================
 // AP 加点
 // ============================================================
@@ -754,6 +769,10 @@ uint32_t CharacterStatGameInstance::RollAttackDamage(uint32_t skill_percent,
   std::uniform_int_distribution<uint32_t> dist(lo, hi);
   uint64_t damage = static_cast<uint64_t>(dist(RandomGameInstance::gen_)) *
                     skill_percent / 100;
+  // 095：伤害百分比道具（spec/damage）。
+  if (item_damage_ != 0) {
+    damage = damage * static_cast<uint64_t>(100 + item_damage_) / 100;
+  }
   std::uniform_int_distribution<uint32_t> crit_roll(0, 99);
   const bool is_critical = crit_roll(RandomGameInstance::gen_) < crit_rate_;
   if (is_critical) {
@@ -788,6 +807,10 @@ uint32_t CharacterStatGameInstance::RollMagicDamage(uint32_t skill_percent,
   std::uniform_real_distribution<float> dist(magic_min, magic_max);
   uint64_t damage = static_cast<uint64_t>(
       std::max(0.0f, dist(RandomGameInstance::gen_)) * skill_percent / 100.0f);
+  // 095：伤害百分比道具（spec/damage）。
+  if (item_damage_ != 0) {
+    damage = damage * static_cast<uint64_t>(100 + item_damage_) / 100;
+  }
 
   std::uniform_int_distribution<uint32_t> crit_roll(0, 99);
   const bool is_critical = crit_roll(RandomGameInstance::gen_) < crit_rate_;
@@ -853,12 +876,26 @@ uint32_t CharacterStatGameInstance::GetAvd() {
   return avoid_;
 }
 int32_t CharacterStatGameInstance::GetDef() {
+  // 095 SecondaryStat nThreaten（怪物技能"虚弱"）：防御按百分比下降。
+  if (auto it = CharacterGameInstance::self_.debuffs.find(
+          GameDebuff::DebuffType::kThreaten);
+      it != CharacterGameInstance::self_.debuffs.end()) {
+    const int64_t val = std::clamp<int64_t>(it->second.val, 0, 90);
+    return static_cast<int32_t>(attack_def_ * (100 - val) / 100);
+  }
   return attack_def_;
 }
 int32_t CharacterStatGameInstance::GetMdef() {
   return magic_def_;
 }
 int32_t CharacterStatGameInstance::GetAttack() {
+  // 095 nThreaten 同时降低攻击力。
+  if (auto it = CharacterGameInstance::self_.debuffs.find(
+          GameDebuff::DebuffType::kThreaten);
+      it != CharacterGameInstance::self_.debuffs.end()) {
+    const int64_t val = std::clamp<int64_t>(it->second.val, 0, 90);
+    return static_cast<int32_t>(attack_ * (100 - val) / 100);
+  }
   return attack_;
 }
 int32_t CharacterStatGameInstance::GetMagic() {
@@ -1211,6 +1248,20 @@ void CharacterStatGameInstance::SetItemSpeed(int32_t n) {
 }
 int32_t CharacterStatGameInstance::GetItemSpeed() {
   return item_speed_;
+}
+void CharacterStatGameInstance::SetItemJump(int32_t n) {
+  item_jump_ = std::max(n, 0);
+  Update();
+}
+int32_t CharacterStatGameInstance::GetItemJump() {
+  return item_jump_;
+}
+void CharacterStatGameInstance::SetItemDamage(int32_t n) {
+  item_damage_ = n;
+  Update();
+}
+int32_t CharacterStatGameInstance::GetItemDamage() {
+  return item_damage_;
 }
 
 // ============================================================

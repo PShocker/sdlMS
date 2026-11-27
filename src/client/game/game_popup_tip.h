@@ -16,6 +16,8 @@ enum class PopupTipEnums {
   kMinigame,
   // MapleChat 聊天邀请（095 CUIFadeYesNo CreateMSMInvite）。
   kMapleChat,
+  // 好友上线通知（纯提示，无按钮，自动消失；data = 好友名字 u16string）。
+  kFriendOnline,
 };
 
 // 五子棋请求提示：kind 对应 ClientCharacterMinigame 的 6=悔棋 / 8=求和。

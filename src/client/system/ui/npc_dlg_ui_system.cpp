@@ -4,16 +4,20 @@
 #include "src/client/game/game_quest.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
+#include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
+#include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/game_instance/npc_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/quest_game_instance.h"
 #include "src/client/game_instance/random_game_instance.h"
+#include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/game_instance/text_game_instance.h"
 #include "src/client/system/input/keyboard_input_system.h"
+#include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/render/npc_render_system.h"
 #include "src/client/system/system.h"
@@ -994,6 +998,8 @@ bool NpcDlgUiSystem::SettleAct() {
 
   auto back_data = PackageGameInstance::data_;
 
+  auto back_fame = CharacterGameInstance::self_.fame;
+
   if (!act_random_item_.empty()) {
     auto& r = RandomGameInstance::gen_;
 
@@ -1024,6 +1030,8 @@ bool NpcDlgUiSystem::SettleAct() {
 
         PackageGameInstance::data_ = back_data;
 
+        CharacterGameInstance::self_.fame = back_fame;
+
         return false;
       }
 
@@ -1037,6 +1045,31 @@ bool NpcDlgUiSystem::SettleAct() {
   PackageGameInstance::AddMeso(act_meso_);
 
   CharacterStatGameInstance::AddExp(act_exp_);
+
+  // Act/<idx>/pop：095 CQuest::LoadReward 的人气奖励。
+  CharacterGameInstance::self_.fame += act_pop_;
+
+  // 人气是角色数据的一部分，改完要让同地图玩家收到新的 CharacterT，
+  // 否则别人的角色信息面板一直是旧人气。
+  if (act_pop_ != 0) {
+    CharacterLogicSystem::cct_.map_id = SceneSystemInstance::map_id_;
+  }
+
+  // Act/<idx>/skill：095 的 learnSkill，只升不降。
+  if (!act_skill_.empty()) {
+    for (auto [ski_id, lv] : act_skill_) {
+      auto tmp = std::to_string(ski_id);
+      std::u16string ski_str{tmp.begin(), tmp.end()};
+      const int max_lv = SkillGameInstance::LoadSkiMaxLvl(ski_str);
+      const int target = std::min<int>(lv, std::max(0, max_lv));
+      if (target > JobSkillGameInstance::LoadSkiLevel(ski_str)) {
+        JobSkillGameInstance::skill_point_[ski_id] =
+            static_cast<uint8_t>(target);
+      }
+    }
+    // 被动技能等级变化后重算属性。
+    CharacterStatGameInstance::Update();
+  }
 
   return true;
 }
@@ -1060,6 +1093,10 @@ bool NpcDlgUiSystem::FinishQuest() {
   act_exp_ = QuestGameInstance::LoadQuestActExp(quest_id_);
 
   act_random_item_ = QuestGameInstance::LoadQuestActRandomItem(quest_id_);
+
+  act_pop_ = QuestGameInstance::LoadQuestActPop(quest_id_);
+
+  act_skill_ = QuestGameInstance::LoadQuestActSkill(quest_id_);
 
   if (!SettleAct()) {
     Close();
@@ -1091,8 +1128,36 @@ void NpcDlgUiSystem::EventButtonOk() {
 
   // 选项列表（例如二转职业选择）用 OK 确认当前选项
 
-  if (type_ == NpcDlgEnum::kSelect && cb_) {
-    cb_();
+  if (type_ == NpcDlgEnum::kSelect) {
+    if (cb_) {
+      cb_();
+
+      return;
+    }
+
+    // 没有脚本回调的 ask 问答：OK 同样确认当前选项。
+    ConfirmSelect();
+
+    return;
+  }
+
+  // ask 答错后的提示页：OK 回到问题页重新选择。
+  if (type_ == NpcDlgEnum::kTalk && select_retry_) {
+    select_retry_ = false;
+
+    type_ = NpcDlgEnum::kSelect;
+
+    text_ = select_text_;
+
+    select_ = 0;
+
+    select_mouse_ = -1;
+
+    index_ = 0;
+
+    max_index_ = 0;
+
+    time_ = Window::dt_now_;
 
     return;
   }
@@ -1100,6 +1165,14 @@ void NpcDlgUiSystem::EventButtonOk() {
   // OK 直接确认/关闭，不再先翻页�?
 
   if (type_ == NpcDlgEnum::kQuestComplete) {
+    // 095：结算前重新校验交任务需求（对话期间物品可能变化），
+    // 不满足则先不结算，玩家可再次对话。
+    if (!QuestGameInstance::CheckCompleteDemand(quest_id_).empty()) {
+      Close();
+
+      return;
+    }
+
     if (!SettleAct()) {
       Close();
 
@@ -1118,7 +1191,8 @@ void NpcDlgUiSystem::EventButtonOk() {
 
     auto quest_node = QuestGameInstance::LoadQuestNode(quest_id_);
 
-    if (auto n = quest_node->find(u"Say/1/yes/0"); n != nullptr) {
+    if (auto n = quest_node->find(u"Say/" + quest_index_ + u"/yes/0");
+        n != nullptr) {
       // 奖励已结算，这里只显示完成对白；改为 kQuestYes�?
 
       // 避免下一�?OK 又进�?kQuestComplete 重复发奖励�?
@@ -1166,7 +1240,17 @@ void NpcDlgUiSystem::EventButtonUpdate() {
 
   std::u16string suffix;
 
-  switch (type_) {
+  const bool is_stop_page =
+      type_ == NpcDlgEnum::kQuestStopItem ||
+      type_ == NpcDlgEnum::kQuestStopMob ||
+      type_ == NpcDlgEnum::kQuestStopLost ||
+      type_ == NpcDlgEnum::kQuestStopNpc;
+
+  if (is_stop_page && !stop_say_path_.empty()) {
+    // CheckCompleteDemand 选出的专项失败对白（stop/level 等）。
+    suffix = u"/" + stop_say_path_;
+  } else {
+    switch (type_) {
     case NpcDlgEnum::kQuestComplete:
 
     case NpcDlgEnum::kQuest:
@@ -1214,6 +1298,7 @@ void NpcDlgUiSystem::EventButtonUpdate() {
     default:
 
       suffix = u"";
+    }
   }
 
   auto node = QuestGameInstance::LoadQuestNode(quest_id_);
@@ -1223,7 +1308,10 @@ void NpcDlgUiSystem::EventButtonUpdate() {
   }
 
   if (node != nullptr) {
-    text_ = TextGameInstance::LoadRstr(node->get_child(std::to_string(index_)));
+    if (auto* page = node->get_child(std::to_string(index_));
+        page != nullptr) {
+      text_ = TextGameInstance::LoadRstr(page);
+    }
   }
 
   ResetPos();
@@ -1233,6 +1321,12 @@ void NpcDlgUiSystem::EventButtonUpdate() {
 
 
 void NpcDlgUiSystem::EventButtonPrev() {
+  // 首页没有上一页：095 SayNormal 里 v4 < 0 直接结束对话，
+  // 这里保持对话框不关闭、文本不变，避免取到空节点。
+  if (index_ <= 0) {
+    return;
+  }
+
   selected = u"";
 
   --index_;
@@ -1250,65 +1344,7 @@ void NpcDlgUiSystem::EventButtonNext() {
         return;
       }
 
-      auto node = QuestGameInstance::LoadQuestNode(quest_id_);
-
-      node = node->find(u"Say/" + quest_index_ + u"/stop/0/answer");
-
-      auto ans = static_cast<wz::Property<int>*>(node)->get() - 1;
-
-      auto st = select_;
-
-      if (select_mouse_ != -1) {
-        st = select_mouse_;
-      }
-
-      if (ans == st) {
-        type_ = NpcDlgEnum::kQuestComplete;
-
-        node = QuestGameInstance::LoadQuestNode(quest_id_);
-
-        node = node->find(u"Say/" + quest_index_);
-
-        node = node->get_child(std::to_string(index_ + 1));
-
-        time_ = Window::dt_now_;
-
-        text_ = TextGameInstance::LoadRstr(node);
-
-        index_ = 0;
-
-        max_index_ = 0;
-
-
-        act_meso_ = QuestGameInstance::LoadQuestActMeso(quest_id_);
-
-        act_item_ = QuestGameInstance::LoadQuestActItem(quest_id_);
-
-        act_exp_ = QuestGameInstance::LoadQuestActExp(quest_id_);
-
-        act_random_item_ =
-
-            QuestGameInstance::LoadQuestActRandomItem(quest_id_);
-
-      } else {
-        type_ = NpcDlgEnum::kTalk;
-
-        node = QuestGameInstance::LoadQuestNode(quest_id_);
-
-        node = node->find(u"Say/" + quest_index_ + u"/stop");
-
-        node = node->get_child(std::to_string(index_));
-
-        node = node->get_child(std::to_string(st));
-
-        time_ = Window::dt_now_;
-
-        text_ = TextGameInstance::LoadRstr(node);
-
-        index_ = 0;
-
-        max_index_ = 0;
-      }
+      ConfirmSelect();
 
       break;
     }
@@ -1323,6 +1359,98 @@ void NpcDlgUiSystem::EventButtonNext() {
       break;
     }
   }
+}
+
+// 095 CQuest::AskQuestion 的客户端实现：
+//   Say/<idx>/0            问题文本（含 #L0#..#Ln# 选项）
+//   Say/<idx>/stop/<n>/answer  正确选项（1-based，各组相同）
+//   Say/<idx>/stop/<n>/<sel>   第 n 次答错、选中 sel 时的提示
+// 答对进入 Say/<idx>/1 并结算，答错显示提示后可重新选择。
+void NpcDlgUiSystem::ConfirmSelect() {
+  auto* qnode = QuestGameInstance::LoadQuestNode(quest_id_);
+  if (qnode == nullptr) {
+    return;
+  }
+  auto* say = qnode->find(u"Say/" + quest_index_);
+  if (say == nullptr) {
+    return;
+  }
+
+  auto st = select_;
+  if (select_mouse_ != -1) {
+    st = select_mouse_;
+  }
+
+  // 正确选项：从 stop/<n>/answer 取第一组（1-based）。
+  int answer = 0;
+  auto* stop = say->get_child(u"stop");
+  if (stop != nullptr) {
+    for (auto [k, v] : *stop->get_children()) {
+      if (v.empty() || v[0] == nullptr) {
+        continue;
+      }
+      if (auto* a = v[0]->get_child(u"answer");
+          a != nullptr && a->type == wz::Type::Int) {
+        answer = static_cast<wz::Property<int>*>(a)->get();
+        break;
+      }
+    }
+  }
+
+  if (answer > 0 && answer - 1 == st) {
+    // 答对：显示 Say/<idx>/1（下一项对白）并进入奖励结算页。
+    auto* next = say->get_child(u"1");
+    type_ = NpcDlgEnum::kQuestComplete;
+    if (next != nullptr) {
+      text_ = TextGameInstance::LoadRstr(next);
+    }
+    time_ = Window::dt_now_;
+    index_ = 0;
+    max_index_ = 0;
+    select_retry_ = false;
+    select_attempt_ = 0;
+
+    act_meso_ = QuestGameInstance::LoadQuestActMeso(quest_id_);
+    act_item_ = QuestGameInstance::LoadQuestActItem(quest_id_);
+    act_exp_ = QuestGameInstance::LoadQuestActExp(quest_id_);
+    act_random_item_ = QuestGameInstance::LoadQuestActRandomItem(quest_id_);
+    act_pop_ = QuestGameInstance::LoadQuestActPop(quest_id_);
+    act_skill_ = QuestGameInstance::LoadQuestActSkill(quest_id_);
+    return;
+  }
+
+  // 答错：Say/<idx>/stop/<attempt>/<sel>，没有对应提示时退回第 0 组。
+  wz::Node* page = nullptr;
+  if (stop != nullptr) {
+    if (auto* g = stop->get_child(std::to_string(select_attempt_));
+        g != nullptr) {
+      page = g->get_child(std::to_string(st));
+    }
+    if (page == nullptr) {
+      if (auto* g0 = stop->get_child(u"0"); g0 != nullptr) {
+        page = g0->get_child(std::to_string(st));
+      }
+    }
+  }
+
+  if (page != nullptr) {
+    type_ = NpcDlgEnum::kTalk;
+    text_ = TextGameInstance::LoadRstr(page);
+    time_ = Window::dt_now_;
+    select_retry_ = true;
+    ++select_attempt_;
+    index_ = 0;
+    max_index_ = 0;
+    return;
+  }
+
+  // 没有提示对白：直接把问题页文本作为反馈，保持可重选。
+  text_ = select_text_;
+  time_ = Window::dt_now_;
+  select_retry_ = true;
+  ++select_attempt_;
+  index_ = 0;
+  max_index_ = 0;
 }
 
 
@@ -1350,6 +1478,12 @@ void NpcDlgUiSystem::EventList() {
   AudioGameInstance::PlayNow(u"UI.img/BtMouseClick");
 
   script_id_ = u"";
+
+  stop_say_path_ = u"";
+
+  select_retry_ = false;
+
+  select_attempt_ = 0;
 
   quest_id_ = selected;
 
@@ -1385,9 +1519,10 @@ void NpcDlgUiSystem::EventList() {
     }
 
     if (node->find(u"Say/" + quest_index_ + u"/ask")) {
-      text_ = TextGameInstance::LoadRstr(
-
-          node->find(u"Say/" + quest_index_ + u"/0"));
+      if (auto* q_page = node->find(u"Say/" + quest_index_ + u"/0");
+          q_page != nullptr) {
+        text_ = TextGameInstance::LoadRstr(q_page);
+      }
 
       type_ = NpcDlgEnum::kSelect;
 
@@ -1419,6 +1554,11 @@ void NpcDlgUiSystem::EventList() {
 
       select_mouse_ = -1;
 
+      // ask 问答状态：记录问题页文本，答错次数从 0 起。
+      select_text_ = text_;
+      select_attempt_ = 0;
+      select_retry_ = false;
+
       return;
     }
 
@@ -1448,6 +1588,10 @@ void NpcDlgUiSystem::EventList() {
 
     act_random_item_ = QuestGameInstance::LoadQuestActRandomItem(quest_id_);
 
+    act_pop_ = QuestGameInstance::LoadQuestActPop(quest_id_);
+
+    act_skill_ = QuestGameInstance::LoadQuestActSkill(quest_id_);
+
     if (max_index_ == -1) {
       // 没有完成对白页时直接结算；有对白/奖励展示时不要跳过�?
 
@@ -1474,26 +1618,69 @@ void NpcDlgUiSystem::EventList() {
       return;
     }
 
-    if (!q.item_bool) {
+    // 095 CQuestMan::CheckCompleteDemand：按 level → item → mob 返回
+    // 第一个不满足的原因，再用 Say/<idx>/stop/<reason> 作为提示对白。
+    // 任务物品完全丢失时优先用 Say/<idx>/lost（095 OnCompleteQuestFailed）。
+    auto reason = QuestGameInstance::CheckCompleteDemand(quest_id_);
+
+    node = QuestGameInstance::LoadQuestNode(selected);
+
+    auto* say = node != nullptr ? node->find(u"Say/" + quest_index_) : nullptr;
+
+    stop_say_path_ = u"";
+
+    if (!reason.empty()) {
+      const auto pick = [&](const std::u16string& path) -> wz::Node* {
+        return say != nullptr ? say->find(path) : nullptr;
+      };
+      if (pick(u"stop/" + reason) != nullptr) {
+        stop_say_path_ = u"stop/" + reason;
+      } else if (reason == u"item" && pick(u"lost") != nullptr) {
+        stop_say_path_ = u"lost";
+      } else if (pick(u"stop/default") != nullptr) {
+        stop_say_path_ = u"stop/default";
+      } else if (!q.item_bool && pick(u"stop/item") != nullptr) {
+        stop_say_path_ = u"stop/item";
+      } else if (!q.mob_bool && pick(u"stop/mob") != nullptr) {
+        stop_say_path_ = u"stop/mob";
+      } else if (pick(u"stop/npc") != nullptr) {
+        stop_say_path_ = u"stop/npc";
+      }
+    }
+
+    if (!stop_say_path_.empty()) {
       type_ = NpcDlgEnum::kQuestStopItem;
 
-      node = QuestGameInstance::LoadQuestNode(selected);
+      // stop_say_path_ 可能是两级路径（stop/level），必须用 find。
+      node = say != nullptr ? say->find(stop_say_path_) : nullptr;
 
-      node = node->find(u"Say/" + quest_index_ + u"/stop/item");
+      if (node == nullptr) {
+        stop_say_path_ = u"";
+      }
+    }
 
-    } else if (!q.mob_bool) {
-      type_ = NpcDlgEnum::kQuestStopMob;
+    if (stop_say_path_.empty()) {
+      if (!q.item_bool) {
+        type_ = NpcDlgEnum::kQuestStopItem;
 
-      node = QuestGameInstance::LoadQuestNode(selected);
+        node = QuestGameInstance::LoadQuestNode(selected);
 
-      node = node->find(u"Say/" + quest_index_ + u"/stop/mob");
+        node = node->find(u"Say/" + quest_index_ + u"/stop/item");
 
-    } else {
-      type_ = NpcDlgEnum::kQuestStopNpc;
+      } else if (!q.mob_bool) {
+        type_ = NpcDlgEnum::kQuestStopMob;
 
-      node = QuestGameInstance::LoadQuestNode(selected);
+        node = QuestGameInstance::LoadQuestNode(selected);
 
-      node = node->find(u"Say/" + quest_index_ + u"/stop/npc");
+        node = node->find(u"Say/" + quest_index_ + u"/stop/mob");
+
+      } else {
+        type_ = NpcDlgEnum::kQuestStopNpc;
+
+        node = QuestGameInstance::LoadQuestNode(selected);
+
+        node = node->find(u"Say/" + quest_index_ + u"/stop/npc");
+      }
     }
 
     if (node) {
@@ -1752,6 +1939,13 @@ bool NpcDlgUiSystem::Event(SDL_Event* event) {
 
           if (type_ == NpcDlgEnum::kSelect) {
             EventButtonNext();
+
+            return false;
+          }
+
+          // ask 答错提示页：回车回到问题页重新选择。
+          if (type_ == NpcDlgEnum::kTalk && select_retry_) {
+            EventButtonOk();
 
             return false;
           }

@@ -8,6 +8,7 @@
 #include "src/server/server_instance/server_client_instance.h"
 #include "src/server/server_instance/server_foothold_instance.h"
 #include "src/server/server_instance/server_mob_instance.h"
+#include "src/server/server_instance/server_player_shop_instance.h"
 #include "src/server/server_instance/server_reactor_instance.h"
 
 #include <ranges>
@@ -47,6 +48,13 @@ void ServerSceneInstance::SaveClient(uint64_t client_id,
     client.heartbeat = now;
     client.player_t.client_id = client_id;
     client.player_t.character = std::move(client_scene.character);
+    // 095 好友上线：角色首次进图时向全服广播（客户端按好友 id 过滤）。
+    if (client.player_t.character != nullptr) {
+      ServerClientInstance::BroadcastFriendOnline(
+          client.player_t.character->id,
+          std::u16string(client.player_t.character->name.begin(),
+                         client.player_t.character->name.end()));
+    }
   } else {
     client.map_id = map_id;
     client.heartbeat = now;
@@ -146,6 +154,8 @@ void ServerSceneInstance::HandleScene(uint64_t client_id,
     InitScene(client_id, client_scene);
     SaveClient(client_id, client_scene);
     SendSceneClients(client_id, client_scene);
+    // 进图补发本图已有的摆摊/雇佣商店招牌。
+    ServerPlayerShopInstance::SendStallsTo(client_id, client_scene.map_id);
     SendInScene(client_id, client_scene);
   }
 }

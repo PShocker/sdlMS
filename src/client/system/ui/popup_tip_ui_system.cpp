@@ -96,6 +96,23 @@ void PopupTipUiSystem::RenderBackgrnd(GamePopupTip& t) {
 
       break;
     }
+
+    // 好友上线：纯通知，复用任务提示的底板与图标（无按钮）。
+    case PopupTipEnums::kFriendOnline: {
+      static auto texture = WzResource::LoadTexture(
+          WzResource::ui_->find(u"FadeYesNo.img/FadeYesNo/backgrnd3"));
+
+      static auto icon = WzResource::LoadTexture(
+          WzResource::ui_->find(u"FadeYesNo.img/FadeYesNo/icon6"));
+
+      te = texture;
+
+      i = icon;
+
+      icon_pos = {-10, -12};
+
+      break;
+    }
   }
 
   auto screen_w = CameraGameInstance::camera_.w;
@@ -194,6 +211,21 @@ void PopupTipUiSystem::RenderText(GamePopupTip& t) {
       break;
     }
 
+    // 好友上线：095 "XXX has logged in."
+    case PopupTipEnums::kFriendOnline: {
+      auto* name = std::any_cast<std::u16string>(&t.data);
+      if (name != nullptr) {
+        Freetype::LoadSize(12);
+        Freetype::LoadColor(255, 255, 255, t.alpha);
+        Freetype::LoadAligned(true);
+        auto text =
+            *name + WzResource::LoadMSString(u"friendOnlineSuffix",
+                                             u" has logged in.");
+        Freetype::DrawLine(text, x + 28, y + 9);
+      }
+      break;
+    }
+
     // 五子棋请求（095 OnRetreatRequest / OnTieRequest）。
     case PopupTipEnums::kMinigame: {
       auto p = FadeYesBoxPos();
@@ -277,6 +309,11 @@ void PopupTipUiSystem::RenderButton(GamePopupTip& t) {
     }
 
     case PopupTipEnums::kQuest: {
+      break;
+    }
+
+    // 好友上线：纯通知，不画按钮。
+    case PopupTipEnums::kFriendOnline: {
       break;
     }
   }
@@ -441,6 +478,11 @@ void PopupTipUiSystem::EventButtonOk(GamePopupTip& t) {
     case PopupTipEnums::kQuest: {
       break;
     }
+
+    // 好友上线：没有按钮，不做处理。
+    case PopupTipEnums::kFriendOnline: {
+      break;
+    }
   }
 }
 
@@ -534,10 +576,15 @@ bool PopupTipUiSystem::EventUI(SDL_Event* event) {
         break;
       }
 
-      case PopupTipEnums::kQuest: {
-        break;
-      }
+case PopupTipEnums::kQuest: {
+      break;
     }
+
+    // 好友上线：纯通知，不画按钮。
+    case PopupTipEnums::kFriendOnline: {
+      break;
+    }
+  }
 
     for (size_t i = 0; i < buttons_rect.size(); ++i) {
       auto pos_rect = buttons_rect[i];

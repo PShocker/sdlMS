@@ -10,6 +10,7 @@ namespace sdlms {
 class TooltipGameInstance {
  public:
   static void Load(uint32_t map_id);
+  static bool Render();
   static inline std::vector<GameTooltip> data_;
 };
 

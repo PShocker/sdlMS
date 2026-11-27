@@ -11,7 +11,17 @@ namespace sdlms {
 
 struct DamageData {
   uint64_t num;
-  enum class DamageColor { kRed, kBlue, kWhite, kCrit, kFinalAttack, kMiss };
+  // kPurple 追加在末尾：人物受伤专用（095 玩家受伤数字为紫色，
+  // 资源 BasicEff.img/NoViolet0）。kWhite 历史上也映射到同一套紫色资源。
+  enum class DamageColor {
+    kRed,
+    kBlue,
+    kWhite,
+    kCrit,
+    kFinalAttack,
+    kMiss,
+    kPurple,
+  };
   DamageColor type;
 };
 

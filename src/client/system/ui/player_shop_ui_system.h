@@ -70,6 +70,12 @@ class PlayerShopUiSystem : public UiComponentHost<PlayerShopUiSystem> {
 
  public:
   static UIComponents& GetComponent();
+  // 095 HiredShop：使用雇佣商人执照（0503000x）打开雇佣模式设置窗。
+  static void OpenHired(uint32_t item_id);
+  // 领取雇佣商店离线收入（摊主本人）。
+  static void CollectHired(uint64_t owner);
+  // 远程管理雇佣商店货架（摊主本人）。
+  static void ManageHired(uint64_t owner);
 
   static inline Mode mode_ = Mode::kIdle;
   static inline SDL_FPoint pos_;
@@ -87,6 +93,16 @@ class PlayerShopUiSystem : public UiComponentHost<PlayerShopUiSystem> {
   static inline std::vector<SoldRecord> sold_log_;        // 已售记录
   static inline bool sold_open_ = false;      // 已售弹窗
   static inline int sold_page_ = 0;
+
+  // 095 HiredShop（雇佣商店）：执照道具 0503000x + 固定摆位。
+  struct HiredStall {
+    std::u16string title;
+    uint32_t item_id = 0;
+    SDL_FPoint pos{};
+  };
+  static inline std::map<uint64_t, HiredStall> hired_stalls_;
+  static inline uint32_t hired_item_ = 0;
+  static inline bool managing_ = false;  // 设置窗是否为管理已有雇佣商店
 
   // ToSell 上架弹窗（点击背包物品后弹出）。
   static inline bool sell_edit_active_ = false;

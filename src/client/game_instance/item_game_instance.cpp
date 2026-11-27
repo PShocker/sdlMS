@@ -3,14 +3,19 @@
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
+#include "src/client/game_instance/map_info_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/pet_game_instance.h"
 #include "src/client/game_instance/quest_game_instance.h"
 #include "src/client/game_instance/text_game_instance.h"
+#include "src/client/game_instance/weather_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/ui/minigame_card_ui_system.h"
 #include "src/client/system/ui/minigame_omok_ui_system.h"
 #include "src/client/system/ui/minigame_setup_ui_system.h"
+#include "src/client/system/ui/notice_ui_system.h"
+#include "src/client/system/ui/player_shop_ui_system.h"
+#include "src/client/system/ui/weather_dlg_ui_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/common.h"
@@ -23,6 +28,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <cstdlib>
 #include <flat_map>
 #include <ranges>
 #include <string>
@@ -200,6 +206,55 @@ wz::Node* ItemGameInstance::LoadItemInfo(const std::u16string& id,
   return node;
 }
 
+int ItemGameInstance::LoadItemFloatType(const std::u16string& id) {
+  // 095 CField::BlowWeather：天气现金道具的 info/floatType 决定 FloatNotice 底板。
+  auto info = LoadItemInfo(id, 0);
+  if (info == nullptr) {
+    return 0;
+  }
+  auto* node = info->get_child(u"floatType");
+  if (node == nullptr) {
+    return 0;
+  }
+  return static_cast<wz::Property<int32_t>*>(node)->get();
+}
+
+bool ItemGameInstance::LoadItemWeather(const std::u16string& id,
+                                       ItemWeatherInfo& out) {
+  // 095 get_cashslot_item_type：id/10000 == 512 的现金道具是天气类（type 16），
+  // 该批道具不一定带 floatType（05120000~05120002），底板序号缺省为 0。
+  if (!id.starts_with(u"0512")) {
+    return false;
+  }
+  auto info = LoadItemInfo(id, 0);
+  if (info == nullptr) {
+    return false;
+  }
+  out = ItemWeatherInfo{};
+  auto load_int = [info](const char16_t* name) {
+    auto* node = info->get_child(name);
+    if (node == nullptr || node->type != wz::Type::Int) {
+      return 0;
+    }
+    return static_cast<wz::Property<int32_t>*>(node)->get();
+  };
+  out.float_type = load_int(u"floatType");
+  out.type = load_int(u"type");
+  out.direction = load_int(u"direction");
+  out.speed = load_int(u"speed");
+  out.is_bgm = load_int(u"isBgmOrEffect");
+  out.repeat = load_int(u"repeat");
+  if (auto* path = info->get_child(u"path");
+      path != nullptr && path->type == wz::Type::String) {
+    out.path = static_cast<wz::Property<std::u16string>*>(path)->get();
+  }
+  if (auto* bgm = info->get_child(u"bgm");
+      bgm != nullptr && bgm->type == wz::Type::String) {
+    out.bgm = static_cast<wz::Property<std::u16string>*>(bgm)->get();
+  }
+  return true;
+}
+
 std::polymorphic<GameItem> ItemGameInstance::LoadItem(const std::u16string& id,
                                                       uint32_t num) {
   auto item_type = ItemGameInstance::LoadItemType(id);
@@ -351,6 +406,16 @@ void ItemGameInstance::DecItemNum(std::polymorphic<GameItem>& item, int num) {
   return;
 }
 
+void ItemGameInstance::DecItemById(const std::u16string& id) {
+  auto& cash = PackageGameInstance::data_[static_cast<int>(ItemEnum::kCash)];
+  for (auto& itm : cash) {
+    if (itm->id == id) {
+      DecItemNum(itm, 1);
+      return;
+    }
+  }
+}
+
 void ItemGameInstance::UseMorphItem(const std::u16string& id,
                                     GameCharacter& g_character) {
   // 095：变身与骑乘互斥，骑乘中不能使用变身药水。
@@ -412,8 +477,22 @@ void ItemGameInstance::UnuseMorphItem(const std::u16string& id,
 void ItemGameInstance::UnuseBuffItem(const std::u16string& id) {
   for (auto& gib : buff_) {
     if (gib.id == id) {
+      // 百分比属性按使用时的快照扣除，不依赖 item 数据能否解析。
+      if (gib.mhp_bonus != 0) {
+        CharacterStatGameInstance::SetItemHp(
+            CharacterStatGameInstance::GetItemHp() - gib.mhp_bonus);
+      }
+      if (gib.mmp_bonus != 0) {
+        CharacterStatGameInstance::SetItemMp(
+            CharacterStatGameInstance::GetItemMp() - gib.mmp_bonus);
+      }
       auto info = ItemGameInstance::LoadItemInfo(id, 0);
-      info = info->find(u"../spec");
+      if (info != nullptr) {
+        info = info->find(u"../spec");
+      }
+      if (info == nullptr) {
+        break;
+      }
       if (info->get_child(u"pad")) {
         auto pad =
             static_cast<wz::Property<int>*>(info->get_child(u"pad"))->get();
@@ -444,11 +523,47 @@ void ItemGameInstance::UnuseBuffItem(const std::u16string& id) {
         CharacterStatGameInstance::SetItemSpeed(
             CharacterStatGameInstance::GetItemSpeed() - speed);
       }
+      if (info->get_child(u"jump")) {
+        auto jump =
+            static_cast<wz::Property<int>*>(info->get_child(u"jump"))->get();
+        CharacterStatGameInstance::SetItemJump(
+            CharacterStatGameInstance::GetItemJump() - jump);
+      }
+      if (info->get_child(u"pdd")) {
+        auto pdd =
+            static_cast<wz::Property<int>*>(info->get_child(u"pdd"))->get();
+        CharacterStatGameInstance::SetItemDef(
+            CharacterStatGameInstance::GetItemDef() - pdd);
+      }
+      if (info->get_child(u"mdd")) {
+        auto mdd =
+            static_cast<wz::Property<int>*>(info->get_child(u"mdd"))->get();
+        CharacterStatGameInstance::SetItemMdef(
+            CharacterStatGameInstance::GetItemMdef() - mdd);
+      }
+      if (info->get_child(u"mhp")) {
+        auto mhp =
+            static_cast<wz::Property<int>*>(info->get_child(u"mhp"))->get();
+        CharacterStatGameInstance::SetItemHp(
+            CharacterStatGameInstance::GetItemHp() - mhp);
+      }
+      if (info->get_child(u"mmp")) {
+        auto mmp =
+            static_cast<wz::Property<int>*>(info->get_child(u"mmp"))->get();
+        CharacterStatGameInstance::SetItemMp(
+            CharacterStatGameInstance::GetItemMp() - mmp);
+      }
       if (info->get_child(u"crt")) {
         auto crt =
             static_cast<wz::Property<int>*>(info->get_child(u"crt"))->get();
         auto sf_crt = CharacterStatGameInstance::GetCritDamage();
         CharacterStatGameInstance::SetCritDamage(sf_crt - crt);
+      }
+      if (info->get_child(u"damage")) {
+        auto damage =
+            static_cast<wz::Property<int>*>(info->get_child(u"damage"))->get();
+        CharacterStatGameInstance::SetItemDamage(
+            CharacterStatGameInstance::GetItemDamage() - damage);
       }
       if (info->get_child(u"expBuff")) {
         auto exp_buff =
@@ -469,6 +584,9 @@ void ItemGameInstance::UnuseBuffItem(const std::u16string& id) {
 bool ItemGameInstance::UseBuffItem(std::polymorphic<GameItem>& itm) {
   auto id = itm->id;
   auto info = ItemGameInstance::LoadItemInfo(id, 0);
+  if (info == nullptr) {
+    return false;
+  }
   info = info->find(u"../spec");
   if (info == nullptr) {
     return false;
@@ -477,6 +595,28 @@ bool ItemGameInstance::UseBuffItem(std::polymorphic<GameItem>& itm) {
     return false;
   }
   bool r = false;
+
+  // 095：同属性组的消耗类 buff 互斥（后用的覆盖先用的），
+  // 否则 ATT/魔法/速度等药水会无限堆叠，变身还会在旧 buff 到期时被清掉。
+  std::vector<std::u16string> conflicts;
+  for (const auto& b : buff_) {
+    auto* old = LoadItemInfo(b.id, 0);
+    old = old != nullptr ? old->find(u"../spec") : nullptr;
+    if (old == nullptr) {
+      continue;
+    }
+    for (auto key : {u"pad", u"mad", u"acc", u"eva", u"speed", u"crt",
+                     u"expBuff", u"morph", u"jump", u"pdd", u"mdd",
+                     u"mhp", u"mmp", u"mhpR", u"mmpR", u"damage"}) {
+      if (info->get_child(key) != nullptr && old->get_child(key) != nullptr) {
+        conflicts.push_back(b.id);
+        break;
+      }
+    }
+  }
+  for (const auto& conflict : conflicts) {
+    UnuseBuffItem(conflict);
+  }
   UnuseBuffItem(itm->id);
   auto time = static_cast<wz::Property<int>*>(info->get_child(u"time"))->get();
   if (info->get_child(u"pad")) {
@@ -509,10 +649,76 @@ bool ItemGameInstance::UseBuffItem(std::polymorphic<GameItem>& itm) {
         CharacterStatGameInstance::GetItemSpeed() + speed);
     r = true;
   }
+  if (info->get_child(u"jump")) {
+    auto jump =
+        static_cast<wz::Property<int>*>(info->get_child(u"jump"))->get();
+    CharacterStatGameInstance::SetItemJump(
+        CharacterStatGameInstance::GetItemJump() + jump);
+    r = true;
+  }
+  if (info->get_child(u"pdd")) {
+    auto pdd = static_cast<wz::Property<int>*>(info->get_child(u"pdd"))->get();
+    CharacterStatGameInstance::SetItemDef(
+        CharacterStatGameInstance::GetItemDef() + pdd);
+    r = true;
+  }
+  if (info->get_child(u"mdd")) {
+    auto mdd = static_cast<wz::Property<int>*>(info->get_child(u"mdd"))->get();
+    CharacterStatGameInstance::SetItemMdef(
+        CharacterStatGameInstance::GetItemMdef() + mdd);
+    r = true;
+  }
+  if (info->get_child(u"mhp")) {
+    auto mhp = static_cast<wz::Property<int>*>(info->get_child(u"mhp"))->get();
+    CharacterStatGameInstance::SetItemHp(
+        CharacterStatGameInstance::GetItemHp() + mhp);
+    r = true;
+  }
+  if (info->get_child(u"mmp")) {
+    auto mmp = static_cast<wz::Property<int>*>(info->get_child(u"mmp"))->get();
+    CharacterStatGameInstance::SetItemMp(
+        CharacterStatGameInstance::GetItemMp() + mmp);
+    r = true;
+  }
+  int64_t mhp_bonus = 0;
+  int64_t mmp_bonus = 0;
+  if (info->get_child(u"mhpR")) {
+    auto rate =
+        static_cast<wz::Property<int>*>(info->get_child(u"mhpR"))->get();
+    auto base = std::max<int64_t>(
+        0, CharacterStatGameInstance::GetHpMax() -
+               CharacterStatGameInstance::GetItemHp());
+    mhp_bonus = base * rate / 100;
+    if (mhp_bonus != 0) {
+      CharacterStatGameInstance::SetItemHp(
+          CharacterStatGameInstance::GetItemHp() + mhp_bonus);
+    }
+    r = true;
+  }
+  if (info->get_child(u"mmpR")) {
+    auto rate =
+        static_cast<wz::Property<int>*>(info->get_child(u"mmpR"))->get();
+    auto base = std::max<int64_t>(
+        0, CharacterStatGameInstance::GetMpMax() -
+               CharacterStatGameInstance::GetItemMp());
+    mmp_bonus = base * rate / 100;
+    if (mmp_bonus != 0) {
+      CharacterStatGameInstance::SetItemMp(
+          CharacterStatGameInstance::GetItemMp() + mmp_bonus);
+    }
+    r = true;
+  }
   if (info->get_child(u"crt")) {
     auto crt = static_cast<wz::Property<int>*>(info->get_child(u"crt"))->get();
     auto sf_crt = CharacterStatGameInstance::GetCritDamage();
     CharacterStatGameInstance::SetCritDamage(sf_crt + crt);
+    r = true;
+  }
+  if (info->get_child(u"damage")) {
+    auto damage =
+        static_cast<wz::Property<int>*>(info->get_child(u"damage"))->get();
+    CharacterStatGameInstance::SetItemDamage(
+        CharacterStatGameInstance::GetItemDamage() + damage);
     r = true;
   }
   if (info->get_child(u"expBuff")) {
@@ -520,17 +726,24 @@ bool ItemGameInstance::UseBuffItem(std::polymorphic<GameItem>& itm) {
         static_cast<wz::Property<int>*>(info->get_child(u"expBuff"))->get();
     auto itm_exp = CharacterStatGameInstance::GetItemExp();
     CharacterStatGameInstance::SetItemExp(itm_exp + exp_buff);
+    r = true;
   }
   if (info->get_child(u"morph")) {
     UseMorphItem(id, CharacterGameInstance::self_);
     r = true;
   }
+  if (!r) {
+    // spec 里只有 time 而没有可应用的属性：不进入 buff 列表，也不消耗道具。
+    return false;
+  }
   GameItemBuff gib;
   gib.destroy = Window::dt_now_ + time;
   gib.id = id;
+  gib.mhp_bonus = mhp_bonus;
+  gib.mmp_bonus = mmp_bonus;
 
   buff_.emplace_back(gib);
-  return r;
+  return true;
 }
 
 bool ItemGameInstance::UseMobItem(std::polymorphic<GameItem>& itm) {
@@ -546,6 +759,10 @@ bool ItemGameInstance::UseMobItem(std::polymorphic<GameItem>& itm) {
       auto mob_id =
           static_cast<wz::Property<int>*>(v[0]->get_child(u"id"))->get();
       auto mob_num = 1;
+      if (auto* count = v[0]->get_child(u"count");
+          count != nullptr && count->type == wz::Type::Int) {
+        mob_num = std::max(1, static_cast<wz::Property<int>*>(count)->get());
+      }
       fbs::ClientCreateMobT ccm;
       ccm.map_id = SceneSystemInstance::map_id_;
       for (int i = 0; i < mob_num; i++) {
@@ -553,7 +770,8 @@ bool ItemGameInstance::UseMobItem(std::polymorphic<GameItem>& itm) {
         auto& mob = ccm.mobs.back();
         mob->mob_id = mob_id;
         mob->state = std::make_unique<fbs::LifeStateT>(fbs::LifeStateT{
-            .x = g_character.pos.x,
+            .x = g_character.pos.x +
+                 static_cast<float>(static_cast<int>(std::rand() % 161) - 80),
             .y = g_character.pos.y,
             .action_animate = true,
             .page = g_character.page,
@@ -651,20 +869,70 @@ bool ItemGameInstance::UseConsumeItem(std::polymorphic<GameItem>& itm) {
 }
 
 void ItemGameInstance::UseItem(std::polymorphic<GameItem>& itm) {
+  auto item_type = ItemGameInstance::LoadItemType(itm->id);
+  // 095：宠物道具的激活/收回没有使用冷却，连续点击可以立即切换。
+  if (item_type == u"Pet") {
+    PetGameInstance::Toggle(itm->id);
+    return;
+  }
+
   const uint64_t now = Window::dt_now_;
   if (now < item_use_cooldown_) {
     return;
   }
-  // 键盘、快捷栏、背包双击等所有入口统一进入 0.6 秒冷却。
-  item_use_cooldown_ = now + 600;
+  // 095 的请求间隔按类型区分：药水 200ms，其余道具（状态/卷轴类）600ms。
+  int64_t use_cooldown = 600;
+  if (item_type == u"Consume") {
+    auto* spec = LoadItemInfo(itm->id, 0);
+    spec = spec != nullptr ? spec->find(u"../spec") : nullptr;
+    if (spec != nullptr &&
+        (spec->get_child(u"hp") != nullptr || spec->get_child(u"hpR") != nullptr ||
+         spec->get_child(u"mp") != nullptr || spec->get_child(u"mpR") != nullptr)) {
+      use_cooldown = 200;
+    }
+  }
+  item_use_cooldown_ = now + use_cooldown;
 
-  auto item_type = ItemGameInstance::LoadItemType(itm->id);
   auto& g_character = CharacterGameInstance::self_;
+  // 095：死亡状态不能使用消耗/状态类道具。
+  if (CharacterLogicSystem::LoadActionType(g_character) ==
+      CharacterLogicSystem::ActionEnum::kDead) {
+    return;
+  }
   auto self_sit_cooldown = CharacterLogicSystem::self_sit_cooldown_;
+  auto map_id = SceneSystemInstance::map_id_;
+  auto cannot_here = [] {
+    NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kShopNotice;
+    NoticeUiSystem::notice_text_ =
+        WzResource::LoadMSString(u"cannotHere", u"在这个地图做不了。");
+    NoticeUiSystem::Open();
+  };
 
-  if (item_type == u"Pet") {
-    // 095：使用宠物道具 = 激活/收回宠物，状态写回存档。
-    PetGameInstance::Toggle(itm->id);
+  // 095 SendConsumeCashItemUseRequest：fieldLimit bit18 禁用现金道具。
+  if (item_type == u"Cash" && MapInfoGameInstance::IsCashItemDisabled(map_id)) {
+    cannot_here();
+    return;
+  }
+
+  // 095 HiredShop：雇佣商人执照 0503000x → 摆摊设置窗（雇佣模式）。
+  if (item_type == u"Cash" && itm->id.starts_with(u"0503")) {
+    PlayerShopUiSystem::OpenHired(static_cast<uint32_t>(
+        std::stoul(std::string{itm->id.begin(), itm->id.end()})));
+    return;
+  }
+
+  // 095 SendConsumeCashItemUseRequest type=16：天气现金道具先弹输入框，
+  // 由服务器 BlowWeather 广播后再显示 FloatNotice。
+  // 095 TransientLayer_Exist：场上已有天气特效时拒绝再次使用。
+  if (item_type == u"Cash" && itm->id.starts_with(u"0512")) {
+    if (WeatherGameInstance::Exists()) {
+      NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kShopNotice;
+      NoticeUiSystem::notice_text_ = WzResource::LoadMSString(
+          u"weatherExist", u"当前地图已经有天气效果了。");
+      NoticeUiSystem::Open();
+      return;
+    }
+    WeatherDlgUiSystem::Open(itm->id);
     return;
   }
 
@@ -682,6 +950,12 @@ void ItemGameInstance::UseItem(std::polymorphic<GameItem>& itm) {
   }
 
   if (item_type == u"Ins") {
+    // 095 SendCreateMiniGameRequest：fieldLimit bit7 禁用小游戏。
+    if ((IsMatchCardsTable(itm->id) || IsMinigameTable(itm->id)) &&
+        MapInfoGameInstance::IsMinigameDisabled(map_id)) {
+      cannot_here();
+      return;
+    }
     if (IsMatchCardsTable(itm->id)) {
       // 095 CMiniRoomBaseDlg：开房前先弹房间设置（公开/密码），确认后
       // 进入/创建房间，无同图空房时自己成为房主。

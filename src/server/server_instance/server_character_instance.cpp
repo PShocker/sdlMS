@@ -95,12 +95,11 @@ void ServerCharacterInstance::HandleAction(uint64_t client_id,
   auto& client = ServerClientInstance::clients_.at(client_id);
   auto& character = client.player_t.character;
 
-  const static std::flat_set<std::string> actions = {
-      "stand1", "stand2", "alert",  "walk1", "walk2",
-      "prone",  "jump",   "ladder", "rope",  "dead",
-  };
+  // 客户端动作直接保存：095 CUser::SetAction 会更新服务端持有的动作状态，
+  // 新进图玩家用它初始化远程角色。之前只保存 stand/walk/jump 等 10 个动作，
+  // 导致坐着/游泳/飞行/受击时别人进图看到的动作是错的。
   const auto& a = m.payload;
-  if (actions.contains(a->action)) {
+  if (!a->action.empty()) {
     character->state->action = a->action;
     character->state->action_index = a->action_index;
     character->state->action_animate = a->action_animate;
@@ -332,6 +331,48 @@ void ServerCharacterInstance::HandleChat(uint64_t client_id,
   // 转发
   auto client_name =
       ServerClientInstance::clients_.at(client_id).player_t.character->name;
+
+  // 095 CUser::OnChat 私聊：按名字找目标，仅发给目标与发送者。
+  if (r.payload != nullptr && r.payload->type == fbs::ChatEnum_WHISPER) {
+    std::u16string target{r.payload->to_name.begin(),
+                          r.payload->to_name.end()};
+    uint64_t to_id = 0;
+    for (const auto& [id, c] : ServerClientInstance::clients_) {
+      if (c.player_t.character == nullptr) {
+        continue;
+      }
+      std::u16string name{c.player_t.character->name.begin(),
+                          c.player_t.character->name.end()};
+      if (name == target) {
+        to_id = id;
+        break;
+      }
+    }
+
+    auto send = [&](uint64_t dst, std::u16string name, uint64_t cid) {
+      fbs::ServerCharacterChatT m;
+      m.client_id = cid;
+      m.name = {name.begin(), name.end()};
+      m.payload = std::make_unique<fbs::CharacterChatT>(*r.payload);
+      ServerResponse::SendToClient(dst, m);
+    };
+
+    if (to_id == 0 || to_id == client_id) {
+      fbs::ServerCharacterChatT m;
+      m.client_id = client_id;
+      std::u16string tag = u"[Whisper]";
+      m.name = {tag.begin(), tag.end()};
+      m.payload = std::make_unique<fbs::CharacterChatT>(*r.payload);
+      std::u16string err = u"Player not found.";
+      m.payload->payload = {err.begin(), err.end()};
+      ServerResponse::SendToClient(client_id, m);
+      return;
+    }
+    send(to_id, {client_name.begin(), client_name.end()}, client_id);
+    send(client_id, u"->" + target, to_id);
+    return;
+  }
+
   const auto& clients = ServerSceneInstance::scenes_.at(r.map_id).clients;
   fbs::ServerCharacterChatT t;
   t.name = client_name;
@@ -353,16 +394,20 @@ void ServerCharacterInstance::HandleServerChat(uint64_t client_id,
   if (g_character) {
     // 095 CUser::OnChat：气泡样式 = 佩戴戒指的 info/chatBalloon
     //（SetAbilityEquip 维护的 m_nChatBalloonType），没有点装时为 0 号。
-    auto balloon_style =
-        EquipGameInstance::LoadRingStyle(*g_character, u"chatBalloon", 1);
-    auto path_text = std::to_string(std::max(1, static_cast<int>(balloon_style)));
-    GameChatballoon c;
-    c.w = 100;
-    c.destroy = Window::dt_now_ + 5000;
-    c.text = {r.payload->payload.begin(), r.payload->payload.end()};
-    c.size = 13;
-    c.path = {path_text.begin(), path_text.end()};
-    g_character->chatballoon = c;
+    // 私聊/组队/公会聊天不在头顶冒泡。
+    if (r.payload->type == fbs::ChatEnum_MAP) {
+      auto balloon_style =
+          EquipGameInstance::LoadRingStyle(*g_character, u"chatBalloon", 1);
+      auto path_text =
+          std::to_string(std::max(1, static_cast<int>(balloon_style)));
+      GameChatballoon c;
+      c.w = 100;
+      c.destroy = Window::dt_now_ + 5000;
+      c.text = {r.payload->payload.begin(), r.payload->payload.end()};
+      c.size = 13;
+      c.path = {path_text.begin(), path_text.end()};
+      g_character->chatballoon = c;
+    }
   }
 
   ChatGameInstance::chats_.push_back({
@@ -840,6 +885,7 @@ void ServerCharacterInstance::LoadGCharacter(
   g_character.fame = c->fame;
   g_character.level = c->level;
   g_character.id = c->id;
+  g_character.attack_speed = c->attack_speed;
   g_character.job = {c->job.begin(), c->job.end()};
   g_character.face.action = {
       c->face->face_action.begin(),
@@ -964,6 +1010,7 @@ fbs::CharacterT ServerCharacterInstance::LoadCharactert(
   c.job = std::string{g.job.begin(), g.job.end()};
   c.level = g.level;
   c.id = g.id;
+  c.attack_speed = g.attack_speed;
 
   return c;
 }
@@ -1114,6 +1161,32 @@ void ServerCharacterInstance::HandleItemUse(GameCharacter& g_character,
   }
 }
 
+void ServerCharacterInstance::HandleCharacterWeather(
+    uint64_t client_id, fbs::ClientCharacterWeatherT& r) {
+  if (!ServerClientInstance::clients_.contains(client_id)) {
+    return;
+  }
+  // 095：空留言或超过 35 字直接忽略；道具必须是天气类（info/floatType）。
+  if (r.message.empty() || r.message.size() > 35) {
+    return;
+  }
+  auto tmp = std::format("{:08d}", r.item_id);
+  std::u16string itm_id{tmp.begin(), tmp.end()};
+  ItemGameInstance::ItemWeatherInfo weather;
+  if (!ItemGameInstance::LoadItemWeather(itm_id, weather)) {
+    return;
+  }
+  fbs::ServerCharacterWeatherT t;
+  t.client_id = client_id;
+  t.item_id = r.item_id;
+  t.duration = 20000;
+  t.message = r.message;
+  // 同图广播（095 BlowWeather 对场内所有用户生效）。
+  for (auto c : ServerSceneInstance::scenes_[r.map_id].clients) {
+    ServerResponse::SendToClient(c, t);
+  }
+}
+
 void ServerCharacterInstance::HandleSState(
     GameCharacter& g_character,
     const std::vector<std::unique_ptr<fbs::StateT>>& v) {
@@ -1201,6 +1274,15 @@ void ServerCharacterInstance::HandleSaveState(const fbs::StateT& st,
       break;
     }
     case fbs::StateEnum_BUFF_SKILL: {
+      if (st.sub_val != 0) {
+        c.states.push_back(std::make_unique<fbs::StateT>(st));
+      }
+      break;
+    }
+    // 椅子 / 坐骑 / 变身等常驻外观状态：只保存启用态（sub_val=1）。
+    // 解除态的旧项已在上面按 (state, val) 移除，若再写入 sub_val=0 会让
+    // 新进图玩家按包序随机把"上骑"覆盖成"下骑"。
+    case fbs::StateEnum_BUFF_ITEM: {
       if (st.sub_val != 0) {
         c.states.push_back(std::make_unique<fbs::StateT>(st));
       }

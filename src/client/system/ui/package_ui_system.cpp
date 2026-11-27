@@ -546,6 +546,20 @@ bool PackageUiSystem::EventClickItem(SDL_Event* event) {
           }
           break;
         }
+        case ItemEnum::kCash: {
+          // 现金栏：宠物/天气/戒指等，双击（拾起后再点同格）= 使用；
+          // 不同格之间允许换位。现金道具无堆叠数量，不能走合并逻辑
+          //（DecItemNum 对 kCash 会清空格子）。
+          AudioGameInstance::PlayNow(u"UI.img/DragEnd");
+          auto& cash = PackageGameInstance::data_[hand.val];
+          if (hand.sub_val != index.value()) {
+            std::swap(cash.at(hand.sub_val), cash.at(index.value()));
+          } else {
+            ItemGameInstance::UseItem(cash.at(index.value()));
+          }
+          CursorGameInstance::cursor_hand_ = std::nullopt;
+          break;
+        }
         case ItemEnum::kEtc:
         case ItemEnum::kInstall:
         case ItemEnum::kConsume: {

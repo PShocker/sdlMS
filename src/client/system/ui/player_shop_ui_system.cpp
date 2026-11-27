@@ -192,6 +192,20 @@ void PlayerShopUiSystem::OpenBrowse(uint64_t owner) {
   SendStep(1, owner);
 }
 
+void PlayerShopUiSystem::OpenHired(uint32_t item_id) {
+  // 095 HiredShop：使用雇佣商人执照（0503000x）→ 摆摊设置窗。
+  hired_item_ = item_id;
+  OpenSetup();
+}
+
+void PlayerShopUiSystem::CollectHired(uint64_t owner) {
+  SendStep(8, owner);
+}
+
+void PlayerShopUiSystem::ManageHired(uint64_t owner) {
+  SendStep(9, owner);
+}
+
 void PlayerShopUiSystem::Close() {
   if (mode_ == Mode::kBrowsing) {
     // 顾客离店（095 OnLeave）。
@@ -584,6 +598,37 @@ bool PlayerShopUiSystem::RenderStalls() {
   Freetype::LoadAligned(true);
   Freetype::LoadColor(255, 255, 255, 255);
   for (const auto& [client_id, title] : stalls_) {
+    // 095 HiredShop：雇佣商店用 HiredShop.img/<执照id>/employee 雇员物件。
+    if (auto hired = hired_stalls_.find(client_id);
+        hired != hired_stalls_.end()) {
+      auto id = std::to_string(hired->second.item_id);
+      auto path = u"HiredShop.img/" + std::u16string{id.begin(), id.end()} +
+                  u"/employee";
+      auto* node = WzResource::ui_->find(path);
+      if (node != nullptr) {
+        auto* frame =
+            node->type == wz::Type::Canvas ? node : node->get_child(u"0");
+        if (frame != nullptr && frame->type == wz::Type::Canvas) {
+          auto* tex = WzResource::LoadTexture(frame);
+          SDL_FPoint origin{};
+          if (auto* o = frame->get_child(u"origin"); o != nullptr) {
+            origin = WzResource::LoadFpoint(o);
+          }
+          auto sx = hired->second.pos.x - camera.x;
+          auto sy = hired->second.pos.y - camera.y;
+          SDL_FRect hr{
+              sx - origin.x,
+              sy - origin.y,
+              static_cast<float>(tex->w),
+              static_cast<float>(tex->h),
+          };
+          SDL_RenderTexture(Window::renderer_, tex, nullptr, &hr);
+          auto w = Freetype::LoadW(title);
+          Freetype::DrawLine(title, sx - w / 2, sy - 150);
+        }
+      }
+      continue;
+    }
     const GameCharacter* g = nullptr;
     if (client_id == ServerMain::local_addr_) {
       g = &CharacterGameInstance::self_;
@@ -719,11 +764,17 @@ void PlayerShopUiSystem::ApplyOpen() {
     return;
   }
   fbs::ClientCharacterShopT m;
-  m.step = 0;
+  // 已有雇佣商店 → step 4 更新货架；新开 → step 0。
+  m.step = managing_ ? 4 : 0;
+  managing_ = false;
   auto title = stall_title_.empty() ? u"商店" : stall_title_;
   // 设置模式没输入店名的地方（Store 布局无输入框），默认用角色名+商店。
   title = CharacterGameInstance::self_.name + u"的商店";
   m.chat = {title.begin(), title.end()};
+  // 雇佣商店：执照 id + 固定摆位（095 HiredShop.img 雇员物件）。
+  m.hired_item = hired_item_;
+  m.pos_x = static_cast<int32_t>(CharacterGameInstance::self_.pos.x);
+  m.pos_y = static_cast<int32_t>(CharacterGameInstance::self_.pos.y);
   for (const auto& g : goods_) {
     fbs::ShopGoodsT gg;
     gg.item_id =
@@ -1153,9 +1204,83 @@ void PlayerShopUiSystem::HandleServer(uint64_t client_id,
       }
       if (r.x == 1) {
         stalls_[owner] = {r.chat.begin(), r.chat.end()};
+        if (r.hired_item != 0) {
+          hired_stalls_[owner] = HiredStall{
+              .title = {r.chat.begin(), r.chat.end()},
+              .item_id = r.hired_item,
+              .pos = SDL_FPoint{static_cast<float>(r.pos_x),
+                                static_cast<float>(r.pos_y)},
+          };
+        } else {
+          hired_stalls_.erase(owner);
+        }
       } else {
         stalls_.erase(owner);
+        hired_stalls_.erase(owner);
       }
+      break;
+    }
+    // 远程管理雇佣商店：服务端返回货架快照 + 离线收入。
+    case 9: {
+      owner_id_ = r.to_id;
+      stall_title_ = {r.chat.begin(), r.chat.end()};
+      hired_item_ = r.hired_item;
+      goods_.clear();
+      my_goods_.clear();
+      for (const auto& g : r.goods) {
+        Goods gg;
+        auto tmp = std::to_string(g->item_id);
+        gg.item_id = {tmp.begin(), tmp.end()};
+        gg.num = g->num;
+        gg.price = g->price;
+        goods_.push_back(gg);
+        my_goods_.push_back(gg);
+      }
+      income_ = 0;
+      sold_log_.clear();
+      active_pkg_ = -1;
+      active_goods_ = -1;
+      goods_page_ = 0;
+      sold_open_ = false;
+      sell_edit_active_ = false;
+      managing_ = true;
+      mode_ = Mode::kSetup;
+      {
+        auto& camera = CameraGameInstance::camera_;
+        pos_.x = static_cast<float>((camera.w - kWinW) / 2);
+        pos_.y = static_cast<float>((camera.h - kWinH) / 2);
+      }
+      if (r.meso > 0) {
+        PackageGameInstance::meso_ += r.meso;
+        auto s = std::to_string(r.meso);
+        NoticeUiSystem::notice_text_ =
+            u"领取雇佣商店收入 +" + std::u16string{s.begin(), s.end()};
+        NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kShopNotice;
+        NoticeUiSystem::Open();
+      }
+      if (std::ranges::find(System::render_systems_, &Render) ==
+          System::render_systems_.end()) {
+        auto it = std::ranges::find(System::render_systems_,
+                                    &CursorRenderSystem::Render);
+        if (it != System::render_systems_.end()) {
+          System::render_systems_.insert(it, Render);
+          System::event_systems_.insert(System::event_systems_.begin(), Event);
+        }
+      }
+      break;
+    }
+    // 雇佣商店离线收入领取结果。
+    case 8: {
+      if (r.meso > 0) {
+        PackageGameInstance::meso_ += r.meso;
+        auto s = std::to_string(r.meso);
+        NoticeUiSystem::notice_text_ =
+            u"领取雇佣商店收入 +" + std::u16string{s.begin(), s.end()};
+      } else {
+        NoticeUiSystem::notice_text_ = u"没有可领取的收入。";
+      }
+      NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kShopNotice;
+      NoticeUiSystem::Open();
       break;
     }
     // 提示。

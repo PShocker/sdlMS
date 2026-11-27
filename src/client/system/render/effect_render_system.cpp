@@ -151,7 +151,7 @@ void EffectRenderSystem::RenderDamage(SDL_FPoint pos, GameEffect& g_effect) {
   }
   auto num_str = std::to_string(d_data.num);
   uint32_t w = 0;
-  wz::Node* node;
+  wz::Node* node = red;  // 兜底：未识别的颜色按红色处理，避免野指针
   switch (d_data.type) {
     case DamageData::DamageColor::kRed: {
       node = red;
@@ -165,6 +165,11 @@ void EffectRenderSystem::RenderDamage(SDL_FPoint pos, GameEffect& g_effect) {
       node = viole;
       break;
     }
+    // 人物受伤：095 用紫色数字（BasicEff.img/NoViolet0）。
+    case DamageData::DamageColor::kPurple: {
+      node = viole != nullptr ? viole : red;
+      break;
+    }
     case DamageData::DamageColor::kCrit: {
       node = crit != nullptr ? crit : red;
       break;
@@ -172,6 +177,9 @@ void EffectRenderSystem::RenderDamage(SDL_FPoint pos, GameEffect& g_effect) {
     default: {
       break;
     }
+  }
+  if (node == nullptr) {
+    return;
   }
   for (auto n : num_str) {
     auto texture_node = node->get_child(std::string{n});

@@ -14,9 +14,13 @@ void ServerTrapInstance::HandleAttack(uint64_t client_id,
   if (!ServerClientInstance::clients_.contains(client_id)) {
     return;
   }
-  // 转发
+  // 转发给同地图其他客户端。
   auto map_id = r.map_id;
-  auto clients = ServerSceneInstance::scenes_.at(map_id).clients;
+  auto it = ServerSceneInstance::scenes_.find(map_id);
+  if (it == ServerSceneInstance::scenes_.end()) {
+    return;
+  }
+  auto clients = it->second.clients;
   clients.erase(client_id);
   fbs::ServerTrapAttackT t;
   t.client_id = client_id;

@@ -620,6 +620,18 @@ std::u16string StatusbarUiSystem::LoadChatType() {
       return u"All";
       break;
     }
+    case GameChatEnum::kWhisper: {
+      return u"Whisper";
+      break;
+    }
+    case GameChatEnum::kParty: {
+      return u"Party";
+      break;
+    }
+    case GameChatEnum::kGuild: {
+      return u"Guild";
+      break;
+    }
   }
   return u"";
 }
@@ -715,6 +727,49 @@ void StatusbarUiSystem::EventChatSend() {
   if (chat_.text == u"") {
     return;
   }
+
+  auto send_chat = [](fbs::ChatEnum type, const std::u16string& to_name,
+                      const std::u16string& msg) {
+    fbs::ClientCharacterChatT cct;
+    cct.map_id = SceneSystemInstance::map_id_;
+    cct.payload = std::make_unique<fbs::CharacterChatT>();
+    cct.payload->type = type;
+    cct.payload->payload = {msg.begin(), msg.end()};
+    cct.payload->to_name = {to_name.begin(), to_name.end()};
+    ClientRequest::SendToHost(cct);
+  };
+
+  // 095 私聊：/w 名字 内容
+  if (chat_.text.starts_with(u"/w ")) {
+    auto rest = chat_.text.substr(3);
+    auto space = rest.find(u' ');
+    if (space != std::u16string::npos) {
+      auto name = rest.substr(0, space);
+      auto msg = rest.substr(space + 1);
+      if (!name.empty() && !msg.empty()) {
+        send_chat(fbs::ChatEnum_WHISPER, name, msg);
+      }
+    }
+    Reset();
+    return;
+  }
+
+  // 095 组队邀请：/invite 名字（同图玩家）
+  if (chat_.text.starts_with(u"/invite ")) {
+    auto name = chat_.text.substr(8);
+    for (const auto& [id, other] : CharacterGameInstance::others_) {
+      if (other.g_character.name == name) {
+        fbs::ClientCharacterPartyT cp;
+        cp.step = 0;
+        cp.to_id = id;
+        ClientRequest::SendToHost(cp);
+        break;
+      }
+    }
+    Reset();
+    return;
+  }
+
   // 095
   // CPet::ParseCommand：聊天框里输入宠物命令时由宠物响应，不再当作聊天发出。
   if (PetGameInstance::RunCommand(chat_.text)) {

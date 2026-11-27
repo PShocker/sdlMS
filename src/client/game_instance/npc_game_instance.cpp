@@ -363,6 +363,11 @@ std::vector<std::u16string> NpcGameInstance::LoadProgressCompleteQuest(
   std::vector<std::u16string> result;
   auto progress = QuestGameInstance::LoadProgressQuest();
   for (auto& p : progress) {
+    // 095 CNpc::SetQuestList：用 CheckCompleteDemand 判断是否进入可交组，
+    // 等级 / 物品 / 怪物任一不满足都归到"进行中"。
+    if (!QuestGameInstance::CheckCompleteDemand(p.quest_id).empty()) {
+      continue;
+    }
     if (p.item_bool && p.mob_bool) {
       auto node = QuestGameInstance::LoadQuestNode(p.quest_id);
       if (node == nullptr) {

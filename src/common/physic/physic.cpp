@@ -74,9 +74,29 @@ bool Physic::Walk(SDL_FPoint& pos, float delta_time, float& hspeed,
 
   hspeed += delta_time * hforce;
   hspeed = std::clamp(hspeed, hspeed_min, hspeed_max);
+  auto prev_x = pos.x;
   pos.x = hspeed * delta_time + pos.x;
   if (border.has_value()) {
     pos.x = std::clamp(pos.x, border->x, border->w);
+  }
+
+  // 095 CollisionDetectFloat：cantThrough 竖墙不允许横穿。
+  if (prev_x != pos.x) {
+    for (const auto& fh : fhs | std::views::values) {
+      if (!fh.cant_through || fh.x1 != fh.x2) {
+        continue;
+      }
+      if (pos.y < static_cast<float>(fh.t) - 10 ||
+          pos.y > static_cast<float>(fh.b) + 10) {
+        continue;
+      }
+      auto wall = static_cast<float>(fh.x1);
+      if ((prev_x < wall && pos.x >= wall) ||
+          (prev_x > wall && pos.x <= wall)) {
+        pos.x = prev_x < wall ? wall - 0.1f : wall + 0.1f;
+        hspeed = 0;
+      }
+    }
   }
 
   // 往左走

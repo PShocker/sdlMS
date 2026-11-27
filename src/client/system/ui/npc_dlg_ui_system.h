@@ -42,6 +42,9 @@ class NpcDlgUiSystem : public UiComponentHost<NpcDlgUiSystem> {
   static void EventButtonQuestYes();
   static void EventButtonQuestNo();
 
+  // 095 CQuest::AskQuestion：确认 ask 选项，答对进入完成页，答错显示提示。
+  static void ConfirmSelect();
+
   static bool EventUI(SDL_Event* event);
   static void EventButtonUpdate();
 
@@ -101,6 +104,19 @@ class NpcDlgUiSystem : public UiComponentHost<NpcDlgUiSystem> {
   static inline std::flat_map<std::u16string, int> act_random_item_;
   static inline int32_t act_meso_;
   static inline uint32_t act_exp_;
+  // Act/<idx>/pop：人气奖励。
+  static inline int32_t act_pop_ = 0;
+  // Act/<idx>/skill：授予技能（技能 id → 等级）。
+  static inline std::flat_map<uint32_t, uint8_t> act_skill_;
+  // 交任务需求不满足时的对白路径（相对 Say/<idx>），
+  // 如 "stop/level" / "stop/item" / "lost"。
+  static inline std::u16string stop_say_path_;
+
+  // ask 问答：问题页文本、已答错次数（对应 Say/<idx>/stop/<attempt>）、
+  // 以及当前是否停留在答错提示页。
+  static inline std::u16string select_text_;
+  static inline int8_t select_attempt_ = 0;
+  static inline bool select_retry_ = false;
 
   enum class NpcDlgEnum {
     kQuest,

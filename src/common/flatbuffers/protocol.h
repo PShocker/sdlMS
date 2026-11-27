@@ -98,11 +98,14 @@ enum NetPayload : uint8_t {
   NetPayload_ServerCharacterShop = 72,
   NetPayload_ClientCharacterMessenger = 73,
   NetPayload_ServerCharacterMessenger = 74,
+  NetPayload_ClientCharacterWeather = 75,
+  NetPayload_ServerCharacterWeather = 76,
+  NetPayload_ServerFriendOnline = 77,
   NetPayload_MIN = NetPayload_NONE,
-  NetPayload_MAX = NetPayload_ServerCharacterMessenger
+  NetPayload_MAX = NetPayload_ServerFriendOnline
 };
 
-inline const NetPayload (&EnumValuesNetPayload())[75] {
+inline const NetPayload (&EnumValuesNetPayload())[78] {
   static const NetPayload values[] = {
     NetPayload_NONE,
     NetPayload_ClientHeartbeat,
@@ -178,13 +181,16 @@ inline const NetPayload (&EnumValuesNetPayload())[75] {
     NetPayload_ClientCharacterShop,
     NetPayload_ServerCharacterShop,
     NetPayload_ClientCharacterMessenger,
-    NetPayload_ServerCharacterMessenger
+    NetPayload_ServerCharacterMessenger,
+    NetPayload_ClientCharacterWeather,
+    NetPayload_ServerCharacterWeather,
+    NetPayload_ServerFriendOnline
   };
   return values;
 }
 
 inline const char * const *EnumNamesNetPayload() {
-  static const char * const names[76] = {
+  static const char * const names[79] = {
     "NONE",
     "ClientHeartbeat",
     "ClientScene",
@@ -260,13 +266,16 @@ inline const char * const *EnumNamesNetPayload() {
     "ServerCharacterShop",
     "ClientCharacterMessenger",
     "ServerCharacterMessenger",
+    "ClientCharacterWeather",
+    "ServerCharacterWeather",
+    "ServerFriendOnline",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameNetPayload(NetPayload e) {
-  if (::flatbuffers::IsOutRange(e, NetPayload_NONE, NetPayload_ServerCharacterMessenger)) return "";
+  if (::flatbuffers::IsOutRange(e, NetPayload_NONE, NetPayload_ServerFriendOnline)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesNetPayload()[index];
 }
@@ -571,6 +580,18 @@ template<> struct NetPayloadTraits<fbs::ServerCharacterMessenger> {
   static const NetPayload enum_value = NetPayload_ServerCharacterMessenger;
 };
 
+template<> struct NetPayloadTraits<fbs::ClientCharacterWeather> {
+  static const NetPayload enum_value = NetPayload_ClientCharacterWeather;
+};
+
+template<> struct NetPayloadTraits<fbs::ServerCharacterWeather> {
+  static const NetPayload enum_value = NetPayload_ServerCharacterWeather;
+};
+
+template<> struct NetPayloadTraits<fbs::ServerFriendOnline> {
+  static const NetPayload enum_value = NetPayload_ServerFriendOnline;
+};
+
 template<typename T> struct NetPayloadUnionTraits {
   static const NetPayload enum_value = NetPayload_NONE;
 };
@@ -869,6 +890,18 @@ template<> struct NetPayloadUnionTraits<fbs::ClientCharacterMessengerT> {
 
 template<> struct NetPayloadUnionTraits<fbs::ServerCharacterMessengerT> {
   static const NetPayload enum_value = NetPayload_ServerCharacterMessenger;
+};
+
+template<> struct NetPayloadUnionTraits<fbs::ClientCharacterWeatherT> {
+  static const NetPayload enum_value = NetPayload_ClientCharacterWeather;
+};
+
+template<> struct NetPayloadUnionTraits<fbs::ServerCharacterWeatherT> {
+  static const NetPayload enum_value = NetPayload_ServerCharacterWeather;
+};
+
+template<> struct NetPayloadUnionTraits<fbs::ServerFriendOnlineT> {
+  static const NetPayload enum_value = NetPayload_ServerFriendOnline;
 };
 
 struct NetPayloadUnion {
@@ -1493,6 +1526,30 @@ struct NetPayloadUnion {
     return type == NetPayload_ServerCharacterMessenger ?
       reinterpret_cast<const fbs::ServerCharacterMessengerT *>(value) : nullptr;
   }
+  fbs::ClientCharacterWeatherT *AsClientCharacterWeather() {
+    return type == NetPayload_ClientCharacterWeather ?
+      reinterpret_cast<fbs::ClientCharacterWeatherT *>(value) : nullptr;
+  }
+  const fbs::ClientCharacterWeatherT *AsClientCharacterWeather() const {
+    return type == NetPayload_ClientCharacterWeather ?
+      reinterpret_cast<const fbs::ClientCharacterWeatherT *>(value) : nullptr;
+  }
+  fbs::ServerCharacterWeatherT *AsServerCharacterWeather() {
+    return type == NetPayload_ServerCharacterWeather ?
+      reinterpret_cast<fbs::ServerCharacterWeatherT *>(value) : nullptr;
+  }
+  const fbs::ServerCharacterWeatherT *AsServerCharacterWeather() const {
+    return type == NetPayload_ServerCharacterWeather ?
+      reinterpret_cast<const fbs::ServerCharacterWeatherT *>(value) : nullptr;
+  }
+  fbs::ServerFriendOnlineT *AsServerFriendOnline() {
+    return type == NetPayload_ServerFriendOnline ?
+      reinterpret_cast<fbs::ServerFriendOnlineT *>(value) : nullptr;
+  }
+  const fbs::ServerFriendOnlineT *AsServerFriendOnline() const {
+    return type == NetPayload_ServerFriendOnline ?
+      reinterpret_cast<const fbs::ServerFriendOnlineT *>(value) : nullptr;
+  }
 };
 
 template <bool B = false>
@@ -1741,6 +1798,15 @@ struct NetPacket FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const fbs::ServerCharacterMessenger *payload_as_ServerCharacterMessenger() const {
     return payload_type() == fbs::NetPayload_ServerCharacterMessenger ? static_cast<const fbs::ServerCharacterMessenger *>(payload()) : nullptr;
   }
+  const fbs::ClientCharacterWeather *payload_as_ClientCharacterWeather() const {
+    return payload_type() == fbs::NetPayload_ClientCharacterWeather ? static_cast<const fbs::ClientCharacterWeather *>(payload()) : nullptr;
+  }
+  const fbs::ServerCharacterWeather *payload_as_ServerCharacterWeather() const {
+    return payload_type() == fbs::NetPayload_ServerCharacterWeather ? static_cast<const fbs::ServerCharacterWeather *>(payload()) : nullptr;
+  }
+  const fbs::ServerFriendOnline *payload_as_ServerFriendOnline() const {
+    return payload_type() == fbs::NetPayload_ServerFriendOnline ? static_cast<const fbs::ServerFriendOnline *>(payload()) : nullptr;
+  }
   template<typename T> T *mutable_payload_as();
   fbs::ClientHeartbeat *mutable_payload_as_ClientHeartbeat() {
     return payload_type() == fbs::NetPayload_ClientHeartbeat ? static_cast<fbs::ClientHeartbeat *>(mutable_payload()) : nullptr;
@@ -1963,6 +2029,15 @@ struct NetPacket FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   fbs::ServerCharacterMessenger *mutable_payload_as_ServerCharacterMessenger() {
     return payload_type() == fbs::NetPayload_ServerCharacterMessenger ? static_cast<fbs::ServerCharacterMessenger *>(mutable_payload()) : nullptr;
+  }
+  fbs::ClientCharacterWeather *mutable_payload_as_ClientCharacterWeather() {
+    return payload_type() == fbs::NetPayload_ClientCharacterWeather ? static_cast<fbs::ClientCharacterWeather *>(mutable_payload()) : nullptr;
+  }
+  fbs::ServerCharacterWeather *mutable_payload_as_ServerCharacterWeather() {
+    return payload_type() == fbs::NetPayload_ServerCharacterWeather ? static_cast<fbs::ServerCharacterWeather *>(mutable_payload()) : nullptr;
+  }
+  fbs::ServerFriendOnline *mutable_payload_as_ServerFriendOnline() {
+    return payload_type() == fbs::NetPayload_ServerFriendOnline ? static_cast<fbs::ServerFriendOnline *>(mutable_payload()) : nullptr;
   }
   void *mutable_payload() {
     return GetPointer<void *>(VT_PAYLOAD);
@@ -2572,6 +2647,30 @@ template<> inline fbs::ServerCharacterMessenger *NetPacket::mutable_payload_as<f
   return mutable_payload_as_ServerCharacterMessenger();
 }
 
+template<> inline const fbs::ClientCharacterWeather *NetPacket::payload_as<fbs::ClientCharacterWeather>() const {
+  return payload_as_ClientCharacterWeather();
+}
+
+template<> inline fbs::ClientCharacterWeather *NetPacket::mutable_payload_as<fbs::ClientCharacterWeather>() {
+  return mutable_payload_as_ClientCharacterWeather();
+}
+
+template<> inline const fbs::ServerCharacterWeather *NetPacket::payload_as<fbs::ServerCharacterWeather>() const {
+  return payload_as_ServerCharacterWeather();
+}
+
+template<> inline fbs::ServerCharacterWeather *NetPacket::mutable_payload_as<fbs::ServerCharacterWeather>() {
+  return mutable_payload_as_ServerCharacterWeather();
+}
+
+template<> inline const fbs::ServerFriendOnline *NetPacket::payload_as<fbs::ServerFriendOnline>() const {
+  return payload_as_ServerFriendOnline();
+}
+
+template<> inline fbs::ServerFriendOnline *NetPacket::mutable_payload_as<fbs::ServerFriendOnline>() {
+  return mutable_payload_as_ServerFriendOnline();
+}
+
 struct NetPacketBuilder {
   typedef NetPacket Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
@@ -2936,6 +3035,18 @@ inline bool VerifyNetPayload(::flatbuffers::VerifierTemplate<B> &verifier, const
       auto ptr = reinterpret_cast<const fbs::ServerCharacterMessenger *>(obj);
       return verifier.VerifyTable(ptr);
     }
+    case NetPayload_ClientCharacterWeather: {
+      auto ptr = reinterpret_cast<const fbs::ClientCharacterWeather *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case NetPayload_ServerCharacterWeather: {
+      auto ptr = reinterpret_cast<const fbs::ServerCharacterWeather *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case NetPayload_ServerFriendOnline: {
+      auto ptr = reinterpret_cast<const fbs::ServerFriendOnline *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
     default: return true;
   }
 }
@@ -3252,6 +3363,18 @@ inline void *NetPayloadUnion::UnPack(const void *obj, NetPayload type, const ::f
       auto ptr = reinterpret_cast<const fbs::ServerCharacterMessenger *>(obj);
       return ptr->UnPack(resolver);
     }
+    case NetPayload_ClientCharacterWeather: {
+      auto ptr = reinterpret_cast<const fbs::ClientCharacterWeather *>(obj);
+      return ptr->UnPack(resolver);
+    }
+    case NetPayload_ServerCharacterWeather: {
+      auto ptr = reinterpret_cast<const fbs::ServerCharacterWeather *>(obj);
+      return ptr->UnPack(resolver);
+    }
+    case NetPayload_ServerFriendOnline: {
+      auto ptr = reinterpret_cast<const fbs::ServerFriendOnline *>(obj);
+      return ptr->UnPack(resolver);
+    }
     default: return nullptr;
   }
 }
@@ -3555,6 +3678,18 @@ inline ::flatbuffers::Offset<void> NetPayloadUnion::Pack(::flatbuffers::FlatBuff
       auto ptr = reinterpret_cast<const fbs::ServerCharacterMessengerT *>(value);
       return CreateServerCharacterMessenger(_fbb, ptr, _rehasher).Union();
     }
+    case NetPayload_ClientCharacterWeather: {
+      auto ptr = reinterpret_cast<const fbs::ClientCharacterWeatherT *>(value);
+      return CreateClientCharacterWeather(_fbb, ptr, _rehasher).Union();
+    }
+    case NetPayload_ServerCharacterWeather: {
+      auto ptr = reinterpret_cast<const fbs::ServerCharacterWeatherT *>(value);
+      return CreateServerCharacterWeather(_fbb, ptr, _rehasher).Union();
+    }
+    case NetPayload_ServerFriendOnline: {
+      auto ptr = reinterpret_cast<const fbs::ServerFriendOnlineT *>(value);
+      return CreateServerFriendOnline(_fbb, ptr, _rehasher).Union();
+    }
     default: return 0;
   }
 }
@@ -3855,6 +3990,18 @@ inline NetPayloadUnion::NetPayloadUnion(const NetPayloadUnion &u) : type(u.type)
     }
     case NetPayload_ServerCharacterMessenger: {
       value = new fbs::ServerCharacterMessengerT(*reinterpret_cast<fbs::ServerCharacterMessengerT *>(u.value));
+      break;
+    }
+    case NetPayload_ClientCharacterWeather: {
+      value = new fbs::ClientCharacterWeatherT(*reinterpret_cast<fbs::ClientCharacterWeatherT *>(u.value));
+      break;
+    }
+    case NetPayload_ServerCharacterWeather: {
+      value = new fbs::ServerCharacterWeatherT(*reinterpret_cast<fbs::ServerCharacterWeatherT *>(u.value));
+      break;
+    }
+    case NetPayload_ServerFriendOnline: {
+      value = new fbs::ServerFriendOnlineT(*reinterpret_cast<fbs::ServerFriendOnlineT *>(u.value));
       break;
     }
     default:
@@ -4231,6 +4378,21 @@ inline void NetPayloadUnion::Reset() {
     }
     case NetPayload_ServerCharacterMessenger: {
       auto ptr = reinterpret_cast<fbs::ServerCharacterMessengerT *>(value);
+      delete ptr;
+      break;
+    }
+    case NetPayload_ClientCharacterWeather: {
+      auto ptr = reinterpret_cast<fbs::ClientCharacterWeatherT *>(value);
+      delete ptr;
+      break;
+    }
+    case NetPayload_ServerCharacterWeather: {
+      auto ptr = reinterpret_cast<fbs::ServerCharacterWeatherT *>(value);
+      delete ptr;
+      break;
+    }
+    case NetPayload_ServerFriendOnline: {
+      auto ptr = reinterpret_cast<fbs::ServerFriendOnlineT *>(value);
       delete ptr;
       break;
     }

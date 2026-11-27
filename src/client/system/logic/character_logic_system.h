@@ -12,6 +12,7 @@
 #include <cstdint>
 #include <flat_map>
 #include <flat_set>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -56,18 +57,24 @@ class CharacterLogicSystem {
   static bool RunProne(GameCharacter& g_character);
   static bool RunClimb(GameCharacter& g_character);
   static bool RunClimbing(GameCharacter& g_character);
-  static bool RunSit(GameCharacter& g_character);
   static bool RunSitting(GameCharacter& g_character);
 
   static bool RunAttack(GameCharacter& g_character);
 
   static bool RunSkill(GameCharacter& g_character);
   static bool RunPortal(GameCharacter& g_character);
+  static bool RunSwim(GameCharacter& g_character);
+  static bool RunFly(GameCharacter& g_character);
+  static bool RunSeat(GameCharacter& g_character);
   static bool RunFace(GameCharacter& g_character);
   static void RunTomb(GameCharacter& g_character);
 
   static void RunItem(GameCharacter& g_character);
   static void RunRecovery(GameCharacter& g_character);
+  // 怪物/技能施加的持续伤害（中毒每 1s、灼烧每 2s）。
+  static void RunDebuffDamage();
+  static inline uint64_t self_poison_next_ = 0;
+  static inline uint64_t self_burn_next_ = 0;
 
   static void RunStateMachine();
   static void RunColor();
@@ -167,6 +174,10 @@ class CharacterLogicSystem {
   static inline std::flat_set<GameInput> character_item_input_;
 
   static inline int32_t self_fh_;  // foothold
+  static inline bool self_swim_ = false;  // 095：当前是否在水中
+  static inline std::optional<SDL_FPoint> self_seat_;  // 095：当前坐的地图座位
+  static inline bool self_fly_ = false;  // 095：飞行状态（坐骑/飞行技能）
+  static inline SDL_FPoint self_recovery_pos_ = {-1.0f, -1.0f};
   static inline int32_t self_lr_;  // ladderrope
 
   static inline float self_hforce_ = 0.0;

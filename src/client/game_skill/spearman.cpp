@@ -234,7 +234,7 @@ void IronWill() {
   g_skill.buff_stat = [](int lv, SkillBuffStat& stat) {
     stat.pdd += SkillInt(u"1301004", lv, u"indiePdd", 0);
   };
-  g_skill.use = [g_skill](uint64_t, int ski_lv) mutable {
+  g_skill.use = [g_skill](uint64_t client_id, int ski_lv) mutable {
     StopSkill(u"1301004");
     const int lv = std::clamp(ski_lv, 1, 30);
     g_skill.lv = static_cast<uint8_t>(lv);
@@ -249,11 +249,25 @@ void IronWill() {
     };
     SkillGameInstance::ski_.push_back(g_skill);
     SendBuffState(1301004, 1);
-    SendSkill(1301004, lv, fbs::ClientCharacterAttackT{});
     CharacterStatGameInstance::Update();
+
+    // 队友收到这条 buff 时只应用加成，不播动作、不再二次分发。
+    if (client_id != 0) {
+      return;
+    }
+
+    SendSkill(1301004, lv, fbs::ClientCharacterAttackT{});
     auto& sf = CharacterGameInstance::self_;
     CharacterLogicSystem::RunAction(sf, u"alert2");
 
+    // 本地数据 1301004 带 lt/rb 范围 + indiePdd：
+    // 095 的组队增益，范围内队友一起获得物防加成。
+    auto g_r = SkillGameInstance::LoadSkiR(u"1301004");
+    auto players = CharacterLogicSystem::RunBuffCheck(sf, g_r);
+    auto ckt =
+        SkillGameInstance::CreateSkillPayload(players, 1301004, g_skill.lv);
+    ServerCharacterInstance::HandleSki(ckt.ski_id, g_skill.lv, ckt.payload, 0);
+    ClientRequest::SendToHost(ckt);
   };
   SkillGameInstance::Skis()[g_skill.id] = g_skill;
 }

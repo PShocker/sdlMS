@@ -85,6 +85,16 @@ class QuestGameInstance {
       const std::u16string& id);
   static uint32_t LoadQuestActExp(const std::u16string& id);
   static int32_t LoadQuestActMeso(const std::u16string& id);
+  // Act/<idx>/pop：人气值奖励。
+  static int32_t LoadQuestActPop(const std::u16string& id);
+  // Act/<idx>/skill：授予技能（key = 技能 id，value = 等级）。
+  static std::flat_map<uint32_t, uint8_t> LoadQuestActSkill(
+      const std::u16string& id);
+
+  // 交任务需求校验，对应 095 CQuestMan::CheckCompleteDemand 的失败原因。
+  // 返回 "level" / "item" / "mob"，空串表示全部满足。
+  // 依据：Check/1/lvmin(89) / item(215) / mob(63)。
+  static std::u16string CheckCompleteDemand(const std::u16string& id);
 
   static void Load(CharacterSaveData& cs);
 };
